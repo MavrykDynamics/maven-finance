@@ -1,0 +1,46 @@
+({
+  "files.exclude": {
+    "**/.DS_Store": true,
+    "**/.git": true,
+    "**/.webpack": true,
+    "**/node_modules": true,
+    "**/yarn.lock": true
+  },
+  "javascript.validate.enable": false,
+  "gitlens.codeLens.enabled": false,
+  "gitlens.codeLens.author.enabled": false,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    { "language": "typescript", "autoFix": true },
+    { "language": "typescriptreact", "autoFix": true }
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.formatOnSave": false
+  },
+  "[javascriptreact]": {
+    "editor.formatOnSave": false
+  },
+  "[typescript]": {
+    "editor.formatOnSave": false
+  },
+  "[typescriptreact]": {
+    "editor.formatOnSave": true
+  }
+},
+{
+  "ego.power-tools": {
+    "commands": {
+      "myCommand": {
+        "script": "my_command.js",
+        "button": {
+          "text": "Click here to start the command."
+        }
+      }
+    }
+  }
+})

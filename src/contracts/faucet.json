@@ -1,0 +1,24 @@
+{
+  "mnemonic": [
+    "vault",
+    "icon",
+    "wrist",
+    "mammal",
+    "gym",
+    "satoshi",
+    "comfort",
+    "nose",
+    "elephant",
+    "dutch",
+    "slice",
+    "horn",
+    "lizard",
+    "panda",
+    "humor"
+  ],
+  "secret": "f8d3263ab47b7e1d1e603773247213ed624e7fc3",
+  "amount": "53185349703",
+  "pkh": "tz1YWK1gDPQx9N1Jh4JnmVre7xN6xhGGM4uC",
+  "password": "R1VLTyiWD8",
+  "email": "snojvynt.hnisdmte@tezos.example.org"
+}
