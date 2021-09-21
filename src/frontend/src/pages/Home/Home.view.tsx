@@ -1,27 +1,28 @@
-import { Button } from 'app/App.components/Button/Button.controller'
 import * as React from 'react'
-import { Link } from 'react-router-dom'
 
-//prettier-ignore
-import { HomeButtons, HomeStyled, HomeTitle } from './Home.style'
+import { CalculatorView } from './components/Calculator/Calculator.view'
+import { FeaturesView } from './components/Features/Features.view'
+import { GovernanceView } from './components/Governance/Governance.view'
+import { HighligthsView } from './components/Highligths/Highligths.view'
+import { JumbotronView } from './components/Jumbotron/Jumbotron.view'
+import { NewsletterView } from './components/Newsletter/Newsletter.view'
+import { PartnersView } from './components/Partners/Partners.view'
+import { SatellitesView } from './components/Satellites/Satellites.view'
+import { TokenomicsView } from './components/Tokenomics/Tokenomics.view'
+import { HomeStyled } from './Home.style'
 
 export const HomeView = () => {
   return (
     <HomeStyled>
-      <HomeTitle>The cooperative art market</HomeTitle>
-      <video width="950" autoPlay muted loop>
-        <source src="videos/intro.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-
-      <HomeButtons>
-        <Link to="/create">
-          <Button color="primary" text="Create new canvas" icon="tiles" />
-        </Link>
-        <Link to="/marketplace">
-          <Button color="primary" text="Contribute to existing canvas" icon="tiles-edit" />
-        </Link>
-      </HomeButtons>
+      <JumbotronView />
+      <PartnersView />
+      <CalculatorView />
+      <FeaturesView />
+      <SatellitesView />
+      <HighligthsView />
+      <GovernanceView />
+      <TokenomicsView />
+      <NewsletterView />
     </HomeStyled>
   )
 }

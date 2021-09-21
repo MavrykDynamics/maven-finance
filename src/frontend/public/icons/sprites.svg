@@ -1,333 +1,43 @@
 <!-- "display: none" ensures the SVG doesn't take up space even though it's not being shown because of the use of symbol -->
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none;">
-    <symbol id="map" viewBox="0 0 24 24">
-        <g>
-            <polygon fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="8.5,22.5     1.5,17.5 1.5,1.5 8.5,6.5 15.5,1.5 22.5,6.5 22.5,22.5 15.5,17.5   "></polygon>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="8.5" y1="6.5" x2="8.5" y2="22.5"></line>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="15.5" y1="17.5" x2="15.5" y2="1.531"></line>
+    <symbol id="twitter" viewBox="0 0 32 32">
+        <g id="Outline_Icons">
+            <path d="M28.75 9.49999C28.75 9.74999 28.75 10.063 28.75 10.313C28.75 19.001 22.125 29.001 10.062 29.001C6.37402 29.001 2.87402 27.938 -0.000976562 26.063C0.499023 26.126 1.06202 26.126 1.56202 26.126C4.62502 26.126 7.50002 25.126 9.75002 23.313C6.87502 23.313 4.43702 21.375 3.56202 18.75C4.00002 18.875 4.37502 18.875 4.81202 18.875C5.43702 18.875 6.00002 18.812 6.56202 18.687C3.56202 18.062 1.31202 15.374 1.31202 12.249C1.31202 12.186 1.31202 12.186 1.31202 12.124C2.18702 12.624 3.18702 12.937 4.25002 12.937C2.50002 11.812 1.31202 9.74899 1.31202 7.49899C1.31202 6.31099 1.68702 5.18599 2.25002 4.18599C5.43802 8.18599 10.313 10.811 15.75 11.061C15.625 10.561 15.562 10.061 15.562 9.56099C15.562 5.93599 18.5 2.99799 22.125 2.99799C24.063 2.99799 25.75 3.81099 26.938 5.06099C28.438 4.74799 29.876 4.24799 31.126 3.49799C30.626 4.99799 29.563 6.31099 28.251 7.12299C29.564 6.93499 30.814 6.62299 32.001 6.05999C31.126 7.37299 30.001 8.55999 28.751 9.49799L28.75 9.49999Z"/>
         </g>
         <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
+            <rect fill="none" stroke="none" width="32" height="32"></rect>
         </g>
     </symbol>
-    <symbol id="wallet" viewBox="0 0 24 24">
+    <symbol id="linkedin" viewBox="0 0 32 32">
         <g id="Outline_Icons">
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M1.297,1.453    L14.59,4.772c1.601,0.4,2.91,2.077,2.91,3.728v12c0,1.65-1.314,2.69-2.92,2.312L3.42,20.188C1.814,19.809,0.5,18.15,0.5,16.5v-13    c0-1.651,1.35-3,3-3h17c1.65,0,3,1.349,3,3v11c0,1.65-1.35,3-3,3h-3"></path>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="9.5" y1="3.5" x2="19.5" y2="3.5"></line>
-            <circle fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="13" cy="13.5" r="2"></circle>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="17.5" y1="8.5" x2="19.5" y2="8.5"></line>
+            <path d="M23.938 16.375C23.5 15.875 22.75 15.625 21.688 15.625C20.313 15.625 19.375 16.063 18.813 16.813C18.25 17.626 18 18.751 18 20.188V31.126C18 31.314 17.937 31.501 17.75 31.689C17.625 31.814 17.375 31.939 17.187 31.939H11.437C11.249 31.939 11.062 31.814 10.874 31.689C10.749 31.501 10.624 31.314 10.624 31.126V10.938C10.624 10.75 10.749 10.563 10.874 10.375C11.062 10.25 11.249 10.125 11.437 10.125H17C17.188 10.125 17.375 10.188 17.5 10.25C17.625 10.312 17.688 10.5 17.75 10.688C17.75 10.876 17.813 11.063 17.813 11.126C17.813 11.189 17.813 11.376 17.813 11.626C19.251 10.251 21.188 9.62601 23.501 9.62601C26.189 9.62601 28.251 10.251 29.751 11.564C31.251 12.939 32.001 14.877 32.001 17.502V31.127C32.001 31.315 31.938 31.502 31.751 31.69C31.626 31.815 31.376 31.94 31.188 31.94H25.313C25.125 31.94 24.938 31.815 24.75 31.69C24.625 31.502 24.5 31.315 24.5 31.127V18.814C24.5 17.751 24.312 16.939 23.937 16.376L23.938 16.375ZM6.625 6.68801C5.875 7.43801 4.937 7.81301 3.875 7.81301C2.813 7.81301 1.875 7.43801 1.125 6.68801C0.375 5.93801 0 5.06301 0 3.93801C0 2.87501 0.375 2.00001 1.125 1.25001C1.875 0.500012 2.813 0.0620117 3.875 0.0620117C4.938 0.0620117 5.875 0.500012 6.625 1.25001C7.375 2.00001 7.75 2.87501 7.75 3.93801C7.75 5.06301 7.375 5.93801 6.625 6.68801ZM7.563 10.938V31.126C7.563 31.314 7.438 31.501 7.313 31.689C7.125 31.814 6.938 31.939 6.75 31.939H1C0.812 31.939 0.625 31.814 0.437 31.689C0.312 31.501 0.187 31.314 0.187 31.126V10.938C0.187 10.75 0.312 10.563 0.437 10.375C0.625 10.25 0.812 10.125 1 10.125H6.75C6.938 10.125 7.125 10.25 7.313 10.375C7.438 10.563 7.563 10.75 7.563 10.938V10.938Z"/>
         </g>
         <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
+            <rect fill="none" stroke="none" width="32" height="32"></rect>
         </g>
     </symbol>
-    <symbol id="buy" viewBox="0 0 24 24">
+    <symbol id="telegram" viewBox="0 0 32 32">
         <g id="Outline_Icons">
-            <polygon fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="    20.512,22.5 3.512,22.5 1.512,11.5 22.512,11.5   "></polygon>
-            <rect x="0.512" y="9.5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="23" height="2"></rect>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="3.512" y1="7.5" x2="9.512" y2="1.5"></line>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="20.512" y1="7.5" x2="14.512" y2="1.5"></line>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="13.512" y1="13.5" x2="13.512" y2="19.5"></line>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="17.512" y1="13.5" x2="17.512" y2="19.5"></line>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="10.512" y1="13.5" x2="10.512" y2="19.5"></line>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="6.512" y1="13.5" x2="6.512" y2="19.5"></line>
+            <path d="M29.6882 2.50002L1.25022 13.625C1.25022 13.625 -0.124778 14.063 0.000221526 14.938C0.125222 15.813 1.18822 16.188 1.18822 16.188L8.25122 18.563C8.81422 20.376 10.5012 26.188 10.8142 27.313C11.1892 28.563 11.4392 28.813 11.6272 28.876C11.6902 28.876 11.7522 28.876 11.7522 28.876C12.2522 28.939 12.6272 28.626 12.6272 28.626L17.1272 24.188L24.2522 29.626C26.1902 30.439 26.9402 28.688 26.9402 28.688L32.0032 3.18802C32.0032 1.50002 29.6902 2.50002 29.6902 2.50002H29.6882ZM26.1252 8.31302C25.6252 8.75102 13.8122 19.563 12.6252 20.688L11.9372 26.563C11.8742 27.126 11.3742 27.126 11.1242 26.688C10.6242 25.063 9.43622 20.75 8.81122 18.813L25.5612 7.68802C25.5612 7.68802 26.4992 7.06302 26.4992 7.68802C26.4992 7.68802 26.4992 7.93802 26.1242 8.31302H26.1252Z"/>
         </g>
         <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
+            <rect fill="none" stroke="none" width="32" height="32"></rect>
         </g>
     </symbol>
-    <symbol id="sell" viewBox="0 0 24 24">
+    <symbol id="medium" viewBox="0 0 32 32">
         <g id="Outline_Icons">
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M10.5,23.5h-10v-1    c0-0.551,0.448-1,1-1h8c0.553,0,1,0.449,1,1V23.5z"></path>
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M9.5,21.5h-8v-1    c0-0.551,0.448-1,1-1h6c0.553,0,1,0.449,1,1V21.5z"></path>
-            <rect x="7.611" y="5.416" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -2.2116 10.443)" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" width="7.778" height="4.95"></rect>
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M7,8.891l-0.5-0.5    c-0.942-0.94-2.445,0.555-1.5,1.5l4.5,4.5c0.943,0.942,2.446-0.555,1.5-1.5l-0.5-0.5"></path>
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M16,6.891l0.5,0.5    c0.943,0.942,2.446-0.555,1.5-1.5l-4.5-4.5c-0.942-0.94-2.445,0.555-1.5,1.5l0.5,0.5"></path>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="13.25" y1="9.641" x2="23.5" y2="19.891"></line>
+            <path d="M3.79458 8.18247C3.83434 7.78966 3.68454 7.4014 3.39122 7.13702L0.403361 3.53766V3H9.68067L16.8515 18.7266L23.1559 3H32V3.53766L29.4454 5.98702C29.2251 6.15489 29.1159 6.43081 29.1615 6.7039V24.7007C29.1159 24.9738 29.2251 25.2497 29.4454 25.4176L31.9402 27.8669V28.4046H19.3912V27.8669L21.9757 25.3578C22.2297 25.1039 22.2297 25.0293 22.2297 24.6409V10.0942L15.0439 28.3448H14.0728L5.70682 10.0942V22.326C5.63706 22.8403 5.80786 23.358 6.16993 23.7299L9.53128 27.8072V28.3448H0V27.8072L3.36134 23.7299C3.72079 23.3574 3.88162 22.8362 3.79458 22.326V8.18247Z"/>
         </g>
         <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
+            <rect fill="none" stroke="none" width="32" height="32"></rect>
         </g>
     </symbol>
-    <symbol id="oldLocation" viewBox="0 0 12 12">
-        <g id="Outline_Icons">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M6 11.2222C6 11.2222 10 8.33333 10 5.22222C10 2.89067 8.33156 1 6 1C3.668 1 2 2.89067 2 5.22222C2 8.33333 6 11.2222 6 11.2222ZM8.22228 5.00005C8.22228 6.22735 7.22735 7.22228 6.00005 7.22228C4.77275 7.22228 3.77783 6.22735 3.77783 5.00005C3.77783 3.77275 4.77275 2.77783 6.00005 2.77783C7.22735 2.77783 8.22228 3.77275 8.22228 5.00005Z" fill="black"/>
-        </g>
-    </symbol>
-    <symbol id="github" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path fill="none" stroke-linejoin="round" stroke-miterlimit="10" d="M11.999,0.5C5.649,0.5,0.5,5.648,0.5,12    c0,5.082,3.294,9.392,7.865,10.914c0.574,0.104,0.756-0.236,0.756-0.541c0-0.274,0.006-1.037,0-1.997    C5.923,21.07,5.26,18.861,5.26,18.861c-0.522-1.329-1.275-1.682-1.275-1.682C2.94,16.465,4.062,16.48,4.062,16.48    c1.153,0.08,1.762,1.184,1.762,1.184c1.026,1.758,2.691,1.25,3.346,0.956c0.105-0.742,0.402-1.251,0.731-1.536    c-2.554-0.292-5.238-1.277-5.238-5.686c0-1.255,0.448-2.281,1.184-3.086C5.729,8.023,5.333,6.853,5.959,5.27    c0,0,0.967-0.31,3.162,1.18c0.918-0.256,1.902-0.383,2.88-0.388c0.977,0.005,1.96,0.132,2.88,0.388    c2.195-1.488,3.159-1.18,3.159-1.18c0.627,1.583,0.232,2.754,0.114,3.043c0.736,0.805,1.183,1.831,1.183,3.086    c0,4.42-2.688,5.391-5.251,5.674c0.412,0.357,0.787,1.047,0.787,2.12c0,1.438,0,2.806,0,3.184c0,0.308,0.186,0.647,0.77,0.536    C20.209,21.389,23.5,17.08,23.5,12C23.5,5.648,18.352,0.5,11.999,0.5z"></path>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="owner" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path fill="none" stroke-linejoin="round" stroke-miterlimit="10" d="M10,15c0,0-1.5-0.5-1.5-3 c-0.826,0-0.826-2,0-2c0-0.335-1.5-4,1-3.5c0.5-2,6-2,6.5,0c0.347,1.388-0.5,3.254-0.5,3.5c0.826,0,0.826,2,0,2 c0,2.5-1.5,3-1.5,3v2.5c2.477,0.929,4.93,1.697,6.186,2.575C22.234,17.999,23.5,15.147,23.5,12c0-6.352-5.148-11.5-11.5-11.5 S0.5,5.648,0.5,12c0,3.153,1.27,6.009,3.325,8.087c1.33-0.92,3.952-1.746,6.175-2.587V15z"/>
-            <path fill="none" stroke-linejoin="round" stroke-miterlimit="10" d="M3.825,20.087 C5.91,22.194,8.802,23.5,12,23.5c3.203,0,6.1-1.311,8.186-3.425"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="barcode" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="0.502,18.531 0.502,21.5 3.471,21.5" />
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="3.471,2.5 0.502,2.5 0.502,5.469" />
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="23.502,5.469 23.502,2.5 20.533,2.5" />
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="20.533,21.5 23.502,21.5 23.502,18.531" />
-            <line x1="3.502" x2="3.502" y1="7" y2="17" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="5.502" x2="5.502" y1="7" y2="14" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="7.502" x2="7.502" y1="7" y2="14" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="10.502" x2="10.502" y1="7" y2="14" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="12.502" x2="12.502" y1="7" y2="14" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="14.502" x2="14.502" y1="7" y2="14" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="16.502" x2="16.502" y1="7" y2="14" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="18.502" x2="18.502" y1="7" y2="14" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="20.502" x2="20.502" y1="7" y2="17" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <polygon points="6,15 5.002,15 5.002,16 6,16 6,15"/>
-            <polygon points="8,15 7.002,15 7.002,16 8,16 8,15"/>
-            <polygon points="11,15 10.002,15 10.002,16 11,16 11,15"/>
-            <polygon points="13,15 12.002,15 12.002,16 13,16 13,15"/>
-            <polygon points="15,15 14.002,15 14.002,16 15,16 15,15"/>
-            <polygon points="17,15 16.002,15 16.002,16 17,16 17,15"/>
-            <polygon points="19,15 18.002,15 18.002,16 19,16 19,15"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="location" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M20.5,10    c0,7-9,13.5-9,13.5s-9-6.5-9-13.5c0-5.246,3.753-9.5,9-9.5C16.746,0.5,20.5,4.754,20.5,10z"></path>
-            <circle fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" cx="11.5" cy="9.5" r="4"></circle>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="11.5" y1="7.5" x2="11.5" y2="3.5"></line>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="13.5" y1="9.5" x2="17.5" y2="9.5"></line>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="11.5" y1="11.5" x2="11.5" y2="15.5"></line>
-            <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="9.5" y1="9.5" x2="5.5" y2="9.5"></line>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="help" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <circle cx="11.5" cy="12.5" r="11" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10"/>
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M8.5,10 c0-1.656,1.343-3,3-3c1.656,0,3,1.344,3,3c0,1.658-1.344,3-3,3v3"/>
-            <path fill="none" stroke-linejoin="round" stroke-miterlimit="10" d="M12,18.5c0,0.276-0.224,0.5-0.5,0.5l0,0 c-0.276,0-0.5-0.224-0.5-0.5l0,0c0-0.276,0.224-0.5,0.5-0.5l0,0C11.776,18,12,18.224,12,18.5L12,18.5z"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="mint" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path fill="none" stroke-linejoin="round" stroke-miterlimit="10" d="M16.5,1c-1.369,1.367-3.635,1.367-5,0 l-1,1l9.5,9.5L23.5,8L16.5,1z"/>
-            <rect width="3.536" height="20.153" x="7.107" y="4.549" fill="none" stroke-linejoin="round" stroke-miterlimit="10" transform="rotate(45.001 8.875 14.625)"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="time" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="13.5,7 13.5,12.5 18.5,12.5"/>
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="1,8.994 4,13.494 7.5,9.494"/>
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M13.5,21.5 c5.247,0,9.5-4.252,9.5-9.5c0-5.246-4.253-9.5-9.5-9.5S4,6.754,4,12v1.494"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="loading" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <polyline fill="none" class="a" points="5.25 14.248 5.25 18.748 0.75 18.748"></polyline>
-            <polyline fill="none" class="a" points="18.75 9.748 18.75 5.248 23.25 5.248"></polyline>
-            <path fill="none" class="a" d="M19.032,5.245A9.752,9.752,0,0,1,8.246,21"></path>
-            <path fill="none" class="a" d="M4.967,18.751A9.753,9.753,0,0,1,15.754,3"></path>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="onSale" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <rect width="21" height="19" x="1.5" y=".5" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <rect width="3" height="4" x="3.5" y="19.5" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <rect width="3" height="4" x="17.5" y="19.5" fill="none" stroke-linejoin="round" stroke-miterlimit="10" />
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="19,15.5 17.5,15.5 17.5,11.5 19,11.5" />
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="7.5,7.5 7.5,3.5 9,3.5" />
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="11.5,15.5 10.25,11.586 9,15.5" />
-            <polyline fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" points="15.5,15.5 13.5,15.5 13.5,11.5" />
-            <line x1="17.5" x2="18.5" y1="13.5" y2="13.5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="7.5" x2="9" y1="5.5" y2="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-            <line x1="9.319" x2="11.18" y1="14.5" y2="14.5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M13.5,5.5 c0,1.104-0.309,2-1.25,2c-0.942,0-1.25-0.896-1.25-2s0.308-2,1.25-2C13.191,3.5,13.5,4.396,13.5,5.5z" />
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M5.062,14.562 C5.093,15.087,5.5,15.5,5.999,15.5c0.518,0,0.937-0.448,0.937-1c0-0.816-0.771-0.953-0.936-1c-0.163-0.049-0.938-0.186-0.938-1 c0-0.553,0.421-1,0.938-1c0.498,0,0.904,0.412,0.936,0.936" />
-            <g>
-                <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M15.5,7.5v-4h1 c0.797,0,1,0.46,1,1c0,0.542-0.703,1-1.5,1h-0.5" />
-                <line x1="16.5" x2="17.5" y1="5.5" y2="7.5" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" />
-            </g>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="unknownOwner" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <circle cx="18.5" cy="18.5" r="5" fill="none" stroke-linejoin="round" stroke-miterlimit="10"/>
-            <path d="M18.5,21c-0.273,0-0.494,0.222-0.494,0.494c0,0.273,0.221,0.494,0.494,0.494c0.272,0,0.494-0.22,0.494-0.494 C18.994,21.222,18.772,21,18.5,21L18.5,21z"/>
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M17,17 c0-0.828,0.672-1.5,1.5-1.5S20,16.172,20,17s-0.672,1.5-1.5,1.5V20"/>
-            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M13.982,13.354 c-0.777-0.258-1.615-0.533-2.466-0.854V10c0,0,1.5-0.619,1.5-3c0.782,0,0.782-2.072,0-2.072c0-0.233,0.828-1.606,0.5-2.928 c-0.474-1.904-6.026-1.904-6.5,0c-2.369-0.477-1,2.681-1,3c-0.783,0-0.783,2,0,2c0,2.381,1.5,3,1.5,3v2.5 c-2.778,1.055-6.088,1.756-6.5,3c-0.474,1.428-0.5,4-0.5,4h10.5"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="price" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <g>
-                <g>
-                    <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" d="M14.111,17.027     c0.807,0.807,2.111,0.805,2.917,0.001c0.805-0.805,0.807-2.11,0-2.917c-0.805-0.804-2.111-0.804-2.917,0     c-0.806,0.805-2.11,0.807-2.917,0c-0.803-0.804-0.805-2.111,0-2.917s2.113-0.804,2.917,0"></path>
-                    <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="17.028" y1="17.028" x2="18" y2="18"></line>
-                    <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="10.222" y1="10.223" x2="11.194" y2="11.194"></line>
-                </g>
-                <g>
-                    <polygon fill="none" stroke-linejoin="round" stroke-miterlimit="10" points="23.5,15.016 15.015,23.5      2.516,11 2.508,2.506 11,2.506    "></polygon>
-                    <circle fill="none" stroke-linejoin="round" stroke-miterlimit="10" cx="7.508" cy="7.506" r="2"></circle>
-                </g>
-                <line fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" x1="0.5" y1="0.5" x2="7" y2="7"></line>
-            </g>
-
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="tiles" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path d="M0 -0.00268555H11V10.9973H0V-0.00268555Z" fill="black"/>
-            <path d="M13 -0.00292969H24V10.9971H13V-0.00292969Z" fill="black"/>
-            <path d="M0 12.9971H11V23.9971H0V12.9971Z" fill="black"/>
-            <path d="M13 12.9971H24V23.9971H13V12.9971Z" fill="black"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="tiles-edit" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path d="M0 -0.00268555H11V10.9973H0V-0.00268555Z" fill="black"/>
-            <path d="M13 -0.00292969H24V10.9971H13V-0.00292969Z" fill="black"/>
-            <path d="M0 12.9971H11V23.9971H0V12.9971Z" fill="black"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="layers" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path d="M0 5.81824L12.0519 11.6884L24 5.81824L12.0519 0.052002L0 5.81824Z" fill="black"/>
-            <path d="M0 9.8636L12.0519 15.7337L24 9.8636L22.5065 9.14282L12.0519 14.2272L1.50649 9.14282L0 9.8636Z" fill="black"/>
-            <path d="M0 17.9676L12.0519 23.8377L24 17.9676L22.5065 17.2468L12.0519 22.3312L1.50649 17.2468L0 17.9676Z" fill="black"/>
-            <path d="M0 13.9156L12.0519 19.7857L24 13.9156L22.5065 13.1948L12.0519 18.2792L1.50649 13.1948L0 13.9156Z" fill="black"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="download" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <polyline fill="none" class="a" points="8.25 14.25 12 18 15.75 14.25"></polyline>
-            <line fill="none" class="a" x1="12" y1="6.75" x2="12" y2="18"></line>
-            <circle fill="none" class="a" cx="12" cy="12" r="11.25"></circle>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="upload" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <polyline fill="none" class="a" points="15.75 9.75 12 6 8.25 9.75"></polyline>
-            <line fill="none" class="a" x1="12" y1="17.25" x2="12" y2="6"></line>
-            <circle fill="none" class="a" cx="12" cy="12" r="11.25"></circle>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="hide" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <line fill="none" class="a" x1="2.783" y1="21" x2="21.533" y2="3"></line>
-            <path fill="none" class="a" d="M8.964,19.051A9.985,9.985,0,0,0,12,19.5c4.1.069,8.258-2.813,10.824-5.637a1.663,1.663,0,0,0,0-2.226,20.568,20.568,0,0,0-3.074-2.757"></path>
-            <path fill="none" class="a" d="M14.413,6.282A9.549,9.549,0,0,0,12,6C7.969,5.933,3.8,8.752,1.179,11.635a1.663,1.663,0,0,0,0,2.226,20.8,20.8,0,0,0,2.6,2.4"></path>
-            <path fill="none" class="a" d="M8.25,12.75A3.749,3.749,0,0,1,12,9"></path>
-            <path fill="none" class="a" d="M15.75,12.749h0A3.75,3.75,0,0,1,12,16.5"></path>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="show" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path fill="none" class="a" d="M12,5.251C7.969,5.183,3.8,8,1.179,10.885a1.663,1.663,0,0,0,0,2.226C3.743,15.935,7.9,18.817,12,18.748c4.1.069,8.258-2.813,10.824-5.637a1.663,1.663,0,0,0,0-2.226C20.2,8,16.031,5.183,12,5.251Z"></path>
-            <path fill="none" class="a" d="M15.75,12A3.75,3.75,0,1,1,12,8.249,3.749,3.749,0,0,1,15.75,12Z"></path>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="tilesborder" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path d="M0.5 0.49707H10.5V10.4971H0.5V0.49707Z" fill="none"/>
-            <path d="M13.5 0.496948H23.5V10.4969H13.5V0.496948Z" fill="none"/>
-            <path d="M0.5 13.4969H10.5V23.4969H0.5V13.4969Z" fill="none"/>
-            <path d="M13.5 13.4969H23.5V23.4969H13.5V13.4969Z" fill="none"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="clock" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-            <path d="M12 23.5C18.3513 23.5 23.5 18.3513 23.5 12C23.5 5.64873 18.3513 0.5 12 0.5C5.64873 0.5 0.5 5.64873 0.5 12C0.5 18.3513 5.64873 23.5 12 23.5Z" fill="none" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M11.5 6.5V12L17.5 17.5" fill="none" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="xxx" viewBox="0 0 24 24">
+    <symbol id="xxx" viewBox="0 0 32 32">
         <g id="Outline_Icons">
 
         </g>
         <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="xxx" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="xxx" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
-        </g>
-    </symbol>
-    <symbol id="xxx" viewBox="0 0 24 24">
-        <g id="Outline_Icons">
-
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
+            <rect fill="none" stroke="none" width="32" height="32"></rect>
         </g>
     </symbol>
 

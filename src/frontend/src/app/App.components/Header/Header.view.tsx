@@ -1,25 +1,9 @@
 import { Link } from 'react-router-dom'
 
 // prettier-ignore
-import { HeaderButton, HeaderLogo, HeaderStyled } from "./Header.style";
+import { HeaderLogo, HeaderStyled } from "./Header.style";
 
-type HeaderViewProps = {
-  balance?: number | null
-  accountPkhPreview?: string
-  handleNewConnect: () => void
-  wallet: any
-  ready: boolean
-  handleConnect: () => void
-}
-
-export const HeaderView = ({
-  balance,
-  accountPkhPreview,
-  handleNewConnect,
-  wallet,
-  ready,
-  handleConnect,
-}: HeaderViewProps) => {
+export const HeaderView = () => {
   return (
     <HeaderStyled>
       <Link to="/">
@@ -28,23 +12,11 @@ export const HeaderView = ({
 
       <div />
 
-      <Link to="/marketplace">Marketplace</Link>
-
-      <Link to="/create">New canvas</Link>
-
-      {wallet ? (
-        <div>
-          {ready ? (
-            <HeaderButton onClick={handleNewConnect}>{accountPkhPreview}</HeaderButton>
-          ) : (
-            <HeaderButton onClick={handleConnect}>Connect wallet</HeaderButton>
-          )}
-        </div>
-      ) : (
-        <HeaderButton onClick={() => window.open('https://templewallet.com/', '_blank')!.focus()}>
-          Install wallet
-        </HeaderButton>
-      )}
+      <Link to="/litepaper">Litepaper</Link>
+      <Link to="/#calculator">Calculator</Link>
+      <Link to="/#satellites">Satellites</Link>
+      <Link to="/#highligths">Highligths</Link>
+      <Link to="/#tokenomics">Tokenomics</Link>
     </HeaderStyled>
   )
 }
