@@ -1,6 +1,6 @@
-import styled, { keyframes } from 'styled-components/macro'
+import styled from 'styled-components/macro'
 
-import { backgroundColor, borderColor, downColor, primaryColor, upColor, backgroundTextColor } from '../../../styles'
+import { backgroundColor, borderColor } from '../../../styles'
 
 export const DropDownStyled = styled('div')`
   width: 10.5em;

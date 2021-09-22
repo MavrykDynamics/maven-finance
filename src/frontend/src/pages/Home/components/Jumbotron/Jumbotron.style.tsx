@@ -9,10 +9,17 @@ export const JumbotronStyled = styled.div`
 `
 
 export const JubontronTitle = styled.div`
-  font-weight: 500;
-  font-size: 64px;
-  line-height: 110%;
-  letter-spacing: -0.02em;
+  > div {
+    font-weight: bold;
+    font-size: 64px;
+    line-height: 110%;
+    letter-spacing: -0.02em;
+    color: ${subTextColor};
+
+    &:nth-child(2) {
+      color: ${primaryColor};
+    }
+  }
 `
 
 export const JubontronSubTitle = styled.div`
@@ -54,7 +61,7 @@ export const JumbotronButton = styled.div<{ secondary?: boolean }>`
 `
 
 export const JumbotronSocials = styled.div`
-  margin: 50px 0 50px 0;
+  margin: 50px 0 150px 0;
   display: grid;
   grid-template-columns: 24px 24px 24px 24px;
   grid-gap: 40px;

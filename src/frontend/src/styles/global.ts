@@ -1,4 +1,5 @@
 import { createGlobalStyle } from 'styled-components/macro'
+import { primaryColor } from 'styles'
 
 import { placeholderColor, textColor } from './colors'
 
@@ -21,9 +22,18 @@ body {
 
 h1 {
   font-size: 40px;
-  font-weight: 700;
+  font-weight: bold;
   display: inline-block;
-  margin: 20px 0px;
+  margin: 30px auto;
+
+  &::after{
+    content: '';
+    display: block;
+    width: 80px;
+    height: 5px;
+    background-color: #7068AA;
+    margin: 7px 0 10px 1px;
+  }
 }
 
 h2 {

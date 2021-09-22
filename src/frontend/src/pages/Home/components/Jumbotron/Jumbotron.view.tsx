@@ -11,10 +11,13 @@ export const JumbotronView = () => {
     <JumbotronStyled>
       <Page>
         <JubontronContainer>
-          <JubontronTitle>A Decentralized Finance Ecosystem</JubontronTitle>
+          <JubontronTitle>
+            <div>A Decentralized</div>
+            <div>Finance Ecosystem</div>
+          </JubontronTitle>
           <JubontronSubTitle>
-            Mavryk is a decentralized finance ecosystem designed to allow users to borrow and earn, to unlock the world
-            from legacy financial systems.
+            Mavryk is a decentralized finance ecosystem designed for community governance and allow users to borrow,
+            earn, and unlock the world from legacy financial systems.
           </JubontronSubTitle>
           <JumbotronButtons>
             <JumbotronButton>Sign Up</JumbotronButton>

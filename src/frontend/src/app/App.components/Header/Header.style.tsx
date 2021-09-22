@@ -12,6 +12,7 @@ export const HeaderStyled = styled.div`
   display: grid;
   grid-template-columns: 170px auto 100px 100px 100px 100px 100px;
   grid-gap: 10px;
+  font-weight: 500;
 
   > a {
     color: ${subTextColor};

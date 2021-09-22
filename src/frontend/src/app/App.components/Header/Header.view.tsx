@@ -15,7 +15,7 @@ export const HeaderView = () => {
       <Link to="/litepaper">Litepaper</Link>
       <Link to="/#calculator">Calculator</Link>
       <Link to="/#satellites">Satellites</Link>
-      <Link to="/#highligths">Highligths</Link>
+      <Link to="/#highlights">Highlights</Link>
       <Link to="/#tokenomics">Tokenomics</Link>
     </HeaderStyled>
   )
