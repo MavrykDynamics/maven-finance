@@ -8,6 +8,7 @@
 		"analyze": "react-scripts build && source-map-explorer 'build/static/js/*.js'"
 	},
 	"dependencies": {
+		"@n8tb1t/use-scroll-position": "^2.0.3",
 		"axios": "^0.21.1",
 		"connected-react-router": "^6.8.0",
 		"jwt-decode": "^3.1.2",
