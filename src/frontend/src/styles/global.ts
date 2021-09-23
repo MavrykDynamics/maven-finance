@@ -1,7 +1,7 @@
 import { createGlobalStyle } from 'styled-components/macro'
 import { primaryColor } from 'styles'
 
-import { placeholderColor, textColor } from './colors'
+import { placeholderColor, subTextColor, textColor } from './colors'
 
 export const GlobalStyle = createGlobalStyle`
 * {
@@ -25,6 +25,7 @@ h1 {
   font-weight: bold;
   display: inline-block;
   margin: 30px auto;
+  color: ${subTextColor};
 
   &::after{
     content: '';

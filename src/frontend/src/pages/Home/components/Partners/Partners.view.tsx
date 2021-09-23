@@ -5,7 +5,6 @@ import { PartnersGrid, PartnersStyled } from './Partners.style'
 export const PartnersView = () => {
   return (
     <PartnersStyled>
-      <h1>Partners</h1>
       <PartnersGrid>
         <a href="https://tezos.co.il/" target="_blank" rel="noreferrer">
           <img alt="partner" src="/images/tezos-israel.png" />

@@ -5,7 +5,7 @@ export const JumbotronStyled = styled.div`
   background-image: url('/images/jumbo-bg.svg');
   background-position: top right;
   background-repeat: no-repeat;
-  padding: 204px 0px 70px 0px;
+  padding: 204px 0px 30px 0px;
 `
 
 export const JubontronTitle = styled.div`
@@ -31,7 +31,7 @@ export const JubontronSubTitle = styled.div`
 `
 
 export const JubontronContainer = styled.div`
-  margin: 0 50% 0 0;
+  margin: 0 45% 0 0;
 `
 
 export const JumbotronButtons = styled.div`

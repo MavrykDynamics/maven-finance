@@ -1,4 +1,3 @@
-import { Button } from 'app/App.components/Button/Button.controller'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { Page } from 'styles/components'
@@ -20,7 +19,9 @@ export const JumbotronView = () => {
             earn, and unlock the world from legacy financial systems.
           </JubontronSubTitle>
           <JumbotronButtons>
-            <JumbotronButton>Sign Up</JumbotronButton>
+            <Link to="/#newsletter" onClick={() => document.getElementById('newsletter')!.scrollIntoView()}>
+              <JumbotronButton>Sign Up</JumbotronButton>
+            </Link>
             <Link to="/litepaper">
               <JumbotronButton secondary>Litepaper</JumbotronButton>
             </Link>

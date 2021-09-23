@@ -5,7 +5,6 @@ import { FeaturesComponent, FeaturesGrid, FeaturesStyled } from './Features.styl
 export const FeaturesView = () => {
   return (
     <FeaturesStyled>
-      <h1>Why Mavryk?</h1>
       <FeaturesGrid>
         <FeaturesComponent>
           <img alt="feature" src="/images/icon1.png" />

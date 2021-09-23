@@ -1,9 +1,9 @@
 import styled from 'styled-components/macro'
-import { containerColor, Page, subTextColor } from 'styles'
+import { containerColor, Page, primaryColor, subTextColor } from 'styles'
 
 export const FeaturesStyled = styled(Page)`
   text-align: center;
-  margin-bottom: 100px;
+  margin-bottom: 200px;
 `
 
 export const FeaturesGrid = styled.div`
@@ -25,11 +25,12 @@ export const FeaturesComponent = styled.div`
     margin-top: 30px;
     font-size: 24px;
     font-weight: bold;
-    color: ${subTextColor};
+    color: ${primaryColor};
   }
 
   > p {
     margin-top: 20px;
     font-size: 16px;
+    color: ${subTextColor};
   }
 `

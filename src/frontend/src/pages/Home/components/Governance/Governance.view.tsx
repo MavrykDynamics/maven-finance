@@ -1,11 +1,14 @@
 import * as React from 'react'
 
-import { GovernanceStyled } from './Governance.style'
+import { GovernanceContent, GovernanceStyled } from './Governance.style'
 
 export const GovernanceView = () => {
   return (
     <GovernanceStyled>
-      <h1>Cycle of Governance & Oracle</h1>
+      <GovernanceContent>
+        <h1>Cycle of Governance & Oracle</h1>
+        <img alt="governance" src="/images/governance-cycle.svg" />
+      </GovernanceContent>
     </GovernanceStyled>
   )
 }
