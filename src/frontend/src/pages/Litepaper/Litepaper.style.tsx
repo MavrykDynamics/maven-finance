@@ -1,10 +1,30 @@
 import styled, { css } from 'styled-components/macro'
-import { Page, subTextColor } from 'styles'
+import { Page, primaryColor, secondaryColor, subTextColor } from 'styles'
 
 export const LitepaperStyled = styled(Page)`
   font-size: 16px;
   color: ${subTextColor};
   margin-bottom: 100px;
+
+  p {
+    line-height: 20px;
+  }
+
+  table {
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: left;
+
+    th,
+    tr {
+      height: 36px;
+    }
+  }
+
+  a {
+    color: ${secondaryColor};
+    /* text-decoration: underline; */
+  }
 
   h2 {
     margin: 50px 0 20px 0;
@@ -42,6 +62,7 @@ export const LitepaperStyled = styled(Page)`
 
   img {
     max-width: 100%;
+    margin-bottom: 10px;
   }
 
   footer > div {
@@ -57,6 +78,7 @@ export const LitepaperGrid = styled.div`
 
 export const LitepaperIndex = styled.ul`
   font-size: 14px;
+  line-height: 14px;
   margin-top: 0;
   position: fixed;
   width: 260px;
