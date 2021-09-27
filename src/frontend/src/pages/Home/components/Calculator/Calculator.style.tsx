@@ -11,6 +11,10 @@ export const CalculatorCointainer = styled.div`
   grid-template-columns: 60% 40%;
   grid-gap: 10px;
   border-radius: 10px;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: auto;
+  }
 `
 
 export const CalculatorGrid = styled.div`
@@ -18,6 +22,10 @@ export const CalculatorGrid = styled.div`
   grid-template-columns: repeat(3, 1fr);
   grid-gap: 20px;
   padding: 50px 50px 30px 50px;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: auto;
+  }
 `
 
 export const CalculatorGrid2 = styled.div`
@@ -25,6 +33,10 @@ export const CalculatorGrid2 = styled.div`
   grid-template-columns: 1fr 2fr;
   grid-gap: 20px;
   padding: 0 50px 30px 50px;
+
+  @media (max-width: 1000px) {
+    grid-template-columns: auto;
+  }
 `
 
 export const CalculatorInput = styled.div<{ shift?: boolean }>`
@@ -99,6 +111,10 @@ export const CalculatorResults = styled.div`
   border-radius: 0px 10px 10px 0px;
   padding: 15px 35px;
   text-align: center;
+
+  @media (max-width: 1000px) {
+    border-radius: 0 0 10px 10px;
+  }
 `
 
 export const CalculatorResult = styled.div`

@@ -13,6 +13,13 @@ export const PartnersGrid = styled.div`
   > a {
     position: relative;
     z-index: 1;
+    text-align: center;
+
+    > img {
+      @media (max-width: 1000px) {
+        width: 100%;
+      }
+    }
   }
 
   > a:before {
@@ -26,5 +33,24 @@ export const PartnersGrid = styled.div`
     position: absolute;
     border-radius: 100%;
     z-index: -1;
+
+    @media (max-width: 1000px) {
+      width: 70px;
+      height: 70px;
+      left: calc(50% - 35px);
+      top: calc(50% - 35px);
+    }
+  }
+
+  @media (max-width: 1240px) {
+    grid-template-columns: repeat(3, 1fr);
+
+    div {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1000px) {
+    grid-template-columns: repeat(2, 1fr);
   }
 `

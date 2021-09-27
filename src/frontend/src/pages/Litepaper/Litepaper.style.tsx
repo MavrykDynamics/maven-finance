@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { Page, primaryColor, secondaryColor, subTextColor } from 'styles'
+import { Page, secondaryColor, subTextColor } from 'styles'
 
 export const LitepaperStyled = styled(Page)`
   font-size: 16px;
@@ -74,6 +74,10 @@ export const LitepaperGrid = styled.div`
   display: grid;
   grid-template-columns: 260px auto;
   grid-gap: 30px;
+
+  @media (max-width: 700px) {
+    grid-template-columns: auto;
+  }
 `
 
 export const LitepaperIndex = styled.ul`
@@ -83,6 +87,14 @@ export const LitepaperIndex = styled.ul`
   position: fixed;
   width: 260px;
   padding-left: 0;
+
+  @media (max-width: 700px) {
+    display: none;
+
+    > div {
+      width: calc(100vw - 70px);
+    }
+  }
 
   li {
     display: block;

@@ -1,5 +1,4 @@
 import { createGlobalStyle } from 'styled-components/macro'
-import { primaryColor } from 'styles'
 
 import { placeholderColor, subTextColor, textColor } from './colors'
 
@@ -26,6 +25,11 @@ h1 {
   display: inline-block;
   margin: 30px auto;
   color: ${subTextColor};
+
+  @media (max-width: 700px) {   
+    font-size: 30px;
+    margin: 20px auto;
+  }
 
   &::after{
     content: '';

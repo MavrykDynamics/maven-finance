@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, textColor, borderColor, Page } from 'styles'
+import { backgroundColor, borderColor, Page, textColor } from 'styles'
 
 export const FooterStyled = styled.div`
   background-color: ${borderColor};
@@ -10,13 +10,23 @@ export const FooterContainer = styled(Page)`
   padding: 50px 20px;
 `
 
-export const FooterSocials = styled.div`
+export const FooterTop = styled.div`
   margin: 0 auto;
   width: 100%;
   display: grid;
-  grid-template-columns: 50% auto 48px 48px 48px 48px;
+  grid-template-columns: 40% auto 222px;
   grid-gap: 10px;
   font-weight: 500;
+
+  @media (max-width: 700px) {
+    grid-template-columns: auto;
+  }
+`
+
+export const FooterSocials = styled.div`
+  display: grid;
+  grid-template-columns: 48px 48px 48px 48px;
+  grid-gap: 10px;
 
   > a {
     width: 48px;
@@ -36,10 +46,6 @@ export const FooterSocials = styled.div`
     position: absolute;
     border-radius: 100%;
     z-index: -1;
-  }
-
-  > a:nth-child(1):before {
-    content: none;
   }
 
   svg {
@@ -75,6 +81,10 @@ export const FooterLinks = styled.div`
   text-align: center;
   margin: -20px 20px 0 0;
   text-decoration: underline;
+
+  @media (max-width: 700px) {
+    margin: -40px 20px 0 0;
+  }
 
   a {
     font-size: 14px;

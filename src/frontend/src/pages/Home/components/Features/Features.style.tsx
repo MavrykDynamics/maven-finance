@@ -11,6 +11,10 @@ export const FeaturesGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   grid-gap: 20px;
+
+  @media (max-width: 700px) {
+    grid-template-columns: auto;
+  }
 `
 
 export const FeaturesComponent = styled.div`

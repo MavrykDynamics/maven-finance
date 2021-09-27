@@ -6,6 +6,11 @@ export const Page = styled.div`
   max-width: calc(100vw - 40px);
   width: 1280px;
   position: relative;
+
+  @media (max-width: 700px) { 
+    padding: 0 10px;
+    max-width: calc(100vw - 20px);
+   }
 `
 
 export const Message = styled.div`

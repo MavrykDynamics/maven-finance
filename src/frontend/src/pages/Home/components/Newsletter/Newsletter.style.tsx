@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, Page, primaryColor } from 'styles'
+import { backgroundColor, downColor, Page, primaryColor, upColor } from 'styles'
 
 export const NewsletterStyled = styled(Page)`
   background: url('./images/newsletter-bg.svg'), radial-gradient(65.55% 65.55% at 50% 40.11%, #60558b 0%, #53487f 100%);
@@ -10,6 +10,11 @@ export const NewsletterStyled = styled(Page)`
   padding: 60px;
   text-align: center;
   margin: 200px auto 100px auto;
+
+  @media (max-width: 700px) {
+    padding: 20px;
+    margin: 0 auto 100px auto;
+  }
 
   > h1 {
     color: ${backgroundColor};
@@ -26,10 +31,19 @@ export const NewsletterGrid = styled.div`
     width: 100%;
     padding: 30px;
   }
+
+  @media (max-width: 700px) {
+    grid-template-columns: auto;
+    grid-gap: 0px;
+  }
 `
 
-export const NewsletterForm = styled.div`
+export const NewsletterForm = styled.form`
   margin-top: 60px;
+
+  @media (max-width: 700px) {
+    margin-top: 40px;
+  }
 
   input {
     background: ${primaryColor}65;
@@ -45,6 +59,10 @@ export const NewsletterForm = styled.div`
     font-size: 16px;
     font-weight: bold;
 
+    @media (max-width: 700px) {
+      margin: 0 0 20px 0;
+    }
+
     &::placeholder {
       font-size: 16px;
       color: #ffffff64;
@@ -52,7 +70,7 @@ export const NewsletterForm = styled.div`
   }
 `
 
-export const NewsletterButton = styled.div`
+export const NewsletterButton = styled.button`
   height: 50px;
   line-height: 50px;
   font-size: 16px;
@@ -64,4 +82,22 @@ export const NewsletterButton = styled.div`
   cursor: pointer;
   width: 200px;
   float: right;
+  border: none;
+`
+
+export const NewsletterStatus = styled.div`
+  float: right;
+  line-height: 60px;
+
+  .loading {
+    color: ${backgroundColor};
+  }
+
+  .success {
+    color: ${upColor};
+  }
+
+  .error {
+    color: ${downColor};
+  }
 `

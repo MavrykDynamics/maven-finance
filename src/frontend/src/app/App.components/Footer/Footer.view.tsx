@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
 
 // prettier-ignore
-import { FooterContainer, FooterDescription, FooterLinks, FooterLogo, FooterSocials, FooterStyled } from "./Footer.style";
+import { FooterContainer, FooterDescription, FooterLinks, FooterLogo, FooterSocials, FooterStyled, FooterTop } from "./Footer.style";
 
 export const FooterView = () => {
   return (
     <FooterStyled>
       <FooterContainer>
-        <FooterSocials>
+        <FooterTop>
           <div>
             <Link to="/">
               <FooterLogo alt="logo" src="/images/logo-white.svg" />
@@ -21,27 +21,29 @@ export const FooterView = () => {
 
           <div />
 
-          <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
-            <svg>
-              <use xlinkHref="/icons/sprites.svg#twitter" />
-            </svg>
-          </a>
-          <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
-            <svg>
-              <use xlinkHref="/icons/sprites.svg#telegram" />
-            </svg>
-          </a>
-          <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
-            <svg>
-              <use xlinkHref="/icons/sprites.svg#medium" />
-            </svg>
-          </a>
-          <a href="https://www.linkedin.com/company/mavryk-finance/" target="_blank" rel="noreferrer">
-            <svg>
-              <use xlinkHref="/icons/sprites.svg#linkedin" />
-            </svg>
-          </a>
-        </FooterSocials>
+          <FooterSocials>
+            <a href="https://twitter.com/Mavryk_Finance" target="_blank" rel="noreferrer">
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#twitter" />
+              </svg>
+            </a>
+            <a href="https://t.me/Mavryk_Finance" target="_blank" rel="noreferrer">
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#telegram" />
+              </svg>
+            </a>
+            <a href="https://medium.com/@Mavryk_Finance" target="_blank" rel="noreferrer">
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#medium" />
+              </svg>
+            </a>
+            <a href="https://www.linkedin.com/company/mavryk-finance/" target="_blank" rel="noreferrer">
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#linkedin" />
+              </svg>
+            </a>
+          </FooterSocials>
+        </FooterTop>
         <FooterLinks>
           <Link to="privacy">Privacy Policy</Link>
         </FooterLinks>

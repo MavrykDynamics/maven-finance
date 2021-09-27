@@ -430,14 +430,14 @@ Once Mavryk is adopted and generating revenue, it is up to community Governance 
 ### Token Flow
 The following diagram shows the flow of value (tokens) between various modules of the system (smart contracts). Those smart contract modules are the 
 
-* [doorman module](#MVK-and-vMVK-(aka.-the-doorman-module)), 
-* [external exchange module](#Bootstrapping-liquidity-(aka.-Balancer-style-AMM)),
-* [yield-farm module](#Yield-farming),
-* [loan module](#Stability-fee), 
-* [governance module](#Voting-with-satellites-electoral-delegates), 
-* [price feed module / satellites](#Price-feed), 
-* [DSR savings module](#Dynamic-savings-account-rate), and the 
-* [liquidation auction module](#Collateral-auctions).
+* [doorman module](#mvk-and-vmvk-doorman-module), 
+* [external exchange module](#bootstrapping-liquidity-balancer-style-amm),
+* [yield-farm module](#yield-farming),
+* [loan module](#stability-fee), 
+* [governance module](#voting-with-satellites-electoral-delegates), 
+* [price feed module / satellites](#price-feed), 
+* [DSR savings module](#dynamic-savings-account-rate), and the 
+* [liquidation auction module](#collateral-auctions).
 
 We outline their interactions in the following overview diagram:
 

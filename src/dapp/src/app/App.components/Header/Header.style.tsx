@@ -3,8 +3,6 @@ import { backgroundColor, subTextColor, textColor } from 'styles'
 
 export const HeaderStyled = styled.div`
   margin: 0 auto 20px auto;
-  width: 100%;
-  max-width: 1240px;
   position: relative;
   text-align: center;
   height: 50px;
@@ -13,10 +11,23 @@ export const HeaderStyled = styled.div`
   grid-template-columns: 170px auto 100px 100px 150px;
   grid-gap: 10px;
 
+  padding: 0 20px;
+  max-width: calc(100vw - 40px);
+  width: 1280px;
+
   > a:nth-child(3),
   a:nth-child(4) {
     color: ${subTextColor};
     margin-top: 21px;
+  }
+
+  @media (max-width: 1000px) {
+    grid-template-columns: 170px auto 100px;
+
+    > a:nth-child(3),
+    a:nth-child(4) {
+      display: none;
+    }
   }
 `
 
@@ -35,25 +46,4 @@ export const HeaderButton = styled.div`
   text-align: center;
   font-weight: bold;
   margin-top: 10px;
-`
-
-export const HeaderAccount = styled.div`
-  display: grid;
-  grid-template-columns: auto auto auto;
-  grid-gap: 20px;
-
-  @media (max-width: 1300px) {
-    grid-template-columns: auto auto;
-    > :nth-child(3) {
-      display: none;
-    }
-  }
-
-  @media (max-width: 1000px) {
-    grid-template-columns: auto;
-    > :nth-child(1),
-    :nth-child(3) {
-      display: none;
-    }
-  }
 `

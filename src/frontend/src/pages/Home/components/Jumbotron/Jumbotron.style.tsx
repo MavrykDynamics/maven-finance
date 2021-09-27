@@ -6,6 +6,19 @@ export const JumbotronStyled = styled.div`
   background-position: top right;
   background-repeat: no-repeat;
   padding: 204px 0px 30px 0px;
+
+  @media (max-width: 1240px) {
+    background-position: top 0 right -200px;
+  }
+
+  @media (max-width: 1000px) {
+    background-position: top 0 right -300px;
+  }
+
+  @media (max-width: 700px) {
+    background-position: top -40px right -130px;
+    background-size: contain;
+  }
 `
 
 export const JubontronTitle = styled.div`
@@ -19,6 +32,18 @@ export const JubontronTitle = styled.div`
     &:nth-child(2) {
       color: ${primaryColor};
     }
+
+    @media (max-width: 1240px) {
+      font-size: 48px;
+    }
+
+    @media (max-width: 1000px) {
+      font-size: 36px;
+    }
+
+    @media (max-width: 700px) {
+      font-size: 24px;
+    }
   }
 `
 
@@ -28,16 +53,42 @@ export const JubontronSubTitle = styled.div`
   font-weight: 300;
   font-size: 16px;
   line-height: 160%;
+
+  @media (max-width: 1240px) {
+  }
+
+  @media (max-width: 1000px) {
+  }
+
+  @media (max-width: 700px) {
+    font-size: 14px;
+  }
 `
 
 export const JubontronContainer = styled.div`
   margin: 0 45% 0 0;
+
+  @media (max-width: 1240px) {
+    margin: 0 45% 0 0;
+  }
+
+  @media (max-width: 1000px) {
+    margin: 0 25% 0 0;
+  }
+
+  @media (max-width: 700px) {
+    margin: 0 20% 0 0;
+  }
 `
 
 export const JumbotronButtons = styled.div`
   display: grid;
   grid-template-columns: 200px 200px;
   grid-gap: 20px;
+
+  @media (max-width: 700px) {
+    grid-template-columns: 150px 150px;
+  }
 `
 
 export const JumbotronButton = styled.div<{ secondary?: boolean }>`

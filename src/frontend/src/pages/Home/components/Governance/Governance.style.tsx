@@ -19,3 +19,16 @@ export const GovernanceContent = styled(Page)`
     display: block;
   }
 `
+
+export const GovernanceImage = styled.div`
+  background-image: url('/images/governance-cycle.svg');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 500px;
+
+  @media (max-width: 500px) {
+    background-image: url('/images/governance-cycle-mobile.svg');
+    height: 1200px;
+  }
+`
