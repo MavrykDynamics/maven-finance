@@ -1,9 +1,8 @@
 import { NewsletterView } from 'pages/Home/components/Newsletter/Newsletter.view'
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
 import { useEffect, useState } from 'react'
+import { CSSTransition } from 'react-transition-group'
 
-import { PopupClose, PopupStyled } from './Popup.style'
+import { PopupClose, PopupStyled, PopupContainer } from './Popup.style'
 
 export const PopupView = () => {
   const [show, setShow] = useState(false)
@@ -17,17 +16,17 @@ export const PopupView = () => {
   }, [])
 
   return (
-    <>
-      {show && (
-        <PopupStyled>
+    <PopupStyled>
+      <CSSTransition in={show} timeout={300} classNames="popup" unmountOnExit>
+        <PopupContainer>
           <NewsletterView />
           <PopupClose onClick={() => setShow(false)}>
             <svg>
               <use xlinkHref="/icons/sprites.svg#close" />
             </svg>
           </PopupClose>
-        </PopupStyled>
-      )}
-    </>
+        </PopupContainer>
+      </CSSTransition>
+    </PopupStyled>
   )
 }
