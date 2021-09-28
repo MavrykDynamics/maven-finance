@@ -1,8 +1,22 @@
 import styled from 'styled-components/macro'
 import { backgroundColor, subTextColor, textColor } from 'styles'
 
-export const HeaderStyled = styled.div`
-  margin: 0 auto 20px auto;
+export const HeaderStyled = styled.div<{ showBg: boolean }>`
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 1;
+
+  background-color: ${(props) => (props.showBg ? '#FFFFFFFF' : '#FFFFFF00')};
+  will-change: background-color;
+  transition: background-color 200ms ease-in-out;
+`
+
+export const HeaderGrid = styled.div`
+  margin: 0 auto;
+  max-width: calc(100vw - 40px);
+  width: 1280px;
+
   position: relative;
   text-align: center;
   height: 80px;
@@ -11,13 +25,10 @@ export const HeaderStyled = styled.div`
   grid-template-columns: 170px auto 100px 100px 100px 100px 100px;
   grid-gap: 10px;
   font-weight: 500;
-  padding: 0 20px;
-  max-width: calc(100vw - 40px);
-  width: 1280px;
 
   > a {
     color: ${subTextColor};
-    margin-top: 30px;
+    margin-top: 33px;
   }
 
   @media (max-width: 1000px) {
@@ -35,7 +46,7 @@ export const HeaderStyled = styled.div`
 `
 
 export const HeaderLogo = styled.img`
-  margin-top: -10px;
+  margin-top: -16px;
   z-index: 1;
   width: 170px;
 `

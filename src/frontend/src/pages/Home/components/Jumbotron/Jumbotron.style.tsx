@@ -6,6 +6,7 @@ export const JumbotronStyled = styled.div`
   background-position: top right;
   background-repeat: no-repeat;
   padding: 204px 0px 30px 0px;
+  margin: 80px auto 0 auto;
 
   @media (max-width: 1240px) {
     background-position: top 0 right -200px;
@@ -16,8 +17,8 @@ export const JumbotronStyled = styled.div`
   }
 
   @media (max-width: 700px) {
-    background-position: top -40px right -130px;
-    background-size: contain;
+    background-position: top -20px right -80px;
+    background-size: 90% auto;
   }
 `
 
@@ -73,11 +74,11 @@ export const JubontronContainer = styled.div`
   }
 
   @media (max-width: 1000px) {
-    margin: 0 25% 0 0;
+    margin: 0 30% 0 0;
   }
 
   @media (max-width: 700px) {
-    margin: 0 20% 0 0;
+    margin: 0 3 0% 0 0;
   }
 `
 

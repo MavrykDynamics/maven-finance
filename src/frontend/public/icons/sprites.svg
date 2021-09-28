@@ -32,13 +32,29 @@
             <rect fill="none" stroke="none" width="32" height="32"></rect>
         </g>
     </symbol>
-    <symbol id="xxx" viewBox="0 0 32 32">
+    <symbol id="close" viewBox="0 0 24 24">
+        <g id="Outline_Icons">
+            <line class="a" x1="0.75" y1="23.249" x2="23.25" y2="0.749"></line>
+            <line class="a" x1="23.25" y1="23.249" x2="0.75" y2="0.749"></line>
+        </g>
+        <g id="Invisible_Shape">
+            <rect fill="none" stroke="none" width="24" height="24"></rect>
+        </g>
+    </symbol>
+    <symbol id="xxx" viewBox="0 0 24 24">
         <g id="Outline_Icons">
 
         </g>
         <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="32" height="32"></rect>
+            <rect fill="none" stroke="none" width="24" height="24"></rect>
         </g>
     </symbol>
+    <symbol id="xxx" viewBox="0 0 24 24">
+        <g id="Outline_Icons">
 
+        </g>
+        <g id="Invisible_Shape">
+            <rect fill="none" stroke="none" width="24" height="24"></rect>
+        </g>
+    </symbol>
 </svg>

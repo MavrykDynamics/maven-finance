@@ -4,7 +4,7 @@ import { Page, secondaryColor, subTextColor } from 'styles'
 export const LitepaperStyled = styled(Page)`
   font-size: 16px;
   color: ${subTextColor};
-  margin-bottom: 100px;
+  margin: 100px auto;
 
   p {
     line-height: 20px;

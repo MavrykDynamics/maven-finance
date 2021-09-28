@@ -45,7 +45,7 @@ export const HighligthsView = () => {
   const [selectedItem, setSelectedItem] = useState(contents.loans)
 
   return (
-    <HighligthsStyled>
+    <HighligthsStyled id="highlights">
       <HighligthsContainer>
         <h1>Platform Highlights</h1>
         <HighligthsGrid>

@@ -19,6 +19,10 @@ export const NewsletterStyled = styled(Page)`
   > h1 {
     color: ${backgroundColor};
     margin: auto;
+
+    @media (max-width: 700px) {
+      font-size: 20px;
+    }
   }
 `
 
@@ -88,6 +92,10 @@ export const NewsletterButton = styled.button`
 export const NewsletterStatus = styled.div`
   float: right;
   line-height: 60px;
+  width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   .loading {
     color: ${backgroundColor};

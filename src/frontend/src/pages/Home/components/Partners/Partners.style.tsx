@@ -12,7 +12,7 @@ export const PartnersGrid = styled.div`
 
   > a {
     position: relative;
-    z-index: 1;
+    z-index: 0;
     text-align: center;
 
     > img {

@@ -55,7 +55,7 @@ export const CalculatorView = () => {
   }
 
   return (
-    <CalculatorStyled>
+    <CalculatorStyled id="calculator">
       <h1>Loan Calculator</h1>
       <CalculatorCointainer>
         <div>

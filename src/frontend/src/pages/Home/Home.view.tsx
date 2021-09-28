@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useEffect } from 'react'
 
 import { CalculatorView } from './components/Calculator/Calculator.view'
 import { FeaturesView } from './components/Features/Features.view'
@@ -12,6 +13,10 @@ import { TokenomicsView } from './components/Tokenomics/Tokenomics.view'
 import { HomeStyled } from './Home.style'
 
 export const HomeView = () => {
+  useEffect(() => {
+    window.scroll(0, 0)
+  }, [])
+
   return (
     <HomeStyled>
       <JumbotronView />

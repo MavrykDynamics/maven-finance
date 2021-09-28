@@ -4,7 +4,7 @@ import { SatellitesImage, SatellitesStyled } from './Satellites.style'
 
 export const SatellitesView = () => {
   return (
-    <SatellitesStyled>
+    <SatellitesStyled id="satellites">
       <h1>Satellites: Decentralized Governance & Oracles</h1>
       <SatellitesImage />
     </SatellitesStyled>

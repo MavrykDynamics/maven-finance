@@ -1,17 +1,21 @@
 /* eslint import/no-webpack-loader-syntax: off */
 // @ts-ignore
 import litepaper from '!raw-loader!./Litepaper.markdown.md'
+import { useScrollPosition } from '@n8tb1t/use-scroll-position'
 import Markdown from 'markdown-to-jsx'
 import * as React from 'react'
-import { useRef, useState } from 'react'
-import { useScrollPosition } from '@n8tb1t/use-scroll-position'
+import { useEffect, useState } from 'react'
 
-import { LitepaperIndex, LitepaperStyled, LitepaperGrid, LitepaperRef } from './Litepaper.style'
+import { LitepaperGrid, LitepaperIndex, LitepaperRef, LitepaperStyled } from './Litepaper.style'
 
 export const LitepaperView = () => {
   const [tops, setTops] = useState<any>({
     abstract: 0,
   })
+
+  useEffect(() => {
+    window.scroll(0, 0)
+  }, [])
 
   useScrollPosition(
     () => {
