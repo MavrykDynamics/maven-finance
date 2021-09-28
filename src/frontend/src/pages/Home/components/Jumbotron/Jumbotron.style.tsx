@@ -17,7 +17,7 @@ export const JumbotronStyled = styled.div`
   }
 
   @media (max-width: 700px) {
-    background-position: top -20px right -80px;
+    background-position: top -10px right -80px;
     background-size: 90% auto;
   }
 `

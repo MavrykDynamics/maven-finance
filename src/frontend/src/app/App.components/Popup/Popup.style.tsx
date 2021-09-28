@@ -8,22 +8,23 @@ export const PopupStyled = styled.div`
   position: fixed;
   top: 0;
   left: 0;
+  padding-top: 10px;
 `
 
 export const PopupClose = styled.div`
   cursor: pointer;
   z-index: 101;
   position: fixed;
-  top: 220px;
+  top: 230px;
   right: calc(50vw - 620px);
 
   @media (max-width: 1315px) {
-    top: 220px;
+    top: 230px;
     right: 40px;
   }
 
   @media (max-width: 700px) {
-    top: 10px;
+    top: 20px;
     right: 20px;
   }
 
