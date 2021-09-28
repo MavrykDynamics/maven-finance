@@ -84,11 +84,11 @@ zUSD’s ecosystem health is determined by its ability to maintain a soft-peg be
 ### Stability Fee
 The _stability fee_ is compound interest on loans, levied by the system on borrowers. It is calculated per block and set at an annualized rate of 2% (which can be adjusted, as explained below). It equation is:
 
-$fee = loanAmount * (k ^ {\ numberOfBlocksSinceLoan} - 1)$
+<img src="/images/eq-fee.png" width="440" />
 
 where
 
-$k = 1 + \frac{yearlyInterestRate}{numberOfBlocksPerYear}$
+<img src="/images/eq-k.png" width="300" />
 
 [The example below](#Stability-fee-calculation-example) illustrates that if you borrow 500 zUSD (at 2% interest) then you would owe 510.10 zUSD after 12 months.
 
@@ -280,12 +280,14 @@ vMVK holders enjoy benefits which include (non-exhaustive list):
 To redeem vMVK back to MVK, users need to pay an exit fee in vMVK tokens, which is automatically distributed to the remaining vMVK holders. This is conducted to offset the opportunity cost of remaining locked and to maintain platform stability.
 
 The fee is dynamically computed based on the **MVK Loyalty Index (MLI)**, which is calculated as a percentage
-$MLI = \frac{total\ vMVK}{(total\ vMVK) + (total\ MVK)} * 100$
+
+<img src="/images/eq-mli.png" width="330" />
+
 Example: if the vMVK<>MVK ratio is 9:1 then the MLI = 90%; if the vMVK<>MVK ratio is 6:4 then the MLI = 60%. When vMVK is minted, the total supply of vMVK increases, and the MLI increases. However, as users redeem vMVK for MVK, the MLI decreases. 
 
 **The exit fee is structured so that a higher MLI means a lower exit fee rate**, by the following equation:
 
-$Fee = \frac{500}{MLI + 5}$
+<img src="/images/eq-mli-fee.png" width="150" />
 
 ![](https://ipfs.infura.io/ipfs/QmR9a1UAJqjscrZYtrgFehFPKmUqkjrhfC6b6UzHNHCJj4)
 

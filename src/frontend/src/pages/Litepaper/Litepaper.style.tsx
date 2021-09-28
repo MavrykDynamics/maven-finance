@@ -6,8 +6,9 @@ export const LitepaperStyled = styled(Page)`
   color: ${subTextColor};
   margin: 100px auto;
 
-  p {
-    line-height: 20px;
+  p,
+  li {
+    line-height: 27px;
   }
 
   table {
