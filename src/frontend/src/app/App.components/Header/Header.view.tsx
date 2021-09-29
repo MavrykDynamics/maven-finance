@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { HashLink } from 'react-router-hash-link'
 
 // prettier-ignore
 import { HeaderGrid, HeaderLogo, HeaderStyled } from "./Header.style";
@@ -29,18 +30,51 @@ export const HeaderView = () => {
         <div />
 
         <Link to="/litepaper">Litepaper</Link>
-        <Link to="/#calculator" onClick={() => document.getElementById('calculator')?.scrollIntoView()}>
+
+        <HashLink
+          to="/#calculator"
+          scroll={(el) =>
+            window.scrollTo({
+              behavior: 'smooth',
+              top: el.getBoundingClientRect().top + window.pageYOffset - 100,
+            })
+          }
+        >
           Calculator
-        </Link>
-        <Link to="/#satellites" onClick={() => document.getElementById('satellites')?.scrollIntoView()}>
+        </HashLink>
+        <HashLink
+          to="/#satellites"
+          scroll={(el) =>
+            window.scrollTo({
+              behavior: 'smooth',
+              top: el.getBoundingClientRect().top + window.pageYOffset,
+            })
+          }
+        >
           Satellites
-        </Link>
-        <Link to="/#highlights" onClick={() => document.getElementById('highlights')?.scrollIntoView()}>
+        </HashLink>
+        <HashLink
+          to="/#highlights"
+          scroll={(el) =>
+            window.scrollTo({
+              behavior: 'smooth',
+              top: el.getBoundingClientRect().top + window.pageYOffset,
+            })
+          }
+        >
           Highlights
-        </Link>
-        <Link to="/#tokenomics" onClick={() => document.getElementById('tokenomics')?.scrollIntoView()}>
+        </HashLink>
+        <HashLink
+          to="/#tokenomics"
+          scroll={(el) =>
+            window.scrollTo({
+              behavior: 'smooth',
+              top: el.getBoundingClientRect().top + window.pageYOffset - 100,
+            })
+          }
+        >
           Tokenomics
-        </Link>
+        </HashLink>
       </HeaderGrid>
     </HeaderStyled>
   )

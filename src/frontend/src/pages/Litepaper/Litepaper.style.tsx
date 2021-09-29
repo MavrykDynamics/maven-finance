@@ -4,7 +4,8 @@ import { Page, secondaryColor, subTextColor } from 'styles'
 export const LitepaperStyled = styled(Page)`
   font-size: 16px;
   color: ${subTextColor};
-  margin: 100px auto;
+  margin: 0 auto;
+  margin-top: 100px;
 
   p,
   li {
@@ -104,6 +105,7 @@ export const LitepaperIndex = styled.ul`
     text-overflow: ellipsis;
     white-space: nowrap;
     margin-top: 10px;
+    line-height: 12px !important;
   }
 
   li a {
@@ -118,6 +120,17 @@ export const LitepaperIndex = styled.ul`
 `
 
 export const LitepaperRef = styled.a<{ selected?: boolean }>`
+  padding-left: 5px;
+
+  ${(props) =>
+    props.selected &&
+    css`
+      font-weight: bold;
+      border-left: 2px solid ${subTextColor};
+    `}
+`
+
+export const LitepaperLink = styled.div<{ selected?: boolean }>`
   padding-left: 5px;
 
   ${(props) =>
