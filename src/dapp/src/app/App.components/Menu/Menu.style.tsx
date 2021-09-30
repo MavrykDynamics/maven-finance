@@ -6,14 +6,17 @@ export const MenuStyled = styled.div`
   text-align: center;
   height: 100vh;
   width: 270px;
+  padding: 0 20px;
 
-  padding: 20px;
+  background-image: url('/images/menu-bg.svg');
+  background-position: top left;
+  background-repeat: no-repeat;
 `
 
 export const MenuLogo = styled.img`
-  margin-top: 13px;
+  margin: 17px auto 25px auto;
   z-index: 1;
-  width: 170px;
+  width: 175px;
 `
 
 export const MenuButton = styled.div`

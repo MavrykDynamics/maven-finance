@@ -1,7 +1,9 @@
 import styled, { keyframes } from 'styled-components/macro'
-import { backgroundColor, Page, primaryColor } from 'styles'
+import { backgroundColor, containerColor, Page, primaryColor } from 'styles'
 
-export const MintStyled = styled(Page)``
+export const MintStyled = styled(Page)`
+  background-color: ${containerColor};
+`
 
 const gradiant = keyframes`
     0% {

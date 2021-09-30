@@ -26,11 +26,6 @@ export const MenuView = ({
         <MenuLogo alt="logo" src="/logo.svg" />
       </Link>
 
-      <div />
-
-      <Link to="/dashboard">Dashboard</Link>
-      <Link to="/">Staking</Link>
-
       {wallet ? (
         <div>
           {ready ? (
@@ -44,6 +39,9 @@ export const MenuView = ({
           Install wallet
         </MenuButton>
       )}
+
+      {/* <Link to="/dashboard">Dashboard</Link>
+      <Link to="/">Staking</Link> */}
     </MenuStyled>
   )
 }

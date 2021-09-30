@@ -1,11 +1,14 @@
 import styled from 'styled-components/macro'
+import { containerColor } from 'styles'
 
 export const Page = styled.div`
   margin: auto;
   padding: 0 20px;
-  max-width: calc(100vw - 40px);
-  width: 1280px;
+  /* max-width: calc(100vw - 40px); */
+  width: 100%;
   position: relative;
+  background-color: ${containerColor};
+  min-height: 100vh;
 `
 
 export const GridPage = styled.div`
