@@ -31,7 +31,12 @@ export const MenuView = ({
           {ready ? (
             <MenuButton onClick={handleNewConnect}>{accountPkhPreview}</MenuButton>
           ) : (
-            <MenuButton onClick={handleConnect}>Connect wallet</MenuButton>
+            <MenuButton onClick={handleConnect}>
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#wallet" />
+              </svg>
+              Connect wallet
+            </MenuButton>
           )}
         </div>
       ) : (

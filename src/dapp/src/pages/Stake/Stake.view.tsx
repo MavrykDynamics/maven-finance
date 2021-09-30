@@ -1,15 +1,12 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
 import dayjs from 'dayjs'
-import { create } from 'ipfs-http-client'
 import { useEffect, useState } from 'react'
 import { useAlert } from 'react-alert'
 
 import { Mint, Vote } from './Stake.controller'
 // prettier-ignore
 import { StakeStyled } from "./Stake.style";
-
-const client = create({ url: 'https://ipfs.infura.io:5001/api/v0' })
 
 type StakeViewProps = {
   loadingTiles: boolean
@@ -137,49 +134,49 @@ export const StakeView = ({
       setIsUploading(true)
 
       // Upload to IPFS
-      const added = await client.add(file)
-      const image = `https://ipfs.infura.io/ipfs/${added.path}`
+      // const added = await client.add(file)
+      // const image = `https://ipfs.infura.io/ipfs/${added.path}`
 
-      const tile: Tile = {
-        tileId,
-        canvasId: canvasId as string,
-        x,
-        y,
-        l: -1,
-        image,
-        owner: connectedUser,
-        deadline,
-        tileWidth,
-        tileHeight,
-      }
+      // const tile: Tile = {
+      //   tileId,
+      //   canvasId: canvasId as string,
+      //   x,
+      //   y,
+      //   l: -1,
+      //   image,
+      //   owner: connectedUser,
+      //   deadline,
+      //   tileWidth,
+      //   tileHeight,
+      // }
 
-      setNewTiles(newTiles.concat(tile))
-      setTiles([...newTiles.concat(tile), ...existingTiles])
+      // setNewTiles(newTiles.concat(tile))
+      // setTiles([...newTiles.concat(tile), ...existingTiles])
 
-      // Mint token
-      if (mintTransactionPending) {
-        alert.info('Cannot mint a new tile while a transaction is pending...', { timeout: 10000 })
-      } else {
-        console.log(tile)
-        mintCallback(tile)
-          .then((e) => {
-            setMintTransactionPendingCallback(true)
-            alert.info('Minting new tile...')
-            e.confirmation().then((e: any) => {
-              alert.success('New tile minted', {
-                onOpen: () => {
-                  setMintTransactionPendingCallback(false)
-                },
-              })
-              return e
-            })
-            return e
-          })
-          .catch((e: any) => {
-            alert.show(e.message)
-            console.error(e)
-          })
-      }
+      // // Mint token
+      // if (mintTransactionPending) {
+      //   alert.info('Cannot mint a new tile while a transaction is pending...', { timeout: 10000 })
+      // } else {
+      //   console.log(tile)
+      //   mintCallback(tile)
+      //     .then((e) => {
+      //       setMintTransactionPendingCallback(true)
+      //       alert.info('Minting new tile...')
+      //       e.confirmation().then((e: any) => {
+      //         alert.success('New tile minted', {
+      //           onOpen: () => {
+      //             setMintTransactionPendingCallback(false)
+      //           },
+      //         })
+      //         return e
+      //       })
+      //       return e
+      //     })
+      //     .catch((e: any) => {
+      //       alert.show(e.message)
+      //       console.error(e)
+      //     })
+      // }
 
       setIsUploading(false)
     } catch (error: any) {

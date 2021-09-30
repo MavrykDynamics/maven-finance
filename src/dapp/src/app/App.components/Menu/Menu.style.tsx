@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, textColor } from 'styles'
+import { backgroundTextColor, subTextColor } from 'styles'
 
 export const MenuStyled = styled.div`
   position: relative;
@@ -20,12 +20,26 @@ export const MenuLogo = styled.img`
 `
 
 export const MenuButton = styled.div`
+  margin: 0 auto 25px auto;
+  width: 160px;
+  height: 50px;
   cursor: pointer;
-  background: ${textColor};
-  border-radius: 5px;
-  padding: 10px;
-  color: ${backgroundColor};
+  background: ${backgroundTextColor};
+  border-radius: 10px;
+  color: ${subTextColor};
   text-align: center;
   font-weight: bold;
-  margin-top: 10px;
+  line-height: 50px;
+
+  > svg {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin: 3px;
+    margin-top: 10px;
+    stroke: ${subTextColor};
+    vertical-align: top;
+    margin-top: 12px;
+    margin-right: 8px;
+  }
 `
