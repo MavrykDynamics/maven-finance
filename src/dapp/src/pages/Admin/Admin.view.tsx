@@ -16,7 +16,7 @@ export const AdminView = ({
 }: AdminViewProps) => {
   return (
     <AdminStyled>
-      <Button text="Create examples" onClick={() => mintCallBack()} />
+      <Button text="Mint examples" onClick={() => mintCallBack()} />
     </AdminStyled>
   )
 }

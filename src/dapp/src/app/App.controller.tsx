@@ -1,11 +1,8 @@
 import { DAppProvider } from 'dapp/dapp'
 import { APP_NAME } from 'dapp/defaults'
 import { Admin } from 'pages/Admin/Admin.controller'
-import { Create } from 'pages/Create/Create.controller'
-import { EditLayers } from 'pages/EditLayers/EditLayers.controller'
-import { EditTiles } from 'pages/EditTiles/EditTiles.controller'
-import { Home } from 'pages/Home/Home.controller'
-import { Marketplace } from 'pages/Marketplace/Marketplace.controller'
+import { Mint } from 'pages/Mint/Mint.controller'
+import { Stake } from 'pages/Stake/Stake.controller'
 import React from 'react'
 import { useState } from 'react'
 import { positions, Provider, types } from 'react-alert'
@@ -13,8 +10,8 @@ import { positions, Provider, types } from 'react-alert'
 import AlertTemplate from 'react-alert-template-basic'
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
 
-import { Header } from './App.components/Header/Header.controller'
-import { AppBg, AppContainer } from './App.style'
+import { Menu } from './App.components/Menu/Menu.controller'
+import { AppContainer } from './App.style'
 
 const options = {
   timeout: 5000,
@@ -31,35 +28,25 @@ export const App = () => {
         <DAppProvider appName={APP_NAME}>
           <React.Suspense fallback={null}>
             <AppContainer>
-              <AppBg />
-              <Header />
+              <Menu />
               <Switch>
                 <Route exact path="/">
-                  <Home />
+                  <Stake
+                    mintTransactionPending={transactionPending}
+                    setMintTransactionPendingCallback={setTransactionPending}
+                  />
                 </Route>
-                <Route exact path="/create">
-                  <Create />
+                <Route exact path="/mint">
+                  <Mint />
                 </Route>
-                <Route exact path="/edit-tiles">
-                  <EditTiles
+                <Route exact path="/stake">
+                  <Stake
                     mintTransactionPending={transactionPending}
                     setMintTransactionPendingCallback={setTransactionPending}
                   />
                 </Route>
                 <Route exact path="/edit-tiles/:canvasId">
-                  <EditTiles
-                    mintTransactionPending={transactionPending}
-                    setMintTransactionPendingCallback={setTransactionPending}
-                  />
-                </Route>
-                <Route exact path="/edit-layers">
-                  <EditLayers
-                    mintTransactionPending={transactionPending}
-                    setMintTransactionPendingCallback={setTransactionPending}
-                  />
-                </Route>
-                <Route exact path="/edit-layers/:canvasId">
-                  <EditLayers
+                  <Stake
                     mintTransactionPending={transactionPending}
                     setMintTransactionPendingCallback={setTransactionPending}
                   />
@@ -68,12 +55,6 @@ export const App = () => {
                   <Admin
                     mintTransactionPending={transactionPending}
                     setMintTransactionPendingCallback={setTransactionPending}
-                  />
-                </Route>
-                <Route exact path="/marketplace">
-                  <Marketplace
-                    transactionPending={transactionPending}
-                    setTransactionPendingCallback={setTransactionPending}
                   />
                 </Route>
               </Switch>

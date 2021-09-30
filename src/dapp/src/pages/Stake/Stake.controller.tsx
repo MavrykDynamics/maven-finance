@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 import { Message, Page } from 'styles'
 
-import { EditTilesView, Tile } from './EditTiles.view'
+import { StakeView, Tile } from './Stake.view'
 
 export type Mint = {
   tileId: number
@@ -26,12 +26,12 @@ export type Vote = {
   up: boolean
 }
 
-type EditTilesProps = {
+type StakeProps = {
   setMintTransactionPendingCallback: (b: boolean) => void
   mintTransactionPending: boolean
 }
 
-export const EditTiles = ({ setMintTransactionPendingCallback, mintTransactionPending }: EditTilesProps) => {
+export const Stake = ({ setMintTransactionPendingCallback, mintTransactionPending }: StakeProps) => {
   const wallet = useWallet()
   const ready = useReady()
   const tezos = useTezos()
@@ -80,7 +80,7 @@ export const EditTiles = ({ setMintTransactionPendingCallback, mintTransactionPe
         setLoadingTiles(false)
       }
       // setExistingTokenIds(storage['market'].tileIds.map((tileIdAsObject: { c: any[] }) => tileIdAsObject.c[0]))
-      // setEditTilesAdress(storage.market.admin)
+      // setStakeAdress(storage.market.admin)
     }
   }, [canvasId, contract])
 
@@ -121,7 +121,7 @@ export const EditTiles = ({ setMintTransactionPendingCallback, mintTransactionPe
       {wallet ? (
         <>
           {ready ? (
-            <EditTilesView
+            <StakeView
               loadingTiles={loadingTiles}
               mintCallback={mintCallback}
               voteCallback={voteCallback}

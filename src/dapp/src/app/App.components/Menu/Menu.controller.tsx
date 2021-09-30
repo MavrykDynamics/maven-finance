@@ -3,9 +3,9 @@ import { NETWORK } from 'dapp/defaults'
 import * as React from 'react'
 import { useAlert } from 'react-alert'
 
-import { HeaderView } from './Header.view'
+import { MenuView } from './Menu.view'
 
-export const Header = () => {
+export const Menu = () => {
   const tezos = useTezos()
   const accountPkh = useAccountPkh()
   const [balance, setBalance] = React.useState(null)
@@ -17,7 +17,7 @@ export const Header = () => {
   const handleConnect = React.useCallback(async () => {
     try {
       await connect(NETWORK)
-    } catch (err) {
+    } catch (err: any) {
       alert.show(err.message)
       console.error(err.message)
     }
@@ -26,7 +26,7 @@ export const Header = () => {
   const accountPkhPreview = React.useMemo(() => {
     if (!accountPkh) return undefined
     else {
-      const accPkh = (accountPkh as unknown) as string
+      const accPkh = accountPkh as unknown as string
       const ln = accPkh.length
       return `${accPkh.slice(0, 7)}...${accPkh.slice(ln - 4, ln)}`
     }
@@ -51,7 +51,7 @@ export const Header = () => {
   }, [connect])
 
   return (
-    <HeaderView
+    <MenuView
       balance={balance}
       accountPkhPreview={accountPkhPreview}
       handleNewConnect={handleNewConnect}

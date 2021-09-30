@@ -1,7 +1,7 @@
 import styled, { keyframes } from 'styled-components/macro'
 import { backgroundColor, Page, primaryColor } from 'styles'
 
-export const CreateStyled = styled(Page)``
+export const MintStyled = styled(Page)``
 
 const gradiant = keyframes`
     0% {
@@ -15,7 +15,7 @@ const gradiant = keyframes`
     }
 `
 
-export const CreateTitle = styled.div`
+export const MintTitle = styled.div`
   width: 100%;
   text-align: center;
   margin: 100px auto 10px auto;
@@ -29,7 +29,7 @@ export const CreateTitle = styled.div`
   animation: ${gradiant} 30s ease-in-out infinite;
 `
 
-export const CreateSubTitle = styled.div`
+export const MintSubTitle = styled.div`
   font-weight: bold;
   font-size: 44px;
   line-height: 44px;
@@ -37,7 +37,7 @@ export const CreateSubTitle = styled.div`
   letter-spacing: -0.03em;
 `
 
-export const CreateGrid = styled.div`
+export const MintGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-gap: 100px;
@@ -46,7 +46,7 @@ export const CreateGrid = styled.div`
   margin: 70px auto;
 `
 
-export const CreateGridCell = styled.div`
+export const MintGridCell = styled.div`
   width: 500px;
   background-color: ${primaryColor};
   border-radius: 10px;
@@ -69,7 +69,7 @@ export const CreateGridCell = styled.div`
   }
 `
 
-export const CreateGridCellTitle = styled.div`
+export const MintGridCellTitle = styled.div`
   font-weight: bold;
   font-size: 50px;
   line-height: 50px;

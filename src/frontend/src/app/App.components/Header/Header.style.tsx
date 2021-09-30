@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { backgroundColor, subTextColor, textColor } from 'styles'
 
-export const HeaderStyled = styled.div<{ showBg: boolean }>`
+export const MenuStyled = styled.div<{ showBg: boolean }>`
   width: 100%;
   position: fixed;
   top: 0;
@@ -12,7 +12,7 @@ export const HeaderStyled = styled.div<{ showBg: boolean }>`
   transition: background-color 200ms ease-in-out;
 `
 
-export const HeaderGrid = styled.div`
+export const MenuGrid = styled.div`
   margin: 0 auto;
   max-width: calc(100vw - 40px);
   width: 1280px;
@@ -45,13 +45,13 @@ export const HeaderGrid = styled.div`
   }
 `
 
-export const HeaderLogo = styled.img`
+export const MenuLogo = styled.img`
   margin-top: -16px;
   z-index: 1;
   width: 170px;
 `
 
-export const HeaderButton = styled.div`
+export const MenuButton = styled.div`
   cursor: pointer;
   background: ${textColor};
   border-radius: 5px;

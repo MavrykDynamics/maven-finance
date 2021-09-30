@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as PropTypes from 'prop-types'
 
-import { DropDownStyled, DropDownHeader, DropDownListContainer, DropDownList, DropDownListItem } from './DropDown.style'
+import { DropDownStyled, DropDownMenu, DropDownListContainer, DropDownList, DropDownListItem } from './DropDown.style'
 import { useState } from 'react'
 
 type DropDownViewProps = {
@@ -35,25 +35,32 @@ export const DropDownView = ({
   onClick,
   clickItem,
   itemSelected,
-  items
+  items,
 }: DropDownViewProps) => {
-
-    return (
+  return (
     <DropDownStyled>
-        <DropDownHeader onClick={() => {
-        onClick()
-      }}>{itemSelected}</DropDownHeader>
-        {isOpen && (
-          <DropDownListContainer>
-            <DropDownList>
+      <DropDownMenu
+        onClick={() => {
+          onClick()
+        }}
+      >
+        {itemSelected}
+      </DropDownMenu>
+      {isOpen && (
+        <DropDownListContainer>
+          <DropDownList>
             {items.map((value, index) => {
-        return<DropDownListItem onClick={() => clickItem(value)} key={Math.random()}>{value}</DropDownListItem>
-      })}
-            </DropDownList>
-          </DropDownListContainer>
-        )}
-      </DropDownStyled>
-)
+              return (
+                <DropDownListItem onClick={() => clickItem(value)} key={Math.random()}>
+                  {value}
+                </DropDownListItem>
+              )
+            })}
+          </DropDownList>
+        </DropDownListContainer>
+      )}
+    </DropDownStyled>
+  )
 }
 DropDownView.propTypes = {
   icon: PropTypes.string,

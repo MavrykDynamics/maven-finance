@@ -3,41 +3,41 @@ import * as React from 'react'
 import { Link } from 'react-router-dom'
 
 //prettier-ignore
-import { CreateGrid, CreateGridCell, CreateGridCellTitle, CreateStyled, CreateSubTitle, CreateTitle } from './Create.style'
+import { MintGrid, MintGridCell, MintGridCellTitle, MintStyled, MintSubTitle, MintTitle } from './Mint.style'
 
-export const CreateView = () => {
+export const MintView = () => {
   return (
-    <CreateStyled>
-      <CreateTitle>Create a new canvas</CreateTitle>
-      <CreateSubTitle>and cooperate with other artists</CreateSubTitle>
-      <CreateGrid>
-        <CreateGridCell>
-          <CreateGridCellTitle>
+    <MintStyled>
+      <MintTitle>Mint a new canvas</MintTitle>
+      <MintSubTitle>and cooperate with other artists</MintSubTitle>
+      <MintGrid>
+        <MintGridCell>
+          <MintGridCellTitle>
             Tile-based
             <br />
             project
-          </CreateGridCellTitle>
+          </MintGridCellTitle>
           <svg>
             <use xlinkHref="/icons/sprites.svg#tiles" />
           </svg>
           <Link to="/edit-tiles">
             <Button color="secondary" text="Get started" />
           </Link>
-        </CreateGridCell>
-        <CreateGridCell>
-          <CreateGridCellTitle>
+        </MintGridCell>
+        <MintGridCell>
+          <MintGridCellTitle>
             Layer-based
             <br />
             project
-          </CreateGridCellTitle>
+          </MintGridCellTitle>
           <svg>
             <use xlinkHref="/icons/sprites.svg#layers" />
           </svg>
           <Link to="/edit-layers">
             <Button color="secondary" text="Get started" />
           </Link>
-        </CreateGridCell>
-      </CreateGrid>
-    </CreateStyled>
+        </MintGridCell>
+      </MintGrid>
+    </MintStyled>
   )
 }

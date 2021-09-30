@@ -1,7 +1,7 @@
 import * as React from 'react'
 
-import { HeaderView } from './Header.view'
+import { MenuView } from './Menu.view'
 
-export const Header = () => {
-  return <HeaderView />
+export const Menu = () => {
+  return <MenuView />
 }

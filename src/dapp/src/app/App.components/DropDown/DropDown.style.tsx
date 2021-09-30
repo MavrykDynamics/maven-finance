@@ -7,7 +7,7 @@ export const DropDownStyled = styled('div')`
   margin: 0 auto;
 `
 
-export const DropDownHeader = styled('div')`
+export const DropDownMenu = styled('div')`
   width: 100%;
   display: block;
   position: relative;

@@ -12,7 +12,7 @@ body {
   font-display: optional;
   margin: 0;
   padding: 0;
-  background-color: #000;
+  background-color: #FFF;
   color: ${textColor};
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
