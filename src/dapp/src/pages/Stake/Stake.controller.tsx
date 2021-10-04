@@ -7,6 +7,7 @@ import { useParams } from 'react-router'
 import { Message, Page } from 'styles'
 
 import { StakeView, Tile } from './Stake.view'
+import { StakeHeader } from './StakeHeader/StakeHeader.controller'
 
 export type Mint = {
   tileId: number
@@ -118,6 +119,7 @@ export const Stake = ({ setMintTransactionPendingCallback, mintTransactionPendin
 
   return (
     <Page>
+      <StakeHeader />
       {wallet ? (
         <>
           {ready ? (
@@ -125,7 +127,7 @@ export const Stake = ({ setMintTransactionPendingCallback, mintTransactionPendin
               loadingTiles={loadingTiles}
               mintCallback={mintCallback}
               voteCallback={voteCallback}
-              connectedUser={(accountPkh as unknown) as string}
+              connectedUser={accountPkh as unknown as string}
               existingTiles={existingTiles}
               setMintTransactionPendingCallback={setMintTransactionPendingCallback}
               mintTransactionPending={mintTransactionPending}

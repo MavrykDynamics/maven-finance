@@ -3,7 +3,7 @@ import { containerColor } from 'styles'
 
 export const Page = styled.div`
   margin: auto;
-  padding: 0 20px;
+  padding: 40px;
   /* max-width: calc(100vw - 40px); */
   width: 100%;
   position: relative;

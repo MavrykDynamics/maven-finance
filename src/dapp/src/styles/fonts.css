@@ -24,6 +24,14 @@
 
 @font-face {
   font-family: 'Metropolis';
+  src: url('./fonts/Metropolis-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Metropolis';
   src: url('./fonts/Metropolis-Bold.woff2') format('woff2');
   font-weight: bold;
   font-style: normal;
