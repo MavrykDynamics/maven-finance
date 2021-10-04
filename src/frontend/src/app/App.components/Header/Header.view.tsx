@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 import { HashLink } from 'react-router-hash-link'
 
 // prettier-ignore
-import { MenuGrid, MenuLogo, MenuStyled } from "./Menu.style";
+import { HeaderGrid, HeaderLogo, HeaderStyled } from "./Header.style";
 
-export const MenuView = () => {
+export const HeaderView = () => {
   const [scrollPosition, setScrollPosition] = useState(0)
   const handleScroll = () => {
     const position = window.pageYOffset
@@ -21,10 +21,10 @@ export const MenuView = () => {
   }, [])
 
   return (
-    <MenuStyled showBg={scrollPosition > 10}>
-      <MenuGrid>
+    <HeaderStyled showBg={scrollPosition > 10}>
+      <HeaderGrid>
         <Link to="/">
-          <MenuLogo alt="logo" src="/logo.svg" />
+          <HeaderLogo alt="logo" src="/logo.svg" />
         </Link>
 
         <div />
@@ -75,7 +75,7 @@ export const MenuView = () => {
         >
           Tokenomics
         </HashLink>
-      </MenuGrid>
-    </MenuStyled>
+      </HeaderGrid>
+    </HeaderStyled>
   )
 }
