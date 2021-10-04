@@ -5,12 +5,15 @@ import { Mint } from 'pages/Mint/Mint.controller'
 import { Stake } from 'pages/Stake/Stake.controller'
 import React from 'react'
 import { useState } from 'react'
-import { positions, Provider, types } from 'react-alert'
+import { Provider as AlertProvider, positions, types } from 'react-alert'
 //@ts-ignore
 import AlertTemplate from 'react-alert-template-basic'
+import { Provider } from 'react-redux'
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
 
 import { Menu } from './App.components/Menu/Menu.controller'
+import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller'
+import { configureStore } from './App.store'
 import { AppContainer } from './App.style'
 
 const options = {
@@ -19,49 +22,54 @@ const options = {
   type: types.ERROR,
 }
 
+export const store = configureStore({})
+
 export const App = () => {
   const [transactionPending, setTransactionPending] = useState<boolean>(false)
 
   return (
-    <Router>
-      <Provider template={AlertTemplate} {...options}>
-        <DAppProvider appName={APP_NAME}>
-          <React.Suspense fallback={null}>
-            <AppContainer>
-              <Menu />
-              <Switch>
-                <Route exact path="/">
-                  <Stake
-                    mintTransactionPending={transactionPending}
-                    setMintTransactionPendingCallback={setTransactionPending}
-                  />
-                </Route>
-                <Route exact path="/mint">
-                  <Mint />
-                </Route>
-                <Route exact path="/stake">
-                  <Stake
-                    mintTransactionPending={transactionPending}
-                    setMintTransactionPendingCallback={setTransactionPending}
-                  />
-                </Route>
-                <Route exact path="/edit-tiles/:canvasId">
-                  <Stake
-                    mintTransactionPending={transactionPending}
-                    setMintTransactionPendingCallback={setTransactionPending}
-                  />
-                </Route>
-                <Route exact path="/admin">
-                  <Admin
-                    mintTransactionPending={transactionPending}
-                    setMintTransactionPendingCallback={setTransactionPending}
-                  />
-                </Route>
-              </Switch>
-            </AppContainer>
-          </React.Suspense>
-        </DAppProvider>
-      </Provider>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <AlertProvider template={AlertTemplate} {...options}>
+          <DAppProvider appName={APP_NAME}>
+            <React.Suspense fallback={null}>
+              <ProgressBar />
+              <AppContainer>
+                <Menu />
+                <Switch>
+                  <Route exact path="/">
+                    <Stake
+                      mintTransactionPending={transactionPending}
+                      setMintTransactionPendingCallback={setTransactionPending}
+                    />
+                  </Route>
+                  <Route exact path="/mint">
+                    <Mint />
+                  </Route>
+                  <Route exact path="/stake">
+                    <Stake
+                      mintTransactionPending={transactionPending}
+                      setMintTransactionPendingCallback={setTransactionPending}
+                    />
+                  </Route>
+                  <Route exact path="/edit-tiles/:canvasId">
+                    <Stake
+                      mintTransactionPending={transactionPending}
+                      setMintTransactionPendingCallback={setTransactionPending}
+                    />
+                  </Route>
+                  <Route exact path="/admin">
+                    <Admin
+                      mintTransactionPending={transactionPending}
+                      setMintTransactionPendingCallback={setTransactionPending}
+                    />
+                  </Route>
+                </Switch>
+              </AppContainer>
+            </React.Suspense>
+          </DAppProvider>
+        </AlertProvider>
+      </Router>
+    </Provider>
   )
 }

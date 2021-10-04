@@ -4467,17 +4467,6 @@ connect-history-api-fallback@^1.6.0:
   resolved "https://registry.yarnpkg.com/connect-history-api-fallback/-/connect-history-api-fallback-1.6.0.tgz#8b32089359308d111115d81cad3fceab888f97bc"
   integrity sha512-e54B99q/OUoH64zYYRf3HBP5z24G38h5D3qXu23JGRoigpX5Ss4r9ZnDk3g0Z8uQC2x2lPaJ+UlWBc1ZWBWdLg==
 
-connected-react-router@^6.9.1:
-  version "6.9.1"
-  resolved "https://registry.yarnpkg.com/connected-react-router/-/connected-react-router-6.9.1.tgz#d842eebaa15b9920e2e45fc03d74e41110e94e4c"
-  integrity sha512-BbtB6t0iqAwGwygDenJl9zmlk7vpKWIRSycULmkAOn2RUaF6+bqETprl0qcIqQmY5CTqSwKanaxkLXYWiffAfQ==
-  dependencies:
-    lodash.isequalwith "^4.4.0"
-    prop-types "^15.7.2"
-  optionalDependencies:
-    immutable "^3.8.1 || ^4.0.0-rc.1"
-    seamless-immutable "^7.1.3"
-
 console-browserify@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/console-browserify/-/console-browserify-1.2.0.tgz#67063cef57ceb6cf4993a2ab3a55840ae8c49336"
@@ -6134,11 +6123,6 @@ extsprintf@^1.2.0:
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
   integrity sha1-4mifjzVvrWLMplo6kcXfX5VRaS8=
 
-fast-deep-equal@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-2.0.1.tgz#7b05218ddf9667bf7f370bf7fdb2cb15fdd0aa49"
-  integrity sha1-ewUhjd+WZ79/Nwv3/bLLFf3Qqkk=
-
 fast-deep-equal@^3.1.1, fast-deep-equal@^3.1.3:
   version "3.1.3"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz#3a7d56b559d6cbc3eb512325244e619a65c6c525"
@@ -6694,6 +6678,11 @@ growly@^1.3.0:
   resolved "https://registry.yarnpkg.com/growly/-/growly-1.3.0.tgz#f10748cbe76af964b7c96c93c6bcc28af120c081"
   integrity sha1-8QdIy+dq+WS3yWyTxrzCivEgwIE=
 
+gsap@^3.8.0:
+  version "3.8.0"
+  resolved "https://registry.yarnpkg.com/gsap/-/gsap-3.8.0.tgz#a404dd6ebbaabc92605539aea9d98e3098688064"
+  integrity sha512-cvpzKkWFePDZCycwXwJnDSpTR3j+a4QLQF/t0c+pXqzRESgAYx5hieaoshzZFjbwsARqr0+5c3GKE7wI273w/g==
+
 gzip-size@5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/gzip-size/-/gzip-size-5.1.1.tgz#cb9bee692f87c0612b232840a873904e4c135274"
@@ -7099,11 +7088,6 @@ immer@8.0.1:
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/immer/-/immer-8.0.1.tgz#9c73db683e2b3975c424fb0572af5889877ae656"
   integrity sha512-aqXhGP7//Gui2+UrEtvxZxSquQVXTpZ7KDxfCcKAF3Vysvw0CViVaW9RZ1j1xlIYqaaaipBoqdqeibkc18PNvA==
-
-"immutable@^3.8.1 || ^4.0.0-rc.1":
-  version "4.0.0-rc.15"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.0.0-rc.15.tgz#c30056f05eaaf5650fd15230586688fdd15c54bc"
-  integrity sha512-v8+A3sNyaieoP9dHegl3tEYnIZa7vqNiSv0U6D7YddiZi34VjKy4GsIxrRHj2d8+CS3MeiVja5QyNe4JO/aEXA==
 
 import-cwd@^2.0.0:
   version "2.1.0"
@@ -8591,11 +8575,6 @@ lodash.flattendeep@^4.4.0:
   resolved "https://registry.yarnpkg.com/lodash.flattendeep/-/lodash.flattendeep-4.4.0.tgz#fb030917f86a3134e5bc9bec0d69e0013ddfedb2"
   integrity sha1-+wMJF/hqMTTlvJvsDWngAT3f7bI=
 
-lodash.isequalwith@^4.4.0:
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/lodash.isequalwith/-/lodash.isequalwith-4.4.0.tgz#266726ddd528f854f21f4ea98a065606e0fbc6b0"
-  integrity sha1-Jmcm3dUo+FTyH06pigZWBuD7xrA=
-
 lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
@@ -8748,7 +8727,7 @@ map-visit@^1.0.0:
   dependencies:
     object-visit "^1.0.0"
 
-markdown-to-jsx@*, markdown-to-jsx@^7.1.3:
+markdown-to-jsx@*:
   version "7.1.3"
   resolved "https://registry.yarnpkg.com/markdown-to-jsx/-/markdown-to-jsx-7.1.3.tgz#f00bae66c0abe7dd2d274123f84cb6bd2a2c7c6a"
   integrity sha512-jtQ6VyT7rMT5tPV0g2EJakEnXLiPksnvlYtwQsVVZ611JsWGN8bQ1tVSDX4s6JllfEH6wmsYxNjTUAMrPmNA8w==
@@ -10887,7 +10866,7 @@ rc-motion@^2.0.0:
     classnames "^2.2.1"
     rc-util "^5.2.1"
 
-rc-slider@*, rc-slider@^9.7.2:
+rc-slider@*:
   version "9.7.2"
   resolved "https://registry.yarnpkg.com/rc-slider/-/rc-slider-9.7.2.tgz#282f571f7582752ebaa33964e441184f4e79ad74"
   integrity sha512-mVaLRpDo6otasBs6yVnG02ykI3K6hIrLTNfT5eyaqduFv95UODI9PDS6fWuVVehVpdS4ENgOSwsTjrPVun+k9g==
@@ -11000,12 +10979,24 @@ react-fast-compare@^3.1.1:
   resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.0.tgz#641a9da81b6a6320f270e89724fb45a0b39e43bb"
   integrity sha512-rtGImPZ0YyLrscKI9xTpV8psd6I8VAtjKCzQDlzyDvqJA8XOW78TXYQwNRNd8g8JZnDu8q9Fu/1v4HPAVwVdHA==
 
+react-ga@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/react-ga/-/react-ga-3.3.0.tgz#c91f407198adcb3b49e2bc5c12b3fe460039b3ca"
+  integrity sha512-o8RScHj6Lb8cwy3GMrVH6NJvL+y0zpJvKtc0+wmH7Bt23rszJmnqEQxRbyrqUzk9DTJIHoP42bfO5rswC9SWBQ==
+
 react-google-recaptcha-v3@^1.9.5:
   version "1.9.5"
   resolved "https://registry.yarnpkg.com/react-google-recaptcha-v3/-/react-google-recaptcha-v3-1.9.5.tgz#208834732c1e42a6f8503ab186de12398b8bf63f"
   integrity sha512-WmrhBMCnJovUPdA5S+9SmYlPTPIDXmUJWlHlOnJAXdU0cyZcVkqwln3kIj/NLl8Y6HH/4lKgno5N/e1N+fEtfg==
   dependencies:
     hoist-non-react-statics "^3.3.2"
+
+react-gsap@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/react-gsap/-/react-gsap-3.2.1.tgz#15c7a0e06c4cdda6ac36ccfcd49f58ba6c3cfbc5"
+  integrity sha512-IX6XiN1a74hmU385yNZAYV1cFe3/Xmbg8eT99VCjmz7yzQq1qIsR47gkX5rkWeml9KmyEgiIzqArYaipPkKIbw==
+  dependencies:
+    react-is "^16.13.1"
 
 react-helmet@^6.1.0:
   version "6.1.0"
@@ -11035,13 +11026,6 @@ react-motion@^0.5.2:
     performance-now "^0.2.0"
     prop-types "^15.5.8"
     raf "^3.1.0"
-
-react-promise-suspense@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/react-promise-suspense/-/react-promise-suspense-0.3.3.tgz#b085c7e0ac22b85fd3d605b1c4f181cda4310bc9"
-  integrity sha512-OdehKsCEWYoV6pMcwxbvJH99UrbXylmXJ1QpEL9OfHaUBzcAihyfSJV8jFq325M/wW9iKc/BoiLROXxMul+MxA==
-  dependencies:
-    fast-deep-equal "^2.0.1"
 
 react-redux@^7.2.5:
   version "7.2.5"
@@ -11307,11 +11291,6 @@ redent@^3.0.0:
   dependencies:
     indent-string "^4.0.0"
     strip-indent "^3.0.0"
-
-redux-persist@^6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/redux-persist/-/redux-persist-6.0.0.tgz#b4d2972f9859597c130d40d4b146fecdab51b3a8"
-  integrity sha512-71LLMbUq2r02ng2We9S215LtPu3fY0KgaGE0k8WRgl6RkqxtGfl7HUozz1Dftwsb0D/5mZ8dwAaPbtnzfvbEwQ==
 
 redux-thunk@^2.3.0:
   version "2.3.0"
@@ -11811,11 +11790,6 @@ schema-utils@^3.0.0:
     "@types/json-schema" "^7.0.8"
     ajv "^6.12.5"
     ajv-keywords "^3.5.2"
-
-seamless-immutable@^7.1.3:
-  version "7.1.4"
-  resolved "https://registry.yarnpkg.com/seamless-immutable/-/seamless-immutable-7.1.4.tgz#6e9536def083ddc4dea0207d722e0e80d0f372f8"
-  integrity sha512-XiUO1QP4ki4E2PHegiGAlu6r82o5A+6tRh7IkGGTVg/h+UoeX4nFBeCGPOhb4CYjvkqsfm/TUtvOMYC1xmV30A==
 
 select-hose@^2.0.0:
   version "2.0.0"
@@ -13426,6 +13400,11 @@ wbuf@^1.1.0, wbuf@^1.7.3:
   integrity sha512-O84QOnr0icsbFGLS0O3bI5FswxzRr8/gHwWkDlQFskhSPryQXvrTMxjxGP4+iWYoauLoBvfDpkrOauZ+0iZpDA==
   dependencies:
     minimalistic-assert "^1.0.0"
+
+web-vitals@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/web-vitals/-/web-vitals-2.1.0.tgz#ebf5428875ab5bfc1056c2e80cd177001287de7b"
+  integrity sha512-npEyJP8jHf3J71t1tRTEtz9FeKp8H2udWJUUq5ykfPhhstr//TUxiYhIEzLNwk4zv2ybAilMn7v7N6Mxmuitmg==
 
 webidl-conversions@^5.0.0:
   version "5.0.0"
