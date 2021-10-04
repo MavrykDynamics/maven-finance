@@ -113,12 +113,9 @@
             <rect fill="none" stroke="none" width="24" height="24"></rect>
         </g>
     </symbol>
-    <symbol id="XXX" viewBox="0 0 24 24">
+    <symbol id="loading" viewBox="0 0 24 24">
         <g>
-
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
+            <path d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 8.31954 21.1925 5.06125 18.4167 3.06442" fill="none" stroke-linecap="round"/>        <g id="Invisible_Shape">
         </g>
     </symbol>
     <symbol id="XXX" viewBox="0 0 24 24">

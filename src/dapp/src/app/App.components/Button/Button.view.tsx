@@ -34,7 +34,7 @@ export const ButtonView = ({ text, icon, color, onClick, clickCallback, clicked,
             <ButtonLoadingIcon>
               <use xlinkHref="/icons/sprites.svg#loading" />
             </ButtonLoadingIcon>
-            Waiting for confirmation
+            Loading
           </>
         ) : (
           <>

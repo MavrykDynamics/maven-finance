@@ -1,5 +1,3 @@
-import { Button } from 'app/App.components/Button/Button.controller'
-import { Input } from 'app/App.components/Input/Input.controller'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
 import { useAlert } from 'react-alert'
@@ -47,7 +45,6 @@ export const StakeView = ({
 }: StakeViewProps) => {
   const [showGrid, setShowGrid] = useState(true)
   const [tiles, setTiles] = useState<Tile[]>([])
-  const [newTiles, setNewTiles] = useState<Tile[]>([])
   const [tileWidth, setTileWidth] = useState(340)
   const [tileHeight, setTileHeight] = useState(340)
   const [lockedInputs, setLockedInputs] = useState(false)
@@ -63,43 +60,6 @@ export const StakeView = ({
     canvasWidth: 1,
     canvasHeight: 1,
   })
-
-  useEffect(() => {
-    console.log(tiles)
-  }, [tiles])
-
-  useEffect(() => {
-    if (!urlCanvasId) setCanvasId((Math.random() + 1).toString(36).substring(7))
-  }, [urlCanvasId])
-
-  useEffect(() => {
-    if (existingTiles.length > 0) {
-      setTiles([...newTiles, ...existingTiles])
-      setTileWidth(existingTiles[0].tileWidth)
-      setTileHeight(existingTiles[0].tileHeight)
-      setDeadline(existingTiles[0].deadline)
-      setLockedInputs(true)
-    }
-  }, [existingTiles])
-
-  useEffect(() => {
-    if (tiles.length > 0) {
-      const xMin = tiles.map((tile) => tile.x).reduce((result, currentValue) => Math.min(result, currentValue))
-      const xMax = tiles.map((tile) => tile.x).reduce((result, currentValue) => Math.max(result, currentValue))
-      const yMin = tiles.map((tile) => tile.y).reduce((result, currentValue) => Math.min(result, currentValue))
-      const yMax = tiles.map((tile) => tile.y).reduce((result, currentValue) => Math.max(result, currentValue))
-
-      if (xMin < canvasSize.xMin || xMax > canvasSize.xMax || yMin < canvasSize.yMin || yMax > canvasSize.yMax)
-        setCanvasSize({
-          xMin,
-          xMax,
-          yMin,
-          yMax,
-          canvasWidth: xMax - xMin + 1,
-          canvasHeight: yMax - yMin + 1,
-        })
-    }
-  }, [tiles])
 
   async function handleVote(tileId: number, up: boolean) {
     if (mintTransactionPending) {

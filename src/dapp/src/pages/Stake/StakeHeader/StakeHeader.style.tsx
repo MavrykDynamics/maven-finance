@@ -10,6 +10,105 @@ const spin = keyframes`
   } 
 `
 
+export const shakes = keyframes`
+  10% {
+    transform: translate(2px, 2px);
+  }
+  20% {
+    transform: translate(3px, 2px);
+  }
+  30% {
+    transform: translate(5px, 4px);
+  }
+  40% {
+    transform: translate(3px, 3px);
+  }
+  50% {
+    transform: translate(3px, 3px);
+  }
+  60% {
+    transform: translate(4px, 3px);
+  }
+  70% {
+    transform: translate(2px, 4px);
+  }
+  80% {
+    transform: translate(3px, 3px);
+  }
+  90% {
+    transform: translate(4px, 4px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+`
+
+export const jet = keyframes`
+  0% {
+    transform: scale(1.0);
+  }
+  50% {
+	  transform: scale(1.05);
+  }
+  100% {
+    transform: scale(0.95);
+  }
+`
+
+export const leaves = keyframes`
+  0% {
+    transform: scaleX(1.0) translateX(-360px);
+    opacity: 1;
+  }
+  10% {
+    transform: scaleX(0.8) translateX(-450px);
+    opacity: 1;
+  }
+  20% {
+    transform: scaleX(1) translateX(-360px);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(1) translateX(-200px);
+    opacity: 1;
+  }
+  90% {
+    transform: scaleX(1) translateX(-40px);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1) translateX(0px);
+    opacity: 0;
+  }
+`
+
+export const comes = keyframes`
+  100% {
+    transform: scaleX(1.0) translateX(-360px);
+    opacity: 1;
+  }
+  90% {
+    transform: scaleX(0.8) translateX(-450px);
+    opacity: 1;
+  }
+  80% {
+    transform: scaleX(1) translateX(-360px);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(1) translateX(-200px);
+    opacity: 1;
+  }
+  10% {
+    transform: scaleX(1) translateX(-40px);
+    opacity: 1;
+  }
+  0% {
+    transform: scaleX(1) translateX(0px);
+    opacity: 0;
+  }
+`
+
 export const StakeHeaderStyled = styled.div`
   background: url('/images/clouds.svg'), radial-gradient(33.05% 130.68% at 69.09% 89.38%, #60558b 0%, #53487f 100%);
   background-size: contain;
@@ -46,8 +145,38 @@ export const StakeHeaderPortal = styled.div`
   }
 `
 
-export const StakeHeaderShip = styled.img`
+export const StakeHeaderAnimation = styled.div`
   position: absolute;
   top: 23px;
   right: 400px;
+`
+
+export const StakeHeaderShipGoing = styled.div`
+  position: absolute;
+  animation: ${leaves} 1s linear 1;
+  opacity: 0;
+`
+
+export const StakeHeaderShipComing = styled.div`
+  position: absolute;
+  animation: ${comes} 1s linear 1 2s;
+  opacity: 0;
+`
+
+export const StakeHeaderShip = styled.div`
+  position: absolute;
+  animation: ${shakes} 3s linear infinite;
+`
+
+export const StakeHeaderShipFlamePart = styled.img`
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation: ${jet} 2s ease alternate infinite;
+`
+
+export const StakeHeaderShipMainPart = styled.img`
+  position: absolute;
+  top: 0;
+  left: 0;
 `

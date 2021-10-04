@@ -8,6 +8,7 @@ import { Message, Page } from 'styles'
 
 import { StakeView, Tile } from './Stake.view'
 import { StakeHeader } from './StakeHeader/StakeHeader.controller'
+import { StakeUnstake } from './StakeUnstake/StakeUnstake.controller'
 
 export type Mint = {
   tileId: number
@@ -120,6 +121,7 @@ export const Stake = ({ setMintTransactionPendingCallback, mintTransactionPendin
   return (
     <Page>
       <StakeHeader />
+      <StakeUnstake />
       {wallet ? (
         <>
           {ready ? (

@@ -1,5 +1,5 @@
 // prettier-ignore
-import {  StakeHeaderPortal, StakeHeaderShip, StakeHeaderStyled } from "./StakeHeader.style";
+import {  StakeHeaderPortal, StakeHeaderShip, StakeHeaderAnimation, StakeHeaderShipFlamePart, StakeHeaderShipMainPart, StakeHeaderStyled, StakeHeaderShipComing, StakeHeaderShipGoing } from "./StakeHeader.style";
 
 type StakeHeaderViewProps = {}
 
@@ -11,7 +11,20 @@ export const StakeHeaderView = ({}: StakeHeaderViewProps) => {
       <StakeHeaderPortal>
         <img src="/images/portal.svg" alt="portal" />
       </StakeHeaderPortal>
-      <StakeHeaderShip src="/images/ship.svg" />
+      <StakeHeaderAnimation>
+        <StakeHeaderShipGoing>
+          <StakeHeaderShip>
+            <StakeHeaderShipFlamePart src="/images/flame-part.svg" />
+            <StakeHeaderShipMainPart src="/images/ship-part.svg" />
+          </StakeHeaderShip>
+        </StakeHeaderShipGoing>
+        <StakeHeaderShipComing>
+          <StakeHeaderShip>
+            <StakeHeaderShipFlamePart src="/images/flame-part-red.svg" />
+            <StakeHeaderShipMainPart src="/images/ship-part-red.svg" />
+          </StakeHeaderShip>
+        </StakeHeaderShipComing>
+      </StakeHeaderAnimation>
     </StakeHeaderStyled>
   )
 }
