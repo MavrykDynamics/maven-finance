@@ -1,62 +1,56 @@
+import { gsap } from 'gsap'
+import { Fragment, useEffect, useState } from 'react'
+import { Controls, PlayState, Timeline, Tween } from 'react-gsap'
 // prettier-ignore
 import { useSelector } from "react-redux";
 import { State } from 'reducers'
-import { gsap } from 'gsap'
 
 //prettier-ignore
 import { StakeHeaderAnimation, StakeHeaderPortal, StakeHeaderShip, StakeHeaderShipComing, StakeHeaderShipFlamePart, StakeHeaderShipGoing, StakeHeaderShipMainPart, StakeHeaderStyled } from './StakeHeader.style'
-import { useState, useEffect } from 'react'
 
 type StakeHeaderViewProps = {}
 
 export const StakeHeaderView = ({}: StakeHeaderViewProps) => {
   const loading = useSelector((state: State) => state.loading)
 
-  const reverseCompleteCallback = () => {
-    console.log('reverseCompleteCallback')
-  }
-
-  const [myTween] = useState(
-    gsap.timeline({
-      paused: true,
-      onReverseComplete: reverseCompleteCallback,
-    }),
-  )
-
-  let tweenTarget: any = null
-
-  useEffect(() => {
-    myTween.to(tweenTarget, { duration: 0.4, rotation: 180 }).reverse()
-  }, [])
-
-  useEffect(() => {
-    myTween.reversed(!myTween.reversed())
-  }, [loading])
-
-  // useEffect(() => {
-  //   myTween.eventCallback('onReverseComplete', reverseCompleteCallback)
-  // }, [flagA, flagB])
-
   return (
     <StakeHeaderStyled>
-      <h1 ref={(e) => (tweenTarget = e)}>Stake your MVK</h1>
+      <h1>Stake your MVK</h1>
       <p>Lock your MVK to earn rewards from loan income</p>
       <StakeHeaderPortal>
         <img src="/images/portal.svg" alt="portal" />
       </StakeHeaderPortal>
       <StakeHeaderAnimation>
-        <StakeHeaderShipGoing>
-          <StakeHeaderShip>
-            <StakeHeaderShipFlamePart src="/images/flame-part.svg" />
-            <StakeHeaderShipMainPart src="/images/ship-part.svg" />
-          </StakeHeaderShip>
-        </StakeHeaderShipGoing>
-        <StakeHeaderShipComing>
-          <StakeHeaderShip>
-            <StakeHeaderShipFlamePart src="/images/flame-part-red.svg" />
-            <StakeHeaderShipMainPart src="/images/ship-part-red.svg" />
-          </StakeHeaderShip>
-        </StakeHeaderShipComing>
+        <Timeline
+          playState={loading ? PlayState.play : PlayState.stop}
+          target={
+            <Fragment>
+              <StakeHeaderShipGoing>
+                <StakeHeaderShip>
+                  <StakeHeaderShipFlamePart src="/images/part-flame-going.svg" />
+                  <StakeHeaderShipMainPart src="/images/part-ship-going.svg" />
+                </StakeHeaderShip>
+              </StakeHeaderShipGoing>
+              <StakeHeaderShipComing>
+                <StakeHeaderShip>
+                  <StakeHeaderShipFlamePart src="/images/part-flame-coming.svg" />
+                  <StakeHeaderShipMainPart src="/images/part-ship-coming.svg" />
+                </StakeHeaderShip>
+              </StakeHeaderShipComing>
+            </Fragment>
+          }
+        >
+          <Tween to={{ x: '400px', opacity: 1 }} duration={1} target={0} ease="power2.in" />
+          <Tween to={{ x: '400px', opacity: 0 }} duration={0.1} target={0} position="-=0.1" />
+          <Tween to={{ x: '0px', opacity: 1 }} duration={0.1} target={1} position="+=1" />
+          <Tween
+            to={{ x: '-400px', opacity: 1 }}
+            duration={2}
+            target={1}
+            ease="elastic.out(0.5,0.3)"
+            position="-=0.1"
+          />
+        </Timeline>
       </StakeHeaderAnimation>
     </StakeHeaderStyled>
   )

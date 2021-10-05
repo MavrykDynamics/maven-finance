@@ -2,19 +2,19 @@ import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { useState } from 'react'
 
-import { BUTTON, ButtonColors, ButtonTypes, PRIMARY } from './Button.constants'
+import { BUTTON, ButtonStyle, ButtonTypes, PRIMARY } from './Button.constants'
 import { ButtonView } from './Button.view'
 
 type ButtonProps = {
   text: string
   icon?: string
-  color?: ButtonColors
+  kind?: ButtonStyle
   onClick?: () => void
   type?: ButtonTypes
   loading: boolean
 }
 
-export const Button = ({ text, icon, color, onClick, type, loading }: ButtonProps) => {
+export const Button = ({ text, icon, kind, onClick, type, loading }: ButtonProps) => {
   const [clicked, setClicked] = useState(false)
   const clickCallback = () => {
     setClicked(true)
@@ -24,7 +24,7 @@ export const Button = ({ text, icon, color, onClick, type, loading }: ButtonProp
     <ButtonView
       text={text}
       icon={icon}
-      color={color}
+      kind={kind}
       onClick={onClick}
       clicked={clicked}
       clickCallback={clickCallback}
@@ -37,7 +37,7 @@ export const Button = ({ text, icon, color, onClick, type, loading }: ButtonProp
 Button.propTypes = {
   text: PropTypes.string.isRequired,
   icon: PropTypes.string,
-  color: PropTypes.string,
+  kind: PropTypes.string,
   onClick: PropTypes.func,
   type: PropTypes.string,
   loading: PropTypes.bool,
@@ -45,7 +45,7 @@ Button.propTypes = {
 
 Button.defaultProps = {
   icon: undefined,
-  color: PRIMARY,
+  kind: PRIMARY,
   type: BUTTON,
   loading: false,
 }

@@ -21,7 +21,7 @@ export const MintView = () => {
             <use xlinkHref="/icons/sprites.svg#tiles" />
           </svg>
           <Link to="/edit-tiles">
-            <Button color="secondary" text="Get started" />
+            <Button kind="secondary" text="Get started" />
           </Link>
         </MintGridCell>
         <MintGridCell>
@@ -34,7 +34,7 @@ export const MintView = () => {
             <use xlinkHref="/icons/sprites.svg#layers" />
           </svg>
           <Link to="/edit-layers">
-            <Button color="secondary" text="Get started" />
+            <Button kind="secondary" text="Get started" />
           </Link>
         </MintGridCell>
       </MintGrid>

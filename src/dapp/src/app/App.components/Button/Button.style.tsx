@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components/macro'
 
-import { primaryColor, secondaryColor, textColor, backgroundColor } from '../../../styles'
+import { primaryColor, textColor, backgroundColor } from '../../../styles'
 
 export const clickWave = keyframes`
   from {
@@ -12,7 +12,8 @@ export const clickWave = keyframes`
 `
 
 export const ButtonStyled = styled.button`
-  height: 36px;
+  padding: 0;
+  height: 50px;
   border: none;
   font-weight: bold;
   font-size: 14px;
@@ -33,8 +34,9 @@ export const ButtonStyled = styled.button`
   }
 
   &.secondary {
-    color: ${textColor};
-    background-color: ${secondaryColor};
+    color: ${primaryColor};
+    background-color: initial;
+    border: 1.5px solid ${primaryColor};
   }
 
   &.transparent {
@@ -49,15 +51,18 @@ export const ButtonStyled = styled.button`
 `
 
 export const ButtonText = styled.div`
-  text-align: center;
-  margin: auto;
-  display: inline-block;
-  line-height: 36px;
+  > div {
+    text-align: center;
+    margin: auto;
+    display: inline-block;
+    line-height: 24px;
+    vertical-align: top;
+  }
 `
 
 export const ButtonIcon = styled.svg`
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   display: inline-block;
   vertical-align: sub;
   margin-right: 15px;
@@ -67,7 +72,7 @@ export const ButtonIcon = styled.svg`
   }
 
   &.secondary {
-    stroke: ${textColor};
+    stroke: ${primaryColor};
   }
 
   &.transparent {
@@ -84,6 +89,7 @@ const turn = keyframes`
 export const ButtonLoadingIcon = styled.svg`
   width: 16px;
   height: 16px;
+  margin-top: 4px;
   margin-right: 15px;
   vertical-align: sub;
   stroke: ${textColor};
@@ -91,4 +97,16 @@ export const ButtonLoadingIcon = styled.svg`
   stroke-dashoffset: 94.248;
   stroke-dasharray: 47.124;
   animation: ${turn} 1.6s linear infinite forwards;
+
+  &.primary {
+    stroke: ${backgroundColor};
+  }
+
+  &.secondary {
+    stroke: ${primaryColor};
+  }
+
+  &.transparent {
+    stroke: ${textColor};
+  }
 `

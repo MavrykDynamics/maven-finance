@@ -1,13 +1,13 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
-import { BUTTON, ButtonColors, ButtonTypes, PRIMARY } from './Button.constants'
+import { BUTTON, ButtonStyle, ButtonTypes, PRIMARY } from './Button.constants'
 import { ButtonIcon, ButtonLoadingIcon, ButtonStyled, ButtonText } from './Button.style'
 
 type ButtonViewProps = {
   text: string
   icon?: string
-  color?: ButtonColors
+  kind?: ButtonStyle
   onClick?: () => void
   clickCallback: () => void
   clicked: boolean
@@ -15,8 +15,8 @@ type ButtonViewProps = {
   loading: boolean
 }
 
-export const ButtonView = ({ text, icon, color, onClick, clickCallback, clicked, type, loading }: ButtonViewProps) => {
-  let buttonClasses = color
+export const ButtonView = ({ text, icon, kind, onClick, clickCallback, clicked, type, loading }: ButtonViewProps) => {
+  let buttonClasses = kind
   if (clicked) buttonClasses += ' clicked'
   if (loading) buttonClasses += ' loading'
   return (
@@ -31,19 +31,19 @@ export const ButtonView = ({ text, icon, color, onClick, clickCallback, clicked,
       <ButtonText>
         {loading ? (
           <>
-            <ButtonLoadingIcon>
+            <ButtonLoadingIcon className={kind}>
               <use xlinkHref="/icons/sprites.svg#loading" />
             </ButtonLoadingIcon>
-            Loading
+            <div>Loading...</div>
           </>
         ) : (
           <>
             {icon && (
-              <ButtonIcon className={color}>
+              <ButtonIcon className={kind}>
                 <use xlinkHref={`/icons/sprites.svg#${icon}`} />
               </ButtonIcon>
             )}
-            {text}
+            <div>{text}</div>
           </>
         )}
       </ButtonText>
@@ -54,7 +54,7 @@ export const ButtonView = ({ text, icon, color, onClick, clickCallback, clicked,
 ButtonView.propTypes = {
   text: PropTypes.string.isRequired,
   icon: PropTypes.string,
-  color: PropTypes.string,
+  kind: PropTypes.string,
   onClick: PropTypes.func,
   clickCallback: PropTypes.func.isRequired,
   clicked: PropTypes.bool.isRequired,
@@ -64,7 +64,7 @@ ButtonView.propTypes = {
 
 ButtonView.defaultProps = {
   icon: undefined,
-  color: PRIMARY,
+  kind: PRIMARY,
   type: BUTTON,
   loading: false,
 }

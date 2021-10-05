@@ -55,60 +55,6 @@ export const jet = keyframes`
   }
 `
 
-export const leaves = keyframes`
-  0% {
-    transform: scaleX(1.0) translateX(-360px);
-    opacity: 1;
-  }
-  10% {
-    transform: scaleX(0.8) translateX(-450px);
-    opacity: 1;
-  }
-  20% {
-    transform: scaleX(1) translateX(-360px);
-    opacity: 1;
-  }
-  50% {
-    transform: scaleX(1) translateX(-200px);
-    opacity: 1;
-  }
-  90% {
-    transform: scaleX(1) translateX(-40px);
-    opacity: 1;
-  }
-  100% {
-    transform: scaleX(1) translateX(0px);
-    opacity: 0;
-  }
-`
-
-export const comes = keyframes`
-  100% {
-    transform: scaleX(1.0) translateX(-360px);
-    opacity: 1;
-  }
-  90% {
-    transform: scaleX(0.8) translateX(-450px);
-    opacity: 1;
-  }
-  80% {
-    transform: scaleX(1) translateX(-360px);
-    opacity: 1;
-  }
-  50% {
-    transform: scaleX(1) translateX(-200px);
-    opacity: 1;
-  }
-  10% {
-    transform: scaleX(1) translateX(-40px);
-    opacity: 1;
-  }
-  0% {
-    transform: scaleX(1) translateX(0px);
-    opacity: 0;
-  }
-`
-
 export const StakeHeaderStyled = styled.div`
   background: url('/images/clouds.svg'), radial-gradient(33.05% 130.68% at 69.09% 89.38%, #60558b 0%, #53487f 100%);
   background-size: contain;
@@ -147,19 +93,18 @@ export const StakeHeaderPortal = styled.div`
 
 export const StakeHeaderAnimation = styled.div`
   position: absolute;
-  top: 23px;
+  top: -10px;
   right: 400px;
 `
 
 export const StakeHeaderShipGoing = styled.div`
   position: absolute;
-  animation: ${leaves} 1s linear 1;
-  opacity: 0;
+  right: 400px;
 `
 
 export const StakeHeaderShipComing = styled.div`
   position: absolute;
-  animation: ${comes} 1s linear 1 2s;
+  right: 0;
   opacity: 0;
 `
 

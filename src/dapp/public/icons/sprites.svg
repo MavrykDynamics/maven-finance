@@ -115,7 +115,27 @@
     </symbol>
     <symbol id="loading" viewBox="0 0 24 24">
         <g>
-            <path d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 8.31954 21.1925 5.06125 18.4167 3.06442" fill="none" stroke-linecap="round"/>        <g id="Invisible_Shape">
+            <path d="M12 1C5.92487 1 1 5.92487 1 12C1 18.0751 5.92487 23 12 23C18.0751 23 23 18.0751 23 12C23 8.31954 21.1925 5.06125 18.4167 3.06442" fill="none" stroke-linecap="round"/>
+        </g>
+    </symbol>
+    <symbol id="in" viewBox="0 0 24 24">
+        <g>
+            <path d="M12.002 0.750977V17.751" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7.50195 13.251L12.002 17.751L16.502 13.251" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M15.752 8.5H18C18.7956 8.5 19.5587 8.81607 20.1213 9.37868C20.6839 9.94129 21 10.7044 21 11.5V20.25C21 21.0456 20.6839 21.8087 20.1213 22.3713C19.5587 22.9339 18.7956 23.25 18 23.25H6C5.20435 23.25 4.44129 22.9339 3.87868 22.3713C3.31607 21.8087 3 21.0456 3 20.25V11.5C3 10.7044 3.31607 9.94129 3.87868 9.37868C4.44129 8.81607 5.20435 8.5 6 8.5H8.25" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g id="Invisible_Shape">
+            <rect fill="none" stroke="none" width="24" height="24"></rect>
+        </g>
+    </symbol>
+    <symbol id="out" viewBox="0 0 24 24">
+        <g>
+            <path d="M10.002 17.751V0.750977" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.50195 5.25098L10.002 0.750977L14.502 5.25098" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13.752 8.5H16C16.7956 8.5 17.5587 8.81607 18.1213 9.37868C18.6839 9.94129 19 10.7044 19 11.5V20.25C19 21.0456 18.6839 21.8087 18.1213 22.3713C17.5587 22.9339 16.7956 23.25 16 23.25H4C3.20435 23.25 2.44129 22.9339 1.87868 22.3713C1.31607 21.8087 1 21.0456 1 20.25V11.5C1 10.7044 1.31607 9.94129 1.87868 9.37868C2.44129 8.81607 3.20435 8.5 4 8.5H6.25" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g id="Invisible_Shape">
+            <rect fill="none" stroke="none" width="24" height="24"></rect>
         </g>
     </symbol>
     <symbol id="XXX" viewBox="0 0 24 24">
