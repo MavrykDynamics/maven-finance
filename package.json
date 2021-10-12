@@ -1,5 +1,5 @@
 {
-  "name": "mavryk",
+  "name": "mavryk-app",
   "version": "2.0.0",
   "scripts": {
     "start": "lerna exec -- yarn run --parallel start",

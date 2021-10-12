@@ -1,8 +1,6 @@
-(* Strict implimentation of the FA1.2 specification in PascaLIGO *)
-
-(* Define types *)
 type trusted is address;
 type amt is nat;
+type token_id is nat;
 
 type account is
   record [
@@ -10,10 +8,15 @@ type account is
     allowances      : map (trusted, amt);
   ]
 
-(* contract storage *)
+type token_metadata_info is record [
+  token_id        : token_id;
+  token_info      : map(string, bytes);
+]
+
 type storage is
   record [
     metadata        : big_map (string, bytes);
+    token_metadata  : big_map(token_id, token_metadata_info);
     totalSupply     : amt;
     ledger          : big_map (address, account);
   ]

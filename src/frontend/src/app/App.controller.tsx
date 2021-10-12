@@ -1,30 +1,71 @@
-import { Home } from 'pages/Home/Home.controller'
-import { Litepaper } from 'pages/Litepaper/Litepaper.controller'
-import { Privacy } from 'pages/Privacy/Privacy.controller'
+import { DAppProvider } from 'dapp/dapp'
+import { APP_NAME } from 'dapp/defaults'
+import { Admin } from 'pages/Admin/Admin.controller'
+import { Stake } from 'pages/Stake/Stake.controller'
 import React from 'react'
+import { useState } from 'react'
+import { Provider as AlertProvider, positions, types } from 'react-alert'
+//@ts-ignore
+import AlertTemplate from 'react-alert-template-basic'
+import { Provider } from 'react-redux'
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
-import { Footer } from './App.components/Footer/Footer.controller'
 
-import { Header } from './App.components/Header/Header.controller'
-import { Popup } from './App.components/Popup/Popup.controller'
+import { Menu } from './App.components/Menu/Menu.controller'
+import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller'
+import { configureStore } from './App.store'
+import { AppContainer } from './App.style'
+
+const options = {
+  timeout: 5000,
+  position: positions.TOP_RIGHT,
+  type: types.ERROR,
+}
+
+export const store = configureStore({})
 
 export const App = () => {
+  const [transactionPending, setTransactionPending] = useState<boolean>(false)
+
   return (
-    <Router>
-      <Popup />
-      <Header />
-      <Switch>
-        <Route exact path="/">
-          <Home />
-        </Route>
-        <Route exact path="/litepaper">
-          <Litepaper />
-        </Route>
-        <Route exact path="/privacy">
-          <Privacy />
-        </Route>
-      </Switch>
-      <Footer />
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <AlertProvider template={AlertTemplate} {...options}>
+          <DAppProvider appName={APP_NAME}>
+            <React.Suspense fallback={null}>
+              <ProgressBar />
+              <AppContainer>
+                <Menu />
+                <Switch>
+                  <Route exact path="/">
+                    <Stake
+                      mintTransactionPending={transactionPending}
+                      setMintTransactionPendingCallback={setTransactionPending}
+                    />
+                  </Route>
+                  <Route exact path="/stake">
+                    <Stake
+                      mintTransactionPending={transactionPending}
+                      setMintTransactionPendingCallback={setTransactionPending}
+                    />
+                  </Route>
+                  <Route exact path="/edit-tiles/:canvasId">
+                    <Stake
+                      mintTransactionPending={transactionPending}
+                      setMintTransactionPendingCallback={setTransactionPending}
+                    />
+                  </Route>
+                  <Route exact path="/admin">
+                    <Admin
+                      mintTransactionPending={transactionPending}
+                      setMintTransactionPendingCallback={setTransactionPending}
+                    />
+                  </Route>
+                </Switch>
+              </AppContainer>
+            </React.Suspense>
+          </DAppProvider>
+        </AlertProvider>
+      </Router>
+    </Provider>
   )
 }
