@@ -1,7 +1,6 @@
 import { DAppProvider } from 'dapp/dapp'
 import { APP_NAME } from 'dapp/defaults'
 import { Admin } from 'pages/Admin/Admin.controller'
-import { Mint } from 'pages/Mint/Mint.controller'
 import { Stake } from 'pages/Stake/Stake.controller'
 import React from 'react'
 import { useState } from 'react'
@@ -42,9 +41,6 @@ export const App = () => {
                       mintTransactionPending={transactionPending}
                       setMintTransactionPendingCallback={setTransactionPending}
                     />
-                  </Route>
-                  <Route exact path="/mint">
-                    <Mint />
                   </Route>
                   <Route exact path="/stake">
                     <Stake

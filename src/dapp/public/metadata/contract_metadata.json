@@ -11,7 +11,7 @@
     "TZIP-012",
     "TZIP-016"
   ],
-  "source-repository": "https://github.com/coop-art/coop-art",
+  "source-repository": "https://github.com/mavrykfinance/Mavryk",
   "views": [
     {
       "name": "token_metadata",

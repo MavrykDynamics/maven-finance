@@ -26,7 +26,7 @@ export const StakeUnstakeView = ({}: StakeUnstakeViewProps) => {
             <StakeUnstakeMax>Use Max</StakeUnstakeMax>
             <StakeUnstakeInput />
             <StakeUnstakeInputLabel>MVK</StakeUnstakeInputLabel>
-            <StakeUnstakeRate>1 MVK ≈ $0.04</StakeUnstakeRate>
+            <StakeUnstakeRate>1 MVK ≈ $0.25</StakeUnstakeRate>
           </div>
         </StakeUnstakeInputGrid>
         <StakeUnstakeButtonGrid>
