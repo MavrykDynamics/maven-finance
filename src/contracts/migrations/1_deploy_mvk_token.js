@@ -1,4 +1,4 @@
-const mvkTokenContract = artifacts.require('mvk_token');
+const mvkTokenContract = artifacts.require('mvkToken');
 const { alice } = require('../scripts/sandbox/accounts');
 const { MichelsonMap } = require('@taquito/taquito');
 const saveContractAddress = require('../helpers/saveContractAddress');
@@ -25,7 +25,7 @@ const metadata = MichelsonMap.fromLiteral({
 });
 
 const ledger = MichelsonMap.fromLiteral({
-    ["tz1W44pMWmx7vDXyHNpBKumGgdEFTLwhjCaJ"]: {
+    [alice.pkh]: {
         balance: totalSupply,
         allowances: new MichelsonMap(),
     },
