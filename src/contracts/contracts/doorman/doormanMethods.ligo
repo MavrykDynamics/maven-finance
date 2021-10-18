@@ -31,6 +31,18 @@ function transfer_fa12(
     get_fa12_token_contract(contract_address)
   );
 
+function setContractAdmin(const parameters : address; var s : storage) : return is
+block {
+    if Tezos.sender =/= s.admin then failwith("Access denied")
+    else skip;
+    s.contract := parameters;
+} with (noOperations, s)
+
+function setReserveAddress(const parameters : address; var s : storage) : return is
+block {
+    s.reserve := parameters;
+} with (noOperations, s)
+
 function stake(const parameters : nat; var s : storage) : return is
 block {
 
