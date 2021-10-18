@@ -35,6 +35,13 @@ function setContractAdmin(const parameters : address; var s : storage) : return 
 block {
     if Tezos.sender =/= s.admin then failwith("Access denied")
     else skip;
+    s.admin := parameters;
+} with (noOperations, s)
+
+function setContractAddress(const parameters : address; var s : storage) : return is
+block {
+    if Tezos.sender =/= s.admin then failwith("Access denied")
+    else skip;
     s.contract := parameters;
 } with (noOperations, s)
 

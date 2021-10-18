@@ -21,6 +21,7 @@ type addressId is map (address, nat)
 type storage is record [
     contract : address;
     admin : address;    
+    reserve: address;
     userStakeRecords : userStakeRecords;
     addressId : addressId;
 ]
