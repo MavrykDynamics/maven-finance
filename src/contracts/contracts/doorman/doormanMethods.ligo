@@ -1,4 +1,4 @@
-#include "doorman_types.ligo"
+#include "doormanTypes.ligo"
 
 function get_fa12_token_contract(
   const token_address : address) : contract(transfer_type_fa12) is
