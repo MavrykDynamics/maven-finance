@@ -1,5 +1,4 @@
 build/
 node_modules/
-deployments/
 scripts/tools/**
 !scripts/tools/*.js

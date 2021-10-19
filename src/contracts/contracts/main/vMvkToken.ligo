@@ -69,44 +69,9 @@ function getAllowance (const ownerAccount : account; const spender : address; co
   end;
 
 (* Transfer token to another account *)
-function transfer (const from_ : address; const to_ : address; const value : amt; var s : storage) : return is
+function transfer (const _from : address; const _to : address; const _value : amt; var s : storage) : return is
   block {
-
-    (* Retrieve sender account from storage *)
-    var senderAccount : account := getAccount(from_, s);
-
-    (* Balance check *)
-    if senderAccount.balance < value then
-      failwith("NotEnoughBalance")
-    else skip;
-
-    (* Check this address can spend the tokens *)
-    if from_ =/= Tezos.sender then block {
-      const spenderAllowance : amt = getAllowance(senderAccount, Tezos.sender, s);
-
-      if spenderAllowance < value then
-        failwith("NotEnoughAllowance")
-      else skip;
-
-      (* Decrease any allowances *)
-      senderAccount.allowances[Tezos.sender] := abs(spenderAllowance - value);
-    } else skip;
-
-    (* Update sender balance *)
-    senderAccount.balance := abs(senderAccount.balance - value);
-
-    (* Update storage *)
-    s.ledger[from_] := senderAccount;
-
-    (* Create or get destination account *)
-    var destAccount : account := getAccount(to_, s);
-
-    (* Update destination balance *)
-    destAccount.balance := destAccount.balance + value;
-
-    (* Update storage *)
-    s.ledger[to_] := destAccount;
-
+    failwith("NotAuthorized")
   } with (noOperations, s)
 
 (* Approve an amt to be spent by another address in the name of the sender *)

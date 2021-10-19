@@ -11,6 +11,7 @@ type stakeLock is record [
     rate : nat;
     amount : nat
 ]
+
 type stakingOption is record [
     minStake : nat;
     maxStake : nat;
