@@ -1,6 +1,6 @@
 const mvkToken = artifacts.require('mvkToken');
 
-const { initial_storage } = require('../migrations/1_deploy_mvk_token.js');
+const { initial_storage } = require('../migrations/2_deploy_mvk_token.js');
 const constants = require('../helpers/constants.js');
 /**
  * For testing on a babylonnet (testnet), instead of the sandbox network,
@@ -55,5 +55,29 @@ contract('mvkToken', accounts => {
             assert.equal(e.message, constants.contractErrors.notEnoughBalance)
         }
     });
+
+    it(`should not allow anyone to burn tokens`, async () => {
+        try {
+            await mvkTokenInstance.burn(alice.pkh, 1);
+        } catch (e) {
+            assert.equal(e.message, constants.contractErrors.notAuthorized)
+        }
+    });
+
+    it(`should not allow anyone to mint tokens`, async () => {
+        try {
+            await mvkTokenInstance.mint(alice.pkh, 1);
+        } catch (e) {
+            assert.equal(e.message, constants.contractErrors.notAuthorized)
+        }
+    });
+
+    // it(`should allow doorman to burn tokens`, async () => {
+    //     try {
+    //         await mvkTokenInstance.burn(alice.pkh, 1);
+    //     } catch (e) {
+    //         assert.equal(e.message, constants.contractErrors.notAuthorized)
+    //     }
+    // });
 
 });

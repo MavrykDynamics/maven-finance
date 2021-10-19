@@ -2,8 +2,9 @@ const mvkTokenContract = artifacts.require('mvkToken');
 const { alice } = require('../scripts/sandbox/accounts');
 const { MichelsonMap } = require('@taquito/taquito');
 const saveContractAddress = require('../helpers/saveContractAddress');
+const doormanAddress = require('../deployments/doormanContract')
 
-const totalSupply = "1000000000";
+const totalSupply = "1000"; // TODO: example to change
 
 const metadata = MichelsonMap.fromLiteral({
     "": Buffer("tezos-storage:data", "ascii").toString("hex"),
@@ -37,7 +38,7 @@ const tokenMetadata = MichelsonMap.fromLiteral({
         token_info: MichelsonMap.fromLiteral({
             symbol: Buffer.from("MVK").toString("hex"),
             name: Buffer.from("MAVRYK").toString("hex"),
-            decimals: Buffer.from("2").toString("hex"),
+            decimals: Buffer.from("6").toString("hex"),
             icon: Buffer.from(
                 "https://mavryk.finance/logo192.png"
             ).toString("hex"),
@@ -50,6 +51,7 @@ const initialStorage = {
     metadata: metadata,
     ledger: ledger,
     token_metadata: tokenMetadata,
+    doormanAddress: doormanAddress,
 };
 
 module.exports = async (deployer, network, accounts) => {

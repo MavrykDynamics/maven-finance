@@ -9,6 +9,7 @@ module.exports = {
     contractErrors: {
         fromEqualToSenderAddress: "Address from_ needs to be equal to the sender",
         notEnoughBalance: "NotEnoughBalance",
-        notEnoughAllowance: "NotEnoughAllowance"
+        notEnoughAllowance: "NotEnoughAllowance",
+        notAuthorized: "NotAuthorized"
     }
 };
