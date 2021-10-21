@@ -1,33 +1,4 @@
-function get_fa12_token_contract(
-  const token_address : address) : contract(transfer_type_fa12) is
-  case (Tezos.get_entrypoint_opt(
-      "%transfer",
-      token_address) : option(contract(transfer_type_fa12))) of
-    Some(contr) -> contr
-  | None -> (failwith("Dex/not-token") : contract(transfer_type_fa12))
-  end;
-
-(* Helper function to prepare the token transfer *)
-function wrap_fa12_transfer_trx(
-  const owner : address;
-  const receiver : address;
-  const value : nat) : transfer_type_fa12 is
-  TransferTypeFA12(owner, (receiver, value))
-
-(* Helper function to transfer fa1.2 tokens *)
-function transfer_fa12(
-  const sender_ : address;
-  const receiver : address;
-  const amount_ : nat;
-  const contract_address : address) : operation is
-  Tezos.transaction(
-    wrap_fa12_transfer_trx(
-      sender_,
-      receiver,
-      amount_),
-    0mutez,
-    get_fa12_token_contract(contract_address)
-  );
+#include "doormanTypes.ligo"
 
 // helper function to burn token
 function get_burn_token_contract(const token_address : address) : contract(burn_token) is
@@ -42,7 +13,7 @@ function get_burn_token_contract(const token_address : address) : contract(burn_
 function wrap_token_burn_tx(
   const from_ : address;
   const value : nat) : burn_token is
-  BurnToken(from_, value))
+  BurnToken(from_, value)
 
 (* Helper function to burn mvk/vmvk tokens *)
 function burn_tokens(
@@ -69,7 +40,7 @@ function get_mint_token_contract(const token_address : address) : contract(mint_
 function wrap_token_mint_tx(
   const to_ : address;
   const value : nat) : mint_token is
-  MintToken(to_, value))
+  MintToken(to_, value)
 
 (* Helper function to mint mvk/vmvk tokens *)
 function mint_tokens(
@@ -83,6 +54,57 @@ function mint_tokens(
     0mutez,
     get_mint_token_contract(contract_address)
   );
+
+  // Helper function for getting total supply
+  // function getTotalSupply (const request : request; var s: storage): return is (list [Tezos.transaction(s.tempTotalSupply, 0mutez, request.callback)], s);
+
+  // function getTotalMvkSupply(const _parameter : unit) : nat is
+  // block{
+  //   const totalMvkSupply : nat = getTotalSupply(s.mvkTokenAddress); // can it be done this way?
+  // } with totalMvkSupply
+
+  // function getTotalVmvkSupply(const _parameter : unit) : nat is
+  // block{
+  //   const totalVmvkSupply : nat = getTotalSupply(s.vmvkTokenAddress);
+  // } with totalVmvkSupply
+
+  // // receive transaction from mvkToken getTotalSupply
+  // function receiveTotalMvkSupply(const mvkTotalSupply : nat; var s: s) : nat is
+  // block{
+  //   skip
+  // } with mvkTotalSupply
+
+  // // receive transaction from vmvkToken getTotalSupply
+  // function receiveTotalVmvkSupply(const vmvkTotalSupply : nat; var s: s) : nat is
+  // block{
+  //   skip
+  // } with vmvkTotalSupply
+
+  // function calculateExitFee(const _parameter : unit; var s : storage) : nat is 
+  // block{
+
+  //   // MLI = (total vMVK / (total vMVK + total MVK)) * 100
+  //   // exitFee = 500 / (MLI + 5)
+    
+  //   // sample calculation assumed parameters:  unstake amount (param) = 250; s.tempMvkTotalSupply = 3000; s.tempVmvkTotalSupply = 4000
+  //   // Normal calculation (where decimals are factored in)
+  //   // MLI = (3000/7000)*100 = 42.857        -> in Ligo, will return 42
+  //   // exitFee = 500 / (42.857 + 5) = 10.447 -> in Ligo, will return 10
+  //   // finalAmount = 250 * ((100 - 10.447) / 100) = 250 * 0.89553 = 223.8825  
+  //   // comparison if fixed-point arithmetic is not used: finalAmount = 250 * 0.9 = 225 (since exit fee will be taken as 10 in Ligo)
+  //   // difference of 1.1175
+  //   // ----
+  //   // with Fixed-point arithmetic - scale with mu - 10^6
+  //   // MLI(i) = (3000 * 10^6 * 100) / 7000 = 42857142.85714 -> in Ligo, will return 42857142
+  //   // exitFee = (500 * 10^6 * 10^4) / (MLI + 5*10^6) = (500,000,000 * 10^4) / (42,857,142 + 5,000,000) = 104477.613811 -> in Ligo, will return 104477 (i.e. 10.4477%)
+  //   // adjust accuracy by multiplying exitFee quotient by 10^4 or 10^6 (10^6 will be more accurate e.g. 10447761 is used instead of 104477)
+  //   // finalAmount = (250 * 10^6) - (250 * 104477) = 250*10^6 - 26119250 = 223880750 muMVK -> 223.880750 MVK
+  //   // difference of 0.00175 
+  //   var mvkLoyaltyIndex : nat := (s.tempMvkTotalSupply * 1000000n * 100n / (s.tempVmvkTotalSupply + s.tempMvkTotalSupply));
+  //   var exitFee : nat := (500n * 1000000n * 100n) / (mvkLoyaltyIndex + (5n * 1000000n)); 
+
+  // } with exitFee
+
 
 // --------
 
@@ -111,8 +133,7 @@ block {
     s.vmvkTokenAddress := parameters;
 } with (noOperations, s)
 
-
-// voting contract address 
+// voting contract address - not in use currently, for future DAO based governance implementation
 function setVotingContractAddress(const parameters : address; var s : storage) : return is
 block {
     s.votingContract := parameters;
@@ -144,20 +165,18 @@ block {
       parameter,           // amount of vmvk Tokens to be minted
       s.vmvkTokenAddress); // vmvkTokenAddress
 
-  // s.tempMvkTotalSupply := s.tempMvkTotalSupply - parameter; // burn MVK - MVK total supply decrease
-  // s.tempVmvkTotalSupply := s.tempVmvkTotalSupply - parameter; // burn vMVK - vMVK total supply increase
-  
   // list of operations: burn mvk tokens first, then mint vmvk tokens
-  const operations : list(operation) = list [burn_mvk_tokens_tx, mint_vmvk_tokens_tx]
+  const operations : list(operation) = list [burn_mvk_tokens_tx; mint_vmvk_tokens_tx];
 
   // 3. update record of user address with minted vMVK tokens
 
   // temp var: to check if user address exist in the record, and increment lastUserId index if not
   const check_user_exists_in_stake_records : map(address, stakeRecord) = case s.userStakeRecord[s.lastUserId] of
       Some(_val) -> _val
-      | None -> map []
+      | None -> map[]
   end;
-  if check_user_exists_in_stake_records = map[] then s.lastUserId := s.lastUserId + 1n
+  // comparison to be fixed - not sure if size(map[]) > 0
+  if size(check_user_exists_in_stake_records) > 0n then s.lastUserId := s.lastUserId + 1n
   else skip;
 
   // get user index in record from sender address; assign  user address to lastUserId index if user does not exist in record
@@ -176,12 +195,14 @@ block {
 
   var user : stakeRecord := case container[Tezos.sender] of 
       Some(_val) -> record [
-          amount = _val.amount + parameter;
-          time = Tezos.now;        
+          amount  = _val.amount + parameter;
+          time    = Tezos.now;     
+          op_type = "stake";       
       ]
       | None -> record [
               time = Tezos.now;
-              amount = parameter;                        
+              amount = parameter;    
+              op_type = "stake";                        
           ]
   end;
   
@@ -190,9 +211,9 @@ block {
 
 } with (operations, s)
 
-function temp(const: parameters)
 
-function unstake(const parameters : nat; var s : storage) : return is
+
+function unstake(const parameter : nat; var s : storage) : return is
 block {
 
   // Steps Overview
@@ -212,28 +233,31 @@ block {
 
   // 2. calculate exit fee (in vMVK tokens) and final MVK token amount
   // get and update MVK/vMVK total supply
-  const totalMvkSupply = getTotalMvkSupply();
-  const totalVmvkSupply = getTotalVmvkSupply();
-  s.tempMvkTotalSupply := totalMvkSupply;
-  s.tempVmvkTotalSupply := totalVmvkSupply;
-  
-  const exitFee = calculateExitFee(); 
-  const finalAmount: nat := parameter * ((100 - exitFee) / 100)
 
+  // const totalMvkSupply = getTotalMvkSupply(unit);
+  // const totalVmvkSupply = getTotalVmvkSupply(unit);
+  // s.tempMvkTotalSupply := totalMvkSupply;
+  // s.tempVmvkTotalSupply := totalVmvkSupply;
+
+  // const exitFee = calculateExitFee(unit, s : storage);  // returns in mu (10^6)
+  const mvkLoyaltyIndex : nat = (s.tempMvkTotalSupply * 1000000n * 100n / (s.tempVmvkTotalSupply + s.tempMvkTotalSupply));
+  const exitFee : nat = (500n * 1000000n * 100n) / (mvkLoyaltyIndex + (5n * 1000000n)); 
+  const finalAmount : nat = abs((parameter * 1000000n) - (parameter * exitFee)); // somehow giving int type, use abs to cast as nat
+  
   // 3. mint + burn method in vmvkToken.ligo and mvkToken.ligo respectively
   // balance check in burn functions
   const burn_vmvk_tokens_tx : operation = burn_tokens(
       Tezos.sender,         // from address
-      finalAmount,          // amount of vMVK Tokens to be burned
+      finalAmount,          // amount of vMVK Tokens to be burned [in mu - 10^6]
       s.vmvkTokenAddress);  // vmvkTokenAddress
   
   const mint_mvk_tokens_tx : operation = mint_tokens(
       Tezos.sender,        // to address
-      finalAmount,         // final amount of MVK Tokens to be minted (vMVK - exit fee)
+      finalAmount,         // final amount of MVK Tokens to be minted (vMVK - exit fee) [in mu - 10^6]
       s.mvkTokenAddress);  // mvkTokenAddress
 
   // list of operations: burn vmvk tokens first, then mint mvk tokens
-  const operations : list(operation) = list [burn_vmvk_tokens_tx, mint_mvk_tokens_tx]
+  const operations : list(operation) = list [burn_vmvk_tokens_tx; mint_mvk_tokens_tx];
 
   // 4. update record of user unstaking
   // get user index in record from sender address
@@ -252,8 +276,9 @@ block {
 
   var user : stakeRecord := case container[Tezos.sender] of 
       Some(_val) -> record [
-          amount = _val.amount - parameter; // decrease amount by unstaked MVK
-          time = Tezos.now;        
+          amount  = abs(_val.amount - parameter); // decrease amount by unstaked MVK
+          time    = Tezos.now;    
+          op_type = "unstake";    
       ]
       | None -> failwith("User record not found")
   end;
@@ -269,60 +294,5 @@ block {
 } with (operations, s)
 
 
-function calculateExitFee(const _parameter : unit) : nat is 
-block{
-
-  // - check on how to handle decimals
-  //----------------------------------
-  // MLI = (total vMVK / (total vMVK + total MVK)) * 100
-  // exitFee = 500 / (MLI + 5)
-  var mvkLoyaltyIndex : nat := (s.tempMvkTotalSupply / (s.tempVmvkTotalSupply + s.tempMvkTotalSupply)) * 100;
-  var exitFee : nat := 500 / (mvkLoyaltyIndex + 5); 
-
-  // sample calculation: assume unstake param = 250; s.tempMvkTotalSupply = 3000; s.tempVmvkTotalSupply = 4000
-  // MLI = (3000/7000)*100 = 42.857
-  // exitFee = 500 / (42.857 + 5) = 10.447
-  // finalAmount = 250 * ((100 - 10.447) / 100) = 250 * 0.89553 = 223.8825
-
-} with exitFee
 
 
-// Helper function for getting total supply
-function getTotalSupply (const request : request; var s: s): return is (list [Tezos.transaction(s.totalSupply, 0mutez, request.callback)], s);
-
-function getTotalMvkSupply(const _parameter : unit) : nat is
-block{
-  const totalMvkSupply : nat = getTotalSupply(s.mvkTokenAddress); // can it be done this way?
-} with totalMvkSupply
-
-function getTotalVmvkSupply(const _parameter : unit) : nat is
-block{
-  const totalVmvkSupply : nat = getTotalSupply(s.vmvkTokenAddress);
-} with totalVmvkSupply
-
-
-
-//-------------------------------------------------------------------------
-// rewards to be in a separate contract? as there are no time-based rewards
-
-function getReward(const parameters : getRewardParam) : nat is
-block {
-
-    // Reward from Governance vote - voting is incentivised with stability fees (from satellites to delegates)
-    // Reward from Oracle - providing price feed data (from satellites to delegates)
-    // Reward from Exit Fees - opportunity cost for staking (how will this be distributed)
-    // Reward from time staked? - set temporary function first
-
-    // const k : nat = 10_000_000_000n;
-    // var period : nat := abs(parameters.stop - parameters.start);
-    // var timeRatio : nat := k * period;
-    // timeRatio := abs(timeRatio / 31536000);
-    // var reward : nat := timeRatio * parameters.rate * parameters.amount;
-    // reward := reward / (k * 100n);
-} with reward
-
-
-function claimReward(const _parameters : unit; var s : storage) : return is 
-block {
-
-} with (operations, s)
