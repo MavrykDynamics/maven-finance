@@ -2,13 +2,14 @@
 
 function main (const action : stakeAction; const s : storage) : return is
     case action of
-      Stake(parameters) -> stake(parameters, s)
+    | Stake(parameters) -> stake(parameters, s)
     | Unstake(parameters) -> unstake(parameters, s)
     // | SetAdmin(parameters) -> setAdmin(parameters, s)  
     // | setMvkContractAddress(parameters) -> setMvkContractAddress(parameters, s)
-    // | SetVmvkContractAddress(parameters) -> setVmvkContractAddress(parameters, s)
+    // | SetVMvkContractAddress(parameters) -> setVMvkContractAddress(parameters, s)
     // | SetVotingContractAddress(parameters) -> setVotingContractAddress(parameters, s)
     end
+
 
 
 // Placeholder contract to provide deployement address to MVK and vMVK
