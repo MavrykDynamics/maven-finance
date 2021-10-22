@@ -1,4 +1,4 @@
-const mvkTokenContract = artifacts.require('mvkToken');
+const vMvkTokenContract = artifacts.require('vMvkToken');
 const { alice } = require('../scripts/sandbox/accounts');
 const { MichelsonMap } = require('@taquito/taquito');
 const saveContractAddress = require('../helpers/saveContractAddress');
@@ -55,7 +55,7 @@ const initialStorage = {
 };
 
 module.exports = async (deployer, network, accounts) => {
-    deployer.deploy(mvkTokenContract, initialStorage).then(contract => saveContractAddress('mvkTokenContract', contract.address));
+    deployer.deploy(vMvkTokenContract, initialStorage).then(contract => saveContractAddress('vMvkTokenContract', contract.address));
 };
 
 module.exports.initial_storage = initialStorage;

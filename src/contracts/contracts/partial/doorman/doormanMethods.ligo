@@ -68,8 +68,60 @@ function mint_tokens(
   //   const totalVmvkSupply : nat = getTotalSupply(s.vmvkTokenAddress);
   // } with totalVmvkSupply
 
+// function getTotalMvkSupply(const tokenContractAddress: address; var s: storage): return is
+//     block {
+//         // The entry point where the information will arrive in THIS contract
+//         const requested : request = record [
+//             callback =  case (Tezos.get_entrypoint_opt("%setTotalMvkSupply", Tezos.self_address) : option(contract(nat))) of 
+//                             | Some (cb) -> cb
+//                             | None -> (failwith ("Not a contract"): contract (nat))
+//                         end;
+//         ];
+
+//         // The entry point of the contract, from where we are going to obtain the information
+//         // Must be of the same type, request, see the "contract(request)"
+//         const destination : contract (request) =
+//             case (Tezos.get_entrypoint_opt ("%getTotalSupply", tokenContractAddress) : option (contract (request))) of
+//                 | Some (cb) -> cb
+//                 | None -> (failwith ("Entrypoint not found.") : contract (request))
+//             end;
+
+//     } with (list [Tezos.transaction (requested, 0mutez, destination)], s);
+
+//   function setTotalMvkSupply (const mvkTotalSupply : nat ; var s : storage) : return is
+//     block { 
+//         patch s with record [tempMvkTotalSupply = mvkTotalSupply]
+//     } with (emptyOps, s);
+
+
+//   function getTotalVMvkSupply(const tokenContractAddress: address; var s: storage): return is
+//   block {
+//       // The entry point where the information will arrive in THIS contract
+//       const requested : request = record [
+//           callback =  case (Tezos.get_entrypoint_opt("%setTotalVMvkSupply", Tezos.self_address) : option(contract(nat))) of 
+//                           | Some (cb) -> cb
+//                           | None -> (failwith ("Not a contract"): contract (nat))
+//                       end;
+//       ];
+
+//       // The entry point of the contract, from where we are going to obtain the information
+//       // Must be of the same type, request, see the "contract(request)"
+//       const destination : contract (request) =
+//           case (Tezos.get_entrypoint_opt ("%getTotalSupply", tokenContractAddress) : option (contract (request))) of
+//               | Some (cb) -> cb
+//               | None -> (failwith ("Entrypoint not found.") : contract (request))
+//           end;
+
+//   } with (list [Tezos.transaction (requested, 0mutez, destination)], s);
+
+//   function setTotalVMvkSupply (const vMvkTotalSupply : nat ; var s : storage) : return is
+//     block { 
+//         patch s with record [tempVMvkTotalSupply = vMvkTotalSupply]
+//     } with (emptyOps, s);
+
+
   // // receive transaction from mvkToken getTotalSupply
-  // function receiveTotalMvkSupply(const mvkTotalSupply : nat; var s: s) : nat is
+  // function receiveTotalMvkSupply(const mvkTotalSupply : nat; var s: storage) : nat is
   // block{
   //   skip
   // } with mvkTotalSupply
@@ -80,9 +132,9 @@ function mint_tokens(
   //   skip
   // } with vmvkTotalSupply
 
+
   // function calculateExitFee(const _parameter : unit; var s : storage) : nat is 
   // block{
-
   //   // MLI = (total vMVK / (total vMVK + total MVK)) * 100
   //   // exitFee = 500 / (MLI + 5)
     
@@ -102,9 +154,7 @@ function mint_tokens(
   //   // difference of 0.00175 
   //   var mvkLoyaltyIndex : nat := (s.tempMvkTotalSupply * 1000000n * 100n / (s.tempVmvkTotalSupply + s.tempMvkTotalSupply));
   //   var exitFee : nat := (500n * 1000000n * 100n) / (mvkLoyaltyIndex + (5n * 1000000n)); 
-
   // } with exitFee
-
 
 // --------
 
@@ -130,16 +180,16 @@ function setVmvkContractAddress(const parameters : address; var s : storage) : r
 block {
   if Tezos.sender =/= s.admin then failwith("Access denied")
     else skip;
-    s.vmvkTokenAddress := parameters;
+    s.vMvkTokenAddress := parameters;
 } with (noOperations, s)
 
 // voting contract address - not in use currently, for future DAO based governance implementation
-function setVotingContractAddress(const parameters : address; var s : storage) : return is
-block {
-    s.votingContract := parameters;
-} with (noOperations, s)
+// function setVotingContractAddress(const parameters : address; var s : storage) : return is
+// block {
+//     s.votingContract := parameters;
+// } with (noOperations, s)
 
-function stake(const parameter : nat; var s : storage) : return is
+function stake(const stakeAmount : nat; var s : storage) : return is
 block {
 
   // Steps Overview
@@ -149,7 +199,7 @@ block {
   // ----------------------------------------
 
   // 1. verify that user is staking more than 0 MVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez 
-  if parameter = 0n then failwith("You have to stake more than 0 MVK tokens.")
+  if stakeAmount = 0n then failwith("You have to stake more than 0 MVK tokens.")
     else skip;
     
   // 2. mint + burn method in mvkToken.ligo and vmvkToken.ligo - then Temple wallet reflects the ledger amounts of MVK and vMVK - burn/mint operations are reflected
@@ -157,13 +207,13 @@ block {
   // balance check in burn functions
   const burn_mvk_tokens_tx : operation = burn_tokens(
       Tezos.sender,        // from address
-      parameter,           // amount of mvk Tokens to be burned
+      stakeAmount,         // amount of mvk Tokens to be burned
       s.mvkTokenAddress);  // mvkTokenAddress
   
   const mint_vmvk_tokens_tx : operation = mint_tokens(
       Tezos.sender,        // to address
-      parameter,           // amount of vmvk Tokens to be minted
-      s.vmvkTokenAddress); // vmvkTokenAddress
+      stakeAmount,         // amount of vmvk Tokens to be minted
+      s.vMvkTokenAddress); // vmvkTokenAddress
 
   // list of operations: burn mvk tokens first, then mint vmvk tokens
   const operations : list(operation) = list [burn_mvk_tokens_tx; mint_vmvk_tokens_tx];
@@ -195,13 +245,13 @@ block {
 
   var user : stakeRecord := case container[Tezos.sender] of 
       Some(_val) -> record [
-          amount  = _val.amount + parameter;
+          amount  = _val.amount + stakeAmount;
           time    = Tezos.now;     
           op_type = "stake";       
       ]
       | None -> record [
               time = Tezos.now;
-              amount = parameter;    
+              amount = stakeAmount;    
               op_type = "stake";                        
           ]
   end;
@@ -211,9 +261,10 @@ block {
 
 } with (operations, s)
 
+// unstake function -> return list of operations: 1. call getTotalMvkSupply 2. call getTotalVMvkSupply 3. unstakeAction (perform unstaking with ) 
 
 
-function unstake(const parameter : nat; var s : storage) : return is
+function unstake(const unstakeAmount : nat; var s : storage) : return is
 block {
 
   // Steps Overview
@@ -228,28 +279,33 @@ block {
   // ----------------------------------------
 
   // 1. verify that user is unstaking more than 0 vMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
-  if parameter = 0n then failwith("You have to stake more than 0 MVK tokens.")
+  if unstakeAmount = 0n then failwith("You have to stake more than 0 MVK tokens.")
     else skip;
 
   // 2. calculate exit fee (in vMVK tokens) and final MVK token amount
   // get and update MVK/vMVK total supply
 
+  
+  // frontend - call getMvkTotalSupply and getVMvkTotalSupply to update storage?
+  // security issue - set calling of unstake method only from admin address and/or whitelisted address and/or Tezos.self_address (include separate callUnstake method to verify sender)?
+
+
   // const totalMvkSupply = getTotalMvkSupply(unit);
   // const totalVmvkSupply = getTotalVmvkSupply(unit);
   // s.tempMvkTotalSupply := totalMvkSupply;
-  // s.tempVmvkTotalSupply := totalVmvkSupply;
+  // s.tempVMvkTotalSupply := totalVmvkSupply;
 
   // const exitFee = calculateExitFee(unit, s : storage);  // returns in mu (10^6)
-  const mvkLoyaltyIndex : nat = (s.tempMvkTotalSupply * 1000000n * 100n / (s.tempVmvkTotalSupply + s.tempMvkTotalSupply));
+  const mvkLoyaltyIndex : nat = (s.tempMvkTotalSupply * 1000000n * 100n / (s.tempVMvkTotalSupply + s.tempMvkTotalSupply));
   const exitFee : nat = (500n * 1000000n * 100n) / (mvkLoyaltyIndex + (5n * 1000000n)); 
-  const finalAmount : nat = abs((parameter * 1000000n) - (parameter * exitFee)); // somehow giving int type, use abs to cast as nat
+  const finalAmount : nat = abs((unstakeAmount * 1000000n) - (unstakeAmount * exitFee)); // somehow giving int type, use abs to cast as nat
   
   // 3. mint + burn method in vmvkToken.ligo and mvkToken.ligo respectively
   // balance check in burn functions
   const burn_vmvk_tokens_tx : operation = burn_tokens(
       Tezos.sender,         // from address
       finalAmount,          // amount of vMVK Tokens to be burned [in mu - 10^6]
-      s.vmvkTokenAddress);  // vmvkTokenAddress
+      s.vMvkTokenAddress);  // vmvkTokenAddress
   
   const mint_mvk_tokens_tx : operation = mint_tokens(
       Tezos.sender,        // to address
@@ -276,7 +332,7 @@ block {
 
   var user : stakeRecord := case container[Tezos.sender] of 
       Some(_val) -> record [
-          amount  = abs(_val.amount - parameter); // decrease amount by unstaked MVK
+          amount  = abs(_val.amount - unstakeAmount); // decrease amount by unstaked MVK
           time    = Tezos.now;    
           op_type = "unstake";    
       ]

@@ -27,15 +27,15 @@ type userStakeRecords is big_map (nat, map (address, stakeRecord))
 
 type storage is record [
     admin : address;    
-    vmvkTokenAddress: address;
+    vMvkTokenAddress: address;
     mvkTokenAddress: address; 
     tempTotalSupply: amt;
     tempMvkTotalSupply: nat;    
-    tempVmvkTotalSupply: nat;   
+    tempVMvkTotalSupply: nat;   
     userStakeRecord : userStakeRecords;
     addressId : addressId;
-    votingContract : address;
     lastUserId: nat;
+    // votingContract : address;
 ]
 
 const noOperations : list (operation) = nil;
