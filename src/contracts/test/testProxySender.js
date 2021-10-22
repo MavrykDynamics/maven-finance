@@ -1,6 +1,7 @@
 const sender = artifacts.require('sender');
 const proxy = artifacts.require('proxy');
 
+const { UnitValue } = require('@taquito/michelson-encoder');
 const { senderInitialStorage } = require('../migrations/4_deploy_sender.js');
 const { proxyInitialStorage } = require('../migrations/5_deploy_proxy.js');
 
@@ -9,6 +10,7 @@ const { alice, bob } = require('../scripts/sandbox/accounts');
 contract('sender & proxy', accounts => {
     let senderStorage;
     let senderInstance;
+    let proxyInstance;
 
     before(async () => {
         senderInstance = await sender.deployed();
@@ -20,11 +22,62 @@ contract('sender & proxy', accounts => {
         proxyStorage = await proxyInstance.storage();
     });
 
-    // const expectedBalanceAlice = initial_storage.ledger.get(alice.pkh).balance;
-    // it(`should store a balance of ${expectedBalanceAlice} for Alice`, async () => {
-    //     const deployedLedgerAlice = await storage.ledger.get(alice.pkh);
-    //     assert.equal(expectedBalanceAlice, deployedLedgerAlice.balance);
-    // });
+    it(`call sender increment through proxy`, async () => {
+        try{
+            
+            const beforeSenderStorage = await senderInstance.storage();
+            console.log('before Sender storage: '+ beforeSenderStorage); // 0        
+        
+            const increment = await proxyInstance.increment(5);
+
+            const afterSenderStorage = await senderInstance.storage();
+            console.log('after Sender storage: '+ afterSenderStorage); // 5   
+
+            assert.equal(afterSenderStorage, 5);
+
+        } catch (e){
+            console.log(e);
+        }
+    });
+
+    it(`call sender decrement through proxy`, async () => {
+        try{
+            
+            const beforeSenderStorage = await senderInstance.storage();
+            console.log('before Sender storage: '+ beforeSenderStorage); // 5     
+        
+            const decrement = await proxyInstance.decrement(3);
+
+            const afterSenderStorage = await senderInstance.storage();
+            console.log('after Sender storage: '+ afterSenderStorage); // 2       
+
+            assert.equal(afterSenderStorage, 2);
+
+        } catch (e){
+            console.log(e);
+        }
+    });
+
+    it(`call sender reset through proxy`, async () => {
+        try{
+            
+            const beforeSenderStorage = await senderInstance.storage();
+            console.log('before Sender storage: '+ beforeSenderStorage); // 2  
+        
+            const reset = await proxyInstance.reset(UnitValue);
+
+            const afterSenderStorage = await senderInstance.storage();
+            console.log('after Sender storage: '+ afterSenderStorage); // 0
+
+            assert.equal(afterSenderStorage, 0);
+
+        } catch (e){
+            console.log(e);
+        }
+    });
+
+    
+
 
     // it(`should not store any balance for Bob`, async () => {
     //     let balanceBob = await storage.ledger.get(bob.pkh);
