@@ -3,16 +3,16 @@ import { AdminStyled } from './Admin.style'
 
 type AdminViewProps = {
   mintCallBack: () => Promise<any>
-  setMintTransactionPendingCallback: (b: boolean) => void
+  setTransactionPending: (b: boolean) => void
   connectedUser: string
-  mintTransactionPending: boolean
+  transactionPending: boolean
 }
 
 export const AdminView = ({
   mintCallBack,
   connectedUser,
-  setMintTransactionPendingCallback,
-  mintTransactionPending,
+  setTransactionPending,
+  transactionPending,
 }: AdminViewProps) => {
   return (
     <AdminStyled>

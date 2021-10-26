@@ -1,5 +1,1 @@
-<<<<<<< HEAD
-module.exports = "KT1VAXjVMNMhdAnnqZqRL1AbcdnBo7sW61X3";
-=======
-module.exports = "KT1HHgXdewzuyePjYFbZG4oGwDeQFLoX8ULG";
->>>>>>> 2a8addeffe9a76330a1fdf2991229b82c8361067
+module.exports = "KT1Ay2ezHySGD5wX9md3vXKJSgLk3qqY3FzB";

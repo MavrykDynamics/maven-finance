@@ -1,39 +1,25 @@
 // prettier-ignore
 import { useAccountPkh, useOnBlock, useReady, useTezos, useWallet } from "dapp/dapp";
-import { ADMIN, MAVRYK_ADDRESS } from 'dapp/defaults'
+import { ADMIN, MVK_TOKEN_ADDRESS } from 'dapp/defaults'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router'
 import { Message, Page } from 'styles'
+import { useAlert } from 'react-alert'
 
-import { StakeView, Tile } from './Stake.view'
+import { StakeView } from './Stake.view'
 import { StakeHeader } from './StakeHeader/StakeHeader.controller'
 import { StakeUnstake } from './StakeUnstake/StakeUnstake.controller'
 
-export type Mint = {
-  tileId: number
-  canvasId: string
-  x: number
-  y: number
-  l: number
-  image: string
-  owner?: string
-  deadline: string
-  tileWidth: number
-  tileHeight: number
-}
-
-export type Vote = {
-  tileId: number
-  up: boolean
+export type StakeCallback = {
+  amount: number
 }
 
 type StakeProps = {
-  setMintTransactionPendingCallback: (b: boolean) => void
-  mintTransactionPending: boolean
+  setTransactionPending: (b: boolean) => void
+  transactionPending: boolean
 }
 
-export const Stake = ({ setMintTransactionPendingCallback, mintTransactionPending }: StakeProps) => {
+export const Stake = ({ setTransactionPending, transactionPending }: StakeProps) => {
   const wallet = useWallet()
   const ready = useReady()
   const tezos = useTezos()
@@ -41,44 +27,39 @@ export const Stake = ({ setMintTransactionPendingCallback, mintTransactionPendin
   const [contract, setContract] = useState(undefined)
   const [myMvkBalance, setMyMvkBalance] = useState(0)
   const [loading, setLoading] = useState(false)
+  const alert = useAlert()
 
   const loadStorage = React.useCallback(async () => {
     setLoading(true)
     if (contract) {
       const storage = await (contract as any).storage()
-      setMyMvkBalance(storage['totalSupply'])
+      const myLedgerEntry = await storage['ledger'].get(accountPkh)
+      const myMvkBalanceMu = myLedgerEntry?.balance.toNumber()
+      const myMvkBalance = myMvkBalanceMu > 0 ? myMvkBalanceMu / 1000000 : 0
+      setMyMvkBalance(myMvkBalance)
       setLoading(false)
     }
-  }, [contract])
+    setLoading(false)
+  }, [contract, accountPkh])
 
   useEffect(() => {
     loadStorage()
-  }, [loadStorage])
+  }, [loadStorage, accountPkh])
 
   useEffect(() => {
     ;(async () => {
       if (tezos) {
-        const ctr = await (tezos as any).wallet.at(MAVRYK_ADDRESS)
+        const ctr = await (tezos as any).wallet.at(MVK_TOKEN_ADDRESS)
         setContract(ctr)
       }
     })()
-  }, [tezos, mintTransactionPending])
+  }, [tezos])
 
   useOnBlock(tezos, loadStorage)
 
-  const voteCallback = React.useCallback(
-    ({ tileId, up }: Vote) => {
-      if (up) return (contract as any).methods.upvote(tileId).send()
-      else return (contract as any).methods.downvote(tileId).send()
-    },
-    [contract],
-  )
-
-  const mintCallback = React.useCallback(
-    ({ tileId, canvasId, x, y, l, image, owner, deadline, tileWidth, tileHeight }: Mint) => {
-      return (contract as any).methods
-        .mint(canvasId, deadline, image, l, ADMIN, owner, tileHeight, tileId, tileWidth, x, y)
-        .send()
+  const stakeCallback = React.useCallback(
+    ({ amount }: StakeCallback) => {
+      return (contract as any).methods.stake(amount).send()
     },
     [contract],
   )
@@ -92,11 +73,10 @@ export const Stake = ({ setMintTransactionPendingCallback, mintTransactionPendin
           {ready ? (
             <StakeView
               loading={loading}
-              mintCallback={mintCallback}
-              voteCallback={voteCallback}
+              stakeCallback={stakeCallback}
               connectedUser={accountPkh as unknown as string}
-              setMintTransactionPendingCallback={setMintTransactionPendingCallback}
-              mintTransactionPending={mintTransactionPending}
+              setTransactionPending={setTransactionPending}
+              transactionPending={transactionPending}
               myMvkBalance={myMvkBalance}
             />
           ) : (

@@ -49,7 +49,7 @@ const tokenMetadata = MichelsonMap.fromLiteral({
 });
 
 const initialStorage = {
-    totalSupply: totalSupply,
+    totalSupply: initialSupply,
     metadata: metadata,
     ledger: ledger,
     token_metadata: tokenMetadata,

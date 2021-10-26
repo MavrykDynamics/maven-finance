@@ -38,7 +38,7 @@ export const StakeUnstakeView = ({ myMvkBalance }: StakeUnstakeViewProps) => {
         <StakeUnstakeBalance>
           <h3>My MVK Balance</h3>
           <img src="/images/coin-gold.svg" alt="coin" />
-          <div>{myMvkBalance} MVK</div>
+          <div>{myMvkBalance?.toFixed(2)} MVK</div>
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>

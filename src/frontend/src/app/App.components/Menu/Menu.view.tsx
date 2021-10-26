@@ -4,7 +4,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { MenuBanner, MenuButton, MenuConnected, MenuFooter, MenuGrid, MenuIcon, MenuLogo, MenuStyled } from "./Menu.style";
 
 type MenuViewProps = {
-  balance?: number | null
+  loading: boolean
+  myMvkBalance?: number | null
   accountPkhPreview?: string
   handleNewConnect: () => void
   wallet: any
@@ -13,7 +14,8 @@ type MenuViewProps = {
 }
 
 export const MenuView = ({
-  balance,
+  loading,
+  myMvkBalance,
   accountPkhPreview,
   handleNewConnect,
   wallet,
@@ -33,7 +35,7 @@ export const MenuView = ({
           {ready ? (
             <MenuConnected>
               <p>{accountPkhPreview}</p>
-              <div>0 MVK</div>
+              <div>{myMvkBalance?.toFixed(2)} MVK</div>
             </MenuConnected>
           ) : (
             <MenuButton onClick={handleConnect}>
