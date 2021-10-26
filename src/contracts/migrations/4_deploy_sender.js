@@ -7,4 +7,4 @@ module.exports = async (deployer, network, accounts) => {
     deployer.deploy(senderContract, initialStorage).then(contract => saveContractAddress('senderContract', contract.address));
 };
 
-module.exports.initial_storage = initialStorage;
+module.exports.senderInitialStorage = initialStorage;

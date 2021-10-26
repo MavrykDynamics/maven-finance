@@ -7,14 +7,13 @@ import { Mint, Vote } from './Stake.controller'
 import { StakeStyled } from "./Stake.style";
 
 type StakeViewProps = {
-  loadingTiles: boolean
+  loading: boolean
   mintCallback: (mintProps: Mint) => Promise<any>
   voteCallback: (voteProps: Vote) => Promise<any>
   setMintTransactionPendingCallback: (b: boolean) => void
   connectedUser: string
   mintTransactionPending: boolean
-  existingTiles: Tile[]
-  urlCanvasId?: string
+  myMvkBalance: number
 }
 
 export type Tile = {
@@ -34,32 +33,16 @@ export type Tile = {
 }
 
 export const StakeView = ({
-  loadingTiles,
+  loading,
   mintCallback,
   voteCallback,
   connectedUser,
-  existingTiles,
   setMintTransactionPendingCallback,
   mintTransactionPending,
-  urlCanvasId,
+  myMvkBalance,
 }: StakeViewProps) => {
-  const [showGrid, setShowGrid] = useState(true)
-  const [tiles, setTiles] = useState<Tile[]>([])
-  const [tileWidth, setTileWidth] = useState(340)
-  const [tileHeight, setTileHeight] = useState(340)
-  const [lockedInputs, setLockedInputs] = useState(false)
-  const [deadline, setDeadline] = useState(dayjs().add(3, 'days').format())
   const [isUploading, setIsUploading] = useState(false)
   const alert = useAlert()
-  const [canvasId, setCanvasId] = useState(urlCanvasId)
-  const [canvasSize, setCanvasSize] = useState({
-    xMin: 0,
-    xMax: 0,
-    yMin: 0,
-    yMax: 0,
-    canvasWidth: 1,
-    canvasHeight: 1,
-  })
 
   async function handleVote(tileId: number, up: boolean) {
     if (mintTransactionPending) {
