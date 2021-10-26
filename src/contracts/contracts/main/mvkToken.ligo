@@ -34,8 +34,10 @@ type approveParams is michelson_pair(trusted, "spender", amt, "value")
 type balanceParams is michelson_pair(address, "owner", contract(amt), "")
 type allowanceParams is michelson_pair(michelson_pair(address, "owner", trusted, "spender"), "", contract(amt), "")
 type totalSupplyParams is (unit * contract(amt))
-type mintParams is michelson_pair(address, "to", amt, "value")
-type burnParams is michelson_pair(address, "from", amt, "value")
+// type mintParams is michelson_pair(address, "to", amt, "value")
+// type burnParams is michelson_pair(address, "from", amt, "value")
+type mintParams is (address * nat)
+type burnParams is (address * nat)
 
 (* Valid entry points *)
 type entryAction is
@@ -44,6 +46,7 @@ type entryAction is
   | GetBalance of balanceParams
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
+  // | GetTotalSupplyProxy of amt
   | Mint of mintParams
   | Burn of burnParams
 
@@ -151,6 +154,25 @@ function getTotalSupply (const contr : contract(amt); var s : storage) : return 
     skip
   } with (list [transaction(s.totalSupply, 0tz, contr)], s)
 
+  // function getTotalSupplyProxy (const action : entryAction; var s : storage) : return is
+  // block {
+
+  //   (* Check this call is comming from the doorman contract *)
+  //   if s.doormanAddress =/= Tezos.sender then
+  //     failwith("NotAuthorized")
+  //   else skip;
+
+  //   const setTotalMvkSupply : contract (action) =
+  //     case (Tezos.get_contract_opt (s.doormanAddress) : option (contract (action))) of
+  //       Some (contract) -> contract
+  //     | None -> (failwith ("Contract not found.") : contract (action))
+  //     end;
+
+  //   const setTotalMvkSupplyOperation : operation = Tezos.transaction (action, 0tez, setTotalMvkSupply);
+  //   const operations : list (operation) = list [setTotalMvkSupplyOperation]
+
+  // } with (operations, s)
+
 (* Mint tokens to an address, only callable by the doorman contract *)
 function mint (const to_ : address; const value : amt; var s : storage) : return is
   block {
@@ -164,6 +186,8 @@ function mint (const to_ : address; const value : amt; var s : storage) : return
 
     (* Update sender balance *)
     targetAccount.balance := targetAccount.balance + value;
+
+    s.totalSupply := s.totalSupply + value;
 
     (* Update storage *)
     s.ledger[to_] := targetAccount;
@@ -188,8 +212,13 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     (* Update sender balance *)
     targetAccount.balance := abs(targetAccount.balance - value);
 
+    s.totalSupply := abs(s.totalSupply - value);
+
+    // run contract update
+
     (* Update storage *)
     s.ledger[from_] := targetAccount;
+    
   } with (noOperations, s)
 
 (* Main entrypoint *)
@@ -202,6 +231,8 @@ function main (const action : entryAction; var s : storage) : return is
     | GetBalance(params) -> getBalance(params.0, params.1, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)
+    // | GetTotalSupplyProxy(params) -> getTotalSupplyProxy(params.1, s)
     | Mint(params) -> mint(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
+
   end;

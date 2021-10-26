@@ -18,11 +18,11 @@ contract('mvkToken', accounts => {
         storage = await mvkTokenInstance.storage();
     });
 
-    const expectedBalanceAlice = initial_storage.ledger.get(alice.pkh).balance;
-    it(`should store a balance of ${expectedBalanceAlice} for Alice`, async () => {
-        const deployedLedgerAlice = await storage.ledger.get(alice.pkh);
-        assert.equal(expectedBalanceAlice, deployedLedgerAlice.balance);
-    });
+    // const expectedBalanceAlice = initial_storage.ledger.get(alice.pkh).balance;
+    // it(`should store a balance of ${expectedBalanceAlice} for Alice`, async () => {
+    //     const deployedLedgerAlice = await storage.ledger.get(alice.pkh);
+    //     assert.equal(expectedBalanceAlice, deployedLedgerAlice.balance);
+    // });
 
     it(`should not store any balance for Bob`, async () => {
         let balanceBob = await storage.ledger.get(bob.pkh);
