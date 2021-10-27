@@ -42,67 +42,67 @@ contract('doorman', accounts => {
 
     });
 
-    // it(`set mvk contract address`, async () => {
-    //     try{
+    it(`set mvk contract address`, async () => {
+        try{
             
-    //         // dummy contract address generated from previous tests
-    //         // console.log('before (mvk contract address): '+ doormanStorage.mvkTokenAddress);
-    //         const dummyMvkTokenAddress = "KT18jjki6TE4AkoNsU3iEJRgSxzWcoqKaf2S";
+            // dummy contract address generated from previous tests
+            // console.log('before (mvk contract address): '+ doormanStorage.mvkTokenAddress);
+            const dummyMvkTokenAddress = "KT18jjki6TE4AkoNsU3iEJRgSxzWcoqKaf2S";
 
-    //         const setMvkTokenAddress = await doormanInstance.setMvkTokenAddress(dummyMvkTokenAddress);
-    //         const afterDoormanStorage = await doormanInstance.storage();
+            const setMvkTokenAddress = await doormanInstance.setMvkTokenAddress(dummyMvkTokenAddress);
+            const afterDoormanStorage = await doormanInstance.storage();
 
-    //         // console.log('after (mvk contract address): '+ afterDoormanStorage.mvkTokenAddress);
-    //         assert.equal(afterDoormanStorage.mvkTokenAddress, dummyMvkTokenAddress);
+            // console.log('after (mvk contract address): '+ afterDoormanStorage.mvkTokenAddress);
+            assert.equal(afterDoormanStorage.mvkTokenAddress, dummyMvkTokenAddress);
 
-    //         // set back to original token address
-    //         await doormanInstance.setMvkTokenAddress(mvkTokenInstance.address);        
-    //         const resetDoormanStorage = await doormanInstance.storage();
-    //         // console.log('reset (mvk contract address): '+ resetDoormanStorage.mvkTokenAddress);
+            // set back to original token address
+            await doormanInstance.setMvkTokenAddress(mvkTokenInstance.address);        
+            const resetDoormanStorage = await doormanInstance.storage();
+            // console.log('reset (mvk contract address): '+ resetDoormanStorage.mvkTokenAddress);
 
-    //     } catch (e){
-    //         console.log(e);
-    //     }
-    // });
+        } catch (e){
+            console.log(e);
+        }
+    });
 
-    // it(`set vMvk contract address`, async () => {
-    //     try{
+    it(`set vMvk contract address`, async () => {
+        try{
             
-    //         // dummy contract address generated from previous tests
-    //         // console.log('before (vMvk contract address): '+ doormanStorage.vMvkTokenAddress);
-    //         const dummyVMvkTokenAddress = "KT18jjki6TE4AkoNsU3iEJRgSxzWcoqKaf2S";
+            // dummy contract address generated from previous tests
+            // console.log('before (vMvk contract address): '+ doormanStorage.vMvkTokenAddress);
+            const dummyVMvkTokenAddress = "KT18jjki6TE4AkoNsU3iEJRgSxzWcoqKaf2S";
 
-    //         const setVMvkTokenAddress = await doormanInstance.setVMvkTokenAddress(dummyVMvkTokenAddress);
-    //         const afterDoormanStorage = await doormanInstance.storage();
+            const setVMvkTokenAddress = await doormanInstance.setVMvkTokenAddress(dummyVMvkTokenAddress);
+            const afterDoormanStorage = await doormanInstance.storage();
 
-    //         // console.log('after (vMvk contract address): '+ afterDoormanStorage.vMvkTokenAddress);
-    //         assert.equal(afterDoormanStorage.vMvkTokenAddress, dummyVMvkTokenAddress);
+            // console.log('after (vMvk contract address): '+ afterDoormanStorage.vMvkTokenAddress);
+            assert.equal(afterDoormanStorage.vMvkTokenAddress, dummyVMvkTokenAddress);
 
-    //         // set back to original token address
-    //         await doormanInstance.setVMvkTokenAddress(vMvkTokenInstance.address);        
-    //         const resetDoormanStorage = await doormanInstance.storage();
-    //         // console.log('reset (vMvk contract address): '+ resetDoormanStorage.vMvkTokenAddress);
+            // set back to original token address
+            await doormanInstance.setVMvkTokenAddress(vMvkTokenInstance.address);        
+            const resetDoormanStorage = await doormanInstance.storage();
+            // console.log('reset (vMvk contract address): '+ resetDoormanStorage.vMvkTokenAddress);
 
-    //     } catch (e){
-    //         console.log(e);
-    //     }
-    // });
+        } catch (e){
+            console.log(e);
+        }
+    });
 
-    // it(`set admin to bob`, async () => {
-    //     try{
+    it(`set admin to bob`, async () => {
+        try{
             
-    //         console.log('before Admin (alice address): '+ doormanStorage.admin); // return alice.pkh        
+            console.log('before Admin (alice address): '+ doormanStorage.admin); // return alice.pkh        
         
-    //         const setAdminAddress = await doormanInstance.setAdmin(bob.pkh);
-    //         const afterDoormanStorage = await doormanInstance.storage();
+            const setAdminAddress = await doormanInstance.setAdmin(bob.pkh);
+            const afterDoormanStorage = await doormanInstance.storage();
 
-    //         console.log('after Admin (bob address): '+ afterDoormanStorage.admin); // return bob.pkh        
-    //         assert.equal(afterDoormanStorage.admin, bob.pkh);
+            console.log('after Admin (bob address): '+ afterDoormanStorage.admin); // return bob.pkh        
+            assert.equal(afterDoormanStorage.admin, bob.pkh);
 
-    //     } catch (e){
-    //         console.log(e);
-    //     }
-    // });
+        } catch (e){
+            console.log(e);
+        }
+    });
 
 
     it(`alice stake 100 MVK tokens`, async () => {

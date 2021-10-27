@@ -28,7 +28,7 @@ const metadata = MichelsonMap.fromLiteral({
 });
 
 const ledger = MichelsonMap.fromLiteral({
-    [faucet.pkh]: {
+    [alice.pkh]: {
         balance: initialSupply,
         allowances: new MichelsonMap(),
     },
