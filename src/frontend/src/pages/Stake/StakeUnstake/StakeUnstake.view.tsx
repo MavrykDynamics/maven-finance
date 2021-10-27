@@ -6,9 +6,9 @@ import { stake } from '../Stake.actions'
 // prettier-ignore
 import { StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInput, StakeUnstakeInputGrid, StakeUnstakeInputLabel, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
 
-type StakeUnstakeViewProps = {}
+type StakeUnstakeViewProps = { myMvkBalance: any }
 
-export const StakeUnstakeView = ({}: StakeUnstakeViewProps) => {
+export const StakeUnstakeView = ({ myMvkBalance }: StakeUnstakeViewProps) => {
   const loading = useSelector((state: State) => state.loading)
   const dispatch = useDispatch()
 
@@ -38,21 +38,21 @@ export const StakeUnstakeView = ({}: StakeUnstakeViewProps) => {
         <StakeUnstakeBalance>
           <h3>My MVK Balance</h3>
           <img src="/images/coin-gold.svg" alt="coin" />
-          <div>342 MVK</div>
+          <div>{myMvkBalance?.toFixed(2)} MVK</div>
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>Total MVK Staked</h3>
           <img src="/images/coin-silver.svg" alt="coin" />
-          <div>342 MVK</div>
+          <div>0 MVK</div>
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>Total MVK Earned</h3>
           <img src="/images/coin-bronze.svg" alt="coin" />
-          <div>342 MVK</div>
+          <div>0 MVK</div>
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
     </StakeUnstakeStyled>

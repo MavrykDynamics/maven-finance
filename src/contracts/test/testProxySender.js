@@ -2,6 +2,7 @@ const sender = artifacts.require('sender');
 const proxy = artifacts.require('proxy');
 
 const { UnitValue } = require('@taquito/michelson-encoder');
+
 const { senderInitialStorage } = require('../migrations/4_deploy_sender.js');
 const { proxyInitialStorage } = require('../migrations/5_deploy_proxy.js');
 

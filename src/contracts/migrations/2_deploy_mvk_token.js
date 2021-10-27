@@ -1,10 +1,12 @@
 const mvkTokenContract = artifacts.require('mvkToken');
 const { alice } = require('../scripts/sandbox/accounts');
+const faucet = require('../faucet.json');
+
 const { MichelsonMap } = require('@taquito/taquito');
 const saveContractAddress = require('../helpers/saveContractAddress');
 const doormanAddress = require('../deployments/doormanContract')
 
-const totalSupply = "1000000000"; // 1000 MVK Tokens in mu (10^6)
+const initialSupply = "1000000000"; // 1000 MVK Tokens in mu (10^6)
 
 const metadata = MichelsonMap.fromLiteral({
     "": Buffer("tezos-storage:data", "ascii").toString("hex"),
@@ -26,8 +28,8 @@ const metadata = MichelsonMap.fromLiteral({
 });
 
 const ledger = MichelsonMap.fromLiteral({
-    [alice.pkh]: {
-        balance: totalSupply,
+    [faucet.pkh]: {
+        balance: initialSupply,
         allowances: new MichelsonMap(),
     },
 });
@@ -47,7 +49,7 @@ const tokenMetadata = MichelsonMap.fromLiteral({
 });
 
 const initialStorage = {
-    totalSupply: totalSupply,
+    totalSupply: initialSupply,
     metadata: metadata,
     ledger: ledger,
     token_metadata: tokenMetadata,

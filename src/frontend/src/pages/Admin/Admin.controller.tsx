@@ -1,6 +1,6 @@
 // prettier-ignore
 import { useAccountPkh, useOnBlock, useReady, useTezos, useWallet } from "dapp/dapp";
-import { ADMIN, MAVRYK_ADDRESS } from 'dapp/defaults'
+import { ADMIN, MVK_TOKEN_ADDRESS } from 'dapp/defaults'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { Message, Page } from 'styles'
@@ -8,11 +8,11 @@ import { Message, Page } from 'styles'
 import { AdminView } from './Admin.view'
 
 type AdminProp = {
-  setMintTransactionPendingCallback: (b: boolean) => void
-  mintTransactionPending: boolean
+  setTransactionPending: (b: boolean) => void
+  transactionPending: boolean
 }
 
-export const Admin = ({ setMintTransactionPendingCallback, mintTransactionPending }: AdminProp) => {
+export const Admin = ({ setTransactionPending, transactionPending }: AdminProp) => {
   const wallet = useWallet()
   const ready = useReady()
   const tezos = useTezos()
@@ -34,16 +34,16 @@ export const Admin = ({ setMintTransactionPendingCallback, mintTransactionPendin
   useEffect(() => {
     ;(async () => {
       if (tezos) {
-        const ctr = await (tezos as any).wallet.at(MAVRYK_ADDRESS)
+        const ctr = await (tezos as any).wallet.at(MVK_TOKEN_ADDRESS)
         setContract(ctr)
       }
     })()
-  }, [tezos, mintTransactionPending])
+  }, [tezos, transactionPending])
 
   useOnBlock(tezos, loadStorage)
 
   const mint = React.useCallback(async () => {
-    const ctr = await (tezos as any).wallet.at(MAVRYK_ADDRESS)
+    const ctr = await (tezos as any).wallet.at(MVK_TOKEN_ADDRESS)
     // prettier-ignore
     const batch = await (tezos as any).wallet
       .batch()
@@ -86,9 +86,9 @@ export const Admin = ({ setMintTransactionPendingCallback, mintTransactionPendin
               {accountPkh === adminAdress ? (
                 <AdminView
                   mintCallBack={mint}
-                  connectedUser={(accountPkh as unknown) as string}
-                  setMintTransactionPendingCallback={setMintTransactionPendingCallback}
-                  mintTransactionPending={mintTransactionPending}
+                  connectedUser={accountPkh as unknown as string}
+                  setTransactionPending={setTransactionPending}
+                  transactionPending={transactionPending}
                 />
               ) : (
                 <Message>You are not the admin of this smart contract</Message>
