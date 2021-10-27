@@ -2,31 +2,28 @@ const doormanContract = artifacts.require('doorman');
 
 const mvkTokenAddress = require('../deployments/mvkTokenContract')
 const vMvkTokenAddress = require('../deployments/vMvkTokenContract')
-const tempSenderAddress = require('../deployments/senderContract')
 const { alice, bob } = require('../scripts/sandbox/accounts');
 const saveContractAddress = require('../helpers/saveContractAddress');
 const { MichelsonMap } = require('@taquito/michelson-encoder');
 
-const userStakeRecord = new MichelsonMap();
+const userStakeLedger = new MichelsonMap();
 const adminAddress = alice.pkh;
-const tempMvkTotalSupply = "1000";
-const tempVMvkTotalSupply = "1000";
+const tempMvkTotalSupply = "1000000000";
+const tempVMvkTotalSupply = "1000000000";
 const lastUserId = "1";
-const addressId = new MichelsonMap.fromLiteral({
-    [alice.pkh] : "1",
-    [bob.pkh] : "2"
-});
+const addressToUserRecord = new MichelsonMap();
 
 const initialStorage = {
     admin : adminAddress, 
     mvkTokenAddress: mvkTokenAddress,
     vMvkTokenAddress: vMvkTokenAddress,
-    tempSenderAddress: tempSenderAddress,
-    userStakeRecord : userStakeRecord,
+    userStakeLedger : userStakeLedger,
     tempMvkTotalSupply: tempMvkTotalSupply,
     tempVMvkTotalSupply: tempVMvkTotalSupply,
-    addressId : addressId,
-    lastUserId: lastUserId
+    addressToUserRecord : addressToUserRecord,
+    lastUserId: lastUserId,
+    logExitFee: "1",
+    logFinalAmount: "1"
 }
 
 module.exports = async (deployer, network, accounts) => {

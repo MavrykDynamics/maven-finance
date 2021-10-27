@@ -4,7 +4,7 @@ const { MichelsonMap } = require('@taquito/taquito');
 const saveContractAddress = require('../helpers/saveContractAddress');
 const doormanAddress = require('../deployments/doormanContract')
 
-const totalSupply = "1000"; // TODO: example to change
+const totalSupply = "1000000000"; // 1000 MVK Tokens in mu (10^6)
 
 const metadata = MichelsonMap.fromLiteral({
     "": Buffer("tezos-storage:data", "ascii").toString("hex"),
