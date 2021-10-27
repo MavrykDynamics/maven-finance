@@ -46,7 +46,7 @@ type entryAction is
   | GetBalance of balanceParams
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
-  // | GetTotalSupplyProxy of amt
+  | UpdateMvkTotalSupplyForDoorman of (unit)
   | Mint of mintParams
   | Burn of burnParams
 
@@ -63,6 +63,15 @@ function getAccount (const addr : address; const s : storage) : account is
     | Some(instance) -> acct := instance
     end;
   } with acct
+
+(*  helper function to set temp mvk total supply in Doorman module *)
+function setTempMvkTotalSupplyInDoorman(const tokenAddress : address) : contract(nat) is
+  case (Tezos.get_entrypoint_opt(
+      "%setTempMvkTotalSupply",
+      tokenAddress) : option(contract(nat))) of
+    Some(contr) -> contr
+  | None -> (failwith("SetTempMvkTotalSupply entrypoint not found") : contract(nat))
+  end;
 
 (* Helper function to get allowance for an account *)
 function getAllowance (const ownerAccount : account; const spender : address; const _s : storage) : amt is
@@ -154,24 +163,18 @@ function getTotalSupply (const contr : contract(amt); var s : storage) : return 
     skip
   } with (list [transaction(s.totalSupply, 0tz, contr)], s)
 
-  // function getTotalSupplyProxy (const action : entryAction; var s : storage) : return is
-  // block {
+function updateMvkTotalSupplyForDoorman (var s : storage) : return is
+  block {
 
-  //   (* Check this call is comming from the doorman contract *)
-  //   if s.doormanAddress =/= Tezos.sender then
-  //     failwith("NotAuthorized")
-  //   else skip;
+    (* Check this call is comming from the doorman contract *)
+    if s.doormanAddress =/= Tezos.sender then
+      failwith("NotAuthorized")
+    else skip;
 
-  //   const setTotalMvkSupply : contract (action) =
-  //     case (Tezos.get_contract_opt (s.doormanAddress) : option (contract (action))) of
-  //       Some (contract) -> contract
-  //     | None -> (failwith ("Contract not found.") : contract (action))
-  //     end;
+    const setTempMvkTotalSupplyInDoormanOperation : operation = Tezos.transaction(s.totalSupply, 0tez, setTempMvkTotalSupplyInDoorman(s.doormanAddress));
+    const operations : list (operation) = list [setTempMvkTotalSupplyInDoormanOperation];
 
-  //   const setTotalMvkSupplyOperation : operation = Tezos.transaction (action, 0tez, setTotalMvkSupply);
-  //   const operations : list (operation) = list [setTotalMvkSupplyOperation]
-
-  // } with (operations, s)
+  } with (operations, s)
 
 (* Mint tokens to an address, only callable by the doorman contract *)
 function mint (const to_ : address; const value : amt; var s : storage) : return is
@@ -231,7 +234,7 @@ function main (const action : entryAction; var s : storage) : return is
     | GetBalance(params) -> getBalance(params.0, params.1, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)
-    // | GetTotalSupplyProxy(params) -> getTotalSupplyProxy(params.1, s)
+    | UpdateMvkTotalSupplyForDoorman(_params) -> updateMvkTotalSupplyForDoorman(s)
     | Mint(params) -> mint(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
 
