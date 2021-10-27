@@ -1,5 +1,6 @@
 const doormanContract = artifacts.require('doorman');
 
+const faucet = require('../faucet.json');
 const mvkTokenAddress = require('../deployments/mvkTokenContract')
 const vMvkTokenAddress = require('../deployments/vMvkTokenContract')
 const { alice, bob } = require('../scripts/sandbox/accounts');

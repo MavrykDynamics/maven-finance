@@ -37,28 +37,16 @@ export const App = () => {
                 <Menu />
                 <Switch>
                   <Route exact path="/">
-                    <Stake
-                      mintTransactionPending={transactionPending}
-                      setMintTransactionPendingCallback={setTransactionPending}
-                    />
+                    <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
                   </Route>
                   <Route exact path="/stake">
-                    <Stake
-                      mintTransactionPending={transactionPending}
-                      setMintTransactionPendingCallback={setTransactionPending}
-                    />
+                    <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
                   </Route>
                   <Route exact path="/edit-tiles/:canvasId">
-                    <Stake
-                      mintTransactionPending={transactionPending}
-                      setMintTransactionPendingCallback={setTransactionPending}
-                    />
+                    <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
                   </Route>
                   <Route exact path="/admin">
-                    <Admin
-                      mintTransactionPending={transactionPending}
-                      setMintTransactionPendingCallback={setTransactionPending}
-                    />
+                    <Admin transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
                   </Route>
                 </Switch>
               </AppContainer>
