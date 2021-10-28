@@ -8,7 +8,9 @@
     "analyze": "react-scripts build && source-map-explorer 'build/static/js/*.js'",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run",
-    "cypress:test": "cypress run -s 'cypress/integration/**/*-spec.js'"
+    "cypress:test": "cypress run -s 'cypress/integration/**/*-spec.js'",
+    "import-contracts": "rm -Rf src/deployments && cp -R ../contracts/deployments src/deployments",
+    "open-explorer": "open https://better-call.dev/granadanet/KT1N4WXRdpxmqKVuukhQXX5kgc6JwJwyJrVH/"
   },
   "dependencies": {
     "@taquito/beacon-wallet": "^10.1.2",

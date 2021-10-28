@@ -1,6 +1,5 @@
 import { DAppProvider } from 'dapp/dapp'
 import { APP_NAME } from 'dapp/defaults'
-import { Admin } from 'pages/Admin/Admin.controller'
 import { Stake } from 'pages/Stake/Stake.controller'
 import React from 'react'
 import { useState } from 'react'
@@ -44,9 +43,6 @@ export const App = () => {
                   </Route>
                   <Route exact path="/edit-tiles/:canvasId">
                     <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
-                  </Route>
-                  <Route exact path="/admin">
-                    <Admin transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
                   </Route>
                 </Switch>
               </AppContainer>

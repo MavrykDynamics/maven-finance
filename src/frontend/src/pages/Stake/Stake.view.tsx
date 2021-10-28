@@ -11,7 +11,6 @@ type StakeViewProps = {
   setTransactionPending: (b: boolean) => void
   connectedUser: string
   transactionPending: boolean
-  myMvkBalance: number
 }
 
 export const StakeView = ({
@@ -20,7 +19,6 @@ export const StakeView = ({
   connectedUser,
   setTransactionPending,
   transactionPending,
-  myMvkBalance,
 }: StakeViewProps) => {
   const alert = useAlert()
 
