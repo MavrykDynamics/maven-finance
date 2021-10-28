@@ -1,7 +1,7 @@
 type stakeRecordType is record [
     time : timestamp;
-    amount : nat;    // muMVK / muVMvk
-    exitFee: nat;        // muMVK / muVMvk
+    amount : nat;    // MVK / vMvk in mu (10^6)
+    exitFee: nat;    // MVK / vMvk in mu (10^6)
     opType : string; // stake / unstake 
 ]
 type userStakeRecordsType is big_map (address, map(nat, stakeRecordType))
@@ -182,13 +182,12 @@ function unstake(const unstakeAmount : nat; var s : storage) : return is
 block {
     // Steps Overview
   // 1. verify that user is unstaking more than 0 vMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
-  // 2. calculate exit fee (in vMVK tokens) and final MVK token amount
-  // 3. mint + burn method in vmvkToken.ligo and mvkToken.ligo respectively
-  // 4. update record of user unstaking
+  // 2. intercontract invocation -> update total supply for MVK and vMVK
+  // 3. unstakeComplete -> calculate exit fee, mint and burn method in vmvkToken.ligo and mvkToken.ligo respectively
   
   // to be done in future
-  // 5. calculate distribution of exit fee as rewards to vMVK holders
-  // 6. transfer / save record of exit fee rewards for each vMVK holder - unless exit fee rewards are calculated in a different way 
+  // 4. calculate distribution of exit fee as rewards to vMVK holders
+  // 5. transfer / save record of exit fee rewards for each vMVK holder - unless exit fee rewards are calculated in a different way 
   // ----------------------------------------
 
   // verify that user is unstaking more than 0 vMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
@@ -231,14 +230,19 @@ block {
     if s.vMvkTokenAddress =/= Tezos.sender then
       failwith("NotAuthorized")
     else skip;
-
-    //   const exitFee = calculateExitFee(unit, s : storage);  // returns in mu (10^6)
-    const mvkLoyaltyIndex : nat = (s.tempVMvkTotalSupply * 1000000n * 100n / (s.tempVMvkTotalSupply + s.tempMvkTotalSupply)); 
-    const exitFee : nat = (500n * 1000000n * 100n) / (mvkLoyaltyIndex + (5n * 1000000n)); 
+    
+    const scaleFactor : nat = 1000000n; // mu (10^6) - can be adjusted for greater accuracy by increasing the value
+    const percentageFactor : nat = scaleFactor / 100n; // with mu, percentageFactor returns 10000n
+    const mvkLoyaltyIndex : nat = (s.tempVMvkTotalSupply * scaleFactor * 100n / (s.tempVMvkTotalSupply + s.tempMvkTotalSupply)); 
+    const exitFee : nat = (500n * scaleFactor * 100n ) / (mvkLoyaltyIndex + (5n * scaleFactor)); 
   
-    const finalAmountPercent : nat = abs(10000n - exitFee);
+    if exitFee > abs(percentageFactor - 1n) then // exitFee cannot be more than 9999n (with scaleFactor of 10^6)
+      failwith("Exit fee calculation error.")
+    else skip;
+
+    const finalAmountPercent : nat = abs(percentageFactor - exitFee); // i.e. 100% - 5% -> 10000 - 500 with fixed point arithmetic
     const finalAmount : nat = unstakeAmount * finalAmountPercent;
-    const finalAmount : nat = finalAmount / 10000n;
+    const finalAmount : nat = finalAmount / percentageFactor;
 
     // temp to check correct amount of exit fee and final amount in console truffle tests
     s.logExitFee := exitFee;
@@ -260,7 +264,7 @@ block {
     // list of operations: burn vmvk tokens first, then mint mvk tokens
     const operations : list(operation) = list [burnVMvkTokensOperation; mintMvkTokensOperation];
 
-    // 4. update record of user unstaking    
+    // update record of user unstaking    
     var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeLedger[Tezos.source] of
       Some(_val) -> _val
       | None -> map[]
@@ -268,7 +272,7 @@ block {
 
     const lastRecordIndex : nat = size(userRecordInStakeLedger);
 
-    const exitFeeRecord : nat = exitFee * 10000n;
+    const exitFeeRecord : nat = exitFee * percentageFactor;
     var newStakeRecord : stakeRecordType := case userRecordInStakeLedger[lastRecordIndex] of         
         Some(_val) -> _val
         | None -> record[

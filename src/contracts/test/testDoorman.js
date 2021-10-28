@@ -132,7 +132,7 @@ contract('doorman', accounts => {
             const afterMvkLedgerAlice            = await afterMvkStorage.ledger.get(alice.pkh);
             const afterVMvkLedgerAlice           = await afterVMvkStorage.ledger.get(alice.pkh);
             const afterDoormanAliceUserRecord    = await afterDoormanStorage.userStakeLedger.get(alice.pkh); // return user staking records - map(nat, stakeRecordType)
-            const afterDoormanAliceStakeRecord   = await afterDoormanAliceUserRecord.get("0");
+            const afterDoormanAliceStakeRecord   = await afterDoormanAliceUserRecord.get("0"); // return { amount: 100000000, exitFee: 0, opType: 'stake', time: '2021-10-26T10:14:54.000Z' }
             
             console.log("After MVK Storage: " + afterMvkStorage.totalSupply); // return 900 MVK - 900,000,000 in muMVK
             console.log("After vMVK Storage: " + afterVMvkStorage.totalSupply); // return 1100 vMVK - 1,100,000,000 in muVMVK
@@ -183,7 +183,7 @@ contract('doorman', accounts => {
             const afterMvkLedgerAlice            = await afterMvkStorage.ledger.get(alice.pkh);
             const afterVMvkLedgerAlice           = await afterVMvkStorage.ledger.get(alice.pkh);
             const afterDoormanAliceUserRecord    = await afterDoormanStorage.userStakeLedger.get(alice.pkh); // return user staking records - map(nat, stakeRecordType)
-            const afterDoormanAliceStakeRecord   = await afterDoormanAliceUserRecord.get("1"); // return { amount: 100, fee: 0, op_type: 'stake', time: '2021-10-26T10:14:54.000Z' }
+            const afterDoormanAliceStakeRecord   = await afterDoormanAliceUserRecord.get("1"); // return { amount: 100000000, exitFee: 8330000, opType: 'unstake', time: '2021-10-26T10:14:54.000Z' }
 
             console.log("Log Exit Fee: " + afterDoormanStorage.logExitFee);
             console.log("Log Final Amount: " + afterDoormanStorage.logFinalAmount);
