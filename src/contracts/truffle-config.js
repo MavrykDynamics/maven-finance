@@ -16,10 +16,11 @@ module.exports = {
       host: "https://granadanet.smartpy.io/",
       port: 443,
       network_id: "*",
-      secret,
-      mnemonic,
-      password,
-      email,
+      secretKey: alice.sk,
+      // secret,
+      // mnemonic,
+      // password,
+      // email,
       type: "tezos"
     },
   }

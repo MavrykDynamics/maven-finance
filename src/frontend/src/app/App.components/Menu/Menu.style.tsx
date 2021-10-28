@@ -121,6 +121,15 @@ export const MenuConnected = styled.div`
     line-height: 18px;
     color: ${primaryColor};
   }
+
+  svg {
+    cursor: pointer;
+    height: 12px;
+    margin-left: 10px;
+    width: 20px;
+    vertical-align: bottom;
+    stroke: ${primaryColor};
+  }
 `
 
 export const MenuBanner = styled.img`
