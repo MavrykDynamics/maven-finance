@@ -1,38 +1,23 @@
 type stakeRecordType is record [
     time : timestamp;
     amount : nat;    // muMVK / muVMvk
-    fee: nat;        // muMVK / muVMvk
+    exitFee: nat;        // muMVK / muVMvk
     opType : string; // stake / unstake 
 ]
-// type userStakeRecords is big_map (nat, map (address, stakeRecord))
-// type addressToUserRecord is big_map (address, nat)
-
-type userRecordType is record [
-    userId: nat;
-    lastRecordIndex: nat;
-]
-type addressToUserRecordType is big_map (address, userRecordType) // user address, user index, user number of records
-type userStakeRecordsType is big_map (nat, map(address, map(nat, stakeRecordType)))
-
-// type lastRecordIndex is nat; 
-// type addressToRecordIndex is big_map (address, lastRecordIndex)
-// type userStakeRecords is big_map (address, map(nat, stakeRecord)))
-// stakeRecord as a list -> to push into records
+type userStakeRecordsType is big_map (address, map(nat, stakeRecordType))
 
 type burnTokenType is (address * nat)
 type mintTokenType is (address * nat)
 
 type storage is record [
     admin : address;
-    addressToUserRecord : addressToUserRecordType; 
     mvkTokenAddress: address; 
     vMvkTokenAddress: address;
-    userStakeLedger : userStakeRecordsType; // change userStakeRecord to userStakeRecords or consider Ledger
+    userStakeLedger : userStakeRecordsType; 
     tempMvkTotalSupply: nat;    
     tempVMvkTotalSupply: nat;  
-    lastUserId: nat;
     logExitFee: nat;    // to be removed after testing
-    logFinalAmount: nat // to be removed after testing
+    logFinalAmount: nat; // to be removed after testing
 ]
 
 const noOperations : list (operation) = nil;
@@ -165,59 +150,31 @@ block {
 
   // 3. update record of user address with minted vMVK tokens
 
-  // temp var: to check if user address exist in the record, and increment lastUserId index if not
-  const checkUserExistsInStakeLedger : map(address, map(nat, stakeRecordType)) = case s.userStakeLedger[s.lastUserId] of
+  // check if user wallet address exists in stake ledger -> can also be taken as the number of user stake records
+  var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeLedger[Tezos.sender] of
       Some(_val) -> _val
       | None -> map[]
   end;
-  
-  // comparison to be fixed - not sure if size(map[]) > 0
-  if size(checkUserExistsInStakeLedger) > 0n then s.lastUserId := s.lastUserId + 1n
-  else skip;
 
-  // get user index in record from sender address; assign  user address to lastUserId index if user does not exist in record
-  var getUserRecord : userRecordType := case s.addressToUserRecord[Tezos.sender] of
-        Some(_val) -> _val
-      | None -> record[
-          userId = s.lastUserId;
-          lastRecordIndex = 0n;
-      ]
-  end;
+  // if user wallet address does not exist in stake ledger, add user to the stake ledger
+  if size(userRecordInStakeLedger) = 0n then s.userStakeLedger[Tezos.sender] := userRecordInStakeLedger
+    else skip;
 
-  s.addressToUserRecord[Tezos.sender] := getUserRecord;
-  
-  // save userStakeRecord
-  var container : map(address, map(nat, stakeRecordType)) := case s.userStakeLedger[getUserRecord.userId] of 
-      Some(_val) -> _val
-      | None -> map []
-  end;
+  const lastRecordIndex : nat = size(userRecordInStakeLedger);
 
-  // check 
-  var recordIndex : map(nat, stakeRecordType) := case container[Tezos.sender] of 
-      Some(_val) -> _val
-      | None -> map []
-  end;
-
-  var saveRecord : stakeRecordType := case recordIndex[getUserRecord.lastRecordIndex] of
+  var newStakeRecord : stakeRecordType := case userRecordInStakeLedger[lastRecordIndex] of
       Some(_val) -> _val
       | None -> record[
           amount  = stakeAmount;
           time    = Tezos.now;  
-          fee     = 0n;   
-          opType = "stake";    
+          exitFee = 0n;   
+          opType  = "stake";    
       ]
    end;
-  
-  recordIndex[getUserRecord.lastRecordIndex] := saveRecord;
-  container[Tezos.sender] := recordIndex;
-  s.userStakeLedger[getUserRecord.userId] := container;
 
-  var incrementLastRecordIndex : userRecordType := record[
-      userId = getUserRecord.userId;
-      lastRecordIndex = getUserRecord.lastRecordIndex + 1n;
-  ];
-  s.addressToUserRecord[Tezos.sender] := incrementLastRecordIndex;
-
+   userRecordInStakeLedger[lastRecordIndex] := newStakeRecord;
+   s.userStakeLedger[Tezos.sender] := userRecordInStakeLedger;
+ 
 } with (operations, s)
 
 
@@ -245,6 +202,7 @@ block {
   const operations : list(operation) = list [updateMvkTotalSupplyProxyOperation; updateVMvkTotalSupplyProxyOperation];
   
 } with (operations, s)
+
 
 function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
 block {
@@ -302,50 +260,27 @@ block {
     // list of operations: burn vmvk tokens first, then mint mvk tokens
     const operations : list(operation) = list [burnVMvkTokensOperation; mintMvkTokensOperation];
 
-    // 4. update record of user unstaking
-    // get user index in record from sender address
-    var getUserRecord : userRecordType := case s.addressToUserRecord[Tezos.source] of
-        Some(_val) -> _val
-      | None -> record[
-          userId = s.lastUserId;
-          lastRecordIndex = 0n;
-      ]
+    // 4. update record of user unstaking    
+    var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeLedger[Tezos.source] of
+      Some(_val) -> _val
+      | None -> map[]
     end;
 
-    s.addressToUserRecord[Tezos.source] := getUserRecord;
-    
-    // save userStakeLedger
-    var container : map(address, map(nat, stakeRecordType)) := case s.userStakeLedger[getUserRecord.userId] of 
-        Some(_val) -> _val
-        | None -> map []
-    end;
-
-    // check 
-    var recordIndex : map(nat, stakeRecordType) := case container[Tezos.source] of 
-        Some(_val) -> _val
-        | None -> map []
-    end;
+    const lastRecordIndex : nat = size(userRecordInStakeLedger);
 
     const exitFeeRecord : nat = exitFee * 10000n;
-    var saveRecord : stakeRecordType := case recordIndex[getUserRecord.lastRecordIndex] of
+    var newStakeRecord : stakeRecordType := case userRecordInStakeLedger[lastRecordIndex] of         
         Some(_val) -> _val
         | None -> record[
-            amount  = unstakeAmount;
-            time    = Tezos.now;  
-            fee     = exitFeeRecord;   
-            opType = "unstake";    
+            amount   = unstakeAmount;
+            time     = Tezos.now;  
+            exitFee  = exitFeeRecord;   
+            opType   = "unstake";  
         ]
     end;
-    
-    recordIndex[getUserRecord.lastRecordIndex] := saveRecord;
-    container[Tezos.source] := recordIndex;
-    s.userStakeLedger[getUserRecord.userId] := container;
 
-    var incrementLastRecordIndex : userRecordType := record[
-        userId = getUserRecord.userId;
-        lastRecordIndex = getUserRecord.lastRecordIndex + 1n;
-    ];
-    s.addressToUserRecord[Tezos.source] := incrementLastRecordIndex;
+   userRecordInStakeLedger[lastRecordIndex] := newStakeRecord;
+   s.userStakeLedger[Tezos.source] := userRecordInStakeLedger;
 
     // to be done in future
     //----------------------------------

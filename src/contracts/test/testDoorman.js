@@ -116,6 +116,7 @@ contract('doorman', accounts => {
             console.log("Before vMVK Storage: " + vMvkStorage.totalSupply); // return 1000 vMVK - 1,000,000,000 in muVMVK
             const beforeMvkLedgerAlice = await mvkStorage.ledger.get(alice.pkh);
             const beforeVMvkLedgerAlice = await vMvkStorage.ledger.get(alice.pkh);
+            const beforeDoormanStorage = await doormanInstance.storage();
             console.log("Before Alice MVK Balance: " + beforeMvkLedgerAlice.balance); // return 1000 MVK - 1,000,000,000 in muMVK
             console.log("Before Alice vMVK Balance: " + beforeVMvkLedgerAlice.balance); // return 1000 vMVK - 1,000,000,000 in muVMVK
     
@@ -130,16 +131,8 @@ contract('doorman', accounts => {
 
             const afterMvkLedgerAlice = await afterMvkStorage.ledger.get(alice.pkh);
             const afterVMvkLedgerAlice = await afterVMvkStorage.ledger.get(alice.pkh);
-            const afterDoormanAliceUserRecord           = await afterDoormanStorage.addressToUserRecord.get(alice.pkh); // return userRecord [userId, lastRecordIndex] - [1 , 1]
-            const afterDoormanAliceStakeRecordContainer = await afterDoormanStorage.userStakeLedger.get(afterDoormanAliceUserRecord.userId); // return big map - i.e. big_map (nat, map(address, map(nat, stakeRecord)))
-            const afterDoormanAliceStakeRecordMap       = await afterDoormanAliceStakeRecordContainer.get(alice.pkh); // return map - i.e. map(address, map(nat, stakeRecord))
-            const afterDoormanAliceStakeRecord          = await afterDoormanAliceStakeRecordMap.get("0"); // return { amount: 100, fee: 0, op_type: 'stake', time: '2021-10-26T10:14:54.000Z' }
-            
-            // console.log(afterDoormanAliceUserRecord.lastRecordIndex);
-            // console.log(afterDoormanAliceUserRecord.lastRecordIndex - 1); // not working - type error
-            // console.log(afterDoormanAliceUserRecord);
-            // console.log(afterDoormanAliceStakeRecord);
-            // console.log(afterDoormanAliceStakeRecordMap);
+            const afterDoormanAliceUserRecord              = await afterDoormanStorage.userStakeLedger.get(alice.pkh); // return user staking records - map(nat, stakeRecordType)
+            const afterDoormanAliceStakeRecord             = await afterDoormanAliceUserRecord.get("0");
             
             console.log("After MVK Storage: " + afterMvkStorage.totalSupply); // return 900 MVK - 900,000,000 in muMVK
             console.log("After vMVK Storage: " + afterVMvkStorage.totalSupply); // return 1100 vMVK - 1,100,000,000 in muVMVK
@@ -169,15 +162,7 @@ contract('doorman', accounts => {
             const beforeMvkLedgerAlice = await mvkStorage.ledger.get(alice.pkh);
             const beforeVMvkLedgerAlice = await vMvkStorage.ledger.get(alice.pkh);
 
-            const beforeDoormanAliceUserRecord           = await beforeDoormanStorage.addressToUserRecord.get(alice.pkh); // return userRecord [userId, lastRecordIndex] - [1 , 1]
-            const beforeDoormanAliceStakeRecordContainer = await beforeDoormanStorage.userStakeLedger.get(beforeDoormanAliceUserRecord.userId); // return big map - i.e. big_map (nat, map(address, map(nat, stakeRecord)))
-            const beforeDoormanAliceStakeRecordMap       = await beforeDoormanAliceStakeRecordContainer.get(alice.pkh); // return map - i.e. map(address, map(nat, stakeRecord))
-
-            // console.log('before');
-            // console.log(beforeDoormanAliceUserRecord);
-            // console.log(beforeDoormanAliceStakeRecordContainer);
-            // console.log(beforeDoormanAliceStakeRecordMap);
-
+            console.log('before');        
             console.log("Before MVK Storage: " + beforeMvkStorage.totalSupply); // return 900 MVK - 900,000,000 in muMVK
             console.log("Before vMVK Storage: " + beforeVMvkStorage.totalSupply); // return 1100 vMVK - 1,100,000,000 in muVMVK       
             console.log("Before Alice MVK Balance: " + beforeMvkLedgerAlice.balance); // return 900 - 900,000,000 in muMVK
@@ -186,6 +171,7 @@ contract('doorman', accounts => {
             console.log("---") // break
 
             // Alice unstake 100 vMVK tokens - 100,000,000 in muVMVK
+            const stakeAmount3 = await doormanInstance.stake(30000000n);
             const stakeAmount = await doormanInstance.unstake(100000000n);
 
             afterMvkStorage = await mvkTokenInstance.storage();
@@ -194,17 +180,12 @@ contract('doorman', accounts => {
 
             const afterMvkLedgerAlice = await afterMvkStorage.ledger.get(alice.pkh);
             const afterVMvkLedgerAlice = await afterVMvkStorage.ledger.get(alice.pkh);
-            const afterDoormanAliceUserRecord           = await afterDoormanStorage.addressToUserRecord.get(alice.pkh); // return userRecord [userId, lastRecordIndex] - [1 , 1]
-            const afterDoormanAliceStakeRecordContainer = await afterDoormanStorage.userStakeLedger.get(afterDoormanAliceUserRecord.userId); // return big map - i.e. big_map (nat, map(address, map(nat, stakeRecord)))
-            const afterDoormanAliceStakeRecordMap       = await afterDoormanAliceStakeRecordContainer.get(alice.pkh); // return map - i.e. map(address, map(nat, stakeRecord))
-            const afterDoormanAliceStakeRecord          = await afterDoormanAliceStakeRecordMap.get("1"); // return { amount: 100, fee: 0, op_type: 'stake', time: '2021-10-26T10:14:54.000Z' }
+            const afterDoormanAliceUserRecord              = await afterDoormanStorage.userStakeLedger.get(alice.pkh); // return user staking records - map(nat, stakeRecordType)
+            const afterDoormanAliceStakeRecord             = await afterDoormanAliceUserRecord.get("1"); // return { amount: 100, fee: 0, op_type: 'stake', time: '2021-10-26T10:14:54.000Z' }
 
             console.log("Log Exit Fee: " + afterDoormanStorage.logExitFee);
             console.log("Log Final Amount: " + afterDoormanStorage.logFinalAmount);
-            // console.log('after');
-            // console.log(afterDoormanAliceUserRecord);
-            // console.log(afterDoormanAliceStakeRecordMap);
-            // console.log(afterDoormanAliceStakeRecord);
+            console.log('after');                    
 
             // 8,330,000 muMVK as exit fee to be distributed as rewards
             console.log("After MVK Storage: " + afterMvkStorage.totalSupply); // return 991.67 MVK - 991,670,000 in muMVK

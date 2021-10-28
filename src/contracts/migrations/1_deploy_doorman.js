@@ -11,8 +11,6 @@ const userStakeLedger = new MichelsonMap();
 const adminAddress = alice.pkh;
 const tempMvkTotalSupply = "1000000000";
 const tempVMvkTotalSupply = "1000000000";
-const lastUserId = "1";
-const addressToUserRecord = new MichelsonMap();
 
 const initialStorage = {
     admin : adminAddress, 
@@ -21,10 +19,8 @@ const initialStorage = {
     userStakeLedger : userStakeLedger,
     tempMvkTotalSupply: tempMvkTotalSupply,
     tempVMvkTotalSupply: tempVMvkTotalSupply,
-    addressToUserRecord : addressToUserRecord,
-    lastUserId: lastUserId,
     logExitFee: "1",
-    logFinalAmount: "1"
+    logFinalAmount: "1",
 }
 
 module.exports = async (deployer, network, accounts) => {
