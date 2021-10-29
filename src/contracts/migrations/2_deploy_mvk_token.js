@@ -1,5 +1,5 @@
 const mvkTokenContract = artifacts.require('mvkToken');
-const { alice } = require('../scripts/sandbox/accounts');
+const { alice, bob } = require('../scripts/sandbox/accounts');
 const faucet = require('../faucet.json');
 
 const { MichelsonMap } = require('@taquito/taquito');
@@ -29,7 +29,11 @@ const metadata = MichelsonMap.fromLiteral({
 
 const ledger = MichelsonMap.fromLiteral({
     [alice.pkh]: {
-        balance: initialSupply,
+        balance: initialSupply / 2,
+        allowances: new MichelsonMap(),
+    },
+    [bob.pkh]: {
+        balance: initialSupply / 2,
         allowances: new MichelsonMap(),
     },
 });
