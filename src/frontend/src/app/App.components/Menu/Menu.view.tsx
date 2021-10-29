@@ -34,7 +34,12 @@ export const MenuView = ({
         <div>
           {ready ? (
             <MenuConnected>
-              <p>{accountPkhPreview}</p>
+              <p>
+                {accountPkhPreview}
+                <svg onClick={() => handleNewConnect()}>
+                  <use xlinkHref="/icons/sprites.svg#switch" />
+                </svg>
+              </p>
               <div>{myMvkBalance?.toFixed(2)} MVK</div>
             </MenuConnected>
           ) : (

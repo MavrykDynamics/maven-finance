@@ -1,7 +1,8 @@
 import { useAccountPkh, useConnect, useOnBlock, useReady, useTezos, useWallet } from 'dapp/dapp'
-import { MVK_TOKEN_ADDRESS, NETWORK } from 'dapp/defaults'
+import { NETWORK } from 'dapp/defaults'
+import mvkTokenAddress from 'deployments/mvkTokenAddress'
 import * as React from 'react'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAlert } from 'react-alert'
 
 import { MenuView } from './Menu.view'
@@ -37,7 +38,7 @@ export const Menu = () => {
   useEffect(() => {
     ;(async () => {
       if (tezos) {
-        const ctr = await (tezos as any).wallet.at(MVK_TOKEN_ADDRESS)
+        const ctr = await (tezos as any).wallet.at(mvkTokenAddress)
         setContract(ctr)
       }
     })()
