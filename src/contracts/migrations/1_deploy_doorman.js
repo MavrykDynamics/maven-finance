@@ -1,30 +1,30 @@
-const doormanContract = artifacts.require('doorman');
+const doormanContract = artifacts.require('doorman')
+const { MichelsonMap } = require('@taquito/michelson-encoder')
 
-const faucet = require('../faucet.json');
-const mvkTokenAddress = require('../deployments/mvkTokenContract')
-const vMvkTokenAddress = require('../deployments/vMvkTokenContract')
-const { alice, bob } = require('../scripts/sandbox/accounts');
-const saveContractAddress = require('../helpers/saveContractAddress');
-const { MichelsonMap } = require('@taquito/michelson-encoder');
+const { alice } = require('../scripts/sandbox/accounts')
+const saveContractAddress = require('../helpers/saveContractAddress')
 
-const userStakeLedger = new MichelsonMap();
-const adminAddress = alice.pkh;
-const tempMvkTotalSupply = "1000000000";
-const tempVMvkTotalSupply = "1000000000";
+const userStakeLedger = new MichelsonMap()
+const adminAddress = alice.pkh
+const tempMvkTotalSupply = '1000000000'
+const tempVMvkTotalSupply = '1000000000'
 
 const initialStorage = {
-    admin : adminAddress, 
-    mvkTokenAddress: mvkTokenAddress,
-    vMvkTokenAddress: vMvkTokenAddress,
-    userStakeLedger : userStakeLedger,
-    tempMvkTotalSupply: tempMvkTotalSupply,
-    tempVMvkTotalSupply: tempVMvkTotalSupply,
-    logExitFee: "1",
-    logFinalAmount: "1",
+  admin: adminAddress,
+  mvkTokenAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after token deployed
+  vMvkTokenAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after token deployed
+  userStakeLedger: userStakeLedger,
+  tempMvkTotalSupply: tempMvkTotalSupply,
+  tempVMvkTotalSupply: tempVMvkTotalSupply,
+  logExitFee: '1',
+  logFinalAmount: '1',
 }
 
 module.exports = async (deployer, network, accounts) => {
-    deployer.deploy(doormanContract, initialStorage).then(contract => saveContractAddress('doormanContract', contract.address));
-};
+  await deployer.deploy(doormanContract, initialStorage)
+  const deployedContract = await doormanContract.deployed()
+  
+  await saveContractAddress('doormanAddress', deployedContract.address)
+}
 
-module.exports.initial_storage = initialStorage;
+module.exports.initial_storage = initialStorage

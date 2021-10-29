@@ -138,12 +138,15 @@
             <rect fill="none" stroke="none" width="24" height="24"></rect>
         </g>
     </symbol>
-    <symbol id="XXX" viewBox="0 0 24 24">
+    <symbol id="switch" viewBox="0 0 24 14">
         <g>
-
+            <path d="M10.5 10H23.25" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20.25 7L23.25 10L20.25 13" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M13.5 4H0.75" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M3.75 7L0.75 4L3.75 1" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
         <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="24"></rect>
+            <rect fill="none" stroke="none" width="24" height="14"></rect>
         </g>
     </symbol>
     <symbol id="XXX" viewBox="0 0 24 24">

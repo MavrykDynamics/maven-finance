@@ -1,4 +1,5 @@
 import { Button } from 'app/App.components/Button/Button.controller'
+import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -6,13 +7,19 @@ import { stake } from '../Stake.actions'
 // prettier-ignore
 import { StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInput, StakeUnstakeInputGrid, StakeUnstakeInputLabel, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
 
-type StakeUnstakeViewProps = { myMvkBalance: any }
+type StakeUnstakeViewProps = {
+  myMvkBalance: number
+  myVMvkBalance: number
+  handleStake: (amount: number) => void
+}
 
-export const StakeUnstakeView = ({ myMvkBalance }: StakeUnstakeViewProps) => {
+export const StakeUnstakeView = ({ myMvkBalance, myVMvkBalance, handleStake }: StakeUnstakeViewProps) => {
   const loading = useSelector((state: State) => state.loading)
   const dispatch = useDispatch()
+  const [stakingAmount, setStakingAmount] = useState(0)
 
-  const stakeCallback = () => {
+  const stakeCallback = (amount: number) => {
+    handleStake(amount)
     dispatch(stake())
   }
 
@@ -24,14 +31,20 @@ export const StakeUnstakeView = ({ myMvkBalance }: StakeUnstakeViewProps) => {
           <div>
             <StakeUnstakeMin>Min 1 MVK</StakeUnstakeMin>
             <StakeUnstakeMax>Use Max</StakeUnstakeMax>
-            <StakeUnstakeInput />
+            <StakeUnstakeInput onChange={(e: any) => setStakingAmount(e.target.value)} />
             <StakeUnstakeInputLabel>MVK</StakeUnstakeInputLabel>
             <StakeUnstakeRate>1 MVK ≈ $0.25</StakeUnstakeRate>
           </div>
         </StakeUnstakeInputGrid>
         <StakeUnstakeButtonGrid>
-          <Button text="Stake" icon="in" loading={loading} onClick={() => stakeCallback()} />
-          <Button text="Unstake" icon="out" kind="secondary" loading={loading} onClick={() => stakeCallback()} />
+          <Button text="Stake" icon="in" loading={loading} onClick={() => stakeCallback(stakingAmount)} />
+          <Button
+            text="Unstake"
+            icon="out"
+            kind="secondary"
+            loading={loading}
+            onClick={() => stakeCallback(stakingAmount)}
+          />
         </StakeUnstakeButtonGrid>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
@@ -45,7 +58,7 @@ export const StakeUnstakeView = ({ myMvkBalance }: StakeUnstakeViewProps) => {
         <StakeUnstakeBalance>
           <h3>Total MVK Staked</h3>
           <img src="/images/coin-silver.svg" alt="coin" />
-          <div>0 MVK</div>
+          <div>{myVMvkBalance?.toFixed(2)} vMVK</div>
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
