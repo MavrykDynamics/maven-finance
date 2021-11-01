@@ -5,7 +5,7 @@
 //          - from hackmd: based on the time the delegate's stake is locked 
 //                         | weighted based on the stake and time duration of the lock
 //   2. Quorum - should this be included
-//   3. Assume multiple proposals? 
+//   3. Assume multiple proposals ongoing at the same time? 
 //         When a proposal is proposed, the delegate's stake becomes locked
 //         - can the delegate choose the amount to stake or is his entire amount staked (converted to sMVK)
 //   4. Execution period: execution of a proposal is timelocked 

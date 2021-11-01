@@ -1,12 +1,11 @@
-const doormanContract = artifacts.require('doorman')
-const vMvkTokenContract = artifacts.require('vMvkToken')
+const sMvkTokenContract = artifacts.require('sMvkToken')
 const { MichelsonMap } = require('@taquito/taquito')
 
 const { alice } = require('../scripts/sandbox/accounts')
 const saveContractAddress = require('../helpers/saveContractAddress')
-const doormanAddress = require('../deployments/doormanAddress')
+// const delegationAddress = require('../deployments/doormanAddress') // use doormanAddress for now temporarily until delegation contract is set up
 
-const initialSupply = '1000000000' // 1000 vMVK Tokens in mu (10^6)
+const initialSupply = '1000000000' // 1000 sMVK Tokens in mu (10^6)
 
 const metadata = MichelsonMap.fromLiteral({
   '': Buffer('tezos-storage:data', 'ascii').toString('hex'),
@@ -38,8 +37,8 @@ const tokenMetadata = MichelsonMap.fromLiteral({
   0: {
     token_id: '0',
     token_info: MichelsonMap.fromLiteral({
-      symbol: Buffer.from('vMVK').toString('hex'),
-      name: Buffer.from('vMVK').toString('hex'),
+      symbol: Buffer.from('sMVK').toString('hex'),
+      name: Buffer.from('sMVK').toString('hex'),
       decimals: Buffer.from('6').toString('hex'),
       icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
     }),
@@ -51,18 +50,18 @@ const initialStorage = {
   metadata          : metadata,
   ledger            : ledger,
   token_metadata    : tokenMetadata,
-  doormanAddress    : doormanAddress,
+  delegationAddress : 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // to be replaced
 }
 
 module.exports = async (deployer, network, accounts) => {
-  await deployer.deploy(vMvkTokenContract, initialStorage)
-  const deployedVMvkToken = await vMvkTokenContract.deployed()
+  await deployer.deploy(sMvkTokenContract, initialStorage)
+  const deployedSMvkToken = await sMvkTokenContract.deployed()
 
-  // Set vMVK token address in Doorman
-  const deployedDoorman = await doormanContract.deployed()
-  await deployedDoorman.setVMvkTokenAddress(deployedVMvkToken.address)
+//   Set vMVK token address in Doorman - change to delegationAddress in future once it is deployed
+//   const deployedDoorman = await doormanContract.deployed()
+//   await deployedDoorman.setVMvkTokenAddress(deployedVMvkToken.address)
 
-  await saveContractAddress('vMvkTokenAddress', deployedVMvkToken.address)
+  await saveContractAddress('sMvkTokenAddress', deployedSMvkToken.address)
 }
 
 module.exports.initial_storage = initialStorage
