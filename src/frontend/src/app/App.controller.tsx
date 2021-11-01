@@ -41,9 +41,6 @@ export const App = () => {
                   <Route exact path="/stake">
                     <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
                   </Route>
-                  <Route exact path="/edit-tiles/:canvasId">
-                    <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
-                  </Route>
                 </Switch>
               </AppContainer>
             </React.Suspense>

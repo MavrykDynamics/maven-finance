@@ -1,11 +1,10 @@
 // prettier-ignore
 import { useAccountPkh, useOnBlock, useReady, useTezos, useWallet } from "dapp/dapp";
+import doormanAddress from 'deployments/doormanAddress'
 import mvkTokenAddress from 'deployments/mvkTokenAddress'
 import vMvkTokenAddress from 'deployments/vMvkTokenAddress'
-import doormanAddress from 'deployments/doormanAddress'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
-import { useAlert } from 'react-alert'
 import { Message, Page } from 'styles'
 
 import { StakeView } from './Stake.view'
@@ -36,7 +35,6 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
   const [doormanContract, setDoormanContract] = useState(undefined)
 
   const [loading, setLoading] = useState(false)
-  const alert = useAlert()
 
   const loadStorages = React.useCallback(async () => {
     setLoading(true)
@@ -88,6 +86,13 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
     [doormanContract],
   )
 
+  const unStakeCallback = React.useCallback(
+    ({ amount }: StakeCallback) => {
+      return (doormanContract as any).methods.unstake(amount * 1000000).send()
+    },
+    [doormanContract],
+  )
+
   return (
     <Page>
       <StakeHeader />
@@ -95,6 +100,7 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
         myMvkBalance={myMvkBalance}
         myVMvkBalance={myVMvkBalance}
         stakeCallback={stakeCallback}
+        unStakeCallback={unStakeCallback}
         setTransactionPending={setTransactionPending}
         transactionPending={transactionPending}
       />
