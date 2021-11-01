@@ -1,8 +1,8 @@
 type stakeRecordType is record [
-    time : timestamp;
-    amount : nat;    // MVK / vMvk in mu (10^6)
-    exitFee: nat;    // MVK / vMvk in mu (10^6)
-    opType : string; // stake / unstake 
+    time      : timestamp;
+    amount    : nat;    // MVK / vMvk in mu (10^6)
+    exitFee   : nat;    // MVK / vMvk in mu (10^6)
+    opType    : string; // stake / unstake 
 ]
 type userStakeRecordsType is big_map (address, map(nat, stakeRecordType))
 
@@ -10,14 +10,14 @@ type burnTokenType is (address * nat)
 type mintTokenType is (address * nat)
 
 type storage is record [
-    admin : address;
-    mvkTokenAddress: address; 
-    vMvkTokenAddress: address;
-    userStakeLedger : userStakeRecordsType; 
-    tempMvkTotalSupply: nat;    
-    tempVMvkTotalSupply: nat;  
-    logExitFee: nat;    // to be removed after testing
-    logFinalAmount: nat; // to be removed after testing
+    admin                 : address;
+    mvkTokenAddress       : address; 
+    vMvkTokenAddress      : address;
+    userStakeLedger       : userStakeRecordsType; 
+    tempMvkTotalSupply    : nat;    
+    tempVMvkTotalSupply   : nat;  
+    logExitFee            : nat; // to be removed after testing
+    logFinalAmount        : nat; // to be removed after testing
 ]
 
 const noOperations : list (operation) = nil;
@@ -231,7 +231,7 @@ block {
       failwith("NotAuthorized")
     else skip;
     
-    const scaleFactor : nat = 1000000n; // mu (10^6) - can be adjusted for greater accuracy by increasing the value
+    const scaleFactor : nat = 1000000n;                // mu (10^6) - can be adjusted for greater accuracy by increasing the value
     const percentageFactor : nat = scaleFactor / 100n; // with mu, percentageFactor returns 10000n
     const mvkLoyaltyIndex : nat = (s.tempVMvkTotalSupply * scaleFactor * 100n / (s.tempVMvkTotalSupply + s.tempMvkTotalSupply)); 
     const exitFee : nat = (500n * scaleFactor * 100n ) / (mvkLoyaltyIndex + (5n * scaleFactor)); 
@@ -247,7 +247,7 @@ block {
     // temp to check correct amount of exit fee and final amount in console truffle tests
     s.logExitFee := exitFee;
     s.logFinalAmount := finalAmount;
-    // todo: split remainder of exitFee
+    // todo: split remainder of exitFee to be distributed as rewards
   
     // 3. mint + burn method in vmvkToken.ligo and mvkToken.ligo respectively
     // balance check in burn functions
@@ -264,7 +264,7 @@ block {
     // list of operations: burn vmvk tokens first, then mint mvk tokens
     const operations : list(operation) = list [burnVMvkTokensOperation; mintMvkTokensOperation];
 
-    // update record of user unstaking    
+    // if user wallet address does not exist in stake ledger, add user to the stake ledger
     var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeLedger[Tezos.source] of
       Some(_val) -> _val
       | None -> map[]
@@ -288,8 +288,8 @@ block {
 
     // to be done in future
     //----------------------------------
-    // 5. calculate distribution of exit fee as rewards to vMVK holders
-    // 6. transfer / save record of exit fee rewards for each vMVK holder
+    // 4. calculate distribution of exit fee as rewards to vMVK holders
+    // 5. transfer / save record of exit fee rewards for each vMVK holder
 
 } with (operations, s)
 

@@ -2,7 +2,6 @@ const doormanContract = artifacts.require('doorman')
 const mvkTokenContract = artifacts.require('mvkToken')
 const { MichelsonMap } = require('@taquito/taquito')
 
-
 const { alice } = require('../scripts/sandbox/accounts')
 const saveContractAddress = require('../helpers/saveContractAddress')
 const doormanAddress = require('../deployments/doormanAddress')
@@ -48,11 +47,11 @@ const tokenMetadata = MichelsonMap.fromLiteral({
 })
 
 const initialStorage = {
-  totalSupply: initialSupply,
-  metadata: metadata,
-  ledger: ledger,
-  token_metadata: tokenMetadata,
-  doormanAddress: doormanAddress,
+  totalSupply       : initialSupply,
+  metadata          : metadata,
+  ledger            : ledger,
+  token_metadata    : tokenMetadata,
+  doormanAddress    : doormanAddress,
 }
 
 module.exports = async (deployer, network, accounts) => {

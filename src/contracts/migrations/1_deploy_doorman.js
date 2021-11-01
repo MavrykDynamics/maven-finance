@@ -4,14 +4,14 @@ const { MichelsonMap } = require('@taquito/michelson-encoder')
 const { alice } = require('../scripts/sandbox/accounts')
 const saveContractAddress = require('../helpers/saveContractAddress')
 
-const userStakeLedger = new MichelsonMap()
+const userStakeLedger = MichelsonMap.fromLiteral({});
 const adminAddress = alice.pkh
 const tempMvkTotalSupply = '1000000000'
 const tempVMvkTotalSupply = '1000000000'
 
 const initialStorage = {
   admin: adminAddress,
-  mvkTokenAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after token deployed
+  mvkTokenAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk',  // TODO: Change to empty address + call setAddress after token deployed
   vMvkTokenAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after token deployed
   userStakeLedger: userStakeLedger,
   tempMvkTotalSupply: tempMvkTotalSupply,
