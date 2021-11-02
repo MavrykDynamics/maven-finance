@@ -9,8 +9,8 @@ type account is
   ]
 
 type token_metadata_info is record [
-  token_id        : token_id;
-  token_info      : map(string, bytes);
+  token_id          : token_id;
+  token_info        : map(string, bytes);
 ]
 
 type storage is
