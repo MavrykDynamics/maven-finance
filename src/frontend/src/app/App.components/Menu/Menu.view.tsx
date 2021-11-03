@@ -5,7 +5,7 @@ import { MenuBanner, MenuButton, MenuConnected, MenuFooter, MenuGrid, MenuIcon, 
 
 type MenuViewProps = {
   loading: boolean
-  myMvkBalance?: number | null
+  myMvkBalance?: string
   accountPkhPreview?: string
   handleNewConnect: () => void
   wallet: any
@@ -40,7 +40,7 @@ export const MenuView = ({
                   <use xlinkHref="/icons/sprites.svg#switch" />
                 </svg>
               </p>
-              <div>{myMvkBalance?.toFixed(2)} MVK</div>
+              <div>{myMvkBalance} MVK</div>
             </MenuConnected>
           ) : (
             <MenuButton onClick={handleConnect}>

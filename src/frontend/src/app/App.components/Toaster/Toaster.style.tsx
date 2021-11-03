@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components/macro'
 
-import { backgroundColor, subTextColor, textColor } from '../../../styles'
+import { backgroundColor, downColor, subTextColor, textColor, upColor } from '../../../styles'
 
 export const ToasterStyled = styled.div`
   position: fixed;
@@ -57,7 +57,7 @@ export const ToasterGrid = styled.div`
   grid-template-columns: 30px calc(100% - 100px) 30px;
 `
 
-export const ToasterIcon = styled.div`
+export const ToasterIcon = styled.div<{ status?: string }>`
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -66,9 +66,21 @@ export const ToasterIcon = styled.div`
   align-items: center;
   justify-content: space-around;
 
-  > img {
+  > svg {
     height: 14px;
     width: 14px;
+    stroke: ${(props) => {
+      switch (props.status) {
+        case 'info':
+          return upColor
+        case 'warning':
+          return downColor
+        case 'error':
+          return downColor
+        default:
+          return upColor
+      }
+    }};
   }
 `
 
