@@ -243,10 +243,10 @@ contract('doorman', async() => {
             const beforeVMvkLedgerAlice = await vMvkStorage.ledger.get(alice.pkh);
             const beforeDoormanStorage  = await doormanInstance.storage();
 
-            console.log("Before MVK Storage Total Supply: " + mvkStorage.totalSupply);   // return 1000 MVK - 1,000,000,000 in muMVK
-            console.log("Before vMVK Storage Total Supply: " + vMvkStorage.totalSupply); // return 1000 vMVK - 1,000,000,000 in muVMVK
-            console.log("Before Alice MVK Balance: " + beforeMvkLedgerAlice.balance);    // return 500 MVK - 500,000,000 in muMVK
-            console.log("Before Alice vMVK Balance: " + beforeVMvkLedgerAlice.balance);  // return 500 vMVK - 500,000,000 in muVMVK
+            console.log("Before MVK Storage Total Supply: "  + mvkStorage.totalSupply);         // return 1000 MVK - 1,000,000,000 in muMVK
+            console.log("Before vMVK Storage Total Supply: " + vMvkStorage.totalSupply);        // return 1000 vMVK - 1,000,000,000 in muVMVK
+            console.log("Before Alice MVK Balance: "         + beforeMvkLedgerAlice.balance);   // return 500 MVK - 500,000,000 in muMVK
+            console.log("Before Alice vMVK Balance: "        + beforeVMvkLedgerAlice.balance);  // return 500 vMVK - 500,000,000 in muVMVK
     
             console.log("---") // break
              
@@ -266,11 +266,11 @@ contract('doorman', async() => {
             const afterDoormanAliceUserRecord    = await afterDoormanStorage.userStakeLedger.get(alice.pkh); // return user staking records - map(nat, stakeRecordType)
             const afterDoormanAliceStakeRecord   = await afterDoormanAliceUserRecord.get("0");               // return { amount: 100000000, exitFee: 0, opType: 'stake', time: '2021-10-26T10:14:54.000Z' }
             
-            console.log("After MVK Storage Total Supply: " + afterMvkStorage.totalSupply);    // return 900 MVK - 900,000,000 in muMVK
-            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);  // return 1100 vMVK - 1,100,000,000 in muVMVK
-            console.log("After Alice MVK Balance: " + afterMvkLedgerAlice.balance);           // return 400 MVK - 400,000,000 in muMVK
-            console.log("After Alice vMVK Balance: " + afterVMvkLedgerAlice.balance);         // return 600 vMVK - 600,000,000 in muVMVK
-            console.log("After Doorman Alice Record: " + afterDoormanAliceStakeRecord.amount + " " + afterDoormanAliceStakeRecord.opType + " with " + afterDoormanAliceStakeRecord.exitFee + " fee at " + afterDoormanAliceStakeRecord.time); // return "100000000 stake at 2021-10-26T10:14:54.000Z"
+            console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 900 MVK - 900,000,000 in muMVK
+            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);   // return 1100 vMVK - 1,100,000,000 in muVMVK
+            console.log("After Alice MVK Balance: "         + afterMvkLedgerAlice.balance);    // return 400 MVK - 400,000,000 in muMVK
+            console.log("After Alice vMVK Balance: "        + afterVMvkLedgerAlice.balance);   // return 600 vMVK - 600,000,000 in muVMVK
+            console.log("After Doorman Alice Record: "      + afterDoormanAliceStakeRecord.amount + " " + afterDoormanAliceStakeRecord.opType + " with " + afterDoormanAliceStakeRecord.exitFee + " fee at " + afterDoormanAliceStakeRecord.time); // return "100000000 stake at 2021-10-26T10:14:54.000Z"
             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
 
             assert.equal(afterMvkStorage.totalSupply, 900000000);
@@ -297,10 +297,10 @@ contract('doorman', async() => {
             const beforeMvkLedgerAlice  = await mvkStorage.ledger.get(alice.pkh);
             const beforeVMvkLedgerAlice = await vMvkStorage.ledger.get(alice.pkh);
 
-            console.log("Before MVK Storage Total Supply: " + beforeMvkStorage.totalSupply);   // return 900 MVK - 900,000,000 in muMVK
-            console.log("Before vMVK Storage Total Supply: " + beforeVMvkStorage.totalSupply); // return 1100 vMVK - 1,100,000,000 in muVMVK       
-            console.log("Before Alice MVK Balance: " + beforeMvkLedgerAlice.balance);          // return 400 - 400,000,000 in muMVK
-            console.log("Before Alice vMVK Balance: " + beforeVMvkLedgerAlice.balance);        // return 600 - 600,000,000 in muVMVK       
+            console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 900 MVK - 900,000,000 in muMVK
+            console.log("Before vMVK Storage Total Supply: " + beforeVMvkStorage.totalSupply);  // return 1100 vMVK - 1,100,000,000 in muVMVK       
+            console.log("Before Alice MVK Balance: "         + beforeMvkLedgerAlice.balance);   // return 400 - 400,000,000 in muMVK
+            console.log("Before Alice vMVK Balance: "        + beforeVMvkLedgerAlice.balance);  // return 600 - 600,000,000 in muVMVK       
     
             console.log("---") // break
 
@@ -324,11 +324,11 @@ contract('doorman', async() => {
             console.log("Log Final Amount: " + afterDoormanStorage.logFinalAmount);         
 
             // 8,330,000 muMVK as exit fee to be distributed as rewards
-            console.log("After MVK Storage Total Supply: " + afterMvkStorage.totalSupply);    // return 991.67 MVK - 991,670,000 in muMVK
-            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);  // return 1000 vMVK - 1,000,000,000 in muVMVK
-            console.log("After Alice MVK Balance: " + afterMvkLedgerAlice.balance);           // return 491.67 MVK - 491,670,000 in muMVK
-            console.log("After Alice vMVK Balance: " + afterVMvkLedgerAlice.balance);         // return 1000 vMVK - 1,000,000,000 in muVMVK
-            console.log("After Doorman Alice Record: " + afterDoormanAliceStakeRecord.amount + " " + afterDoormanAliceStakeRecord.opType + " with " + afterDoormanAliceStakeRecord.exitFee + " fee at " + afterDoormanAliceStakeRecord.time); // return "100000000 unstake with 8330000 fee at 2021-10-26T10:14:54.000Z"
+            console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 991.67 MVK - 991,670,000 in muMVK
+            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);   // return 1000 vMVK - 1,000,000,000 in muVMVK
+            console.log("After Alice MVK Balance: "         + afterMvkLedgerAlice.balance);    // return 491.67 MVK - 491,670,000 in muMVK
+            console.log("After Alice vMVK Balance: "        + afterVMvkLedgerAlice.balance);   // return 1000 vMVK - 1,000,000,000 in muVMVK
+            console.log("After Doorman Alice Record: "      + afterDoormanAliceStakeRecord.amount + " " + afterDoormanAliceStakeRecord.opType + " with " + afterDoormanAliceStakeRecord.exitFee + " fee at " + afterDoormanAliceStakeRecord.time); // return "100000000 unstake with 8330000 fee at 2021-10-26T10:14:54.000Z"
             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
 
             assert.equal(afterMvkStorage.totalSupply, 991670000);
@@ -356,10 +356,10 @@ contract('doorman', async() => {
             const beforeMvkLedgerBob    = await mvkStorage.ledger.get(bob.pkh);
             const beforeVMvkLedgerBob   = await vMvkStorage.ledger.get(bob.pkh);
     
-            console.log("Before MVK Storage Total Supply: " + beforeMvkStorage.totalSupply);   // return 991.67 MVK - 991,670,000 in muMVK
-            console.log("Before vMVK Storage Total Supply: " + beforeVMvkStorage.totalSupply); // return 1000 vMVK - 1,000,000,000 in muVMVK       
-            console.log("Before Bob MVK Balance: " + beforeMvkLedgerBob.balance);              // return 500 - 500,000,000 in muMVK
-            console.log("Before Bob vMVK Balance: " + beforeVMvkLedgerBob.balance);            // return 500 - 500,000,000 in muVMVK       
+            console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 991.67 MVK - 991,670,000 in muMVK
+            console.log("Before vMVK Storage Total Supply: " + beforeVMvkStorage.totalSupply);  // return 1000 vMVK - 1,000,000,000 in muVMVK       
+            console.log("Before Bob MVK Balance: "           + beforeMvkLedgerBob.balance);     // return 500 - 500,000,000 in muMVK
+            console.log("Before Bob vMVK Balance: "          + beforeVMvkLedgerBob.balance);    // return 500 - 500,000,000 in muVMVK       
     
             console.log("---") // break
 
@@ -381,11 +381,11 @@ contract('doorman', async() => {
             // reset back to alice
             await signerFactory(alice.sk);
             
-            console.log("After MVK Storage Total Supply: " + afterMvkStorage.totalSupply);    // return 891.67 MVK - 891,670,000 in muMVK
-            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);  // return 1100 vMVK - 1,100,000,000 in muVMVK
-            console.log("After Bob MVK Balance: " + afterMvkLedgerBob.balance);               // return 400 MVK - 400,000,000 in muMVK
-            console.log("After Bob vMVK Balance: " + afterVMvkLedgerBob.balance);             // return 600 vMVK - 600,000,000 in muVMVK
-            console.log("After Doorman Bob Record: " + afterDoormanBobStakeRecord.amount + " " + afterDoormanBobStakeRecord.opType + " with " + afterDoormanBobStakeRecord.exitFee + " fee at " + afterDoormanBobStakeRecord.time); // return "100000000 stake at 2021-10-26T10:14:54.000Z"
+            console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 891.67 MVK - 891,670,000 in muMVK
+            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);   // return 1100 vMVK - 1,100,000,000 in muVMVK
+            console.log("After Bob MVK Balance: "           + afterMvkLedgerBob.balance);      // return 400 MVK - 400,000,000 in muMVK
+            console.log("After Bob vMVK Balance: "          + afterVMvkLedgerBob.balance);     // return 600 vMVK - 600,000,000 in muVMVK
+            console.log("After Doorman Bob Record: "        + afterDoormanBobStakeRecord.amount + " " + afterDoormanBobStakeRecord.opType + " with " + afterDoormanBobStakeRecord.exitFee + " fee at " + afterDoormanBobStakeRecord.time); // return "100000000 stake at 2021-10-26T10:14:54.000Z"
 
             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
 
@@ -411,10 +411,10 @@ contract('doorman', async() => {
             const beforeVMvkLedgerAlice = await vMvkStorage.ledger.get(alice.pkh);
             const beforeDoormanStorage  = await doormanInstance.storage();
 
-            console.log("Before MVK Storage Total Supply: " + mvkStorage.totalSupply);   // return 1000 MVK - 1,000,000,000 in muMVK
-            console.log("Before vMVK Storage Total Supply: " + vMvkStorage.totalSupply); // return 1000 vMVK - 1,000,000,000 in muVMVK
-            console.log("Before Alice MVK Balance: " + beforeMvkLedgerAlice.balance);    // return 491.67 MVK - 491,670,000 in muMVK
-            console.log("Before Alice vMVK Balance: " + beforeVMvkLedgerAlice.balance);  // return 500 vMVK - 500,000,000 in muVMVK
+            console.log("Before MVK Storage Total Supply: "  + mvkStorage.totalSupply);         // return 1000 MVK - 1,000,000,000 in muMVK
+            console.log("Before vMVK Storage Total Supply: " + vMvkStorage.totalSupply);        // return 1000 vMVK - 1,000,000,000 in muVMVK
+            console.log("Before Alice MVK Balance: "         + beforeMvkLedgerAlice.balance);   // return 491.67 MVK - 491,670,000 in muMVK
+            console.log("Before Alice vMVK Balance: "        + beforeVMvkLedgerAlice.balance);  // return 500 vMVK - 500,000,000 in muVMVK
     
             console.log("---") // break
              
@@ -428,16 +428,15 @@ contract('doorman', async() => {
 
             const afterMvkLedgerAlice            = await afterMvkStorage.ledger.get(alice.pkh);
             const afterVMvkLedgerAlice           = await afterVMvkStorage.ledger.get(alice.pkh);
-            const afterDoormanAliceUserRecord    = await afterDoormanStorage.userStakeLedger.get(alice.pkh); // return user staking records - map(nat, stakeRecordType)
 
             console.log("Log Exit Fee: " + afterDoormanStorage.logExitFee);
             console.log("Log Final Amount: " + afterDoormanStorage.logFinalAmount);         
 
             // 8,330,000 muMVK as exit fee to be distributed as rewards
-            console.log("After MVK Storage Total Supply: " + afterMvkStorage.totalSupply);    // return 991.67 MVK - 991,670,000 in muMVK
-            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);  // return 1000 vMVK - 1,000,000,000 in muVMVK
-            console.log("After Alice MVK Balance: " + afterMvkLedgerAlice.balance);           // return 491.67 MVK - 491,670,000 in muMVK
-            console.log("After Alice vMVK Balance: " + afterVMvkLedgerAlice.balance);         // return 1000 vMVK - 1,000,000,000 in muVMVK
+            console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 991.67 MVK - 991,670,000 in muMVK
+            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);   // return 1000 vMVK - 1,000,000,000 in muVMVK
+            console.log("After Alice MVK Balance: "         + afterMvkLedgerAlice.balance);    // return 491.67 MVK - 491,670,000 in muMVK
+            console.log("After Alice vMVK Balance: "        + afterVMvkLedgerAlice.balance);   // return 1000 vMVK - 1,000,000,000 in muVMVK
             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
 
         } catch(e){
@@ -457,10 +456,10 @@ contract('doorman', async() => {
             const beforeVMvkLedgerAlice = await vMvkStorage.ledger.get(alice.pkh);
             const beforeDoormanStorage  = await doormanInstance.storage();
 
-            console.log("Before MVK Storage Total Supply: " + mvkStorage.totalSupply);   // return 1000 MVK - 1,000,000,000 in muMVK
-            console.log("Before vMVK Storage Total Supply: " + vMvkStorage.totalSupply); // return 1000 vMVK - 1,000,000,000 in muVMVK
-            console.log("Before Alice MVK Balance: " + beforeMvkLedgerAlice.balance);    // return 491.67 MVK - 491,670,000 in muMVK
-            console.log("Before Alice vMVK Balance: " + beforeVMvkLedgerAlice.balance);  // return 500 vMVK - 500,000,000 in muVMVK
+            console.log("Before MVK Storage Total Supply: "  + mvkStorage.totalSupply);         // return 1000 MVK - 1,000,000,000 in muMVK
+            console.log("Before vMVK Storage Total Supply: " + vMvkStorage.totalSupply);        // return 1000 vMVK - 1,000,000,000 in muVMVK
+            console.log("Before Alice MVK Balance: "         + beforeMvkLedgerAlice.balance);   // return 491.67 MVK - 491,670,000 in muMVK
+            console.log("Before Alice vMVK Balance: "        + beforeVMvkLedgerAlice.balance);  // return 500 vMVK - 500,000,000 in muVMVK
     
             console.log("---") // break
              
@@ -474,16 +473,15 @@ contract('doorman', async() => {
 
             const afterMvkLedgerAlice            = await afterMvkStorage.ledger.get(alice.pkh);
             const afterVMvkLedgerAlice           = await afterVMvkStorage.ledger.get(alice.pkh);
-            const afterDoormanAliceUserRecord    = await afterDoormanStorage.userStakeLedger.get(alice.pkh); // return user staking records - map(nat, stakeRecordType)
 
             console.log("Log Exit Fee: " + afterDoormanStorage.logExitFee);
             console.log("Log Final Amount: " + afterDoormanStorage.logFinalAmount);         
 
             // 8,330,000 muMVK as exit fee to be distributed as rewards
-            console.log("After MVK Storage Total Supply: " + afterMvkStorage.totalSupply);    // return 991.67 MVK - 991,670,000 in muMVK
-            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);  // return 1000 vMVK - 1,000,000,000 in muVMVK
-            console.log("After Alice MVK Balance: " + afterMvkLedgerAlice.balance);           // return 491.67 MVK - 491,670,000 in muMVK
-            console.log("After Alice vMVK Balance: " + afterVMvkLedgerAlice.balance);         // return 1000 vMVK - 1,000,000,000 in muVMVK
+            console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 991.67 MVK - 991,670,000 in muMVK
+            console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);   // return 1000 vMVK - 1,000,000,000 in muVMVK
+            console.log("After Alice MVK Balance: "         + afterMvkLedgerAlice.balance);    // return 491.67 MVK - 491,670,000 in muMVK
+            console.log("After Alice vMVK Balance: "        + afterVMvkLedgerAlice.balance);   // return 1000 vMVK - 1,000,000,000 in muVMVK
             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
 
         } catch(e){
