@@ -27,10 +27,10 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
   const accountPkh = useAccountPkh()
 
   const [mvkTokenContract, setMvkTokenContract] = useState(undefined)
-  const [myMvkBalance, setMyMvkBalance] = useState(0)
+  const [myMvkBalance, setMyMvkBalance] = useState('Loading...')
 
   const [vMvkTokenContract, setVMvkTokenContract] = useState(undefined)
-  const [myVMvkBalance, setMyVMvkBalance] = useState(0)
+  const [myVMvkBalance, setMyVMvkBalance] = useState('Loading...')
 
   const [doormanContract, setDoormanContract] = useState(undefined)
 
@@ -42,17 +42,17 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
       const mvkTokenStorage = await (mvkTokenContract as any).storage()
       const myMvkLedgerEntry = await mvkTokenStorage['ledger'].get(accountPkh)
       const myMvkBalanceMu = myMvkLedgerEntry?.balance.toNumber()
-      const myMvkBalance = myMvkBalanceMu > 0 ? myMvkBalanceMu / 1000000 : 0
+      const myMvkBalanceNew = myMvkBalanceMu > 0 ? myMvkBalanceMu / 1000000 : 0
       console.log('MVK Storage:', mvkTokenStorage)
       console.log('MVK Ledger:', myMvkLedgerEntry)
-      setMyMvkBalance(myMvkBalance)
+      setMyMvkBalance(myMvkBalanceNew?.toFixed(2))
     }
     if (vMvkTokenContract) {
       const vMvkTokenStorage = await (vMvkTokenContract as any).storage()
       const myVMvkLedgerEntry = await vMvkTokenStorage['ledger'].get(accountPkh)
       const myVMvkBalanceMu = myVMvkLedgerEntry?.balance.toNumber()
-      const myVMvkBalance = myVMvkBalanceMu > 0 ? myVMvkBalanceMu / 1000000 : 0
-      setMyVMvkBalance(myVMvkBalance)
+      const myVMvkBalanceNew = myVMvkBalanceMu > 0 ? myVMvkBalanceMu / 1000000 : 0
+      setMyVMvkBalance(myVMvkBalanceNew?.toFixed(2))
     }
     setLoading(false)
   }, [mvkTokenContract, vMvkTokenContract, accountPkh])

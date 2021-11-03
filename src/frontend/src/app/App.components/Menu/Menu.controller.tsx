@@ -13,7 +13,7 @@ export const Menu = () => {
   const tezos = useTezos()
   const accountPkh = useAccountPkh()
   const [contract, setContract] = useState(undefined)
-  const [myMvkBalance, setMyMvkBalance] = useState(0)
+  const [myMvkBalance, setMyMvkBalance] = useState('Loading...')
   const [loading, setLoading] = useState(false)
   const connect = useConnect()
   const alert = useAlert()
@@ -25,7 +25,7 @@ export const Menu = () => {
       const myLedgerEntry = await storage['ledger'].get(accountPkh)
       const myMvkBalanceMu = myLedgerEntry?.balance.toNumber()
       const myMvkBalance = myMvkBalanceMu > 0 ? myMvkBalanceMu / 1000000 : 0
-      setMyMvkBalance(myMvkBalance)
+      setMyMvkBalance(myMvkBalance?.toFixed(2))
       setLoading(false)
     }
     setLoading(false)

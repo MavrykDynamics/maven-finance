@@ -1,11 +1,14 @@
+import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
+import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import * as React from 'react'
-import { useAlert } from 'react-alert'
+import { useDispatch } from 'react-redux'
+import { stakeAnim } from '../Stake.actions'
 
 import { StakeUnstakeView } from './StakeUnstake.view'
 
 type StakeUnstakeProps = {
-  myMvkBalance: number
-  myVMvkBalance: number
+  myMvkBalance?: string
+  myVMvkBalance?: string
   stakeCallback: (params: { amount: number }) => Promise<any>
   unStakeCallback: (params: { amount: number }) => Promise<any>
   setTransactionPending: (b: boolean) => void
@@ -20,28 +23,26 @@ export const StakeUnstake = ({
   setTransactionPending,
   transactionPending,
 }: StakeUnstakeProps) => {
-  const alert = useAlert()
+  const dispatch = useDispatch()
 
   async function handleStake(amount: number) {
     if (transactionPending) {
-      alert.info('Cannot vote on a tile while a transaction is pending...', { timeout: 10000 })
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     } else {
       stakeCallback({ amount })
         .then((e) => {
           setTransactionPending(true)
-          alert.info('Staking...')
+          dispatch(showToaster(INFO, 'Staking...', 'Please wait 30s'))
+          dispatch(stakeAnim())
           e.confirmation().then((e: any) => {
-            alert.success('Staking done', {
-              onOpen: () => {
-                setTransactionPending(false)
-              },
-            })
+            dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
+            setTransactionPending(false)
             return e
           })
           return e
         })
         .catch((e: any) => {
-          alert.show(e.message)
+          dispatch(showToaster(ERROR, 'Error', e.message))
           console.error(e)
         })
     }
@@ -49,24 +50,21 @@ export const StakeUnstake = ({
 
   async function handleUnStake(amount: number) {
     if (transactionPending) {
-      alert.info('Cannot vote on a tile while a transaction is pending...', { timeout: 10000 })
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     } else {
       unStakeCallback({ amount })
         .then((e) => {
           setTransactionPending(true)
-          alert.info('Unstaking...')
+          dispatch(showToaster(INFO, 'Unstaking...', 'Please wait 30s'))
+          dispatch(stakeAnim())
           e.confirmation().then((e: any) => {
-            alert.success('Unstaking done', {
-              onOpen: () => {
-                setTransactionPending(false)
-              },
-            })
-            return e
+            dispatch(showToaster(SUCCESS, 'Unstaking done', 'All good :)'))
+            setTransactionPending(false)
           })
           return e
         })
         .catch((e: any) => {
-          alert.show(e.message)
+          dispatch(showToaster(ERROR, 'Error', e.message))
           console.error(e)
         })
     }
@@ -78,6 +76,7 @@ export const StakeUnstake = ({
       myVMvkBalance={myVMvkBalance}
       handleStake={handleStake}
       handleUnStake={handleUnStake}
+      transactionPending={transactionPending}
     />
   )
 }

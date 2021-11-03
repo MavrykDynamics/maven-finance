@@ -2,9 +2,9 @@ import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
 import { downColor, upColor } from '../../../styles'
+import { ERROR } from './Toaster.constants'
 // prettier-ignore
 import { ToasterClose, ToasterContent, ToasterCountdown, ToasterGrid, ToasterIcon, ToasterMessage, ToasterStyled, ToasterTitle } from './Toaster.style'
-import { ERROR } from './Toaster.constants'
 
 type ToasterViewProps = {
   showing: boolean
@@ -20,12 +20,10 @@ export const ToasterView = ({ showing, status, title, message, closeCallback }: 
   return (
     <ToasterStyled className={showing ? 'showing' : 'hidden'}>
       <ToasterGrid>
-        <ToasterIcon style={{ backgroundColor }}>
-          {status === 'success' ? (
-            <img alt={status} src={`/icons/success.svg`} />
-          ) : (
-            <img alt={status} src={`/icons/error.svg`} />
-          )}
+        <ToasterIcon status={status}>
+          <svg>
+            <use xlinkHref={`/icons/sprites.svg#${status}`} />
+          </svg>
         </ToasterIcon>
         <ToasterContent>
           <ToasterTitle>{title}</ToasterTitle>

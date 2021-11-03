@@ -21,5 +21,5 @@ export const StakeView = ({
   transactionPending,
 }: StakeViewProps) => {
   // Remove if unecessary
-  return <StakeStyled>Connected</StakeStyled>
+  return <StakeStyled></StakeStyled>
 }

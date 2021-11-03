@@ -11,6 +11,7 @@ import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
 
 import { Menu } from './App.components/Menu/Menu.controller'
 import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller'
+import { Toaster } from './App.components/Toaster/Toaster.controller'
 import { configureStore } from './App.store'
 import { AppContainer } from './App.style'
 
@@ -43,6 +44,7 @@ export const App = () => {
                   </Route>
                 </Switch>
               </AppContainer>
+              <Toaster />
             </React.Suspense>
           </DAppProvider>
         </AlertProvider>
