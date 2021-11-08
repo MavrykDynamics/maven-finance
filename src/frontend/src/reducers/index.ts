@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux'
 
+import { exitFeeModal, ExitFeeModalState } from './exitFeeModal'
 import { loading, LoadingState } from './loading'
 import { progressBar, ProgressBarState } from './progressBar'
 import { stake, StakeState } from './stake'
@@ -10,6 +11,7 @@ export const reducers = combineReducers({
   progressBar,
   stake,
   toaster,
+  exitFeeModal,
 })
 
 export interface State {
@@ -17,4 +19,5 @@ export interface State {
   progressBar: ProgressBarState
   stake: StakeState
   toaster: ToasterState
+  exitFeeModal: ExitFeeModalState
 }

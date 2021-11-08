@@ -42,7 +42,11 @@ export const StakeUnstakeView = ({
           <div>
             <StakeUnstakeMin>Min 1 MVK</StakeUnstakeMin>
             <StakeUnstakeMax>Use Max</StakeUnstakeMax>
-            <StakeUnstakeInput value={inputAmount} onChange={(e: any) => setInputAmount(e.target.value)} />
+            <StakeUnstakeInput
+              type="number"
+              value={inputAmount}
+              onChange={(e: any) => setInputAmount(e.target.value)}
+            />
             <StakeUnstakeInputLabel>MVK</StakeUnstakeInputLabel>
             <StakeUnstakeRate>1 MVK ≈ $0.25</StakeUnstakeRate>
           </div>
