@@ -1,11 +1,15 @@
 // prettier-ignore
-import { useAccountPkh, useOnBlock, useReady, useTezos, useWallet } from "dapp/dapp";
+import { showToaster } from "app/App.components/Toaster/Toaster.actions";
+import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
+import { useAccountPkh, useOnBlock, useReady, useTezos, useWallet } from 'dapp/dapp'
 import doormanAddress from 'deployments/doormanAddress'
 import mvkTokenAddress from 'deployments/mvkTokenAddress'
 import vMvkTokenAddress from 'deployments/vMvkTokenAddress'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { Message, Page } from 'styles'
+import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 
 import { StakeView } from './Stake.view'
 import { StakeHeader } from './StakeHeader/StakeHeader.controller'
@@ -25,12 +29,13 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
   const ready = useReady()
   const tezos = useTezos()
   const accountPkh = useAccountPkh()
+  const dispatch = useDispatch()
 
   const [mvkTokenContract, setMvkTokenContract] = useState(undefined)
-  const [myMvkBalance, setMyMvkBalance] = useState('Loading...')
+  const [myMvkBalance, setMyMvkBalance] = useState('0')
 
   const [vMvkTokenContract, setVMvkTokenContract] = useState(undefined)
-  const [myVMvkBalance, setMyVMvkBalance] = useState('Loading...')
+  const [myVMvkBalance, setMyVMvkBalance] = useState('0')
 
   const [doormanContract, setDoormanContract] = useState(undefined)
 
@@ -81,20 +86,29 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
 
   const stakeCallback = React.useCallback(
     ({ amount }: StakeCallback) => {
+      if (!doormanContract) {
+        dispatch(showToaster(ERROR, 'Please connect your wallet', 'Then try again'))
+        return new Promise(() => {})
+      }
       return (doormanContract as any).methods.stake(amount * 1000000).send()
     },
-    [doormanContract],
+    [doormanContract, dispatch],
   )
 
   const unStakeCallback = React.useCallback(
     ({ amount }: StakeCallback) => {
+      if (!doormanContract) {
+        dispatch(showToaster(ERROR, 'Please connect your wallet', 'Then try again'))
+        return new Promise(() => {})
+      }
       return (doormanContract as any).methods.unstake(amount * 1000000).send()
     },
-    [doormanContract],
+    [doormanContract, dispatch],
   )
 
   return (
     <Page>
+      <ExitFeeModal />
       <StakeHeader />
       <StakeUnstake
         myMvkBalance={myMvkBalance}

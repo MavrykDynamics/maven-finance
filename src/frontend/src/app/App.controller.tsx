@@ -31,21 +31,19 @@ export const App = () => {
       <Router>
         <AlertProvider template={AlertTemplate} {...options}>
           <DAppProvider appName={APP_NAME}>
-            <React.Suspense fallback={null}>
-              <ProgressBar />
-              <AppContainer>
-                <Menu />
-                <Switch>
-                  <Route exact path="/">
-                    <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
-                  </Route>
-                  <Route exact path="/stake">
-                    <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
-                  </Route>
-                </Switch>
-              </AppContainer>
-              <Toaster />
-            </React.Suspense>
+            <ProgressBar />
+            <AppContainer>
+              <Menu />
+              <Switch>
+                <Route exact path="/">
+                  <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
+                </Route>
+                <Route exact path="/stake">
+                  <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
+                </Route>
+              </Switch>
+            </AppContainer>
+            <Toaster />
           </DAppProvider>
         </AlertProvider>
       </Router>
