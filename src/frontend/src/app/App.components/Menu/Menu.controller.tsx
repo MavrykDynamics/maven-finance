@@ -48,7 +48,7 @@ export const Menu = () => {
 
   const handleConnect = React.useCallback(async () => {
     try {
-      await connect(NETWORK)
+      await connect(NETWORK, {})
     } catch (err: any) {
       alert.show(err.message)
       console.error(err.message)
