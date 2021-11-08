@@ -1,7 +1,7 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import * as React from 'react'
 import { useDispatch } from 'react-redux'
+import { showExitFeeModal, stake } from '../ExitFeeModal/ExitFeeModal.actions'
 import { stakeAnim } from '../Stake.actions'
 
 import { StakeUnstakeView } from './StakeUnstake.view'
@@ -49,26 +49,30 @@ export const StakeUnstake = ({
   }
 
   async function handleUnStake(amount: number) {
-    if (transactionPending) {
-      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    } else {
-      unStakeCallback({ amount })
-        .then((e) => {
-          setTransactionPending(true)
-          dispatch(showToaster(INFO, 'Unstaking...', 'Please wait 30s'))
-          dispatch(stakeAnim())
-          e.confirmation().then((e: any) => {
-            dispatch(showToaster(SUCCESS, 'Unstaking done', 'All good :)'))
-            setTransactionPending(false)
-          })
-          return e
-        })
-        .catch((e: any) => {
-          dispatch(showToaster(ERROR, 'Error', e.message))
-          console.error(e)
-        })
-    }
+    dispatch(showExitFeeModal())
   }
+
+  // async function handleUnStake(amount: number) {
+  //   if (transactionPending) {
+  //     dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+  //   } else {
+  //     unStakeCallback({ amount })
+  //       .then((e) => {
+  //         setTransactionPending(true)
+  //         dispatch(showToaster(INFO, 'Unstaking...', 'Please wait 30s'))
+  //         dispatch(stakeAnim())
+  //         e.confirmation().then((e: any) => {
+  //           dispatch(showToaster(SUCCESS, 'Unstaking done', 'All good :)'))
+  //           setTransactionPending(false)
+  //         })
+  //         return e
+  //       })
+  //       .catch((e: any) => {
+  //         dispatch(showToaster(ERROR, 'Error', e.message))
+  //         console.error(e)
+  //       })
+  //   }
+  // }
 
   return (
     <StakeUnstakeView

@@ -1,4 +1,5 @@
-import { TempleWallet } from '@temple-wallet/dapp'
+import { Subscription, TezosToolkit } from '@taquito/taquito'
+import { TempleDAppNetwork, TempleWallet } from '@temple-wallet/dapp'
 import constate from 'constate'
 import React from 'react'
 import { useAlert } from 'react-alert'
@@ -12,11 +13,11 @@ export const [DAppProvider, useWallet, useTezos, useAccountPkh, useReady, useCon
   (v) => v.connect,
 )
 
-function useDApp({ appName }) {
+function useDApp({ appName }: { appName: string }) {
   const [{ wallet, tezos, accountPkh }, setState] = React.useState(() => ({
-    wallet: undefined,
-    tezos: undefined,
-    accountPkh: undefined,
+    wallet: undefined as TempleWallet | undefined,
+    tezos: undefined as TezosToolkit | undefined,
+    accountPkh: undefined as string | undefined,
   }))
   const alert = useAlert()
 
@@ -33,7 +34,7 @@ function useDApp({ appName }) {
   }, [setState, appName])
 
   const connect = React.useCallback(
-    async (network, opts) => {
+    async (network: TempleDAppNetwork, opts: any) => {
       try {
         if (!wallet) {
           throw new Error('Temple Wallet not available')
@@ -46,7 +47,7 @@ function useDApp({ appName }) {
           tezos: tzs,
           accountPkh: pkh,
         })
-      } catch (err) {
+      } catch (err: any) {
         alert.show(err.message)
         console.error(`Failed to connect TempleWallet: ${err.message}`)
       }
@@ -63,33 +64,35 @@ function useDApp({ appName }) {
   }
 }
 
-export function useOnBlock(tezos, callback) {
-  const blockHashRef = React.useRef()
+export function useOnBlock(tezos: TezosToolkit | undefined, callback: (hash: string) => void) {
+  const blockHashRef = React.useRef<any>()
 
   React.useEffect(() => {
     if (tezos) {
-      let sub
+      let sub: Subscription<string>
       spawnSub()
       return () => sub.close()
 
       function spawnSub() {
-        sub = tezos.stream.subscribe('head')
+        if (tezos) {
+          sub = tezos.stream.subscribe('head')
 
-        sub.on('data', (hash) => {
-          if (blockHashRef.current && blockHashRef.current !== hash) {
-            callback(hash)
-          }
-          blockHashRef.current = hash
-        })
-        sub.on('error', (err) => {
-          if (process.env.NODE_ENV === 'development') {
-            console.error(err)
-          }
-          sub.close()
-          spawnSub()
-        })
+          sub.on('data', (hash) => {
+            if (blockHashRef.current && blockHashRef.current !== hash) {
+              callback(hash)
+            }
+            blockHashRef.current = hash
+          })
+          sub.on('error', (err) => {
+            if (process.env.NODE_ENV === 'development') {
+              console.error(err)
+            }
+            sub.close()
+            spawnSub()
+          })
+        }
       }
-    }
+    } else return undefined
   }, [tezos, callback])
 }
 

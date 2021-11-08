@@ -62,6 +62,8 @@ export const StakeUnstakeInput = styled.input`
   margin: 10px 0;
   padding: 0 20px;
   color: ${subTextColor};
+  -webkit-appearance: none;
+  appearance: none;
 `
 
 export const StakeUnstakeInputLabel = styled.div`
