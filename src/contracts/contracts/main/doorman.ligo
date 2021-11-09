@@ -1,8 +1,11 @@
 type stakeRecordType is record [
-    time      : timestamp;
-    amount    : nat;    // MVK / vMvk in mu (10^6)
-    exitFee   : nat;    // MVK / vMvk in mu (10^6)
-    opType    : string; // stake / unstake 
+    time              : timestamp;
+    amount            : nat;    // MVK / vMvk in mu (10^6)
+    exitFee           : nat;    // MVK / vMvk in mu (10^6)
+    mvkLoyaltyIndex   : nat;    // audit log for MVK Loyalty Index at time of transaction
+    mvkTotalSupply    : nat;    // audit log for MVK total supply at time of transaction
+    vMvkTotalSupply   : nat;    // audit log for vMVK total supply at time of transaction
+    opType            : string; // audit log for type of transaction (stake / unstake)
 ]
 type userStakeRecordsType is big_map (address, map(nat, stakeRecordType))
 
@@ -167,8 +170,11 @@ block {
       | None -> record[
           amount  = stakeAmount;
           time    = Tezos.now;  
-          exitFee = 0n;   
-          opType  = "stake";    
+          exitFee          = 0n;     
+          mvkLoyaltyIndex  = 0n; 
+          mvkTotalSupply   = 0n;  // FYI: will not be accurate - set to 0 / null / placeholder?    
+          vMvkTotalSupply  = 0n;  // FYI: will not be accurate - set to 0 / null / placeholder?    
+          opType           = "stake";    
       ]
    end;
 
@@ -180,7 +186,7 @@ block {
 
 function unstake(const unstakeAmount : nat; var s : storage) : return is
 block {
-    // Steps Overview
+  // Steps Overview
   // 1. verify that user is unstaking more than 0 vMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
   // 2. intercontract invocation -> update total supply for MVK and vMVK
   // 3. unstakeComplete -> calculate exit fee, mint and burn method in vmvkToken.ligo and mvkToken.ligo respectively
@@ -276,10 +282,13 @@ block {
     var newStakeRecord : stakeRecordType := case userRecordInStakeLedger[lastRecordIndex] of         
         Some(_val) -> _val
         | None -> record[
-            amount   = unstakeAmount;
-            time     = Tezos.now;  
-            exitFee  = exitFeeRecord;   
-            opType   = "unstake";  
+            amount           = unstakeAmount;
+            time             = Tezos.now;  
+            exitFee          = exitFeeRecord;   
+            mvkLoyaltyIndex  = mvkLoyaltyIndex; 
+            mvkTotalSupply   = s.tempMvkTotalSupply;
+            vMvkTotalSupply  = s.tempVMvkTotalSupply;          
+            opType           = "unstake";  
         ]
     end;
 
