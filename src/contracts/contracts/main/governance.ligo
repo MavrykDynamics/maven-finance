@@ -1,4 +1,3 @@
-
 // Yay or Nay vote, and the vMVK amount voter has staked - add timestamps?
 type voteType is (bool * nat * timestamp)
 
@@ -7,7 +6,7 @@ type voterMapType is map (address, voteType)
 
 type proposalRecordType is record [
     proposerAddress      : address;   
-    proposerStakeLocked  : nat; 
+    proposerStakeLocked  : nat;          // in sMVK
     status               : nat;         
     title                : string;
     briefDescription     : string;   
@@ -16,8 +15,8 @@ type proposalRecordType is record [
     downvoteCount        : nat; 
     votingPeriodLength   : nat; 
     voters               : voterMapType;  
-    minQuorumPercentage  : nat;         // capture state of min quorum percentage
-    quorumCount          : nat;         // turnout for quorum
+    minQuorumPercentage  : nat;          // capture state of min quorum percentage
+    quorumCount          : nat;          // turnout for quorum
     startDateTime        : timestamp;
 ]
 type proposalLedgerType is big_map (nat, proposalRecordType);
@@ -45,50 +44,68 @@ type storage is record [
 type governanceAction is 
     | Propose of (nat)
     | Vote of (nat)
-    | Release of (nat)
-    | Execute of (nat)
-    | Clear of (nat)
-    | ChangeStake of (nat)
+    // | Release of (nat)
+    | ExecuteProposal of (nat)
+    | ClearProposal of (nat)
+    // | ChangeStake of (nat)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
 
-function propose(const _parameters : nat; var s : storage) : return is 
+function propose(const _proposal : nat ; var s : storage) : return is 
 block {
+    // Steps Overview:
+    // 1. verify that user is a delegate, is allowed to propose, and is not overdelegated with insufficient bond (proxy with delegation contract)
+    // 2. verify that user has staked the minimum amount required
+    // 3. submit proposal 
     skip
+
 } with (noOperations, s)
 
 function vote(const _parameters : nat; var s : storage) : return is 
 block {
+    // Steps Overview:
+    // 1. verify that user is a delegate, is allowed to vote, and is not overdelegated with insufficient bond (proxy with delegation contract)
+    // 2. verify that proposal exists
+    // 3. submit delegator's vote for proposal and update vote counts
     skip
 } with (noOperations, s)
 
-function release(const _parameters : nat; var s : storage) : return is
+// function release(const _parameters : nat; var s : storage) : return is
+// block {
+//     // Steps Overview: 
+//     // - similar to clear for delegator to claim staked amount? 
+//     skip
+// } with (noOperations, s)
+
+function executeProposal(const _parameters : nat; var s : storage) : return is 
 block {
+    // Steps Overview: 
+    // 1. verify that user is a delegator and can execute proposal
+    // 2. verify that proposal can be executed
+    // 3. execute proposal - list of operations to run
     skip
 } with (noOperations, s)
 
-function execute(const _parameters : nat; var s : storage) : return is 
+function clearProposal(const _parameters : nat; var s : storage) : return is 
 block {
+    // Steps Overview: 
+    // 1. verify that proposal is over and can be cleared
+    // 2. release staked sMVK back to delegator 
     skip
 } with (noOperations, s)
 
-function clear(const _parameters : nat; var s : storage) : return is 
-block {
-    skip
-} with (noOperations, s)
-
-function changeStake(const _parameters : nat; var s : storage) : return is
-block {
-    skip
-} with (noOperations, s)
+// function changeStake(const _parameters : nat; var s : storage) : return is
+// block {
+//     skip
+// } with (noOperations, s)
 
 function main (const action : governanceAction; const s : storage) : return is 
     case action of
         | Propose(parameters) -> propose(parameters, s)
         | Vote(parameters) -> vote(parameters, s)
-        | Release(parameters) -> release(parameters, s)
-        | Execute(parameters) -> execute(parameters, s)
-        | Clear(parameters) -> clear(parameters, s)
-        | ChangeStake(parameters) -> changeStake(parameters, s)
+        // | Release(parameters) -> release(parameters, s)
+        | ExecuteProposal(parameters) -> executeProposal(parameters, s)
+        | ClearProposal(parameters) -> clearProposal(parameters, s)
+        // | ChangeStake(parameters) -> changeStake(parameters, s)
     end

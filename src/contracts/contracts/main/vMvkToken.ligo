@@ -20,6 +20,7 @@ type storage is
     totalSupply     : amt;
     ledger          : big_map (address, account);
     doormanAddress  : address;
+    delegationAddress  : address;
   ]
 
 (* define return for readability *)
@@ -36,6 +37,7 @@ type allowanceParams is michelson_pair(michelson_pair(address, "owner", trusted,
 type totalSupplyParams is (unit * contract(amt))
 type mintParams is (address * nat)
 type burnParams is (address * nat)
+type updateVMvkBalanceForDelegationParams is (address * address)
 
 (* Valid entry points *)
 type entryAction is
@@ -45,6 +47,7 @@ type entryAction is
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
   | UpdateVMvkTotalSupplyForDoorman of nat
+  | UpdateVMvkBalanceForDelegation of updateVMvkBalanceForDelegationParams
   | Mint of mintParams
   | Burn of burnParams
 
@@ -63,7 +66,16 @@ function unstakeCompleteInDoorman(const tokenAddress : address) : contract(nat) 
       "%unstakeComplete",
       tokenAddress) : option(contract(nat))) of
     Some(contr) -> contr
-  | None -> (failwith("UnstakeComplete entrypoint not found") : contract(nat))
+  | None -> (failwith("UnstakeComplete entrypoint in Doorman Contract not found") : contract(nat))
+  end;
+
+(*  helper function to setDelegateComplete in Delegation module *)
+function setDelegateCompleteInDelegation(const tokenAddress : address) : contract(nat * address) is
+  case (Tezos.get_entrypoint_opt(
+      "%setDelegateComplete",
+      tokenAddress) : option(contract(nat * address))) of
+    Some(contr) -> contr
+  | None -> (failwith("SetDelegateComplete entrypoint in Delegation contract not found") : contract(nat * address))
   end;
 
 
@@ -122,6 +134,26 @@ function getBalance (const owner : address; const contr : contract(amt); var s :
   block {
     const ownerAccount : account = getAccount(owner, s);
   } with (list [transaction(ownerAccount.balance, 0tz, contr)], s)
+
+
+function updateVMvkBalanceForDelegation (const owner : address; const delegatorAddress : address; var s : storage) : return is
+  block{
+    
+    const ownerAccount : account = getAccount(owner, s); 
+
+    const balance_ : nat = ownerAccount.balance;
+    const delegatorAddress_ : address = delegatorAddress;
+
+    const setDelegateCompleteOperation : operation = Tezos.transaction(
+      (balance_, delegatorAddress_), 
+      0tez, 
+      setDelegateCompleteInDelegation(s.delegationAddress)
+      );
+
+    const operations : list (operation) = list [setDelegateCompleteOperation];
+
+  } with (operations, s)
+  
 
 (* View function that forwards the allowance amt of spender in the name of tokenOwner to a contract *)
 function getAllowance (const owner : address; const spender : address; const contr : contract(amt); var s : storage) : return is
@@ -208,6 +240,7 @@ function main (const action : entryAction; var s : storage) : return is
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)
     | UpdateVMvkTotalSupplyForDoorman(params) -> updateVMvkTotalSupplyForDoorman(params, s)
+    | UpdateVMvkBalanceForDelegation(params) -> updateVMvkBalanceForDelegation(params.0, params.1, s)
     | Mint(params) -> mint(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
   end;

@@ -1,10 +1,12 @@
 const doormanContract = artifacts.require('doorman')
+const delegationContract = artifacts.require('doorman')
 const vMvkTokenContract = artifacts.require('vMvkToken')
 const { MichelsonMap } = require('@taquito/taquito')
 
 const { alice, bob } = require('../scripts/sandbox/accounts')
 const saveContractAddress = require('../helpers/saveContractAddress')
 const doormanAddress = require('../deployments/doormanAddress')
+const delegationAddress = require('../deployments/delegationAddress')
 
 const initialSupply = '1000000000' // 1000 vMVK Tokens in mu (10^6)
 
@@ -56,6 +58,7 @@ const initialStorage = {
   ledger            : ledger,
   token_metadata    : tokenMetadata,
   doormanAddress    : doormanAddress,
+  delegationAddress : delegationAddress
 }
 
 module.exports = async (deployer, network, accounts) => {
@@ -65,6 +68,11 @@ module.exports = async (deployer, network, accounts) => {
   // Set vMVK token address in Doorman
   const deployedDoorman = await doormanContract.deployed()
   await deployedDoorman.setVMvkTokenAddress(deployedVMvkToken.address)
+
+  // Set vMVK token address in Delegation
+  const deployedDelegation = await delegationContract.deployed()
+  await deployedDelegation.setVMvkTokenAddress(deployedVMvkToken.address)
+
 
   await saveContractAddress('vMvkTokenAddress', deployedVMvkToken.address)
 }
