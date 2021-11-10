@@ -139,6 +139,11 @@ function getBalance (const owner : address; const contr : contract(amt); var s :
 function updateVMvkBalanceForDelegation (const owner : address; const delegatorAddress : address; var s : storage) : return is
   block{
     
+    (* Check this call is comming from the doorman contract *)
+    if s.delegationAddress =/= Tezos.sender then
+      failwith("NotAuthorized")
+    else skip;
+
     const ownerAccount : account = getAccount(owner, s); 
 
     const balance_ : nat = ownerAccount.balance;

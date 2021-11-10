@@ -168,8 +168,8 @@ block {
   var newStakeRecord : stakeRecordType := case userRecordInStakeLedger[lastRecordIndex] of
       Some(_val) -> _val
       | None -> record[
-          amount  = stakeAmount;
-          time    = Tezos.now;  
+          amount           = stakeAmount;
+          time             = Tezos.now;  
           exitFee          = 0n;     
           mvkLoyaltyIndex  = 0n; 
           mvkTotalSupply   = 0n;  // FYI: will not be accurate - set to 0 / null / placeholder?    
