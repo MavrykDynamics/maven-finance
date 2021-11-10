@@ -73,7 +73,6 @@ module.exports = async (deployer, network, accounts) => {
   const deployedDelegation = await delegationContract.deployed()
   await deployedDelegation.setVMvkTokenAddress(deployedVMvkToken.address)
 
-
   await saveContractAddress('vMvkTokenAddress', deployedVMvkToken.address)
 }
 
