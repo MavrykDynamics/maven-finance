@@ -41,7 +41,7 @@ contract('delegate', accounts => {
         vMvkTokenInstance = await vMvkToken.deployed();        
         vMvkTokenInstance = await Tezos.contract.at(vMvkTokenInstance.address);
 
-        delegationStorage       = await delegationInstance.storage();
+        delegationStorage = await delegationInstance.storage();
         vMvkStorage       = await vMvkTokenInstance.storage();
 
         console.log('-- -- -- -- -- Deployments -- -- -- --')   
@@ -50,15 +50,15 @@ contract('delegate', accounts => {
     });
 
 
-    it('alice can register as a delegator', async () => {
+    it('alice can register as a satellite', async () => {
         try{        
 
-            const registerAsDelegatorOperation = await delegationInstance.methods.registerAsDelegator(Tezos.unit).send();
+            const registerAsDelegatorOperation = await delegationInstance.methods.registerAsSatellite(Tezos.unit).send();
             await registerAsDelegatorOperation.confirmation();
 
             afterDelegationStorage     = await delegationInstance.storage();
             
-            const afterDelegationLedgerAlice  = await afterDelegationStorage.delegatorLedger.get(alice.pkh);
+            const afterDelegationLedgerAlice  = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
 
             console.log(afterDelegationLedgerAlice);
 
