@@ -26,12 +26,7 @@ const metadata = MichelsonMap.fromLiteral({
   ).toString('hex'),
 })
 
-const ledger = MichelsonMap.fromLiteral({
-  [alice.pkh]: {
-    balance: initialSupply,
-    allowances: new MichelsonMap(),
-  },
-})
+const ledger = new MichelsonMap();
 
 const tokenMetadata = MichelsonMap.fromLiteral({
   0: {
@@ -46,6 +41,7 @@ const tokenMetadata = MichelsonMap.fromLiteral({
 })
 
 const initialStorage = {
+  admin             : alice.pkh,
   totalSupply       : initialSupply,
   metadata          : metadata,
   ledger            : ledger,

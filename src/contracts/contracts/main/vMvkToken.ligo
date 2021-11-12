@@ -15,6 +15,7 @@ type token_metadata_info is record [
 
 type storage is
   record [
+    admin           : address;
     metadata        : big_map (string, bytes);
     token_metadata  : big_map(token_id, token_metadata_info);
     totalSupply     : amt;
@@ -48,6 +49,7 @@ type entryAction is
   | GetTotalSupply of totalSupplyParams
   | UpdateVMvkTotalSupplyForDoorman of nat
   | UpdateVMvkBalanceForDelegation of updateVMvkBalanceForDelegationParams
+  | SetDelegationTokenAddress of (address)
   | Mint of mintParams
   | Burn of burnParams
 
@@ -135,6 +137,13 @@ function getBalance (const owner : address; const contr : contract(amt); var s :
     const ownerAccount : account = getAccount(owner, s);
   } with (list [transaction(ownerAccount.balance, 0tz, contr)], s)
 
+(* set delegation contract address *)
+function setDelegationTokenAddress(const parameters : address; var s : storage) : return is
+block {
+  if Tezos.sender =/= s.admin then failwith("Access denied")
+    else skip;
+    s.delegationAddress := parameters;
+} with (noOperations, s)
 
 function updateVMvkBalanceForDelegation (const owner : address; const delegatorAddress : address; var s : storage) : return is
   block{
@@ -196,9 +205,9 @@ function mint (const to_ : address; const value : amt; var s : storage) : return
     var targetAccount : account := getAccount(to_, s);
 
     (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    // if s.doormanAddress =/= Tezos.sender then
+    //   failwith("NotAuthorized")
+    // else skip;
 
     (* Update sender balance *)
     targetAccount.balance := targetAccount.balance + value;
@@ -216,9 +225,9 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     var targetAccount : account := getAccount(from_, s);
 
     (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    // if s.doormanAddress =/= Tezos.sender then
+    //   failwith("NotAuthorized")
+    // else skip;
 
     (* Balance check *)
     if targetAccount.balance < value then
@@ -246,6 +255,7 @@ function main (const action : entryAction; var s : storage) : return is
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)
     | UpdateVMvkTotalSupplyForDoorman(params) -> updateVMvkTotalSupplyForDoorman(params, s)
     | UpdateVMvkBalanceForDelegation(params) -> updateVMvkBalanceForDelegation(params.0, params.1, s)
+    | SetDelegationTokenAddress(params) -> setDelegationTokenAddress(params, s)
     | Mint(params) -> mint(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
   end;

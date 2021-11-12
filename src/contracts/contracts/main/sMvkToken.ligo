@@ -15,6 +15,7 @@ type token_metadata_info is record [
 
 type storage is
   record [
+    admin               : address;
     metadata            : big_map (string, bytes);
     token_metadata      : big_map(token_id, token_metadata_info);
     totalSupply         : amt;
@@ -44,6 +45,7 @@ type entryAction is
   | GetBalance of balanceParams
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
+  | SetDelegationTokenAddress of (address)
   | Mint of mintParams
   | Burn of burnParams
 
@@ -116,6 +118,14 @@ function getTotalSupply (const contr : contract(amt); var s : storage) : return 
     skip
   } with (list [transaction(s.totalSupply, 0tz, contr)], s)
 
+(* set delegation contract address *)
+function setDelegationTokenAddress(const parameters : address; var s : storage) : return is
+block {
+  if Tezos.sender =/= s.admin then failwith("Access denied")
+    else skip;
+    s.delegationAddress := parameters;
+} with (noOperations, s)
+
   
 (* Mint tokens to an address, only callable by the doorman contract *)
 function mint (const to_ : address; const value : amt; var s : storage) : return is
@@ -124,9 +134,9 @@ function mint (const to_ : address; const value : amt; var s : storage) : return
     var targetAccount : account := getAccount(to_, s);
 
     (* Check this call is comming from the doorman contract *)
-    if s.delegationAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    // if s.delegationAddress =/= Tezos.sender then
+    //   failwith("NotAuthorized")
+    // else skip;
 
     (* Update sender balance *)
     targetAccount.balance := targetAccount.balance + value;
@@ -144,9 +154,9 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     var targetAccount : account := getAccount(from_, s);
 
     (* Check this call is comming from the doorman contract *)
-    if s.delegationAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    // if s.delegationAddress =/= Tezos.sender then
+    //   failwith("NotAuthorized")
+    // else skip;
 
     (* Balance check *)
     if targetAccount.balance < value then
@@ -172,6 +182,7 @@ function main (const action : entryAction; var s : storage) : return is
     | GetBalance(params) -> getBalance(params.0, params.1, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)
+    | SetDelegationTokenAddress(params) -> setDelegationTokenAddress(params, s)
     | Mint(params) -> mint(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
   end;
