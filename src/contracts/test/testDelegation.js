@@ -1,5 +1,6 @@
 const delegation = artifacts.require('delegation');
 const vMvkToken = artifacts.require('vMvkToken');
+const sMvkToken = artifacts.require('sMvkToken');
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -41,77 +42,178 @@ contract('delegate', accounts => {
         vMvkTokenInstance = await vMvkToken.deployed();        
         vMvkTokenInstance = await Tezos.contract.at(vMvkTokenInstance.address);
 
+        sMvkTokenInstance = await sMvkToken.deployed();        
+        sMvkTokenInstance = await Tezos.contract.at(sMvkTokenInstance.address);
+
         delegationStorage = await delegationInstance.storage();
         vMvkStorage       = await vMvkTokenInstance.storage();
+        sMvkStorage       = await sMvkTokenInstance.storage();
 
         console.log('-- -- -- -- -- Deployments -- -- -- --')   
         console.log('Delegation Contract deployed at:', delegationInstance.address);
         console.log('vMVK Contract deployed at:', vMvkTokenInstance.address);        
+        console.log('sMVK Contract deployed at:', sMvkTokenInstance.address);        
     });
 
 
     it('alice can register as a satellite', async () => {
         try{        
 
+            beforeDelegationStorage     = await delegationInstance.storage();
+            beforeVMvkStorage           = await vMvkTokenInstance.storage();
+            beforeSMvkStorage           = await sMvkTokenInstance.storage();
+            
+            const beforeDelegationLedgerAlice  = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
+            const beforeVMvkLedgerAlice        = await beforeVMvkStorage.ledger.get(alice.pkh);
+            const beforeSMvkLedgerAlice        = await beforeSMvkStorage.ledger.get(alice.pkh);
+
+            // console.log(beforeDelegationLedgerAlice);
+            // console.log(beforeVMvkLedgerAlice.balance);
+            // console.log(beforeSMvkLedgerAlice.balance);
+
             const registerAsDelegatorOperation = await delegationInstance.methods.registerAsSatellite(Tezos.unit).send();
             await registerAsDelegatorOperation.confirmation();
 
             afterDelegationStorage     = await delegationInstance.storage();
+            afterVMvkStorage           = await vMvkTokenInstance.storage();
+            afterSMvkStorage           = await sMvkTokenInstance.storage();
             
             const afterDelegationLedgerAlice  = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
+            const afterVMvkLedgerAlice        = await afterVMvkStorage.ledger.get(alice.pkh);
+            const afterSMvkLedgerAlice        = await afterSMvkStorage.ledger.get(alice.pkh);
 
-            console.log(afterDelegationLedgerAlice);
+            // console.log(afterDelegationLedgerAlice);
+            // console.log(afterVMvkLedgerAlice.balance);
+            // console.log(afterSMvkLedgerAlice.balance);
 
         } catch(e){
             console.log(e);
         } 
     });
 
-//     it(`should not allow transfers from an address that did not sign the transaction`, async () => {
-//         try {        
-//             const failTransferOperation = await mvkTokenInstance.methods.transfer(bob.pkh, alice.pkh, 1000000n);
-//             await chai.expect(failTransferOperation.send()).to.be.eventually.rejected;
-//         } catch (e) {
-//             console.log(e);
-//             // assert.equal(e.message, constants.contractErrors.notEnoughAllowance)
-//         }
-//     });
+    it('alice cannot register twice as a satellite', async () => {
+        try{        
+            
+            const failRegisterAsDelegatorOperation = await delegationInstance.methods.registerAsSatellite(Tezos.unit);    
+            await chai.expect(failRegisterAsDelegatorOperation.send()).to.be.eventually.rejected;
 
-//     it(`should not transfer tokens from Alice to Bob when Alice's balance is insufficient`, async () => {
-//         try {
-//             const failTransferInsufficientOperation = await mvkTokenInstance.methods.transfer(alice.pkh, bob.pkh, 100000000000n);
-//             await chai.expect(failTransferInsufficientOperation.send()).to.be.eventually.rejected;
-//         } catch (e) {
-//             console.log(e);
-//             // assert.equal(e.message, constants.contractErrors.notEnoughBalance)
-//         }
-//     });
+        } catch(e){
+            console.log(e);
+        } 
+    });
 
-//     it(`should not allow anyone to burn tokens`, async () => {
-//         try {
-//             const failBurnTokenOperation = await mvkTokenInstance.methods.burn(alice.pkh, 1000000n);
-//             await chai.expect(failBurnTokenOperation.send()).to.be.eventually.rejected;
-//         } catch (e) {
-//             assert.equal(e.message, constants.contractErrors.notAuthorized)
-//         }
-//     });
+    it('alice can decrease her satellite bond', async () => {
+        try{        
 
-//     it(`should not allow anyone to mint tokens`, async () => {
-//         try {
-//             const failMintTokenOperation = await mvkTokenInstance.methods.mint(alice.pkh, 1000000n);
-//             await chai.expect(failMintTokenOperation.send()).to.be.eventually.rejected;
-//         } catch (e) {
-//             console.log(e);
-//             // assert.equal(e.message, constants.contractErrors.notAuthorized)
-//         }
-//     });
+            beforeDelegationStorage     = await delegationInstance.storage();
+            beforeVMvkStorage           = await vMvkTokenInstance.storage();
+            beforeSMvkStorage           = await sMvkTokenInstance.storage();
+            
+            const beforeDelegationLedgerAlice  = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
+            const beforeVMvkLedgerAlice        = await beforeVMvkStorage.ledger.get(alice.pkh);
+            const beforeSMvkLedgerAlice        = await beforeSMvkStorage.ledger.get(alice.pkh);
 
-    // it(`should allow doorman to burn tokens`, async () => {
-    //     try {
-    //         await mvkTokenInstance.burn(alice.pkh, 1);
-    //     } catch (e) {
-    //         assert.equal(e.message, constants.contractErrors.notAuthorized)
-    //     }
-    // });
+            // console.log(beforeDelegationLedgerAlice);
+            // console.log(beforeVMvkLedgerAlice.balance);
+            // console.log(beforeSMvkLedgerAlice.balance);
+
+            const decreaseSatelliteBondOperation = await delegationInstance.methods.decreaseSatelliteBond(100000000).send();
+            await decreaseSatelliteBondOperation.confirmation();
+
+            afterDelegationStorage     = await delegationInstance.storage();
+            afterVMvkStorage           = await vMvkTokenInstance.storage();
+            afterSMvkStorage           = await sMvkTokenInstance.storage();
+            
+            const afterDelegationLedgerAlice  = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
+            const afterVMvkLedgerAlice        = await afterVMvkStorage.ledger.get(alice.pkh);
+            const afterSMvkLedgerAlice        = await afterSMvkStorage.ledger.get(alice.pkh);
+
+            // console.log(afterDelegationLedgerAlice);
+            // console.log(afterVMvkLedgerAlice.balance);
+            // console.log(afterSMvkLedgerAlice.balance);
+
+        } catch(e){
+            console.log(e);
+        } 
+    });
+
+    it('alice cannot decrease her satellite bond below minimum bond requirements', async () => {
+        try{        
+            const failDecreaseSatelliteBondOperation = await delegationInstance.methods.decreaseSatelliteBond(200000000);    
+            await chai.expect(failDecreaseSatelliteBondOperation.send()).to.be.eventually.rejected;
+        } catch(e){
+            console.log(e);
+        } 
+    });
+
+    it('alice can increase her satellite bond', async () => {
+        try{        
+
+            beforeDelegationStorage     = await delegationInstance.storage();
+            beforeVMvkStorage           = await vMvkTokenInstance.storage();
+            beforeSMvkStorage           = await sMvkTokenInstance.storage();
+            
+            const beforeDelegationLedgerAlice  = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
+            const beforeVMvkLedgerAlice        = await beforeVMvkStorage.ledger.get(alice.pkh);
+            const beforeSMvkLedgerAlice        = await beforeSMvkStorage.ledger.get(alice.pkh);
+
+            // console.log(beforeDelegationLedgerAlice);
+            // console.log(beforeVMvkLedgerAlice.balance);
+            // console.log(beforeSMvkLedgerAlice.balance);
+
+            const increaseSatelliteBondOperation = await delegationInstance.methods.increaseSatelliteBond(100000000).send();
+            await increaseSatelliteBondOperation.confirmation();
+
+            afterDelegationStorage     = await delegationInstance.storage();
+            afterVMvkStorage           = await vMvkTokenInstance.storage();
+            afterSMvkStorage           = await sMvkTokenInstance.storage();
+            
+            const afterDelegationLedgerAlice  = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
+            const afterVMvkLedgerAlice        = await afterVMvkStorage.ledger.get(alice.pkh);
+            const afterSMvkLedgerAlice        = await afterSMvkStorage.ledger.get(alice.pkh);
+
+            // console.log(afterDelegationLedgerAlice);
+            // console.log(afterVMvkLedgerAlice.balance);
+            // console.log(afterSMvkLedgerAlice.balance);
+
+        } catch(e){
+            console.log(e);
+        } 
+    });
+
+    it('alice can unregister as a satellite', async () => {
+        try{        
+
+            beforeDelegationStorage     = await delegationInstance.storage();
+            beforeVMvkStorage           = await vMvkTokenInstance.storage();
+            beforeSMvkStorage           = await sMvkTokenInstance.storage();
+            
+            const beforeDelegationLedgerAlice  = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
+            const beforeVMvkLedgerAlice        = await beforeVMvkStorage.ledger.get(alice.pkh);
+            const beforeSMvkLedgerAlice        = await beforeSMvkStorage.ledger.get(alice.pkh);
+
+            // console.log(beforeDelegationLedgerAlice);
+            // console.log(beforeVMvkLedgerAlice);
+            // console.log(beforeSMvkLedgerAlice);
+
+            const unregisterAsDelegatorOperation = await delegationInstance.methods.unregisterAsSatellite(Tezos.unit).send();
+            await unregisterAsDelegatorOperation.confirmation();
+
+            afterDelegationStorage     = await delegationInstance.storage();
+            afterVMvkStorage           = await vMvkTokenInstance.storage();
+            afterSMvkStorage           = await sMvkTokenInstance.storage();
+            
+            const afterDelegationLedgerAlice  = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
+            const afterVMvkLedgerAlice        = await afterVMvkStorage.ledger.get(alice.pkh);
+            const afterSMvkLedgerAlice        = await afterSMvkStorage.ledger.get(alice.pkh);
+
+            // console.log(afterDelegationLedgerAlice);
+            // console.log(afterVMvkLedgerAlice);
+            // console.log(afterSMvkLedgerAlice);
+
+        } catch(e){
+            console.log(e);
+        } 
+    });
 
 });

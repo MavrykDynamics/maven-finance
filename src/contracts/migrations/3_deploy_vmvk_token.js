@@ -53,6 +53,7 @@ const tokenMetadata = MichelsonMap.fromLiteral({
 })
 
 const initialStorage = {
+  admin             : alice.pkh,
   totalSupply       : initialSupply,
   metadata          : metadata,
   ledger            : ledger,
