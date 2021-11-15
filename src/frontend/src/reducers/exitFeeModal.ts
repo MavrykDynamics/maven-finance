@@ -1,4 +1,4 @@
-import { SHOW_EXIT_FEE_MODAL, HIDE_EXIT_FEE_MODAL, STAKE } from "pages/Stake/ExitFeeModal/ExitFeeModal.actions"
+import { SHOW_EXIT_FEE_MODAL, HIDE_EXIT_FEE_MODAL } from "pages/Doorman/ExitFeeModal/ExitFeeModal.actions"
 
 export interface ExitFeeModalState {
   showing: boolean
@@ -16,9 +16,6 @@ export function exitFeeModal(state = exitFeeModalDefaultState, action: any): Exi
       }
     }
     case HIDE_EXIT_FEE_MODAL: {
-      return exitFeeModalDefaultState
-    }
-    case STAKE: {
       return exitFeeModalDefaultState
     }
     default:

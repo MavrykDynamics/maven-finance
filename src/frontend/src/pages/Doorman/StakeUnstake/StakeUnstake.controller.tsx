@@ -1,8 +1,7 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import { useDispatch } from 'react-redux'
-import { showExitFeeModal, stake } from '../ExitFeeModal/ExitFeeModal.actions'
-import { stakeAnim } from '../Stake.actions'
+import { showExitFeeModal } from '../ExitFeeModal/ExitFeeModal.actions'
 
 import { StakeUnstakeView } from './StakeUnstake.view'
 
@@ -11,8 +10,7 @@ type StakeUnstakeProps = {
   myVMvkBalance?: string
   stakeCallback: (params: { amount: number }) => Promise<any>
   unStakeCallback: (params: { amount: number }) => Promise<any>
-  setTransactionPending: (b: boolean) => void
-  transactionPending: boolean
+  loading: boolean
 }
 
 export const StakeUnstake = ({
@@ -20,23 +18,22 @@ export const StakeUnstake = ({
   myVMvkBalance,
   stakeCallback,
   unStakeCallback,
-  setTransactionPending,
-  transactionPending,
+  loading,
 }: StakeUnstakeProps) => {
   const dispatch = useDispatch()
 
   async function handleStake(amount: number) {
-    if (transactionPending) {
+    if (loading) {
       dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
     } else {
       stakeCallback({ amount })
         .then((e) => {
-          setTransactionPending(true)
+          //setTransactionPending(true)
           dispatch(showToaster(INFO, 'Staking...', 'Please wait 30s'))
-          dispatch(stakeAnim())
+          // dispatch(stakeAnim())
           e.confirmation().then((e: any) => {
             dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
-            setTransactionPending(false)
+            //setTransactionPending(false)
             return e
           })
           return e
@@ -80,7 +77,7 @@ export const StakeUnstake = ({
       myVMvkBalance={myVMvkBalance}
       handleStake={handleStake}
       handleUnStake={handleUnStake}
-      transactionPending={transactionPending}
+      loading={loading}
     />
   )
 }

@@ -8,14 +8,14 @@ type ExitFeeModalViewProps = {
   loading: boolean
   showing: boolean
   hideExitFeeModalCallback: () => void
-  stakeCallback: ({ amount }: { amount: number }) => void
+  unStakeCallback: ({ amount }: { amount: number }) => void
 }
 
 export const ExitFeeModalView = ({
   loading,
   showing,
   hideExitFeeModalCallback,
-  stakeCallback,
+  unStakeCallback,
 }: ExitFeeModalViewProps) => {
   return (
     <ModalStyled showing={showing}>
@@ -44,7 +44,7 @@ export const ExitFeeModalView = ({
                     text="Proceed"
                     icon="success"
                     loading={loading}
-                    onClick={() => stakeCallback({ amount: 1 })}
+                    onClick={() => unStakeCallback({ amount: 1 })}
                   />
                 </ExitFeeModalButtons>
               </ExitFeeModalContent>
@@ -60,7 +60,7 @@ ExitFeeModalView.propTypes = {
   loading: PropTypes.bool,
   showing: PropTypes.bool.isRequired,
   hideExitFeeModalCallback: PropTypes.func.isRequired,
-  stakeCallback: PropTypes.func.isRequired,
+  unStakeCallback: PropTypes.func.isRequired,
 }
 
 ExitFeeModalView.defaultProps = {
