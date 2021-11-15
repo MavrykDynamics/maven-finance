@@ -2,7 +2,6 @@ import { Subscription, TezosToolkit } from '@taquito/taquito'
 import { TempleDAppNetwork, TempleWallet } from '@temple-wallet/dapp'
 import constate from 'constate'
 import React from 'react'
-import { useAlert } from 'react-alert'
 
 export const [DAppProvider, useWallet, useTezos, useAccountPkh, useReady, useConnect] = constate(
   useDApp,
@@ -19,7 +18,6 @@ function useDApp({ appName }: { appName: string }) {
     tezos: undefined as TezosToolkit | undefined,
     accountPkh: undefined as string | undefined,
   }))
-  const alert = useAlert()
 
   const ready = Boolean(tezos)
 
@@ -48,11 +46,11 @@ function useDApp({ appName }: { appName: string }) {
           accountPkh: pkh,
         })
       } catch (err: any) {
-        alert.show(err.message)
+        // alert.show(err.message)
         console.error(`Failed to connect TempleWallet: ${err.message}`)
       }
     },
-    [alert, setState, wallet],
+    [setState, wallet],
   )
 
   return {
@@ -74,7 +72,7 @@ export function useOnBlock(tezos: TezosToolkit | undefined, callback: (hash: str
       return () => sub.close()
 
       function spawnSub() {
-        if (tezos) {
+        if (tezos && tezos.stream) {
           sub = tezos.stream.subscribe('head')
 
           sub.on('data', (hash) => {

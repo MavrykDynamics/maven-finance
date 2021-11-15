@@ -5,8 +5,8 @@ import { MenuBanner, MenuButton, MenuConnected, MenuFooter, MenuGrid, MenuIcon, 
 
 type MenuViewProps = {
   loading: boolean
-  myMvkBalance?: string
-  accountPkhPreview?: string
+  myMvkTokenBalance?: string
+  accountPkh?: string
   handleNewConnect: () => void
   wallet: any
   ready: boolean
@@ -15,8 +15,8 @@ type MenuViewProps = {
 
 export const MenuView = ({
   loading,
-  myMvkBalance,
-  accountPkhPreview,
+  myMvkTokenBalance,
+  accountPkh,
   handleNewConnect,
   wallet,
   ready,
@@ -35,12 +35,14 @@ export const MenuView = ({
           {ready ? (
             <MenuConnected>
               <p>
-                {accountPkhPreview}
+                {accountPkh
+                  ? `${accountPkh.slice(0, 7)}...${accountPkh.slice(accountPkh.length - 4, accountPkh.length)}`
+                  : 'undefined'}
                 <svg onClick={() => handleNewConnect()}>
                   <use xlinkHref="/icons/sprites.svg#switch" />
                 </svg>
               </p>
-              <div>{myMvkBalance} MVK</div>
+              <div>{myMvkTokenBalance} MVK</div>
             </MenuConnected>
           ) : (
             <MenuButton onClick={handleConnect}>
