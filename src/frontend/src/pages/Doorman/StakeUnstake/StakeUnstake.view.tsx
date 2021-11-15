@@ -1,9 +1,5 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from 'reducers'
-
-import { stakeAnim } from '../Stake.actions'
 // prettier-ignore
 import { StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInput, StakeUnstakeInputGrid, StakeUnstakeInputLabel, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
 
@@ -12,7 +8,7 @@ type StakeUnstakeViewProps = {
   myVMvkBalance?: string
   handleStake: (amount: number) => void
   handleUnStake: (amount: number) => void
-  transactionPending: boolean
+  loading: boolean
 }
 
 export const StakeUnstakeView = ({
@@ -20,7 +16,7 @@ export const StakeUnstakeView = ({
   myVMvkBalance,
   handleStake,
   handleUnStake,
-  transactionPending,
+  loading,
 }: StakeUnstakeViewProps) => {
   // const loading = useSelector((state: State) => state.loading)
   // const dispatch = useDispatch()
@@ -52,12 +48,12 @@ export const StakeUnstakeView = ({
           </div>
         </StakeUnstakeInputGrid>
         <StakeUnstakeButtonGrid>
-          <Button text="Stake" icon="in" loading={transactionPending} onClick={() => stakeCallback(inputAmount)} />
+          <Button text="Stake" icon="in" loading={loading} onClick={() => stakeCallback(inputAmount)} />
           <Button
             text="Unstake"
             icon="out"
             kind="secondary"
-            loading={transactionPending}
+            loading={loading}
             onClick={() => unStakeCallback(inputAmount)}
           />
         </StakeUnstakeButtonGrid>

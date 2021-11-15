@@ -11,13 +11,3 @@ export const hideExitFeeModal = () => (dispatch: any) => {
     type: HIDE_EXIT_FEE_MODAL,
   })
 }
-
-export const STAKE = 'STAKE'
-export const stake =
-  ({ amount }: { amount: number }) =>
-  (dispatch: any) => {
-    dispatch({
-      type: STAKE,
-      payload: { amount },
-    })
-  }
