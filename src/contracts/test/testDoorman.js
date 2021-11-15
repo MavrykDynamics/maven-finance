@@ -1,6 +1,7 @@
 // const doorman = artifacts.require('doorman');
 // const mvkToken = artifacts.require('mvkToken');
 // const vMvkToken = artifacts.require('vMvkToken');
+// const delegation = artifacts.require('delegation');
 
 // const chai = require("chai");
 // const chaiAsPromised = require('chai-as-promised');
@@ -47,14 +48,19 @@
 //         vMvkTokenInstance = await vMvkToken.deployed();        
 //         vMvkTokenInstance = await Tezos.contract.at(vMvkTokenInstance.address);
         
+//         delegationInstance = await delegation.deployed();
+//         delegationInstance = await Tezos.contract.at(delegationInstance.address);
+
 //         doormanStorage    = await doormanInstance.storage();
 //         mvkStorage        = await mvkTokenInstance.storage();
 //         vMvkStorage       = await vMvkTokenInstance.storage();
+//         delegationStorage = await delegationInstance.storage();
 
 //         console.log('-- -- -- -- -- Deployments -- -- -- --')
 //         console.log('Doorman Contract deployed at:', doormanInstance.address);
 //         console.log('MVK Contract deployed at:', mvkTokenInstance.address);
 //         console.log('vMVK Contract deployed at:', vMvkTokenInstance.address);
+//         console.log('Delegation Contract deployed at:', delegationInstance.address);
 //         console.log('Alice address: ' + alice.pkh);
 //         console.log('Bob address: ' + bob.pkh);
 //         console.log('Doorman admin: ' + doormanStorage.admin);

@@ -11,11 +11,13 @@ type userStakeRecordsType is big_map (address, map(nat, stakeRecordType))
 
 type burnTokenType is (address * nat)
 type mintTokenType is (address * nat)
+type udpateSatelliteBalanceParams is (address * nat * nat)
 
 type storage is record [
     admin                 : address;
     mvkTokenAddress       : address; 
     vMvkTokenAddress      : address;
+    delegationAddress     : address;
     userStakeLedger       : userStakeRecordsType; 
     tempMvkTotalSupply    : nat;    
     tempVMvkTotalSupply   : nat;  
@@ -33,6 +35,7 @@ type stakeAction is
     | SetAdmin of (address)
     | SetMvkTokenAddress of (address)
     | SetVMvkTokenAddress of (address)
+    | SetDelegationAddress of (address)
     | SetTempMvkTotalSupply of (nat)
     | SetTempVMvkTotalSupply of (nat)
 
@@ -96,6 +99,15 @@ function mintTokens(
     getMintEntrypointFromTokenAddress(tokenAddress)
   );
 
+// helper function to update satellite's balance
+function updateSatelliteBalance(const delegationAddress : address) : contract(udpateSatelliteBalanceParams) is
+  case (Tezos.get_entrypoint_opt(
+      "%onStakeChange",
+      delegationAddress) : option(contract(udpateSatelliteBalanceParams))) of
+    Some(contr) -> contr
+  | None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(udpateSatelliteBalanceParams))
+  end;
+
 (* ---- Helper functions end ---- *)
 
 (*  set contract admin address *)
@@ -112,6 +124,14 @@ block {
   if Tezos.sender =/= s.admin then failwith("Access denied")
     else skip;
     s.mvkTokenAddress := parameters;
+} with (noOperations, s)
+
+(* set mvk contract address *)
+function setDelegationAddress(const parameters : address; var s : storage) : return is
+block {
+  if Tezos.sender =/= s.admin then failwith("Access denied")
+    else skip;
+    s.delegationAddress := parameters;
 } with (noOperations, s)
 
 (* set vMvk contract address *)
@@ -148,8 +168,14 @@ block {
       stakeAmount,         // amount of vmvk Tokens to be minted
       s.vMvkTokenAddress); // vmvkTokenAddress
 
+  const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+    (Tezos.sender, stakeAmount, 1n),
+    0tez,
+    updateSatelliteBalance(s.delegationAddress)
+  );
+
   // list of operations: burn mvk tokens first, then mint vmvk tokens
-  const operations : list(operation) = list [burnMvkTokensOperation; mintVMvkTokensOperation];
+  const operations : list(operation) = list [burnMvkTokensOperation; mintVMvkTokensOperation; updateSatelliteBalanceOperation];
 
   // 3. update record of user address with minted vMVK tokens
 
@@ -267,8 +293,14 @@ block {
         finalAmount,         // final amount of MVK Tokens to be minted (vMVK - exit fee) [in mu - 10^6]
         s.mvkTokenAddress);  // mvkTokenAddress
 
+    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+        (Tezos.source, unstakeAmount, 0n),
+        0tez,
+        updateSatelliteBalance(s.delegationAddress)
+      );
+
     // list of operations: burn vmvk tokens first, then mint mvk tokens
-    const operations : list(operation) = list [burnVMvkTokensOperation; mintMvkTokensOperation];
+    const operations : list(operation) = list [burnVMvkTokensOperation; mintMvkTokensOperation; updateSatelliteBalanceOperation];
 
     // if user wallet address does not exist in stake ledger, add user to the stake ledger
     var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeLedger[Tezos.source] of
@@ -311,6 +343,7 @@ function main (const action : stakeAction; const s : storage) : return is
   | SetAdmin(parameters) -> setAdmin(parameters, s)  
   | SetMvkTokenAddress(parameters) -> setMvkTokenAddress(parameters, s)  
   | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
+  | SetDelegationAddress(parameters) -> setDelegationAddress(parameters, s)  
   | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
   | SetTempVMvkTotalSupply(parameters) -> setTempVMvkTotalSupply(parameters, s)
   end

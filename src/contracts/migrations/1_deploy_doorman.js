@@ -13,6 +13,7 @@ const initialStorage = {
   admin: adminAddress,
   mvkTokenAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk',  // TODO: Change to empty address + call setAddress after token deployed
   vMvkTokenAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after token deployed
+  delegationAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after token deployed
   userStakeLedger: userStakeLedger,
   tempMvkTotalSupply: tempMvkTotalSupply,
   tempVMvkTotalSupply: tempVMvkTotalSupply,

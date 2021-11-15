@@ -1,6 +1,7 @@
 const delegationContract = artifacts.require('delegation')
 const vMvkTokenContract = artifacts.require('vMvkToken')
 const sMvkTokenContract = artifacts.require('sMvkToken')
+const doormanContract = artifacts.require('doorman')
 
 const { MichelsonMap } = require('@taquito/michelson-encoder')
 
@@ -23,20 +24,25 @@ const initialStorage = {
   delegateLedger : delegateLedger,
   satelliteLedger : satelliteLedger,
   vMvkTokenAddress : vMvkTokenAddress,
-  sMvkTokenAddress : sMvkTokenAddress
+  sMvkTokenAddress : sMvkTokenAddress,
+  userIsSatelliteFlag : false
 }
 
 module.exports = async (deployer, network, accounts) => {
   await deployer.deploy(delegationContract, initialStorage)
   const deployedDelegationContract = await delegationContract.deployed()
 
-  //   Set delegation token address in sMVK 
+  //   Set delegation address in sMVK 
   const deployedSMvkToken = await sMvkTokenContract.deployed()
   await deployedSMvkToken.setDelegationTokenAddress(deployedDelegationContract.address)
 
-  //   Set delegation token address in vMVK
+  //   Set delegation address in vMVK
   const deployedVMvkToken = await vMvkTokenContract.deployed()
   await deployedVMvkToken.setDelegationTokenAddress(deployedDelegationContract.address)
+
+  // Set delegation address in Doorman
+  const deployedDoorman = await doormanContract.deployed()
+  await deployedDoorman.setDelegationAddress(deployedDelegationContract.address)
 
   await saveContractAddress('delegationAddress', deployedDelegationContract.address)
 }
