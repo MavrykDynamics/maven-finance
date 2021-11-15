@@ -18,7 +18,6 @@ export const showExitFeeModal = (amount: number) => (dispatch: any, getState: an
 
   dispatch({
     type: SHOW_EXIT_FEE_MODAL,
-    amount,
   })
 }
 
