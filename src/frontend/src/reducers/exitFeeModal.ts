@@ -2,10 +2,12 @@ import { SHOW_EXIT_FEE_MODAL, HIDE_EXIT_FEE_MODAL } from "pages/Doorman/ExitFeeM
 
 export interface ExitFeeModalState {
   showing: boolean
+  amount: number
 }
 
 const exitFeeModalDefaultState: ExitFeeModalState = {
   showing: false,
+  amount: 0
 }
 
 export function exitFeeModal(state = exitFeeModalDefaultState, action: any): ExitFeeModalState {
@@ -13,6 +15,7 @@ export function exitFeeModal(state = exitFeeModalDefaultState, action: any): Exi
     case SHOW_EXIT_FEE_MODAL: {
       return {
         showing: true,
+        amount: action.amount
       }
     }
     case HIDE_EXIT_FEE_MODAL: {
