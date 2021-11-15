@@ -1,5 +1,4 @@
 import { TempleWallet } from '@temple-wallet/dapp'
-import { APP_NAME } from 'dapp/defaults'
 import { Doorman } from 'pages/Doorman/Doorman.controller'
 import { useEffect } from 'react'
 import { Provider, useDispatch } from 'react-redux'
@@ -19,7 +18,7 @@ const AppContainer = () => {
 
   useEffect(() => {
     return TempleWallet.onAvailabilityChange((available) => {
-      if (available) dispatch(setWallet(new TempleWallet(APP_NAME)))
+      if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
     })
   }, [dispatch])
 
