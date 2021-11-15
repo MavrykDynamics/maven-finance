@@ -72,14 +72,13 @@ function unstakeCompleteInDoorman(const tokenAddress : address) : contract(nat) 
   end;
 
 (*  helper function to setDelegateComplete in Delegation module *)
-function setDelegateCompleteInDelegation(const tokenAddress : address) : contract(nat * address) is
+function setDelegateCompleteInDelegation(const delegationAddress : address) : contract(nat * address) is
   case (Tezos.get_entrypoint_opt(
       "%setDelegateComplete",
-      tokenAddress) : option(contract(nat * address))) of
+      delegationAddress) : option(contract(nat * address))) of
     Some(contr) -> contr
   | None -> (failwith("SetDelegateComplete entrypoint in Delegation contract not found") : contract(nat * address))
   end;
-
 
 (* Helper function to get account *)
 function getAccount (const addr : address; const s : storage) : account is
