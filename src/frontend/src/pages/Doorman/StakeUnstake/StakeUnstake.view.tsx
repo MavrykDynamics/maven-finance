@@ -4,31 +4,21 @@ import { useState } from 'react'
 import { StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInput, StakeUnstakeInputGrid, StakeUnstakeInputLabel, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
 
 type StakeUnstakeViewProps = {
-  myMvkBalance?: string
-  myVMvkBalance?: string
-  handleStake: (amount: number) => void
-  handleUnStake: (amount: number) => void
+  myMvkTokenBalance?: string
+  myVMvkTokenBalance?: string
+  stakeCallback: (amount: number) => void
+  unStakeCallback: (amount: number) => void
   loading: boolean
 }
 
 export const StakeUnstakeView = ({
-  myMvkBalance,
-  myVMvkBalance,
-  handleStake,
-  handleUnStake,
+  myMvkTokenBalance,
+  myVMvkTokenBalance,
+  stakeCallback,
+  unStakeCallback,
   loading,
 }: StakeUnstakeViewProps) => {
-  // const loading = useSelector((state: State) => state.loading)
-  // const dispatch = useDispatch()
   const [inputAmount, setInputAmount] = useState(0)
-
-  const stakeCallback = (amount: number) => {
-    handleStake(amount)
-  }
-
-  const unStakeCallback = (amount: number) => {
-    handleUnStake(amount)
-  }
 
   return (
     <StakeUnstakeStyled>
@@ -62,14 +52,14 @@ export const StakeUnstakeView = ({
         <StakeUnstakeBalance>
           <h3>My MVK Balance</h3>
           <img src="/images/coin-gold.svg" alt="coin" />
-          <div>{myMvkBalance} MVK</div>
+          <div>{myMvkTokenBalance} MVK</div>
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>Total MVK Staked</h3>
           <img src="/images/coin-silver.svg" alt="coin" />
-          <div>{myVMvkBalance} vMVK</div>
+          <div>{myVMvkTokenBalance} vMVK</div>
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
