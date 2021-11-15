@@ -7,7 +7,7 @@ type StakeUnstakeViewProps = {
   myMvkTokenBalance?: string
   myVMvkTokenBalance?: string
   stakeCallback: (amount: number) => void
-  unStakeCallback: (amount: number) => void
+  unstakeCallback: (amount: number) => void
   loading: boolean
 }
 
@@ -15,7 +15,7 @@ export const StakeUnstakeView = ({
   myMvkTokenBalance,
   myVMvkTokenBalance,
   stakeCallback,
-  unStakeCallback,
+  unstakeCallback,
   loading,
 }: StakeUnstakeViewProps) => {
   const [inputAmount, setInputAmount] = useState(0)
@@ -44,7 +44,7 @@ export const StakeUnstakeView = ({
             icon="out"
             kind="secondary"
             loading={loading}
-            onClick={() => unStakeCallback(inputAmount)}
+            onClick={() => unstakeCallback(inputAmount)}
           />
         </StakeUnstakeButtonGrid>
       </StakeUnstakeCard>

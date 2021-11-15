@@ -6,7 +6,7 @@ import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 
 import { DoormanHeader } from './DoormanHeader/DoormanHeader.controller'
 import { State } from 'reducers'
-import { getMvkTokenStorage, getVMvkTokenStorage, stake, unStake } from './Doorman.actions'
+import { getMvkTokenStorage, getVMvkTokenStorage, stake, unstake } from './Doorman.actions'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
 import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
 
@@ -30,7 +30,7 @@ export const Doorman = () => {
     dispatch(stake(amount))
   }
 
-  const unStakeCallback = (amount: number) => {
+  const unstakeCallback = (amount: number) => {
     dispatch(showExitFeeModal(amount))
   }
 
@@ -42,7 +42,7 @@ export const Doorman = () => {
         myMvkTokenBalance={myMvkTokenBalance}
         myVMvkTokenBalance={myVMvkTokenBalance}
         stakeCallback={stakeCallback}
-        unStakeCallback={unStakeCallback}
+        unstakeCallback={unstakeCallback}
         loading={loading}
       />
     </Page>
