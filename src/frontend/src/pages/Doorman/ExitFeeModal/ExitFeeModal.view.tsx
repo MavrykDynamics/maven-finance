@@ -7,23 +7,32 @@ import { ExitFeeModalButtons, ExitFeeModalContent } from './ExitFeeModal.style'
 type ExitFeeModalViewProps = {
   loading: boolean
   showing: boolean
-  hideExitFeeModalCallback: () => void
-  unStakeCallback: ({ amount }: { amount: number }) => void
+  unStakeCallback: (amount: number) => void
+  cancelCallback: () => void
+  mvkTotalSupply?: number
+  vMvkTotalSupply?: number
+  amount: number
 }
 
 export const ExitFeeModalView = ({
   loading,
   showing,
-  hideExitFeeModalCallback,
   unStakeCallback,
+  cancelCallback,
+  mvkTotalSupply,
+  vMvkTotalSupply,
+  amount,
 }: ExitFeeModalViewProps) => {
+  const mli =
+    ((vMvkTotalSupply ?? 0) / 1000000 / ((mvkTotalSupply ?? 0) / 1000000 + (vMvkTotalSupply ?? 1) / 1000000)) * 100
+
   return (
     <ModalStyled showing={showing}>
       {showing && (
         <>
-          <ModalMask showing={showing} onClick={() => hideExitFeeModalCallback()} />
+          <ModalMask showing={showing} onClick={() => cancelCallback()} />
           <ModalCard>
-            <ModalClose onClick={() => hideExitFeeModalCallback()}>
+            <ModalClose onClick={() => cancelCallback()}>
               <svg>
                 <use xlinkHref="/icons/sprites.svg#error" />
               </svg>
@@ -32,20 +41,23 @@ export const ExitFeeModalView = ({
               <ExitFeeModalContent>
                 <h1>Exit Fee</h1>
 
+                <div>{`MVK Total Supply : ${(mvkTotalSupply ?? 0) / 1000000} MVK`}</div>
+                <div>{`vMVK Total Supply : ${(vMvkTotalSupply ?? 0) / 1000000} vMVK`}</div>
+                <div>{`Amount unstaking : ${amount} vMVK to MVK`}</div>
+                <div>{`MLI : ${mli}%`}</div>
+                <div>{`Exit Fee : ${500 / mli + 5}%`}</div>
+                <br />
+                <br />
+
                 <ExitFeeModalButtons>
                   <Button
                     text="Cancel"
                     kind="secondary"
                     icon="error"
                     loading={loading}
-                    onClick={() => hideExitFeeModalCallback()}
+                    onClick={() => cancelCallback()}
                   />
-                  <Button
-                    text="Proceed"
-                    icon="success"
-                    loading={loading}
-                    onClick={() => unStakeCallback({ amount: 1 })}
-                  />
+                  <Button text="Proceed" icon="success" loading={loading} onClick={() => unStakeCallback(1)} />
                 </ExitFeeModalButtons>
               </ExitFeeModalContent>
             </ModalCardContent>
@@ -59,7 +71,7 @@ export const ExitFeeModalView = ({
 ExitFeeModalView.propTypes = {
   loading: PropTypes.bool,
   showing: PropTypes.bool.isRequired,
-  hideExitFeeModalCallback: PropTypes.func.isRequired,
+  cancelCallback: PropTypes.func.isRequired,
   unStakeCallback: PropTypes.func.isRequired,
 }
 
