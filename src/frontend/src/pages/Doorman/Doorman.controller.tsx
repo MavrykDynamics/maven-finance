@@ -11,20 +11,19 @@ import { useDispatch } from 'react-redux'
 import { Message, Page } from 'styles'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 
-import { StakeView } from './Stake.view'
-import { StakeHeader } from './StakeHeader/StakeHeader.controller'
+import { DoormanView } from './Doorman.view'
+import { DoormanHeader } from './DoormanHeader/DoormanHeader.controller'
 import { StakeUnstake } from './StakeUnstake/StakeUnstake.controller'
 
-export type StakeCallback = {
+export type DoormanCallback = {
   amount: number
 }
 
-type StakeProps = {
-  setTransactionPending: (b: boolean) => void
-  transactionPending: boolean
+type DoormanProps = {
+  loading: boolean
 }
 
-export const Stake = ({ setTransactionPending, transactionPending }: StakeProps) => {
+export const Doorman = ({ loading }: DoormanProps) => {
   const wallet = useWallet()
   const ready = useReady()
   const tezos = useTezos()
@@ -39,10 +38,7 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
 
   const [doormanContract, setDoormanContract] = useState(undefined)
 
-  const [loading, setLoading] = useState(false)
-
   const loadStorages = React.useCallback(async () => {
-    setLoading(true)
     if (mvkTokenContract) {
       const mvkTokenStorage = await (mvkTokenContract as any).storage()
       const myMvkLedgerEntry = await mvkTokenStorage['ledger'].get(accountPkh)
@@ -59,7 +55,6 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
       const myVMvkBalanceNew = myVMvkBalanceMu > 0 ? myVMvkBalanceMu / 1000000 : 0
       setMyVMvkBalance(myVMvkBalanceNew?.toFixed(2))
     }
-    setLoading(false)
   }, [mvkTokenContract, vMvkTokenContract, accountPkh])
 
   useEffect(() => {
@@ -68,7 +63,7 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
 
   useEffect(() => {
     ;(async () => {
-      if (tezos) {
+      if (tezos && tezos.wallet) {
         const mvkTokenContract = await (tezos as any).wallet.at(mvkTokenAddress)
         console.log('mvkTokenContract', mvkTokenContract)
         setMvkTokenContract(mvkTokenContract)
@@ -85,7 +80,7 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
   useOnBlock(tezos, loadStorages)
 
   const stakeCallback = React.useCallback(
-    ({ amount }: StakeCallback) => {
+    ({ amount }: DoormanCallback) => {
       if (!doormanContract) {
         dispatch(showToaster(ERROR, 'Please connect your wallet', 'Then try again'))
         return new Promise(() => {})
@@ -96,7 +91,7 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
   )
 
   const unStakeCallback = React.useCallback(
-    ({ amount }: StakeCallback) => {
+    ({ amount }: DoormanCallback) => {
       if (!doormanContract) {
         dispatch(showToaster(ERROR, 'Please connect your wallet', 'Then try again'))
         return new Promise(() => {})
@@ -109,23 +104,20 @@ export const Stake = ({ setTransactionPending, transactionPending }: StakeProps)
   return (
     <Page>
       <ExitFeeModal />
-      <StakeHeader />
+      <DoormanHeader />
       <StakeUnstake
         myMvkBalance={myMvkBalance}
         myVMvkBalance={myVMvkBalance}
         stakeCallback={stakeCallback}
         unStakeCallback={unStakeCallback}
-        setTransactionPending={setTransactionPending}
-        transactionPending={transactionPending}
+        loading={loading}
       />
       {wallet ? (
         <>
           {ready ? (
-            <StakeView
+            <DoormanView
               loading={loading}
               connectedUser={accountPkh as unknown as string}
-              setTransactionPending={setTransactionPending}
-              transactionPending={transactionPending}
               stakeCallback={stakeCallback}
             />
           ) : (

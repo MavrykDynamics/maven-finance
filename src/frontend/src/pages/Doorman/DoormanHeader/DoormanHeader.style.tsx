@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components/macro'
+import styled, { keyframes } from 'styled-components/macro'
 import { backgroundColor } from 'styles'
 
 const spin = keyframes` 
@@ -55,7 +55,7 @@ export const jet = keyframes`
   }
 `
 
-export const StakeHeaderStyled = styled.div`
+export const DoormanHeaderStyled = styled.div`
   background: url('/images/clouds.svg'), radial-gradient(33.05% 130.68% at 69.09% 89.38%, #60558b 0%, #53487f 100%);
   background-size: contain;
   background-position: top right;
@@ -79,7 +79,7 @@ export const StakeHeaderStyled = styled.div`
   }
 `
 
-export const StakeHeaderPortal = styled.div`
+export const DoormanHeaderPortal = styled.div`
   transform: scaleX(0.5);
   position: absolute;
   top: -20px;
@@ -91,36 +91,36 @@ export const StakeHeaderPortal = styled.div`
   }
 `
 
-export const StakeHeaderAnimation = styled.div`
+export const DoormanHeaderAnimation = styled.div`
   position: absolute;
   top: -10px;
   right: 400px;
 `
 
-export const StakeHeaderShipGoing = styled.div`
+export const DoormanHeaderShipGoing = styled.div`
   position: absolute;
   right: 400px;
 `
 
-export const StakeHeaderShipComing = styled.div`
+export const DoormanHeaderShipComing = styled.div`
   position: absolute;
   right: 0;
   opacity: 0;
 `
 
-export const StakeHeaderShip = styled.div`
+export const DoormanHeaderShip = styled.div`
   position: absolute;
   animation: ${shakes} 3s linear infinite;
 `
 
-export const StakeHeaderShipFlamePart = styled.img`
+export const DoormanHeaderShipFlamePart = styled.img`
   position: absolute;
   top: 0;
   left: 0;
   animation: ${jet} 2s ease alternate infinite;
 `
 
-export const StakeHeaderShipMainPart = styled.img`
+export const DoormanHeaderShipMainPart = styled.img`
   position: absolute;
   top: 0;
   left: 0;
