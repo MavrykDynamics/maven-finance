@@ -444,10 +444,14 @@ block {
         // // check that stakeAmount <= totalDelegatedAmount
 
         if stakeType = 0n then block{
-            // if stakeAmount > totalBondAmount then failwith("Error: stakeAmount is larger than satellite's total bond amount.")
-            //   else skip;
+            if stakeAmount > totalBondAmount then failwith("Error: stakeAmount is larger than satellite's total bond amount.")
+              else skip;        
 
             totalBondAmount := abs(totalBondAmount - stakeAmount);
+
+            if totalBondAmount < s.config.minimumSatelliteBond then failwith("Error: unstaking would exceed satellite minimum bond amount.")
+              else skip;
+
 
         } else skip;
 
