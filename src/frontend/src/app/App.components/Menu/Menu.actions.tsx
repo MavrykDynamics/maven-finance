@@ -1,5 +1,4 @@
-import { TempleWallet } from '@temple-wallet/dapp'
-import { NETWORK } from 'dapp/defaults'
+import { TempleDAppNetwork, TempleWallet } from '@temple-wallet/dapp'
 import { State } from 'reducers'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
@@ -23,7 +22,9 @@ export const connect =
         dispatch(showToaster(ERROR, 'Temple Wallet not available', ''))
         throw new Error('Temple Wallet not available')
       } else {
-        await state.wallet.wallet?.connect(NETWORK, { forcePermission })
+        await state.wallet.wallet?.connect((process.env.REACT_APP_NETWORK || 'granadanet') as TempleDAppNetwork, {
+          forcePermission,
+        })
         const tzs = state.wallet.wallet?.toTezos()
         const accountPkh = await tzs?.wallet.pkh()
 
