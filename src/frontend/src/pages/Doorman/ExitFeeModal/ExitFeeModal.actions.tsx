@@ -1,7 +1,8 @@
 export const SHOW_EXIT_FEE_MODAL = 'SHOW_EXIT_FEE_MODAL'
-export const showExitFeeModal = () => (dispatch: any) => {
+export const showExitFeeModal = (amount: number) => (dispatch: any) => {
   dispatch({
     type: SHOW_EXIT_FEE_MODAL,
+    amount,
   })
 }
 

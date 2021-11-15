@@ -2,9 +2,8 @@ import { TempleWallet } from '@temple-wallet/dapp'
 import { APP_NAME } from 'dapp/defaults'
 import { Doorman } from 'pages/Doorman/Doorman.controller'
 import { useEffect } from 'react'
-import { Provider, useDispatch, useSelector } from 'react-redux'
+import { Provider, useDispatch } from 'react-redux'
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
-import { State } from 'reducers'
 import { setWallet } from './App.components/Menu/Menu.actions'
 
 import { Menu } from './App.components/Menu/Menu.controller'
@@ -17,7 +16,6 @@ export const store = configureStore({})
 
 const AppContainer = () => {
   const dispatch = useDispatch()
-  const loading = useSelector((state: State) => state.loading)
 
   useEffect(() => {
     return TempleWallet.onAvailabilityChange((available) => {
@@ -32,10 +30,10 @@ const AppContainer = () => {
         <Menu />
         <Switch>
           <Route exact path="/">
-            <Doorman loading={loading} />
+            <Doorman />
           </Route>
           <Route exact path="/stake">
-            <Doorman loading={loading} />
+            <Doorman />
           </Route>
         </Switch>
       </AppStyled>
