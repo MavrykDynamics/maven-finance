@@ -279,6 +279,81 @@ contract('delegate', accounts => {
         }
     });
 
+    it(`alice cannot unstake more than the minimum satellite bond requirement`, async () => {
+        try{
+
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log("Test: Alice cannot unstake more than the minimum satellite bond requirement:") 
+            console.log("---") // break
+
+            const beforeDelegationStorage  = await delegationInstance.storage();
+            const beforeDoormanStorage  = await doormanInstance.storage();
+            const beforeMvkStorage      = await mvkTokenInstance.storage();
+            const beforeVMvkStorage     = await vMvkTokenInstance.storage();
+            const beforeMvkLedgerBob    = await mvkStorage.ledger.get(bob.pkh);
+            const beforeVMvkLedgerBob   = await vMvkStorage.ledger.get(bob.pkh);
+
+            const beforeDelegateLedgerBob      = await beforeDelegationStorage.delegateLedger.get(bob.pkh);    // none (bob has not delegated yet)
+            const beforeSatelliteLedgerAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh); // should show alice's satellite record with 0 in totalDelegatedAmount
+
+            // test        
+            beforeDelegationStorageAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
+
+            // console.log(beforeDelegationStorage);
+            console.log(beforeDelegationStorageAlice);
+            // console.log(beforeDelegationStorageBob);
+            
+    
+            // console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 991.67 MVK - 991,670,000 in muMVK
+            // console.log("Before vMVK Storage Total Supply: " + beforeVMvkStorage.totalSupply);  // return 1000 vMVK - 1,000,000,000 in muVMVK       
+            // console.log("Before Bob MVK Balance: "           + beforeMvkLedgerBob.balance);     // return 500 - 500,000,000 in muMVK
+            // console.log("Before Bob vMVK Balance: "          + beforeVMvkLedgerBob.balance);    // return 500 - 500,000,000 in muVMVK       
+    
+            console.log("---") // break
+
+            const failUnstakeAmountOperation = await doormanInstance.methods.unstake(300000000n);    
+            await chai.expect(failUnstakeAmountOperation.send()).to.be.eventually.rejected;
+            
+            afterMvkStorage     = await mvkTokenInstance.storage();
+            afterVMvkStorage    = await vMvkTokenInstance.storage();
+            afterDoormanStorage = await doormanInstance.storage();      
+            
+            afterDelegationStorage     = await delegationInstance.storage();
+            afterVMvkStorage           = await vMvkTokenInstance.storage();
+            afterSMvkStorage           = await sMvkTokenInstance.storage();
+
+            // test
+            afterDelegationStorage        = await delegationInstance.storage();
+            afterDelegationStorageAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
+
+            // console.log(afterDelegationStorage);
+            console.log(afterDelegationStorageAlice);
+            // console.log(afterDelegationStorageBob);
+
+            const afterSatelliteLedgerAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);  // should show alice's satellite record with 500000000 in totalDelegatedAmount
+            
+            // console.log(afterDelegateLedgerBob);
+            // console.log(afterSatelliteLedgerAlice);
+            
+            // console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 891.67 MVK - 891,670,000 in muMVK
+            // console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);   // return 1100 vMVK - 1,100,000,000 in muVMVK
+            // console.log("After Bob MVK Balance: "           + afterMvkLedgerBob.balance);      // return 400 MVK - 400,000,000 in muMVK
+            // console.log("After Bob vMVK Balance: "          + afterVMvkLedgerBob.balance);     // return 600 vMVK - 600,000,000 in muVMVK
+            // console.log("After Doorman Bob Record: "        + afterDoormanBobStakeRecord.amount + " " + afterDoormanBobStakeRecord.opType + " with " + afterDoormanBobStakeRecord.exitFee + " fee at " + afterDoormanBobStakeRecord.time); // return "100000000 stake at 2021-10-26T10:14:54.000Z"
+
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+
+            // assert.equal(afterMvkStorage.totalSupply, 891670000);
+            // assert.equal(afterVMvkStorage.totalSupply, 1100000000);
+            // assert.equal(afterMvkLedgerBob.balance, 400000000);
+            // assert.equal(afterVMvkLedgerBob.balance, 600000000);
+            // assert.equal(afterDoormanBobStakeRecord.amount, 100000000);
+
+        } catch(e){
+            console.log(e);
+        }
+    });
+
     it(`bob stake 100 MVK tokens (without delegation to satellite)`, async () => {
         try{
 
