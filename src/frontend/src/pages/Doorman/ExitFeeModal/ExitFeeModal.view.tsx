@@ -2,12 +2,12 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import * as PropTypes from 'prop-types'
 import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
 
-import { ExitFeeModalButtons, ExitFeeModalContent } from './ExitFeeModal.style'
+import { ExitFeeModalButtons, ExitFeeModalContent, ExitFeeModalFee, ExitFeeModalGrid } from './ExitFeeModal.style'
 
 type ExitFeeModalViewProps = {
   loading: boolean
   showing: boolean
-  unStakeCallback: (amount: number) => void
+  unstakeCallback: (amount: number) => void
   cancelCallback: () => void
   mvkTotalSupply?: number
   vMvkTotalSupply?: number
@@ -17,14 +17,16 @@ type ExitFeeModalViewProps = {
 export const ExitFeeModalView = ({
   loading,
   showing,
-  unStakeCallback,
+  unstakeCallback,
   cancelCallback,
   mvkTotalSupply,
   vMvkTotalSupply,
   amount,
 }: ExitFeeModalViewProps) => {
-  const mli =
-    ((vMvkTotalSupply ?? 0) / 1000000 / ((mvkTotalSupply ?? 0) / 1000000 + (vMvkTotalSupply ?? 1) / 1000000)) * 100
+  const mvkTokens = (mvkTotalSupply ?? 0) / 1000000
+  const vMvkTokens = (vMvkTotalSupply ?? 0) / 1000000
+  const mli = (vMvkTokens / ((mvkTokens + vMvkTokens) | 1)) * 100
+  const fee = 500 / mli + 5
 
   return (
     <ModalStyled showing={showing}>
@@ -41,13 +43,39 @@ export const ExitFeeModalView = ({
               <ExitFeeModalContent>
                 <h1>Exit Fee</h1>
 
-                <div>{`MVK Total Supply : ${(mvkTotalSupply ?? 0) / 1000000} MVK`}</div>
-                <div>{`vMVK Total Supply : ${(vMvkTotalSupply ?? 0) / 1000000} vMVK`}</div>
-                <div>{`Amount unstaking : ${amount} vMVK to MVK`}</div>
-                <div>{`MLI : ${mli}%`}</div>
-                <div>{`Exit Fee : ${500 / mli + 5}%`}</div>
-                <br />
-                <br />
+                <ExitFeeModalGrid>
+                  <div>MVK Total Supply</div>
+                  <div>vMVK Total Supply</div>
+                  <p>{mvkTokens.toFixed(2)} MVK</p>
+                  <p>{vMvkTokens.toFixed(2)} vMVK</p>
+                  <div>Amount Unstaking</div>
+                  <div>
+                    MLI{' '}
+                    <a
+                      href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      [?]
+                    </a>
+                  </div>
+                  <p>{amount} MVK</p>
+                  <p>{mli.toFixed(2)} %</p>
+                </ExitFeeModalGrid>
+
+                <ExitFeeModalFee>
+                  <div>
+                    Exit Fee{' '}
+                    <a
+                      href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      [?]
+                    </a>
+                  </div>
+                  <p>{fee.toFixed(2)} %</p>
+                </ExitFeeModalFee>
 
                 <ExitFeeModalButtons>
                   <Button
@@ -57,7 +85,7 @@ export const ExitFeeModalView = ({
                     loading={loading}
                     onClick={() => cancelCallback()}
                   />
-                  <Button text="Proceed" icon="success" loading={loading} onClick={() => unStakeCallback(1)} />
+                  <Button text="Proceed" icon="success" loading={loading} onClick={() => unstakeCallback(amount)} />
                 </ExitFeeModalButtons>
               </ExitFeeModalContent>
             </ModalCardContent>
@@ -72,7 +100,7 @@ ExitFeeModalView.propTypes = {
   loading: PropTypes.bool,
   showing: PropTypes.bool.isRequired,
   cancelCallback: PropTypes.func.isRequired,
-  unStakeCallback: PropTypes.func.isRequired,
+  unstakeCallback: PropTypes.func.isRequired,
 }
 
 ExitFeeModalView.defaultProps = {

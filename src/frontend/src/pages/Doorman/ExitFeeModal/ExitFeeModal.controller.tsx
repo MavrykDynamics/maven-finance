@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { getMvkTokenStorage, getVMvkTokenStorage, unStake } from '../Doorman.actions'
+import { getMvkTokenStorage, getVMvkTokenStorage, unstake } from '../Doorman.actions'
 
 import { hideExitFeeModal } from './ExitFeeModal.actions'
 import { ExitFeeModalView } from './ExitFeeModal.view'
@@ -27,8 +27,8 @@ export const ExitFeeModal = () => {
     dispatch(hideExitFeeModal())
   }
 
-  const unStakeCallback = (amount: number) => {
-    dispatch(unStake(amount))
+  const unstakeCallback = (amount: number) => {
+    dispatch(unstake(amount))
   }
 
   return (
@@ -38,7 +38,7 @@ export const ExitFeeModal = () => {
       amount={amount}
       mvkTotalSupply={mvkTokenStorage?.totalSupply}
       vMvkTotalSupply={vMvkTokenStorage?.totalSupply}
-      unStakeCallback={unStakeCallback}
+      unstakeCallback={unstakeCallback}
       cancelCallback={cancelCallback}
     />
   )
