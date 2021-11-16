@@ -9,6 +9,7 @@ import { State } from 'reducers'
 import { getMvkTokenStorage, getVMvkTokenStorage, stake, unstake } from './Doorman.actions'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
 import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
+import { DoormanStats } from './DoormanStats/DoormanStats.controller'
 
 export const Doorman = () => {
   const dispatch = useDispatch()
@@ -45,6 +46,7 @@ export const Doorman = () => {
         unstakeCallback={unstakeCallback}
         loading={loading}
       />
+      <DoormanStats />
     </Page>
   )
 }

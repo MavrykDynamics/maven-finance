@@ -1,3 +1,4 @@
+import { TezosToolkit } from '@taquito/taquito'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import doormanAddress from 'deployments/doormanAddress'
@@ -10,14 +11,17 @@ export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
-  if (!accountPkh) {
-    dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-    return
-  }
+  // if (!accountPkh) {
+  //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
+  //   return
+  // }
 
-  const contract = await state.wallet.tezos?.wallet.at(mvkTokenAddress)
+  const contract = accountPkh
+    ? await state.wallet.tezos?.wallet.at(mvkTokenAddress)
+    : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER as any).contract.at(mvkTokenAddress)
+
   const storage = await (contract as any).storage()
-  const myLedgerEntry = await storage['ledger'].get(accountPkh)
+  const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
   const myBalanceMu = myLedgerEntry?.balance.toNumber()
   const myBalance = myBalanceMu > 0 ? myBalanceMu / 1000000 : 0
 
@@ -32,14 +36,17 @@ export const GET_V_MVK_TOKEN_STORAGE = 'GET_V_MVK_TOKEN_STORAGE'
 export const getVMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
-  if (!accountPkh) {
-    dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-    return
-  }
+  // if (!accountPkh) {
+  //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
+  //   return
+  // }
 
-  const contract = await state.wallet.tezos?.wallet.at(vMvkTokenAddress)
+  const contract = accountPkh
+    ? await state.wallet.tezos?.wallet.at(vMvkTokenAddress)
+    : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER as any).contract.at(vMvkTokenAddress)
+
   const storage = await (contract as any).storage()
-  const myLedgerEntry = await storage['ledger'].get(accountPkh)
+  const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
   const myBalanceMu = myLedgerEntry?.balance.toNumber()
   const myBalance = myBalanceMu > 0 ? myBalanceMu / 1000000 : 0
 
