@@ -13,8 +13,14 @@ type burnTokenType is (address * nat)
 type mintTokenType is (address * nat)
 type udpateSatelliteBalanceParams is (address * nat * nat)
 
+type breakGlassConfigType is record [
+    stakeIsPaused           : bool;
+    unstakeIsPaused         : bool;
+]
+
 type storage is record [
     admin                 : address;
+    breakGlassConfig      : breakGlassConfigType;
     mvkTokenAddress       : address; 
     vMvkTokenAddress      : address;
     delegationAddress     : address;
@@ -33,6 +39,8 @@ type stakeAction is
     | Unstake of (nat)
     | UnstakeComplete of (nat)
     | SetAdmin of (address)
+    | TogglePauseStake of (unit)
+    | TogglePauseUnstake of (unit)
     | SetMvkTokenAddress of (address)
     | SetVMvkTokenAddress of (address)
     | SetDelegationAddress of (address)
@@ -40,6 +48,25 @@ type stakeAction is
     | SetTempVMvkTotalSupply of (nat)
 
 (* ---- Helper functions begin ---- *)
+
+// admin helper functions begin ---------------------------------------------------------
+function checkSenderIsAdmin(var s : storage) : unit is
+    if (Tezos.sender = s.admin) then unit
+    else failwith("Only the administrator can call this entrypoint.");
+
+function checkSenderIsMvkTokenContract(var s : storage) : unit is
+    if (Tezos.sender = s.mvkTokenAddress) then unit
+    else failwith("Only the MVK Token Contract can call this entrypoint.");
+
+function checkSenderIsVMvkTokenContract(var s : storage) : unit is
+    if (Tezos.sender = s.vMvkTokenAddress) then unit
+    else failwith("Only the vMVK Token Contract can call this entrypoint.");
+
+function checkNoAmount(const _p : unit) : unit is
+    if (Tezos.amount = 0tez) then unit
+    else failwith("This entrypoint should not receive any tez.");
+// admin helper functions end ---------------------------------------------------------
+
 
 // helper function to get MVK total supply
 function updateMvkTotalSupplyForDoorman(const tokenAddress : address) : contract(unit) is
@@ -110,35 +137,82 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(ud
 
 (* ---- Helper functions end ---- *)
 
+
+// break glass toggle entrypoints begin ---------------------------------------------------------
+
+function togglePauseStake(var s : storage) : return is
+block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
+      else s.breakGlassConfig.stakeIsPaused := True;
+
+} with (noOperations, s)
+
+function togglePauseUnstake(var s : storage) : return is
+block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
+      else s.breakGlassConfig.unstakeIsPaused := True;
+
+} with (noOperations, s)
+
+// break glass toggle entrypoints end ---------------------------------------------------------
+
+
 (*  set contract admin address *)
 function setAdmin(const parameters : address; var s : storage) : return is
 block {
-    if Tezos.sender =/= s.admin then failwith("Access denied")
-    else skip;
+
+    // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
     s.admin := parameters;
+
 } with (noOperations, s)
 
 (* set mvk contract address *)
 function setMvkTokenAddress(const parameters : address; var s : storage) : return is
 block {
-  if Tezos.sender =/= s.admin then failwith("Access denied")
-    else skip;
+
+    // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
     s.mvkTokenAddress := parameters;
 } with (noOperations, s)
 
 (* set mvk contract address *)
 function setDelegationAddress(const parameters : address; var s : storage) : return is
 block {
-  if Tezos.sender =/= s.admin then failwith("Access denied")
-    else skip;
+
+    // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
     s.delegationAddress := parameters;
 } with (noOperations, s)
 
 (* set vMvk contract address *)
 function setVMvkTokenAddress(const parameters : address; var s : storage) : return is
 block {
-  if Tezos.sender =/= s.admin then failwith("Access denied")
-    else skip;
+
+    // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
     s.vMvkTokenAddress := parameters;
 } with (noOperations, s)
 
@@ -151,6 +225,9 @@ block {
   // 2. mint + burn method in mvkToken.ligo and vmvkToken.ligo - then Temple wallet reflects the ledger amounts of MVK and vMVK - burn/mint operations are reflected
   // 3. update record of user staking
   // ----------------------------------------
+
+  // entrypoint should not receive any tez amount
+  checkNoAmount(Unit);
 
   // 1. verify that user is staking more than 0 MVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez 
   if stakeAmount = 0n then failwith("You have to stake more than 0 MVK tokens.")
@@ -259,9 +336,7 @@ function unstakeComplete(const unstakeAmount: nat; var s : storage) is
 block {
 
     (* Check this call is comming from the vMvk Token contract *)
-    if s.vMvkTokenAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    checkSenderIsVMvkTokenContract(s);
     
     const scaleFactor : nat = 1000000n;                // mu (10^6) - can be adjusted for greater accuracy by increasing the value
     const percentageFactor : nat = scaleFactor / 100n; // with mu, percentageFactor returns 10000n
@@ -341,6 +416,8 @@ function main (const action : stakeAction; const s : storage) : return is
   | Unstake(parameters) -> unstake(parameters, s)  
   | UnstakeComplete(parameters) -> unstakeComplete(parameters, s)  
   | SetAdmin(parameters) -> setAdmin(parameters, s)  
+  | TogglePauseStake(_parameters) -> togglePauseStake(s)
+  | TogglePauseUnstake(_parameters) -> togglePauseUnstake(s)
   | SetMvkTokenAddress(parameters) -> setMvkTokenAddress(parameters, s)  
   | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
   | SetDelegationAddress(parameters) -> setDelegationAddress(parameters, s)  

@@ -17,15 +17,22 @@ const configType        = {
     minimumSatelliteBond: 250000000,  // 50 vMVK in mu (10^6)
     selfBondPercentage: 10000     // 10%
 };
+const breakGlassConfigType = {
+    setSatelliteIsPaused           : false,
+    unsetSatelliteIsPaused         : false,
+    registerAsSatelliteIsPaused    : false,
+    unregisterAsSatelliteIsPaused  : false,
+    updateSatelliteRecordIsPaused  : false
+}
 
 const initialStorage = {
   admin : adminAddress,
   config : configType,
+  breakGlassConfig: breakGlassConfigType,
   delegateLedger : delegateLedger,
   satelliteLedger : satelliteLedger,
   vMvkTokenAddress : vMvkTokenAddress,
   sMvkTokenAddress : sMvkTokenAddress,
-  userIsSatelliteFlag : false
 }
 
 module.exports = async (deployer, network, accounts) => {
