@@ -143,14 +143,7 @@ contract('delegate', accounts => {
 
             const beforeDelegateLedgerBob      = await beforeDelegationStorage.delegateLedger.get(bob.pkh);    // none (bob has not delegated yet)
             const beforeSatelliteLedgerAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh); // should show alice's satellite record with 0 in totalDelegatedAmount
-
-            // test        
-            beforeDelegationStorageAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
-
-            // console.log(beforeDelegationStorage);
-            console.log(beforeDelegationStorageAlice);
-            // console.log(beforeDelegationStorageBob);
-            
+    
     
             // console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 991.67 MVK - 991,670,000 in muMVK
             // console.log("Before vMVK Storage Total Supply: " + beforeVMvkStorage.totalSupply);  // return 1000 vMVK - 1,000,000,000 in muVMVK       
@@ -171,18 +164,6 @@ contract('delegate', accounts => {
             afterVMvkStorage           = await vMvkTokenInstance.storage();
             afterSMvkStorage           = await sMvkTokenInstance.storage();
 
-            // test
-            afterDelegationStorage        = await delegationInstance.storage();
-            afterDelegationStorageAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
-
-            // console.log(afterDelegationStorage);
-            console.log(afterDelegationStorageAlice);
-            // console.log(afterDelegationStorageBob);
-
-            const afterSatelliteLedgerAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);  // should show alice's satellite record with 500000000 in totalDelegatedAmount
-            
-            // console.log(afterDelegateLedgerBob);
-            // console.log(afterSatelliteLedgerAlice);
             
             // console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 891.67 MVK - 891,670,000 in muMVK
             // console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);   // return 1100 vMVK - 1,100,000,000 in muVMVK
@@ -219,13 +200,6 @@ contract('delegate', accounts => {
 
             const beforeDelegateLedgerBob      = await beforeDelegationStorage.delegateLedger.get(bob.pkh);    // none (bob has not delegated yet)
             const beforeSatelliteLedgerAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh); // should show alice's satellite record with 0 in totalDelegatedAmount
-
-            // test        
-            beforeDelegationStorageAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
-
-            // console.log(beforeDelegationStorage);
-            console.log(beforeDelegationStorageAlice);
-            // console.log(beforeDelegationStorageBob);
             
     
             // console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 991.67 MVK - 991,670,000 in muMVK
@@ -294,15 +268,7 @@ contract('delegate', accounts => {
             const beforeVMvkLedgerBob   = await vMvkStorage.ledger.get(bob.pkh);
 
             const beforeDelegateLedgerBob      = await beforeDelegationStorage.delegateLedger.get(bob.pkh);    // none (bob has not delegated yet)
-            const beforeSatelliteLedgerAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh); // should show alice's satellite record with 0 in totalDelegatedAmount
-
-            // test        
-            beforeDelegationStorageAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
-
-            // console.log(beforeDelegationStorage);
-            console.log(beforeDelegationStorageAlice);
-            // console.log(beforeDelegationStorageBob);
-            
+            const beforeSatelliteLedgerAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh); // should show alice's satellite record with 0 in totalDelegatedAmount            
     
             // console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 991.67 MVK - 991,670,000 in muMVK
             // console.log("Before vMVK Storage Total Supply: " + beforeVMvkStorage.totalSupply);  // return 1000 vMVK - 1,000,000,000 in muVMVK       
@@ -326,14 +292,7 @@ contract('delegate', accounts => {
             afterDelegationStorage        = await delegationInstance.storage();
             afterDelegationStorageAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
 
-            // console.log(afterDelegationStorage);
-            console.log(afterDelegationStorageAlice);
-            // console.log(afterDelegationStorageBob);
-
-            const afterSatelliteLedgerAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);  // should show alice's satellite record with 500000000 in totalDelegatedAmount
-            
-            // console.log(afterDelegateLedgerBob);
-            // console.log(afterSatelliteLedgerAlice);
+            const afterSatelliteLedgerAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);  // should show alice's satellite record with 500000000 in totalDelegatedAmount    
             
             // console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 891.67 MVK - 891,670,000 in muMVK
             // console.log("After vMVK Storage Total Supply: " + afterVMvkStorage.totalSupply);   // return 1100 vMVK - 1,100,000,000 in muVMVK
@@ -403,15 +362,6 @@ contract('delegate', accounts => {
             afterDelegationStorage     = await delegationInstance.storage();
             afterVMvkStorage           = await vMvkTokenInstance.storage();
             afterSMvkStorage           = await sMvkTokenInstance.storage();
-
-            // test
-            afterDelegationStorage        = await delegationInstance.storage();
-            afterDelegationStorageAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
-            afterDelegationStorageBob     = await afterDelegationStorage.satelliteLedger.get(bob.pkh);
-            // console.log(afterDelegationStorage);
-            // console.log(afterDelegationStorageAlice);
-            // console.log(afterDelegationStorageBob);
-
             
             const afterDelegateLedgerBob      = await afterDelegationStorage.delegateLedger.get(bob.pkh);     // should show a delegate record with alice's address as the satelliteAddress
             const afterSatelliteLedgerAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);  // should show alice's satellite record with 500000000 in totalDelegatedAmount
@@ -470,10 +420,6 @@ contract('delegate', accounts => {
 
             const beforeDelegateLedgerBob      = await beforeDelegationStorage.delegateLedger.get(bob.pkh);    // none (bob has not delegated yet)
             const beforeSatelliteLedgerAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh); // should show alice's satellite record with 0 in totalDelegatedAmount
-
-            // console.log('before');
-            // console.log(beforeDelegateLedgerBob);
-            // console.log(beforeSatelliteLedgerAlice);
     
             // console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 991.67 MVK - 991,670,000 in muMVK
             // console.log("Before vMVK Storage Total Supply: " + beforeVMvkStorage.totalSupply);  // return 1000 vMVK - 1,000,000,000 in muVMVK       
@@ -808,7 +754,7 @@ contract('delegate', accounts => {
         } 
     });
 
-    it('edge case: eve can undelegate to alice satellite (after alice unregisters as satellite)', async () => {
+    it('eve can undelegate from alice satellite (after alice unregisters as satellite)', async () => {
         try{        
 
             beforeDelegationStorage     = await delegationInstance.storage();

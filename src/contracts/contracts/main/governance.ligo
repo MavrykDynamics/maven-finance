@@ -1,33 +1,53 @@
 // Yay or Nay vote, and the vMVK amount voter has staked - add timestamps?
 type voteType is (bool * nat * timestamp)
 
+// Amount of blocks.
+type blocks is record [ 
+    blocks : nat ;
+    ]
+
+// Length of a stage, in number of blocks
+type period is blocks
+
+
+// Frozen token history for an address.
+// This tracks the stage number in which it was last updated and differentiates between
+// tokens that were frozen during that stage and the ones frozen in any other before.
+// It does so because only tokens that were frozen in the past can be staked, which is
+// also why it tracks staked tokens in a single field.
+type address_freeze_history is record [ 
+    current_stage_num : nat;
+    staked : nat;
+    current_unstaked : nat;
+    past_unstaked : nat;
+  ]
+
 // Stores all voter data for a proposal
 type voterMapType is map (address, voteType)
 
 type proposalRecordType is record [
     proposerAddress      : address;   
-    proposerStakeLocked  : nat;          // in sMVK
+    proposerStakeLocked  : nat;          // in sMVK 
     status               : nat;         
     title                : string;
-    briefDescription     : string;   
+    description     : string;   
     forumPostId          : nat;
     upvoteCount          : nat;
-    downvoteCount        : nat; 
-    votingPeriodLength   : nat; 
+    downvoteCount        : nat;     
     voters               : voterMapType;  
     minQuorumPercentage  : nat;          // capture state of min quorum percentage
     quorumCount          : nat;          // turnout for quorum
     startDateTime        : timestamp;
+    // from basedao as reference
+    start_level          : blocks; // block level of submission, used to order proposals
+    voting_stage_num     : nat;    // stage number in which it is possible to vote on this proposal
 ]
 type proposalLedgerType is big_map (nat, proposalRecordType);
 
 type configType is record [
     successfulProposalReward    : nat;  // incentive reward for successful proposal
     incentiveStakeWeightage     : nat;  // weightage to calculate incentives based on amount staked
-    incentiveTimeWeightage      : nat;  // weightage to calculate incentives based on time voted
-    fastVotingPeriod            : nat;  // fast voting period: 24 hours
-    slowVotingPeriod            : nat;  // slow voting period: 72 hours   
-    verySlowVotingPeriod        : nat;  // very slow voting period: 120 hours
+    incentiveTimeWeightage      : nat;  // weightage to calculate incentives based on time voted    
     minQuorumPercentage         : nat;  // minimum quorum percentage to be achieved (in sMVK)
     proposalSubmissionFee       : nat;  // e.g. 10 tez per submitted proposal
     proposalMinimumStaked       : nat;  // in percentage of total vMVK supply (e.g. 0.01%)
@@ -38,7 +58,8 @@ type storage is record [
     admin                       : address;
     config                      : configType;
     proposalLedger              : proposalLedgerType;
-    tempSMvkTotalSupply         : nat;  // for quorum use to get total amount
+    frozenSMvkTotalSupply       : nat;  // for quorum calculation use - frozen sMVK total supply will be updated at beginning of proposal round
+    startLevel                  : blocks; // Tezos.level as start level
 ]
 
 type governanceAction is 
@@ -55,9 +76,13 @@ type return is list (operation) * storage
 function propose(const _proposal : nat ; var s : storage) : return is 
 block {
     // Steps Overview:
-    // 1. verify that user is a delegate, is allowed to propose, and is not overdelegated with insufficient bond (proxy with delegation contract)
-    // 2. verify that user has staked the minimum amount required
-    // 3. submit proposal 
+    // 1. verify that the current round is a governance proposal round
+    // 2. take snapshot of all existing satellite voting power (loop to mint sMVK tokens) 
+    //    - save in sMVK token contract? save a record of all satellites' voting power for each round? - another big_map
+    //    - loop to capture frozen sMVK total supply and store it for the round
+    // 3. verify that user is a satellite, has sufficient bond to propose (proxy with delegation contract)
+    // 4. submit proposal 
+    // 5. proposer's automatically votes with his total sMVK (from step 2 and 3) for the proposal
     skip
 
 } with (noOperations, s)
@@ -65,9 +90,10 @@ block {
 function vote(const _parameters : nat; var s : storage) : return is 
 block {
     // Steps Overview:
-    // 1. verify that user is a delegate, is allowed to vote, and is not overdelegated with insufficient bond (proxy with delegation contract)
-    // 2. verify that proposal exists
-    // 3. submit delegator's vote for proposal and update vote counts
+    // 1. verify that proposal exists
+    // 2. verify that user is a satellite, and is allowed to vote (proxy with delegation contract)    
+    // 3. get satellite's sMVK balance from sMVK token contract (or from governance current round voting power big_map depending on implementation)
+    // 4. submit satellite's vote for proposal and update vote counts
     skip
 } with (noOperations, s)
 
@@ -81,7 +107,7 @@ block {
 function executeProposal(const _parameters : nat; var s : storage) : return is 
 block {
     // Steps Overview: 
-    // 1. verify that user is a delegator and can execute proposal
+    // 1. verify that user is a satellite and can execute proposal
     // 2. verify that proposal can be executed
     // 3. execute proposal - list of operations to run
     skip
