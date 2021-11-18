@@ -51,6 +51,7 @@ type satelliteLedgerType is big_map (address, satelliteRecordType)
 type configType is record [
     minimumSatelliteBond   : nat;  // minimum amount of vMVK required as bong to register as delegate (in muMVK)
     selfBondPercentage     : nat;  // percentage to determine if satellite is overdelegated (requires more vMVK to be staked) or underdelegated    
+    maxSatellites          : nat;   // 100 -> prevent any gaming of system with mass registration of satellites - can be changed through governance
 ]
 
 type breakGlassConfigType is record [
@@ -68,14 +69,14 @@ type storage is record [
     delegateLedger       : delegateLedgerType;
     satelliteLedger      : satelliteLedgerType;
     vMvkTokenAddress     : address;
-    sMvkTokenAddress     : address;  
+    sMvkTokenAddress     : address;    
 ]
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
 
 
-// admin helper functions begin ---------------------------------------------------------
+// admin helper functions begin ---------------------------------------------------------------------------------
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
@@ -87,10 +88,10 @@ function checkSenderIsVMvkTokenContract(var s : storage) : unit is
   function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
-// admin helper functions end ---------------------------------------------------------
+// admin helper functions end -----------------------------------------------------------------------------------
 
 
-// break glass check if paused helper functions begin ---------------------------------------------------------
+// break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
 function checkSetSatelliteIsNotPaused(var s : storage) : unit is
     if s.breakGlassConfig.setSatelliteIsPaused then failwith("SetSatellite entrypoint is paused.")
     else unit;
@@ -110,8 +111,9 @@ function checkUnsetSatelliteIsNotPaused(var s : storage) : unit is
   function checkUpdateSatelliteRecordIsNotPaused(var s : storage) : unit is
     if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith("UpdateSatelliteRecord entrypoint is paused.")
     else unit;
-// break glass check if paused helper functions end ---------------------------------------------------------
+// break glass: checkIsNotPaused helper functions end -----------------------------------------------------------
 
+// helper functions begin: --------------------------------------------------------------------------------------
 
 // helper function to get User's vMVK balance for delegation 
 function updateUserVMvkBalanceForDelegation(const tokenAddress : address) : contract(address * address) is
@@ -131,7 +133,7 @@ function fetchVMvkBalance(const tokenAddress : address) : contract(address * con
   | None -> (failwith("GetBalance entrypoint in vMVK Token Contract not found") : contract(address * contract(nat)))
   end;
 
-(* Helper function to get satellite *)
+// helper function to get satellite 
 function getSatelliteRecord (const satelliteAddress : address; const s : storage) : satelliteRecordType is
   block {
     var satelliteRecord : satelliteRecordType :=
@@ -148,33 +150,33 @@ function getSatelliteRecord (const satelliteAddress : address; const s : storage
       ];
 
     case s.satelliteLedger[satelliteAddress] of
-      None -> skip
+      None -> failwith("Satellite not found.")
     | Some(instance) -> satelliteRecord := instance
     end;
   } with satelliteRecord
 
-
-(* Helper function to get user delegate *)
+// helper function to get user delegate
 function getDelegateRecord (const userAddress : address; const s : storage) : delegateRecordType is
   block {
     var delegateRecord : delegateRecordType :=
       record [
-        satelliteAddress  = userAddress; // change to null?
+        satelliteAddress  = userAddress;
         delegatedDateTime = Tezos.now; 
       ];
 
     case s.delegateLedger[userAddress] of
-      None -> skip
+      None -> failwith("Delegate not found.")
     | Some(instance) -> delegateRecord := instance
     end;
   } with delegateRecord
 
-(* Housekeeping functions *)
+// helper functions end: ----------------------------------------------------------------------------------------
 
-(* set vMvk contract address *)
+// housekeeping functions begin: --------------------------------------------------------------------------------
+
+// set vMvk contract address
 function setVMvkTokenAddress(const parameters : address; var s : storage) : return is
 block {
-  
     // check that sender is admin
     checkSenderIsAdmin(s);
 
@@ -265,7 +267,6 @@ block {
     checkSenderIsAdmin(s);
 
     // set all pause configs to False
-
     if s.breakGlassConfig.unsetSatelliteIsPaused then s.breakGlassConfig.unsetSatelliteIsPaused := False
       else skip;
 
@@ -283,9 +284,9 @@ block {
 
 } with (noOperations, s)
 
-
 // break glass toggle entrypoints end ---------------------------------------------------------
 
+// housekeeping functions end: --------------------------------------------------------------------------------
 
 function setSatellite(const satelliteAddress : address; var s : storage) : return is 
 block {
@@ -330,7 +331,7 @@ block {
 function setSatelliteComplete(const vMvkBalance : nat; var s : storage) : return is 
 block {
 
-    // check sender is VMvk Token Contract
+    // check sender is vMVK Token Contract
     checkSenderIsVMvkTokenContract(s);
 
     // Retrieve delegate record from storage
@@ -384,7 +385,7 @@ block {
 function unsetSatelliteComplete(const vMvkBalance : nat; var s : storage) : return is 
 block {
 
-    // check sender is VMvk Token Contract
+    // check sender is vMVK Token Contract
     checkSenderIsVMvkTokenContract(s);
 
     // Retrieve delegate record from storage 
@@ -437,9 +438,9 @@ block {
     end;
 
     // update satellite details - validation checks should be done before submitting to smart contract
-    satelliteRecord.name           := name;
-    satelliteRecord.description    := description;
-    satelliteRecord.image          := image;
+    satelliteRecord.name           := name;         
+    satelliteRecord.description    := description;  
+    satelliteRecord.image          := image;        
     
     // update satellite ledger storage with new information
     s.satelliteLedger[Tezos.sender] := satelliteRecord;
@@ -482,7 +483,7 @@ block {
 function registerAsSatelliteComplete(const vMvkBalance : nat; var s : storage) : return is 
 block {
     
-    // check sender is VMvk Token Contract
+    // check sender is vMVK Token Contract
     checkSenderIsVMvkTokenContract(s);
 
     // lock satellite's vMVK amount -> bond? 
@@ -555,7 +556,7 @@ block {
         if stakeType = 1n then totalBondAmount := totalBondAmount + stakeAmount
           else skip;
 
-        // check that stakeAmount <= totalDelegatedAmount
+        // check that stakeAmount is less than totalDelegatedAmount (so that totalBondAmount will not be negative)
         if stakeType = 0n then block{
             if stakeAmount > totalBondAmount then failwith("Error: stakeAmount is larger than satellite's total bond amount.")
               else skip;        
@@ -598,6 +599,7 @@ block {
             if stakeType = 1n then totalDelegatedAmount := totalDelegatedAmount + stakeAmount
                else skip;
 
+            // check that stakeAmount is less than totalDelegatedAmount (so that totalDelegatedAmount will not be negative)
             if stakeType = 0n then block{
                 if stakeAmount > totalDelegatedAmount then failwith("Error: stakeAmount is larger than satellite's total delegated amount.")
                 else skip;

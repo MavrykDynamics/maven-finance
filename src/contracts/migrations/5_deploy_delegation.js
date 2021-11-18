@@ -15,7 +15,8 @@ const satelliteLedger  = MichelsonMap.fromLiteral({});
 const adminAddress     = alice.pkh;
 const configType        = {
     minimumSatelliteBond: 250000000,  // 50 vMVK in mu (10^6)
-    selfBondPercentage: 10000     // 10%
+    selfBondPercentage: 10000,        // 10%
+    maxSatellites: 100                // max number of satellites
 };
 const breakGlassConfigType = {
     setSatelliteIsPaused           : false,
