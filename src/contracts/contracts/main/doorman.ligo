@@ -68,6 +68,15 @@ function checkNoAmount(const _p : unit) : unit is
 // admin helper functions end ---------------------------------------------------------
 
 
+// helper function to get token total supply (works for either MVK and vMVK)
+function getTokenTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
+  case (Tezos.get_entrypoint_opt(
+      "%getTotalSupply",
+      tokenAddress) : option(contract(contract(nat)))) of
+    Some(contr) -> contr
+  | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(contract(nat)))
+  end;
+
 // helper function to get MVK total supply
 function updateMvkTotalSupplyForDoorman(const tokenAddress : address) : contract(unit) is
   case (Tezos.get_entrypoint_opt(
@@ -303,7 +312,11 @@ block {
   if unstakeAmount = 0n then failwith("You have to stake more than 0 MVK tokens.")
     else skip;
 
-  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unit, 0tez, updateMvkTotalSupplyForDoorman(s.mvkTokenAddress));
+  // update temp MVK total supply
+  const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
+  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(setTempMvkTotalSupplyCallback,0tez, getTokenTotalSupply(s.mvkTokenAddress));
+
+  // const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unit, 0tez, updateMvkTotalSupplyForDoorman(s.mvkTokenAddress));
   const updateVMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, updateVMvkTotalSupplyForDoorman(s.vMvkTokenAddress));
 
   // list of operations: get MVK total supply first, then get vMVK total supply (which will trigger unstake complete)
@@ -314,20 +327,16 @@ block {
 
 function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
 block {
-    (* Check this call is comming from the mvk Token contract *)
-    if s.mvkTokenAddress =/= Tezos.sender then
-        failwith("NotAuthorized")
-    else skip;
+    // check that the call is coming from MVK Token Contract
+    checkSenderIsMvkTokenContract(s);
     s.tempMvkTotalSupply := totalSupply;
 } with (noOperations, s);
 
 
 function setTempVMvkTotalSupply(const totalSupply : nat; var s : storage) is
 block {
-    (* Check this call is comming from the vMvk Token contract *)
-    if s.vMvkTokenAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    // check that the call is coming from vMVK Token Contract
+    checkSenderIsVMvkTokenContract(s);
     s.tempVMvkTotalSupply := totalSupply;
 } with (noOperations, s);
 
@@ -335,7 +344,7 @@ block {
 function unstakeComplete(const unstakeAmount: nat; var s : storage) is 
 block {
 
-    (* Check this call is comming from the vMvk Token contract *)
+    (* Check this call is coming from the vMvk Token contract *)
     checkSenderIsVMvkTokenContract(s);
     
     const scaleFactor : nat = 1000000n;                // mu (10^6) - can be adjusted for greater accuracy by increasing the value
