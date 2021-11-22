@@ -74,7 +74,7 @@ export const DoormanHeaderStyled = styled.div`
 
   > p {
     color: ${backgroundColor};
-    font-size: 12px;
+    font-size: 14px;
     margin: 0 0 0 40px;
   }
 `

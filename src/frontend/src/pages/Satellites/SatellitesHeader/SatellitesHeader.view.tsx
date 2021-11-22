@@ -1,12 +1,7 @@
-import { gsap } from 'gsap'
-import { Fragment, useEffect, useState } from 'react'
-import { Controls, PlayState, Timeline, Tween } from 'react-gsap'
-// prettier-ignore
-import { useSelector } from "react-redux";
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
 
-//prettier-ignore
-import { SatellitesHeaderAnimation, SatellitesHeaderPortal, SatellitesHeaderShip, SatellitesHeaderShipComing, SatellitesHeaderShipFlamePart, SatellitesHeaderShipGoing, SatellitesHeaderShipMainPart, SatellitesHeaderStyled } from './SatellitesHeader.style'
+import { SatellitesHeaderStyled } from './SatellitesHeader.style'
 
 type SatellitesHeaderViewProps = {}
 
