@@ -7,13 +7,10 @@ export function loading(state = loadingInitialState, action: any): LoadingState 
     case /_REQUEST/.test(action.type): {
       return true
     }
-    case /_COMMIT/.test(action.type): {
+    case /_RESULT/.test(action.type): {
       return false
     }
-    case /_ROLLBACK/.test(action.type): {
-      return false
-    }
-    case /STOP_LOADING/.test(action.type): {
+    case /_ERROR/.test(action.type): {
       return false
     }
     default:
