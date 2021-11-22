@@ -1,54 +1,58 @@
-import { DAppProvider } from 'dapp/dapp'
-import { APP_NAME } from 'dapp/defaults'
-import { Stake } from 'pages/Stake/Stake.controller'
-import React from 'react'
-import { useState } from 'react'
-import { Provider as AlertProvider, positions, types } from 'react-alert'
-//@ts-ignore
-import AlertTemplate from 'react-alert-template-basic'
-import { Provider } from 'react-redux'
+import { TempleWallet } from '@temple-wallet/dapp'
+import { BecomeSatellite } from 'pages/BecomeSatellite/BecomeSatellite.controller'
+import { Doorman } from 'pages/Doorman/Doorman.controller'
+import { Satellites } from 'pages/Satellites/Satellites.controller'
+import { useEffect } from 'react'
+import { Provider, useDispatch } from 'react-redux'
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
 
+import { setWallet } from './App.components/Menu/Menu.actions'
 import { Menu } from './App.components/Menu/Menu.controller'
 import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller'
 import { Toaster } from './App.components/Toaster/Toaster.controller'
 import { configureStore } from './App.store'
-import { AppContainer } from './App.style'
-
-const options = {
-  timeout: 5000,
-  position: positions.TOP_RIGHT,
-  type: types.ERROR,
-}
+import { AppStyled } from './App.style'
 
 export const store = configureStore({})
 
-export const App = () => {
-  const [transactionPending, setTransactionPending] = useState<boolean>(false)
+const AppContainer = () => {
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    return TempleWallet.onAvailabilityChange((available) => {
+      if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
+    })
+  }, [dispatch])
 
   return (
+    <Router>
+      <ProgressBar />
+      <AppStyled>
+        <Menu />
+        <Switch>
+          <Route exact path="/">
+            <Doorman />
+          </Route>
+          <Route exact path="/stake">
+            <Doorman />
+          </Route>
+          <Route exact path="/satellites">
+            <Satellites />
+          </Route>
+          <Route exact path="/become-satellite">
+            <BecomeSatellite />
+          </Route>
+        </Switch>
+      </AppStyled>
+      <Toaster />
+    </Router>
+  )
+}
+
+export const App = () => {
+  return (
     <Provider store={store}>
-      <Router>
-        <AlertProvider template={AlertTemplate} {...options}>
-          <DAppProvider appName={APP_NAME}>
-            <React.Suspense fallback={null}>
-              <ProgressBar />
-              <AppContainer>
-                <Menu />
-                <Switch>
-                  <Route exact path="/">
-                    <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
-                  </Route>
-                  <Route exact path="/stake">
-                    <Stake transactionPending={transactionPending} setTransactionPending={setTransactionPending} />
-                  </Route>
-                </Switch>
-              </AppContainer>
-              <Toaster />
-            </React.Suspense>
-          </DAppProvider>
-        </AlertProvider>
-      </Router>
+      <AppContainer />
     </Provider>
   )
 }
