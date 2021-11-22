@@ -2,7 +2,7 @@ import styled from 'styled-components/macro'
 import { backgroundColor, placeholderColor, subTextColor } from 'styles'
 
 export const StakeUnstakeStyled = styled.div`
-  height: 240px;
+  /* height: 240px; */
   position: relative;
   margin-top: 30px;
   display: grid;

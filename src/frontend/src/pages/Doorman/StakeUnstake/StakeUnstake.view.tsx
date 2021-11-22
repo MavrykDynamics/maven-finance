@@ -1,5 +1,6 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { useState } from 'react'
+
 // prettier-ignore
 import { StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInput, StakeUnstakeInputGrid, StakeUnstakeInputLabel, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
 
@@ -59,14 +60,14 @@ export const StakeUnstakeView = ({
         <StakeUnstakeBalance>
           <h3>Total MVK Staked</h3>
           <img src="/images/coin-silver.svg" alt="coin" />
-          <div>{myVMvkTokenBalance} vMVK</div>
+          <div>{myVMvkTokenBalance} MVK</div>
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>Total MVK Earned</h3>
           <img src="/images/coin-bronze.svg" alt="coin" />
-          <div>0 MVK</div>
+          <div>0.00 MVK</div>
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
     </StakeUnstakeStyled>

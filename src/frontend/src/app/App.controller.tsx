@@ -1,10 +1,12 @@
 import { TempleWallet } from '@temple-wallet/dapp'
+import { BecomeSatellite } from 'pages/BecomeSatellite/BecomeSatellite.controller'
 import { Doorman } from 'pages/Doorman/Doorman.controller'
+import { Satellites } from 'pages/Satellites/Satellites.controller'
 import { useEffect } from 'react'
 import { Provider, useDispatch } from 'react-redux'
 import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
-import { setWallet } from './App.components/Menu/Menu.actions'
 
+import { setWallet } from './App.components/Menu/Menu.actions'
 import { Menu } from './App.components/Menu/Menu.controller'
 import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller'
 import { Toaster } from './App.components/Toaster/Toaster.controller'
@@ -33,6 +35,12 @@ const AppContainer = () => {
           </Route>
           <Route exact path="/stake">
             <Doorman />
+          </Route>
+          <Route exact path="/satellites">
+            <Satellites />
+          </Route>
+          <Route exact path="/become-satellite">
+            <BecomeSatellite />
           </Route>
         </Switch>
       </AppStyled>
