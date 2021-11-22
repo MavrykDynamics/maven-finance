@@ -14,13 +14,13 @@ const delegateLedger   = MichelsonMap.fromLiteral({});
 const satelliteLedger  = MichelsonMap.fromLiteral({});
 const adminAddress     = alice.pkh;
 const configType        = {
-    minimumSatelliteBond: 250000000,  // 50 vMVK in mu (10^6)
-    selfBondPercentage: 10000,        // 10%
+    minimumStakedMvkBalance: 250000000,  // 50 vMVK in mu (10^6)
+    delegationRatio: 10000,        // 10%
     maxSatellites: 100                // max number of satellites
 };
 const breakGlassConfigType = {
-    setSatelliteIsPaused           : false,
-    unsetSatelliteIsPaused         : false,
+    delegateToSatelliteIsPaused           : false,
+    undelegateFromSatelliteIsPaused         : false,
     registerAsSatelliteIsPaused    : false,
     unregisterAsSatelliteIsPaused  : false,
     updateSatelliteRecordIsPaused  : false
