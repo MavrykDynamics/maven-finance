@@ -63,13 +63,13 @@ export const STAKE_ERROR = 'STAKE_ERROR'
 export const stake = (amount: number) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
-  if (!(amount > 0)) {
-    dispatch(showToaster(ERROR, 'Incorrect amount', 'Please enter an amount superior to zero'))
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+  if (!(amount > 0)) {
+    dispatch(showToaster(ERROR, 'Incorrect amount', 'Please enter an amount superior to zero'))
     return
   }
 
@@ -116,13 +116,13 @@ export const UNSTAKE_ERROR = 'UNSTAKE_ERROR'
 export const unstake = (amount: number) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
-  if (!(amount > 0)) {
-    dispatch(showToaster(ERROR, 'Incorrect amount', 'Please enter an amount superior to zero'))
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
   }
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+  if (!(amount > 0)) {
+    dispatch(showToaster(ERROR, 'Incorrect amount', 'Please enter an amount superior to zero'))
     return
   }
 
