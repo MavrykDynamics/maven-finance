@@ -1,15 +1,8 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, primaryColor, subTextColor } from 'styles'
+import { Card, primaryColor, subTextColor } from 'styles'
 
-export const DoormanStatsStyled = styled.div`
-  margin-top: 30px;
-  background-color: ${backgroundColor};
-  border-radius: 10px;
-  padding: 35px;
+export const DoormanStatsStyled = styled(Card)`
   text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: ${subTextColor};
 `
 
 export const DoormanStatsGrid = styled.div`
