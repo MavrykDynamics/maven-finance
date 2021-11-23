@@ -1,34 +1,6 @@
 type onStakeChangeParams is (address * nat * nat)
 type updateSatelliteRecordParams is (string * string * string)
 
-type delegationAction is 
-    | SetVMvkTokenAddress of (address)
-
-    | TogglePauseDelegateToSatellite of (unit)
-    | TogglePauseUndelegateSatellite of (unit)
-    | TogglePauseRegisterSatellite of (unit)
-    | TogglePauseUnregisterSatellite of (unit)
-    | TogglePauseUpdateSatellite of (unit)
-    | PauseAll of (unit)
-    | UnpauseAll of (unit)
-
-    | DelegateToSatellite of (address)
-    | DelegateToSatelliteComplete of (nat)
-
-    // updateFeeForPerson  
-    
-    | UndelegateFromSatellite of (unit)
-    | UndelegateFromSatelliteComplete of (nat)
-    
-    | RegisterAsSatellite of (unit)
-    | RegisterAsSatelliteComplete of (nat)
-    | UnregisterAsSatellite of (unit)
-
-    | UpdateSatelliteRecord of (updateSatelliteRecordParams)
-    
-    | OnStakeChange of onStakeChangeParams
-    | OnGovernanceAction of (address)      // todo: callback to check if satellite has sufficient bond and is not overdelegated
-
 // record for users choosing satellites 
 type delegateRecordType is record [
     satelliteAddress     : address;
@@ -38,6 +10,9 @@ type delegateRecordType is record [
 type delegateLedgerType is big_map (address, delegateRecordType)
 
 // todo: add pointsystem
+
+type newSatelliteRecordType is (string * string * string * nat) // name, description, image, satellite fee
+type registerAsSatelliteCompleteParamsType  is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
 
 // record for satellites
 type satelliteRecordType is record [
@@ -57,6 +32,7 @@ type satelliteRecordType is record [
     // map of delegate history - all / past delegates
 ]
 type satelliteLedgerType is big_map (address, satelliteRecordType)
+type getSatelliteVotingPowerParams is (address * contract(address * nat * nat))
 
 type configType is record [
     minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of vMVK required as bong to register as delegate (in muMVK)
@@ -83,7 +59,36 @@ type storage is record [
     satelliteLedger      : satelliteLedgerType;
     vMvkTokenAddress     : address;
     sMvkTokenAddress     : address;    
+    governanceAddress    : address;
 ]
+
+type delegationAction is 
+    | SetVMvkTokenAddress of (address)
+    | SetGovernanceAddress of (address)
+
+    | TogglePauseDelegateToSatellite of (unit)
+    | TogglePauseUndelegateSatellite of (unit)
+    | TogglePauseRegisterSatellite of (unit)
+    | TogglePauseUnregisterSatellite of (unit)
+    | TogglePauseUpdateSatellite of (unit)
+    | PauseAll of (unit)
+    | UnpauseAll of (unit)
+
+    | DelegateToSatellite of (address)
+    | DelegateToSatelliteComplete of (nat)
+
+    | GetSatelliteVotingPower of getSatelliteVotingPowerParams
+    // updateFeeForPerson  
+    
+    | UndelegateFromSatellite of (unit)
+    | UndelegateFromSatelliteComplete of (nat)
+    
+    | RegisterAsSatellite of newSatelliteRecordType
+    | RegisterAsSatelliteComplete of registerAsSatelliteCompleteParamsType
+    | UnregisterAsSatellite of (unit)
+
+    | UpdateSatelliteRecord of (updateSatelliteRecordParams)
+    | OnStakeChange of onStakeChangeParams
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -104,15 +109,13 @@ function checkSenderIsVMvkTokenContract(var s : storage) : unit is
 // admin helper functions end -----------------------------------------------------------------------------------
 
 (* View function that forwards the record of source to a contract *)
-function getSatelliteRecord (const satelliteAddress : address; const contr : contract(satelliteRecordType); var s : storage) : return is
+function getSatelliteVotingPower(const satelliteAddress : address; const contr : contract(address * nat * nat); var s : storage) : return is
   block {
     const satelliteRecord : satelliteRecordType = case s.satelliteLedger[satelliteAddress] of
       None -> failwith("Satellite not found")
     | Some(instance) -> instance
     end;
-  } with (list [transaction(satelliteRecord, 0tz, contr)], s)
-
-
+  } with (list [transaction((satelliteAddress, satelliteRecord.mvkBalance, satelliteRecord.totalDelegatedAmount), 0tz, contr)], s)
 
 // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
 function checkDelegateToSatelliteIsNotPaused(var s : storage) : unit is
@@ -138,6 +141,15 @@ function checkUndelegateFromSatelliteIsNotPaused(var s : storage) : unit is
 
 // helper functions begin: --------------------------------------------------------------------------------------
 
+// helper function to update governance satellite set
+function updateGovernanceSatelliteSet(const contractAddress : address) : contract(address * nat) is
+  case (Tezos.get_entrypoint_opt(
+      "%updateSatelliteSet",
+      contractAddress) : option(contract(address * nat))) of
+    Some(contr) -> contr
+  | None -> (failwith("UpdateSatelliteSet entrypoint in Governance Contract not found") : contract(address * nat))
+  end;
+
 // helper function to get User's vMVK balance for delegation 
 function updateUserVMvkBalanceForDelegation(const tokenAddress : address) : contract(address * address) is
   case (Tezos.get_entrypoint_opt(
@@ -154,6 +166,14 @@ function fetchVMvkBalance(const tokenAddress : address) : contract(address * con
       tokenAddress) : option(contract(address * contract(nat)))) of
     Some(contr) -> contr
   | None -> (failwith("GetBalance entrypoint in vMVK Token Contract not found") : contract(address * contract(nat)))
+  end;
+
+function getSatelliteBalance(const tokenAddress : address) : contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)) is
+  case (Tezos.get_entrypoint_opt(
+      "%getSatelliteBalance",
+      tokenAddress) : option(contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)))) of
+    Some(contr) -> contr
+  | None -> (failwith("GetBalance entrypoint in vMVK Token Contract not found") : contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)))
   end;
 
 // helper function to get satellite 
@@ -207,6 +227,15 @@ block {
     checkSenderIsAdmin(s);
 
     s.vMvkTokenAddress := parameters;
+} with (noOperations, s)
+
+(* set governance contract address *)
+function setGovernanceAddress(const parameters : address; var s : storage) : return is
+block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    s.governanceAddress := parameters;
 } with (noOperations, s)
 
 // break glass toggle entrypoints begin ---------------------------------------------------------
@@ -423,9 +452,7 @@ block {
     // Retrieve satellite account from storage
     var _satelliteRecord : satelliteRecordType := getSatelliteRecord(delegateRecord.satelliteAddress, s);
 
-
     // check state of satellite (1 or 0) instead of removing satellite completely from ledger
-
 
     // check that satellite record exists - e.g. in the edge case that satellite has unregistered
     if Big_map.mem(delegateRecord.satelliteAddress, s.satelliteLedger) then block{
@@ -445,13 +472,7 @@ block {
         // remove user's address from delegateLedger
         remove (Tezos.source : address) from map s.delegateLedger
 
-    } else block {
-
-        // satellite no longer exists
-
-        // remove user's address from delegateLedger
-        remove (Tezos.source : address) from map s.delegateLedger
-    };
+    } else failwith("Error: Satellite does not exist.")
 
 } with (noOperations, s)
 
@@ -481,8 +502,10 @@ block {
 
 } with (noOperations, s)
 
+// type newSatelliteRecordType is (string * string * string * nat) // name, description, image, satellite fee
+// type registerAsSatelliteCompleteParamsType  is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
 
-function registerAsSatellite(var s : storage) : return is 
+function registerAsSatellite(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : storage) : return is 
 block {
     
     // Overall steps: 
@@ -490,8 +513,6 @@ block {
     // 2. callback to vMVK token contract to fetch vMVK balance
     // 3. if user vMVK balance is more than minimumDelegateBond, register as delegate
     // 4. add new satellite record and save to satelliteLedger
-
-    // need to check that satellite 
 
     // add the satellite fields here
 
@@ -501,50 +522,75 @@ block {
     // check that entrypoint is not paused
     checkRegisterAsSatelliteIsNotPaused(s);
 
-    case s.satelliteLedger[Tezos.sender] of
-          None -> skip
-        | Some(_val) -> failwith("Satellite address already exists.")
-    end;
+    const satelliteExistsFlag : bool = Big_map.mem(Tezos.sender, s.satelliteLedger);
 
-    const registerDelegateCompleteCallback : contract(nat) = Tezos.self("%registerAsSatelliteComplete");
+    // check if satellite record exists in the satellite ledger 
+    if satelliteExistsFlag = True then block{
 
-    const checkVMvkBalanceOperation : operation = Tezos.transaction(
-        (Tezos.sender, registerDelegateCompleteCallback),
-         0tez, 
-         fetchVMvkBalance(s.vMvkTokenAddress)
-         );
-    
-    const operations : list(operation) = list [checkVMvkBalanceOperation];
+      var satelliteRecord : satelliteRecordType := case s.satelliteLedger[Tezos.sender] of
+          None -> failwith("Satellite does not exist")  // will not be triggered
+        | Some(_val) -> _val
+      end;
+
+      // check that satellite is not already active
+      if satelliteRecord.status = 1n then failwith("Satellite already exists")
+        else skip;
+      
+      // if satellite was previously unregistered (i.e. status = 0n), then register it again by setting status as 1n
+      satelliteRecord.status := 1n;
+      s.satelliteLedger[Tezos.sender] := satelliteRecord;
+
+    } else skip;
+
+    // todo: send satellite info (e.g. name, desc, fee) to callback 
+
+    // fetch and update MVK balance
+    const registerAsSatelliteCompleteCallback : contract(registerAsSatelliteCompleteParamsType) = Tezos.self("%registerAsSatelliteComplete");
+    const getSatelliteBalanceOperation : operation = Tezos.transaction(
+        (Tezos.sender, name, description, image, satelliteFee, registerAsSatelliteCompleteCallback),
+        0tez, 
+        getSatelliteBalance(s.vMvkTokenAddress)
+        );
+
+    const operations : list(operation) = list [getSatelliteBalanceOperation];
 
 } with (operations, s)
 
-function registerAsSatelliteComplete(const vMvkBalance : nat; var s : storage) : return is 
+function registerAsSatelliteComplete(const satelliteParams : registerAsSatelliteCompleteParamsType; var s : storage) : return is 
 block {
     
     // check sender is vMVK Token Contract
     checkSenderIsVMvkTokenContract(s);
 
     // lock satellite's vMVK amount -> bond? 
-    if vMvkBalance < s.config.minimumStakedMvkBalance then failwith("You do not have enough vMVK to meet the minimum delegate bond.")
+    if satelliteParams.4 < s.config.minimumStakedMvkBalance then failwith("You do not have enough vMVK to meet the minimum delegate bond.")
       else skip;
 
-    // add new satellite record
+    // // add new satellite record
     var newSatelliteRecord : satelliteRecordType := record[            
             status                = 1n;
-            mvkBalance            = vMvkBalance;  // bond - all locked
-            // bondSufficiency       = 1n;
+            mvkBalance            = satelliteParams.4;  // bond - all locked
             registeredDateTime    = Tezos.now;
             unregisteredDateTime  = Tezos.now;
-            satelliteFee          = 0n;
+            satelliteFee          = satelliteParams.3;
             totalDelegatedAmount  = 0n;
-            name                  = "Mavryk Satellite";
-            description           = "Mavryk Satellite";
-            image                 = "";
+            name                  = satelliteParams.0;
+            description           = satelliteParams.1;
+            image                 = satelliteParams.2;
         ];
 
     s.satelliteLedger[Tezos.source] := newSatelliteRecord;
 
-} with (noOperations, s)
+    // add satellite address to governance contract satellite set
+    const updateGovernanceSatelliteSetOperation : operation = Tezos.transaction(
+        (Tezos.source, 1n),
+         0tez, 
+         updateGovernanceSatelliteSet(s.governanceAddress)
+         );
+    
+    const operations : list(operation) = list [updateGovernanceSatelliteSetOperation];
+
+} with (operations, s)
 
 function unregisterAsSatellite(var s : storage) : return is
 block {
@@ -565,9 +611,19 @@ block {
 
     // changing of status - to inactive instead of removing
 
-    remove (Tezos.sender : address) from map s.satelliteLedger
+    _checkSatelliteExists.status := 0n;
+    s.satelliteLedger[Tezos.sender] := _checkSatelliteExists;
 
-} with (noOperations, s)
+    // remove satellite address from governance contract satellite set
+    const updateGovernanceSatelliteSetOperation : operation = Tezos.transaction(
+        (Tezos.sender, 0n),
+         0tez, 
+         updateGovernanceSatelliteSet(s.governanceAddress)
+         );
+    
+    const operations : list(operation) = list [updateGovernanceSatelliteSetOperation];
+
+} with (operations, s)
 
 function onStakeChange(const userAddress : address; const stakeAmount : nat; const stakeType : nat; var s : storage) : return is 
 block {
@@ -659,47 +715,10 @@ block {
 
 } with (noOperations, s)
 
-function onGovernanceAction(const satelliteAddress : address; var s : storage) : return is 
-block {
-
-    // todo: - will be based on governance contract 
-    
-    // Overall steps:
-    // 1. check if satellite has sufficient bond
-    //    - needs a loop to find all delegates of the satellite, and retrieve vMVK balance for each delegate
-    // 2. perform governance action if satellite has sufficient bond - proxy call to governance contract to execute? 
-    //    - pass back a callback operation
-
-    // Retrieve satellite account from storage
-    var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
-
-    // check if minimum bond has been reached (units are in mu)
-    if satelliteRecord.mvkBalance < s.config.minimumStakedMvkBalance then failwith("Insufficient satellite mvk balance - minimum staked mvk balance not reached.")
-      else skip;
-
-    // check bond sufficiency using fixed point arithmetic 
-    // percentage stored: 10% -> 10000
-    // total amount that can be staked = bond / delegationPercentage 
-    // check for division accuracy
-
-    const mvkBalance : nat             = satelliteRecord.mvkBalance;
-    const _totalDelegatedAmount : nat  = satelliteRecord.totalDelegatedAmount;
-    const delegationRatio : nat        = s.config.delegationRatio; 
-
-    const _totalDelegatedAmountAllowed =  (mvkBalance * 1000000n) / delegationRatio;
-
-    // if totalDelegatedAmount > totalDelegatedAmountAllowed then failwith("Satellite is over-delegated. Please increase bond amount.")
-    //   else skip;
-
-    // set satellite bond sufficiency flag to true
-    // satelliteRecord.bondSufficiency := 1n; 
-    s.satelliteLedger[satelliteAddress] := satelliteRecord;
-
-} with (noOperations, s)
-
 function main (const action : delegationAction; const s : storage) : return is 
     case action of    
         | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
+        | SetGovernanceAddress(parameters) -> setGovernanceAddress(parameters, s)  
 
         | TogglePauseDelegateToSatellite(_parameters) -> togglePauseDelegateToSatellite(s)
         | TogglePauseUndelegateSatellite(_parameters) -> togglePauseUndelegateSatellite(s)
@@ -717,12 +736,13 @@ function main (const action : delegationAction; const s : storage) : return is
         | UndelegateFromSatellite(_parameters) -> undelegateFromSatellite(s)
         | UndelegateFromSatelliteComplete(parameters) -> undelegateFromSatelliteComplete(parameters, s)
         
-        | RegisterAsSatellite(_parameters) -> registerAsSatellite(s)
-        | RegisterAsSatelliteComplete(parameters) -> registerAsSatelliteComplete(parameters, s)
+        | RegisterAsSatellite(parameters) -> registerAsSatellite(parameters.0, parameters.1, parameters.2, parameters.3, s)
+        | RegisterAsSatelliteComplete(parameters) -> registerAsSatelliteComplete((parameters.0, parameters.1, parameters.2, parameters.3, parameters.4), s)
         | UnregisterAsSatellite(_parameters) -> unregisterAsSatellite(s)
 
         | UpdateSatelliteRecord(parameters) -> updateSatelliteRecord(parameters.0, parameters.1, parameters.2, s)
 
+        | GetSatelliteVotingPower(parameters) -> getSatelliteVotingPower(parameters.0, parameters.1, s)
+
         | OnStakeChange(parameters) -> onStakeChange(parameters.0, parameters.1, parameters.2, s)    
-        | OnGovernanceAction(parameters) -> onGovernanceAction(parameters, s)
     end
