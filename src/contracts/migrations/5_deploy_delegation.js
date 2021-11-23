@@ -34,6 +34,7 @@ const initialStorage = {
   satelliteLedger : satelliteLedger,
   vMvkTokenAddress : vMvkTokenAddress,
   sMvkTokenAddress : sMvkTokenAddress,
+  governanceAddress : vMvkTokenAddress // update on governance deployment
 }
 
 module.exports = async (deployer, network, accounts) => {

@@ -30,6 +30,9 @@ type return is list (operation) * storage
 (* define noop for readability *)
 const noOperations : list (operation) = nil;
 
+type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
+type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
+
 (* Inputs *)
 type transferParams is michelson_pair(address, "from", michelson_pair(address, "to", amt, "value"), "")
 type approveParams is michelson_pair(trusted, "spender", amt, "value")
@@ -45,6 +48,7 @@ type entryAction is
   | Transfer of transferParams
   | Approve of approveParams
   | GetBalance of balanceParams
+  | GetSatelliteBalance of getSatelliteBalanceType
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
   | UpdateVMvkTotalSupplyForDoorman of nat
@@ -135,6 +139,16 @@ function getBalance (const owner : address; const contr : contract(amt); var s :
   block {
     const ownerAccount : account = getAccount(owner, s);
   } with (list [transaction(ownerAccount.balance, 0tz, contr)], s)
+
+// type getSatelliteBalanceType is (address * string * string * string * nat) // name, description, image, satellite fee
+// type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
+
+(* View function that forwards the balance of source to a contract *)
+function getSatelliteBalance (const owner : address; const name : string; const description : string; const image : string; const satelliteFee : nat; const contr : contract(satelliteInfoType); var s : storage) : return is
+  block {
+    const ownerAccount : account = getAccount(owner, s);
+  } with (list [transaction((name, description, image, satelliteFee, ownerAccount.balance), 0tz, contr)], s)
+
 
 (* set delegation contract address *)
 function setDelegationTokenAddress(const parameters : address; var s : storage) : return is
@@ -250,6 +264,7 @@ function main (const action : entryAction; var s : storage) : return is
     | Transfer(params) -> transfer(params.0, params.1.0, params.1.1, s)
     | Approve(params) -> approve(params.0, params.1, s)
     | GetBalance(params) -> getBalance(params.0, params.1, s)
+    | GetSatelliteBalance(params) -> getSatelliteBalance(params.0, params.1, params.2, params.3, params.4, params.5, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)
     | UpdateVMvkTotalSupplyForDoorman(params) -> updateVMvkTotalSupplyForDoorman(params, s)

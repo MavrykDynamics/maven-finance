@@ -3,6 +3,7 @@ const mvkToken = artifacts.require('mvkToken');
 const vMvkToken = artifacts.require('vMvkToken');
 const sMvkToken = artifacts.require('sMvkToken');
 const doorman = artifacts.require('doorman');
+const governance = artifacts.require('governance');
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
@@ -56,6 +57,9 @@ contract('delegate', accounts => {
         doormanInstance   = await doorman.deployed();
         doormanInstance   = await Tezos.contract.at(doormanInstance.address);
 
+        governanceInstance   = await governance.deployed();
+        governanceInstance   = await Tezos.contract.at(governanceInstance.address);
+
         delegationStorage = await delegationInstance.storage();
         mvkStorage        = await mvkTokenInstance.storage();
         vMvkStorage       = await vMvkTokenInstance.storage();
@@ -68,6 +72,7 @@ contract('delegate', accounts => {
         console.log('vMVK Contract deployed at:', vMvkTokenInstance.address);        
         console.log('sMVK Contract deployed at:', sMvkTokenInstance.address);        
         console.log('Doorman Contract deployed at:', doormanInstance.address);        
+        console.log('Governance Contract deployed at:', governanceInstance.address);        
     });
 
 
@@ -77,27 +82,33 @@ contract('delegate', accounts => {
             beforeDelegationStorage     = await delegationInstance.storage();
             beforeVMvkStorage           = await vMvkTokenInstance.storage();
             beforeSMvkStorage           = await sMvkTokenInstance.storage();
+            beforeGovernanceStorage     = await governanceInstance.storage();
             
             const beforeDelegationLedgerAlice  = await beforeDelegationStorage.satelliteLedger.get(alice.pkh); // should return null or undefined
             const beforeVMvkLedgerAlice        = await beforeVMvkStorage.ledger.get(alice.pkh);
             const beforeSMvkLedgerAlice        = await beforeSMvkStorage.ledger.get(alice.pkh);
 
-            // console.log(beforeDelegationLedgerAlice);
+            console.log("before ----")
+            // console.log(beforeGovernanceStorage.satelliteSet);
+            console.log(beforeDelegationLedgerAlice);
             // console.log(beforeVMvkLedgerAlice.balance);
             // console.log(beforeSMvkLedgerAlice.balance);
 
-            const registerAsDelegatorOperation = await delegationInstance.methods.registerAsSatellite(Tezos.unit).send();
+            const registerAsDelegatorOperation = await delegationInstance.methods.registerAsSatellite("New Satellite", "New Satellite Description", "https://image.url", "700").send();
             await registerAsDelegatorOperation.confirmation();
 
             afterDelegationStorage     = await delegationInstance.storage();
             afterVMvkStorage           = await vMvkTokenInstance.storage();
             afterSMvkStorage           = await sMvkTokenInstance.storage();
+            afterGovernanceStorage     = await governanceInstance.storage();
             
             const afterDelegationLedgerAlice  = await afterDelegationStorage.satelliteLedger.get(alice.pkh); // should return satellite record
             const afterVMvkLedgerAlice        = await afterVMvkStorage.ledger.get(alice.pkh);
             const afterSMvkLedgerAlice        = await afterSMvkStorage.ledger.get(alice.pkh);
 
-            // console.log(afterDelegationLedgerAlice);
+            console.log("after ----")
+            // console.log(afterGovernanceStorage.satelliteSet);
+            console.log(afterDelegationLedgerAlice);
             // console.log(afterVMvkLedgerAlice.balance);
             // console.log(afterSMvkLedgerAlice.balance);
 
@@ -115,7 +126,7 @@ contract('delegate', accounts => {
             // const beforeDelegationLedgerAlice  = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
             // console.log(beforeDelegationLedgerAlice);
 
-            const failRegisterAsDelegatorOperation = await delegationInstance.methods.registerAsSatellite(Tezos.unit);    
+            const failRegisterAsDelegatorOperation = await delegationInstance.methods.registerAsSatellite("New Satellite", "New Satellite Description", "https://image.url", "700");    
             await chai.expect(failRegisterAsDelegatorOperation.send()).to.be.eventually.rejected;
 
             // afterDelegationStorage     = await delegationInstance.storage();
@@ -226,7 +237,7 @@ contract('delegate', accounts => {
             afterDelegationStorageAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
 
             // console.log(afterDelegationStorage);
-            console.log(afterDelegationStorageAlice);
+            // console.log(afterDelegationStorageAlice);
             // console.log(afterDelegationStorageBob);
 
             const afterSatelliteLedgerAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);  // should show alice's satellite record with 500000000 in totalDelegatedAmount
@@ -407,9 +418,9 @@ contract('delegate', accounts => {
             beforeDelegationStorageAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh);
             beforeDelegationStorageBob     = await beforeDelegationStorage.satelliteLedger.get(bob.pkh);
             
-            console.log(beforeDelegationStorage);
-            console.log(beforeDelegationStorageAlice);
-            console.log(beforeDelegationStorageBob);
+            // console.log(beforeDelegationStorage);
+            // console.log(beforeDelegationStorageAlice);
+            // console.log(beforeDelegationStorageBob);
             
 
             const beforeDoormanStorage  = await doormanInstance.storage();
@@ -441,9 +452,10 @@ contract('delegate', accounts => {
             afterDelegationStorage        = await delegationInstance.storage();
             afterDelegationStorageAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);
             afterDelegationStorageBob     = await afterDelegationStorage.satelliteLedger.get(bob.pkh);
-            console.log(afterDelegationStorage);
-            console.log(afterDelegationStorageAlice);
-            console.log(afterDelegationStorageBob);
+            
+            // console.log(afterDelegationStorage);
+            // console.log(afterDelegationStorageAlice);
+            // console.log(afterDelegationStorageBob);
 
             afterVMvkStorage           = await vMvkTokenInstance.storage();
             afterSMvkStorage           = await sMvkTokenInstance.storage();
@@ -501,12 +513,12 @@ contract('delegate', accounts => {
             console.log('----')
 
             await signerFactory(bob.sk);
-            const setSatelliteOperationBob = await delegationInstance.methods.setSatellite(alice.pkh).send();
-            await setSatelliteOperationBob.confirmation();
+            const delegateToSatelliteOperationBob = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
+            await delegateToSatelliteOperationBob.confirmation();
 
             await signerFactory(eve.sk);
-            const setSatelliteOperationEve = await delegationInstance.methods.setSatellite(alice.pkh).send();
-            await setSatelliteOperationEve.confirmation();
+            const delegateToSatelliteOperationEve = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
+            await delegateToSatelliteOperationEve.confirmation();
 
             afterDelegationStorage     = await delegationInstance.storage();
             afterVMvkStorage           = await vMvkTokenInstance.storage();
@@ -572,8 +584,8 @@ contract('delegate', accounts => {
             const afterDelegateLedgerBob      = await afterDelegationStorage.delegateLedger.get(bob.pkh);     // should show a delegate record with alice's address as the satelliteAddress
             const afterSatelliteLedgerAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);  // should show alice's satellite record with 500000000 in totalDelegatedAmount
             
-            console.log(afterDelegateLedgerBob);
-            console.log(afterSatelliteLedgerAlice);
+            // console.log(afterDelegateLedgerBob);
+            // console.log(afterSatelliteLedgerAlice);
 
             const afterMvkLedgerBob            = await afterMvkStorage.ledger.get(bob.pkh);
             const afterVMvkLedgerBob           = await afterVMvkStorage.ledger.get(bob.pkh);
@@ -618,9 +630,9 @@ contract('delegate', accounts => {
             const beforeDelegateLedgerBob      = await beforeDelegationStorage.delegateLedger.get(bob.pkh);    // none (bob has not delegated yet)
             const beforeSatelliteLedgerAlice   = await beforeDelegationStorage.satelliteLedger.get(alice.pkh); // should show alice's satellite record with 0 in totalDelegatedAmount
 
-            console.log('before');
-            console.log(beforeDelegateLedgerBob);
-            console.log(beforeSatelliteLedgerAlice);
+            // console.log('before');
+            // console.log(beforeDelegateLedgerBob);
+            // console.log(beforeSatelliteLedgerAlice);
     
             // console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 991.67 MVK - 991,670,000 in muMVK
             // console.log("Before vMVK Storage Total Supply: " + beforeVMvkStorage.totalSupply);  // return 1000 vMVK - 1,000,000,000 in muVMVK       
@@ -646,8 +658,8 @@ contract('delegate', accounts => {
             const afterDelegateLedgerBob      = await afterDelegationStorage.delegateLedger.get(bob.pkh);     // should show a delegate record with alice's address as the satelliteAddress
             const afterSatelliteLedgerAlice   = await afterDelegationStorage.satelliteLedger.get(alice.pkh);  // should show alice's satellite record with 500000000 in totalDelegatedAmount
             
-            console.log(afterDelegateLedgerBob);
-            console.log(afterSatelliteLedgerAlice);
+            // console.log(afterDelegateLedgerBob);
+            // console.log(afterSatelliteLedgerAlice);
 
             const afterMvkLedgerBob            = await afterMvkStorage.ledger.get(bob.pkh);
             const afterVMvkLedgerBob           = await afterVMvkStorage.ledger.get(bob.pkh);
@@ -676,7 +688,7 @@ contract('delegate', accounts => {
         }
     });
 
-    it('bob can undelegate to alice satellite', async () => {
+    it('bob can undelegate from alice satellite', async () => {
         try{        
 
             beforeDelegationStorage     = await delegationInstance.storage();
@@ -694,8 +706,8 @@ contract('delegate', accounts => {
             
             await signerFactory(bob.sk);
 
-            const setSatelliteOperation = await delegationInstance.methods.unsetSatellite(Tezos.unit).send();
-            await setSatelliteOperation.confirmation();
+            const undelegateFromSatelliteOperation = await delegationInstance.methods.undelegateFromSatellite(Tezos.unit).send();
+            await undelegateFromSatelliteOperation.confirmation();
 
             afterDelegationStorage     = await delegationInstance.storage();
             afterVMvkStorage           = await vMvkTokenInstance.storage();
@@ -734,8 +746,8 @@ contract('delegate', accounts => {
             // console.log(beforeVMvkLedgerAlice);
             // console.log(beforeSMvkLedgerAlice);
 
-            const unregisterAsDelegatorOperation = await delegationInstance.methods.unregisterAsSatellite(Tezos.unit).send();
-            await unregisterAsDelegatorOperation.confirmation();
+            const unregisterAsSatelliteOperation = await delegationInstance.methods.unregisterAsSatellite(Tezos.unit).send();
+            await unregisterAsSatelliteOperation.confirmation();
 
             afterDelegationStorage     = await delegationInstance.storage();
             afterVMvkStorage           = await vMvkTokenInstance.storage();
@@ -772,8 +784,8 @@ contract('delegate', accounts => {
             
             await signerFactory(eve.sk);
 
-            const setSatelliteOperation = await delegationInstance.methods.unsetSatellite(Tezos.unit).send();
-            await setSatelliteOperation.confirmation();
+            const undelegateFromSatelliteOperation = await delegationInstance.methods.undelegateFromSatellite(Tezos.unit).send();
+            await undelegateFromSatelliteOperation.confirmation();
 
             afterDelegationStorage     = await delegationInstance.storage();
             afterVMvkStorage           = await vMvkTokenInstance.storage();
