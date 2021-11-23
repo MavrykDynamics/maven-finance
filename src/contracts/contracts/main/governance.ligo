@@ -40,16 +40,18 @@ type proposalRecordType is record [
 ]
 type proposalLedgerType is big_map (nat, proposalRecordType);
 
+// snapshot will be valid for current cycle only (proposal + voting rounds)
 type snapshotRecordType is record [
-    totalBond           : nat;      // log of satellite's total bond at this period
-    totalDelegated      : nat;      // log of satellite's total delegated amount 
-    startBlockLevel     : nat;      // log of current or start block level of proposal period
-    endBlockLevel       : nat;      // log of when proposal period will end
+    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this cycle
+    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
+    currentRoundStartLevel    : nat;      // log of current or start block level of proposal round
+    currentRoundEndLevel      : nat;      // log of when proposal round will end
+    currentCycleEndLevel      : nat;      // log of when cycle (proposal + voting) will end
 ]
 type snapshotLedgerType is big_map (address, snapshotRecordType);
 
 
-type satelliteSetType is set(address);
+// type satelliteSetType is set(address);
 
 type configType is record [
     
@@ -60,15 +62,14 @@ type configType is record [
     minimumStakeReqPercentage   : nat;  // minimum amount of MVK required in percentage of total vMVK supply (e.g. 0.01%)
 
     maxProposalsPerDelegate     : nat;  // number of active proposals delegate can have at any given time
-
     timelockDuration            : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
     
     newBlockTimeLevel           : nat;  // block level where new blocksPerMinute takes effect -> if none, use blocksPerMinute (old); if exists, check block levels, then use newBlocksPerMinute if current block level exceeds block level, if not use old blocksPerMinute
     newBlocksPerMinute          : nat;  // new blocks per minute 
     blocksPerMinute             : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
     
-    blocksPerProposalPeriod     : nat;  // to determine duration of proposal period
-    blocksPerVotingPeriod       : nat;  // to determine duration of voting period
+    blocksPerProposalRound      : nat;  // to determine duration of proposal round
+    blocksPerVotingRound        : nat;  // to determine duration of voting round
 ]
 
 // type currentProposalCheckType is proposalRecordType | unit;
@@ -80,14 +81,16 @@ type storage is record [
     proposalLedger              : proposalLedgerType;
     snapshotLedger              : snapshotLedgerType;
 
-    satelliteSet                : satelliteSetType; // set of satellite addresses - for running loops
+    satelliteSet                : set(address); // set of satellite addresses - for running loops - not intended to be extremely large, so satellite entry requirements have to be considered
 
     startLevel                  : blocks;    // use Tezos.level as start level
     nextProposalId              : nat;       // counter of next proposal id
     
+    // state variables
     currentRound                : string;    // proposal or voting
     currentRoundStartLevel      : nat;       // current round starting block level
     currentRoundEndLevel        : nat;       // current round ending block level
+    currentCycleEndLevel        : nat;       // current cycle (proposal + voting) ending block level 
 
     // currentProposalCheck        : option(proposalRecordType);           // option: may be empty
     // currentTimelockCheck        : option(proposalRecordType);           // option: may be empty
@@ -102,13 +105,18 @@ type storage is record [
 
 type updateSatelliteSetParams is (address * nat)
 type governanceAction is 
+    | SetDelegationAddress of (address)
     | StartProposalRound of (unit)
+
     | Propose of (nat)
     | StartVotingRound of (unit)
+
     | Vote of (nat)
     | SetTempMvkTotalSupply of (nat)
+
     | UpdateSatelliteSet of updateSatelliteSetParams
-    // | Release of (nat) - flush?
+    | SetSatelliteVotingPowerSnapshot of (address * nat * nat)
+
     | ExecuteProposal of (nat)
     | ClearProposal of (nat)
 
@@ -133,43 +141,35 @@ function checkSenderIsMvkTokenContract(var s : storage) : unit is
     else failwith("This entrypoint should not receive any tez.");
 // admin helper functions end -----------------------------------------------------------------------------------
 
-// helper function to get User's vMVK balance from vMVK token address
-// function fetchMvkBalance(const tokenAddress : address) : contract(address * contract(nat)) is
-//   case (Tezos.get_entrypoint_opt(
-//       "%getBalance",
-//       tokenAddress) : option(contract(address * contract(nat)))) of
-//     Some(contr) -> contr
-//   | None -> (failwith("GetBalance entrypoint in MVK Token Contract not found") : contract(address * contract(nat)))
-//   end;
+// helper functions begin: --------------------------------------------------------------------------------------
+
+// helper function to fetch satellite's balance and total delegated amount from delegation contract
+function fetchSatelliteBalanceAndTotalDelegatedAmount(const tokenAddress : address) : contract(address * contract(address * nat * nat)) is
+  case (Tezos.get_entrypoint_opt(
+      "%getSatelliteVotingPower",
+      tokenAddress) : option(contract(address * contract(address * nat * nat)))) of
+    Some(contr) -> contr
+  | None -> (failwith("GetSatelliteVotingPower entrypoint in Delegation Contract not found") : contract(address * contract(address * nat * nat)))
+  end;
 
 // helper function to get satellite snapshot 
-// function getSatelliteSnapshotRecord (const satelliteAddress : address; const s : storage) : snapshotRecordType is
-//   block {
-//     var satelliteSnapshotRecord : snapshotRecordType :=
-//       record [
-//         totalBond           : 0n;       // log of satellite's total bond at this period
-//         totalDelegated      : 0n;       // log of satellite's total delegated amount 
-//         startBlockLevel     : 0n;      // log of current or start block level of proposal period
-//         endBlockLevel       : 0n;      // log of when proposal period will end
-//       ];
+function getSatelliteSnapshotRecord (const satelliteAddress : address; const s : storage) : snapshotRecordType is
+  block {
+    var satelliteSnapshotRecord : snapshotRecordType :=
+      record [
+        totalMvkBalance         = 0n;                            // log of satellite's total mvk balance for this cycle
+        totalDelegatedAmount    = 0n;                            // log of satellite's total delegated amount 
+        currentRoundStartLevel  = s.currentRoundStartLevel;      // log of current or start block level of proposal round
+        currentRoundEndLevel    = s.currentRoundEndLevel;        // log of when proposal round will end
+        currentCycleEndLevel    = s.currentCycleEndLevel         // log of when cycle (proposal + voting) will end
+      ];
 
-//     case s.snapshotLedger[satelliteAddress] of
-//       None -> skip
-//     | Some(instance) -> satelliteSnapshotRecord := instance
-//     end;
-//   } with satelliteRecord
+    case s.snapshotLedger[satelliteAddress] of
+      None -> skip
+    | Some(instance) -> satelliteSnapshotRecord := instance
+    end;
 
-function updateSatelliteSet(const _satelliteAddress : address; const _updateType : nat; var s : storage) is
-block {
-    checkNoAmount(Unit);                      (* Should not receive any tez amount *)
-    checkSenderIsDelegationContract(s);       (* Check this call is comming from the Delegation contract *)
-
-    var _satelliteSet : set(address) := s.satelliteSet;
-
-    // if updateType = 1n then Set.add(satelliteAddress, satelliteSet)
-    //     else Set.remove(satelliteAddress, satelliteSet)
-
-} with (noOperations, s);
+  } with satelliteSnapshotRecord
 
 // helper function to get token total supply (for MVK and vMVK)
 function getTokenTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
@@ -180,27 +180,62 @@ function getTokenTotalSupply(const tokenAddress : address) : contract(contract(n
   | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(contract(nat)))
   end;
 
+// helper functions end: --------------------------------------------------------------------------------------
+
+// housekeeping functions begin: --------------------------------------------------------------------------------
+
+// set delegation contract address
+function setDelegationAddress(const parameters : address; var s : storage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin
+    s.delegationAddress := parameters;
+} with (noOperations, s)
+
+// set temp MVK total supply
 function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
 block {
-    checkNoAmount(Unit);                    (* Should not receive any tez amount *)
-    checkSenderIsMvkTokenContract(s);       (* Check this call is comming from the mvk Token contract *)
+    checkNoAmount(Unit);                    // should not receive any tez amount
+    checkSenderIsMvkTokenContract(s);       // check this call is comming from the mvk Token contract
     s.snapshotMvkTotalSupply := totalSupply;
 } with (noOperations, s);
 
-function setSatelliteVotingPowerSnapshot(const _mvkBalance : nat; var s : storage) : return is 
+// housekeeping functions end: --------------------------------------------------------------------------------
+
+// update governance contract set of currently active satellites
+function updateSatelliteSet(const satelliteAddress : address; const _updateType : nat; var s : storage) is
+block {
+    
+    checkNoAmount(Unit);                      // should not receive any tez amount
+    checkSenderIsDelegationContract(s);       // check this call is comming from the Delegation contract
+
+    const satelliteSet : set(address) = s.satelliteSet;
+    const _addToSatelliteSet = Set.update(satelliteAddress, True, satelliteSet)
+
+    // if updateType = 1n then block {
+    //     const _satelliteSet = Set.add(satelliteAddress, s.satelliteSet)
+    // } else block {
+    //     const _satelliteSet = Set.remove(satelliteAddress, s.satelliteSet)
+    // }; 
+
+} with (noOperations, s);
+
+function setSatelliteVotingPowerSnapshot(const satelliteAddress : address; const mvkBalance : nat; const totalDelegatedAmount : nat; var s : storage) : return is 
 block {
 
-    // check sender is Delegation Contract
-    checkSenderIsDelegationContract(s);
+    checkNoAmount(Unit);                // should not receive any tez amount      
+    checkSenderIsDelegationContract(s); // check sender is Delegation Contract
 
-    // Retrieve satellite snapshot from snapshotLedger in storage
-    // var satelliteSnapshotRecord : snapshotRecordType := getSatelliteSnapshotRecord(Tezos.source, s);
+    // create or retrieve satellite snapshot from snapshotLedger in storage
+    var satelliteSnapshotRecord : snapshotRecordType := getSatelliteSnapshotRecord(satelliteAddress, s);
 
-    // update satellite totalDelegatedAmount balance
-    // satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + vMvkBalance; 
-    
-    // update satellite ledger storage with new balance
-    // s.satelliteLedger[delegateRecord.satelliteAddress] := satelliteRecord;
+    // update satellite snapshot record
+    satelliteSnapshotRecord.totalMvkBalance         := mvkBalance; 
+    satelliteSnapshotRecord.totalDelegatedAmount    := totalDelegatedAmount; 
+    satelliteSnapshotRecord.currentRoundStartLevel  := s.currentRoundStartLevel; 
+    satelliteSnapshotRecord.currentRoundEndLevel    := s.currentRoundEndLevel; 
+    satelliteSnapshotRecord.currentCycleEndLevel    := s.currentCycleEndLevel; 
+
+    s.snapshotLedger[satelliteAddress] := satelliteSnapshotRecord;
 
 } with (noOperations, s)
 
@@ -210,14 +245,24 @@ block {
     
     // Steps Overview:
     // 1. verify sender is self / admin ? todo: check who can trigger this entrypoint
-    // 2. clear currentProposalCheck and currentTimelockCheck
-    // 3. take snapshot of satellite's MVK and update snapshotLedger
+    // 2. reset currentProposalCheck and currentTimelockCheck
+    // 3. update currentRound, currentRoundStartLevel, currentRoundEndLevel
+    // 5. take snapshot of satellite's MVK and update snapshotLedger
     // 4. take snapshot of MVK total supply 
-    // 5. update currentRound, currentRoundStartLevel, currentRoundEndLevel
 
     // check that sender is admin
     checkSenderIsAdmin(s);
 
+    var operations : list(operation) := nil;
+
+    s.currentProposalCheck    := 0n;         // id of proposal - reset to 0 
+    s.currentTimelockCheck    := 0n;         // id of proposal - reset to 0
+
+    s.currentRound               := "proposal";
+    // s.currentRoundStartLevel  := Tezos.level;
+    // s.currentRoundEndLevel    := Tezos.level + s.config.blocksPerProposalRound;
+    // s.currentCycleEndLevel    := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound;
+    
     // update temp MVK total supply
     const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
     const updateMvkTotalSupplyOperation : operation = Tezos.transaction(
@@ -226,14 +271,18 @@ block {
          getTokenTotalSupply(s.mvkTokenAddress)
          );
 
-    const operations : list(operation) = list [updateMvkTotalSupplyOperation];
+    operations := updateMvkTotalSupplyOperation # operations;
 
-    s.currentProposalCheck    := 0n;         // reset to 0
-    s.currentTimelockCheck    := 0n;         // reset to 0
-
-    s.currentRound            := "proposal";
-    // s.currentRoundStartLevel  := Tezos.level;
-    // s.currentRoundEndLevel    := Tezos.level + s.config.blocksPerProposalPeriod;
+    // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
+    for satellite in set s.satelliteSet block {
+        const setSatelliteVotingPowerSnapshotCallback : contract(address * nat * nat) = Tezos.self("%setSatelliteVotingPowerSnapshot");
+        const fetchSatelliteBalanceAndTotalDelegatedAmountOperation : operation = Tezos.transaction(
+            (satellite, setSatelliteVotingPowerSnapshotCallback), 
+            0tez, 
+            fetchSatelliteBalanceAndTotalDelegatedAmount(s.delegationAddress)
+        );
+        operations := fetchSatelliteBalanceAndTotalDelegatedAmountOperation # operations;
+    } 
 
 } with (operations, s)
 
@@ -292,13 +341,18 @@ block {
 
 function main (const action : governanceAction; const s : storage) : return is 
     case action of
+        | SetDelegationAddress(parameters) -> setDelegationAddress(parameters, s)  
         | StartProposalRound(_parameters) -> startProposalRound(s)
+
         | Propose(parameters) -> propose(parameters, s)
         | StartVotingRound(_parameters) -> startVotingRound(s)
+
         | Vote(parameters) -> vote(parameters, s)
         | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
+
         | UpdateSatelliteSet(parameters) -> updateSatelliteSet(parameters.0, parameters.1, s)
-        // | Release(parameters) -> release(parameters, s)
+        | SetSatelliteVotingPowerSnapshot(parameters) -> setSatelliteVotingPowerSnapshot(parameters.0, parameters.1, parameters.2, s)
+
         | ExecuteProposal(parameters) -> executeProposal(parameters, s)
         | ClearProposal(parameters) -> clearProposal(parameters, s)
 
