@@ -50,7 +50,7 @@ contract('governance', accounts => {
         mvkTokenInstance = await Tezos.contract.at(mvkTokenInstance.address);
 
         governanceStorage    = await governanceInstance.storage();
-        delegationStorage   = await delegationInstance.storage();
+        delegationStorage    = await delegationInstance.storage();
         mvkStorage           = await mvkTokenInstance.storage();
         
         console.log('-- -- -- -- -- Deployments -- -- -- --')   
@@ -62,7 +62,7 @@ contract('governance', accounts => {
 
     it('alice can make a proposal during a proposal round', async () => {
         try{        
-            console.log('test');
+            console.log(governanceStorage);
         } catch(e){
             console.log(e);
         } 

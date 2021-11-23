@@ -1,7 +1,7 @@
 const governanceContract = artifacts.require('governance')
 // const vMvkTokenContract = artifacts.require('vMvkToken')
 // const sMvkTokenContract = artifacts.require('sMvkToken')
-// const doormanContract = artifacts.require('doorman')
+const delegationContract = artifacts.require('delegation')
 
 const { MichelsonMap, UnitValue } = require('@taquito/michelson-encoder')
 
@@ -29,8 +29,8 @@ const configType        = {
     newBlocksPerMinute: 0,
     blocksPerMinute: 2,
     
-    blocksPerProposalPeriod: 14400,         // 5 days
-    blocksPerVotingPeriod: 14400            // 5 days 
+    blocksPerProposalRound: 14400,         // 5 days
+    blocksPerVotingRound: 14400            // 5 days 
 };
 
 // const breakGlassConfigType = {
@@ -58,6 +58,7 @@ const initialStorage = {
   currentRound : 'proposal',
   currentRoundStartLevel : 1,
   currentRoundEndLevel : 14401,
+  currentCycleEndLevel : 28801,
 
 //   currentProposalCheck : UnitValue,
 //   currentTimelockCheck : UnitValue,
@@ -75,6 +76,12 @@ const initialStorage = {
 module.exports = async (deployer, network, accounts) => {
   await deployer.deploy(governanceContract, initialStorage)
   const deployedGovernanceContract = await governanceContract.deployed()
+
+  // set governance address in delegation contract
+  const deployedDelegationContract = await delegationContract.deployed()
+  await deployedDelegationContract.setGovernanceAddress(deployedGovernanceContract.address)
+
+  await deployedGovernanceContract.setDelegationAddress(deployedDelegationContract.address)
 
   await saveContractAddress('governanceAddress', deployedGovernanceContract.address)
 }
