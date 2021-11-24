@@ -60,9 +60,33 @@ contract('governance', accounts => {
     });
 
 
-    it('alice can make a proposal during a proposal round', async () => {
+    // it('alice can make a proposal during a proposal round', async () => {
+    //     try{        
+    //         console.log(governanceStorage);
+    //     } catch(e){
+    //         console.log(e);
+    //     } 
+    // });
+
+     it('test add to set', async () => {
         try{        
-            console.log(governanceStorage);
+
+            beforeGovernanceStorage     = await governanceInstance.storage();
+            console.log("before:")
+            console.log(beforeGovernanceStorage)
+            
+            const testAddToSetOperation = await governanceInstance.methods.updateActiveSatellitesMap(alice.pkh).send();
+            await testAddToSetOperation.confirmation();
+
+            // await signerFactory(bob.sk);
+            const testAddToSetOperation2 = await governanceInstance.methods.updateActiveSatellitesMap(bob.pkh).send();
+            await testAddToSetOperation2.confirmation();
+
+
+            afterGovernanceStorage     = await governanceInstance.storage();
+            console.log("after:")
+            console.log(afterGovernanceStorage)
+
         } catch(e){
             console.log(e);
         } 
