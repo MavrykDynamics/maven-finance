@@ -18,9 +18,11 @@ const configType        = {
 
     successReward: 1000_000_000,            // 1000 vMVK in mu (10^6)
     minQuorumPercentage: 500,               // 5%
-    proposalSubmissionFee: 10_000_000,      // 10 tez in mu
     
+    votingPowerRatio: 10_000,
+    proposalSubmissionFee: 10_000_000,      // 10 tez in mu
     minimumStakeReqPercentage: 100,         // 1%
+    
     maxProposalsPerDelegate: 10,
     
     timelockDuration: 5760,                 // 2 days
@@ -50,7 +52,7 @@ const initialStorage = {
   proposalLedger : proposalLedger,
   snapshotLedger : snapshotLedger,
 
-  satelliteSet : [],
+  activeSatellitesMap : new MichelsonMap(),
 
   startLevel : 1,
   nextProposalId : 1,
@@ -59,6 +61,9 @@ const initialStorage = {
   currentRoundStartLevel : 1,
   currentRoundEndLevel : 14401,
   currentCycleEndLevel : 28801,
+
+  currentRoundProposals : new MichelsonMap(),
+  currentRoundVotes     : new MichelsonMap(),
 
 //   currentProposalCheck : UnitValue,
 //   currentTimelockCheck : UnitValue,

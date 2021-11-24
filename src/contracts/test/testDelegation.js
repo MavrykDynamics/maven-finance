@@ -89,7 +89,7 @@ contract('delegate', accounts => {
             const beforeSMvkLedgerAlice        = await beforeSMvkStorage.ledger.get(alice.pkh);
 
             console.log("before ----")
-            // console.log(beforeGovernanceStorage.satelliteSet);
+            console.log(beforeGovernanceStorage);
             console.log(beforeDelegationLedgerAlice);
             // console.log(beforeVMvkLedgerAlice.balance);
             // console.log(beforeSMvkLedgerAlice.balance);
@@ -107,7 +107,7 @@ contract('delegate', accounts => {
             const afterSMvkLedgerAlice        = await afterSMvkStorage.ledger.get(alice.pkh);
 
             console.log("after ----")
-            // console.log(afterGovernanceStorage.satelliteSet);
+            console.log(afterGovernanceStorage);
             console.log(afterDelegationLedgerAlice);
             // console.log(afterVMvkLedgerAlice.balance);
             // console.log(afterSMvkLedgerAlice.balance);

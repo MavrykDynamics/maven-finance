@@ -142,12 +142,12 @@ function checkUndelegateFromSatelliteIsNotPaused(var s : storage) : unit is
 // helper functions begin: --------------------------------------------------------------------------------------
 
 // helper function to update governance satellite set
-function updateGovernanceSatelliteSet(const contractAddress : address) : contract(address * nat) is
+function updateGovernanceActiveSatellitesMap(const contractAddress : address) : contract(address) is
   case (Tezos.get_entrypoint_opt(
-      "%updateSatelliteSet",
-      contractAddress) : option(contract(address * nat))) of
+      "%updateActiveSatellitesMap",
+      contractAddress) : option(contract(address))) of
     Some(contr) -> contr
-  | None -> (failwith("UpdateSatelliteSet entrypoint in Governance Contract not found") : contract(address * nat))
+  | None -> (failwith("UpdateActiveSatellitesMap entrypoint in Governance Contract not found") : contract(address))
   end;
 
 // helper function to get User's vMVK balance for delegation 
@@ -569,7 +569,7 @@ block {
     // // add new satellite record
     var newSatelliteRecord : satelliteRecordType := record[            
             status                = 1n;
-            mvkBalance            = satelliteParams.4;  // bond - all locked
+            mvkBalance            = satelliteParams.4;
             registeredDateTime    = Tezos.now;
             unregisteredDateTime  = Tezos.now;
             satelliteFee          = satelliteParams.3;
@@ -582,13 +582,13 @@ block {
     s.satelliteLedger[Tezos.source] := newSatelliteRecord;
 
     // add satellite address to governance contract satellite set
-    const updateGovernanceSatelliteSetOperation : operation = Tezos.transaction(
-        (Tezos.source, 1n),
+    const updateGovernanceActiveSatellitesMapOperation : operation = Tezos.transaction(
+        (Tezos.source),
          0tez, 
-         updateGovernanceSatelliteSet(s.governanceAddress)
+         updateGovernanceActiveSatellitesMap(s.governanceAddress)
          );
     
-    const operations : list(operation) = list [updateGovernanceSatelliteSetOperation];
+    const operations : list(operation) = list [updateGovernanceActiveSatellitesMapOperation];
 
 } with (operations, s)
 
@@ -615,13 +615,13 @@ block {
     s.satelliteLedger[Tezos.sender] := _checkSatelliteExists;
 
     // remove satellite address from governance contract satellite set
-    const updateGovernanceSatelliteSetOperation : operation = Tezos.transaction(
-        (Tezos.sender, 0n),
+    const updateGovernanceActiveSatellitesMapOperation : operation = Tezos.transaction(
+        (Tezos.sender),
          0tez, 
-         updateGovernanceSatelliteSet(s.governanceAddress)
+         updateGovernanceActiveSatellitesMap(s.governanceAddress)
          );
     
-    const operations : list(operation) = list [updateGovernanceSatelliteSetOperation];
+    const operations : list(operation) = list [updateGovernanceActiveSatellitesMapOperation];
 
 } with (operations, s)
 
