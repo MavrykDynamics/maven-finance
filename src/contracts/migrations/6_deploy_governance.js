@@ -15,67 +15,40 @@ const proposalLedger   = MichelsonMap.fromLiteral({});
 const snapshotLedger  = MichelsonMap.fromLiteral({});
 const adminAddress     = alice.pkh;
 const configType        = {
-
     successReward: 1000_000_000,            // 1000 vMVK in mu (10^6)
     minQuorumPercentage: 500,               // 5%
-    
-    votingPowerRatio: 10_000,
+    minQuorumMvkTotal: 0,                   // will be recalculated when proposal round starts
+    votingPowerRatio: 10_000,               // 10% 
     proposalSubmissionFee: 10_000_000,      // 10 tez in mu
     minimumStakeReqPercentage: 100,         // 1%
-    
     maxProposalsPerDelegate: 10,
-    
     timelockDuration: 5760,                 // 2 days
-    
     newBlockTimeLevel: 0,
     newBlocksPerMinute: 0,
     blocksPerMinute: 2,
-    
     blocksPerProposalRound: 14400,         // 5 days
     blocksPerVotingRound: 14400            // 5 days 
 };
 
-// const breakGlassConfigType = {
-//     setSatelliteIsPaused           : false,
-//     unsetSatelliteIsPaused         : false,
-//     registerAsSatelliteIsPaused    : false,
-//     unregisterAsSatelliteIsPaused  : false,
-//     updateSatelliteRecordIsPaused  : false
-// }
-
 const initialStorage = {
   admin : adminAddress,
   config : configType,
-
-//   breakGlassConfig: breakGlassConfigType,
-
   proposalLedger : proposalLedger,
   snapshotLedger : snapshotLedger,
-
   activeSatellitesMap : new MichelsonMap(),
-
   startLevel : 1,
   nextProposalId : 1,
-
   currentRound : 'proposal',
   currentRoundStartLevel : 1,
   currentRoundEndLevel : 14401,
   currentCycleEndLevel : 28801,
-
   currentRoundProposals : new MichelsonMap(),
   currentRoundVotes     : new MichelsonMap(),
-
-//   currentProposalCheck : UnitValue,
-//   currentTimelockCheck : UnitValue,
-
-  currentProposalCheck : 0,
-  currentTimelockCheck : 0,
-
+  currentRoundHighestVotedProposalId : 0,
+  currentRoundTimelockProposalId : 0,
   mvkTokenAddress : mvkTokenAddress,
   delegationAddress : delegationAddress,
-  
   snapshotMvkTotalSupply : 1
-
 }
 
 module.exports = async (deployer, network, accounts) => {
