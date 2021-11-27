@@ -668,12 +668,12 @@ block {
             _proposal.quorumMvkTotal := abs(_proposal.quorumMvkTotal - satelliteSnapshot.totalVotingPower);
         } else skip;
 
-        if voteType = 0n then block {
+        if previousVoteType = 0n then block {
             _proposal.downvoteCount := abs(_proposal.downvoteCount - 1n);    
             _proposal.downvoteMvkTotal := abs(_proposal.downvoteMvkTotal - satelliteSnapshot.totalVotingPower);
         } else skip;
 
-        if voteType = 2n then block {
+        if previousVoteType = 2n then block {
             _proposal.abstainCount := abs(_proposal.abstainCount - 1n);    
             _proposal.abstainMvkTotal := abs(_proposal.abstainMvkTotal - satelliteSnapshot.totalVotingPower);
         } else skip;
@@ -693,7 +693,7 @@ block {
     skip
 } with (noOperations, s)
 
-function dropProposal(const _proposalId : nat; var s : storage) : return is 
+function dropProposal(const proposalId : nat; var s : storage) : return is 
 block {
     // Steps Overview: 
     // 1. verify that proposal is in the current round / cycle
