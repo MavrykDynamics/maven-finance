@@ -1,6 +1,5 @@
 const governanceContract = artifacts.require('governance')
 // const vMvkTokenContract = artifacts.require('vMvkToken')
-// const sMvkTokenContract = artifacts.require('sMvkToken')
 const delegationContract = artifacts.require('delegation')
 
 const { MichelsonMap, UnitValue } = require('@taquito/michelson-encoder')

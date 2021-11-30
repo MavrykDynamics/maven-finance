@@ -1,47 +1,49 @@
 type voteType is (nat * timestamp)              // mvk amount, timestamp
 type voterMapType is map (address, voteType)
 type emergencyGovernanceRecordType is record [
-    proposerAddress        : address;
-    status                 : nat;         
-    title                  : string;
-    description            : string;   
-    voters                 : voterMapType; 
-    totalVMvkVotes         : nat;
-    minMvkRequiredPercentage  : nat;           // capture state of min required MVK vote percentage (e.g. 5% - as min required votes may change over time)
-    minMvkRequired          : nat;             // capture state of min MVK vote required
-    startDateTime          : timestamp;
-    startLevel             : nat;           // block level of submission, used to order proposals
-    endLevel               : nat;
+    proposerAddress            : address;
+    status                     : nat;         
+    title                      : string;
+    description                : string;   
+    voters                     : voterMapType; 
+    totalMvkVotes              : nat;
+    minStakedMvkRequiredPercentage   : nat;              // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
+    minTotalMvkRequired        : nat;              // capture state of min MVK vote required
+    startDateTime              : timestamp;
+    startLevel                 : nat;              // block level of submission, used to order proposals
+    endLevel                   : nat;
 ]
 
 type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType)
 
 type configType is record [
     voteDuration : nat;                 // track time by tezos blocks - e.g. 2 days 
-    minMvkPercentageForTrigger : nat;  // minimum vMVK percentage amount required to trigger emergency control
+    minStakedMvkPercentageForTrigger : nat;   // minimum staked MVK percentage amount required to trigger emergency control
     requiredFee : tez;                  // fee for triggering emergency control - e.g. 100 tez
 ]
 
 type storage is record [
     admin                       : address;
-    breakGlassContractAddress   : address; 
     config                      : configType;
     
-    startLevel                  : nat;           // Tezos.level as start level
-
-    tempMvkTotalSupply          : nat;           // at point where emergency control is triggered
-    mvkTokenAddress             : address;  
-    
     emergencyGovernanceLedger   : emergencyGovernanceLedgerType; 
-    currentEmergencyGovernanceId : nat;
-    nextProposalId               : nat;
+    
+    mvkTokenAddress             : address;  
+    breakGlassContractAddress   : address; 
+    treasuryAddress             : address;
+    
+    tempMvkTotalSupply            : nat;           // at point where emergency control is triggered
+    currentEmergencyGovernanceId  : nat;
+    nextEmergencyGovernanceProposalId : nat;
 ]
 
 type emergencyGovernanceAction is 
+    | SetBreakGlassContractAddress of (address)
     | TriggerEmergencyControl of (string * string)
     | VoteForEmergencyControl of (nat)
     | VoteForEmergencyControlComplete of (nat)
     | SetTempMvkTotalSupply of (nat)
+    | DropEmergencyGovernance of (unit)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -61,12 +63,12 @@ function checkNoAmount(const _p : unit) : unit is
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to get token total supply (for MVK and vMVK)
-function getTokenTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
+function getTokenTotalSupply(const tokenAddress : address) : contract(unit * contract(nat)) is
   case (Tezos.get_entrypoint_opt(
       "%getTotalSupply",
-      tokenAddress) : option(contract(contract(nat)))) of
+      tokenAddress) : option(contract(unit * contract(nat)))) of
     Some(contr) -> contr
-  | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(contract(nat)))
+  | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(unit * contract(nat)))
   end;
 
 // helper function to get User's MVK balance from MVK token address
@@ -79,13 +81,20 @@ function fetchMvkBalance(const tokenAddress : address) : contract(address * cont
   end;
 
 // helper function to get User's MVK balance from MVK token address
-function triggerBreakGlass(const tokenAddress : address) : contract(contract(unit)) is
+function triggerBreakGlass(const tokenAddress : address) : contract(unit) is
   case (Tezos.get_entrypoint_opt(
       "%breakGlass",
-      tokenAddress) : option(contract(contract(unit)))) of
+      tokenAddress) : option(contract(unit))) of
     Some(contr) -> contr
-  | None -> (failwith("breakGlass entrypoint in Break Glass Token Contract not found") : contract(contract(unit)))
+  | None -> (failwith("breakGlass entrypoint in Break Glass Token Contract not found") : contract(unit))
   end;
+
+function setBreakGlassContractAddress(const newBreakGlassContractAddress : address; var s : storage) is 
+block {
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+    s.breakGlassContractAddress := newBreakGlassContractAddress;
+} with (noOperations, s)
 
 
 function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
@@ -93,16 +102,26 @@ block {
     checkNoAmount(Unit);                    (* Should not receive any tez amount *)
     checkSenderIsMvkTokenContract(s);       (* Check this call is comming from the mvk Token contract *)
     s.tempMvkTotalSupply := totalSupply;
+
+    // set min MVK total required in emergency governance record based on temp MVK total supply
+    const emergencyGovernanceProposalId : nat = abs(s.nextEmergencyGovernanceProposalId - 1n);
+    var emergencyGovernanceRecord : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[emergencyGovernanceProposalId] of
+        | Some(_governanceRecord) -> _governanceRecord
+        | None -> failwith("Emergency Governance Record not found.")
+    end;
+
+    var minTotalMvkRequired : nat := abs(s.config.minMvkPercentageForTrigger * totalSupply / 100_000);
+
+    emergencyGovernanceRecord.minTotalMvkRequired := minTotalMvkRequired;
+    s.emergencyGovernanceLedger[emergencyGovernanceProposalId] := emergencyGovernanceRecord;    
+
 } with (noOperations, s);
 
 function triggerEmergencyControl(const title : string; const description : string; var s : storage) : return is 
 block {
     // Steps Overview:
     // 1. check that there is no currently active emergency governance being voted on
-    // 2. operations to MVK token contract to get total supply, and update temp total supply
-    // 3. set proposer as first vote
-    //   - check proposer's vMVK balance (via proxy) and increment totalVMvkVotes by the balance
-    //   - add proposer to voter map
+    // 2. operation to MVK token contract to get total supply -> then update temp total supply and emergency governce record min MVK required
 
     // 1. check that there is no currently active emergency governance being voted on
     // - todo: get last emergency governance proposal - save temp state in storage?
@@ -112,27 +131,30 @@ block {
 
     const emptyVotersMap : voterMapType = map[];
     var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
-        proposerAddress         = Tezos.sender;
-        status                  = 1n;
-        title                   = title;
-        description             = description; 
-        voters                  = emptyVotersMap;
-        totalVMvkVotes          = 0n;
+        proposerAddress            = Tezos.sender;
+        status                     = 1n;
+        title                      = title;
+        description                = description; 
+        voters                     = emptyVotersMap;
+        totalMvkVotes              = 0n;
         minMvkRequiredPercentage   = s.config.minMvkPercentageForTrigger;  // capture state of min required vMVK vote percentage (e.g. 5% - as min required votes may change over time)
-        minMvkRequired          = 0n;
-        startDateTime           = Tezos.now;
-        startLevel              = Tezos.level;          
-        endLevel                = Tezos.level + s.config.voteDuration;
+        minTotalMvkRequired        = 0n;
+        startDateTime              = Tezos.now;
+
+        startLevel                 = 1n; // placeholder until compiler issue fixed with tezos.level
+        endLevel                   = 2n; // placeholder until compiler issue fixed with tezos.level
+        // startLevel              = Tezos.level;          
+        // endLevel                = Tezos.level + s.config.voteDuration;
     ];
 
-    s.emergencyGovernanceLedger[s.nextProposalId] := newEmergencyGovernanceRecord;
-    s.currentEmergencyGovernanceId := s.nextProposalId;
-    s.nextProposalId := s.nextProposalId + 1n;
+    s.emergencyGovernanceLedger[s.nextEmergencyGovernanceProposalId] := newEmergencyGovernanceRecord;
+    s.currentEmergencyGovernanceId := s.nextEmergencyGovernanceProposalId;
+    s.nextEmergencyGovernanceProposalId := s.nextEmergencyGovernanceProposalId + 1n;
 
     // update temp MVK total supply
     const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
     const updateMvkTotalSupplyOperation : operation = Tezos.transaction(
-        (setTempMvkTotalSupplyCallback),
+        (unit, setTempMvkTotalSupplyCallback),
          0tez, 
          getTokenTotalSupply(s.mvkTokenAddress)
          );
@@ -142,7 +164,7 @@ block {
 } with (operations, s)
 
 
-function voteForEmergencyControl(emergencyGovernanceId : nat; var s : storage) : return is 
+function voteForEmergencyControl(const emergencyGovernanceId : nat; var s : storage) : return is 
 block {
     // Steps Overview:
     // 1. check that emergency governance exist in the emergency governance ledger, and is currently active, and can be voted on
@@ -157,27 +179,29 @@ block {
         | Some(_instance) -> _instance
     end;
 
-    const checkIfUserHasVotedFlag : bool = Map.mem(Tezos.sender, s.emergencyGovernanceLedger[emergencyGovernanceId].voters);)
-    if checkIfSatelliteHasVotedFlag = False then block {
+    var operations : list(operation) := nil;
+
+    const checkIfUserHasVotedFlag : bool = Map.mem(Tezos.sender, emergencyGovernance.voters);
+    if checkIfUserHasVotedFlag = False then block {
         
         // get user MVK Balance
         const voteForEmergencyControlCompleteCallback : contract(nat) = Tezos.self("%voteForEmergencyControlComplete");    
         const voteForEmergencyControlCompleteOperation : operation = Tezos.transaction(
-            (voteForEmergencyControlCompleteCallback),
+            (Tezos.sender, voteForEmergencyControlCompleteCallback),
             0tez, 
             fetchMvkBalance(s.mvkTokenAddress)
             );
-        
-        const operations : list(operation) = list [voteForEmergencyControlCompleteOperation];
+
+        operations := voteForEmergencyControlCompleteOperation # operations;
 
     } else skip;
 
-} with (noOperations, s)
+} with (operations, s)
 
-function voteForEmergencyControlComplete(mvkBalance : nat; var s : storage) : return is 
+function voteForEmergencyControlComplete(const mvkBalance : nat; var s : storage) : return is 
 block {
 
-    checkSenderIsMvkTokenContract(unit);
+    // checkSenderIsMvkTokenContract(unit);
 
     var emergencyGovernance : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of 
         | None -> failwith("Error. Emergency governance record not found.")
@@ -189,9 +213,10 @@ block {
 
     emergencyGovernance.voters[Tezos.source] := (mvkBalance, Tezos.now);
     emergencyGovernance.totalMvkVotes := emergencyGovernance.totalMvkVotes + mvkBalance;
+    s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := emergencyGovernance;
 
-    // check if total votes has exceed threshold 
-    // - trigger operation to break glass contract
+    // check if total votes has exceed threshold - if yes, trigger operation to break glass contract
+    var operations : list(operation) := nil;
     if emergencyGovernance.totalMvkVotes > emergencyGovernance.minTotalMvkRequired then block {
 
         // trigger break glass
@@ -201,13 +226,11 @@ block {
             triggerBreakGlass(s.breakGlassContractAddress)
             );
         
-        const operations : list(operation) = list [triggerBreakGlassOperation];
+        operations := triggerBreakGlassOperation # operations;
 
     } else skip;
 
-    s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := emergencyGovernance;
-
-} with (noOperations, s)
+} with (operations, s)
  
 function dropEmergencyGovernance(var s : storage) : return is 
 block {
@@ -232,9 +255,10 @@ block {
 
 function main (const action : emergencyGovernanceAction; const s : storage) : return is 
     case action of
+        | SetBreakGlassContractAddress(parameters) -> setBreakGlassContractAddress(parameters, s)
         | TriggerEmergencyControl(parameters) -> triggerEmergencyControl(parameters.0, parameters.1, s)
-        | VoteForEmergencyControl(parameters) -> voteForEmergencyControl(paramters.0, s)
-        | VoteForEmergencyControlComplete(parameters) -> voteForEmergencyControlComplete(parameters.0, s)
+        | VoteForEmergencyControl(parameters) -> voteForEmergencyControl(parameters, s)
+        | VoteForEmergencyControlComplete(parameters) -> voteForEmergencyControlComplete(parameters, s)
         | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
         | DropEmergencyGovernance(_parameters) -> dropEmergencyGovernance(s)
     end
