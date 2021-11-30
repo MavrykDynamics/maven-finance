@@ -49,9 +49,6 @@ type snapshotRecordType is record [
 ]
 type snapshotLedgerType is big_map (address, snapshotRecordType);
 
-
-// type satelliteSetType is set(address);
-
 type configType is record [
     
     successReward               : nat;  // incentive reward for successful proposal
@@ -72,8 +69,6 @@ type configType is record [
     blocksPerProposalRound      : nat;  // to determine duration of proposal round
     blocksPerVotingRound        : nat;  // to determine duration of voting round
 ]
-
-// type currentRoundHighestVotedProposalIdType is proposalRecordType | unit;
 
 type storage is record [
     admin                       : address;
@@ -104,6 +99,7 @@ type storage is record [
 ]
 
 type governanceAction is 
+    | SetAdmin of (address)
     | SetDelegationAddress of (address)
     | StartProposalRound of (unit)
 
@@ -123,7 +119,7 @@ type governanceAction is
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
 
-// admin helper functions begin ---------------------------------------------------------------------------------
+// admin helper functions begin --
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
@@ -139,9 +135,9 @@ function checkSenderIsMvkTokenContract(var s : storage) : unit is
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
-// admin helper functions end -----------------------------------------------------------------------------------
+// admin helper functions end --
 
-// helper functions begin: --------------------------------------------------------------------------------------
+// helper functions begin: --
 
 // helper function to fetch satellite's balance and total delegated amount from delegation contract
 function fetchSatelliteBalanceAndTotalDelegatedAmount(const tokenAddress : address) : contract(address * contract(address * nat * nat)) is
@@ -180,9 +176,99 @@ function getTokenTotalSupply(const tokenAddress : address) : contract(contract(n
   | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(contract(nat)))
   end;
 
-// helper functions end: --------------------------------------------------------------------------------------
+  function setProposalRecordVote(const voteType : nat; const totalVotingPower : nat; var _proposal : proposalRecordType) : proposalRecordType is
+  block {
 
-// housekeeping functions begin: --------------------------------------------------------------------------------
+        if voteType = 1n then block {
+            _proposal.upvoteCount := _proposal.upvoteCount + 1n;    
+            _proposal.upvoteMvkTotal := _proposal.upvoteMvkTotal + totalVotingPower;
+            _proposal.quorumMvkTotal := _proposal.quorumMvkTotal + totalVotingPower;
+        } else skip;
+
+        if voteType = 0n then block {
+            _proposal.downvoteCount := _proposal.downvoteCount + 1n;    
+            _proposal.downvoteMvkTotal := _proposal.downvoteMvkTotal + totalVotingPower;
+        } else skip;
+
+        if voteType = 2n then block {
+            _proposal.abstainCount := _proposal.abstainCount + 1n;    
+            _proposal.abstainMvkTotal := _proposal.abstainMvkTotal + totalVotingPower;
+        } else skip;
+
+        _proposal.quorumCount := _proposal.quorumCount + 1n;
+
+  } with _proposal
+
+  function unsetProposalRecordVote(const voteType : nat; const totalVotingPower : nat; var _proposal : proposalRecordType) : proposalRecordType is 
+  block {
+        
+        if voteType = 1n then block {
+            
+            var upvoteCount     : nat := 0n;
+            var upvoteMvkTotal  : nat := 0n;
+            var quorumMvkTotal  : nat := 0n;
+
+            if _proposal.upvoteCount < 1n then upvoteCount := 0n
+              else upvoteCount := abs(_proposal.upvoteCount - 1n);
+
+            if _proposal.upvoteMvkTotal < totalVotingPower then upvoteMvkTotal := 0n
+              else upvoteMvkTotal := abs(_proposal.upvoteMvkTotal - totalVotingPower);
+
+            if _proposal.quorumMvkTotal < totalVotingPower then quorumMvkTotal := 0n
+              else quorumMvkTotal := abs(_proposal.quorumMvkTotal - totalVotingPower);              
+
+            _proposal.upvoteCount    := upvoteCount;
+            _proposal.upvoteMvkTotal := upvoteMvkTotal;
+            _proposal.quorumMvkTotal := quorumMvkTotal;
+
+        } else skip;
+
+        if voteType = 0n then block {
+
+            var downvoteCount     : nat := 0n;
+            var downvoteMvkTotal  : nat := 0n;
+
+            if _proposal.downvoteCount < 1n then downvoteCount := 0n
+              else downvoteCount := abs(_proposal.downvoteCount - 1n);
+
+            if _proposal.downvoteMvkTotal < totalVotingPower then downvoteMvkTotal := 0n
+              else downvoteMvkTotal := abs(_proposal.downvoteMvkTotal - totalVotingPower);
+
+            _proposal.downvoteCount     := downvoteCount;
+            _proposal.downvoteMvkTotal  := downvoteMvkTotal;
+
+        } else skip;
+
+        if voteType = 2n then block {
+
+            var abstainCount : nat := 0n;
+            var abstainMvkTotal : nat := 0n;
+
+            if _proposal.abstainCount < 1n then abstainCount := 0n
+              else abstainCount := abs(_proposal.abstainCount - 1n);
+
+            if _proposal.abstainMvkTotal < totalVotingPower then abstainMvkTotal := 0n
+              else abstainMvkTotal := abs(_proposal.abstainMvkTotal - totalVotingPower);
+
+            _proposal.abstainCount      := abstainCount;
+            _proposal.abstainMvkTotal   := abstainMvkTotal;
+
+        } else skip;
+
+  } with _proposal
+
+// helper functions end: --
+
+// housekeeping functions begin: --
+
+(*  set contract admin address *)
+function setAdmin(const _parameters : address; var s : storage) : return is
+block {
+    // checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    // checkSenderIsAdmin(s); // check that sender is admin
+    // s.admin := parameters;
+    skip
+} with (noOperations, s)
 
 // set delegation contract address
 function setDelegationAddress(const parameters : address; var s : storage) : return is
@@ -201,13 +287,13 @@ block {
 
     // var minQuorumPercentage : nat := s.config.minQuorumPercentage; // e.g. 5% -> 500
 
-    // var minQuorumMvkTotal : nat := abs(minQuorumPercentage * totalSupply / 10_000);
+    // var minQuorumMvkTotal : nat := abs(minQuorumPercentage * totalSupply / 100_000);
 
     // s.config.minQuorumMvkTotal := minQuorumMvkTotal;
 
 } with (noOperations, s)
 
-// housekeeping functions end: --------------------------------------------------------------------------------
+// housekeeping functions end: --
 
 function updateActiveSatellitesMap(const satelliteAddress : address; var s : storage) is 
 block {
@@ -607,23 +693,8 @@ block {
         
         _proposal.voters[Tezos.sender] := (voteType, satelliteSnapshot.totalVotingPower, Tezos.now);
 
-        if voteType = 1n then block {
-            _proposal.upvoteCount := _proposal.upvoteCount + 1n;    
-            _proposal.upvoteMvkTotal := _proposal.upvoteMvkTotal + satelliteSnapshot.totalVotingPower;
-            _proposal.quorumMvkTotal := _proposal.quorumMvkTotal + satelliteSnapshot.totalVotingPower;
-        } else skip;
-
-        if voteType = 0n then block {
-            _proposal.downvoteCount := _proposal.downvoteCount + 1n;    
-            _proposal.downvoteMvkTotal := _proposal.downvoteMvkTotal + satelliteSnapshot.totalVotingPower;
-        } else skip;
-
-        if voteType = 2n then block {
-            _proposal.abstainCount := _proposal.abstainCount + 1n;    
-            _proposal.abstainMvkTotal := _proposal.abstainMvkTotal + satelliteSnapshot.totalVotingPower;
-        } else skip;
-
-        _proposal.quorumCount := _proposal.quorumCount + 1n;
+        // set proposal record based on vote type 
+        var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
         
         // update proposal with new vote changes
         s.proposalLedger[proposalId] := _proposal;
@@ -646,37 +717,11 @@ block {
         // save new vote
         _proposal.voters[Tezos.sender] := (voteType, satelliteSnapshot.totalVotingPower, Tezos.now);
 
-        if voteType = 1n then block {
-            _proposal.upvoteCount := _proposal.upvoteCount + 1n;    
-            _proposal.upvoteMvkTotal := _proposal.upvoteMvkTotal + satelliteSnapshot.totalVotingPower;
-            _proposal.quorumMvkTotal := _proposal.quorumMvkTotal + satelliteSnapshot.totalVotingPower;
-        } else skip;
+        // set proposal record based on vote type 
+        var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
 
-        if voteType = 0n then block {
-            _proposal.downvoteCount := _proposal.downvoteCount + 1n;    
-            _proposal.downvoteMvkTotal := _proposal.downvoteMvkTotal + satelliteSnapshot.totalVotingPower;
-        } else skip;
-
-        if voteType = 2n then block {
-            _proposal.abstainCount := _proposal.abstainCount + 1n;    
-            _proposal.abstainMvkTotal := _proposal.abstainMvkTotal + satelliteSnapshot.totalVotingPower;
-        } else skip;
-
-        if previousVoteType = 1n then block {
-            _proposal.upvoteCount := abs(_proposal.upvoteCount - 1n);    
-            _proposal.upvoteMvkTotal := abs(_proposal.upvoteMvkTotal - satelliteSnapshot.totalVotingPower);
-            _proposal.quorumMvkTotal := abs(_proposal.quorumMvkTotal - satelliteSnapshot.totalVotingPower);
-        } else skip;
-
-        if previousVoteType = 0n then block {
-            _proposal.downvoteCount := abs(_proposal.downvoteCount - 1n);    
-            _proposal.downvoteMvkTotal := abs(_proposal.downvoteMvkTotal - satelliteSnapshot.totalVotingPower);
-        } else skip;
-
-        if previousVoteType = 2n then block {
-            _proposal.abstainCount := abs(_proposal.abstainCount - 1n);    
-            _proposal.abstainMvkTotal := abs(_proposal.abstainMvkTotal - satelliteSnapshot.totalVotingPower);
-        } else skip;
+        // unset previous vote in proposal record
+        var _proposal : proposalRecordType := unsetProposalRecordVote(previousVoteType, satelliteSnapshot.totalVotingPower, _proposal);
         
         // update proposal with new vote changes
         s.proposalLedger[proposalId] := _proposal;
@@ -693,7 +738,7 @@ block {
     skip
 } with (noOperations, s)
 
-function dropProposal(const proposalId : nat; var s : storage) : return is 
+function dropProposal(const _proposalId : nat; var s : storage) : return is 
 block {
     // Steps Overview: 
     // 1. verify that proposal is in the current round / cycle
@@ -701,35 +746,36 @@ block {
     // 3. change status of proposal to drop
 
     // check if satellite exists in the active satellites map
-    const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
-    if activeSatelliteExistsFlag = False then failwith("You need to be a satellite to make a governance action.")
-      else skip;
+    // const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
+    // if activeSatelliteExistsFlag = False then failwith("You need to be a satellite to make a governance action.")
+    //   else skip;
 
-    // check if proposal exists in the current round's proposals
-    const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentRoundProposals);
-    if checkProposalExistsFlag = False then failwith("Error: Proposal not found in the current round.")
-      else skip;
+    // // check if proposal exists in the current round's proposals
+    // const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentRoundProposals);
+    // if checkProposalExistsFlag = False then failwith("Error: Proposal not found in the current round.")
+    //   else skip;
 
-    var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of
-        None -> failwith("Error: Proposal not found in the proposal ledger.")
-        | Some(_proposal) -> _proposal        
-    end;
+    // var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of
+    //     None -> failwith("Error: Proposal not found in the proposal ledger.")
+    //     | Some(_proposal) -> _proposal        
+    // end;
 
-    // verify that proposal has not been dropped already
-    if _proposal.status = 0n then failwith("Error: Proposal has already been dropped.")
-      else skip;
+    // // verify that proposal has not been dropped already
+    // if _proposal.status = 0n then failwith("Error: Proposal has already been dropped.")
+    //   else skip;
 
-    if _proposal.proposerAddress = Tezos.sender then block {
-        _proposal.status              := 0n;
-        s.proposalLedger[proposalId]  := _proposal;
-    } else failwith("Error: You are not allowed to drop this proposal.")
+    // if _proposal.proposerAddress = Tezos.sender then block {
+    //     _proposal.status              := 0n;
+    //     s.proposalLedger[proposalId]  := _proposal;
+    // } else failwith("Error: You are not allowed to drop this proposal.")
+
+    skip
     
-    // skip
-
 } with (noOperations, s)
 
 function main (const action : governanceAction; const s : storage) : return is 
     case action of
+        | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | SetDelegationAddress(parameters) -> setDelegationAddress(parameters, s)  
   
         | StartProposalRound(_parameters) -> startProposalRound(s)

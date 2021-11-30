@@ -16,7 +16,7 @@ type registerAsSatelliteCompleteParamsType  is (string * string * string * nat *
 
 // record for satellites
 type satelliteRecordType is record [
-    status                : nat;        // active: 1; inactive: 0
+    status                : nat;        // active: 1; inactive: 0; 
     mvkBalance            : nat;        // bondAmount -> MVK Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
     totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
@@ -57,12 +57,12 @@ type storage is record [
     breakGlassConfig     : breakGlassConfigType;
     delegateLedger       : delegateLedgerType;
     satelliteLedger      : satelliteLedgerType;
-    vMvkTokenAddress     : address;
-    sMvkTokenAddress     : address;    
+    vMvkTokenAddress     : address;   
     governanceAddress    : address;
 ]
 
 type delegationAction is 
+    | SetAdmin of (address)
     | SetVMvkTokenAddress of (address)
     | SetGovernanceAddress of (address)
 
@@ -219,6 +219,20 @@ function getDelegateRecord (const userAddress : address; const s : storage) : de
 // helper functions end: ----------------------------------------------------------------------------------------
 
 // housekeeping functions begin: --------------------------------------------------------------------------------
+
+(*  set contract admin address *)
+function setAdmin(const parameters : address; var s : storage) : return is
+block {
+
+    // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.admin := parameters;
+
+} with (noOperations, s)
 
 // set vMvk contract address
 function setVMvkTokenAddress(const parameters : address; var s : storage) : return is
@@ -717,16 +731,15 @@ block {
 
 function main (const action : delegationAction; const s : storage) : return is 
     case action of    
+        | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
         | SetGovernanceAddress(parameters) -> setGovernanceAddress(parameters, s)  
 
         | TogglePauseDelegateToSatellite(_parameters) -> togglePauseDelegateToSatellite(s)
         | TogglePauseUndelegateSatellite(_parameters) -> togglePauseUndelegateSatellite(s)
-        
         | TogglePauseRegisterSatellite(_parameters) -> togglePauseRegisterSatellite(s)
         | TogglePauseUnregisterSatellite(_parameters) -> togglePauseUnregisterSatellite(s)
         | TogglePauseUpdateSatellite(_parameters) -> togglePauseUpdateSatellite(s)
-
         | PauseAll(_parameters) -> pauseAll(s)
         | UnpauseAll(_parameters) -> unpauseAll(s)
         

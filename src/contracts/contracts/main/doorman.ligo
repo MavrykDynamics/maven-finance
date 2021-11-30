@@ -39,8 +39,12 @@ type stakeAction is
     | Unstake of (nat)
     | UnstakeComplete of (nat)
     | SetAdmin of (address)
+
+    | PauseAll of (unit)
+    | UnpauseAll of (unit)
     | TogglePauseStake of (unit)
     | TogglePauseUnstake of (unit)
+
     | SetMvkTokenAddress of (address)
     | SetVMvkTokenAddress of (address)
     | SetDelegationAddress of (address)
@@ -66,7 +70,6 @@ function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
 // admin helper functions end ---------------------------------------------------------
-
 
 // helper function to get token total supply (works for either MVK and vMVK)
 function getTokenTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
@@ -148,6 +151,35 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(ud
 
 
 // break glass toggle entrypoints begin ---------------------------------------------------------
+
+function pauseAll(var s : storage) : return is
+block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    // set all pause configs to True
+
+    if s.breakGlassConfig.stakeIsPaused then skip
+      else s.breakGlassConfig.stakeIsPaused := True;
+
+    if s.breakGlassConfig.unstakeIsPaused then skip
+      else s.breakGlassConfig.unstakeIsPaused := True;
+
+} with (noOperations, s)
+
+function unpauseAll(var s : storage) : return is
+block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    // set all pause configs to False
+    if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
+      else skip;
+
+    if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
+      else skip;
+
+} with (noOperations, s)
 
 function togglePauseStake(var s : storage) : return is
 block {
@@ -313,10 +345,10 @@ block {
     else skip;
 
   // update temp MVK total supply
-  const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
-  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(setTempMvkTotalSupplyCallback,0tez, getTokenTotalSupply(s.mvkTokenAddress));
+  // const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
+  // const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(setTempMvkTotalSupplyCallback,0tez, getTokenTotalSupply(s.mvkTokenAddress));
 
-  // const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unit, 0tez, updateMvkTotalSupplyForDoorman(s.mvkTokenAddress));
+  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unit, 0tez, updateMvkTotalSupplyForDoorman(s.mvkTokenAddress));
   const updateVMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, updateVMvkTotalSupplyForDoorman(s.vMvkTokenAddress));
 
   // list of operations: get MVK total supply first, then get vMVK total supply (which will trigger unstake complete)
@@ -425,8 +457,12 @@ function main (const action : stakeAction; const s : storage) : return is
   | Unstake(parameters) -> unstake(parameters, s)  
   | UnstakeComplete(parameters) -> unstakeComplete(parameters, s)  
   | SetAdmin(parameters) -> setAdmin(parameters, s)  
+
+  | PauseAll(_parameters) -> pauseAll(s)
+  | UnpauseAll(_parameters) -> unpauseAll(s)
   | TogglePauseStake(_parameters) -> togglePauseStake(s)
   | TogglePauseUnstake(_parameters) -> togglePauseUnstake(s)
+
   | SetMvkTokenAddress(parameters) -> setMvkTokenAddress(parameters, s)  
   | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
   | SetDelegationAddress(parameters) -> setDelegationAddress(parameters, s)  
