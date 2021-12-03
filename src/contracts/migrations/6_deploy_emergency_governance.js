@@ -7,11 +7,12 @@ const saveContractAddress = require('../helpers/saveContractAddress')
 
 const mvkTokenAddress = require('../deployments/mvkTokenAddress')
 const vMvkTokenAddress = require('../deployments/vMvkTokenAddress')
+const governanceAddress = require('../deployments/governanceAddress')
 
 const adminAddress     = alice.pkh;
 const configType        = {
     voteDuration: 2880,                    // 1 day
-    minMvkPercentageForTrigger: 10000,    // 10%
+    minStakedMvkPercentageForTrigger: 10000,    // 10%
     requiredFee: 10                
 };
 
@@ -23,6 +24,7 @@ const initialStorage = {
 
   mvkTokenAddress : mvkTokenAddress,
   breakGlassContractAddress : vMvkTokenAddress,
+  governanceContractAddress : governanceAddress,
   treasuryAddress : mvkTokenAddress, // placeholder until treasury is completed
 
   tempMvkTotalSupply : 0,

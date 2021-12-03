@@ -30,6 +30,7 @@ type storage is record [
     
     mvkTokenAddress             : address;  
     breakGlassContractAddress   : address; 
+    governanceContractAddress   : address; 
     treasuryAddress             : address;
     
     tempMvkTotalSupply            : nat;           // at point where emergency control is triggered
@@ -80,13 +81,13 @@ function fetchMvkBalance(const tokenAddress : address) : contract(address * cont
   | None -> (failwith("GetBalance entrypoint in MVK Token Contract not found") : contract(address * contract(nat)))
   end;
 
-// helper function to get User's MVK balance from MVK token address
-function triggerBreakGlass(const tokenAddress : address) : contract(unit) is
+// helper function to break glass in the governance or breakGlass contract
+function triggerBreakGlass(const contractAddress : address) : contract(unit) is
   case (Tezos.get_entrypoint_opt(
       "%breakGlass",
-      tokenAddress) : option(contract(unit))) of
+      contractAddress) : option(contract(unit))) of
     Some(contr) -> contr
-  | None -> (failwith("breakGlass entrypoint in Break Glass Token Contract not found") : contract(unit))
+  | None -> (failwith("breakGlass entrypoint in Contract not found") : contract(unit))
   end;
 
 function setBreakGlassContractAddress(const newBreakGlassContractAddress : address; var s : storage) is 
@@ -110,7 +111,7 @@ block {
         | None -> failwith("Emergency Governance Record not found.")
     end;
 
-    var minTotalMvkRequired : nat := abs(s.config.minMvkPercentageForTrigger * totalSupply / 100_000);
+    var minTotalMvkRequired : nat := abs(s.config.minStakedMvkPercentageForTrigger * totalSupply / 100_000);
 
     emergencyGovernanceRecord.minTotalMvkRequired := minTotalMvkRequired;
     s.emergencyGovernanceLedger[emergencyGovernanceProposalId] := emergencyGovernanceRecord;    
@@ -137,7 +138,7 @@ block {
         description                = description; 
         voters                     = emptyVotersMap;
         totalMvkVotes              = 0n;
-        minMvkRequiredPercentage   = s.config.minMvkPercentageForTrigger;  // capture state of min required vMVK vote percentage (e.g. 5% - as min required votes may change over time)
+        minStakedMvkRequiredPercentage   = s.config.minStakedMvkPercentageForTrigger;  // capture state of min required vMVK vote percentage (e.g. 5% - as min required votes may change over time)
         minTotalMvkRequired        = 0n;
         startDateTime              = Tezos.now;
 
@@ -219,14 +220,21 @@ block {
     var operations : list(operation) := nil;
     if emergencyGovernance.totalMvkVotes > emergencyGovernance.minTotalMvkRequired then block {
 
-        // trigger break glass
+        // trigger break glass - set glassbroken to true in breakglass contract to give council members access to protected entrypoints
         const triggerBreakGlassOperation : operation = Tezos.transaction(
             unit,
             0tez, 
             triggerBreakGlass(s.breakGlassContractAddress)
             );
+
+        const triggerGovernanceBreakGlassOperation : operation = Tezos.transaction(
+            unit,
+            0tez, 
+            triggerBreakGlass(s.governanceContractAddress)
+            );
         
         operations := triggerBreakGlassOperation # operations;
+        operations := triggerGovernanceBreakGlassOperation # operations;
 
     } else skip;
 

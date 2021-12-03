@@ -14,24 +14,24 @@ const governanceAddress = require('../deployments/governanceAddress')
 
 const adminAddress     = alice.pkh;
 const configType        = {
-    doormanContractAddress: doormanAddress,                   
-    delegationContractAddress: delegationAddress,   
-    governanceContractAddress: governanceAddress                
+    threshold : 3,
+    actionExpiryDuration: 2880,
+    developerAddress : adminAddress,
+    emergencyGovernanceAddress : emergencyGovernanceAddress,
 };
 
 const initialStorage = {
   admin : adminAddress,
   config : configType, 
-  developerAddress : adminAddress,
-  emergencyGovernanceAddress : emergencyGovernanceAddress,
+  contractAddresses : new MichelsonMap,
   glassBroken : false,
   councilMembers : [],
-  threshold : 3,
+  
   currentActionId : 0,
   nextActionId : 1,
   actionLedger : new MichelsonMap(),
   flushLedger : new MichelsonMap(),
-  actionExpiryDuration: 2880
+  
 }
 
 module.exports = async (deployer, network, accounts) => {
