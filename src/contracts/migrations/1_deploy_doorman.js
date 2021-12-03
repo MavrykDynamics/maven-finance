@@ -4,7 +4,9 @@ const { MichelsonMap } = require('@taquito/michelson-encoder')
 const { alice } = require('../scripts/sandbox/accounts')
 const saveContractAddress = require('../helpers/saveContractAddress')
 
-const userStakeLedger = MichelsonMap.fromLiteral({});
+const userStakeRecordsLedger = MichelsonMap.fromLiteral({});
+const userStakeBalanceLedger = MichelsonMap.fromLiteral({});
+
 const adminAddress = alice.pkh
 const tempMvkTotalSupply = '1000000000'
 const tempVMvkTotalSupply = '1000000000'
@@ -19,10 +21,13 @@ const initialStorage = {
   breakGlassConfig : breakGlassConfigType,
   mvkTokenAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk',  // TODO: Change to empty address + call setAddress after token deployed
   vMvkTokenAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after token deployed
-  delegationAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after token deployed
-  userStakeLedger: userStakeLedger,
+  delegationAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after contract deployed
+  exitFeePoolAddress: 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // TODO: Change to empty address + call setAddress after contract deployed
+  userStakeRecordsLedger: userStakeRecordsLedger,
+  userStakeBalanceLedger: userStakeBalanceLedger,
   tempMvkTotalSupply: tempMvkTotalSupply,
   tempVMvkTotalSupply: tempVMvkTotalSupply,
+  stakedMvkTotalSupply: '0',
   logExitFee: '1',
   logFinalAmount: '1',
 }

@@ -6,7 +6,7 @@ const { alice, bob } = require('../scripts/sandbox/accounts')
 const saveContractAddress = require('../helpers/saveContractAddress')
 const doormanAddress = require('../deployments/doormanAddress')
 
-const initialSupply = '10000000000000' // 10,000,000 MVK Tokens in mu (10^6)
+const initialSupply = '1000000000' // 1,000 MVK Tokens in mu (10^6)
 
 const metadata = MichelsonMap.fromLiteral({
   '': Buffer('tezos-storage:data', 'ascii').toString('hex'),
