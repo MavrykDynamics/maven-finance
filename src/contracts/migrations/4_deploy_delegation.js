@@ -7,6 +7,7 @@ const { MichelsonMap } = require('@taquito/michelson-encoder')
 const { alice } = require('../scripts/sandbox/accounts')
 const saveContractAddress = require('../helpers/saveContractAddress')
 const vMvkTokenAddress = require('../deployments/vMvkTokenAddress')
+const doormanAddress = require('../deployments/doormanAddress')
 
 const delegateLedger   = MichelsonMap.fromLiteral({});
 const satelliteLedger  = MichelsonMap.fromLiteral({});
@@ -30,7 +31,8 @@ const initialStorage = {
   breakGlassConfig: breakGlassConfigType,
   delegateLedger : delegateLedger,
   satelliteLedger : satelliteLedger,
-  vMvkTokenAddress : vMvkTokenAddress,
+  // vMvkTokenAddress : vMvkTokenAddress,
+  doormanAddress: doormanAddress,
   governanceAddress : vMvkTokenAddress // update on governance deployment
 }
 
@@ -39,8 +41,8 @@ module.exports = async (deployer, network, accounts) => {
   const deployedDelegationContract = await delegationContract.deployed()
 
   //   Set delegation address in vMVK
-  const deployedVMvkToken = await vMvkTokenContract.deployed()
-  await deployedVMvkToken.setDelegationTokenAddress(deployedDelegationContract.address)
+  // const deployedVMvkToken = await vMvkTokenContract.deployed()
+  // await deployedVMvkToken.setDelegationTokenAddress(deployedDelegationContract.address)
 
   // Set delegation address in Doorman
   const deployedDoorman = await doormanContract.deployed()
