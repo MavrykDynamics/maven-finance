@@ -44,8 +44,9 @@ type entryAction is
   | GetBalance of balanceParams
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
-  | UpdateMvkTotalSupplyForDoorman of (unit)
+  | UpdateMvkTotalSupplyForDoorman of (nat)
   | Mint of mintParams
+  | UpdateUserBalance of mintParams
   | Burn of burnParams
 
 (* Helper function to get account *)
@@ -70,6 +71,16 @@ function setTempMvkTotalSupplyInDoorman(const tokenAddress : address) : contract
     Some(contr) -> contr
   | None -> (failwith("SetTempMvkTotalSupply entrypoint not found") : contract(nat))
   end;
+
+(*  helper function to UnstakeComplete in Doorman module *)
+function unstakeCompleteInDoorman(const tokenAddress : address) : contract(nat) is
+  case (Tezos.get_entrypoint_opt(
+      "%unstakeComplete",
+      tokenAddress) : option(contract(nat))) of
+    Some(contr) -> contr
+  | None -> (failwith("unstakeComplete entrypoint in Doorman Contract not found") : contract(nat))
+  end;
+
 
 (* Helper function to get allowance for an account *)
 function getAllowance (const ownerAccount : account; const spender : address; const _s : storage) : amt is
@@ -161,7 +172,7 @@ function getTotalSupply (const contr : contract(amt); var s : storage) : return 
     skip
   } with (list [transaction(s.totalSupply, 0tz, contr)], s)
 
-function updateMvkTotalSupplyForDoorman (var s : storage) : return is
+function updateMvkTotalSupplyForDoorman (const unstakeAmount : nat; var s : storage) : return is
   block {
 
     (* Check this call is comming from the doorman contract *)
@@ -170,9 +181,33 @@ function updateMvkTotalSupplyForDoorman (var s : storage) : return is
     else skip;
 
     const setTempMvkTotalSupplyInDoormanOperation : operation = Tezos.transaction(s.totalSupply, 0tez, setTempMvkTotalSupplyInDoorman(s.doormanAddress));
-    const operations : list (operation) = list [setTempMvkTotalSupplyInDoormanOperation];
+
+    const unstakeCompleteOperation : operation = Tezos.transaction(unstakeAmount, 0tez, unstakeCompleteInDoorman(s.doormanAddress));
+
+    const operations : list (operation) = list [setTempMvkTotalSupplyInDoormanOperation; unstakeCompleteOperation];
 
   } with (operations, s)
+
+(* Mint tokens to an address, only callable by the doorman contract *)
+function updateUserBalance (const to_ : address; const value : amt; var s : storage) : return is
+  block {
+    (* Retrieve target account from storage *)
+    var targetAccount : account := getAccount(to_, s);
+
+    (* Check this call is comming from the doorman contract *)
+    if s.doormanAddress =/= Tezos.sender then
+      failwith("NotAuthorized")
+    else skip;
+
+    (* Update sender balance *)
+    targetAccount.balance := targetAccount.balance + value;
+
+    // dont need to increase total supply
+    // s.totalSupply := s.totalSupply + value;
+
+    (* Update storage *)
+    s.ledger[to_] := targetAccount;
+  } with (noOperations, s)
 
 (* Mint tokens to an address, only callable by the doorman contract *)
 function mint (const to_ : address; const value : amt; var s : storage) : return is
@@ -232,8 +267,9 @@ function main (const action : entryAction; var s : storage) : return is
     | GetBalance(params) -> getBalance(params.0, params.1, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)
-    | UpdateMvkTotalSupplyForDoorman(_params) -> updateMvkTotalSupplyForDoorman(s)
+    | UpdateMvkTotalSupplyForDoorman(params) -> updateMvkTotalSupplyForDoorman(params, s)
     | Mint(params) -> mint(params.0, params.1, s)
+    | UpdateUserBalance(params) -> updateUserBalance(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
 
   end;
