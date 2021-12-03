@@ -24,7 +24,7 @@ type storage is record [
     admin                 : address;
     breakGlassConfig      : breakGlassConfigType;
     mvkTokenAddress       : address; 
-    vMvkTokenAddress      : address;
+    // vMvkTokenAddress      : address;
     delegationAddress     : address;
     exitFeePoolAddress    : address;
     
@@ -42,6 +42,9 @@ type storage is record [
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
 
+type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
+type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
+
 type stakeAction is 
     | Stake of (nat)
     | Unstake of (nat)
@@ -54,8 +57,11 @@ type stakeAction is
     | TogglePauseStake of (unit)
     | TogglePauseUnstake of (unit)
 
+    | GetStakedBalance of (address * contract(nat))
+    | GetSatelliteBalance of getSatelliteBalanceType
+
     | SetMvkTokenAddress of (address)
-    | SetVMvkTokenAddress of (address)
+    // | SetVMvkTokenAddress of (address)
     | SetDelegationAddress of (address)
     | SetExitFeePoolAddress of (address)
     | SetTempMvkTotalSupply of (nat)
@@ -72,9 +78,9 @@ function checkSenderIsMvkTokenContract(var s : storage) : unit is
     if (Tezos.sender = s.mvkTokenAddress) then unit
     else failwith("Only the MVK Token Contract can call this entrypoint.");
 
-function checkSenderIsVMvkTokenContract(var s : storage) : unit is
-    if (Tezos.sender = s.vMvkTokenAddress) then unit
-    else failwith("Only the vMVK Token Contract can call this entrypoint.");
+// function checkSenderIsVMvkTokenContract(var s : storage) : unit is
+//     if (Tezos.sender = s.vMvkTokenAddress) then unit
+//     else failwith("Only the vMVK Token Contract can call this entrypoint.");
 
 function checkSenderIsExitFeePoolContract(var s : storage) : unit is
     if (Tezos.sender = s.exitFeePoolAddress) then unit
@@ -104,13 +110,13 @@ function updateMvkTotalSupplyForDoorman(const tokenAddress : address) : contract
   end;
 
 // helper function to get vMVK total supply (type is different from getMvkTotalSupplyProxy)
-function updateVMvkTotalSupplyForDoorman(const tokenAddress : address) : contract(nat) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateVMvkTotalSupplyForDoorman",
-      tokenAddress) : option(contract(nat))) of
-    Some(contr) -> contr
-  | None -> (failwith("UpdateVMvkTotalSupplyForDoorman entrypoint in vMVK Token Contract not found") : contract(nat))
-  end;
+// function updateVMvkTotalSupplyForDoorman(const tokenAddress : address) : contract(nat) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%updateVMvkTotalSupplyForDoorman",
+//       tokenAddress) : option(contract(nat))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("UpdateVMvkTotalSupplyForDoorman entrypoint in vMVK Token Contract not found") : contract(nat))
+//   end;
 
 // helper function to get burn entrypoint from token address
 function getBurnEntrypointFromTokenAddress(const tokenAddress : address) : contract(burnTokenType) is
@@ -269,18 +275,39 @@ block {
     s.exitFeePoolAddress := parameters;
 } with (noOperations, s)
 
+
+(* View function that forwards the balance of source to a contract *)
+function getStakedBalance (const userAddress : address; const contr : contract(nat); var s : storage) : return is
+  block {
+    var userBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[userAddress] of
+          Some(_val) -> _val
+          | None -> 0n
+      end;
+
+  } with (list [transaction(userBalanceInStakeBalanceLedger, 0tz, contr)], s)
+
+(* View function that forwards the balance of satellite with satellite creation params to the delegation contract *)
+function getSatelliteBalance (const userAddress : address; const name : string; const description : string; const image : string; const satelliteFee : nat; const contr : contract(satelliteInfoType); var s : storage) : return is
+  block {
+    var userBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[userAddress] of
+          Some(_val) -> _val
+          | None -> 0n
+      end;
+  } with (list [transaction((name, description, image, satelliteFee, userBalanceInStakeBalanceLedger), 0tz, contr)], s)
+
+
 (* set vMvk contract address *)
-function setVMvkTokenAddress(const parameters : address; var s : storage) : return is
-block {
+// function setVMvkTokenAddress(const parameters : address; var s : storage) : return is
+// block {
 
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
+//     // entrypoint should not receive any tez amount
+//     checkNoAmount(Unit);
 
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+//     // check that sender is admin
+//     checkSenderIsAdmin(s);
 
-    s.vMvkTokenAddress := parameters;
-} with (noOperations, s)
+//     s.vMvkTokenAddress := parameters;
+// } with (noOperations, s)
 
 (* View function that forwards a user's staked balance to a contract *)
 function getStakedBalance (const owner : address; const contr : contract(nat); var s : storage) : return is
@@ -735,8 +762,11 @@ function main (const action : stakeAction; const s : storage) : return is
   | TogglePauseStake(_parameters) -> togglePauseStake(s)
   | TogglePauseUnstake(_parameters) -> togglePauseUnstake(s)
 
+  | GetStakedBalance(params) -> getStakedBalance(params.0, params.1, s)
+  | GetSatelliteBalance(params) -> getSatelliteBalance(params.0, params.1, params.2, params.3, params.4, params.5, s)
+
   | SetMvkTokenAddress(parameters) -> setMvkTokenAddress(parameters, s)  
-  | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
+  // | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
   | SetDelegationAddress(parameters) -> setDelegationAddress(parameters, s)  
   | SetExitFeePoolAddress(parameters) -> setExitFeePoolAddress(parameters, s)  
   | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)

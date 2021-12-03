@@ -149,11 +149,11 @@ contract('doorman', async() => {
         }
     });
 
-    it(`alice unstake 100 MVK tokens`, async () => {
+    it(`alice unstake 50 MVK tokens`, async () => {
         try{
 
             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-            console.log("Test: Alice unstake 100 MVK Tokens Test:") 
+            console.log("Test: Alice unstake 50 MVK Tokens Test:") 
             console.log("---") // break
             
             const beforeDoormanStorage  = await doormanInstance.storage();
@@ -203,6 +203,178 @@ contract('doorman', async() => {
             console.log('exit fee pool')
             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
             console.log(exitFeePoolStakeBalanceLedger);
+             
+        } catch(e){
+            console.log(e);
+        }
+    });
+
+    it(`bob, eve, and mallory stakes 150 MVK and unstakes 50 MVK tokens`, async () => {
+        try{
+
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log("Test: Bob, Eve, and Mallory stakes 150 MVK and unstakes 50 MVK Tokens Test:") 
+            console.log("---") // break
+            
+            const beforeDoormanStorage  = await doormanInstance.storage();
+            const beforeMvkStorage      = await mvkTokenInstance.storage();
+
+            console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 900 MVK - 900,000,000 in muMVK
+    
+            console.log("---") // break
+
+            // Bob unstake 100 MVK tokens - 100,000,000 in muMVK    
+            await signerFactory(bob.sk)
+            const bobStakeAmountOperation  = await doormanInstance.methods.stake(150000000n).send();
+            await bobStakeAmountOperation.confirmation();
+
+            const bobUnstakeAmountOperation  = await doormanInstance.methods.unstake(50000000n).send();
+            await bobUnstakeAmountOperation.confirmation();
+
+            // Eve unstake 100 MVK tokens - 100,000,000 in muMVK    
+            await signerFactory(eve.sk)
+            const eveStakeAmountOperation  = await doormanInstance.methods.stake(150000000n).send();
+            await eveStakeAmountOperation.confirmation();
+
+            const eveUnstakeAmountOperation  = await doormanInstance.methods.unstake(50000000n).send();
+            await eveUnstakeAmountOperation.confirmation();
+
+            // Mallory unstake 100 MVK tokens - 100,000,000 in muMVK    
+            await signerFactory(mallory.sk)
+            const malloryStakeAmountOperation  = await doormanInstance.methods.stake(150000000n).send();
+            await malloryStakeAmountOperation.confirmation();
+
+            const malloryUnstakeAmountOperation  = await doormanInstance.methods.unstake(50000000n).send();
+            await malloryUnstakeAmountOperation.confirmation();
+
+            afterMvkStorage     = await mvkTokenInstance.storage();
+            afterDoormanStorage = await doormanInstance.storage();
+
+            const userStakeBalanceLedger = await afterDoormanStorage.userStakeBalanceLedger;
+            const exitFeePoolStakeBalanceLedger = await afterDoormanStorage.userStakeBalanceLedger.get(exitFeePoolInstance.address);
+
+            const userStakeRecordsLedger = await afterDoormanStorage.userStakeRecordsLedger;
+            const exitFeePoolUserRecord    = await userStakeRecordsLedger.get(exitFeePoolInstance.address); // return user staking records - map(nat, stakeRecordType)
+            
+            const bobUserRecord    = await afterDoormanStorage.userStakeRecordsLedger.get(bob.pkh); // return user staking records - map(nat, stakeRecordType)
+            const bobStakeBalanceLedger = await afterDoormanStorage.userStakeBalanceLedger.get(bob.pkh);
+
+            // console.log(bobUserRecord);
+            // console.log(bobStakeBalanceLedger);
+            console.log('stake records');
+            console.log('exit fee pool address: ' + exitFeePoolInstance.address);
+            console.log(userStakeRecordsLedger);
+
+            console.log(exitFeePoolUserRecord);
+            
+            console.log("Log Exit Fee: " + afterDoormanStorage.logExitFee);
+            console.log("Log Final Amount: " + afterDoormanStorage.logFinalAmount);         
+
+            // 8,330,000 muMVK as exit fee to be distributed as rewards
+            console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 991.67 MVK - 991,670,000 in muMVK
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+
+            // assert.equal(afterMvkStorage.totalSupply, 991670000);
+            // assert.equal(afterMvkLedgerAlice.balance, 491670000);
+            // assert.equal(afterDoormanAliceStakeRecord.amount, 100000000);
+            // assert.equal(afterDoormanAliceStakeRecord.exitFee, 8330000);
+
+            console.log(afterDoormanStorage);
+            // console.log(userStakeBalanceLedger);
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log('exit fee pool')
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log(exitFeePoolStakeBalanceLedger);
+             
+        } catch(e){
+            console.log(e);
+        }
+    });
+
+    it(`test distribute exit fee`, async () => {
+        try{
+
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log("Test: Distribute exit fee:") 
+            console.log("---") // break
+            
+            // const beforeDoormanStorage  = await doormanInstance.storage();
+            // const beforeMvkStorage      = await mvkTokenInstance.storage();
+
+            // console.log("Before MVK Storage Total Supply: "  + beforeMvkStorage.totalSupply);   // return 900 MVK - 900,000,000 in muMVK
+    
+            console.log("---") // break
+
+            // const aliceStakeBalanceLedger = await beforeDoormanStorage.userStakeBalanceLedger.get(alice.pkh);
+            // const bobStakeBalanceLedger = await beforeDoormanStorage.userStakeBalanceLedger.get(bob.pkh);
+            // const eveStakeBalanceLedger = await beforeDoormanStorage.userStakeBalanceLedger.get(eve.pkh);
+            // const malloryStakeBalanceLedger = await beforeDoormanStorage.userStakeBalanceLedger.get(mallory.pkh);
+
+            // console.log(aliceStakeBalanceLedger);   // 50 staked MVK - 0.142857 - 14.2857%
+            // console.log(bobStakeBalanceLedger);     // 100 staked MVK - 0.2857142 - 28.57142%
+            // console.log(eveStakeBalanceLedger);     // 100 staked MVK - 0.2857142 - 28.57142%
+            // console.log(malloryStakeBalanceLedger); // 100 staked MVK - 0.2857142 - 28.57142%
+            
+            // amount in exit fee reward pool - 36360000 - 36.36 MVK 
+            // alice to receive 14.2857% * 36360000 = 5194285.714 -> 5.194 MVK
+
+            await signerFactory(alice.sk)
+            // const distributeExitFeeOperation  = await doormanInstance.methods.distributeExitFeeReward(alice.pkh, 5194285).send();
+            // await distributeExitFeeOperation.confirmation();
+
+            const distributeExitFeeOperation  = await exitFeePoolInstance.methods.distribute(alice.pkh, 5194285).send();
+            await distributeExitFeeOperation.confirmation();
+
+
+            const operationEstimate = await Tezos.estimate.transfer(exitFeePoolInstance.methods.distribute(alice.pkh, 5194285).toTransferParams());
+            console.log(operationEstimate);
+
+            // Estimate {
+            //     _gasLimit: 247954,
+            //     _storageLimit: 127,
+            //     opSize: 151,
+            //     baseFeeMutez: 100
+            //   }
+
+
+            // afterMvkStorage     = await mvkTokenInstance.storage();
+            // afterDoormanStorage = await doormanInstance.storage();
+
+            // const userStakeBalanceLedger = await afterDoormanStorage.userStakeBalanceLedger;
+            // const exitFeePoolStakeBalanceLedger = await afterDoormanStorage.userStakeBalanceLedger.get(exitFeePoolInstance.address);
+
+            // const userStakeRecordsLedger = await afterDoormanStorage.userStakeRecordsLedger;
+            // const exitFeePoolUserRecord    = await userStakeRecordsLedger.get(exitFeePoolInstance.address); // return user staking records - map(nat, stakeRecordType)
+            
+            // const bobUserRecord    = await afterDoormanStorage.userStakeRecordsLedger.get(bob.pkh); // return user staking records - map(nat, stakeRecordType)
+            // const bobStakeBalanceLedger = await afterDoormanStorage.userStakeBalanceLedger.get(bob.pkh);
+
+            // // console.log(bobUserRecord);
+            // // console.log(bobStakeBalanceLedger);
+            // console.log('stake records');
+            // console.log('exit fee pool address: ' + exitFeePoolInstance.address);
+            // console.log(userStakeRecordsLedger);
+
+            // console.log(exitFeePoolUserRecord);
+            
+            // console.log("Log Exit Fee: " + afterDoormanStorage.logExitFee);
+            // console.log("Log Final Amount: " + afterDoormanStorage.logFinalAmount);         
+
+            // // 8,330,000 muMVK as exit fee to be distributed as rewards
+            // console.log("After MVK Storage Total Supply: "  + afterMvkStorage.totalSupply);    // return 991.67 MVK - 991,670,000 in muMVK
+            // console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+
+            // assert.equal(afterMvkStorage.totalSupply, 991670000);
+            // assert.equal(afterMvkLedgerAlice.balance, 491670000);
+            // assert.equal(afterDoormanAliceStakeRecord.amount, 100000000);
+            // assert.equal(afterDoormanAliceStakeRecord.exitFee, 8330000);
+
+            // console.log(afterDoormanStorage);
+            // console.log(userStakeBalanceLedger);
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            // console.log('exit fee pool')
+            // console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            // console.log(exitFeePoolStakeBalanceLedger);
              
         } catch(e){
             console.log(e);

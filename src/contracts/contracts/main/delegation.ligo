@@ -12,7 +12,7 @@ type delegateLedgerType is big_map (address, delegateRecordType)
 // todo: add pointsystem
 
 type newSatelliteRecordType is (string * string * string * nat) // name, description, image, satellite fee
-type registerAsSatelliteCompleteParamsType  is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
+type registerAsSatelliteCompleteParamsType  is (string * string * string * nat * nat) // name, description, image, satellite fee, staked MVK balance
 
 // record for satellites
 type satelliteRecordType is record [
@@ -35,8 +35,8 @@ type satelliteLedgerType is big_map (address, satelliteRecordType)
 type getSatelliteVotingPowerParams is (address * contract(address * nat * nat))
 
 type configType is record [
-    minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of vMVK required as bong to register as delegate (in muMVK)
-    delegationRatio           : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more vMVK to be staked) or underdelegated    
+    minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required as bong to register as delegate (in muMVK)
+    delegationRatio           : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated    
     maxSatellites             : nat;   // 100 -> prevent any gaming of system with mass registration of satellites - can be changed through governance
 ]
 
@@ -57,13 +57,14 @@ type storage is record [
     breakGlassConfig     : breakGlassConfigType;
     delegateLedger       : delegateLedgerType;
     satelliteLedger      : satelliteLedgerType;
-    vMvkTokenAddress     : address;   
+    // vMvkTokenAddress     : address;   
+    doormanAddress       : address;
     governanceAddress    : address;
 ]
 
 type delegationAction is 
     | SetAdmin of (address)
-    | SetVMvkTokenAddress of (address)
+    // | SetVMvkTokenAddress of (address)
     | SetGovernanceAddress of (address)
 
     | TogglePauseDelegateToSatellite of (unit)
@@ -99,9 +100,14 @@ function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
-function checkSenderIsVMvkTokenContract(var s : storage) : unit is
-    if (Tezos.sender = s.vMvkTokenAddress) then unit
-    else failwith("Only the vMVK Token Contract can call this entrypoint.");
+// function checkSenderIsVMvkTokenContract(var s : storage) : unit is
+//     if (Tezos.sender = s.vMvkTokenAddress) then unit
+//     else failwith("Only the vMVK Token Contract can call this entrypoint.");
+
+function checkSenderIsDoormanContract(var s : storage) : unit is
+    if (Tezos.sender = s.doormanAddress) then unit
+    else failwith("Only the Doorman Contract can call this entrypoint.");
+
 
   function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
@@ -151,13 +157,13 @@ function updateGovernanceActiveSatellitesMap(const contractAddress : address) : 
   end;
 
 // helper function to get User's vMVK balance for delegation 
-function updateUserVMvkBalanceForDelegation(const tokenAddress : address) : contract(address * address) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateVMvkBalanceForDelegate",
-      tokenAddress) : option(contract(address * address))) of
-    Some(contr) -> contr
-  | None -> (failwith("UpdateVMvkBalanceForDelegate entrypoint in vMVK Token Contract not found") : contract(address * address))
-  end;
+// function updateUserVMvkBalanceForDelegation(const tokenAddress : address) : contract(address * address) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%updateVMvkBalanceForDelegate",
+//       tokenAddress) : option(contract(address * address))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("UpdateVMvkBalanceForDelegate entrypoint in vMVK Token Contract not found") : contract(address * address))
+//   end;
 
 // helper function to get User's vMVK balance from vMVK token address
 function fetchVMvkBalance(const tokenAddress : address) : contract(address * contract(nat)) is
@@ -168,12 +174,20 @@ function fetchVMvkBalance(const tokenAddress : address) : contract(address * con
   | None -> (failwith("GetBalance entrypoint in vMVK Token Contract not found") : contract(address * contract(nat)))
   end;
 
-function getSatelliteBalance(const tokenAddress : address) : contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)) is
+function fetchStakedMvkBalance(const tokenAddress : address) : contract(address * contract(nat)) is
+  case (Tezos.get_entrypoint_opt(
+      "%getStakedBalance",
+      tokenAddress) : option(contract(address * contract(nat)))) of
+    Some(contr) -> contr
+  | None -> (failwith("GetStakedBalance entrypoint in Doorman Contract not found") : contract(address * contract(nat)))
+  end;
+
+function getSatelliteBalance(const contractAddress : address) : contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)) is
   case (Tezos.get_entrypoint_opt(
       "%getSatelliteBalance",
-      tokenAddress) : option(contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)))) of
+      contractAddress) : option(contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)))) of
     Some(contr) -> contr
-  | None -> (failwith("GetBalance entrypoint in vMVK Token Contract not found") : contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)))
+  | None -> (failwith("GetSatelliteBalance entrypoint in Doorman Contract not found") : contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)))
   end;
 
 // helper function to get satellite 
@@ -221,7 +235,7 @@ function getDelegateRecord (const userAddress : address; const s : storage) : de
 // housekeeping functions begin: --------------------------------------------------------------------------------
 
 (*  set contract admin address *)
-function setAdmin(const parameters : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
 block {
 
     // entrypoint should not receive any tez amount
@@ -230,26 +244,26 @@ block {
     // check that sender is admin
     checkSenderIsAdmin(s);
 
-    s.admin := parameters;
+    s.admin := newAdminAddress;
 
 } with (noOperations, s)
 
 // set vMvk contract address
-function setVMvkTokenAddress(const parameters : address; var s : storage) : return is
-block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+// function setVMvkTokenAddress(const parameters : address; var s : storage) : return is
+// block {
+//     // check that sender is admin
+//     checkSenderIsAdmin(s);
 
-    s.vMvkTokenAddress := parameters;
-} with (noOperations, s)
+//     s.vMvkTokenAddress := parameters;
+// } with (noOperations, s)
 
 (* set governance contract address *)
-function setGovernanceAddress(const parameters : address; var s : storage) : return is
+function setGovernanceAddress(const newGovernanceAddress : address; var s : storage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
     
-    s.governanceAddress := parameters;
+    s.governanceAddress := newGovernanceAddress;
 } with (noOperations, s)
 
 // break glass toggle entrypoints begin ---------------------------------------------------------
@@ -390,13 +404,13 @@ block {
     // update satellite totalDelegatedAmount with user's vMVK balance
     const delegateToSatelliteCompleteCallback : contract(nat) = Tezos.self("%delegateToSatelliteComplete");
 
-    const checkVMvkBalanceOperation : operation = Tezos.transaction(
+    const checkStakedMvkBalanceOperation : operation = Tezos.transaction(
         (Tezos.sender, delegateToSatelliteCompleteCallback),
          0tez, 
-         fetchVMvkBalance(s.vMvkTokenAddress)
+         fetchStakedMvkBalance(s.doormanAddress)
          );
     
-    const operations : list(operation) = list [checkVMvkBalanceOperation];
+    const operations : list(operation) = list [checkStakedMvkBalanceOperation];
 
 } with (operations, s)
 
@@ -404,7 +418,7 @@ function delegateToSatelliteComplete(const vMvkBalance : nat; var s : storage) :
 block {
 
     // check sender is vMVK Token Contract
-    checkSenderIsVMvkTokenContract(s);
+    checkSenderIsDoormanContract(s);
 
     // Retrieve delegate record from storage
     var delegateRecord : delegateRecordType := getDelegateRecord(Tezos.source, s);
@@ -425,7 +439,7 @@ block {
 
     // Overall steps:
     // 1. check if user address exists in delegateLedger
-    // 2. callback to vMVK token contract to fetch vMVK balance
+    // 2. callback to doorman contract to fetch vMVK balance
     // 3a. if satellite exists, update satellite record with new balance and remove user from delegateLedger
     // 3b. if satellite does not exist, remove user from delegateLedger
     
@@ -446,7 +460,7 @@ block {
     const checkVMvkBalanceOperation : operation = Tezos.transaction(
         (Tezos.sender, undelegateFromSatelliteCompleteCallback),
          0tez, 
-         fetchVMvkBalance(s.vMvkTokenAddress)
+         fetchStakedMvkBalance(s.doormanAddress)
          );
     
     const operations : list(operation) = list [checkVMvkBalanceOperation];
@@ -458,7 +472,7 @@ function undelegateFromSatelliteComplete(const vMvkBalance : nat; var s : storag
 block {
 
     // check sender is vMVK Token Contract
-    checkSenderIsVMvkTokenContract(s);
+    checkSenderIsDoormanContract(s);
 
     // Retrieve delegate record from storage 
     var delegateRecord : delegateRecordType := getDelegateRecord(Tezos.source, s);
@@ -524,7 +538,7 @@ block {
     
     // Overall steps: 
     // 1. verify that satellite does not already exist (prevent double registration)
-    // 2. callback to vMVK token contract to fetch vMVK balance
+    // 2. callback to doorman contract to fetch vMVK balance
     // 3. if user vMVK balance is more than minimumDelegateBond, register as delegate
     // 4. add new satellite record and save to satelliteLedger
 
@@ -563,7 +577,7 @@ block {
     const getSatelliteBalanceOperation : operation = Tezos.transaction(
         (Tezos.sender, name, description, image, satelliteFee, registerAsSatelliteCompleteCallback),
         0tez, 
-        getSatelliteBalance(s.vMvkTokenAddress)
+        getSatelliteBalance(s.doormanAddress)
         );
 
     const operations : list(operation) = list [getSatelliteBalanceOperation];
@@ -573,8 +587,8 @@ block {
 function registerAsSatelliteComplete(const satelliteParams : registerAsSatelliteCompleteParamsType; var s : storage) : return is 
 block {
     
-    // check sender is vMVK Token Contract
-    checkSenderIsVMvkTokenContract(s);
+    // check sender is doorman Contract
+    checkSenderIsDoormanContract(s);
 
     // lock satellite's vMVK amount -> bond? 
     if satelliteParams.4 < s.config.minimumStakedMvkBalance then failwith("You do not have enough vMVK to meet the minimum delegate bond.")
@@ -650,6 +664,9 @@ block {
 
     // entrypoint should not receive any tez amount
     checkNoAmount(Unit);
+
+    // check sender is doorman Contract
+    checkSenderIsDoormanContract(s);
 
     const userIsSatelliteFlag : bool = Big_map.mem(userAddress, s.satelliteLedger);
 
@@ -732,7 +749,7 @@ block {
 function main (const action : delegationAction; const s : storage) : return is 
     case action of    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
+        // | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
         | SetGovernanceAddress(parameters) -> setGovernanceAddress(parameters, s)  
 
         | TogglePauseDelegateToSatellite(_parameters) -> togglePauseDelegateToSatellite(s)

@@ -8,7 +8,7 @@ const saveContractAddress = require('../helpers/saveContractAddress')
 const doormanAddress = require('../deployments/doormanAddress')
 const delegationAddress = require('../deployments/delegationAddress')
 
-const initialSupply = '1000000000' // 1000 vMVK Tokens in mu (10^6)
+const initialSupply = '10000000000000' // 10,000,000 vMVK Tokens in mu (10^6)
 
 const metadata = MichelsonMap.fromLiteral({
   '': Buffer('tezos-storage:data', 'ascii').toString('hex'),
@@ -67,12 +67,12 @@ module.exports = async (deployer, network, accounts) => {
   const deployedVMvkToken = await vMvkTokenContract.deployed()
 
   // Set vMVK token address in Doorman
-  const deployedDoorman = await doormanContract.deployed()
-  await deployedDoorman.setVMvkTokenAddress(deployedVMvkToken.address)
+  // const deployedDoorman = await doormanContract.deployed()
+  // await deployedDoorman.setVMvkTokenAddress(deployedVMvkToken.address)
 
   // Set vMVK token address in Delegation
-  const deployedDelegation = await delegationContract.deployed()
-  await deployedDelegation.setVMvkTokenAddress(deployedVMvkToken.address)
+  // const deployedDelegation = await delegationContract.deployed()
+  // await deployedDelegation.setVMvkTokenAddress(deployedVMvkToken.address)
 
   await saveContractAddress('vMvkTokenAddress', deployedVMvkToken.address)
 }
