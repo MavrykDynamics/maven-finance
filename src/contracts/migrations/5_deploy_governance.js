@@ -32,6 +32,7 @@ const configType        = {
 const initialStorage = {
   admin : adminAddress,
   config : configType,
+  contractAddresses : new MichelsonMap(),
   proposalLedger : proposalLedger,
   snapshotLedger : snapshotLedger,
   activeSatellitesMap : new MichelsonMap(),
@@ -47,6 +48,7 @@ const initialStorage = {
   currentRoundTimelockProposalId : 0,
   mvkTokenAddress : mvkTokenAddress,
   delegationAddress : delegationAddress,
+  emergencyGovernanceAddress : 'KT1UkahzqCvaVrVutMeTSCJqS2qBFhLjvSAk', // placeholder - change later
   snapshotMvkTotalSupply : 1
 }
 

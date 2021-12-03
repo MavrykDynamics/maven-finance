@@ -70,9 +70,12 @@ type configType is record [
     blocksPerVotingRound        : nat;  // to determine duration of voting round
 ]
 
+type contractAddressesMapType is map(string, address)
+
 type storage is record [
     admin                       : address;
     config                      : configType;
+    contractAddresses           : contractAddressesMapType; 
     
     proposalLedger              : proposalLedgerType;
     snapshotLedger              : snapshotLedgerType;
@@ -95,10 +98,12 @@ type storage is record [
 
     delegationAddress           : address; 
     mvkTokenAddress             : address; 
+    emergencyGovernanceAddress  : address;
     snapshotMvkTotalSupply      : nat;                // for quorum calculation use - snapshot of total MVK supply 
 ]
 
 type governanceAction is 
+    | BreakGlass of (unit)
     | SetAdmin of (address)
     | SetDelegationAddress of (address)
     | StartProposalRound of (unit)
@@ -131,6 +136,10 @@ function checkSenderIsDelegationContract(var s : storage) : unit is
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
     if (Tezos.sender = s.mvkTokenAddress) then unit
     else failwith("Only the MVK Token Contract can call this entrypoint.");
+
+function checkSenderIsEmergencyGovernanceContract(var s : storage) : unit is
+    if (Tezos.sender = s.emergencyGovernanceAddress) then unit
+        else failwith("Only the Emergency Governance Contract can call this entrypoint.");
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
@@ -257,6 +266,23 @@ function getTokenTotalSupply(const tokenAddress : address) : contract(contract(n
 
   } with _proposal
 
+// break glass helper function to pause all entrypoints in contract 
+function pauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
+  case (Tezos.get_entrypoint_opt(
+      "%pauseAll",
+      contractAddress) : option(contract(unit))) of
+    Some(contr) -> contr
+  | None -> (failwith("pauseAll entrypoint in Contract Address not found") : contract(unit))
+  end;
+
+// break glass helper function to set admin entrypoints in contract 
+function setAdminInContract(const contractAddress : address) : contract(address) is
+  case (Tezos.get_entrypoint_opt(
+      "%setAdmin",
+      contractAddress) : option(contract(address))) of
+    Some(contr) -> contr
+  | None -> (failwith("setAdmin entrypoint in Contract Address not found") : contract(address))
+  end;
 // helper functions end: --
 
 // housekeeping functions begin: --
@@ -294,6 +320,34 @@ block {
 } with (noOperations, s)
 
 // housekeeping functions end: --
+
+function breakGlass(var s : storage) : return is 
+block {
+    // Steps Overview:
+    // 1. set contract admins to breakglass address - should be done in emergency governance?
+    // 2. send pause all operations to main contracts
+
+    // check that sender is from emergency governance contract 
+    checkSenderIsEmergencyGovernanceContract(s);
+
+    var operations : list(operation) := nil;
+    for _contractName -> contractAddress in map s.contractAddresses block {
+        const pauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
+            unit, 
+            0tez, 
+            pauseAllEntrypointsInContract(contractAddress)
+        );
+        operations := pauseAllEntrypointsInContractOperation # operations;
+
+        const setContractAdminToEmergencyGovernanceOperation : operation = Tezos.transaction(
+            s.emergencyGovernanceAddress, 
+            0tez, 
+            setAdminInContract(contractAddress)
+        );
+        operations := setContractAdminToEmergencyGovernanceOperation # operations;
+    } 
+    
+} with (operations, s)
 
 function updateActiveSatellitesMap(const satelliteAddress : address; var s : storage) is 
 block {
@@ -703,28 +757,29 @@ block {
         // satellite has already vote - change of vote
         
         // get previous vote
-        var previousVote : (nat * nat * timestamp) := case _proposal.voters[Tezos.sender] of 
-            | None -> failwith("Error: Previous vote not found.")
-            | Some(_previousVote) -> _previousVote
-        end;
+        // var previousVote : (nat * nat * timestamp) := case _proposal.voters[Tezos.sender] of 
+        //     | None -> failwith("Error: Previous vote not found.")
+        //     | Some(_previousVote) -> _previousVote
+        // end;
 
-        const previousVoteType = previousVote.0;
+        // const previousVoteType = previousVote.0;
 
-        // check if new vote is the same as old vote
-        if previousVoteType = voteType then failwith ("Error: Your vote has already been recorded.")
-          else skip;
+        // // check if new vote is the same as old vote
+        // if previousVoteType = voteType then failwith ("Error: Your vote has already been recorded.")
+        //   else skip;
 
-        // save new vote
-        _proposal.voters[Tezos.sender] := (voteType, satelliteSnapshot.totalVotingPower, Tezos.now);
+        // // save new vote
+        // _proposal.voters[Tezos.sender] := (voteType, satelliteSnapshot.totalVotingPower, Tezos.now);
 
-        // set proposal record based on vote type 
-        var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
+        // // set proposal record based on vote type 
+        // var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
 
-        // unset previous vote in proposal record
-        var _proposal : proposalRecordType := unsetProposalRecordVote(previousVoteType, satelliteSnapshot.totalVotingPower, _proposal);
+        // // unset previous vote in proposal record
+        // var _proposal : proposalRecordType := unsetProposalRecordVote(previousVoteType, satelliteSnapshot.totalVotingPower, _proposal);
         
-        // update proposal with new vote changes
-        s.proposalLedger[proposalId] := _proposal;
+        // // update proposal with new vote changes
+        // s.proposalLedger[proposalId] := _proposal;
+        skip
     }
 
 } with (noOperations, s)
@@ -775,6 +830,7 @@ block {
 
 function main (const action : governanceAction; const s : storage) : return is 
     case action of
+        | BreakGlass(_parameters) -> breakGlass(s)  
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | SetDelegationAddress(parameters) -> setDelegationAddress(parameters, s)  
   
