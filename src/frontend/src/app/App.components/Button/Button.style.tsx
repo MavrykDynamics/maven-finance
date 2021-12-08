@@ -58,6 +58,17 @@ export const ButtonText = styled.div`
     line-height: 24px;
     vertical-align: top;
   }
+  &.primary {
+    color: ${textColor};
+  }
+
+  &.secondary {
+    color: ${primaryColor};
+  }
+
+  &.transparent {
+    color: ${primaryColor};
+  }
 `
 
 export const ButtonIcon = styled.svg`
