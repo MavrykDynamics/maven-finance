@@ -6,7 +6,6 @@ const { alice, bob, eve, mallory } = require('../scripts/sandbox/accounts')
 const saveContractAddress = require('../helpers/saveContractAddress')
 const doormanAddress = require('../deployments/doormanAddress')
 
-
 const initialSupply = '100000000000' // 1000 MVK Tokens in mu (10^6)
 
 const metadata = MichelsonMap.fromLiteral({
