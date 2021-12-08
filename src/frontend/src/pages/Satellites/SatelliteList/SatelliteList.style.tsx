@@ -45,7 +45,7 @@ export const SatelliteCardTopRow = styled.div`
   padding: 35px 35px 20px 35px;
 `
 
-export const SatelliteCardBottomRow = styled.div`
+export const SatelliteCardRow = styled.div`
   display: flex;
   padding: 15px;
   justify-content: center;
