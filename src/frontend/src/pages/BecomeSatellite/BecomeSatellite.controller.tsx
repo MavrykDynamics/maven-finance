@@ -1,5 +1,6 @@
 import { getVMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
 import { useEffect } from 'react'
+import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -12,13 +13,8 @@ export const BecomeSatellite = () => {
   const { myVMvkTokenBalance } = useSelector((state: State) => state.vMvkToken)
 
   useEffect(() => {
-    let isMounted = true
     if (accountPkh) {
       dispatch(getVMvkTokenStorage(accountPkh))
-    }
-
-    return () => {
-      isMounted = false
     }
   }, [dispatch, accountPkh])
 

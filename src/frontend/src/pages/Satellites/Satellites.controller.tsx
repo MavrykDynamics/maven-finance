@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { SatelliteRecord } from 'reducers/delegation'
 import { Message, Page, PageContent } from 'styles'
+import { SatelliteList } from './SatelliteList/SatelliteList.controller'
 
 import { SatelliteListView } from './SatelliteList/SatelliteList.view'
 import { getDelegationStorage, getMvkTokenStorage, getVMvkTokenStorage, setChosenSatellite } from './Satellites.actions'
@@ -29,28 +30,12 @@ export const Satellites = () => {
     dispatch(getDelegationStorage())
   }, [dispatch, accountPkh])
 
-  const delegateCallback = () => {
-    // dispatch(stake(amount))
-  }
-
-  const undelegateCallback = () => {
-    // dispatch(showExitFeeModal(amount))
-  }
-  const setChosenSatelliteCallback = (satellite: SatelliteRecord) => {
-    dispatch(setChosenSatellite(satellite))
-  }
   return (
     <Page>
       <SatellitesHeader />
       <br />
       <PageContent>
-        <SatelliteListView
-          loading={loading}
-          satellitesList={satelliteLedger}
-          delegateCallback={delegateCallback}
-          undelegateCallback={undelegateCallback}
-          setChosenSatelliteCallback={setChosenSatelliteCallback}
-        />
+        <SatelliteList satellitesList={satelliteLedger} loading={loading} />
         <SatelliteSideBar />
       </PageContent>
     </Page>
