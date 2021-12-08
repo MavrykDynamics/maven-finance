@@ -1,9 +1,11 @@
 import { Button } from 'app/App.components/Button/Button.controller'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
 import { FAQLink, SatelliteSideBarStyled, SideBarSection } from './SatelliteSideBar.style'
 
 export const SatelliteSideBar = () => {
+  //TODO: Missing the actual satellite factory address
   const satelliteFactoryAddress = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
   return (
     <SatelliteSideBarStyled>
@@ -15,10 +17,7 @@ export const SatelliteSideBar = () => {
         <h2>Statistics</h2>
         <div>
           <h3>Satellite Factory</h3>
-          <p>{`${satelliteFactoryAddress.slice(0, 7)}...${satelliteFactoryAddress.slice(
-            satelliteFactoryAddress.length - 4,
-            satelliteFactoryAddress.length,
-          )}`}</p>
+          <TzAddress tzAddress={satelliteFactoryAddress} type={'primary'} hasIcon={false} />
         </div>
         <div>
           <h3>Number of Satellites</h3>
