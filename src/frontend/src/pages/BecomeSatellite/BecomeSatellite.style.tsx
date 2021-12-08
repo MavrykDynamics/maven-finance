@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { containerColor, upColor, downColor, Card } from 'styles'
+import { backgroundColor, borderColor, Card, containerColor, downColor, primaryColor, textColor, upColor } from 'styles'
 
 export const BecomeSatelliteStyled = styled.div`
   background-color: ${containerColor};
@@ -25,10 +25,62 @@ export const BecomeSatelliteFormBalanceCheck = styled.div<{ balanceOk: boolean }
 export const UploaderFileSelector = styled.div`
   margin: 15px 0;
   cursor: pointer;
+  height: 100px;
+  width: 100%;
+  border: dashed ${borderColor};
+  display: inline-block;
+  border-radius: 10px;
+  border-width: 2px;
 
-  > input {
-    width: 86px;
+  > div {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+  > div > input {
+    all: unset;
+    display: inline-block;
+    border-radius: 10px;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    appearance: initial;
+    opacity: 0;
+    position: relative;
+    -webkit-appearance: none;
   }
 `
 
+export const UploadIconContainer = styled.div`
+  position: absolute;
+  top: 15%;
+  left: 47.5%;
+  text-align: center;
+
+  > div {
+    font-size: 14px;
+    font-weight: 400;
+    color: ${textColor};
+  }
+`
+export const UploadIcon = styled.svg`
+  stroke: ${primaryColor};
+  width: 37px;
+  height: 37px;
+
+  > use {
+    overflow: visible;
+  }
+  &.primary {
+    stroke: ${backgroundColor};
+  }
+
+  &.secondary {
+    stroke: ${primaryColor};
+  }
+
+  &.transparent {
+    stroke: ${textColor};
+  }
+`
 export const BecomeSatelliteProfilePic = styled.div``

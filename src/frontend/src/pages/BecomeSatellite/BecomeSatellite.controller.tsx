@@ -12,12 +12,15 @@ export const BecomeSatellite = () => {
   const { myVMvkTokenBalance } = useSelector((state: State) => state.vMvkToken)
 
   useEffect(() => {
+    let isMounted = true
     if (accountPkh) {
       dispatch(getVMvkTokenStorage(accountPkh))
     }
-  }, [dispatch, accountPkh])
 
-  // useOnBlock(tezos, loadStorage)
+    return () => {
+      isMounted = false
+    }
+  }, [dispatch, accountPkh])
 
   const registerCallback = (form: RegisterAsSatelliteForm) => {
     dispatch(registerAsSatellite(form))
