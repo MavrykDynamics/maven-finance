@@ -4,13 +4,14 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
 import { create } from 'ipfs-http-client'
 import { SatellitesHeader } from 'pages/Satellites/SatellitesHeader/SatellitesHeader.controller'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Page } from 'styles'
 
+import { TextEditor } from '../../app/App.components/TextEditor/TextEditor.controller'
 import { RegisterAsSatelliteForm } from './BecomeSatellite.actions'
 // prettier-ignore
-import { BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteProfilePic, UploaderFileSelector } from './BecomeSatellite.style'
+import { BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteProfilePic, UploaderFileSelector, UploadIcon, UploadIconContainer } from './BecomeSatellite.style'
 
 type BecomeSatelliteViewProps = {
   myVMvkTokenBalance?: string
@@ -30,6 +31,7 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
     image: undefined,
   })
   const [isUploading, setIsUploading] = useState(false)
+  const inputFile = useRef<HTMLInputElement>(null)
 
   async function handleUpload(file: any) {
     try {
@@ -49,6 +51,15 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
     if (accountPkh && parseInt(myVMvkTokenBalance || '0') >= 10000) setBalanceOk(true)
   }, [accountPkh, myVMvkTokenBalance])
 
+  const handleIconClick = () => {
+    inputFile?.current?.click()
+  }
+
+  const _handleEditorChange = (editorState: any) => {
+    setForm({ ...form, description: editorState })
+    console.log(editorState)
+  }
+
   return (
     <Page>
       <SatellitesHeader />
@@ -61,23 +72,17 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
         <p>2- Enter your name</p>
         <Input
           type="text"
-          placeholder="name"
+          placeholder="Name"
           value={form.name}
           onChange={(e: any) => setForm({ ...form, name: e.target.value })}
           onBlur={() => {}}
         />
         <p>3- Enter your description</p>
-        <Input
-          type="text"
-          placeholder="description"
-          value={form.description}
-          onChange={(e: any) => setForm({ ...form, description: e.target.value })}
-          onBlur={() => {}}
-        />
+        <TextEditor onChange={_handleEditorChange} />
         <p>5- Enter your fee</p>
         <Input
           type="text"
-          placeholder="fee"
+          placeholder="Fee"
           value={form.fee}
           onChange={(e: any) => setForm({ ...form, fee: e.target.value })}
           onBlur={() => {}}
@@ -87,14 +92,23 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
           {isUploading ? (
             <div>Uploading...</div>
           ) : (
-            <input
-              id="uploader"
-              type="file"
-              accept="image/*"
-              onChange={(e: any) => {
-                e.target && e.target.files && e.target.files[0] && handleUpload(e.target.files[0])
-              }}
-            />
+            <div>
+              <input
+                id="uploader"
+                type="file"
+                accept="image/*"
+                ref={inputFile}
+                onChange={(e: any) => {
+                  e.target && e.target.files && e.target.files[0] && handleUpload(e.target.files[0])
+                }}
+              />
+              <UploadIconContainer onClick={handleIconClick}>
+                <UploadIcon>
+                  <use xlinkHref={`/icons/sprites.svg#upload`} />
+                </UploadIcon>
+                <div>Upload file</div>
+              </UploadIconContainer>
+            </div>
           )}
           <BecomeSatelliteProfilePic>{form.image && <img src={form.image} alt="" />}</BecomeSatelliteProfilePic>
         </UploaderFileSelector>

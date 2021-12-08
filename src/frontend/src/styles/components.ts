@@ -57,3 +57,9 @@ export const Card = styled.div`
   font-weight: 600;
   color: ${subTextColor};
 `
+
+export const PageContent = styled.div`
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-gap: 20px;
+`
