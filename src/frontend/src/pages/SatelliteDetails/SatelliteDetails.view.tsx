@@ -1,0 +1,125 @@
+import { Button } from 'app/App.components/Button/Button.controller'
+import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
+import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
+import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
+import {
+  SatelliteCard,
+  SatelliteCardRow,
+  SatelliteCardTopRow,
+  SatelliteMainText,
+  SatelliteProfileImage,
+  SatelliteProfileImageContainer,
+  SatelliteSubText,
+  SatelliteTextGroup,
+  SideBySideImageAndText,
+} from 'pages/Satellites/SatelliteList/SatelliteList.style'
+import { SatellitesHeader } from 'pages/Satellites/SatellitesHeader/SatellitesHeader.controller'
+import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.view'
+import * as React from 'react'
+import { SatelliteRecord } from 'reducers/delegation'
+import { Page, PageContent } from 'styles'
+
+import { SatelliteDescriptionText, SatelliteCardBottomRow } from './SatelliteDetails.style'
+
+type SatelliteDetailsViewProps = {
+  satellite: SatelliteRecord | undefined
+  loading: boolean
+  delegateCallback: () => void
+  undelegateCallback: () => void
+}
+
+export const SatelliteDetailsView = ({
+  satellite,
+  loading,
+  delegateCallback,
+  undelegateCallback,
+}: SatelliteDetailsViewProps) => {
+  const options: HTMLReactParserOptions = {
+    replace: (domNode: any) => {
+      const isElement: boolean = domNode.type && domNode.type === 'tag' && domNode.name
+      if (!domNode.attribs || (isElement && domNode.name === 'script')) return
+      if (isElement) {
+        if (domNode.name === 'strong') {
+          return (
+            <SatelliteDescriptionText fontWeight={700}>
+              {domToReact(domNode.children, options)}
+            </SatelliteDescriptionText>
+          )
+        } else if (domNode.name === 'p') {
+          return (
+            <SatelliteDescriptionText fontWeight={400}>
+              {domToReact(domNode.children, options)}
+            </SatelliteDescriptionText>
+          )
+        } else return
+      } else return
+    },
+  }
+  return (
+    <Page>
+      <SatellitesHeader />
+      <br />
+      <PageContent>
+        {satellite ? (
+          <SatelliteCard key={satellite.address}>
+            <SatelliteCardTopRow>
+              <SideBySideImageAndText>
+                <SatelliteProfileImageContainer>
+                  <SatelliteProfileImage src={satellite.image} />
+                </SatelliteProfileImageContainer>
+                <SatelliteTextGroup>
+                  <SatelliteMainText>{satellite.name}</SatelliteMainText>
+                  <TzAddress tzAddress={satellite.address} type={'secondary'} hasIcon={true} isBold={true} />
+                </SatelliteTextGroup>
+              </SideBySideImageAndText>
+              <SatelliteTextGroup>
+                <SatelliteMainText>{satellite.totalDelegatedAmount}</SatelliteMainText>
+                <SatelliteSubText>Delegated MVK</SatelliteSubText>
+              </SatelliteTextGroup>
+              <SatelliteTextGroup>
+                <SatelliteMainText>{satellite.totalDelegatedAmount}</SatelliteMainText>
+                <SatelliteSubText>Your delegated MVK</SatelliteSubText>
+              </SatelliteTextGroup>
+              <Button text="Delegate" icon="man-check" loading={loading} onClick={delegateCallback} />
+              <div>Put last voted here</div>
+              <SatelliteTextGroup>
+                <SatelliteMainText>{satellite.totalDelegatedAmount}%</SatelliteMainText>
+                <SatelliteSubText>Participation</SatelliteSubText>
+              </SatelliteTextGroup>
+              <SatelliteTextGroup>
+                <SatelliteMainText>{satellite.satelliteFee}%</SatelliteMainText>
+                <SatelliteSubText>Fee</SatelliteSubText>
+              </SatelliteTextGroup>
+              <Button
+                text="Undelegate"
+                icon="man-close"
+                kind="secondary"
+                loading={loading}
+                onClick={undelegateCallback}
+              />
+            </SatelliteCardTopRow>
+            <ColoredLine kind="secondary" />
+            <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>
+            <ColoredLine kind="secondary" />
+            <SatelliteCardBottomRow>
+              <div>
+                <h4>Description:</h4>
+                <div>{parse(satellite.description, options)}</div>
+              </div>
+              <div>
+                <h4>Voting History:</h4>
+              </div>
+              <div>
+                <h4>Participation Metrics:</h4>
+              </div>
+            </SatelliteCardBottomRow>
+          </SatelliteCard>
+        ) : (
+          <div></div>
+        )}
+
+        <SatelliteSideBar />
+      </PageContent>
+    </Page>
+  )
+}
