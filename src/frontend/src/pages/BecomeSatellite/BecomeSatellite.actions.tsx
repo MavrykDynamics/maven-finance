@@ -1,6 +1,6 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import doormanAddress from 'deployments/doormanAddress'
+import delegationAddress from 'deployments/delegationAddress'
 import { State } from 'reducers'
 
 export type RegisterAsSatelliteForm = { name: string; description: string; fee: number; image: string | undefined }
@@ -22,7 +22,7 @@ export const registerAsSatellite = (form: RegisterAsSatelliteForm) => async (dis
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(doormanAddress)
+    const contract = await state.wallet.tezos?.wallet.at(delegationAddress)
     console.log('contract', contract)
     const transaction = await contract?.methods
       .registerAsSatellite(form.name, form.description, form.image, form.fee)
@@ -33,11 +33,11 @@ export const registerAsSatellite = (form: RegisterAsSatelliteForm) => async (dis
       type: REGISTER_AS_SATELLITE_REQUEST,
       form,
     })
-    dispatch(showToaster(INFO, 'Staking...', 'Please wait 30s'))
+    dispatch(showToaster(INFO, 'Registering...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
+    dispatch(showToaster(SUCCESS, 'Satellite Registered.', 'All good :)'))
 
     dispatch({
       type: REGISTER_AS_SATELLITE_RESULT,

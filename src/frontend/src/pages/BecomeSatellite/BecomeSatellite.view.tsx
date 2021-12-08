@@ -7,8 +7,8 @@ import { SatellitesHeader } from 'pages/Satellites/SatellitesHeader/SatellitesHe
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Page } from 'styles'
-import { RegisterAsSatelliteForm } from './BecomeSatellite.actions'
 
+import { RegisterAsSatelliteForm } from './BecomeSatellite.actions'
 // prettier-ignore
 import { BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteProfilePic, UploaderFileSelector } from './BecomeSatellite.style'
 
@@ -46,7 +46,7 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
   }
 
   useEffect(() => {
-    if (accountPkh && parseInt(myVMvkTokenBalance || '0') > 100) setBalanceOk(true)
+    if (accountPkh && parseInt(myVMvkTokenBalance || '0') >= 10000) setBalanceOk(true)
   }, [accountPkh, myVMvkTokenBalance])
 
   return (
@@ -54,7 +54,7 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
       <SatellitesHeader />
       <BecomeSatelliteForm>
         <h3>Become a Satellite</h3>
-        <p>1- Stake at least 100 MVK</p>
+        <p>1- Stake at least 10000 MVK</p>
         <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
           {accountPkh ? `Currently staking ${myVMvkTokenBalance} MVK` : 'Please connect your wallet'}
         </BecomeSatelliteFormBalanceCheck>
