@@ -7,6 +7,7 @@ type votingRoundVoteType is (nat * nat * timestamp)       // 1 is Yay, 0 is Nay,
 type votersMapType is map (address, votingRoundVoteType)
 
 type newProposalType is (string * string * string) // title, description, invoice ipfs - add more if needed
+
 type proposalRecordType is record [
     proposerAddress      : address;
 
@@ -55,9 +56,9 @@ type configType is record [
     minQuorumPercentage         : nat;  // minimum quorum percentage to be achieved (in MVK)
     minQuorumMvkTotal           : nat;  // minimum quorum in MVK
     
-    votingPowerRatio            : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more vMVK to be staked) or underdelegated - similar to self-bond percentage in tezos
+    votingPowerRatio            : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
     proposalSubmissionFee       : nat;  // e.g. 10 tez per submitted proposal
-    minimumStakeReqPercentage   : nat;  // minimum amount of MVK required in percentage of total vMVK supply (e.g. 0.01%)
+    minimumStakeReqPercentage   : nat;  // minimum amount of MVK required in percentage of total staked MVK supply (e.g. 0.01%)
 
     maxProposalsPerDelegate     : nat;  // number of active proposals delegate can have at any given time
     timelockDuration            : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
@@ -79,7 +80,6 @@ type storage is record [
     
     proposalLedger              : proposalLedgerType;
     snapshotLedger              : snapshotLedgerType;
-
     activeSatellitesMap         : map(address, timestamp); // set of satellite addresses - for running loops - not intended to be extremely large, so satellite entry requirements have to be considered
 
     startLevel                  : nat;             // use Tezos.level as start level
@@ -106,12 +106,12 @@ type governanceAction is
     | BreakGlass of (unit)
     | SetAdmin of (address)
     | SetDelegationAddress of (address)
+    
     | StartProposalRound of (unit)
-
     | Propose of newProposalType
     | ProposalRoundVote of (nat)
+    
     | StartVotingRound of (unit)
-
     | VotingRoundVote of (nat * nat)
     | SetTempMvkTotalSupply of (nat)
 
@@ -176,7 +176,7 @@ function getSatelliteSnapshotRecord (const satelliteAddress : address; const s :
 
   } with satelliteSnapshotRecord
 
-// helper function to get token total supply (for MVK and vMVK)
+// helper function to get token total supply (for MVK)
 function getTokenTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
   case (Tezos.get_entrypoint_opt(
       "%getTotalSupply",
@@ -324,7 +324,7 @@ block {
 function breakGlass(var s : storage) : return is 
 block {
     // Steps Overview:
-    // 1. set contract admins to breakglass address - should be done in emergency governance?
+    // 1. set admin to breakglass address in major contracts (doorman, delegation etc)
     // 2. send pause all operations to main contracts
 
     // check that sender is from emergency governance contract 
@@ -399,7 +399,7 @@ function startProposalRound(var s : storage) : return is
 block {
     
     // Steps Overview:
-    // 1. verify sender is self / admin ? todo: check who can trigger this entrypoint
+    // 1. verify sender is admin 
     // 2. reset currentRoundHighestVotedProposalId and currentRoundTimelockProposalId
     // 3. update currentRound, currentRoundStartLevel, currentRoundEndLevel
     // 4. flush maps - currentRoundProposals, currentRoundVoters
@@ -452,9 +452,9 @@ block {
     // Steps Overview:
     // 1. verify that the current round is a governance proposal round
     // 2. verify that current block level has not exceeded round's end level 
-    // 3. verify that user is a satellite, has sufficient bond to propose (proxy with delegation contract)
+    // 3. verify that user is a satellite, has sufficient staked MVK to propose (proxy with delegation contract)
     // 4. todo: check that proposer has sent enough tez to cover the submission fee
-    // 5. submit (save) proposal - proposer does not automatically vote pass for his proposal
+    // 5. submit (save) proposal - note: proposer does not automatically vote pass for his proposal
     // 6. add proposal id to current round proposals map
     
     if s.currentRound = "proposal" then skip
@@ -645,9 +645,10 @@ function startVotingRound(var s : storage) : return is
 block {
     
     // Steps Overview:
-    // 1. set current round from "proposal" to "voting", and reset current round start level and end level - current round duration should be equal to current cycle end level minus timelock duration
-    // 2a. get ids of current proposals, and select the proposal with highest vote
-    // 2b. if there is no proposal, restart proposal round
+    // 1. verify sender is admin
+    // 2. set current round from "proposal" to "voting", and reset current round start level and end level - current round duration should be equal to current cycle end level minus timelock duration
+    // 3a. get ids of current proposals, and select the proposal with highest vote
+    // 3b. if there is no proposal, restart proposal round
     
     checkSenderIsAdmin(s);
 
@@ -797,8 +798,8 @@ function dropProposal(const _proposalId : nat; var s : storage) : return is
 block {
     // Steps Overview: 
     // 1. verify that proposal is in the current round / cycle
-    // 2. verify that user is the one who made the proposal
-    // 3. change status of proposal to drop
+    // 2. verify that satellite made the proposal
+    // 3. change status of proposal to inactive
 
     // check if satellite exists in the active satellites map
     // const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
