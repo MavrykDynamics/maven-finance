@@ -24,6 +24,7 @@ const initialStorage = {
   admin : adminAddress,
   config : configType, 
   contractAddresses : new MichelsonMap,
+  
   glassBroken : false,
   councilMembers : [],
   
