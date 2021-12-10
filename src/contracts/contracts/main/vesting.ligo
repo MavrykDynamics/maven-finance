@@ -71,10 +71,13 @@ block {
     // Steps Overview:
     // 1. 
     // 2. 
-    
-    checkNoAmount();
 
-    const vestee : vesteeRecordType = case s.vesteeLedger[Tezos.sender] of 
+    // determine if cliff period and vesting period will be unique to different users 
+    // e.g. different start times for each person depending on when they joined and vesting starts
+    
+    checkNoAmount(unit);
+
+    const _vestee : vesteeRecordType = case s.vesteeLedger[Tezos.sender] of 
         | Some(_record) -> _record
         | None -> failwith("Error. Vestee is not found.")
     end;
@@ -86,7 +89,7 @@ block {
     // Steps Overview:
     // 1. check if user address exists in vestee ledger
     // 2. return vestee's total vested remainder to callback contract
-    checkNoAmount();
+    checkNoAmount(unit);
 
     const vestee : vesteeRecordType = case s.vesteeLedger[userAddress] of 
         | Some(_record) -> _record
@@ -97,7 +100,7 @@ block {
 
 function getTotalVested(const contr : contract(nat); var s : storage) : return is 
 block {
-    checkNoAmount();
+    checkNoAmount(unit);
 } with (list [transaction(s.totalVestedAmount, 0tz, contr)], s)
 
 function updateVesting(const userAddress : address; const newVesteeRecord : vesteeRecordType; var s : storage) : return is 
@@ -108,7 +111,7 @@ block {
     // 3. update vestee with new vestee record 
 
     checkSenderIsAdmin(s);
-    checkNoAmount();
+    checkNoAmount(unit);
 
     var _vestee : vesteeRecordType := case s.vesteeLedger[userAddress] of 
         | Some(_record) -> _record
