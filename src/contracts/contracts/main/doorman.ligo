@@ -86,6 +86,10 @@ function checkSenderIsExitFeePoolContract(var s : storage) : unit is
     if (Tezos.sender = s.exitFeePoolAddress) then unit
     else failwith("Only the Exit Fee Pool Contract can call this entrypoint.");
 
+function checkSenderIsDelegationContract(var s : storage) : unit is
+    if (Tezos.sender = s.delegationAddress) then unit
+    else failwith("Only the Delegation Contract can call this entrypoint.");
+
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
@@ -234,23 +238,23 @@ block {
 
 
 (*  set contract admin address *)
-function setAdmin(const parameters : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
 block {
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
-    s.admin := parameters;
+    s.admin := newAdminAddress;
 } with (noOperations, s)
 
 (* set mvk contract address *)
-function setMvkTokenAddress(const parameters : address; var s : storage) : return is
+function setMvkTokenAddress(const newTokenAddress : address; var s : storage) : return is
 block {
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
-    s.mvkTokenAddress := parameters;
+    s.mvkTokenAddress := newTokenAddress;
 } with (noOperations, s)
 
 (* set mvk contract address *)
-function setDelegationAddress(const parameters : address; var s : storage) : return is
+function setDelegationAddress(const newContractAddress : address; var s : storage) : return is
 block {
 
     // entrypoint should not receive any tez amount
@@ -259,11 +263,11 @@ block {
     // check that sender is admin
     checkSenderIsAdmin(s);
 
-    s.delegationAddress := parameters;
+    s.delegationAddress := newContractAddress;
 } with (noOperations, s)
 
 (* set mvk contract address *)
-function setExitFeePoolAddress(const parameters : address; var s : storage) : return is
+function setExitFeePoolAddress(const newContractAddress : address; var s : storage) : return is
 block {
 
     // entrypoint should not receive any tez amount
@@ -272,11 +276,11 @@ block {
     // check that sender is admin
     checkSenderIsAdmin(s);
 
-    s.exitFeePoolAddress := parameters;
+    s.exitFeePoolAddress := newContractAddress;
 } with (noOperations, s)
 
 
-(* View function that forwards the balance of source to a contract *)
+(* View function that forwards the staked balance of source to a contract *)
 function getStakedBalance (const userAddress : address; const contr : contract(nat); var s : storage) : return is
   block {
     var userBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[userAddress] of
@@ -289,6 +293,7 @@ function getStakedBalance (const userAddress : address; const contr : contract(n
 (* View function that forwards the balance of satellite with satellite creation params to the delegation contract *)
 function getSatelliteBalance (const userAddress : address; const name : string; const description : string; const image : string; const satelliteFee : nat; const contr : contract(satelliteInfoType); var s : storage) : return is
   block {
+    checkSenderIsDelegationContract(s);
     var userBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[userAddress] of
           Some(_val) -> _val
           | None -> 0n
@@ -325,6 +330,11 @@ block {
 
   // Steps Overview
   // 1. verify that user is staking more than 1 MVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez - set min to 1
+  // 2. update user staked balance in staked balance ledger, and update the total staked MVK supply
+  // 3. send an operation to update Satellite's total delegated amount (there are checks for the user user in the delegation contract)
+  // 4. add a new stake record for the user
+  
+  // old steps - no more mint + burn used
   // 2. mint + burn method in mvkToken.ligo and vmvkToken.ligo - then Temple wallet reflects the ledger amounts of MVK and vMVK - burn/mint operations are reflected
   // 3. update record of user staking
   // ----------------------------------------
@@ -407,6 +417,15 @@ function unstake(const unstakeAmount : nat; var s : storage) : return is
 block {
   // Steps Overview
   // 1. verify that user is unstaking more than 0 vMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
+  // 2. fetch and update total MVK supply by getting balance in MVK token coontract
+  // 3. complete unstake in callback operation after total MVK supply has been set
+  // 4. calculate exit fee and verify that user has a record in stake balance ledger, and has enough balance to unstake
+  // 5. update user's staked balance in staked balance ledger
+  // 6. add a new unstake record to user's stake records ledger 
+  // 7. send an operation to update Satellite's total delegated amount (there are checks for the user user in the delegation contract)
+  // 8. increase staked MVK in exit fee reward pool - update exit fee staked balance in stake balance ledger 
+
+  // old steps - no more mint + burn used
   // 2. intercontract invocation -> update total supply for MVK and vMVK
   // 3. unstakeComplete -> calculate exit fee, mint and burn method in vmvkToken.ligo and mvkToken.ligo respectively
   
@@ -485,7 +504,7 @@ block {
   // create list of operations
   const operations : list(operation) = list [updateUserMvkBalanceOperation; updateSatelliteBalanceOperation];
 
-  // if user wallet address does not exist in stake ledger, add user to the stake ledger
+  // if user wallet address does not exist in stake records ledger, add user to the stake records ledger
   var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeRecordsLedger[Tezos.source] of
     Some(_val) -> _val
     | None -> map[]
