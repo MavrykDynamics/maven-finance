@@ -20,13 +20,14 @@
   },
   "scripts": {
     "start-sandbox": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=1 --detach -p 8732:20000 tqtezos/flextesa:20211119 hangzbox start",
-    "pre-compile": "ts-node scripts/cli.ts compile -c breakGlass -o contracts/compiled",
+    "pre-compile": "ts-node scripts/cli.ts compile -o contracts/compiled -c",
     "pre-compile-all": "ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled",
     "compile": "yarn pre-compile-all && ts-node scripts/cli.ts compile -f json -o build",
-    "migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
-    "test": "ts-mocha --paths test/*.spec.ts --bail",
-    "clean": "rm -rf ./build",
-    "sandbox:start": "./scripts/sandbox/start_ganache-cli.sh"
+    "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
+    "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",      
+    "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
+    "test-only": "ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
+    "clean": "rm -rf ./build"
   },
   "author": "matej.sima@stove-labs.com",
   "license": "MIT",

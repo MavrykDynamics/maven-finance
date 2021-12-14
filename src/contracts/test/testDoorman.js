@@ -25,10 +25,10 @@
 //     let vMvkTokenInstance;
 //     let senderInstance;
 
-//     const signerFactory = async (pk) => {
-//         await Tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-//         return Tezos;
-//       };
+    // const signerFactory = async (pk) => {
+    //     await Tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
+    //     return Tezos;
+    //   };
     
 //     before(async () => {
 
@@ -70,9 +70,9 @@
 //     it(`admin set mvk contract address`, async () => {
 //         try{
             
-//             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//             console.log('Test: Admin set MVK Contract Address')
-//             console.log("---") // break
+            // console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            // console.log('Test: Admin set MVK Contract Address')
+            // console.log("---") // break
 
 //             console.log('Before (mvk contract address): '+ doormanStorage.mvkTokenAddress);
 
@@ -192,10 +192,10 @@
 //     it(`set admin to bob`, async () => {
 //         try{
             
-//             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//             console.log('Test: Set Admin to Bob')
-//             console.log("---") // break
-//             console.log('before Admin (alice address): '+ doormanStorage.admin); // return alice.pkh        
+            // console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            // console.log('Test: Set Admin to Bob')
+            // console.log("---") // break
+            // console.log('before Admin (alice address): '+ doormanStorage.admin); // return alice.pkh        
         
 //             const setAdminAddressOperation  = await doormanInstance.methods.setAdmin(bob.pkh).send();
 //             await setAdminAddressOperation.confirmation();

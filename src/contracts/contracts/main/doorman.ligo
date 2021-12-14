@@ -168,16 +168,24 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(ud
       "%onStakeChange",
       delegationAddress) : option(contract(udpateSatelliteBalanceParams))) of
     Some(contr) -> contr
-  | None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(udpateSatelliteBalanceParams))
+  | None -> (failwith("onStakeChange entrypoint in Satellite Contract not found") : contract(udpateSatelliteBalanceParams))
   end;
 
   // helper function to update satellite's balance
-function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat) is
+// function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%updateUserBalance",
+//       tokenAddress) : option(contract(address * nat))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("updateUserBalance entrypoint in Token Contract not found") : contract(address * nat))
+//   end;
+
+  function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * string) is
   case (Tezos.get_entrypoint_opt(
-      "%updateUserBalance",
-      tokenAddress) : option(contract(address * nat))) of
+      "%onStakeChange",
+      tokenAddress) : option(contract(address * nat * string))) of
     Some(contr) -> contr
-  | None -> (failwith("updateUserBalance entrypoint in Token Contract not found") : contract(address * nat))
+  | None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(address * nat * string))
   end;
 
 (* ---- Helper functions end ---- *)
@@ -358,6 +366,13 @@ block {
   //     stakeAmount,         // amount of vmvk Tokens to be minted
   //     s.vMvkTokenAddress); // vmvkTokenAddress
 
+  // update user's MVK balance -> increase user balance in mvk ledger
+  const updateUserMvkBalanceOperation : operation = Tezos.transaction(
+      (Tezos.sender, stakeAmount, "stake"),
+      0tez,
+      updateUserBalanceInMvkContract(s.mvkTokenAddress)
+    );
+
   const updateSatelliteBalanceOperation : operation = Tezos.transaction(
     (Tezos.sender, stakeAmount, 1n),
     0tez,
@@ -366,7 +381,7 @@ block {
 
   // list of operations: burn mvk tokens first, then mint vmvk tokens
   // const operations : list(operation) = list [burnMvkTokensOperation; mintVMvkTokensOperation; updateSatelliteBalanceOperation];
-  const operations : list(operation) = list [updateSatelliteBalanceOperation];
+  const operations : list(operation) = list [updateSatelliteBalanceOperation; updateUserMvkBalanceOperation];
 
   // 3. update record of user address with minted vMVK tokens
 
@@ -412,7 +427,6 @@ block {
 } with (operations, s)
 
 
-
 function unstake(const unstakeAmount : nat; var s : storage) : return is
 block {
   // Steps Overview
@@ -445,6 +459,8 @@ block {
   const operations : list(operation) = list [updateMvkTotalSupplyProxyOperation];
   
 } with (operations, s)
+
+
 
 function unstakeComplete(const unstakeAmount : nat; var s : storage) : return is
 block {
@@ -487,9 +503,9 @@ block {
   var userBalanceInStakeBalanceLedger : nat := abs(userBalanceInStakeBalanceLedger - unstakeAmount); 
   s.userStakeBalanceLedger[Tezos.source] := userBalanceInStakeBalanceLedger;
 
-  // update user's MVK balance
+  // update user's MVK balance -> increase user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (Tezos.source, unstakeAmount),
+      (Tezos.source, unstakeAmount, "unstake"),
       0tez,
       updateUserBalanceInMvkContract(s.mvkTokenAddress)
     );
@@ -750,7 +766,7 @@ block {
 
    // update user's MVK balance
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (userAddress, exitFeeReward),
+      (userAddress, exitFeeReward, "stake"),
       0tez,
       updateUserBalanceInMvkContract(s.mvkTokenAddress)
     );

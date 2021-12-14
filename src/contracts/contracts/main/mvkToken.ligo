@@ -13,13 +13,14 @@ type token_metadata_info is record [
   token_info        : map(string, bytes);
 ]
 
-type storage is
-  record [
+type storage is record [
+    admin           : address;
     metadata        : big_map (string, bytes);
     token_metadata  : big_map(token_id, token_metadata_info);
     totalSupply     : amt;
     ledger          : big_map (address, account);
     doormanAddress  : address;
+    tempBalance     : nat;
   ]
 
 (* define return for readability *)
@@ -36,6 +37,19 @@ type allowanceParams is michelson_pair(michelson_pair(address, "owner", trusted,
 type totalSupplyParams is (unit * contract(amt))
 type mintParams is (address * nat)
 type burnParams is (address * nat)
+type onStakeChangeParams is (address * nat * string)
+
+// type operator_t         is [@layout:comb] record [
+//   owner                   : address;
+//   operator                : address;
+//   token_id                : token_id_t;
+// ]
+
+// type update_operator_t  is
+// | Add_operator            of operator_t
+// | Remove_operator         of operator_t
+
+// type update_operators_t is list(update_operator_t)
 
 (* Valid entry points *)
 type entryAction is
@@ -48,6 +62,9 @@ type entryAction is
   | Mint of mintParams
   | UpdateUserBalance of mintParams
   | Burn of burnParams
+  | OnStakeChange of onStakeChangeParams
+  // | Update_operators of update_operators_t
+
 
 (* Helper function to get account *)
 function getAccount (const addr : address; const s : storage) : account is
@@ -257,6 +274,40 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     
   } with (noOperations, s)
 
+  function onStakeChange(const userAddress : address; const value : amt; const stakeType : string; var s : storage) : return is
+  block{
+    (* Retrieve target account from storage *)
+    var _targetAccount : account := getAccount(userAddress, s);
+
+    (* Check this call is comming from the doorman contract *)
+    if s.doormanAddress =/= Tezos.sender then
+      failwith("NotAuthorized")
+    else skip;
+
+    s.tempBalance := value;
+
+    if stakeType = "stake" then block {
+      // stake -> decrease user balance in mvk ledger 
+      (* Balance check *)
+      if _targetAccount.balance < value then
+        failwith("NotEnoughBalance")
+      else skip;
+
+      (* Update sender balance *)
+      // _targetAccount.balance := abs(_targetAccount.balance - value);
+      _targetAccount.balance := value;
+      
+      s.ledger[userAddress] := _targetAccount;
+
+    } else block {
+      // unstake -> increase user balance in mvk ledger
+      _targetAccount.balance := _targetAccount.balance + value;
+
+      s.ledger[userAddress] := _targetAccount;
+    }
+
+  } with (noOperations, s)
+
 (* Main entrypoint *)
 function main (const action : entryAction; var s : storage) : return is
   block {
@@ -271,5 +322,6 @@ function main (const action : entryAction; var s : storage) : return is
     | Mint(params) -> mint(params.0, params.1, s)
     | UpdateUserBalance(params) -> updateUserBalance(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
+    | OnStakeChange(params) -> onStakeChange(params.0, params.1, params.2, s)
 
   end;
