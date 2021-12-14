@@ -1,21 +1,13 @@
-import {
-    OriginationOperation,
-    TransactionOperation,
-    TezosToolkit,
-    Contract,
-  } from "@taquito/taquito";
-  
-  import fs from "fs";
-  
-  import env from "../../env";
-  
-  import { confirmOperation } from "../../scripts/confirmation";
-  
-  import { DoormanStorage } from "../types/doormanType";
-  
-  export class Doorman {
+import { Contract, OriginationOperation, TezosToolkit, TransactionOperation } from "@taquito/taquito";
+import fs from "fs";
+
+import env from "../../env";
+import { confirmOperation } from "../../scripts/confirmation";
+import { doormanStorageType } from "../types/doormanStorageType";
+
+export class Doorman {
     contract: Contract;
-    storage: DoormanStorage;
+    storage: doormanStorageType;
     tezos: TezosToolkit;
   
     constructor(contract: Contract, tezos: TezosToolkit) {
@@ -35,10 +27,8 @@ import {
 
     static async originate(
       tezos: TezosToolkit,
-      storage: DoormanStorage
-    ): Promise<Doorman> {
-        
-      console.log('test show storage');
+      storage: doormanStorageType
+    ): Promise<Doorman> {      
 
       const artifacts: any = JSON.parse(
         fs.readFileSync(`${env.buildDir}/doorman.json`).toString()
@@ -50,8 +40,7 @@ import {
         })
         .catch((e) => {
         //   console.error(e);
-        console.log('error no hash')
-  
+          console.log('error no hash')
           return null;
         });
   

@@ -6,9 +6,9 @@ const { alice } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from "../test/helpers/Utils";
 
-import { DoormanStorage } from "../test/types/doormanType";
+import { doormanStorageType } from "../test/types/doormanStorageType";
 
-export const doormanStorage: DoormanStorage = {
+export const doormanStorage: doormanStorageType = {
 
   admin: alice.pkh,
   

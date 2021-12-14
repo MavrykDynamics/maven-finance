@@ -416,9 +416,9 @@ block {
     var emptyVotesMap     : map(address, nat) := map [];
 
     s.currentRound               := "proposal";
-    // s.currentRoundStartLevel  := Tezos.level;
-    // s.currentRoundEndLevel    := Tezos.level + s.config.blocksPerProposalRound;
-    // s.currentCycleEndLevel    := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound;
+    s.currentRoundStartLevel  := Tezos.level;
+    s.currentRoundEndLevel    := Tezos.level + s.config.blocksPerProposalRound;
+    s.currentCycleEndLevel    := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound;
     s.currentRoundProposals      := emptyProposalMap;    // flush proposals
     s.currentRoundVotes  := emptyVotesMap;       // flush voters
     s.currentRoundHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
@@ -452,7 +452,7 @@ block {
     // Steps Overview:
     // 1. verify that the current round is a governance proposal round
     // 2. verify that current block level has not exceeded round's end level 
-    // 3. verify that user is a satellite, has sufficient staked MVK to propose (proxy with delegation contract)
+    // 3. verify that user is a satellite, has sufficient staked MVK to propose (data taken from snapshot of all active satellite holdings at start of governance round)
     // 4. todo: check that proposer has sent enough tez to cover the submission fee
     // 5. submit (save) proposal - note: proposer does not automatically vote pass for his proposal
     // 6. add proposal id to current round proposals map

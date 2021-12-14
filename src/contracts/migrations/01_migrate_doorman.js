@@ -5,7 +5,7 @@ const { migrate } = require("../scripts/helpers");
 
 const { alice, bob } = require("../scripts/sandbox/accounts");
 
-const { doormanStorage } = require("../storage/doorman_storage");
+const { doormanStorage } = require("../storage/doormanStorage");
 
 const env = require("../env");
 

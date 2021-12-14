@@ -1,8 +1,8 @@
 const doormanContract = artifacts.require('doorman')
 const { MichelsonMap } = require('@taquito/michelson-encoder')
 
-const { alice } = require('../scripts/sandbox/accounts')
-const saveContractAddress = require('../helpers/saveContractAddress')
+const { alice } = require('../../scripts/sandbox/accounts')
+const saveContractAddress = require('../../helpers/saveContractAddress')
 
 const userStakeRecordsLedger = MichelsonMap.fromLiteral({});
 const userStakeBalanceLedger = MichelsonMap.fromLiteral({});

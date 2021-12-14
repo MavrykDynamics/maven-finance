@@ -14,6 +14,7 @@ module.exports = {
       rpc: "http://localhost:8732",
       network_id: "*",
       secretKey: alice.sk,
+      port: 8732,
     },
     hangzhounet: {
       rpc: "https://hangzhounet.api.tez.ie/",
