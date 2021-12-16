@@ -24,9 +24,8 @@ export const doormanStorage: doormanStorageType = {
   mvkTokenAddress: zeroAddress,
 
   tempMvkTotalSupply: new BigNumber(1000000000),
-  tempVMvkTotalSupply: new BigNumber(1000000000),
-  
   stakedMvkTotalSupply: new BigNumber(0),
+  
   logExitFee: new BigNumber(1),
   logFinalAmount: new BigNumber(1),
 };

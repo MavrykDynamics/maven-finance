@@ -26,6 +26,7 @@
     "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
     "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",      
     "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
+    "test-full": "yarn compile && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
     "test-only": "ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
     "clean": "rm -rf ./build"
   },

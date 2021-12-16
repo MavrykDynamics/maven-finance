@@ -69,6 +69,5 @@ export const mvkStorage: mvkStorageType = {
   ledger: ledger,
   token_metadata: token_metadata,
   doormanAddress: zeroAddress,
-  totalSupply: initialSupply,
-  tempBalance: new BigNumber(0)
+  totalSupply: initialSupply
 };

@@ -3,23 +3,25 @@
         (or (pair %getVestedBalance address (contract nat))
             (pair %updateVesting
                address
-               (pair (pair (pair (timestamp %dateTimeStart) (nat %monthsRemaining))
-                           (pair (timestamp %nextCooldown) (nat %totalClaimedAmount)))
-                     (pair (nat %totalVestedAmount) (nat %totalVestedRemainder)))))) ;
+               (pair (pair (pair (nat %cliffDuration) (nat %cooldownPeriod))
+                           (pair (timestamp %dateTimeStart) (nat %monthsRemaining)))
+                     (pair (pair (timestamp %nextCooldown) (nat %totalClaimedAmount))
+                           (pair (nat %totalVestedAmount) (nat %totalVestedRemainder))))))) ;
   storage
     (pair (pair (pair (address %admin)
                       (big_map %claimLedger
                          address
-                         (pair (pair (nat %amountClaimed) (timestamp %dateTimeClaimed)) (nat %remainderVested))))
-                (pair (pair %config (nat %cliffPeriod) (nat %cooldownPeriod))
-                      (address %delegationAddress)))
+                         (pair (pair (nat %amountClaimed) (nat %blockLevelClaimed))
+                               (pair (timestamp %dateTimeClaimed) (nat %remainderVested)))))
+                (pair (nat %config) (address %delegationAddress)))
           (pair (pair (address %doormanAddress) (address %governanceAddress))
                 (pair (nat %totalVestedAmount)
                       (big_map %vesteeLedger
                          address
-                         (pair (pair (pair (timestamp %dateTimeStart) (nat %monthsRemaining))
-                                     (pair (timestamp %nextCooldown) (nat %totalClaimedAmount)))
-                               (pair (nat %totalVestedAmount) (nat %totalVestedRemainder))))))) ;
+                         (pair (pair (pair (nat %cliffDuration) (nat %cooldownPeriod))
+                                     (pair (timestamp %dateTimeStart) (nat %monthsRemaining)))
+                               (pair (pair (timestamp %nextCooldown) (nat %totalClaimedAmount))
+                                     (pair (nat %totalVestedAmount) (nat %totalVestedRemainder)))))))) ;
   code { NIL operation ;
          LAMBDA
            unit
@@ -91,6 +93,7 @@
                  DIG 3 ;
                  PUSH mutez 0 ;
                  DIG 4 ;
+                 CDR ;
                  CDR ;
                  CDR ;
                  TRANSFER_TOKENS ;

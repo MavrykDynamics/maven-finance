@@ -1,4 +1,4 @@
-const { alice } = require("./scripts/sandbox/accounts");
+const { alice, bob, eve, mallory } = require("./scripts/sandbox/accounts");
 
 module.exports = {
   confirmationPollingTimeoutSecond: 500000,

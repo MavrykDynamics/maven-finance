@@ -19,8 +19,7 @@ type storage is record [
     token_metadata  : big_map(token_id, token_metadata_info);
     totalSupply     : amt;
     ledger          : big_map (address, account);
-    doormanAddress  : address;
-    tempBalance     : nat;
+    doormanAddress  : address;    
   ]
 
 (* define return for readability *)
@@ -283,8 +282,6 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     if s.doormanAddress =/= Tezos.sender then
       failwith("NotAuthorized")
     else skip;
-
-    s.tempBalance := value;
 
     if stakeType = "stake" then block {
       // stake -> decrease user balance in mvk ledger 

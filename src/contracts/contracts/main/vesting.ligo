@@ -1,22 +1,27 @@
+type mintTokenType is (address * nat)
 
 type configType is record [
-    cliffPeriod           : nat;   // 6 months in block levels -> 2880 * 30 * 6 = 518,400
+    // cliffPeriod           : nat;   // 6 months in block levels -> 2880 * 30 * 6 = 518,400
     cooldownPeriod        : nat;   // 1 month in block level -> 2880 * 30 = 86400
 ]
 
 type claimRecordType is record [
-    amountClaimed    : nat;
-    remainderVested  : nat; 
-    dateTimeClaimed  : timestamp;
+    amountClaimed      : nat;
+    remainderVested    : nat; 
+    dateTimeClaimed    : timestamp;
+    blockLevelClaimed  : nat;
 ]
 type claimLedgerType is big_map(address, claimRecordType)
 
 type vesteeRecordType is record [
+    
     totalVestedAmount     : nat;
     totalVestedRemainder  : nat;
     totalClaimedAmount    : nat;
 
     dateTimeStart         : timestamp; 
+    cooldownPeriod        : nat; 
+    cliffDuration         : nat;
     monthsRemaining       : nat; 
     nextCooldown          : timestamp;
 ] 
@@ -65,6 +70,27 @@ function vestingUpdateStakedBalanceInDoorman(const contractAddress : address) : 
     Some(contr) -> contr
   | None -> (failwith("vestingUpdateStakedBalanceInDoorman entrypoint in Doorman Contract not found") : contract(address * nat))
   end;
+
+// helper function to get mint entrypoint from token address
+function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
+  case (Tezos.get_entrypoint_opt(
+      "%mint",
+      token_address) : option(contract(mintTokenType))) of
+    Some(contr) -> contr
+  | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
+  end;
+
+(* Helper function to mint mvk/vmvk tokens *)
+function mintTokens(
+  const to_ : address;
+  const amount_ : nat;
+  const tokenAddress : address) : operation is
+  Tezos.transaction(
+    (to_, amount_),
+    0tez,
+    getMintEntrypointFromTokenAddress(tokenAddress)
+  );
+
 
 function claim(const _proposal : nat ; var s : storage) : return is 
 block {

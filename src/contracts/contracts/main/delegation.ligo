@@ -166,13 +166,13 @@ function updateGovernanceActiveSatellitesMap(const contractAddress : address) : 
 //   end;
 
 // helper function to get User's vMVK balance from vMVK token address
-function fetchVMvkBalance(const tokenAddress : address) : contract(address * contract(nat)) is
-  case (Tezos.get_entrypoint_opt(
-      "%getBalance",
-      tokenAddress) : option(contract(address * contract(nat)))) of
-    Some(contr) -> contr
-  | None -> (failwith("GetBalance entrypoint in vMVK Token Contract not found") : contract(address * contract(nat)))
-  end;
+// function fetchVMvkBalance(const tokenAddress : address) : contract(address * contract(nat)) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%getBalance",
+//       tokenAddress) : option(contract(address * contract(nat)))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("GetBalance entrypoint in vMVK Token Contract not found") : contract(address * contract(nat)))
+//   end;
 
 function fetchStakedMvkBalance(const tokenAddress : address) : contract(address * contract(nat)) is
   case (Tezos.get_entrypoint_opt(
@@ -379,7 +379,7 @@ block {
 
     // Overall steps:
     // 1. check if satellite exists
-    // 2. callback to vMVK token contract to fetch vMVK balance
+    // 2. callback to doorman contract to fetch staked MVK (vMVK) balance
     // 3. save new user delegate record
     // 4. update satellite total delegated amount
 

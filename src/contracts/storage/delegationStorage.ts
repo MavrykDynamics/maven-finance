@@ -9,7 +9,7 @@ import { zeroAddress } from "../test/helpers/Utils";
 import { delegationStorageType } from "../test/types/delegationStorageType";
 
 const config = {
-    minimumStakedMvkBalance : 10000,
+    minimumStakedMvkBalance : 100000000,
     delegationRatio         : 1000,
     maxSatellites           : 100
 }
