@@ -12,8 +12,19 @@ module.exports = {
       secretKey: alice.sk,
       type: "tezos"
     },
-    granada: {
-      host: "https://granadanet.smartpy.io/",
+    granadanet: {
+      host: "https://granadanet.api.tez.ie", //, "https://api.tez.ie/rpc/granadanet", 'https://api.granadanet.tzkt.io'
+      port: 443,
+      network_id: "*",
+      secretKey: alice.sk,
+      // secret,
+      // mnemonic,
+      // password,
+      // email,ß
+      type: "tezos"
+    },
+    hangzhounet: {
+      host: "https://hangzhounet.smartpy.io/",
       port: 443,
       network_id: "*",
       secretKey: alice.sk,

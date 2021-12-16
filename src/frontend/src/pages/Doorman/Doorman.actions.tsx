@@ -19,7 +19,7 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
   const contract = accountPkh
     ? await state.wallet.tezos?.wallet.at(mvkTokenAddress)
     : await new TezosToolkit(
-        (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://granadanet.smartpy.io',
+        (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.smartpy.io/',
       ).contract.at(mvkTokenAddress)
 
   const storage = await (contract as any).storage()
@@ -46,7 +46,7 @@ export const getVMvkTokenStorage = (accountPkh?: string) => async (dispatch: any
   const contract = accountPkh
     ? await state.wallet.tezos?.wallet.at(vMvkTokenAddress)
     : await new TezosToolkit(
-        (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://granadanet.smartpy.io',
+        (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.smartpy.io/',
       ).contract.at(vMvkTokenAddress)
 
   const storage = await (contract as any).storage()
