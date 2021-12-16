@@ -177,12 +177,12 @@ function getSatelliteSnapshotRecord (const satelliteAddress : address; const s :
   } with satelliteSnapshotRecord
 
 // helper function to get token total supply (for MVK)
-function getTokenTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
+function getMvkTotalSupply(const tokenAddress : address) : contract(unit * contract(nat)) is
   case (Tezos.get_entrypoint_opt(
       "%getTotalSupply",
-      tokenAddress) : option(contract(contract(nat)))) of
+      tokenAddress) : option(contract(unit * contract(nat)))) of
     Some(contr) -> contr
-  | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(contract(nat)))
+  | None -> (failwith("GetTotalSupply entrypoint in MVK Token Contract not found") : contract(unit * contract(nat)))
   end;
 
   function setProposalRecordVote(const voteType : nat; const totalVotingPower : nat; var _proposal : proposalRecordType) : proposalRecordType is
@@ -415,21 +415,21 @@ block {
     var emptyProposalMap  : map(nat, nat)     := map [];
     var emptyVotesMap     : map(address, nat) := map [];
 
-    s.currentRound               := "proposal";
-    s.currentRoundStartLevel  := Tezos.level;
-    s.currentRoundEndLevel    := Tezos.level + s.config.blocksPerProposalRound;
-    s.currentCycleEndLevel    := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound;
-    s.currentRoundProposals      := emptyProposalMap;    // flush proposals
-    s.currentRoundVotes  := emptyVotesMap;       // flush voters
+    s.currentRound                         := "proposal";
+    s.currentRoundStartLevel               := Tezos.level;
+    s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
+    s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound;
+    s.currentRoundProposals                := emptyProposalMap;    // flush proposals
+    s.currentRoundVotes                    := emptyVotesMap;       // flush voters
     s.currentRoundHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
     s.currentRoundTimelockProposalId       := 0n;                  // flush proposal id in timelock - reset to 0
 
     // update temp MVK total supply
     const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
     const updateMvkTotalSupplyOperation : operation = Tezos.transaction(
-        (setTempMvkTotalSupplyCallback),
+         (unit, setTempMvkTotalSupplyCallback),
          0tez, 
-         getTokenTotalSupply(s.mvkTokenAddress)
+         getMvkTotalSupply(s.mvkTokenAddress)
          );
 
     operations := updateMvkTotalSupplyOperation # operations;

@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../../env";
-import { alice, bob } from "../../scripts/sandbox/accounts";
+import { alice, bob, eve, mallory } from "../../scripts/sandbox/accounts";
 
 import { Doorman } from "../helpers/doormanHelper";
 import { Delegation } from "../helpers/delegationHelper";
@@ -90,15 +90,14 @@ describe("Contracts Deployment for Tests", async () => {
 
     tezos = doorman.tezos;
 
-    const setDelegationContractAddressOperation = await doorman.contract.methods.setDelegationAddress(delegation.contract.address).send();  
-    await setDelegationContractAddressOperation.confirmation();
-    const setMvkTokenAddressOperation = await doorman.contract.methods.setMvkTokenAddress(mvkToken.contract.address).send();
-    await setMvkTokenAddressOperation.confirmation();
-    
-    // deployedDoormanStorage    = await doorman.contract.storage();
-    // deployedDelegationStorage = await delegation.contract.storage();
-    // deployedMvkTokenStorage   = await mvkToken.contract.storage();
+    const inDoormanSetDelegationContractAddressOperation = await doorman.contract.methods.setDelegationAddress(delegation.contract.address).send();  
+    await inDoormanSetDelegationContractAddressOperation.confirmation();
+    const inDoormanSetMvkTokenAddressOperation = await doorman.contract.methods.setMvkTokenAddress(mvkToken.contract.address).send();
+    await inDoormanSetMvkTokenAddressOperation.confirmation();
 
+    const inDelegationSetGovernanceContractAddressOperation = await delegation.contract.methods.setGovernanceAddress(governance.contract.address).send();  
+    await inDelegationSetGovernanceContractAddressOperation.confirmation();
+    
     await saveContractAddress('doormanAddress', doorman.contract.address)
     await saveContractAddress('delegationAddress', delegation.contract.address)
     await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
@@ -106,15 +105,18 @@ describe("Contracts Deployment for Tests", async () => {
     await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
     await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
 
-      // const afterDelegationStorage = await delegation.contract.storage();
-      // const afterGovernanceStorage = await governance.contract.storage();
-      // const afterBreakGlassStorage = await breakGlass.contract.storage();
-      // const afterEmergencyGovernanceStorage = await emergencyGovernance.contract.storage();
+    // deployedDoormanStorage    = await doorman.contract.storage();
+    // deployedDelegationStorage = await delegation.contract.storage();
+    // deployedMvkTokenStorage   = await mvkToken.contract.storage();
+    // const afterDelegationStorage = await delegation.contract.storage();
+    // const afterGovernanceStorage = await governance.contract.storage();
+    // const afterBreakGlassStorage = await breakGlass.contract.storage();
+    // const afterEmergencyGovernanceStorage = await emergencyGovernance.contract.storage();
 
-      // console.log(afterDelegationStorage);
-      // console.log(afterGovernanceStorage);
-      // console.log(afterBreakGlassStorage);
-      // console.log(afterEmergencyGovernanceStorage);
+    // console.log(afterDelegationStorage);
+    // console.log(afterGovernanceStorage);
+    // console.log(afterBreakGlassStorage);
+    // console.log(afterEmergencyGovernanceStorage);
 
   });
 
@@ -136,6 +138,5 @@ describe("Contracts Deployment for Tests", async () => {
         console.log(e);
     }
   }); 
-
 
 });
