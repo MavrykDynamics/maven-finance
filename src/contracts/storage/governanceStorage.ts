@@ -2,7 +2,7 @@ import { MichelsonMap } from "@taquito/michelson-encoder";
 
 import { BigNumber } from "bignumber.js";
 
-const { alice } = require('../scripts/sandbox/accounts')
+const { alice, bob } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from "../test/helpers/Utils";
 
@@ -15,7 +15,7 @@ const config = {
 
     votingPowerRatio : 10000,
     proposalSubmissionFee : 10000000, // 10 tez
-    minimumStakeReqPercentage : 10000,
+    minimumStakeReqPercentage : 10, // 0.01% for testing: change to 10,000 later -> 10%
 
     maxProposalsPerDelegate : 20,
     timelockDuration : 5760,
@@ -41,7 +41,7 @@ export const governanceStorage: governanceStorageType = {
   startLevel: new BigNumber(1),
   nextProposalId : new BigNumber(1), 
 
-  currentRound: 'proposal',
+  currentRound: 'none',
   currentRoundStartLevel: new BigNumber(1),
   currentRoundEndLevel : new BigNumber(14401),
   currentCycleEndLevel : new BigNumber(28801),
@@ -55,6 +55,8 @@ export const governanceStorage: governanceStorageType = {
   mvkTokenAddress: zeroAddress,
   emergencyGovernanceAddress: zeroAddress,
 
-  snapshotMvkTotalSupply: new BigNumber(1000000000)
+  snapshotMvkTotalSupply: new BigNumber(1000000000),
+
+  tempFlag : bob.pkh
 
 };
