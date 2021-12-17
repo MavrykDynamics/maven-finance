@@ -31,4 +31,5 @@ export type governanceStorageType = {
   emergencyGovernanceAddress: string; 
 
   snapshotMvkTotalSupply: BigNumber;
+  tempFlag :BigNumber;
 };
