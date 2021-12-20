@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { useSelector } from 'react-redux'
 import { useDispatch } from 'react-redux'
+import { State } from 'reducers'
 
 import { hideToaster } from './Toaster.actions'
 import { ToasterView } from './Toaster.view'
-import { State } from 'reducers'
 
 export const Toaster = () => {
   const dispatch = useDispatch()

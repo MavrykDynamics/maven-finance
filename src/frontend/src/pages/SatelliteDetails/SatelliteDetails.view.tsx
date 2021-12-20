@@ -1,5 +1,6 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
+import { Loader } from 'app/App.components/Loader/Loader.view'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
 import {
@@ -12,14 +13,15 @@ import {
   SatelliteSubText,
   SatelliteTextGroup,
   SideBySideImageAndText,
-} from 'pages/Satellites/SatelliteList/SatelliteList.style'
+} from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
 import { SatellitesHeader } from 'pages/Satellites/SatellitesHeader/SatellitesHeader.controller'
-import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.view'
+import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import * as React from 'react'
+import { Link } from 'react-router-dom'
 import { SatelliteRecord } from 'reducers/delegation'
 import { Page, PageContent } from 'styles'
 
-import { SatelliteDescriptionText, SatelliteCardBottomRow } from './SatelliteDetails.style'
+import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord | undefined
@@ -34,6 +36,7 @@ export const SatelliteDetailsView = ({
   delegateCallback,
   undelegateCallback,
 }: SatelliteDetailsViewProps) => {
+  console.log(`Logging Satellite ${satellite}`)
   const options: HTMLReactParserOptions = {
     replace: (domNode: any) => {
       const isElement: boolean = domNode.type && domNode.type === 'tag' && domNode.name
@@ -60,7 +63,18 @@ export const SatelliteDetailsView = ({
       <SatellitesHeader />
       <br />
       <PageContent>
-        {satellite ? (
+        {!satellite && <Loader />}
+        {satellite && satellite.address === 'None' && (
+          <SatelliteCard>
+            <SatelliteCardTopRow>No Satellite found..</SatelliteCardTopRow>
+            <div>
+              <Link to="/satellites/">
+                <Button text="To Satellites" icon="satellite" kind="primary" />
+              </Link>
+            </div>
+          </SatelliteCard>
+        )}
+        {satellite && satellite.address !== 'None' && (
           <SatelliteCard key={satellite.address}>
             <SatelliteCardTopRow>
               <SideBySideImageAndText>
@@ -114,10 +128,7 @@ export const SatelliteDetailsView = ({
               </div>
             </SatelliteCardBottomRow>
           </SatelliteCard>
-        ) : (
-          <div></div>
         )}
-
         <SatelliteSideBar />
       </PageContent>
     </Page>

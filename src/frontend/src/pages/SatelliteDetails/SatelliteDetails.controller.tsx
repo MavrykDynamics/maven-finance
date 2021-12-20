@@ -1,33 +1,48 @@
-import { getDelegationStorage, setChosenSatellite } from 'pages/Satellites/Satellites.actions'
+import { Loader } from 'app/App.components/Loader/Loader.view'
+import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { useLocation } from 'react-router-dom'
 import { State } from 'reducers'
 import { SatelliteRecord } from 'reducers/delegation'
 
 import { SatelliteDetailsView } from './SatelliteDetails.view'
 
-export const SatelliteDetails = (props: any) => {
+export const SatelliteDetails = () => {
   const dispatch = useDispatch()
+  const location = useLocation()
   const loading = useSelector((state: State) => state.loading)
-  const { chosenSatellite } = useSelector((state: State) => state.routing)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const { satelliteLedger } = delegationStorage
-  const [satellite, setSatellite] = useState<any>(chosenSatellite)
+  const pathAddress = location.pathname?.substring(location.pathname?.lastIndexOf('/') + 1)
+  const [satellite, setSatellite] = useState<SatelliteRecord | undefined>(
+    getDesiredSatellite(pathAddress, delegationStorage.satelliteLedger),
+  )
 
   useEffect(() => {
-    let isMounted = true
     dispatch(getDelegationStorage())
-    if (!chosenSatellite) {
-      const pathAddress = props.match.params.satelliteId
-      const neededSatellite = satelliteLedger.filter((item: SatelliteRecord) => item.address === pathAddress)[0]
-      setSatellite(neededSatellite)
-      dispatch(setChosenSatellite(neededSatellite))
+  }, [delegationStorage, dispatch])
+
+  useEffect(() => {
+    if (!satellite) {
+      const neededSatellite = getDesiredSatellite(pathAddress, delegationStorage.satelliteLedger)
+      const satelliteToSend: SatelliteRecord = neededSatellite
+        ? neededSatellite
+        : {
+            address: 'None',
+            name: 'None',
+            image: 'None',
+            description: 'None',
+            satelliteFee: 'None',
+            status: false,
+            mvkBalance: '',
+            totalDelegatedAmount: '',
+            registeredDateTime: new Date(),
+            unregisteredDateTime: new Date(),
+          }
+      setSatellite(satelliteToSend)
     }
-    return () => {
-      isMounted = false
-    }
-  }, [chosenSatellite, dispatch, props, satelliteLedger])
+  }, [satellite, pathAddress, delegationStorage.satelliteLedger])
 
   const delegateCallback = () => {
     console.log('Here in delegate callback')
@@ -37,6 +52,7 @@ export const SatelliteDetails = (props: any) => {
     console.log('Here in undelegate callback')
   }
 
+  //Note: Rendering it like this as I was gettign weird VScode errors that didn't make sense when trying to do normal conditional rendering in React
   return (
     <SatelliteDetailsView
       satellite={satellite}
@@ -45,4 +61,8 @@ export const SatelliteDetails = (props: any) => {
       undelegateCallback={undelegateCallback}
     />
   )
+}
+
+function getDesiredSatellite(satelliteAddress: string, satelliteLedger: SatelliteRecord[]): SatelliteRecord {
+  return satelliteLedger?.filter((item: SatelliteRecord) => item.address === satelliteAddress)[0]
 }

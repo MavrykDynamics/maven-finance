@@ -2,30 +2,41 @@ import { Button } from 'app/App.components/Button/Button.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
+
 import { FAQLink, SatelliteSideBarStyled, SideBarSection } from './SatelliteSideBar.style'
 
-export const SatelliteSideBar = () => {
-  //TODO: Missing the actual satellite factory address
-  const satelliteFactoryAddress = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
+type SatelliteSideBarProps = {
+  userIsSatellite: boolean
+  numberOfSatellites: number
+  totalDelegatedMVK: number
+}
+export const SatelliteSideBarView = ({
+  userIsSatellite,
+  numberOfSatellites,
+  totalDelegatedMVK,
+}: SatelliteSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
-      <Link to="/become-satellite">
-        <Button icon="satellite" text="Become a Satellite" />
-      </Link>
+      {userIsSatellite ? (
+        <Link to={{ pathname: `/become-satellite`, userIsSatellite }}>
+          <Button icon="satellite" text="Edit Satellite Profile" />
+        </Link>
+      ) : (
+        <Link to="/become-satellite">
+          <Button icon="satellite" text="Become a Satellite" />
+        </Link>
+      )}
+
       <br />
       <SideBarSection>
         <h2>Statistics</h2>
         <div>
-          <h3>Satellite Factory</h3>
-          <TzAddress tzAddress={satelliteFactoryAddress} type={'primary'} hasIcon={false} />
-        </div>
-        <div>
           <h3>Number of Satellites</h3>
-          <p>12</p>
+          <p>{numberOfSatellites}</p>
         </div>
         <div>
           <h3>Total MVK delegated</h3>
-          <p>300</p>
+          <p>{totalDelegatedMVK} MVK</p>
         </div>
       </SideBarSection>
       <SideBarSection>

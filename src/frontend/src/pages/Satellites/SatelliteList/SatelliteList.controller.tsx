@@ -1,37 +1,30 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux'
 import { SatelliteRecord } from 'reducers/delegation'
-import { setChosenSatellite } from '../Satellites.actions'
+
 import { testData } from '../__tests__/testData'
 import { SatelliteListView } from './SatelliteList.view'
 
 type SatelliteListProps = {
   satellitesList: SatelliteRecord[]
   loading: boolean
+  delegateCallback: (satelliteAddress: string) => void
+  undelegateCallback: (satelliteAddress: string) => void
 }
 
-export const SatelliteList = ({ satellitesList, loading }: SatelliteListProps) => {
-  const dispatch = useDispatch()
-  const [allSatellites, setAllSatellites] = useState<any[]>([])
-  const [filteredSatelliteList, setFilteredSatelliteList] = useState<SatelliteRecord[]>(testData)
+export const SatelliteList = ({
+  satellitesList,
+  loading,
+  delegateCallback,
+  undelegateCallback,
+}: SatelliteListProps) => {
+  const [allSatellites, setAllSatellites] = useState<SatelliteRecord[]>(satellitesList)
+  const [filteredSatelliteList, setFilteredSatelliteList] = useState<SatelliteRecord[]>(satellitesList)
 
   useEffect(() => {
-    setAllSatellites(testData)
-    setFilteredSatelliteList(testData)
+    setAllSatellites(satellitesList)
+    setFilteredSatelliteList(satellitesList)
   }, [satellitesList, setAllSatellites, setFilteredSatelliteList])
-
-  const delegateCallback = () => {
-    console.log('Here in delegate callback')
-  }
-
-  const undelegateCallback = () => {
-    console.log('Here in undelegate callback')
-  }
-
-  const setChosenSatelliteCallback = (satellite: SatelliteRecord) => {
-    dispatch(setChosenSatellite(satellite))
-  }
 
   const handleSearch = (e: any) => {
     const searchQuery = e.target.value
@@ -76,7 +69,6 @@ export const SatelliteList = ({ satellitesList, loading }: SatelliteListProps) =
       satellitesList={filteredSatelliteList}
       delegateCallback={delegateCallback}
       undelegateCallback={undelegateCallback}
-      handleProfileDetailsClick={setChosenSatelliteCallback}
       handleSearch={handleSearch}
       handleSelect={handleSelect}
     />
