@@ -103,7 +103,7 @@ type storage is record [
     emergencyGovernanceAddress  : address;
     snapshotMvkTotalSupply      : nat;                // for quorum calculation use - snapshot of total MVK supply 
 
-    tempFlag : address; 
+    tempFlag : nat;  // test variable - currently used to show block levels per transaction
 ]
 
 type governanceAction is 
@@ -361,7 +361,7 @@ function updateActiveSatellitesMap(const satelliteAddress : address; var s : sto
 block {
 
   // failwith("test that updateActiveSatellitesMap is called by delegation upon new satellite registration");
-    s.tempFlag := satelliteAddress;
+    // s.tempFlag := satelliteAddress;
     checkNoAmount(Unit);                      // should not receive any tez amount
     checkSenderIsDelegationContract(s);       // check this call is comming from the Delegation contract
 
@@ -418,6 +418,7 @@ block {
 
     // check that sender is admin
     checkSenderIsAdminOrSelf(s);
+    s.tempFlag := Tezos.level;
 
     var operations : list(operation) := nil;
 
@@ -466,7 +467,8 @@ block {
     // 4. todo: check that proposer has sent enough tez to cover the submission fee
     // 5. submit (save) proposal - note: proposer does not automatically vote pass for his proposal
     // 6. add proposal id to current round proposals map
-    
+    s.tempFlag := Tezos.level;
+
     if s.currentRound = "proposal" then skip
         else failwith("You can only make a proposal during a proposal round.");
 
@@ -550,6 +552,8 @@ block {
     // 6a. if satellite has not voted in the current round, submit satellite's vote for proposal and update vote counts
     // 6b. if satellite has voted for another proposal in the current round, submit satellite's vote for new proposal and remove satellite's vote from previously voted proposal
 
+    s.tempFlag := Tezos.level;
+
     if s.currentRound = "proposal" then skip
       else failwith("You can only make a proposal during a proposal round.");
 
@@ -598,7 +602,7 @@ block {
         s.currentRoundVotes[Tezos.sender] := proposalId;
 
         // increment proposal with satellite snapshot's total voting power
-        s.currentRoundProposals[s.nextProposalId] := _proposal.passVoteMvkTotal + satelliteSnapshot.totalVotingPower;
+        s.currentRoundProposals[proposalId] := _proposal.passVoteMvkTotal + satelliteSnapshot.totalVotingPower;
 
     } else block {
         // satellite has voted for another proposal
@@ -662,6 +666,8 @@ block {
     
     checkSenderIsAdmin(s);
 
+    s.tempFlag := Tezos.level;
+
     // voting round can be triggered at any time by admin, but the start level will still remain fixed to what was initially decided at the start of the cycle (proposal round)
     s.currentRound               := "voting";
     s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
@@ -711,6 +717,8 @@ block {
     // 4. verify that vote type is a valid type - i.e. set of 1n, 0n, 2n - Yay, Nay, Abstain 
     // 5. submit satellite's vote for proposal and update vote counts
     
+    s.tempFlag := Tezos.level;
+
     if s.currentRound = "voting" then skip
         else failwith("You can only vote during the voting round.");
 
@@ -810,6 +818,7 @@ block {
     // 1. verify that proposal is in the current round / cycle
     // 2. verify that satellite made the proposal
     // 3. change status of proposal to inactive
+    s.tempFlag := Tezos.level;
 
     // check if satellite exists in the active satellites map
     const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);

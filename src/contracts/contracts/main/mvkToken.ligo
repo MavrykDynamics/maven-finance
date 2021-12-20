@@ -291,13 +291,13 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
       else skip;
 
       (* Update sender balance *)
-      // _targetAccount.balance := abs(_targetAccount.balance - value);
-      _targetAccount.balance := value;
+      _targetAccount.balance := abs(_targetAccount.balance - value);
       
       s.ledger[userAddress] := _targetAccount;
 
     } else block {
       // unstake -> increase user balance in mvk ledger
+      // claim   -> increase user balance in mvk ledger (from vesting)
       _targetAccount.balance := _targetAccount.balance + value;
 
       s.ledger[userAddress] := _targetAccount;

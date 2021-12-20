@@ -1,29 +1,34 @@
 { parameter
-    (or (or (nat %claim) (contract %getTotalVested nat))
+    (or (or (unit %claim) (contract %getTotalVested nat))
         (or (pair %getVestedBalance address (contract nat))
             (pair %updateVesting
                address
-               (pair (pair (pair (nat %cliffDuration) (nat %cooldownPeriod))
-                           (pair (timestamp %dateTimeStart) (nat %monthsRemaining)))
-                     (pair (pair (timestamp %nextCooldown) (nat %totalClaimedAmount))
-                           (pair (nat %totalVestedAmount) (nat %totalVestedRemainder))))))) ;
+               (pair (pair (pair (pair (nat %claimAmount) (nat %cliffDuration))
+                                 (pair (nat %cooldownPeriod) (timestamp %dateTimeStart)))
+                           (pair (pair (nat %monthsRemaining) (timestamp %nextCooldown))
+                                 (pair (nat %nextRedemptionBlock) (nat %totalAllocatedAmount))))
+                     (pair (nat %totalClaimed) (nat %totalRemainder)))))) ;
   storage
-    (pair (pair (pair (address %admin)
-                      (big_map %claimLedger
-                         address
-                         (pair (pair (nat %amountClaimed) (nat %blockLevelClaimed))
-                               (pair (timestamp %dateTimeClaimed) (nat %remainderVested)))))
-                (pair (nat %config) (address %delegationAddress)))
-          (pair (pair (address %doormanAddress) (address %governanceAddress))
-                (pair (nat %totalVestedAmount)
-                      (big_map %vesteeLedger
-                         address
-                         (pair (pair (pair (nat %cliffDuration) (nat %cooldownPeriod))
-                                     (pair (timestamp %dateTimeStart) (nat %monthsRemaining)))
-                               (pair (pair (timestamp %nextCooldown) (nat %totalClaimedAmount))
-                                     (pair (nat %totalVestedAmount) (nat %totalVestedRemainder)))))))) ;
-  code { NIL operation ;
-         LAMBDA
+    (pair (pair (pair (pair (address %admin)
+                            (big_map %claimLedger
+                               address
+                               (pair (pair (nat %amountClaimed) (nat %blockLevelClaimed))
+                                     (pair (timestamp %dateTimeClaimed) (nat %remainderVested)))))
+                      (pair (pair %config
+                               (pair (pair (nat %blocksPerMinute) (nat %blocksPerMonth))
+                                     (pair (nat %defaultCliffPeriod) (nat %defaultCooldownPeriod)))
+                               (pair (nat %newBlockTimeLevel) (nat %newBlocksPerMinute)))
+                            (address %delegationAddress)))
+                (pair (pair (address %doormanAddress) (address %governanceAddress))
+                      (pair (address %mvkTokenAddress) (nat %totalVestedAmount))))
+          (big_map %vesteeLedger
+             address
+             (pair (pair (pair (pair (nat %claimAmount) (nat %cliffDuration))
+                               (pair (nat %cooldownPeriod) (timestamp %dateTimeStart)))
+                         (pair (pair (nat %monthsRemaining) (timestamp %nextCooldown))
+                               (pair (nat %nextRedemptionBlock) (nat %totalAllocatedAmount))))
+                   (pair (nat %totalClaimed) (nat %totalRemainder))))) ;
+  code { LAMBDA
            unit
            unit
            { DROP ;
@@ -33,7 +38,7 @@
              EQ ;
              IF { UNIT }
                 { PUSH string "This entrypoint should not receive any tez." ; FAILWITH } } ;
-         DIG 2 ;
+         SWAP ;
          UNPAIR ;
          IF_LEFT
            { IF_LEFT
@@ -45,16 +50,149 @@
                  DROP ;
                  DUP ;
                  CDR ;
-                 CDR ;
-                 CDR ;
                  SENDER ;
                  GET ;
-                 IF_NONE { PUSH string "Error. Vestee is not found." ; FAILWITH } { DROP } ;
+                 IF_NONE { PUSH string "Error. Vestee is not found." ; FAILWITH } {} ;
+                 LEVEL ;
                  SWAP ;
+                 DUP ;
+                 DUG 2 ;
+                 CAR ;
+                 CDR ;
+                 CDR ;
+                 CAR ;
+                 SWAP ;
+                 COMPARE ;
+                 GT ;
+                 IF { DUP ;
+                      CAR ;
+                      CAR ;
+                      CAR ;
+                      CAR ;
+                      DUP 3 ;
+                      CAR ;
+                      CDR ;
+                      CDR ;
+                      CAR ;
+                      SWAP ;
+                      DUP ;
+                      DUG 2 ;
+                      SENDER ;
+                      DIG 2 ;
+                      CONTRACT %mint (pair address nat) ;
+                      IF_NONE { PUSH string "Mint entrypoint not found" ; FAILWITH } {} ;
+                      PUSH mutez 0 ;
+                      DIG 3 ;
+                      DIG 3 ;
+                      PAIR ;
+                      TRANSFER_TOKENS ;
+                      DROP ;
+                      DUP 3 ;
+                      CAR ;
+                      CDR ;
+                      CDR ;
+                      CAR ;
+                      CONTRACT %onStakeChange (pair (pair address nat) string) ;
+                      IF_NONE
+                        { PUSH string "onStakeChange entrypoint in Token Contract not found" ;
+                          FAILWITH }
+                        {} ;
+                      PUSH mutez 0 ;
+                      PUSH string "claim" ;
+                      DUP 4 ;
+                      SENDER ;
+                      PAIR ;
+                      PAIR ;
+                      TRANSFER_TOKENS ;
+                      DROP ;
+                      SWAP ;
+                      DUP ;
+                      DUG 2 ;
+                      CDR ;
+                      DUP 3 ;
+                      CAR ;
+                      CDR ;
+                      CDR ;
+                      CDR ;
+                      DUP 5 ;
+                      CAR ;
+                      CAR ;
+                      CDR ;
+                      CAR ;
+                      CAR ;
+                      CAR ;
+                      CDR ;
+                      DUP 5 ;
+                      CAR ;
+                      CDR ;
+                      CDR ;
+                      CAR ;
+                      ADD ;
+                      PAIR ;
+                      DUP 4 ;
+                      CAR ;
+                      CDR ;
+                      CAR ;
+                      PAIR ;
+                      DIG 3 ;
+                      CAR ;
+                      CAR ;
+                      PAIR ;
+                      PAIR ;
+                      DUP ;
+                      CDR ;
+                      CDR ;
+                      DUG 2 ;
+                      DUP ;
+                      DUG 3 ;
+                      CDR ;
+                      CAR ;
+                      ADD ;
+                      PAIR ;
+                      SWAP ;
+                      CAR ;
+                      PAIR ;
+                      DUP ;
+                      CDR ;
+                      CDR ;
+                      SWAP ;
+                      DUP ;
+                      DUG 2 ;
+                      CAR ;
+                      CDR ;
+                      CDR ;
+                      CDR ;
+                      SUB ;
+                      ABS ;
+                      SWAP ;
+                      DUP ;
+                      DUG 2 ;
+                      CDR ;
+                      CAR ;
+                      PAIR ;
+                      SWAP ;
+                      CAR ;
+                      PAIR ;
+                      SWAP ;
+                      DUP ;
+                      DUG 2 ;
+                      CDR ;
+                      SWAP ;
+                      DUP ;
+                      DUG 2 ;
+                      SOME ;
+                      SENDER ;
+                      UPDATE ;
+                      DIG 2 ;
+                      CAR ;
+                      PAIR ;
+                      SWAP ;
+                      PAIR }
+                    { PUSH string "Error. You are unable to claim now." ; FAILWITH } ;
+                 CDR ;
+                 NIL operation ;
                  PAIR }
-               { DIG 3 ;
-                 DROP ;
-                 UNIT ;
+               { UNIT ;
                  DIG 3 ;
                  SWAP ;
                  EXEC ;
@@ -66,24 +204,21 @@
                  DIG 2 ;
                  PUSH mutez 0 ;
                  DIG 4 ;
-                 CDR ;
-                 CDR ;
                  CAR ;
+                 CDR ;
+                 CDR ;
+                 CDR ;
                  TRANSFER_TOKENS ;
                  CONS ;
                  PAIR } }
            { IF_LEFT
-               { DIG 3 ;
-                 DROP ;
-                 UNPAIR ;
+               { UNPAIR ;
                  UNIT ;
                  DIG 4 ;
                  SWAP ;
                  EXEC ;
                  DROP ;
                  DUP 3 ;
-                 CDR ;
-                 CDR ;
                  CDR ;
                  SWAP ;
                  GET ;
@@ -95,12 +230,12 @@
                  DIG 4 ;
                  CDR ;
                  CDR ;
-                 CDR ;
                  TRANSFER_TOKENS ;
                  CONS ;
                  PAIR }
                { UNPAIR ;
                  DUP 3 ;
+                 CAR ;
                  CAR ;
                  CAR ;
                  CAR ;
@@ -116,8 +251,6 @@
                  DROP ;
                  DUP 3 ;
                  CDR ;
-                 CDR ;
-                 CDR ;
                  SWAP ;
                  DUP ;
                  DUG 2 ;
@@ -125,29 +258,14 @@
                  IF_NONE { PUSH string "Error. Vestee is not found." ; FAILWITH } { DROP } ;
                  DUP 3 ;
                  CDR ;
-                 CDR ;
-                 CDR ;
                  DUG 2 ;
                  SWAP ;
                  SOME ;
                  SWAP ;
                  UPDATE ;
                  SWAP ;
-                 DUP ;
-                 DUG 2 ;
-                 CDR ;
-                 CDR ;
                  CAR ;
                  PAIR ;
-                 SWAP ;
-                 DUP ;
-                 DUG 2 ;
-                 CDR ;
-                 CAR ;
-                 PAIR ;
-                 SWAP ;
-                 CAR ;
-                 PAIR ;
-                 SWAP ;
+                 NIL operation ;
                  PAIR } } } }
 
