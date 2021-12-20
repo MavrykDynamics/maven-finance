@@ -70,17 +70,24 @@ describe("Governance tests", async () => {
             console.log("---") // break
 
             // console.log('storage: console log checks  ----');
-            // console.log(delegationStorage);
-            // console.log('-----')
-            // console.log(governanceStorage.tempFlag);
+            // console.log(governanceStorage);
+            const beforeGovernanceStorage = await governanceInstance.storage();
+            console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
+
+            await signerFactory(bob.sk);
+            // Bob stakes 100 MVK tokens and registers as a satellite before the proposal round starts
+            const bobStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
+            await bobStakeAmountOperation.confirmation();                        
+            const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "700").send();
+            await bobRegisterAsSatelliteOperation.confirmation();
 
             await signerFactory(alice.sk);
 
             // Alice stakes 100 MVK tokens and registers as a satellite before the proposal round starts
-            const stakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
-            await stakeAmountOperation.confirmation();                        
-            const registerAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "700").send();
-            await registerAsSatelliteOperation.confirmation();
+            const aliceStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
+            await aliceStakeAmountOperation.confirmation();                        
+            const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "700").send();
+            await aliceRegisterAsSatelliteOperation.confirmation();
 
             // console.log("before: console log checks ----")
             // const afterDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);         // should return alice's satellite record
@@ -91,29 +98,27 @@ describe("Governance tests", async () => {
             // admin starts a new proposal round
             const adminStartsNewProposalRoundOperation = await governanceInstance.methods.startProposalRound().send();
             await adminStartsNewProposalRoundOperation.confirmation();
-            // console.log("----")
-            // console.log("----")
-            // console.log("----")
-            
-            // console.log("after: console log checks  ----")
-            
-            // console.log(governanceStorage);
+
 
             // await governanceStorage;
             const newGovernanceStorage = await governanceInstance.storage();
+            console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
 
+            // check active satellites in console
             // const activeSatellitesMap = await newGovernanceStorage.activeSatellitesMap;
-            // console.log(activeSatellitesMap);
-            
+            // console.log(activeSatellitesMap);   
+
             // console.log("after: alice active satellite: ----")
             // const aliceActiveSatellite = await newGovernanceStorage.activeSatellitesMap.get(alice.pkh);
             // console.log(aliceActiveSatellite);
 
             // console.log(" --- --- --- ")
 
-            // console.log("after: alice active satellite snapshot: ----")
-            // const aliceSatelliteSnapshot = await newGovernanceStorage.snapshotLedger.get(alice.pkh);
-            // console.log(aliceSatelliteSnapshot);
+            console.log("after: alice active satellite snapshot: ----")
+            const activeSatellitesMap    = await newGovernanceStorage.snapshotLedger;
+            const aliceSatelliteSnapshot = await newGovernanceStorage.snapshotLedger.get(alice.pkh);
+            console.log(activeSatellitesMap);
+            console.log(aliceSatelliteSnapshot);
             
             // console.log(newGovernanceStorage);
 
@@ -132,16 +137,61 @@ describe("Governance tests", async () => {
             // console.log('storage: console log checks  ----');
             // console.log(delegationStorage);
             // console.log(governanceStorage);
-
+            const beforeGovernanceStorage = await governanceInstance.storage();
+            console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
             // admin starts a new proposal round
             const aliceCreatesNewProposalOperation = await governanceInstance.methods.propose("New Proposal #1", "Details about new proposal #1", "ipfs://hash").send();
             await aliceCreatesNewProposalOperation.confirmation();
+            
 
             // console.log("after: console log checks  ----")
-            // const newGovernanceStorage = await governanceInstance.storage();
+            const newGovernanceStorage = await governanceInstance.storage();
+            console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
             // console.log(newGovernanceStorage);
             // console.log(afterDelegationLedgerAlice);
             // console.log(afterAliceStakedBalance);
+
+        } catch(e){
+            console.log(e);
+        } 
+    });
+
+    it('alice and bob can vote for her proposal during the proposal round', async () => {
+        try{        
+
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log("Test: alice and bob can vote for her proposal during the proposal round") 
+            console.log("---") // break
+
+            // console.log('storage: console log checks  ----');
+            // console.log(delegationStorage);
+            const beforeGovernanceStorage = await governanceInstance.storage();
+            console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
+
+
+            await signerFactory(bob.sk)
+            const bobVotesForHisProposalOperation = await governanceInstance.methods.proposalRoundVote(1).send();
+            await bobVotesForHisProposalOperation.confirmation();
+
+            // alice votes for her proposal
+            await signerFactory(alice.sk)
+            const aliceVotesForHerProposalOperation = await governanceInstance.methods.proposalRoundVote(1).send();
+            await aliceVotesForHerProposalOperation.confirmation();
+
+            // console.log("after: console log checks  ----")
+            const newGovernanceStorage = await governanceInstance.storage();
+            console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
+            // console.log(newGovernanceStorage);
+            const currentRoundProposals  = await newGovernanceStorage.currentRoundProposals;
+            const currentRoundVotes      = await newGovernanceStorage.currentRoundVotes;
+            const aliceProposal          = await newGovernanceStorage.proposalLedger.get(1);
+            const aliceProposalPassVotes = await aliceProposal.passVotersMap;
+
+            console.log(currentRoundProposals);
+            console.log(currentRoundVotes);
+            console.log(aliceProposal);
+            console.log(aliceProposalPassVotes);
+            console.log('end vote for proposal check')
 
         } catch(e){
             console.log(e);
@@ -157,15 +207,49 @@ describe("Governance tests", async () => {
 
             // console.log('storage: console log checks  ----');
             // console.log(governanceStorage.admin)
+            const beforeGovernanceStorage = await governanceInstance.storage();
+            console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
 
             await signerFactory(alice.sk);
             // admin starts a new voting round
             const adminStartsNewVotingRoundOperation = await governanceInstance.methods.startVotingRound().send();
             await adminStartsNewVotingRoundOperation.confirmation();
 
-            console.log("after: console log checks  ----")
+            // console.log("after: console log checks  ----")
             const newGovernanceStorage = await governanceInstance.storage();
-            console.log(newGovernanceStorage);
+            console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
+            // console.log(newGovernanceStorage);
+
+            // console.log(afterDelegationLedgerAlice);
+            // console.log(afterAliceStakedBalance);
+
+        } catch(e){
+            console.log(e);
+        } 
+    });
+
+    it('alice can drop her proposal during the voting round', async () => {
+        try{        
+
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log("Test: Alice can drop her proposal during the voting round") 
+            console.log("---") // break
+
+            // console.log('storage: console log checks  ----');
+            // console.log(governanceStorage.admin)
+            const beforeGovernanceStorage = await governanceInstance.storage();
+            console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
+
+            await signerFactory(alice.sk);
+            // admin starts a new voting round
+            const aliceDropsHerProposalDuringVotingRoundOperation = await governanceInstance.methods.dropProposal().send();
+            await aliceDropsHerProposalDuringVotingRoundOperation.confirmation();
+
+            // console.log("after: console log checks  ----")
+            const newGovernanceStorage = await governanceInstance.storage();
+            console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
+            // console.log(newGovernanceStorage);
+
             // console.log(afterDelegationLedgerAlice);
             // console.log(afterAliceStakedBalance);
 

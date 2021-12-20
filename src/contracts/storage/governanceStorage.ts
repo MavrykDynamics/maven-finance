@@ -57,6 +57,6 @@ export const governanceStorage: governanceStorageType = {
 
   snapshotMvkTotalSupply: new BigNumber(1000000000),
 
-  tempFlag : bob.pkh
+  tempFlag : new BigNumber(0)
 
 };

@@ -366,6 +366,12 @@
                               IF { PUSH string "NotEnoughBalance" ; FAILWITH } {} ;
                               DIG 3 ;
                               SWAP ;
+                              DUP ;
+                              DUG 2 ;
+                              CDR ;
+                              SUB ;
+                              ABS ;
+                              SWAP ;
                               CAR ;
                               PAIR ;
                               SWAP ;
