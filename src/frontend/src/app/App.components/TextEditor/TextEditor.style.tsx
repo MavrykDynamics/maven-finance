@@ -10,6 +10,7 @@ export const TextEditorContainer = styled.div`
     font-family: 'Metropolis', sans-serif;
     border-radius: 10px;
     border: none;
+    direction: ltr;
   }
   .ButtonWrap__root___1EO_R > button {
     background-color: ${backgroundColor};

@@ -83,4 +83,10 @@ export const UploadIcon = styled.svg`
     stroke: ${textColor};
   }
 `
-export const BecomeSatelliteProfilePic = styled.div``
+export const BecomeSatelliteProfilePic = styled.div`
+  margin: 30px 0 15px;
+  min-height: 200px;
+  > img {
+    height: 100%;
+  }
+`

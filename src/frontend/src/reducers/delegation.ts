@@ -1,4 +1,4 @@
-import { GET_DELEGATION_STORAGE, DELEGATE_REQUEST, DELEGATE_RESULT, DELEGATE_ERROR } from "pages/Satellites/Satellites.actions"
+import { GET_DELEGATION_STORAGE, DELEGATE_REQUEST, DELEGATE_RESULT, DELEGATE_ERROR, UNDELEGATE_ERROR, UNDELEGATE_REQUEST, UNDELEGATE_RESULT } from "pages/Satellites/Satellites.actions"
 
 export interface SatelliteRecord {
   address: string,
@@ -12,11 +12,14 @@ export interface SatelliteRecord {
   registeredDateTime: Date,
   unregisteredDateTime: Date | null
 }
+
+export type DelegationLedger = Map<string, string>
+
 export interface DelegationStorage {
   admin: string,
   satelliteLedger: SatelliteRecord[],
   config: any,    // {"maxSatellites": "100", "delegationRatio": "10000", "minimumStakedMvkBalance": "250000000"}
-  delegateLedger: any,
+  delegateLedger: DelegationLedger,
   breakGlassConfig: any,
   sMvkTokenAddress: string,
   vMvkTokenAddress: string,
@@ -37,7 +40,7 @@ const delegationDefaultState: DelegationState = {
       admin: '',
       satelliteLedger: [],
       config: {},
-      delegateLedger: {},
+      delegateLedger: new Map(),
       breakGlassConfig: {},
       sMvkTokenAddress: '',
       vMvkTokenAddress: '',
@@ -50,21 +53,43 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
   switch (action.type) {
     case GET_DELEGATION_STORAGE:
       return {
-        delegationStorage: action.delegationStorage
+        delegationStorage: action.delegationStorage,
       }
     case DELEGATE_REQUEST:
       return {
         ...state,
         type: DELEGATE,
-        amount: action.amount,
+        error: undefined
+      }
+    case DELEGATE_RESULT:
+      return {
+        ...state,
+        type: DELEGATE,
         error: undefined
       }
     case DELEGATE_ERROR:
       return {
         ...state,
         type: DELEGATE,
-        amount: 0,
+        error: action.error
+      }
+      case UNDELEGATE_REQUEST:
+      return {
+        ...state,
+        type: UNDELEGATE,
         error: undefined
+      }
+    case UNDELEGATE_RESULT:
+      return {
+        ...state,
+        type: UNDELEGATE,
+        error: undefined
+      }
+    case UNDELEGATE_ERROR:
+      return {
+        ...state,
+        type: UNDELEGATE,
+        error: action.error
       }
     default:
       return state

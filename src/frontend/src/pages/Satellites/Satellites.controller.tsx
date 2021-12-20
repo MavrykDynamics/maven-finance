@@ -1,17 +1,20 @@
-import { Button } from 'app/App.components/Button/Button.controller'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
 import { State } from 'reducers'
 import { SatelliteRecord } from 'reducers/delegation'
 import { Message, Page, PageContent } from 'styles'
-import { SatelliteList } from './SatelliteList/SatelliteList.controller'
 
-import { SatelliteListView } from './SatelliteList/SatelliteList.view'
-import { getDelegationStorage, getMvkTokenStorage, getVMvkTokenStorage, setChosenSatellite } from './Satellites.actions'
+import { SatelliteList } from './SatelliteList/SatelliteList.controller'
+import {
+  delegate,
+  getDelegationStorage,
+  getMvkTokenStorage,
+  getVMvkTokenStorage,
+  undelegate,
+} from './Satellites.actions'
 import { SatellitesHeader } from './SatellitesHeader/SatellitesHeader.controller'
-import { SatelliteSideBar } from './SatelliteSideBar/SatelliteSideBar.view'
+import { SatelliteSideBar } from './SatelliteSideBar/SatelliteSideBar.controller'
 
 export const Satellites = () => {
   const dispatch = useDispatch()
@@ -20,7 +23,7 @@ export const Satellites = () => {
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
   const { vMvkTokenStorage, myVMvkTokenBalance } = useSelector((state: State) => state.vMvkToken)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const { satelliteLedger } = delegationStorage
+  const [satelliteLedger, setSatelliteLedger] = useState<SatelliteRecord[]>([])
 
   useEffect(() => {
     if (accountPkh) {
@@ -30,12 +33,28 @@ export const Satellites = () => {
     dispatch(getDelegationStorage())
   }, [dispatch, accountPkh])
 
+  useEffect(() => {
+    setSatelliteLedger(delegationStorage.satelliteLedger)
+  }, [delegationStorage.satelliteLedger])
+
+  const delegateCallback = (satelliteAddress: string) => {
+    dispatch(delegate(satelliteAddress))
+  }
+
+  const undelegateCallback = (satelliteAddress: string) => {
+    dispatch(undelegate(satelliteAddress))
+  }
   return (
     <Page>
       <SatellitesHeader />
       <br />
       <PageContent>
-        <SatelliteList satellitesList={satelliteLedger} loading={loading} />
+        <SatelliteList
+          satellitesList={satelliteLedger}
+          loading={loading}
+          delegateCallback={delegateCallback}
+          undelegateCallback={undelegateCallback}
+        />
         <SatelliteSideBar />
       </PageContent>
     </Page>

@@ -43,7 +43,9 @@ const AppContainer = () => {
           <Route exact path="/become-satellite">
             <BecomeSatellite />
           </Route>
-          <Route exact path="/satellite-details/:satelliteId" component={SatelliteDetails} />
+          <Route exact path="/satellite-details/:satelliteId">
+            <SatelliteDetails />
+          </Route>
         </Switch>
       </AppStyled>
       <Toaster />
