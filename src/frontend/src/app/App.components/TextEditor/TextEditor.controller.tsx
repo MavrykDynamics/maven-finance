@@ -1,16 +1,27 @@
+import { ContentState, convertFromHTML } from 'draft-js'
 import * as React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import RichTextEditor, { ToolbarConfig } from 'react-rte'
 
 import { TextEditorContainer } from './TextEditor.style'
 
-export const TextEditor = (props: any) => {
+type TextEditorProps = {
+  onChange: (value: any) => void
+  initialValue?: string
+}
+export const TextEditor = ({ onChange, initialValue }: TextEditorProps) => {
   const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue())
 
+  // useEffect(() => {
+  //   if (initialValue && initialValue.length > 0) {
+  //     setEditorState(RichTextEditor.createValueFromString(initialValue, 'html'))
+  //   }
+  // }, [initialValue])
   const _onChange = (value: any) => {
     setEditorState(value)
-    if (props.onChange) {
-      props.onChange(value.toString('html'))
+    console.log(value.toString('html'))
+    if (onChange) {
+      onChange(value.toString('html'))
     }
   }
 

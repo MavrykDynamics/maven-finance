@@ -6,19 +6,8 @@ import doormanAddress from 'deployments/doormanAddress'
 import mvkTokenAddress from 'deployments/mvkTokenAddress'
 import vMvkTokenAddress from 'deployments/vMvkTokenAddress'
 import { State } from 'reducers'
-import { DelegationStorage, SatelliteRecord } from 'reducers/delegation'
+import { DelegationLedger, DelegationStorage, SatelliteRecord } from 'reducers/delegation'
 import { getContractBigmapKeys, getContractStorage } from 'utils/api'
-
-/**
- * This function sets the chosen satellite for when moving to the satellite-details page
- */
-export const SET_CHOSEN_SATELLITE = 'SET_CHOSEN_SATELLITE'
-export const setChosenSatellite = (satellite: SatelliteRecord) => async (dispatch: any, getState: any) => {
-  dispatch({
-    type: SET_CHOSEN_SATELLITE,
-    chosenSatellite: satellite,
-  })
-}
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: any, getState: any) => {
@@ -28,6 +17,7 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
     const storage = await getContractStorage(delegationAddress)
     const satelliteLedgerBigMap = await getContractBigmapKeys(delegationAddress, 'satelliteLedger')
     const delegateLedgerBigMap = await getContractBigmapKeys(delegationAddress, 'delegateLedger')
+
     const satelliteLedger: SatelliteRecord[] = []
 
     satelliteLedgerBigMap.forEach((element: any) => {
@@ -47,11 +37,18 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
       satelliteLedger.push(newSatellite)
     })
 
+    const delegationLedger: DelegationLedger = new Map()
+    delegateLedgerBigMap.forEach((element: any) => {
+      const keyAddress = element.key,
+        valueAddress = element.value?.satelliteAddress
+      delegationLedger.set(keyAddress, valueAddress)
+    })
+
     const delegationStorage: DelegationStorage = {
       admin: storage.admin,
       satelliteLedger: satelliteLedger,
       config: storage.config,
-      delegateLedger: delegateLedgerBigMap,
+      delegateLedger: delegationLedger,
       breakGlassConfig: storage.breakGlassConfig,
       sMvkTokenAddress: storage.sMvkTokenAddress,
       vMvkTokenAddress: storage.vMvkTokenAddress,
@@ -124,7 +121,55 @@ export const getVMvkTokenStorage = (accountPkh?: string) => async (dispatch: any
 export const DELEGATE_REQUEST = 'DELEGATE_REQUEST'
 export const DELEGATE_RESULT = 'DELEGATE_RESULT'
 export const DELEGATE_ERROR = 'DELEGATE_ERROR'
-export const delegate = () => async (dispatch: any, getState: any) => {
+export const delegate = (satelliteAddress: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  console.log('Here in delegate action')
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    const contract = await state.wallet.tezos?.wallet.at(delegationAddress)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.delegateToSatellite(satelliteAddress).send()
+    console.log('transaction', transaction)
+
+    dispatch({
+      type: DELEGATE_REQUEST,
+    })
+    dispatch(showToaster(INFO, 'Delegating...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Delegation done', 'All good :)'))
+
+    dispatch({
+      type: DELEGATE_RESULT,
+    })
+    dispatch(getDelegationStorage())
+    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    dispatch(getVMvkTokenStorage(state.wallet.accountPkh))
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: DELEGATE_ERROR,
+      error,
+    })
+  }
+}
+
+export const UNDELEGATE_REQUEST = 'UNSTAKE_REQUEST'
+export const UNDELEGATE_RESULT = 'UNSTAKE_RESULT'
+export const UNDELEGATE_ERROR = 'UNSTAKE_ERROR'
+export const undelegate = (satelliteAddress: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   if (!state.wallet.ready) {
@@ -140,135 +185,29 @@ export const delegate = () => async (dispatch: any, getState: any) => {
   try {
     const contract = await state.wallet.tezos?.wallet.at(delegationAddress)
     console.log('contract', contract)
-    const transaction = await contract?.methods.delegateToSatellite(state.wallet.accountPkh).send()
+    const transaction = await contract?.methods.undelegateFromSatellite(satelliteAddress).send()
     console.log('transaction', transaction)
 
     dispatch({
-      type: DELEGATE_REQUEST,
+      type: UNDELEGATE_REQUEST,
     })
-    dispatch(showToaster(INFO, 'Delegating...', 'Please wait 30s'))
+    dispatch(showToaster(INFO, 'Undelegating...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Delegation done', 'All good :)'))
+    dispatch(showToaster(SUCCESS, 'Undelegating done', 'All good :)'))
 
     dispatch({
-      type: DELEGATE_RESULT,
+      type: UNDELEGATE_RESULT,
     })
-
+    dispatch(getDelegationStorage())
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getVMvkTokenStorage(state.wallet.accountPkh))
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
-      type: DELEGATE_ERROR,
-      error,
-    })
-  }
-}
-
-export const STAKE_REQUEST = 'STAKE_REQUEST'
-export const STAKE_RESULT = 'STAKE_RESULT'
-export const STAKE_ERROR = 'STAKE_ERROR'
-export const stake = (amount: number) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
-  if (!(amount > 0)) {
-    dispatch(showToaster(ERROR, 'Incorrect amount', 'Please enter an amount superior to zero'))
-    return
-  }
-
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
-  }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    const contract = await state.wallet.tezos?.wallet.at(doormanAddress)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.stake(amount * 1000000).send()
-    console.log('transaction', transaction)
-
-    dispatch({
-      type: STAKE_REQUEST,
-      amount,
-    })
-    dispatch(showToaster(INFO, 'Staking...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
-
-    dispatch({
-      type: STAKE_RESULT,
-    })
-
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getVMvkTokenStorage(state.wallet.accountPkh))
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: STAKE_ERROR,
-      error,
-    })
-  }
-}
-
-export const UNSTAKE_REQUEST = 'UNSTAKE_REQUEST'
-export const UNSTAKE_RESULT = 'UNSTAKE_RESULT'
-export const UNSTAKE_ERROR = 'UNSTAKE_ERROR'
-export const unstake = (amount: number) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
-  if (!(amount > 0)) {
-    dispatch(showToaster(ERROR, 'Incorrect amount', 'Please enter an amount superior to zero'))
-    return
-  }
-
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
-  }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    const contract = await state.wallet.tezos?.wallet.at(doormanAddress)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.unstake(amount * 1000000).send()
-    console.log('transaction', transaction)
-
-    dispatch({
-      type: UNSTAKE_REQUEST,
-      amount,
-    })
-    dispatch(showToaster(INFO, 'Unstaking...', 'Please wait 30s'))
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Unstaking done', 'All good :)'))
-
-    dispatch({
-      type: UNSTAKE_RESULT,
-    })
-
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getVMvkTokenStorage(state.wallet.accountPkh))
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: UNSTAKE_ERROR,
+      type: UNDELEGATE_ERROR,
       error,
     })
   }

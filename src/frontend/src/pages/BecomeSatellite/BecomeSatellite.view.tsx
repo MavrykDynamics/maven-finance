@@ -6,7 +6,9 @@ import { create } from 'ipfs-http-client'
 import { SatellitesHeader } from 'pages/Satellites/SatellitesHeader/SatellitesHeader.controller'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
+import { SatelliteRecord } from 'reducers/delegation'
 import { Page } from 'styles'
+import { isNullOrUndefined } from 'util'
 
 import { TextEditor } from '../../app/App.components/TextEditor/TextEditor.controller'
 import { RegisterAsSatelliteForm } from './BecomeSatellite.actions'
@@ -14,16 +16,25 @@ import { RegisterAsSatelliteForm } from './BecomeSatellite.actions'
 import { BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteProfilePic, UploaderFileSelector, UploadIcon, UploadIconContainer } from './BecomeSatellite.style'
 
 type BecomeSatelliteViewProps = {
+  loading: boolean
   myVMvkTokenBalance?: string
   accountPkh?: string
   registerCallback: (form: RegisterAsSatelliteForm) => void
+  usersSatellite?: SatelliteRecord | undefined
 }
 
 const client = create({ url: 'https://ipfs.infura.io:5001/api/v0' })
 
-export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCallback }: BecomeSatelliteViewProps) => {
+export const BecomeSatelliteView = ({
+  loading,
+  myVMvkTokenBalance,
+  accountPkh,
+  registerCallback,
+  usersSatellite,
+}: BecomeSatelliteViewProps) => {
   const dispatch = useDispatch()
   const [balanceOk, setBalanceOk] = useState(false)
+  const [updateSatellite, setUpdateSatellite] = useState(false)
   const [form, setForm] = useState<RegisterAsSatelliteForm>({
     name: '',
     description: '',
@@ -31,6 +42,7 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
     image: undefined,
   })
   const [isUploading, setIsUploading] = useState(false)
+  const [isUploaded, setIsUploaded] = useState(false)
   const inputFile = useRef<HTMLInputElement>(null)
 
   async function handleUpload(file: any) {
@@ -40,16 +52,28 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
       const image = `https://ipfs.infura.io/ipfs/${added.path}`
       setForm({ ...form, image })
       setIsUploading(false)
+      setIsUploaded(!isUploading)
     } catch (error: any) {
       dispatch(showToaster(ERROR, error.message, ''))
       console.error(error)
       setIsUploading(false)
+      setIsUploaded(false)
     }
   }
 
   useEffect(() => {
     if (accountPkh && parseInt(myVMvkTokenBalance || '0') >= 10000) setBalanceOk(true)
-  }, [accountPkh, myVMvkTokenBalance])
+    setUpdateSatellite(usersSatellite !== undefined)
+
+    if (usersSatellite !== undefined) {
+      setForm({
+        name: usersSatellite.name,
+        description: usersSatellite.description,
+        fee: Number(usersSatellite.satelliteFee),
+        image: usersSatellite?.image,
+      })
+    }
+  }, [accountPkh, myVMvkTokenBalance, updateSatellite, usersSatellite])
 
   const handleIconClick = () => {
     inputFile?.current?.click()
@@ -57,19 +81,51 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
 
   const _handleEditorChange = (editorState: any) => {
     setForm({ ...form, description: editorState })
-    console.log(editorState)
+  }
+
+  const handleSubmit = () => {
+    const formIsValid = validateForm()
+    if (formIsValid) {
+      registerCallback(form)
+    }
+  }
+
+  const validateForm = () => {
+    const validForm = {
+      staked: balanceOk,
+      name: form.name.length !== 0 && !/\s/g.test(form.name),
+      description: form.description.length !== 0 && /<\/?[a-z][\s\S]*>/i.test(form.description),
+      fee: form.fee >= 0 && form.fee <= 100,
+      image: form.image !== undefined && form.image.indexOf('ipfs/') > 0,
+    }
+
+    const errors: any[] = []
+    let errorMessage = 'Please correct:'
+    Object.entries(validForm).forEach((k) => {
+      if (!k[1]) {
+        errors.push(k)
+        errorMessage += ` ${k[0] === 'staked' ? 'Wallet' : k[0].charAt(0).toUpperCase() + k[0].substr(1)},`
+      }
+    })
+    if (errors.length === 0) return true
+    else {
+      const errorTitle = 'Invalid fields'
+      errorMessage = errorMessage.substring(0, errorMessage.length - 1)
+      dispatch(showToaster(ERROR, errorTitle, errorMessage, 3000))
+      return false
+    }
   }
 
   return (
     <Page>
       <SatellitesHeader />
       <BecomeSatelliteForm>
-        <h3>Become a Satellite</h3>
+        {updateSatellite ? <h3>Update Satellite Profile</h3> : <h3>Become a Satellite</h3>}
         <p>1- Stake at least 10000 MVK</p>
         <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
           {accountPkh ? `Currently staking ${myVMvkTokenBalance} MVK` : 'Please connect your wallet'}
         </BecomeSatelliteFormBalanceCheck>
-        <p>2- Enter your name</p>
+        {updateSatellite ? <p>2- Update your name</p> : <p>2- Enter your name</p>}
         <Input
           type="text"
           placeholder="Name"
@@ -77,9 +133,10 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
           onChange={(e: any) => setForm({ ...form, name: e.target.value })}
           onBlur={() => {}}
         />
-        <p>3- Enter your description</p>
-        <TextEditor onChange={_handleEditorChange} />
-        <p>5- Enter your fee</p>
+        {updateSatellite ? <p>3- Update description</p> : <p>3- Enter your description</p>}
+        <TextEditor onChange={_handleEditorChange} initialValue={form.description} />
+        <p></p>
+        {updateSatellite ? <p>4- Update your fee (%)</p> : <p>4- Enter your fee (%)</p>}
         <Input
           type="text"
           placeholder="Fee"
@@ -110,9 +167,11 @@ export const BecomeSatelliteView = ({ myVMvkTokenBalance, accountPkh, registerCa
               </UploadIconContainer>
             </div>
           )}
-          <BecomeSatelliteProfilePic>{form.image && <img src={form.image} alt="" />}</BecomeSatelliteProfilePic>
+          {isUploaded && (
+            <BecomeSatelliteProfilePic>{form.image && <img src={form.image} alt="" />}</BecomeSatelliteProfilePic>
+          )}
         </UploaderFileSelector>
-        <Button icon="satellite" text="Register as Satellite" onClick={() => registerCallback(form)} />
+        <Button icon="satellite" text="Register as Satellite" loading={loading} onClick={handleSubmit} />
       </BecomeSatelliteForm>
     </Page>
   )

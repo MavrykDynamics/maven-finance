@@ -8,7 +8,6 @@ import { progressBar, ProgressBarState } from './progressBar'
 import { toaster, ToasterState } from './toaster'
 import { vMvkToken, VMvkTokenState } from './vMvkToken'
 import { wallet, WalletState } from './wallet'
-import {routing, RoutingState} from './routing'
 
 export const reducers = combineReducers({
   loading,
@@ -18,8 +17,7 @@ export const reducers = combineReducers({
   mvkToken,
   vMvkToken,
   wallet,
-  delegation,
-  routing
+  delegation
 })
 
 export interface State {
@@ -30,6 +28,5 @@ export interface State {
   mvkToken: MvkTokenState
   vMvkToken: VMvkTokenState
   wallet: WalletState
-  delegation: DelegationState,
-  routing: RoutingState
+  delegation: DelegationState
 }

@@ -10,7 +10,7 @@ export const REGISTER_AS_SATELLITE_RESULT = 'REGISTER_AS_SATELLITE_RESULT'
 export const REGISTER_AS_SATELLITE_ERROR = 'REGISTER_AS_SATELLITE_ERROR'
 export const registerAsSatellite = (form: RegisterAsSatelliteForm) => async (dispatch: any, getState: any) => {
   const state: State = getState()
-
+  console.log('Got to here is registerAsSatellite ')
   if (!state.wallet.ready) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
