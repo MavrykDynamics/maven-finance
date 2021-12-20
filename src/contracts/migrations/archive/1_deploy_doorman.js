@@ -8,8 +8,8 @@ const userStakeRecordsLedger = MichelsonMap.fromLiteral({});
 const userStakeBalanceLedger = MichelsonMap.fromLiteral({});
 
 const adminAddress = alice.pkh
-const tempMvkTotalSupply = '1000000000'
-const tempVMvkTotalSupply = '1000000000'
+const tempMvkTotalSupply = '10000000000000'   // 10,000,000 MVK Tokens in mu (10^6)
+const tempVMvkTotalSupply = '10000000000000'  // 10,000,000 vMVK Tokens in mu (10^6)
 const breakGlassConfigType = {
   stakeIsPaused           : false,
   unstakeIsPaused         : false,
