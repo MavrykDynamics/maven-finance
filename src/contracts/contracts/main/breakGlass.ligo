@@ -50,7 +50,7 @@ type breakGlassAction is
     | Flush of (unit)
 
     // glass broken required
-    | SetSingleContractAdmin of (address * address)             // set admin for single contract
+    | SetSingleContractAdmin of (address * address)   // set admin for single contract
     | SetAllContractsAdmin of (address)               // set admin for single contract
     | PauseAllEntrypoints of (unit)            
     | UnpauseAllEntrypoints of (unit)
@@ -124,15 +124,62 @@ block {
 
 function setEmergencyGovernanceAddress(const newEmergencyGovernanceAddress : address; var s : storage) : return is 
 block {
+
+//     Steps Overview:
+//     1. check that sender is a council member
+//     2. check if there is a current action already, if not add a new "setEmergencyGovernanceAddress" action record 
+//     3. add sender to action record's approvedBy set
+//     4. once threshold has been reached, immediately execute action and flush current action id to 0
+
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount 
-    checkSenderIsAdmin(s); // check that sender is admin
-    s.config.emergencyGovernanceAddress := newEmergencyGovernanceAddress;
+    checkSenderIsCouncilMember(s);  // check that sender is council member
+
+    var currentActionId : nat := s.currentActionId; 
+    if currentActionId = 0n then block {
+        // add new action record for updating multisig
+        var newActionRecord : actionRecordType := record [
+            action     = "setEmergencyGovernanceAddress";
+            // expired    = Tezos.level + s.config.actionExpiryDuration; // when tezos.level is fixed
+            expired    = 1n;                        // temp placeholder until tezos.level is fixed
+            threshold  = s.config.threshold;
+            approvedBy = set[Tezos.sender];
+        ];
+        s.actionLedger[s.nextActionId] := newActionRecord;
+        s.nextActionId := s.nextActionId + 1n;
+    } else block {
+        // check that current action is of addCouncilMember type, if not fail
+        var actionRecord : actionRecordType := case s.actionLedger[s.currentActionId] of
+            | Some(_record) -> _record
+            | None -> failwith("Error. Action record is not found.")
+        end;
+
+        if actionRecord.action =/= "setEmergencyGovernanceAddress" then failwith("Error. Another action is currently underway.")
+          else skip;
+
+        actionRecord.approvedBy := Set.add(Tezos.sender, actionRecord.approvedBy);
+        s.actionLedger[s.currentActionId] := actionRecord; 
+
+        // threshold has been reached, so add new council member address to the set of council members in storage
+        if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {
+            s.config.emergencyGovernanceAddress := newEmergencyGovernanceAddress;
+            s.currentActionId := 0n; // reset current action id to 0n since action has been completed
+        } else skip;
+
+    }
+
 } with (noOperations, s)
 
 
 function addCouncilMember(const newCouncilMemberAddress : address; var s : storage) : return is 
 block {
 
+//     Steps Overview:
+//     1. check that sender is a council member
+//     2. check if there is a current action already, if not add a new "addCouncilMember" action record 
+//     3. add sender to action record's approvedBy set
+//     4. once threshold has been reached, immediately execute action and flush current action id to 0
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount 
     checkSenderIsCouncilMember(s);  // check that sender is council member
 
     var currentActionId : nat := s.currentActionId; 
@@ -173,6 +220,14 @@ block {
 function removeCouncilMember(const councilMemberAddress : address; var s : storage) : return is 
 block {
 
+    // Steps Overview:
+    // 1. check that sender is a council member
+    // 2. todo: check that councilMemberAddress exists in council member set
+    // 3. check if there is a current action already, if not add a new "removeCouncilMember" action 
+    // 4. add sender to action record's approvedBy set
+    // 5. once threshold has been reached, immediately execute action and flush current action id to 0
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount 
     checkSenderIsCouncilMember(s);  // check that sender is council member
 
     var currentActionId : nat := s.currentActionId; 
@@ -213,6 +268,14 @@ block {
 function setThreshold(const newThreshold : nat; var s : storage) : return is 
 block {
 
+    // Steps Overview:
+    // 1. check that sender is a council member
+    // 2. check that newThreshold is within range (between 0 and number of existing council members)
+    // 3. check if there is a current action already, if not add a new "setThreshold" action record 
+    // 4. add sender to action record's approvedBy set
+    // 5. once threshold has been reached, immediately execute action and flush current action id to 0
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount 
     checkSenderIsCouncilMember(s);  // check that sender is council member
 
     (* Ensure newThreshold is in range *)
@@ -257,7 +320,14 @@ block {
 
 function flush(var s : storage) : return is 
 block {
+
+    // Steps Overview:
+    // 1. check that sender is a council member
+    // 2. check if there is a current action already, if not add a new "flush" action record 
+    // 3. add sender to action record's approvedBy set
+    // 4. once threshold has been reached, immediately execute action and flush current action id to 0
     
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount 
     checkSenderIsCouncilMember(s);  // check that sender is council member
 
     var currentActionId : nat := s.currentActionId; 
@@ -303,8 +373,12 @@ block {
 
     // Steps Overview:
     // 1. check that glass has been broken
-    // 2. send operations to unpause all entrypoints
+    // 2. check if there is a current action already, if not add a new "setAllContractsAdmin" action 
+    // 3. add sender to action record's approvedBy set
+    // 4. once threshold has been reached, immediately execute action and flush current action id to 0
+    //     - send operations to pause all entrypoints (loop over contract addresses in map)
     
+    checkNoAmount(Unit);            // entrypoint should not receive any tez amount 
     checkGlassIsBroken(s);          // check that glass is broken
     checkSenderIsCouncilMember(s);  // check that sender is council member
 
@@ -413,7 +487,7 @@ function setSingleContractAdmin(const newAdminAddress : address; const targetCon
 block {
     // Steps Overview:
     // 1. check that glass has been broken
-    // 2. set admin address of target contract 
+    // 2. set new admin address of target contract 
     
     checkGlassIsBroken(s);          // check that glass is broken
     checkSenderIsCouncilMember(s);  // check that sender is council member
@@ -464,7 +538,7 @@ function setAllContractsAdmin(const newAdminAddress : address; var s : storage) 
 block {
     // Steps Overview:
     // 1. check that glass has been broken
-    // 2. set admin address of target contract 
+    // 2. set new admin address of all contracts
     
     // check that glass has been broken
     // checkGlassIsBroken(s)

@@ -335,6 +335,7 @@ contract('doorman', async() => {
             //     opSize: 151,
             //     baseFeeMutez: 100
             //   }
+            // (0.1 * 247954) + (1 * 127) + 100 => 25022.4 -> 0.025022 tez
 
 
             // afterMvkStorage     = await mvkTokenInstance.storage();
