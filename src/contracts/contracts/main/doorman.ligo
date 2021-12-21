@@ -7,7 +7,7 @@ type stakeRecordType is record [
     vMvkTotalSupply   : nat;    // audit log for vMVK total supply at time of transaction
     opType            : string; // audit log for type of transaction (stake / unstake / exitFeeReward / exitFeeDistribution)
 ]
-type userStakeRecordsType is big_map (address, map(nat, stakeRecordType))
+type userStakeRecordsType is big_map(address, map(nat, stakeRecordType))
 
 type userStakeBalanceType is big_map(address, nat)
 
@@ -88,13 +88,13 @@ function checkNoAmount(const _p : unit) : unit is
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to get token total supply (works for either MVK and vMVK)
-function getTokenTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
-  case (Tezos.get_entrypoint_opt(
-      "%getTotalSupply",
-      tokenAddress) : option(contract(contract(nat)))) of
-    Some(contr) -> contr
-  | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(contract(nat)))
-  end;
+// function getTokenTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%getTotalSupply",
+//       tokenAddress) : option(contract(contract(nat)))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(contract(nat)))
+//   end;
 
 // helper function to get MVK total supply
 function updateMvkTotalSupplyForDoorman(const tokenAddress : address) : contract(nat) is
