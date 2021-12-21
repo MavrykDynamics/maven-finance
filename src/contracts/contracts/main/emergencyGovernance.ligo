@@ -124,9 +124,6 @@ block {
     // 1. check that there is no currently active emergency governance being voted on
     // 2. operation to MVK token contract to get total supply -> then update temp total supply and emergency governce record min MVK required
 
-    // 1. check that there is no currently active emergency governance being voted on
-    // - todo: get last emergency governance proposal - save temp state in storage?
-
     if s.currentEmergencyGovernanceId = 0n then skip
       else failwith("Error. There is a emergency control governance in process.");
 
@@ -242,6 +239,12 @@ block {
  
 function dropEmergencyGovernance(var s : storage) : return is 
 block {
+
+    // Steps Overview:
+    // 1. check that emergency governance exist in the emergency governance ledger, and is currently active, and can be voted on
+    // 2. check that satellite is proposer of emergency governance
+    // 3. change emergency governance proposal to inactive and reset currentEmergencyGovernanceId
+    
 
     if s.currentEmergencyGovernanceId = 0n then failwith("Error. There is no emergency control governance in process.")
       else skip;

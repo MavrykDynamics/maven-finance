@@ -2,7 +2,6 @@
 
 type storage is record [
     admin           : address;
-    // config          : configType;
     doormanAddress  : address;
 ]
 
