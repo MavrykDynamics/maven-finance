@@ -2,9 +2,9 @@ const doormanContract = artifacts.require('doorman')
 const mvkTokenContract = artifacts.require('mvkToken')
 const { MichelsonMap } = require('@taquito/taquito')
 
-const { alice, bob, eve, mallory } = require('../scripts/sandbox/accounts')
-const saveContractAddress = require('../helpers/saveContractAddress')
-const doormanAddress = require('../deployments/doormanAddress')
+const { alice, bob, eve, mallory } = require('../../scripts/sandbox/accounts')
+const saveContractAddress = require('../../helpers/saveContractAddress')
+const doormanAddress = require('../../deployments/doormanAddress')
 
 const initialSupply = '10000000000000' // 10,000,000 MVK Tokens in mu (10^6)
 
