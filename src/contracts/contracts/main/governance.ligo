@@ -84,7 +84,7 @@ type storage is record [
     snapshotLedger              : snapshotLedgerType;
     activeSatellitesMap         : activeSatellitesMapType; // set of satellite addresses - for running loops - not intended to be extremely large, so satellite entry requirements have to be considered
 
-    startLevel                  : nat;             // use Tezos.level as start level
+    startLevel                  : nat;                // use Tezos.level as start level
     nextProposalId              : nat;                // counter of next proposal id
     
     // current round state variables - will be flushed periodically

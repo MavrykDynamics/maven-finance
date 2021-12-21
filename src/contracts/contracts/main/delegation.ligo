@@ -57,14 +57,12 @@ type storage is record [
     breakGlassConfig     : breakGlassConfigType;
     delegateLedger       : delegateLedgerType;
     satelliteLedger      : satelliteLedgerType;
-    // vMvkTokenAddress     : address;   
     doormanAddress       : address;
     governanceAddress    : address;
 ]
 
 type delegationAction is 
     | SetAdmin of (address)
-    // | SetVMvkTokenAddress of (address)
     | SetGovernanceAddress of (address)
 
     | TogglePauseDelegateToSatellite of (unit)
@@ -99,10 +97,6 @@ type return is list (operation) * storage
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
-
-// function checkSenderIsVMvkTokenContract(var s : storage) : unit is
-//     if (Tezos.sender = s.vMvkTokenAddress) then unit
-//     else failwith("Only the vMVK Token Contract can call this entrypoint.");
 
 function checkSenderIsDoormanContract(var s : storage) : unit is
     if (Tezos.sender = s.doormanAddress) then unit
@@ -229,15 +223,6 @@ block {
     s.admin := newAdminAddress;
 
 } with (noOperations, s)
-
-// set vMvk contract address
-// function setVMvkTokenAddress(const parameters : address; var s : storage) : return is
-// block {
-//     // check that sender is admin
-//     checkSenderIsAdmin(s);
-
-//     s.vMvkTokenAddress := parameters;
-// } with (noOperations, s)
 
 (* set governance contract address *)
 function setGovernanceAddress(const newGovernanceAddress : address; var s : storage) : return is
@@ -495,7 +480,7 @@ block {
 function undelegateFromSatelliteComplete(const vMvkBalance : nat; var s : storage) : return is 
 block {
 
-    // check sender is vMVK Token Contract
+    // check sender is doorman Token Contract
     checkSenderIsDoormanContract(s);
 
     // Retrieve delegate record from storage 
@@ -772,7 +757,6 @@ block {
 function main (const action : delegationAction; const s : storage) : return is 
     case action of    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        // | SetVMvkTokenAddress(parameters) -> setVMvkTokenAddress(parameters, s)  
         | SetGovernanceAddress(parameters) -> setGovernanceAddress(parameters, s)  
 
         | TogglePauseDelegateToSatellite(_parameters) -> togglePauseDelegateToSatellite(s)
