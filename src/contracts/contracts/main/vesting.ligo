@@ -69,6 +69,8 @@ type storage is record [
     doormanAddress      : address; 
     governanceAddress   : address;
     mvkTokenAddress     : address;
+
+    tempBlockLevel      : nat; 
 ]
 
 // how to account for changes in block level
@@ -151,6 +153,7 @@ block {
     // 4. Send operations to mint new MVK tokens and update user's balance in MVK ledger
     // 5. Update vestee records in storage
 
+    s.tempBlockLevel := Tezos.level;
     checkNoAmount(unit);
 
     // use _vestee and _operations so that compiling will not have warnings that variable is unused
@@ -177,12 +180,12 @@ block {
         
         if _vestee.lastClaimedBlock = 0n then block {
             const blockLevelsSinceStart   = abs(Tezos.level - _vestee.startBlock);
-            numberOfClaimMonths           := blockLevelsSinceStart mod s.config.blocksPerMonth;
+            numberOfClaimMonths           := blockLevelsSinceStart / s.config.blocksPerMonth;
         } else skip;
         
         if _vestee.lastClaimedBlock > 0n then block {
             const blockLevelsSinceLastClaim  = abs(Tezos.level - _vestee.lastClaimedBlock);
-            numberOfClaimMonths              := blockLevelsSinceLastClaim mod s.config.blocksPerMonth;
+            numberOfClaimMonths              := blockLevelsSinceLastClaim / s.config.blocksPerMonth;
         } else skip;
     
         // get total claim amount
@@ -263,7 +266,7 @@ block {
     // Steps Overview:
     // 1. check if vestee address exists in vestee ledger
     // 2. create new vestee
-
+    s.tempBlockLevel := Tezos.level;
     checkSenderIsAdmin(s);
     checkNoAmount(unit);
 
@@ -276,8 +279,8 @@ block {
             
             // static variables initiated at start ----
 
-            totalAllocatedAmount = totalAllocatedAmount;         // totalAllocatedAmount should be in mu (10^6)
-            claimAmountPerMonth  = totalAllocatedAmount / 6n;    // totalAllocatedAmount should be in mu (10^6)
+            totalAllocatedAmount = totalAllocatedAmount;                      // totalAllocatedAmount should be in mu (10^6)
+            claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;    // totalAllocatedAmount should be in mu (10^6)
             
             startBlock           = Tezos.level;                 // date/time of start in block levels
             startTimestamp       = Tezos.now;                   // date/time start of when 

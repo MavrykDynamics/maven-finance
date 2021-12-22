@@ -91,6 +91,10 @@ describe("Contracts Deployment for Tests", async () => {
       emergencyGovernanceStorage
     );
 
+    vestingStorage.delegationAddress = delegation.contract.address;
+    vestingStorage.doormanAddress    = doorman.contract.address;
+    vestingStorage.governanceAddress = governance.contract.address;
+    vestingStorage.mvkTokenAddress   = mvkToken.contract.address;
     vesting = await Vesting.originate(
       utils.tezos,
       vestingStorage
