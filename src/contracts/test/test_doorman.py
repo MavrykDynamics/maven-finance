@@ -85,7 +85,7 @@ class DoormanContract(TestCase):
     @classmethod
     def setUpClass(cls):
         # cls.doormanContract = ContractInterface.create_from(doorman_compiled_contract_path)
-        cls.doormanContract = pytezos.contract('KT1RDdjLLjuHCqchM4zSKcV3xo2swSz7vhGU')
+        cls.doormanContract = pytezos.contract('KT1VgSX6y31iq2gNktPXDr6HPwyqfrHnH6Va')
         cls.doormanStorage  = cls.doormanContract.storage()
         # print(cls.doormanContract.storage())
         # cls.doormanStorage  = cls.doormanContract.storage
@@ -120,16 +120,16 @@ class DoormanContract(TestCase):
     def test_admin_set_mvk_contract_address_should_work(self):        
 
     #     print('Test: Admin set MVK contract address should work')
-        # new_doorman_storage = deepcopy(self.doormanStorage)
+        new_doorman_storage = deepcopy(self.doormanStorage)
         # print(new_doorman_storage['userStakeBalanceLedger']['tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'])    
         
         # big_map lookup
-        print(self.doormanContract.storage['userStakeRecordsLedger']['tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb']())
+        # print(self.doormanContract.storage['userStakeRecordsLedger']['tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb']())
         # print(self.doormanStorage['userStakeBalanceLedger'])    
 
-        # res = self.doormanContract.setMvkTokenAddress(bob).interpret(storage=new_doorman_storage, sender=admin, now=int(sec_week + sec_week/2))
-        # print(res.storage['mvkTokenAddress'])
-        # self.assertEqual(bob, res.storage['mvkTokenAddress'])
+        res = self.doormanContract.setMvkTokenAddress(bob).interpret(storage=new_doorman_storage, sender=admin, now=int(sec_week + sec_week/2))
+        print(res.storage['mvkTokenAddress'])
+        self.assertEqual(bob, res.storage['mvkTokenAddress'])
         
     # def test_non_admin_set_mvk_contract_address_should_fail(self):        
     #     print('Test: Non-Admin set MVK contract address should fail')

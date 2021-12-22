@@ -29,6 +29,7 @@ export const vestingStorage: vestingStorageType = {
   delegationAddress: zeroAddress,
   doormanAddress: zeroAddress,
   governanceAddress: zeroAddress,
-  mvkTokenAddress: zeroAddress
+  mvkTokenAddress: zeroAddress,
 
+  tempBlockLevel: new BigNumber(0)
 };
