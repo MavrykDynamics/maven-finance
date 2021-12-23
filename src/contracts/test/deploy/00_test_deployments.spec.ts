@@ -1,5 +1,5 @@
-const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
-const { InMemorySigner, importKey } = require("@taquito/signer");
+import { TezosToolkit, ContractAbstraction, ContractProvider, TezosOperationError } from '@taquito/taquito'
+import { InMemorySigner, importKey } from '@taquito/signer'
 import assert, { ok, rejects, strictEqual } from "assert";
 import { Utils, zeroAddress } from "../helpers/Utils";
 import fs from "fs";
@@ -8,7 +8,7 @@ const saveContractAddress = require('../../helpers/saveContractAddress')
 
 const chai = require("chai");
 const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);   
+chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../../env";
@@ -50,7 +50,7 @@ describe("Contracts Deployment for Tests", async () => {
   };
 
   before("setup", async () => {
-    
+
     utils = new Utils();
     await utils.init(alice.sk);
 
@@ -91,30 +91,30 @@ describe("Contracts Deployment for Tests", async () => {
       emergencyGovernanceStorage
     );
 
-    vesting = await Vesting.originate(
-      utils.tezos,
-      vestingStorage
-    );
+    // vesting = await Vesting.originate(
+    //   utils.tezos,
+    //   vestingStorage
+    // );
 
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos;
 
-    const inDoormanSetDelegationContractAddressOperation = await doorman.contract.methods.setDelegationAddress(delegation.contract.address).send();  
+    const inDoormanSetDelegationContractAddressOperation = await doorman.contract.methods.setDelegationAddress(delegation.contract.address).send();
     await inDoormanSetDelegationContractAddressOperation.confirmation();
     const inDoormanSetMvkTokenAddressOperation = await doorman.contract.methods.setMvkTokenAddress(mvkToken.contract.address).send();
     await inDoormanSetMvkTokenAddressOperation.confirmation();
 
-    const inDelegationSetGovernanceContractAddressOperation = await delegation.contract.methods.setGovernanceAddress(governance.contract.address).send();  
+    const inDelegationSetGovernanceContractAddressOperation = await delegation.contract.methods.setGovernanceAddress(governance.contract.address).send();
     await inDelegationSetGovernanceContractAddressOperation.confirmation();
-    
+
     await saveContractAddress('doormanAddress', doorman.contract.address)
     await saveContractAddress('delegationAddress', delegation.contract.address)
     await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
     await saveContractAddress('governanceAddress', governance.contract.address)
     await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
     await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
-    await saveContractAddress('vestingAddress', vesting.contract.address)
+    // await saveContractAddress('vestingAddress', vesting.contract.address)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
@@ -134,7 +134,7 @@ describe("Contracts Deployment for Tests", async () => {
 
   it(`test all contract deployments`, async () => {
     try{
-        
+
         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
         console.log('Test: All contracts deployed')
         console.log('-- -- -- -- -- Deployments -- -- -- --')
@@ -144,11 +144,11 @@ describe("Contracts Deployment for Tests", async () => {
         console.log('BreakGlass Contract deployed at:', breakGlass.contract.address);
         console.log('Emergency Governance Contract deployed at:', emergencyGovernance.contract.address);
         console.log('MVK Token Contract deployed at:', mvkToken.contract.address);
-        console.log('Vesting Contract deployed at:', vesting.contract.address);
+        // console.log('Vesting Contract deployed at:', vesting.contract.address);
 
     } catch (e){
         console.log(e);
     }
-  }); 
+  });
 
 });

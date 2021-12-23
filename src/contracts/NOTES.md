@@ -2,9 +2,10 @@
 
 ### Commands:
 
-**To compile:** `tuffle compile`
+**To compile:** `npm run compile`  
+This compiles all of the contracts in contracts/main and generates the .tez michelson files inside the ```contracts/compiled``` directory
 
-**Deploy to Granana:** `truffle migrate --network hangzhounet`
+**Deploy to Hangzhou:** `npm run migrate`
 
 **Things to do after deployment to Granada:**
 
