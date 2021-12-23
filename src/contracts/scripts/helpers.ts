@@ -1,4 +1,4 @@
-import fs from "fs";
+import * as fs from "fs";
 
 import { execSync } from "child_process";
 
@@ -58,7 +58,7 @@ export const compile = async (
   outputDir: string = env.buildDir,
   ligoVersion: string = env.ligoVersion
 ) => {
-  
+
   const ligo: string = getLigo(true, ligoVersion);
   const contracts: string[] = !contract ? getContractsList() : [contract];
 
@@ -147,11 +147,11 @@ export const migrate = async (
 ) => {
   try {
     console.log(`${env.buildDir}/${contract}.json`);
-    
+
     const artifacts: any = JSON.parse(
       fs.readFileSync(`${env.buildDir}/${contract}.json`).toString()
     );
-    
+
     // console.log('running migrations')
     // console.log(tezos)
     // console.log('artifacts')

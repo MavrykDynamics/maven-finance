@@ -1,7 +1,0 @@
-{ parameter (or (nat %first) (nat %second)) ;
-  storage address ;
-  code { NIL operation ;
-         SWAP ;
-         UNPAIR ;
-         IF_LEFT { DROP ; SWAP ; PAIR } { DROP ; SWAP ; PAIR } } }
-

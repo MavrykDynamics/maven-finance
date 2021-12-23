@@ -1,1 +1,0 @@
-module.exports = "KT1LBzYSNy4jmVaAZG2DewkKSqYQpZcDN1Eb";

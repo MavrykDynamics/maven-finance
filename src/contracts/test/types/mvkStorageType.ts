@@ -1,5 +1,4 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
-
 import { BigNumber } from "bignumber.js";
 
 export type mvkStorageType = {
@@ -9,5 +8,4 @@ export type mvkStorageType = {
   token_metadata: MichelsonMap<MichelsonMapKey, unknown>;
   doormanAddress: string;
   totalSupply: BigNumber;
-  tempBalance: BigNumber;
 };
