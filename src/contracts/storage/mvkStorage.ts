@@ -1,5 +1,4 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-
 import { BigNumber } from "bignumber.js";
 import { Buffer } from "buffer";
 
@@ -9,8 +8,8 @@ import { zeroAddress } from "../test/helpers/Utils";
 
 import { mvkStorageType } from "../test/types/mvkStorageType";
 
-const totalSupply   = 1000000000;
-const initialSupply = new BigNumber(totalSupply); // 1,000 MVK Tokens in mu (10^6)
+const totalSupply   = 10000000000000;
+const initialSupply = new BigNumber(totalSupply); // 10,000,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4);
 
 const metadata = MichelsonMap.fromLiteral({
