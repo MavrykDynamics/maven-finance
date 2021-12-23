@@ -19,9 +19,22 @@ twoUp =  os.path.abspath(os.path.join('__file__' ,"../../"))
 rootDir = os.path.abspath(os.curdir)
 fileDir = os.path.dirname(os.path.realpath('__file__'))
 
-doorman_compiled_contract_path = os.path.join(twoUp, 'contracts/compiled/doorman.tz')
-vesting_compiled_contract_path = os.path.join(twoUp, 'contracts/compiled/vesting.tz')
-print('doorman tz: '+ doorman_compiled_contract_path)
+print('fileDir: '+fileDir)
+
+deploymentsDir          = os.path.join(fileDir, 'deployments')
+deployedVestingContract = os.path.join(deploymentsDir, 'vestingAddress.json')
+deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
+
+deployedVesting = open(deployedVestingContract)
+vestingContractAddress = json.load(deployedVesting)
+vestingContractAddress = vestingContractAddress['address']
+
+deployedMvkToken = open(deployedMvkTokenContract)
+mvkTokenAddress = json.load(deployedMvkToken)
+mvkTokenAddress = mvkTokenAddress['address']
+
+print('Vesting Contract Deployed at: ' + vestingContractAddress)
+print('MVK Token Address Deployed at: ' + mvkTokenAddress)
 
 alice = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
 admin = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
@@ -37,15 +50,18 @@ blocks_day = 2880
 blocks_month = blocks_day * 30 # 86400 per month
 
 error_unable_to_claim_now = 'Error. You are unable to claim now.'
+error_vestee_is_locked    = 'Error. Vestee is locked.'
+error_vestee_not_found    = 'Error. Vestee is not found.'
 
 class VestingContract(TestCase):
     
     @classmethod
     def setUpClass(cls):
-        cls.vestingContract = pytezos.contract('KT1AFhjL9WPhYMYYh5ZoU9QCZQAXxhjVGQxg')
+        cls.vestingContract = pytezos.contract(vestingContractAddress)
         cls.vestingStorage  = cls.vestingContract.storage()
+        cls.mvkTokenContract = pytezos.contract(mvkTokenAddress)
+        cls.mvkTokenStorage  = cls.mvkTokenContract.storage()
         
-
     @contextmanager
     def raisesMichelsonError(self, error_message):
         with self.assertRaises(MichelsonRuntimeError) as r:
@@ -73,7 +89,7 @@ class VestingContract(TestCase):
         self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
         print('----')
         print('test_admin_can_add_a_new_vestee')
-        print(res.storage['vesteeLedger'][bob])        
+        # print(res.storage['vesteeLedger'][bob])        
         
         
     def test_bob_cannot_claim_before_cliff_period(self):            
@@ -85,11 +101,14 @@ class VestingContract(TestCase):
             self.vestingContract.claim().interpret(storage=res.storage, sender=bob)
 
     def test_bob_can_claim_after_cliff_period(self):            
+        
         init_vesting_storage = deepcopy(self.vestingStorage)        
+        init_mvk_token_storage = deepcopy(self.mvkTokenStorage)        
         
         currentLevel     = pytezos.shell.head.level()
         currentTimestamp = pytezos.now()
-
+        
+        print('current level: ' + str(currentLevel))
         # print(currentTimestamp)
         # print(currentTimestamp + sec_month * 30)
         
@@ -100,6 +119,7 @@ class VestingContract(TestCase):
         totalVestingInMonths     = 24
         totalClaimAmountPerMonth = totalVestedAmount // totalVestingInMonths
 
+        print(self.vestingContract.storage)
         addVesteeBob = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=admin)
         bobClaimsRes = self.vestingContract.claim().interpret(storage=addVesteeBob.storage, sender = bob, now = after_6_months, level = currentLevel + blocks_month * 6 + 100)
         
@@ -107,7 +127,26 @@ class VestingContract(TestCase):
 
         print('----')
         print('test_bob_can_claim_after_cliff_period')    
-        print(bobClaimsRes.storage)        
+        # print(bobClaimsRes.storage)        
+
+        print(bobClaimsRes.storage)
+        # checkMvkToken = self.mvkTokenContract.storage()        
+        # print(pytezos.sleep( num_blocks = 5, time_between_blocks = 1, block_timeout =10))
+        pytezos.sleep(1)
+        pytezos.sleep(1)
+        
+        newLevel     = pytezos.shell.head.level()
+        print('new level: ' + str(newLevel))
+        # print(pytezos.shell.head.operations)
+        # print('---')
+        print('head~'+str(newLevel))
+        # new_block_id = 'head~'+str(newLevel)
+        new_block_id = newLevel
+        updatedMvkTokenCheck = self.mvkTokenContract.using(block_id=new_block_id)
+        print(updatedMvkTokenCheck)
+        updatedMvkTokenCheck = updatedMvkTokenCheck.storage
+        print(updatedMvkTokenCheck['ledger'][bob]())
+
 
     def test_bob_can_claim_3_months_after_cliff_period(self):            
         init_vesting_storage = deepcopy(self.vestingStorage)        
@@ -156,3 +195,167 @@ class VestingContract(TestCase):
         print('----')
         print('test_bob_can_claim_after_cliff_and_2_months_after')    
         print(bobClaimsRes.storage)        
+
+    def test_admin_can_lock_bob_from_claiming(self):          
+        init_vesting_storage = deepcopy(self.vestingStorage)        
+        
+        currentLevel     = pytezos.shell.head.level()
+        currentTimestamp = pytezos.now()
+        
+        after_3_months = currentTimestamp + (sec_month * 3)
+
+        totalVestedAmount        = 500000000
+        totalCliffInMonths       = 3
+        totalVestingInMonths     = 24
+        totalClaimAmountPerMonth = totalVestedAmount // totalVestingInMonths
+
+        addVesteeBob = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=admin)
+        bobClaimsRes = self.vestingContract.claim().interpret(storage=addVesteeBob.storage, sender = bob, now = after_3_months, level = currentLevel + blocks_month * 3 + 100)
+
+        lockBobVestee = self.vestingContract.toggleVesteeLock(bob).interpret(storage=bobClaimsRes.storage, sender=admin)
+        self.assertEqual("LOCKED", lockBobVestee.storage['vesteeLedger'][bob]['status'])
+
+        with self.raisesMichelsonError(error_vestee_is_locked):
+            self.vestingContract.claim().interpret(storage=lockBobVestee.storage, sender=bob)
+
+        print('----')
+        print('test_admin_can_lock_bob_from_claiming')    
+        print(lockBobVestee.storage)        
+          
+    def test_admin_can_update_bob_vestee_params(self):          
+        init_vesting_storage = deepcopy(self.vestingStorage)        
+        
+        currentLevel     = pytezos.shell.head.level()
+        currentTimestamp = pytezos.now()
+        
+        after_3_months = currentTimestamp + (sec_month * 3)
+
+        totalVestedAmount        = 500000000
+        totalCliffInMonths       = 3
+        totalVestingInMonths     = 24
+        totalClaimAmountPerMonth = totalVestedAmount // totalVestingInMonths
+
+        addVesteeBob = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=admin)
+        # bobClaimsRes = self.vestingContract.claim().interpret(storage=addVesteeBob.storage, sender = bob, now = after_3_months, level = currentLevel + blocks_month * 3 + 100)
+
+        print('----')
+        print('test_admin_can_update_bob_vestee_params')    
+        print('before update storage')    
+        print(addVesteeBob.storage) 
+
+        newTotalVestedAmount        = 1000000000
+        newTotalCliffInMonths       = 6 
+        newTotalVestingInMonths     = 18       
+
+        updateVesteeBob = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=addVesteeBob.storage, sender=admin)
+        self.assertEqual(newTotalVestedAmount, updateVesteeBob.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
+
+        print('--')
+        print('after update storage')    
+        print(updateVesteeBob.storage)    
+
+    def test_admin_can_update_bob_vestee_params_after_he_has_claimed(self):          
+        init_vesting_storage = deepcopy(self.vestingStorage)        
+        
+        currentLevel     = pytezos.shell.head.level()
+        currentTimestamp = pytezos.now()
+        
+        after_5_months = currentTimestamp + (sec_month * 5)
+
+        totalVestedAmount        = 500000000
+        totalCliffInMonths       = 5
+        totalVestingInMonths     = 24
+        totalClaimAmountPerMonth = totalVestedAmount // totalVestingInMonths
+
+        addVesteeBob = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=admin)
+        bobClaimsRes = self.vestingContract.claim().interpret(storage=addVesteeBob.storage, sender = bob, now = after_5_months, level = currentLevel + blocks_month * 5 + 100)
+
+        print('----')
+        print('test_admin_can_update_bob_vestee_params_after_he_has_claimed')    
+        print('before update storage')    
+        print(bobClaimsRes.storage) 
+
+        newTotalVestedAmount        = 1000000000
+        newTotalCliffInMonths       = 5 
+        newTotalVestingInMonths     = 18       
+
+        updateVesteeBob = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=bobClaimsRes.storage, sender=admin)
+        self.assertEqual(newTotalVestedAmount, updateVesteeBob.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
+
+        print('--')
+        print('after update storage')    
+        print(updateVesteeBob.storage)    
+
+    def test_admin_can_increase_bob_cliff_period_after_he_has_claimed(self):          
+        init_vesting_storage = deepcopy(self.vestingStorage)        
+        
+        currentLevel     = pytezos.shell.head.level()
+        currentTimestamp = pytezos.now()
+        
+        after_3_months = currentTimestamp + (sec_month * 3)
+
+        totalVestedAmount        = 500000000
+        totalCliffInMonths       = 3
+        totalVestingInMonths     = 24
+        totalClaimAmountPerMonth = totalVestedAmount // totalVestingInMonths
+
+        addVesteeBob = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=admin)
+        bobClaimsRes = self.vestingContract.claim().interpret(storage=addVesteeBob.storage, sender = bob, now = after_3_months, level = currentLevel + blocks_month * 3 + 100)
+
+        print('----')
+        print('test_admin_can_increase_bob_cliff_period_after_he_has_claimed')    
+        print('before update storage')    
+        print(bobClaimsRes.storage) 
+
+        newTotalVestedAmount        = 1000000000
+        newTotalCliffInMonths       = 6 
+        newTotalVestingInMonths     = 18       
+
+        updateVesteeBob = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=bobClaimsRes.storage, sender=admin)
+        self.assertEqual(newTotalVestedAmount, updateVesteeBob.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
+
+        print('--')
+        print('after update storage')    
+        print(updateVesteeBob.storage)    
+
+    
+    def test_admin_can_remove_bob_vestee(self):          
+        init_vesting_storage = deepcopy(self.vestingStorage)        
+        
+        currentLevel     = pytezos.shell.head.level()
+        currentTimestamp = pytezos.now()
+        
+        after_3_months = currentTimestamp + (sec_month * 3)
+
+        totalVestedAmount        = 500000000
+        totalCliffInMonths       = 3
+        totalVestingInMonths     = 24
+        totalClaimAmountPerMonth = totalVestedAmount // totalVestingInMonths
+
+        addVesteeBob = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=admin)
+        removeVesteeBob = self.vestingContract.removeVestee(bob).interpret(storage=addVesteeBob.storage, sender=admin)
+
+        print('----')
+        print('test_admin_can_remove_bob_vestee')        
+        print(removeVesteeBob.storage) 
+
+    def test_vestee_can_only_claim_for_his_share_and_not_for_others(self):          
+        init_vesting_storage = deepcopy(self.vestingStorage)        
+        
+        currentLevel     = pytezos.shell.head.level()
+        currentTimestamp = pytezos.now()
+        
+        after_3_months = currentTimestamp + (sec_month * 3)
+
+        totalVestedAmount        = 500000000
+        totalCliffInMonths       = 3
+        totalVestingInMonths     = 24
+        totalClaimAmountPerMonth = totalVestedAmount // totalVestingInMonths
+
+        addVesteeBob = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=admin)        
+        with self.raisesMichelsonError(error_vestee_not_found):
+            self.vestingContract.claim().interpret(storage=addVesteeBob.storage, sender=alice)
+
+        print('----')
+        print('test_vestee_can_only_claim_for_his_share_and_not_for_others')        
+        print(addVesteeBob.storage) 
