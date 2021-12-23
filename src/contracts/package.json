@@ -24,10 +24,12 @@
     "pre-compile-all": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled",
     "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build",
     "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
-    "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",      
+    "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",          
     "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
     "test-full": "yarn compile && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
     "test-only": "ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
+    "pytest": "yarn migrate && pytest -s",
+    "pytest-only": "pytest -s",
     "clean": "rm -rf ./build"
   },
   "author": "matej.sima@stove-labs.com",
