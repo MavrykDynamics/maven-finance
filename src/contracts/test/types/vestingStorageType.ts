@@ -1,5 +1,4 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
-
 import { BigNumber } from "bignumber.js";
 
 export type vestingStorageType = {
@@ -9,9 +8,13 @@ export type vestingStorageType = {
   claimLedger  : MichelsonMap<MichelsonMapKey, unknown>;
   vesteeLedger : MichelsonMap<MichelsonMapKey, unknown>;
 
+  totalVestedAmount : BigNumber; 
+
   delegationAddress : string;
   doormanAddress    : string;
   governanceAddress : string;
   mvkTokenAddress   : string;
+
+  tempBlockLevel : BigNumber;
 
 };

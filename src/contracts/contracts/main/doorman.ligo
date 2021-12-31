@@ -20,8 +20,13 @@ type breakGlassConfigType is record [
     unstakeIsPaused         : bool;
 ]
 
+type whitelistContractsType is set (address)
+
 type storage is record [
+
     admin                 : address;
+    whitelistContracts    : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints if needed
+
     breakGlassConfig      : breakGlassConfigType;
     mvkTokenAddress       : address; 
     delegationAddress     : address;
@@ -44,11 +49,13 @@ type getSatelliteBalanceType is (address * string * string * string * nat * cont
 type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
 
 type stakeAction is 
+
     | Stake of (nat)
     | Unstake of (nat)
     | UnstakeComplete of (nat)
     | DistributeExitFeeReward of (address * nat)
     | SetAdmin of (address)
+    | UpdateWhitelistContracts of (address)
 
     | PauseAll of (unit)
     | UnpauseAll of (unit)
@@ -69,6 +76,10 @@ type stakeAction is
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
+
+function checkSenderIsWhitelistContract(var s : storage) : unit is
+    if (s.whitelistContracts contains Tezos.sender) then unit
+    else failwith("Only whitelisted contracts can call this entrypoint.");
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
     if (Tezos.sender = s.mvkTokenAddress) then unit
@@ -261,11 +272,8 @@ block {
 function setExitFeePoolAddress(const newContractAddress : address; var s : storage) : return is
 block {
 
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
 
     s.exitFeePoolAddress := newContractAddress;
 } with (noOperations, s)
@@ -290,6 +298,25 @@ function getSatelliteBalance (const userAddress : address; const name : string; 
           | None -> 0n
       end;
   } with (list [transaction((name, description, image, satelliteFee, userBalanceInStakeBalanceLedger), 0tz, contr)], s)
+
+// toggle adding and removal of whitelist contract addresses
+function updateWhitelistContracts(const contractAddress : address; var s : storage) : return is 
+block{
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    const checkIfWhitelistContractExists : bool = s.whitelistContracts contains contractAddress; 
+
+    if (checkIfWhitelistContractExists) then block{
+        // whitelist contract exists - remove whitelist contract from set 
+        s.whitelistContracts := Set.remove(contractAddress, s.whitelistContracts);
+    } else block {
+        // whitelist contract does not exist - add whitelist contract to set 
+        s.whitelistContracts := Set.add(contractAddress, s.whitelistContracts);
+    }
+
+} with (noOperations, s) 
 
 function stake(const stakeAmount : nat; var s : storage) : return is
 block {
@@ -510,6 +537,9 @@ block {
 } with (noOperations, s);
 
 
+// ********
+// Pending Alex confirmation of how exit fee distribution will work
+// ********
 function distributeExitFeeReward(const userAddress : address; const exitFeeReward : nat; var s : storage) : return is
 block {
 
@@ -625,6 +655,7 @@ function main (const action : stakeAction; const s : storage) : return is
   | UnstakeComplete(parameters) -> unstakeComplete(parameters, s)  
   | SetAdmin(parameters) -> setAdmin(parameters, s)  
   | DistributeExitFeeReward(parameters) -> distributeExitFeeReward(parameters.0, parameters.1, s)
+  | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
 
   | PauseAll(_parameters) -> pauseAll(s)
   | UnpauseAll(_parameters) -> unpauseAll(s)
