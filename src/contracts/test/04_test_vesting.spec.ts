@@ -94,19 +94,22 @@ describe("Vesting tests", async () => {
 
     // });    
 
-    // it('bob cannot claim vesting before cliff period', async () => {
+    // it('bob claim vesting - zero cliff period', async () => {
     //     try{        
 
     //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-    //         console.log("Test: Bob cannot claim vesting before cliff period") 
+    //         console.log("Test: Bob claim vesting - zero cliff period") 
     //         console.log("---") // break
 
     //         console.log('Storage test: console log checks  ----');
     //         console.log(vestingStorage);
 
+    //         const adminAddsNewVesteeOperation = await vestingInstance.methods.addVestee(bob.pkh, 500000000, 0, 24).send();
+    //         await adminAddsNewVesteeOperation.confirmation();
+
     //         await signerFactory(bob.sk);
 
-    //         // Bob tries to claim before cliff period
+    //         // Bob claim vesting - zero cliff
     //         const bobClaimsVestingBeforeCliffOperation = await vestingInstance.methods.claim();
     //         await chai.expect(bobClaimsVestingBeforeCliffOperation.send()).to.be.eventually.rejected;
 
@@ -116,46 +119,67 @@ describe("Vesting tests", async () => {
     //         console.log('Block Level: ' + newVestingStorage.tempBlockLevel);
     //         console.log('--- --- ---')
     //         const afterVesteeLedger  = await newVestingStorage.vesteeLedger.get(bob.pkh);
-    //         console.log(afterVesteeLedger);        
+    //         console.log(afterVesteeLedger);   
+            
+    //         // reset state
+    //         await signerFactory(alice.sk);     
+    //         const removeBobVesteeOperation = await vestingInstance.methods.removeVestee(bob.pkh);
+    //         await removeBobVesteeOperation.confirmation();
 
     //     } catch(e){
     //         console.log(e);
     //     } 
 
-    // });    
+    // });  
+    
 
-    // it('bob claims first vesting after cliff period', async () => {
+    // *** Mock Test - requires some changes in vesting contract *** 
+    // mock test to check that vestee claim works with changes to vestee's MVK balance and MVK total supply
+    // requires changes to vesting contract to arbitrarily set numberOfClaimMonths to 1n 
+    //   (becase original logic fixes s.config.blocksPerMonth to 86400 which will skew the calculation of numberOfClaimMonths for tests)
+    // it('bob claim vesting - zero cliff period - zero vesting period - test MVK token contract storage update', async () => {
     //     try{        
 
     //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-    //         console.log("Test: Bob claims vesting after cliff period") 
+    //         console.log("Test: Bob claim vesting - zero cliff period -  zero vesting period - test MVK token contract storage update") 
     //         console.log("---") // break
 
     //         console.log('Storage test: console log checks  ----');
     //         console.log(vestingStorage);
+
+    //         const adminAddsNewVesteeOperation = await vestingInstance.methods.addVestee(bob.pkh, 500000000, 0, 1).send();
+    //         await adminAddsNewVesteeOperation.confirmation();
+
+    //         // random operation to simulate passing of time / block levels
+    //         const adminAddsEveVesteeOperation = await vestingInstance.methods.addVestee(eve.pkh, 500000000, 0, 10).send();
+    //         await adminAddsEveVesteeOperation.confirmation();
+
+    //         const newVestingStorage = await vestingInstance.storage();
+
     //         console.log('--- --- ---')
-    //         console.log('Block Level: ' + vestingStorage.tempBlockLevel);
+    //         console.log('Block Level: ' + newVestingStorage.tempBlockLevel);
     //         console.log('--- --- ---')
 
     //         await signerFactory(bob.sk);
 
-    //         // Bob tries to claim before cliff period
-    //         const bobClaimsFirstVestingAfterCliffOperation = await vestingInstance.methods.claim().send();
-    //         await bobClaimsFirstVestingAfterCliffOperation.confirmation();
+    //         // Bob claim vesting - zero cliff
+    //         const bobClaimOperation = await vestingInstance.methods.claim().send();
+    //         await bobClaimOperation.confirmation();
+            
+    //         console.log('after claim ')
+    //         const afterClaimVestingStorage = await vestingInstance.storage();
+    //         const afterClaimVesteeLedger   = await afterClaimVestingStorage.vesteeLedger.get(bob.pkh);
+    //         console.log(afterClaimVesteeLedger);
 
-    //         const newVestingStorage = await vestingInstance.storage();
-    //         console.log(newVestingStorage);
-    //         console.log('--- --- ---')
-    //         console.log('Block Level: ' + newVestingStorage.tempBlockLevel);
-    //         console.log('--- --- ---')
-    //         const afterVesteeLedger  = await newVestingStorage.vesteeLedger.get(bob.pkh);
-    //         console.log(afterVesteeLedger);        
+    //         const newMvkTokenStorage = await mvkTokenInstance.storage();
+    //         console.log(newMvkTokenStorage);
+    //         const bobLedger          = await newMvkTokenStorage.ledger.get(bob.pkh);
+    //         console.log(bobLedger);
 
     //     } catch(e){
     //         console.log(e);
     //     } 
 
-    // });    
-
+    // });  
 
 });
