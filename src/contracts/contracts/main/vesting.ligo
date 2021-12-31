@@ -71,6 +71,7 @@ type storage is record [
     doormanAddress      : address; 
     governanceAddress   : address;
     mvkTokenAddress     : address;
+    councilAddress      : address;
 
     tempBlockLevel      : nat; 
 ]
@@ -103,6 +104,14 @@ type return is list (operation) * storage
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
+
+function checkSenderIsCouncil(var s : storage) : unit is
+    if (Tezos.sender = s.councilAddress) then unit
+    else failwith("Only the council contract can call this entrypoint.");
+
+function checkSenderIsAdminOrCouncil(var s : storage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.councilAddress) then unit
+    else failwith("Only the administrator or council contract can call this entrypoint.");
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
@@ -182,6 +191,7 @@ block {
         // calculate claim amount based on last redemption - calculate how many months has passed since last redemption if any
         var numberOfClaimMonths : nat := 0n;
         
+        // at least one month needs to pass before the first claim (e.g. for edge case vestee with 0 cliff months and 1 vesting months)
         if _vestee.lastClaimedBlock = 0n then block {
             const blockLevelsSinceStart   = abs(Tezos.level - _vestee.startBlock);
             numberOfClaimMonths           := blockLevelsSinceStart / s.config.blocksPerMonth;
@@ -192,6 +202,9 @@ block {
             numberOfClaimMonths              := blockLevelsSinceLastClaim / s.config.blocksPerMonth;
         } else skip;
     
+        // tepmp: for testing that mint inter-contract call works 
+        // const numberOfClaimMonths : nat = 1n;
+
         // get total claim amount
         const totalClaimAmount = _vestee.claimAmountPerMonth * numberOfClaimMonths;  
 
@@ -202,13 +215,15 @@ block {
         ); 
 
         // update user's MVK balance -> increase user balance in mvk ledger
-        const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-            (Tezos.sender, totalClaimAmount, "claim"),
-            0tez,
-            updateUserBalanceInMvkContract(s.mvkTokenAddress)
-        );
+        // const updateUserMvkBalanceOperation : operation = Tezos.transaction(
+        //     (Tezos.sender, totalClaimAmount, "claim"),
+        //     0tez,
+        //     updateUserBalanceInMvkContract(s.mvkTokenAddress)
+        // );
 
-        const _operations : list(operation) = list [mintVMvkTokensOperation; updateUserMvkBalanceOperation];
+        _operations := mintVMvkTokensOperation # _operations;
+
+        // const _operations : list(operation) = list [mintVMvkTokensOperation; updateUserMvkBalanceOperation];
         
         const one_day        : int   = 86_400;
         const thirty_days    : int   = one_day * 30;
@@ -276,6 +291,10 @@ block {
 
     const one_day        : int   = 86_400;
     const thirty_days    : int   = one_day * 30;
+
+    // check for div by 0 error
+    if vestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
+        else skip;
 
     var newVestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
         | Some(_record) -> failwith("Error. Vestee already exists")
@@ -373,6 +392,10 @@ block {
     checkSenderIsAdmin(s);
     checkNoAmount(unit);
 
+    // check for div by 0 error
+    if newVestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
+        else skip;
+
     var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
         | Some(_record) -> _record
         | None -> failwith("Error. Vestee is not found.")
@@ -399,6 +422,8 @@ block {
             
     vestee.endVestingBlock      := vestee.startBlock + (newVestingInMonths * s.config.blocksPerMonth);      // calculated end of new vesting duration in timestamp based on dateTimeStart
     vestee.endVestingDateTime   := vestee.startTimestamp + (newVestingInMonths * thirty_days);              // calculated end of new vesting duration in timestamp based on dateTimeStart
+
+    // todo bugfix: check that new cliff in months is different from old cliff in months
 
     // calculate next redemption block based on new cliff months and whether vestee has made a claim 
     if newCliffInMonths <= vestee.monthsClaimed then block {

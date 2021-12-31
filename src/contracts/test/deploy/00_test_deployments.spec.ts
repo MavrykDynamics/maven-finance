@@ -66,6 +66,7 @@ describe("Contracts Deployment for Tests", async () => {
     );
 
     mvkStorage.doormanAddress = doorman.contract.address;
+    mvkStorage.whitelistContracts = [doorman.contract.address];
     mvkToken = await MvkToken.originate(
       utils.tezos,
       mvkStorage
@@ -111,6 +112,9 @@ describe("Contracts Deployment for Tests", async () => {
 
     const inDelegationSetGovernanceContractAddressOperation = await delegation.contract.methods.setGovernanceAddress(governance.contract.address).send();  
     await inDelegationSetGovernanceContractAddressOperation.confirmation();
+
+    const inMvkTokenContractAddVestingContractToWhitelistOperation = await mvkToken.contract.methods.updateWhitelistContracts(vesting.contract.address).send();
+    await inMvkTokenContractAddVestingContractToWhitelistOperation.confirmation();
     
     await saveContractAddress('doormanAddress', doorman.contract.address)
     await saveContractAddress('delegationAddress', delegation.contract.address)
