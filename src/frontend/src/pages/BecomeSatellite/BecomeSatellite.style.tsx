@@ -21,7 +21,9 @@ export const BecomeSatelliteForm = styled(Card)`
 export const BecomeSatelliteFormBalanceCheck = styled.div<{ balanceOk: boolean }>`
   color: ${(props) => (props.balanceOk ? upColor : downColor)};
 `
-
+export const BecomeSatelliteFormFeeCheck = styled.div<{ feeOk: boolean }>`
+  color: ${(props) => (props.feeOk ? upColor : downColor)};
+`
 export const UploaderFileSelector = styled.div`
   margin: 15px 0;
   cursor: pointer;

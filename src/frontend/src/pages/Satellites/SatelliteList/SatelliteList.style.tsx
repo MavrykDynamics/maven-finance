@@ -1,8 +1,22 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, containerColor, subTextColor } from 'styles'
+import { backgroundColor, containerColor, primaryColor, subTextColor } from 'styles'
 
 export const SatelliteListStyled = styled.div`
   background-color: ${containerColor};
+`
+
+export const SatelliteListEmptyContainer = styled.div`
+  background-color: ${backgroundColor};
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  margin-top: 30px;
+  border-radius: 10px;
+  color: ${primaryColor};
+  font-size: 18px;
+  font-weight: 800;
+  max-height: 100px;
 `
 export const SatelliteSearchFilter = styled.div`
   background-color: ${backgroundColor};

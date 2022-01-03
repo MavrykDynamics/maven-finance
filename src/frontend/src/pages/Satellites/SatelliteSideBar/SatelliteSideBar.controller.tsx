@@ -12,20 +12,13 @@ export const SatelliteSideBar = () => {
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { satelliteLedger } = delegationStorage
-  const [numSatellites, setNumSatellites] = useState(0)
-  const [totalDelegatedMVK, setTtotalDelegatedMVK] = useState<number>(0)
-  const [userIsSatellite, setUserIsSatellite] = useState(false)
+  const numSatellites = satelliteLedger?.length || 0
+  const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
+  const userIsSatellite = accountPkh && satelliteLedger ? checkIfUserIsSatellite(accountPkh, satelliteLedger) : false
 
   useEffect(() => {
     dispatch(getDelegationStorage())
   }, [dispatch])
-  useEffect(() => {
-    if (accountPkh) {
-      setUserIsSatellite(checkIfUserIsSatellite(accountPkh, satelliteLedger))
-    }
-    setNumSatellites(satelliteLedger.length)
-    setTtotalDelegatedMVK(getTotalDelegatedMVK(satelliteLedger))
-  }, [accountPkh, satelliteLedger])
 
   return (
     <SatelliteSideBarView
@@ -36,10 +29,11 @@ export const SatelliteSideBar = () => {
   )
 }
 
-function checkIfUserIsSatellite(accountPkh: string, satelliteLedger: SatelliteRecord[]): boolean {
+export function checkIfUserIsSatellite(accountPkh: string, satelliteLedger: SatelliteRecord[]): boolean {
   return satelliteLedger.some((record) => record.address === accountPkh)
 }
 
 function getTotalDelegatedMVK(satelliteLedger: SatelliteRecord[]): number {
+  if (!satelliteLedger) return 0
   return satelliteLedger.reduce((sum, current) => sum + Number(current.totalDelegatedAmount), 0)
 }

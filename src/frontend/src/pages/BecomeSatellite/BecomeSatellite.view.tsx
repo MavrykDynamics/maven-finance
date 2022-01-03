@@ -1,4 +1,5 @@
 import { Button } from 'app/App.components/Button/Button.controller'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
@@ -8,33 +9,37 @@ import { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { SatelliteRecord } from 'reducers/delegation'
 import { Page } from 'styles'
-import { isNullOrUndefined } from 'util'
 
 import { TextEditor } from '../../app/App.components/TextEditor/TextEditor.controller'
 import { RegisterAsSatelliteForm } from './BecomeSatellite.actions'
 // prettier-ignore
-import { BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteProfilePic, UploaderFileSelector, UploadIcon, UploadIconContainer } from './BecomeSatellite.style'
+import { BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteFormFeeCheck, BecomeSatelliteProfilePic, UploaderFileSelector, UploadIcon, UploadIconContainer } from './BecomeSatellite.style'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
-  myVMvkTokenBalance?: string
+  myTotalStakeBalance?: string
+  minimumStakedMvkBalance?: string
   accountPkh?: string
   registerCallback: (form: RegisterAsSatelliteForm) => void
-  usersSatellite?: SatelliteRecord | undefined
+  updateSatelliteCallback: (form: RegisterAsSatelliteForm) => void
+  usersSatellite: SatelliteRecord
 }
 
 const client = create({ url: 'https://ipfs.infura.io:5001/api/v0' })
 
 export const BecomeSatelliteView = ({
   loading,
-  myVMvkTokenBalance,
+  myTotalStakeBalance,
+  minimumStakedMvkBalance,
   accountPkh,
   registerCallback,
+  updateSatelliteCallback,
   usersSatellite,
 }: BecomeSatelliteViewProps) => {
   const dispatch = useDispatch()
   const [balanceOk, setBalanceOk] = useState(false)
-  const [updateSatellite, setUpdateSatellite] = useState(false)
+  const [feeOk, setFeeOk] = useState(false)
+  const updateSatellite = usersSatellite.address !== ''
   const [form, setForm] = useState<RegisterAsSatelliteForm>({
     name: '',
     description: '',
@@ -62,40 +67,48 @@ export const BecomeSatelliteView = ({
   }
 
   useEffect(() => {
-    if (accountPkh && parseInt(myVMvkTokenBalance || '0') >= 10000) setBalanceOk(true)
-    setUpdateSatellite(usersSatellite !== undefined)
-
-    if (usersSatellite !== undefined) {
+    if (accountPkh && parseInt(myTotalStakeBalance || '0') >= (minimumStakedMvkBalance || parseInt('10000'))) {
+      setBalanceOk(true)
+    }
+    if (accountPkh && form.fee >= 0 && form.fee <= 100 && form.fee % 1 === 0) {
+      setFeeOk(true)
+    }
+    if (updateSatellite && usersSatellite) {
       setForm({
-        name: usersSatellite.name,
-        description: usersSatellite.description,
-        fee: Number(usersSatellite.satelliteFee),
+        name: usersSatellite?.name,
+        description: usersSatellite?.description,
+        fee: Number(usersSatellite?.satelliteFee),
         image: usersSatellite?.image,
       })
     }
-  }, [accountPkh, myVMvkTokenBalance, updateSatellite, usersSatellite])
+  }, [accountPkh, myTotalStakeBalance, updateSatellite, balanceOk, usersSatellite, minimumStakedMvkBalance, form.fee])
 
   const handleIconClick = () => {
     inputFile?.current?.click()
   }
 
-  const _handleEditorChange = (editorState: any) => {
+  const handleTextEditorChange = (editorState: any) => {
     setForm({ ...form, description: editorState })
   }
 
   const handleSubmit = () => {
     const formIsValid = validateForm()
     if (formIsValid) {
-      registerCallback(form)
+      if (updateSatellite) {
+        updateSatelliteCallback(form)
+      } else {
+        registerCallback(form)
+      }
     }
   }
 
   const validateForm = () => {
+    console.log(form.fee % 1 === 0)
     const validForm = {
       staked: balanceOk,
       name: form.name.length !== 0 && !/\s/g.test(form.name),
       description: form.description.length !== 0 && /<\/?[a-z][\s\S]*>/i.test(form.description),
-      fee: form.fee >= 0 && form.fee <= 100,
+      fee: feeOk,
       image: form.image !== undefined && form.image.indexOf('ipfs/') > 0,
     }
 
@@ -121,9 +134,13 @@ export const BecomeSatelliteView = ({
       <SatellitesHeader />
       <BecomeSatelliteForm>
         {updateSatellite ? <h3>Update Satellite Profile</h3> : <h3>Become a Satellite</h3>}
-        <p>1- Stake at least 10000 MVK</p>
+        <CommaNumber value={Number(minimumStakedMvkBalance)} beginningText={'1- Stake at least'} endingText={'MVK'} />
         <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
-          {accountPkh ? `Currently staking ${myVMvkTokenBalance} MVK` : 'Please connect your wallet'}
+          {accountPkh ? (
+            <CommaNumber value={Number(myTotalStakeBalance)} beginningText={'Currently staking'} endingText={'MVK'} />
+          ) : (
+            'Please connect your wallet'
+          )}
         </BecomeSatelliteFormBalanceCheck>
         {updateSatellite ? <p>2- Update your name</p> : <p>2- Enter your name</p>}
         <Input
@@ -134,16 +151,19 @@ export const BecomeSatelliteView = ({
           onBlur={() => {}}
         />
         {updateSatellite ? <p>3- Update description</p> : <p>3- Enter your description</p>}
-        <TextEditor onChange={_handleEditorChange} initialValue={form.description} />
+        <TextEditor onChange={handleTextEditorChange} initialValue={form.description} />
         <p></p>
         {updateSatellite ? <p>4- Update your fee (%)</p> : <p>4- Enter your fee (%)</p>}
-        <Input
-          type="text"
-          placeholder="Fee"
-          value={form.fee}
-          onChange={(e: any) => setForm({ ...form, fee: e.target.value })}
-          onBlur={() => {}}
-        />
+        <BecomeSatelliteFormFeeCheck feeOk={false}>
+          <Input
+            type="number"
+            placeholder="Fee"
+            value={form.fee}
+            onChange={(e: any) => setForm({ ...form, fee: Number(e.target.value) })}
+            onBlur={() => {}}
+          />
+        </BecomeSatelliteFormFeeCheck>
+
         <p>6- Upload a profile picture</p>
         <UploaderFileSelector>
           {isUploading ? (
@@ -171,7 +191,12 @@ export const BecomeSatelliteView = ({
             <BecomeSatelliteProfilePic>{form.image && <img src={form.image} alt="" />}</BecomeSatelliteProfilePic>
           )}
         </UploaderFileSelector>
-        <Button icon="satellite" text="Register as Satellite" loading={loading} onClick={handleSubmit} />
+        <Button
+          icon="satellite"
+          text={updateSatellite ? 'Update Satellite Info' : 'Register as Satellite'}
+          loading={loading}
+          onClick={handleSubmit}
+        />
       </BecomeSatelliteForm>
     </Page>
   )

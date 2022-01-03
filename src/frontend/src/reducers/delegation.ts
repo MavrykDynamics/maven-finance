@@ -1,4 +1,4 @@
-import { GET_DELEGATION_STORAGE, DELEGATE_REQUEST, DELEGATE_RESULT, DELEGATE_ERROR, UNDELEGATE_ERROR, UNDELEGATE_REQUEST, UNDELEGATE_RESULT } from "pages/Satellites/Satellites.actions"
+import { DELEGATE_ERROR, DELEGATE_REQUEST, DELEGATE_RESULT, GET_DELEGATION_STORAGE, UNDELEGATE_ERROR, UNDELEGATE_REQUEST, UNDELEGATE_RESULT } from "pages/Satellites/Satellites.actions"
 
 export interface SatelliteRecord {
   address: string,
@@ -12,13 +12,21 @@ export interface SatelliteRecord {
   registeredDateTime: Date,
   unregisteredDateTime: Date | null
 }
-
-export type DelegationLedger = Map<string, string>
+export type DelegationConfig = {
+  maxSatellites: string
+  delegationRatio: string,
+  minimumStakedMvkBalance: number
+}
+export interface DelegateRecord {
+  satelliteAddress: string
+  delegatedDateTime: Date | null
+}
+export type DelegationLedger = Map<string, DelegateRecord>
 
 export interface DelegationStorage {
   admin: string,
   satelliteLedger: SatelliteRecord[],
-  config: any,    // {"maxSatellites": "100", "delegationRatio": "10000", "minimumStakedMvkBalance": "250000000"}
+  config: DelegationConfig,    
   delegateLedger: DelegationLedger,
   breakGlassConfig: any,
   sMvkTokenAddress: string,
@@ -39,7 +47,11 @@ const delegationDefaultState: DelegationState = {
     delegationStorage: {
       admin: '',
       satelliteLedger: [],
-      config: {},
+      config: {
+        maxSatellites: '1000',
+        delegationRatio: '10000',
+        minimumStakedMvkBalance: 10000
+      },
       delegateLedger: new Map(),
       breakGlassConfig: {},
       sMvkTokenAddress: '',
