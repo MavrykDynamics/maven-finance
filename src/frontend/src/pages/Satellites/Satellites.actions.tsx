@@ -1,12 +1,9 @@
-import { TezosToolkit } from '@taquito/taquito'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import delegationAddress from 'deployments/delegationAddress'
-import doormanAddress from 'deployments/doormanAddress'
-import mvkTokenAddress from 'deployments/mvkTokenAddress'
-import vMvkTokenAddress from 'deployments/vMvkTokenAddress'
+import delegationAddress from 'deployments/delegationAddress.json'
+import { getDoormanStorage, getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
-import { DelegationLedger, DelegationStorage, SatelliteRecord } from 'reducers/delegation'
+import { DelegateRecord, DelegationConfig, DelegationLedger, DelegationStorage, SatelliteRecord } from 'reducers/delegation'
 import { getContractBigmapKeys, getContractStorage } from 'utils/api'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
@@ -14,22 +11,31 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
   const state: State = getState()
 
   try {
-    const storage = await getContractStorage(delegationAddress)
-    const satelliteLedgerBigMap = await getContractBigmapKeys(delegationAddress, 'satelliteLedger')
-    const delegateLedgerBigMap = await getContractBigmapKeys(delegationAddress, 'delegateLedger')
+    const storage = await getContractStorage(delegationAddress.address)
+    const satelliteLedgerBigMap = await getContractBigmapKeys(delegationAddress.address, 'satelliteLedger')
+    const delegateLedgerBigMap = await getContractBigmapKeys(delegationAddress.address, 'delegateLedger')
 
     const satelliteLedger: SatelliteRecord[] = []
 
     satelliteLedgerBigMap.forEach((element: any) => {
+      const satelliteFee =
+          Number(element.value?.satelliteFee) > 0 ? (Number(element.value?.satelliteFee) / 1000000).toFixed(2) : 0,
+        mvkBalance =
+          Number(element.value?.mvkBalance) > 0 ? (Number(element.value?.mvkBalance) / 1000000).toFixed(2) : 0,
+        totalDelegatedAmount =
+          Number(element.value?.totalDelegatedAmount) > 0
+            ? (Number(element.value?.totalDelegatedAmount) / 1000000).toFixed(2)
+            : 0
+
       const newSatellite: SatelliteRecord = {
         address: element.key,
         name: element.value?.name,
         image: element.value?.image,
         description: element.value?.description,
-        satelliteFee: Number(element.value?.satelliteFee).toFixed(2),
+        satelliteFee: String(satelliteFee),
         status: element.value?.status === '1',
-        mvkBalance: Number(element.value?.mvkBalance).toFixed(2),
-        totalDelegatedAmount: Number(element.value?.totalDelegatedAmount).toFixed(2),
+        mvkBalance: String(mvkBalance),
+        totalDelegatedAmount: String(totalDelegatedAmount),
         registeredDateTime: new Date(element.value?.registeredDateTime),
         unregisteredDateTime: new Date(element.value?.unregisteredDateTime),
       }
@@ -39,15 +45,22 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
 
     const delegationLedger: DelegationLedger = new Map()
     delegateLedgerBigMap.forEach((element: any) => {
-      const keyAddress = element.key,
-        valueAddress = element.value?.satelliteAddress
-      delegationLedger.set(keyAddress, valueAddress)
+      const keyAddress = element.key
+      const newDelegateRecord: DelegateRecord = {
+        satelliteAddress: element.value?.satelliteAddress,
+        delegatedDateTime: new Date(element.value?.delegatedDateTime),
+      }
+      delegationLedger.set(keyAddress, newDelegateRecord)
     })
-
+    const delegationConfig: DelegationConfig = {
+      maxSatellites: storage.config.maxSatellites,
+      delegationRatio: storage.config.delegationRatio,
+      minimumStakedMvkBalance: Number(storage.config.minimumStakedMvkBalance || 0) / 1000000,
+    }
     const delegationStorage: DelegationStorage = {
       admin: storage.admin,
       satelliteLedger: satelliteLedger,
-      config: storage.config,
+      config: delegationConfig,
       delegateLedger: delegationLedger,
       breakGlassConfig: storage.breakGlassConfig,
       sMvkTokenAddress: storage.sMvkTokenAddress,
@@ -68,55 +81,6 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
     })
   }
 }
-export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
-export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
-  // if (!accountPkh) {
-  //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-  //   return
-  // }
-
-  const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(mvkTokenAddress)
-    : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER as any).contract.at(mvkTokenAddress)
-
-  const storage = await (contract as any).storage()
-  const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
-  const myBalanceMu = myLedgerEntry?.balance.toNumber()
-  const myBalance = myBalanceMu > 0 ? myBalanceMu / 1000000 : 0
-
-  dispatch({
-    type: GET_MVK_TOKEN_STORAGE,
-    mvkTokenStorage: storage,
-    myMvkTokenBalance: myBalance?.toFixed(2),
-  })
-}
-
-export const GET_V_MVK_TOKEN_STORAGE = 'GET_V_MVK_TOKEN_STORAGE'
-export const getVMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
-  // if (!accountPkh) {
-  //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-  //   return
-  // }
-
-  const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(vMvkTokenAddress)
-    : await new TezosToolkit(process.env.REACT_APP_RPC_PROVIDER as any).contract.at(vMvkTokenAddress)
-
-  const storage = await (contract as any).storage()
-  const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
-  const myBalanceMu = myLedgerEntry?.balance.toNumber()
-  const myBalance = myBalanceMu > 0 ? myBalanceMu / 1000000 : 0
-
-  dispatch({
-    type: GET_V_MVK_TOKEN_STORAGE,
-    vMvkTokenStorage: storage,
-    myVMvkTokenBalance: myBalance?.toFixed(2),
-  })
-}
 
 export const DELEGATE_REQUEST = 'DELEGATE_REQUEST'
 export const DELEGATE_RESULT = 'DELEGATE_RESULT'
@@ -136,7 +100,7 @@ export const delegate = (satelliteAddress: string) => async (dispatch: any, getS
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(delegationAddress)
+    const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.delegateToSatellite(satelliteAddress).send()
     console.log('transaction', transaction)
@@ -153,9 +117,10 @@ export const delegate = (satelliteAddress: string) => async (dispatch: any, getS
     dispatch({
       type: DELEGATE_RESULT,
     })
-    dispatch(getDelegationStorage())
+
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getVMvkTokenStorage(state.wallet.accountPkh))
+    dispatch(getDelegationStorage())
+    dispatch(getDoormanStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
@@ -183,7 +148,7 @@ export const undelegate = (satelliteAddress: string) => async (dispatch: any, ge
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(delegationAddress)
+    const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.undelegateFromSatellite(satelliteAddress).send()
     console.log('transaction', transaction)
@@ -200,9 +165,9 @@ export const undelegate = (satelliteAddress: string) => async (dispatch: any, ge
     dispatch({
       type: UNDELEGATE_RESULT,
     })
-    dispatch(getDelegationStorage())
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getVMvkTokenStorage(state.wallet.accountPkh))
+    dispatch(getDelegationStorage())
+    dispatch(getDoormanStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))

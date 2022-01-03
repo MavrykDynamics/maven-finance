@@ -1,31 +1,31 @@
 import * as React from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Message, Page } from 'styles'
-import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
-
-import { DoormanHeader } from './DoormanHeader/DoormanHeader.controller'
 import { State } from 'reducers'
-import { getMvkTokenStorage, getVMvkTokenStorage, stake, unstake } from './Doorman.actions'
-import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
-import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
+import { Message, Page } from 'styles'
+
+import { getDoormanStorage, getMvkTokenStorage, stake, unstake } from './Doorman.actions'
+import { DoormanHeader } from './DoormanHeader/DoormanHeader.controller'
 import { DoormanStats } from './DoormanStats/DoormanStats.controller'
+import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
+import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
+import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
 
 export const Doorman = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { vMvkTokenStorage, myVMvkTokenBalance } = useSelector((state: State) => state.vMvkToken)
+  const { doormanStorage } = useSelector((state: State) => state.doorman)
+  const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
+  const myMvkStakeBalance = userStakeBalanceLedger?.get(accountPkh || '') || '0.00'
 
   useEffect(() => {
     if (accountPkh) {
       dispatch(getMvkTokenStorage(accountPkh))
-      dispatch(getVMvkTokenStorage(accountPkh))
+      dispatch(getDoormanStorage())
     }
   }, [dispatch, accountPkh])
-
-  // useOnBlock(tezos, loadStorage)
 
   const stakeCallback = (amount: number) => {
     dispatch(stake(amount))
@@ -41,7 +41,7 @@ export const Doorman = () => {
       <DoormanHeader />
       <StakeUnstakeView
         myMvkTokenBalance={myMvkTokenBalance}
-        myVMvkTokenBalance={myVMvkTokenBalance}
+        userStakeBalance={myMvkStakeBalance}
         stakeCallback={stakeCallback}
         unstakeCallback={unstakeCallback}
         loading={loading}

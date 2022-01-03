@@ -20,6 +20,7 @@ const AppContainer = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
+    // For using Beacon wallet, replace following lines with dispatch(setWallet())
     return TempleWallet.onAvailabilityChange((available) => {
       if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
     })

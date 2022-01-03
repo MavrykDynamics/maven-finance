@@ -1,19 +1,10 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Loader } from 'app/App.components/Loader/Loader.view'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
-import {
-  SatelliteCard,
-  SatelliteCardRow,
-  SatelliteCardTopRow,
-  SatelliteMainText,
-  SatelliteProfileImage,
-  SatelliteProfileImageContainer,
-  SatelliteSubText,
-  SatelliteTextGroup,
-  SideBySideImageAndText,
-} from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
+import { SatelliteCard, SatelliteCardRow, SatelliteCardTopRow, SatelliteMainText, SatelliteProfileImage, SatelliteProfileImageContainer, SatelliteSubText, SatelliteTextGroup, SideBySideImageAndText } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
 import { SatellitesHeader } from 'pages/Satellites/SatellitesHeader/SatellitesHeader.controller'
 import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import * as React from 'react'
@@ -26,8 +17,8 @@ import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDet
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord | undefined
   loading: boolean
-  delegateCallback: () => void
-  undelegateCallback: () => void
+  delegateCallback: (address: string) => void
+  undelegateCallback: (address: string) => void
 }
 
 export const SatelliteDetailsView = ({
@@ -36,7 +27,15 @@ export const SatelliteDetailsView = ({
   delegateCallback,
   undelegateCallback,
 }: SatelliteDetailsViewProps) => {
-  console.log(`Logging Satellite ${satellite}`)
+  const totalDelegatedMVK =
+      parseFloat(satellite?.totalDelegatedAmount || '0') > 0
+        ? parseFloat(satellite?.totalDelegatedAmount || '0') / 100000
+        : 0,
+    myDelegatedMVK =
+      parseFloat(satellite?.totalDelegatedAmount || '0') > 0
+        ? parseFloat(satellite?.totalDelegatedAmount || '0') / 100000
+        : 0
+
   const options: HTMLReactParserOptions = {
     replace: (domNode: any) => {
       const isElement: boolean = domNode.type && domNode.type === 'tag' && domNode.name
@@ -87,14 +86,23 @@ export const SatelliteDetailsView = ({
                 </SatelliteTextGroup>
               </SideBySideImageAndText>
               <SatelliteTextGroup>
-                <SatelliteMainText>{satellite.totalDelegatedAmount}</SatelliteMainText>
+                <SatelliteMainText>
+                  <CommaNumber value={totalDelegatedMVK} />
+                </SatelliteMainText>
                 <SatelliteSubText>Delegated MVK</SatelliteSubText>
               </SatelliteTextGroup>
               <SatelliteTextGroup>
-                <SatelliteMainText>{satellite.totalDelegatedAmount}</SatelliteMainText>
+                <SatelliteMainText>
+                  <CommaNumber value={myDelegatedMVK} />
+                </SatelliteMainText>
                 <SatelliteSubText>Your delegated MVK</SatelliteSubText>
               </SatelliteTextGroup>
-              <Button text="Delegate" icon="man-check" loading={loading} onClick={delegateCallback} />
+              <Button
+                text="Delegate"
+                icon="man-check"
+                loading={loading}
+                onClick={() => delegateCallback(satellite.address)}
+              />
               <div>Put last voted here</div>
               <SatelliteTextGroup>
                 <SatelliteMainText>{satellite.totalDelegatedAmount}%</SatelliteMainText>
@@ -109,7 +117,7 @@ export const SatelliteDetailsView = ({
                 icon="man-close"
                 kind="secondary"
                 loading={loading}
-                onClick={undelegateCallback}
+                onClick={() => undelegateCallback(satellite.address)}
               />
             </SatelliteCardTopRow>
             <ColoredLine kind="secondary" />

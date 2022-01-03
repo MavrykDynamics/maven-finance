@@ -1,4 +1,5 @@
 import { Button } from 'app/App.components/Button/Button.controller'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { useState } from 'react'
 
 // prettier-ignore
@@ -6,7 +7,7 @@ import { StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUns
 
 type StakeUnstakeViewProps = {
   myMvkTokenBalance?: string
-  myVMvkTokenBalance?: string
+  userStakeBalance?: string
   stakeCallback: (amount: number) => void
   unstakeCallback: (amount: number) => void
   loading: boolean
@@ -14,7 +15,7 @@ type StakeUnstakeViewProps = {
 
 export const StakeUnstakeView = ({
   myMvkTokenBalance,
-  myVMvkTokenBalance,
+  userStakeBalance,
   stakeCallback,
   unstakeCallback,
   loading,
@@ -53,21 +54,21 @@ export const StakeUnstakeView = ({
         <StakeUnstakeBalance>
           <h3>My MVK Balance</h3>
           <img src="/images/coin-gold.svg" alt="coin" />
-          <div>{myMvkTokenBalance} MVK</div>
+          <CommaNumber value={Number(myMvkTokenBalance || 0)} endingText={'MVK'} />
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>Total MVK Staked</h3>
           <img src="/images/coin-silver.svg" alt="coin" />
-          <div>{myVMvkTokenBalance} MVK</div>
+          <CommaNumber value={Number(userStakeBalance || 0)} endingText={'MVK'} />
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>Total MVK Earned</h3>
           <img src="/images/coin-bronze.svg" alt="coin" />
-          <div>0.00 MVK</div>
+          <CommaNumber value={Number(0)} endingText={'MVK'} />
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
     </StakeUnstakeStyled>

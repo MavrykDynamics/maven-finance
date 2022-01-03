@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { getMvkTokenStorage, getVMvkTokenStorage, unstake } from '../Doorman.actions'
+import { getMvkTokenStorage, unstake } from '../Doorman.actions'
 
 import { hideExitFeeModal } from './ExitFeeModal.actions'
 import { ExitFeeModalView } from './ExitFeeModal.view'
@@ -17,7 +17,7 @@ export const ExitFeeModal = () => {
   useEffect(() => {
     if (accountPkh && showing) {
       dispatch(getMvkTokenStorage(accountPkh))
-      dispatch(getVMvkTokenStorage(accountPkh))
+      console.log('This is from Exit Fee modal')
     }
   }, [dispatch, accountPkh, showing])
 
