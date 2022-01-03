@@ -1,6 +1,8 @@
+import { TezosToolkit } from '@taquito/taquito'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import delegationAddress from 'deployments/delegationAddress'
+import delegationAddress from 'deployments/delegationAddress.json'
+import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import { State } from 'reducers'
 
 export type RegisterAsSatelliteForm = { name: string; description: string; fee: number; image: string | undefined }
@@ -8,9 +10,59 @@ export type RegisterAsSatelliteForm = { name: string; description: string; fee: 
 export const REGISTER_AS_SATELLITE_REQUEST = 'REGISTER_AS_SATELLITE_REQUEST'
 export const REGISTER_AS_SATELLITE_RESULT = 'REGISTER_AS_SATELLITE_RESULT'
 export const REGISTER_AS_SATELLITE_ERROR = 'REGISTER_AS_SATELLITE_ERROR'
-export const registerAsSatellite = (form: RegisterAsSatelliteForm) => async (dispatch: any, getState: any) => {
+export const registerAsSatellite =
+  (form: RegisterAsSatelliteForm, accountPkh: string) => async (dispatch: any, getState: any) => {
+    const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
+      console.log('contract', contract)
+
+      const transaction = await contract?.methods
+        .registerAsSatellite(form.name, form.description, form.image, form.fee * 1000000)
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch({
+        type: REGISTER_AS_SATELLITE_REQUEST,
+        form,
+      })
+      dispatch(showToaster(INFO, 'Registering...', 'Please wait 30s'))
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Satellite Registered.', 'All good :)'))
+
+      dispatch({
+        type: REGISTER_AS_SATELLITE_RESULT,
+      })
+      dispatch(getDelegationStorage())
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: REGISTER_AS_SATELLITE_ERROR,
+        error,
+      })
+    }
+  }
+
+export const UPDATE_AS_SATELLITE_REQUEST = 'UPDATE_AS_SATELLITE_REQUEST'
+export const UPDATE_AS_SATELLITE_RESULT = 'UPDATE_AS_SATELLITE_RESULT'
+export const UPDATE_AS_SATELLITE_ERROR = 'UPDATE_AS_SATELLITE_ERROR'
+export const updateSatelliteRecord = (form: RegisterAsSatelliteForm) => async (dispatch: any, getState: any) => {
   const state: State = getState()
-  console.log('Got to here is registerAsSatellite ')
+
   if (!state.wallet.ready) {
     dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
     return
@@ -22,15 +74,16 @@ export const registerAsSatellite = (form: RegisterAsSatelliteForm) => async (dis
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(delegationAddress)
+    const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
     console.log('contract', contract)
+
     const transaction = await contract?.methods
-      .registerAsSatellite(form.name, form.description, form.image, form.fee)
+      .updateSatelliteRecord(form.name, form.description, form.image, form.fee * 1000000)
       .send()
     console.log('transaction', transaction)
 
     dispatch({
-      type: REGISTER_AS_SATELLITE_REQUEST,
+      type: UPDATE_AS_SATELLITE_REQUEST,
       form,
     })
     dispatch(showToaster(INFO, 'Registering...', 'Please wait 30s'))
@@ -40,13 +93,14 @@ export const registerAsSatellite = (form: RegisterAsSatelliteForm) => async (dis
     dispatch(showToaster(SUCCESS, 'Satellite Registered.', 'All good :)'))
 
     dispatch({
-      type: REGISTER_AS_SATELLITE_RESULT,
+      type: UPDATE_AS_SATELLITE_RESULT,
     })
+    dispatch(getDelegationStorage())
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
-      type: REGISTER_AS_SATELLITE_ERROR,
+      type: UPDATE_AS_SATELLITE_ERROR,
       error,
     })
   }

@@ -1,4 +1,5 @@
 import { Button } from 'app/App.components/Button/Button.controller'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
@@ -32,11 +33,11 @@ export const SatelliteSideBarView = ({
         <h2>Statistics</h2>
         <div>
           <h3>Number of Satellites</h3>
-          <p>{numberOfSatellites}</p>
+          <CommaNumber value={numberOfSatellites} showDecimal={false} />
         </div>
         <div>
           <h3>Total MVK delegated</h3>
-          <p>{totalDelegatedMVK} MVK</p>
+          <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
         </div>
       </SideBarSection>
       <SideBarSection>

@@ -12,14 +12,12 @@ type TextEditorProps = {
 export const TextEditor = ({ onChange, initialValue }: TextEditorProps) => {
   const [editorState, setEditorState] = useState(RichTextEditor.createEmptyValue())
 
-  // useEffect(() => {
-  //   if (initialValue && initialValue.length > 0) {
-  //     setEditorState(RichTextEditor.createValueFromString(initialValue, 'html'))
-  //   }
-  // }, [initialValue])
+  useEffect(() => {
+    setEditorState((e) => editorState)
+  }, [editorState])
+
   const _onChange = (value: any) => {
     setEditorState(value)
-    console.log(value.toString('html'))
     if (onChange) {
       onChange(value.toString('html'))
     }

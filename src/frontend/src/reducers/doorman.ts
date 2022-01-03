@@ -1,18 +1,64 @@
-import { STAKE_REQUEST, STAKE_RESULT, STAKE_ERROR, UNSTAKE_REQUEST, UNSTAKE_RESULT, UNSTAKE_ERROR } from "pages/Doorman/Doorman.actions"
+import { STAKE_ERROR, STAKE_REQUEST, STAKE_RESULT, UNSTAKE_ERROR, UNSTAKE_REQUEST, UNSTAKE_RESULT } from "pages/Doorman/Doorman.actions"
 
 const STAKE = 'STAKE'
 const UNSTAKE = 'UNSTAKE'
+const GET_DOORMAN_STORAGE = 'GET_DOORMAN_STORAGE'
 
+export interface UserStakeRecord {
+  time: string
+  amount: number
+  exitFee: number
+  mvkLoyaltyIndex: number
+  mvkTotalSupply: number
+  opType: typeof STAKE | typeof UNSTAKE 
+}
+export type UserStakeBalanceLedger = Map<string, string>
+
+export type UserStakeRecordsLedger = Map<string, Map<number, UserStakeRecord>>
+export interface DoormanBreakGlassConfigType {
+  stakeIsPaused: boolean
+  unstakeIsPaused: boolean
+}
+export interface DoormanStorage {
+  userStakeBalanceLedger: UserStakeBalanceLedger
+  userStakeRecordsLedger: UserStakeRecordsLedger
+  stakedMvkTotalSupply: number
+  admin: string
+  breakGlassConfig: DoormanBreakGlassConfigType
+  mvkTokenAddress: string
+  delegationAddress: string
+  exitFeePoolAddress: string
+  tempMvkTotalSupply: number
+  logExitFee?: number            // to be removed after testing
+  logFinalAmount?: number        // to be removed after testing
+}
 export interface DoormanState {
-  type?: typeof STAKE | typeof UNSTAKE
+  type?: typeof STAKE | typeof UNSTAKE | typeof GET_DOORMAN_STORAGE
   amount: number
   error?: any
+  doormanStorage?: DoormanStorage | undefined
 }
 
 const doormanDefaultState: DoormanState = {
   type: undefined,
   amount: 0,
   error: undefined,
+  doormanStorage: {
+    userStakeBalanceLedger: new Map<string, string>(),
+    userStakeRecordsLedger: new Map<string, Map<number, UserStakeRecord>>(),
+    stakedMvkTotalSupply: 0,
+    admin: '',
+    breakGlassConfig: {
+      stakeIsPaused: false,
+      unstakeIsPaused: false
+    },
+    mvkTokenAddress: '',
+    delegationAddress: '',
+    exitFeePoolAddress: '',
+    tempMvkTotalSupply: 0,
+    logExitFee: 0,            // to be removed after testing
+    logFinalAmount: 0        // to be removed after testing
+  } 
 }
 
 export function doorman(state = doormanDefaultState, action: any): DoormanState {
@@ -52,6 +98,13 @@ export function doorman(state = doormanDefaultState, action: any): DoormanState 
         type: UNSTAKE,
         amount: 0,
         error: action.error,
+      }
+    case GET_DOORMAN_STORAGE:
+      return {
+        type: GET_DOORMAN_STORAGE,
+        doormanStorage: action.storage,
+        error: undefined,
+        amount: state.amount
       }
     default:
       return state

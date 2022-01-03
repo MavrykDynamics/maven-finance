@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux'
 
 import { delegation, DelegationState } from './delegation'
+import { doorman, DoormanState } from './doorman'
 import { exitFeeModal, ExitFeeModalState } from './exitFeeModal'
 import { loading, LoadingState } from './loading'
 import { mvkToken, MvkTokenState } from './mvkToken'
@@ -17,7 +18,8 @@ export const reducers = combineReducers({
   mvkToken,
   vMvkToken,
   wallet,
-  delegation
+  delegation,
+  doorman
 })
 
 export interface State {
@@ -29,4 +31,5 @@ export interface State {
   vMvkToken: VMvkTokenState
   wallet: WalletState
   delegation: DelegationState
+  doorman: DoormanState
 }
