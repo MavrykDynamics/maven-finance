@@ -2,12 +2,15 @@
 
 ### Commands:
 
-**To compile:** `npm run compile`  
-This compiles all of the contracts in contracts/main and generates the .tez michelson files inside the ```contracts/compiled``` directory
+** To start the sandbox to enable compilation:** `npm run start-sandbox`  
+This will allow the following command to compile.
+
+**To compile:** `npm run compile`
+This compiles all of the contracts in contracts/main and generates the .tez michelson files inside the `contracts/compiled` directory
 
 **Deploy to Hangzhou:** `npm run migrate`
 
-**Things to do after deployment to Granada:**
+**Things to do after deployment to Hangzhou:**
 
 1. Make sure you're connected to the Alice account on Temple wallet. Get the account info from `./scripts/sandbox/accounts.js`
 2. Make sure that you have the MVK tokens in your wallet. If you don't see the tokens in your browser wallet, you need to add them as an asset using the contract address for the MVK token. You can get it from the terminal output of deploying to the hangzhounet. You will find the contract address under _2_deploy_mvk_token.js_ terminal output.
