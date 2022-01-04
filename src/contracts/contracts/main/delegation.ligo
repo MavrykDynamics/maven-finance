@@ -1,5 +1,5 @@
 type onStakeChangeParams is (address * nat * nat)
-type updateSatelliteRecordParams is (string * string * string)
+type updateSatelliteRecordParams is (string * string * string * nat)
 
 // record for users choosing satellites 
 type delegateRecordType is record [
@@ -198,10 +198,23 @@ function getDelegateRecord (const userAddress : address; const s : storage) : de
         delegatedDateTime = Tezos.now; 
       ];
 
-    // var delegateRecord : delegateRecordType;
-
     case s.delegateLedger[userAddress] of
       None -> failwith("Delegate not found.")
+    | Some(instance) -> delegateRecord := instance
+    end;
+  } with delegateRecord
+
+  // helper function to get user delegate
+function getOrCreateDelegateRecord (const userAddress : address; const s : storage) : delegateRecordType is
+  block {
+    var delegateRecord : delegateRecordType :=
+      record [
+        satelliteAddress  = userAddress;
+        delegatedDateTime = Tezos.now; 
+      ];
+
+    case s.delegateLedger[userAddress] of
+      None -> skip
     | Some(instance) -> delegateRecord := instance
     end;
   } with delegateRecord
@@ -213,12 +226,9 @@ function getDelegateRecord (const userAddress : address; const s : storage) : de
 (*  set contract admin address *)
 function setAdmin(const newAdminAddress : address; var s : storage) : return is
 block {
-
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin
 
     s.admin := newAdminAddress;
 
@@ -227,9 +237,7 @@ block {
 (* set governance contract address *)
 function setGovernanceAddress(const newGovernanceAddress : address; var s : storage) : return is
 block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-    
+    checkSenderIsAdmin(s); // check that sender is admin    
     s.governanceAddress := newGovernanceAddress;
 } with (noOperations, s)
 
@@ -237,21 +245,15 @@ block {
 
 function togglePauseDelegateToSatellite(var s : storage) : return is
 block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
+    checkSenderIsAdmin(s); // check that sender is admin
     if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
       else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
-
 } with (noOperations, s)
 
 function togglePauseUndelegateSatellite(var s : storage) : return is
 block {
 
-    // note: togglePauseUndelegateFromSatellite is too long for entrypoint name
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s); // check that sender is admin
 
     if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
       else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
@@ -260,9 +262,7 @@ block {
 
 function togglePauseRegisterSatellite(var s : storage) : return is
 block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
+    checkSenderIsAdmin(s); // check that sender is admin
     if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
       else s.breakGlassConfig.registerAsSatelliteIsPaused := True;
 
@@ -431,7 +431,8 @@ block {
     checkSenderIsDoormanContract(s);
 
     // Retrieve delegate record from storage
-    var delegateRecord : delegateRecordType := getDelegateRecord(Tezos.source, s);
+    // var delegateRecord : delegateRecordType := getDelegateRecord(Tezos.source, s);
+    var delegateRecord : delegateRecordType := getOrCreateDelegateRecord(Tezos.source, s);
 
     // Retrieve satellite account from storage
     var satelliteRecord : satelliteRecordType := getSatelliteRecord(delegateRecord.satelliteAddress, s);
@@ -513,7 +514,7 @@ block {
 
 } with (noOperations, s)
 
-function updateSatelliteRecord(var name : string; var description : string; var image : string; var s : storage) : return is
+function updateSatelliteRecord(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : storage) : return is
 block {
 
     // Overall steps:
@@ -532,7 +533,7 @@ block {
     satelliteRecord.name           := name;         
     satelliteRecord.description    := description;  
     satelliteRecord.image          := image;   
-    // satelliteRecord.satelliteFee          := satelliteFee;        
+    satelliteRecord.satelliteFee   := satelliteFee;        
     
     // update satellite ledger storage with new information
     s.satelliteLedger[Tezos.sender] := satelliteRecord;
@@ -777,7 +778,7 @@ function main (const action : delegationAction; const s : storage) : return is
         | RegisterAsSatelliteComplete(parameters) -> registerAsSatelliteComplete((parameters.0, parameters.1, parameters.2, parameters.3, parameters.4), s)
         | UnregisterAsSatellite(_parameters) -> unregisterAsSatellite(s)
 
-        | UpdateSatelliteRecord(parameters) -> updateSatelliteRecord(parameters.0, parameters.1, parameters.2, s)
+        | UpdateSatelliteRecord(parameters) -> updateSatelliteRecord(parameters.0, parameters.1, parameters.2, parameters.3, s)
 
         | GetSatelliteVotingPower(parameters) -> getSatelliteVotingPower(parameters.0, parameters.1, s)
 
