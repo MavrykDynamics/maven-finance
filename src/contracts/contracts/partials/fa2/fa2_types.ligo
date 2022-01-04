@@ -53,3 +53,8 @@ type fa2_is_tx_operator_type   is [@laoyout:comb] record [
   owner                   : address;
   approved                : bool;
 ]
+
+type token_t       is
+| Tez                     of tez_t
+| Fa12                    of fa12_token_type
+| Fa2                     of fa2_token_type

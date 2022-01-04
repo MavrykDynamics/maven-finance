@@ -13,15 +13,18 @@ type token_metadata_info is record [
   token_info        : map(string, bytes);
 ]
 
-type whitelistContractsType is set (address)
+type whitelistContractsType is map (string, address)
 
 type storage is record [
     admin           : address;
-    whitelistContracts    : whitelistContractsType;      // whitelist of contracts that can access mint / onStakeChange entrypoints
+    
+    whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints
+
     metadata        : big_map (string, bytes);
     token_metadata  : big_map(token_id, token_metadata_info);
     totalSupply     : amt;
     ledger          : big_map (address, account);
+
     doormanAddress  : address;    
   ]
 
@@ -40,6 +43,7 @@ type totalSupplyParams is (unit * contract(amt))
 type mintParams is (address * nat)
 type burnParams is (address * nat)
 type onStakeChangeParams is (address * nat * string)
+type updateWhitelistContractParams is (string * address)
 
 // type operator_t         is [@layout:comb] record [
 //   owner                   : address;
@@ -55,7 +59,7 @@ type onStakeChangeParams is (address * nat * string)
 
 (* Valid entry points *)
 type entryAction is
-  | UpdateWhitelistContracts of (address)
+  | UpdateWhitelistContracts of updateWhitelistContractParams
   | Transfer of transferParams
   | Approve of approveParams
   | GetBalance of balanceParams
@@ -72,32 +76,45 @@ type entryAction is
 // admin helper functions begin ---------------------------------------------------------
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
-    else failwith("Only the administrator can call this entrypoint.");
+    else failwith("Error. Only the administrator can call this entrypoint.");
+
+function getWhitelistContractsSet(var s : storage) : set(address) is 
+block {
+  var _whitelistContractsSet : set(address) := set [];
+  for _key -> value in map s.whitelistContracts block {
+    var _whitelistContractsSet : set(address) := Set.add(value, _whitelistContractsSet);
+  }
+} with _whitelistContractsSet
 
 function checkSenderIsWhitelistContract(var s : storage) : unit is
-    if (s.whitelistContracts contains Tezos.sender) then unit
-    else failwith("Only whitelisted contracts can call this entrypoint.");
+block {
+  var whitelistContractsSet : set(address) := getWhitelistContractsSet(s);
+  if (whitelistContractsSet contains Tezos.sender) then skip
+  else failwith("Error. Only whitelisted contracts can call this entrypoint.");
+} with unit
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
-    else failwith("This entrypoint should not receive any tez.");
+    else failwith("Error. This entrypoint should not receive any tez.");
 // admin helper functions end ---------------------------------------------------------
 
 // toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractAddress : address; var s : storage) : return is 
+function updateWhitelistContracts(const contractName : string; const contractAddress : address; var s : storage) : return is 
 block{
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
-    const checkIfWhitelistContractExists : bool = s.whitelistContracts contains contractAddress; 
+    var whitelistContractsSet : set(address) := getWhitelistContractsSet(s);
+
+    const checkIfWhitelistContractExists : bool = whitelistContractsSet contains contractAddress; 
 
     if (checkIfWhitelistContractExists) then block{
         // whitelist contract exists - remove whitelist contract from set 
-        s.whitelistContracts := Set.remove(contractAddress, s.whitelistContracts);
+        s.whitelistContracts := Map.update(contractName, Some(contractAddress), s.whitelistContracts);
     } else block {
         // whitelist contract does not exist - add whitelist contract to set 
-        s.whitelistContracts := Set.add(contractAddress, s.whitelistContracts);
+        s.whitelistContracts := Map.add(contractName, contractAddress, s.whitelistContracts);
     }
 
 } with (noOperations, s) 
@@ -353,7 +370,7 @@ function main (const action : entryAction; var s : storage) : return is
   block {
     skip
   } with case action of
-    | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+    | UpdateWhitelistContracts(params) -> updateWhitelistContracts(params.0, params.1, s)
     | Transfer(params) -> transfer(params.0, params.1.0, params.1.1, s)
     | Approve(params) -> approve(params.0, params.1, s)
     | GetBalance(params) -> getBalance(params.0, params.1, s)

@@ -21,6 +21,7 @@ import { Governance } from "../helpers/governanceHelper";
 import { BreakGlass } from "../helpers/breakGlassHelper";
 import { EmergencyGovernance } from "../helpers/emergencyGovernanceHelper";
 import { Vesting } from "../helpers/vestingHelper";
+import { Council } from "../helpers/councilHelper";
 
 import { doormanStorage } from "../../storage/doormanStorage";
 import { delegationStorage } from "../../storage/delegationStorage";
@@ -29,6 +30,7 @@ import { governanceStorage } from "../../storage/governanceStorage";
 import { breakGlassStorage } from "../../storage/breakGlassStorage";
 import { emergencyGovernanceStorage } from "../../storage/emergencyGovernanceStorage";
 import { vestingStorage } from "../../storage/vestingStorage";
+import { councilStorage } from "../../storage/councilStorage";
 
 describe("Contracts Deployment for Tests", async () => {
   var utils: Utils;
@@ -39,6 +41,7 @@ describe("Contracts Deployment for Tests", async () => {
   var breakGlass : BreakGlass;
   var emergencyGovernance : EmergencyGovernance;
   var vesting : Vesting;
+  var council : Council;
   var tezos;
   let deployedDoormanStorage;
   let deployedDelegationStorage;
@@ -66,7 +69,7 @@ describe("Contracts Deployment for Tests", async () => {
     );
 
     mvkStorage.doormanAddress = doorman.contract.address;
-    mvkStorage.whitelistContracts = [doorman.contract.address];
+    // mvkStorage.whitelistContracts = [doorman.contract.address];
     mvkToken = await MvkToken.originate(
       utils.tezos,
       mvkStorage
@@ -92,28 +95,34 @@ describe("Contracts Deployment for Tests", async () => {
       emergencyGovernanceStorage
     );
 
-    vestingStorage.delegationAddress = delegation.contract.address;
-    vestingStorage.doormanAddress    = doorman.contract.address;
-    vestingStorage.governanceAddress = governance.contract.address;
-    vestingStorage.mvkTokenAddress   = mvkToken.contract.address;
+    // vestingStorage.delegationAddress = delegation.contract.address;
+    // vestingStorage.doormanAddress    = doorman.contract.address;
+    // vestingStorage.governanceAddress = governance.contract.address;
+    // vestingStorage.mvkTokenAddress   = mvkToken.contract.address;
     vesting = await Vesting.originate(
       utils.tezos,
       vestingStorage
+    );
+
+    councilStorage.vestingAddress = vesting.contract.address;
+    council = await Council.originate(
+      utils.tezos,
+      councilStorage
     );
 
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos;
 
-    const inDoormanSetDelegationContractAddressOperation = await doorman.contract.methods.setDelegationAddress(delegation.contract.address).send();  
+    const inDoormanSetDelegationContractAddressOperation = await doorman.contract.methods.updateContractAddresses('delegation', delegation.contract.address).send();  
     await inDoormanSetDelegationContractAddressOperation.confirmation();
-    const inDoormanSetMvkTokenAddressOperation = await doorman.contract.methods.setMvkTokenAddress(mvkToken.contract.address).send();
+    const inDoormanSetMvkTokenAddressOperation = await doorman.contract.methods.updateContractAddresses('mvkToken', mvkToken.contract.address).send();
     await inDoormanSetMvkTokenAddressOperation.confirmation();
 
     const inDelegationSetGovernanceContractAddressOperation = await delegation.contract.methods.setGovernanceAddress(governance.contract.address).send();  
     await inDelegationSetGovernanceContractAddressOperation.confirmation();
 
-    const inMvkTokenContractAddVestingContractToWhitelistOperation = await mvkToken.contract.methods.updateWhitelistContracts(vesting.contract.address).send();
+    const inMvkTokenContractAddVestingContractToWhitelistOperation = await mvkToken.contract.methods.updateWhitelistContracts('vesting', vesting.contract.address).send();
     await inMvkTokenContractAddVestingContractToWhitelistOperation.confirmation();
     
     await saveContractAddress('doormanAddress', doorman.contract.address)
@@ -123,6 +132,7 @@ describe("Contracts Deployment for Tests", async () => {
     await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
     await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
     await saveContractAddress('vestingAddress', vesting.contract.address)
+    await saveContractAddress('councilAddress', council.contract.address)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
