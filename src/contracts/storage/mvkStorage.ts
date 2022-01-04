@@ -65,7 +65,8 @@ const token_metadata = MichelsonMap.fromLiteral({
 
 export const mvkStorage: mvkStorageType = {
   admin: alice.pkh,
-  whitelistContracts: [],
+  // whitelistContracts: [],
+  whitelistContracts: MichelsonMap.fromLiteral({}),
   metadata: MichelsonMap.fromLiteral({}),
   ledger: ledger,
   token_metadata: token_metadata,
