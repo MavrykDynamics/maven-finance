@@ -28,6 +28,8 @@
     "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
     "test-full": "yarn compile && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
     "test-only": "ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
+    "pytest": "yarn migrate && pytest -s",
+    "pytest-only": "pytest -s",
     "clean": "rm -rf ./build"
   },
   "author": "tim@tezosdynamics.com",
