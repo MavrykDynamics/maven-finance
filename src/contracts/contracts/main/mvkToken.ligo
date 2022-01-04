@@ -13,8 +13,11 @@ type token_metadata_info is record [
   token_info        : map(string, bytes);
 ]
 
+type whitelistContractsType is set (address)
+
 type storage is record [
     admin           : address;
+    whitelistContracts    : whitelistContractsType;      // whitelist of contracts that can access mint / onStakeChange entrypoints
     metadata        : big_map (string, bytes);
     token_metadata  : big_map(token_id, token_metadata_info);
     totalSupply     : amt;
@@ -52,6 +55,7 @@ type onStakeChangeParams is (address * nat * string)
 
 (* Valid entry points *)
 type entryAction is
+  | UpdateWhitelistContracts of (address)
   | Transfer of transferParams
   | Approve of approveParams
   | GetBalance of balanceParams
@@ -64,6 +68,39 @@ type entryAction is
   | OnStakeChange of onStakeChangeParams
   // | Update_operators of update_operators_t
 
+
+// admin helper functions begin ---------------------------------------------------------
+function checkSenderIsAdmin(var s : storage) : unit is
+    if (Tezos.sender = s.admin) then unit
+    else failwith("Only the administrator can call this entrypoint.");
+
+function checkSenderIsWhitelistContract(var s : storage) : unit is
+    if (s.whitelistContracts contains Tezos.sender) then unit
+    else failwith("Only whitelisted contracts can call this entrypoint.");
+
+function checkNoAmount(const _p : unit) : unit is
+    if (Tezos.amount = 0tez) then unit
+    else failwith("This entrypoint should not receive any tez.");
+// admin helper functions end ---------------------------------------------------------
+
+// toggle adding and removal of whitelist contract addresses
+function updateWhitelistContracts(const contractAddress : address; var s : storage) : return is 
+block{
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    const checkIfWhitelistContractExists : bool = s.whitelistContracts contains contractAddress; 
+
+    if (checkIfWhitelistContractExists) then block{
+        // whitelist contract exists - remove whitelist contract from set 
+        s.whitelistContracts := Set.remove(contractAddress, s.whitelistContracts);
+    } else block {
+        // whitelist contract does not exist - add whitelist contract to set 
+        s.whitelistContracts := Set.add(contractAddress, s.whitelistContracts);
+    }
+
+} with (noOperations, s) 
 
 (* Helper function to get account *)
 function getAccount (const addr : address; const s : storage) : account is
@@ -231,10 +268,13 @@ function mint (const to_ : address; const value : amt; var s : storage) : return
     (* Retrieve target account from storage *)
     var targetAccount : account := getAccount(to_, s);
 
+    // check sender is from doorman contract or vesting contract
+    checkSenderIsWhitelistContract(s);
+
     (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    // if s.doormanAddress =/= Tezos.sender then
+    //   failwith("NotAuthorized")
+    // else skip;
 
     (* Update sender balance *)
     targetAccount.balance := targetAccount.balance + value;
@@ -278,11 +318,14 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     (* Retrieve target account from storage *)
     var _targetAccount : account := getAccount(userAddress, s);
 
-    (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    // check sender is from doorman contract or vesting contract
+    checkSenderIsWhitelistContract(s);
 
+    (* Check this call is comming from the doorman contract *)
+    // if s.doormanAddress =/= Tezos.sender then
+    //   failwith("NotAuthorized")
+    // else skip;
+    
     if stakeType = "stake" then block {
       // stake -> decrease user balance in mvk ledger 
       (* Balance check *)
@@ -310,6 +353,7 @@ function main (const action : entryAction; var s : storage) : return is
   block {
     skip
   } with case action of
+    | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
     | Transfer(params) -> transfer(params.0, params.1.0, params.1.1, s)
     | Approve(params) -> approve(params.0, params.1, s)
     | GetBalance(params) -> getBalance(params.0, params.1, s)
