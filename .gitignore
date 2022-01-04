@@ -23,9 +23,4 @@
 
 # Webstorm IDE
 ./.idea
-.idea/.*
-.idea/codeStyles/Project.xml
-.idea/codeStyles/codeStyleConfig.xml
-.idea/vcs.xml
-.idea/mavryk-dapp.iml
-.idea/modules.xml
+**/.idea/**
