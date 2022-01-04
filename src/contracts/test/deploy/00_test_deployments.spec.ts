@@ -66,6 +66,7 @@ describe("Contracts Deployment for Tests", async () => {
     );
 
     mvkStorage.doormanAddress = doorman.contract.address;
+    mvkStorage.whitelistContracts = [doorman.contract.address];
     mvkToken = await MvkToken.originate(
       utils.tezos,
       mvkStorage
@@ -91,10 +92,14 @@ describe("Contracts Deployment for Tests", async () => {
       emergencyGovernanceStorage
     );
 
-    // vesting = await Vesting.originate(
-    //   utils.tezos,
-    //   vestingStorage
-    // );
+    vestingStorage.delegationAddress = delegation.contract.address;
+    vestingStorage.doormanAddress    = doorman.contract.address;
+    vestingStorage.governanceAddress = governance.contract.address;
+    vestingStorage.mvkTokenAddress   = mvkToken.contract.address;
+    vesting = await Vesting.originate(
+      utils.tezos,
+      vestingStorage
+    );
 
     /* ---- ---- ---- ---- ---- */
 
@@ -108,13 +113,16 @@ describe("Contracts Deployment for Tests", async () => {
     const inDelegationSetGovernanceContractAddressOperation = await delegation.contract.methods.setGovernanceAddress(governance.contract.address).send();
     await inDelegationSetGovernanceContractAddressOperation.confirmation();
 
+    const inMvkTokenContractAddVestingContractToWhitelistOperation = await mvkToken.contract.methods.updateWhitelistContracts(vesting.contract.address).send();
+    await inMvkTokenContractAddVestingContractToWhitelistOperation.confirmation();
+
     await saveContractAddress('doormanAddress', doorman.contract.address)
     await saveContractAddress('delegationAddress', delegation.contract.address)
     await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
     await saveContractAddress('governanceAddress', governance.contract.address)
     await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
     await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
-    // await saveContractAddress('vestingAddress', vesting.contract.address)
+    await saveContractAddress('vestingAddress', vesting.contract.address)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
@@ -144,7 +152,7 @@ describe("Contracts Deployment for Tests", async () => {
         console.log('BreakGlass Contract deployed at:', breakGlass.contract.address);
         console.log('Emergency Governance Contract deployed at:', emergencyGovernance.contract.address);
         console.log('MVK Token Contract deployed at:', mvkToken.contract.address);
-        // console.log('Vesting Contract deployed at:', vesting.contract.address);
+        console.log('Vesting Contract deployed at:', vesting.contract.address);
 
     } catch (e){
         console.log(e);

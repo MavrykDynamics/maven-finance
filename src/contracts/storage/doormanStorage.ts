@@ -11,6 +11,8 @@ import { doormanStorageType } from "../test/types/doormanStorageType";
 export const doormanStorage: doormanStorageType = {
 
   admin: alice.pkh,
+
+  whitelistContracts : [],
   
   breakGlassConfig: {
     stakeIsPaused           : false,

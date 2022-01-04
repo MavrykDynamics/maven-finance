@@ -8,8 +8,9 @@ type configType is record [
     
     newBlockTimeLevel            : nat;  // block level where new blocksPerMinute takes effect -> if none, use blocksPerMinute (old); if exists, check block levels, then use newBlocksPerMinute if current block level exceeds block level, if not use old blocksPerMinute
     newBlocksPerMinute           : nat;  // new blocks per minute 
+    
     blocksPerMinute              : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
-    blocksPerMonth               : nat;  // blocks per month - to help with calculation for cliff/cooldown periods
+    blocksPerMonth               : nat;  // for convenience: blocks per month - to help with calculation for cliff/cooldown periods
 ]
 
 type claimRecordType is record [
@@ -36,7 +37,7 @@ type vesteeRecordType is record [
     endCliffBlock            : blockLevel;      // calculated end of cliff duration in block levels based on dateTimeStart
     endCliffDateTime         : timestamp;       // calculated end of cliff duration in timestamp based on dateTimeStart
     
-    endVestingBlock          : blockLevel;      //  calculated end of vesting duration in block levels based on dateTimeStart
+    endVestingBlock          : blockLevel;      // calculated end of vesting duration in block levels based on dateTimeStart
     endVestingDateTime       : timestamp;       // calculated end of vesting duration in timestamp based on dateTimeStart
 
     status                   : string;          // status of vestee: "ACTIVE", "LOCKED"
@@ -51,6 +52,7 @@ type vesteeRecordType is record [
     
     nextRedemptionBlock      : blockLevel;      // block level where vestee will be able to claim again - calculated at start: nextRedemptionBlock = (block level of time start * cliff months * blocks per month)
     nextRedemptionTimestamp  : timestamp;       // timestamp of when vestee will be able to claim again
+
     lastClaimedBlock         : blockLevel;      // block level where vestee last claimed
     lastClaimedTimestamp     : timestamp;       // timestamp of when vestee last claimed
 ] 
@@ -69,6 +71,9 @@ type storage is record [
     doormanAddress      : address; 
     governanceAddress   : address;
     mvkTokenAddress     : address;
+    councilAddress      : address;
+
+    tempBlockLevel      : nat; 
 ]
 
 // how to account for changes in block level
@@ -77,6 +82,7 @@ type storage is record [
 // e.g. different start times for each person depending on when they joined and vesting starts
     
 type addVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
+type updateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
 
 type vestingAction is 
     | Claim of (unit)
@@ -85,7 +91,8 @@ type vestingAction is
     | AddVestee of (addVesteeType)
     | RemoveVestee of (address)
     | ToggleVesteeLock of (address)
-    | UpdateVesting of (address * vesteeRecordType)
+    | UpdateVestee of (updateVesteeType)
+    | UpdateVestingRecord of (address * vesteeRecordType)
 
 const noOperations : list (operation) = nil;
 const nullTimestamp : timestamp = ("2000-01-01T00:00:00Z" : timestamp);
@@ -97,6 +104,14 @@ type return is list (operation) * storage
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
+
+function checkSenderIsCouncil(var s : storage) : unit is
+    if (Tezos.sender = s.councilAddress) then unit
+    else failwith("Only the council contract can call this entrypoint.");
+
+function checkSenderIsAdminOrCouncil(var s : storage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.councilAddress) then unit
+    else failwith("Only the administrator or council contract can call this entrypoint.");
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
@@ -151,6 +166,7 @@ block {
     // 4. Send operations to mint new MVK tokens and update user's balance in MVK ledger
     // 5. Update vestee records in storage
 
+    s.tempBlockLevel := Tezos.level;
     checkNoAmount(unit);
 
     // use _vestee and _operations so that compiling will not have warnings that variable is unused
@@ -175,16 +191,20 @@ block {
         // calculate claim amount based on last redemption - calculate how many months has passed since last redemption if any
         var numberOfClaimMonths : nat := 0n;
         
+        // at least one month needs to pass before the first claim (e.g. for edge case vestee with 0 cliff months and 1 vesting months)
         if _vestee.lastClaimedBlock = 0n then block {
             const blockLevelsSinceStart   = abs(Tezos.level - _vestee.startBlock);
-            numberOfClaimMonths           := blockLevelsSinceStart mod s.config.blocksPerMonth;
+            numberOfClaimMonths           := blockLevelsSinceStart / s.config.blocksPerMonth;
         } else skip;
         
         if _vestee.lastClaimedBlock > 0n then block {
             const blockLevelsSinceLastClaim  = abs(Tezos.level - _vestee.lastClaimedBlock);
-            numberOfClaimMonths              := blockLevelsSinceLastClaim mod s.config.blocksPerMonth;
+            numberOfClaimMonths              := blockLevelsSinceLastClaim / s.config.blocksPerMonth;
         } else skip;
     
+        // tepmp: for testing that mint inter-contract call works 
+        // const numberOfClaimMonths : nat = 1n;
+
         // get total claim amount
         const totalClaimAmount = _vestee.claimAmountPerMonth * numberOfClaimMonths;  
 
@@ -195,13 +215,15 @@ block {
         ); 
 
         // update user's MVK balance -> increase user balance in mvk ledger
-        const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-            (Tezos.sender, totalClaimAmount, "claim"),
-            0tez,
-            updateUserBalanceInMvkContract(s.mvkTokenAddress)
-        );
+        // const updateUserMvkBalanceOperation : operation = Tezos.transaction(
+        //     (Tezos.sender, totalClaimAmount, "claim"),
+        //     0tez,
+        //     updateUserBalanceInMvkContract(s.mvkTokenAddress)
+        // );
 
-        const _operations : list(operation) = list [mintVMvkTokensOperation; updateUserMvkBalanceOperation];
+        _operations := mintVMvkTokensOperation # _operations;
+
+        // const _operations : list(operation) = list [mintVMvkTokensOperation; updateUserMvkBalanceOperation];
         
         const one_day        : int   = 86_400;
         const thirty_days    : int   = one_day * 30;
@@ -225,8 +247,8 @@ block {
         _vestee.totalClaimed             := _vestee.totalClaimed + totalClaimAmount;  
 
         var totalRemainder : nat := 0n;
-        if _vestee.totalAllocatedAmount < _vestee.totalRemainder then totalRemainder := 0n; 
-            else totalRemainder := abs(_vestee.totalAllocatedAmount - _vestee.totalRemainder);
+        if _vestee.totalAllocatedAmount < totalClaimAmount then totalRemainder := 0n
+            else totalRemainder := abs(_vestee.totalAllocatedAmount - totalClaimAmount);
         _vestee.totalRemainder           := totalRemainder;
 
         s.vesteeLedger[Tezos.sender] := _vestee;
@@ -263,12 +285,16 @@ block {
     // Steps Overview:
     // 1. check if vestee address exists in vestee ledger
     // 2. create new vestee
-
+    s.tempBlockLevel := Tezos.level;
     checkSenderIsAdmin(s);
     checkNoAmount(unit);
 
     const one_day        : int   = 86_400;
     const thirty_days    : int   = one_day * 30;
+
+    // check for div by 0 error
+    if vestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
+        else skip;
 
     var newVestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
         | Some(_record) -> failwith("Error. Vestee already exists")
@@ -276,8 +302,8 @@ block {
             
             // static variables initiated at start ----
 
-            totalAllocatedAmount = totalAllocatedAmount;         // totalAllocatedAmount should be in mu (10^6)
-            claimAmountPerMonth  = totalAllocatedAmount / 6n;    // totalAllocatedAmount should be in mu (10^6)
+            totalAllocatedAmount = totalAllocatedAmount;                      // totalAllocatedAmount should be in mu (10^6)
+            claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;    // totalAllocatedAmount should be in mu (10^6)
             
             startBlock           = Tezos.level;                 // date/time of start in block levels
             startTimestamp       = Tezos.now;                   // date/time start of when 
@@ -356,7 +382,66 @@ block {
 } with (noOperations, s)
 
 
-function updateVesting(const vesteeAddress : address; const newVesteeRecord : vesteeRecordType; var s : storage) : return is 
+function updateVestee(const vesteeAddress : address; const newTotalAllocatedAmount : nat; const newCliffInMonths : nat; const newVestingInMonths : nat; var s : storage) : return is
+block {
+
+    // Steps Overview:
+    // 1. check if vestee address exists in vestee ledger
+    // 2. update vestee record based on new params
+
+    checkSenderIsAdmin(s);
+    checkNoAmount(unit);
+
+    // check for div by 0 error
+    if newVestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
+        else skip;
+
+    var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
+        | Some(_record) -> _record
+        | None -> failwith("Error. Vestee is not found.")
+    end;    
+
+    const one_day        : int   = 86_400;
+    const thirty_days    : int   = one_day * 30;
+    
+    vestee.totalAllocatedAmount  := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
+
+    // factor any amount that vestee has claimed so far and update new claim amount per month accordingly
+    var newMonthsRemaining      : nat  := abs(newVestingInMonths - vestee.monthsClaimed); 
+    var newRemainder            : nat  := abs(newTotalAllocatedAmount - vestee.totalClaimed); 
+    var newClaimAmountPerMonth  : nat  := newRemainder / newMonthsRemaining;
+
+    vestee.totalRemainder       := newRemainder;
+    vestee.claimAmountPerMonth  := newClaimAmountPerMonth;
+    vestee.cliffMonths          := newCliffInMonths;
+    vestee.vestingMonths        := newVestingInMonths;
+    vestee.monthsRemaining      := newMonthsRemaining;
+
+    vestee.endCliffBlock        := vestee.startBlock + (newCliffInMonths * s.config.blocksPerMonth);        // calculated end of new cliff duration in block levels based on dateTimeStart
+    vestee.endCliffDateTime     := vestee.startTimestamp + (newCliffInMonths * thirty_days);                // calculated end of new cliff duration in timestamp based on dateTimeStart
+            
+    vestee.endVestingBlock      := vestee.startBlock + (newVestingInMonths * s.config.blocksPerMonth);      // calculated end of new vesting duration in timestamp based on dateTimeStart
+    vestee.endVestingDateTime   := vestee.startTimestamp + (newVestingInMonths * thirty_days);              // calculated end of new vesting duration in timestamp based on dateTimeStart
+
+    // todo bugfix: check that new cliff in months is different from old cliff in months
+
+    // calculate next redemption block based on new cliff months and whether vestee has made a claim 
+    if newCliffInMonths <= vestee.monthsClaimed then block {
+        // no changes to vestee next redemption period
+        vestee.nextRedemptionBlock      := vestee.startBlock + (vestee.monthsClaimed * s.config.blocksPerMonth) + s.config.blocksPerMonth;    //  block level where vestee will be able to claim again (same as end of cliff block)
+        vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (vestee.monthsClaimed * thirty_days) + thirty_days;            // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
+    } else block {
+        // cliff has been adjusted upwards, requiring vestee to wait for cliff period to end again before he can start to claim
+        vestee.nextRedemptionBlock      := vestee.startBlock + (newCliffInMonths * s.config.blocksPerMonth);    //  block level where vestee will be able to claim again (same as end of cliff block)
+        vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (newCliffInMonths * thirty_days);            // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
+    };
+
+    s.vesteeLedger[vesteeAddress] := vestee;
+
+} with (noOperations, s)
+
+
+function updateVestingRecord(const vesteeAddress : address; const newVesteeRecord : vesteeRecordType; var s : storage) : return is 
 block {
 
     // Steps Overview:
@@ -372,8 +457,6 @@ block {
         | None -> failwith("Error. Vestee is not found.")
     end;    
 
-    // todo: 2. verify new vestee record params is of correct type
-
     _vestee := newVesteeRecord;
     s.vesteeLedger[vesteeAddress] := _vestee;
     
@@ -387,5 +470,6 @@ function main (const action : vestingAction; const s : storage) : return is
         | ToggleVesteeLock(params) -> toggleVesteeLock(params, s)
         | GetVestedBalance(params) -> getVestedBalance(params.0, params.1, s)
         | GetTotalVested(params) -> getTotalVested(params, s)
-        | UpdateVesting(params) -> updateVesting(params.0, params.1, s)
+        | UpdateVestee(params) -> updateVestee(params.0, params.1, params.2, params.3, s)
+        | UpdateVestingRecord(params) -> updateVestingRecord(params.0, params.1, s)
     end

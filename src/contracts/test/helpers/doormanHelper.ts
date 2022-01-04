@@ -39,7 +39,7 @@ export class Doorman {
           storage: storage,
         })
         .catch((e) => {
-        //   console.error(e);
+          console.error(e);
           console.log('error no hash')
           return null;
         });
