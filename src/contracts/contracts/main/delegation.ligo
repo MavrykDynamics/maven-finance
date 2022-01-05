@@ -75,6 +75,7 @@ type delegationAction is
 
     | DelegateToSatellite of (address)
     | DelegateToSatelliteComplete of (nat)
+    | RedelegateSatellite of (address)
 
     | GetSatelliteVotingPower of getSatelliteVotingPowerParams
     // updateFeeForPerson  
@@ -97,6 +98,10 @@ type return is list (operation) * storage
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
+
+function checkSenderIsSelf(const _p : unit) : unit is
+    if (Tezos.sender = Tezos.self_address) then unit
+    else failwith("Only this contract can call this entrypoint.");
 
 function checkSenderIsDoormanContract(var s : storage) : unit is
     if (Tezos.sender = s.doormanAddress) then unit
@@ -165,6 +170,15 @@ function getSatelliteBalance(const contractAddress : address) : contract(address
     Some(contr) -> contr
   | None -> (failwith("GetSatelliteBalance entrypoint in Doorman Contract not found") : contract(address * string * string * string * nat * contract(registerAsSatelliteCompleteParamsType)))
   end;
+
+function redelegateSatellite(const contractAddress : address) : contract(address) is
+case (Tezos.get_entrypoint_opt(
+    "%redelegateSatellite",
+    contractAddress) : option(contract(address))) of
+  Some(contr) -> contr
+| None -> (failwith("redelgateSatellite entrypoint in Delegation Contract not found") : contract(address))
+end;
+
 
 // helper function to get satellite 
 function getSatelliteRecord (const satelliteAddress : address; const s : storage) : satelliteRecordType is
@@ -389,6 +403,13 @@ block {
           fetchStakedMvkBalance(s.doormanAddress)
           );
 
+      // redelgate satellite
+      const redelegateSatelliteOperation : operation = Tezos.transaction(
+          satelliteAddress,
+          0tez, 
+          redelegateSatellite(Tezos.self_address)
+          );
+
       // update new satellite totalDelegatedAmount with increase in user's vMVK balance
       const delegateToSatelliteCompleteCallback : contract(nat) = Tezos.self("%delegateToSatelliteComplete");
       const delegateToNewSatelliteOperation : operation = Tezos.transaction(
@@ -398,9 +419,11 @@ block {
           );    
 
       operations := delegateToNewSatelliteOperation # operations;          // runs second (after undelegateFromPreviousSatelliteOperation) 
+      operations := redelegateSatelliteOperation # operations;
       operations := undelegateFromPreviousSatelliteOperation # operations; // runs first
 
     } else block {
+      
       // user is not delegated to a satellite
       var delegateRecord : delegateRecordType := record [
           satelliteAddress  = satelliteAddress;
@@ -423,6 +446,20 @@ block {
     }
 
 } with (operations, s)
+
+function redelegateSatellite(const newSatelliteAddress : address; var s : storage) : return is 
+block {
+
+    // check sender is self
+    checkSenderIsSelf(Unit);
+
+    var delegateRecord : delegateRecordType := getOrCreateDelegateRecord(Tezos.source, s);
+
+    delegateRecord.satelliteAddress := newSatelliteAddress;
+
+    s.delegateLedger[Tezos.source] := delegateRecord;
+
+} with (noOperations, s)
 
 function delegateToSatelliteComplete(const vMvkBalance : nat; var s : storage) : return is 
 block {
@@ -770,6 +807,7 @@ function main (const action : delegationAction; const s : storage) : return is
         
         | DelegateToSatellite(parameters) -> delegateToSatellite(parameters, s)
         | DelegateToSatelliteComplete(parameters) -> delegateToSatelliteComplete(parameters, s)        
+        | RedelegateSatellite(parameters) -> redelegateSatellite(parameters, s)
         
         | UndelegateFromSatellite(_parameters) -> undelegateFromSatellite(s)
         | UndelegateFromSatelliteComplete(parameters) -> undelegateFromSatelliteComplete(parameters, s)
