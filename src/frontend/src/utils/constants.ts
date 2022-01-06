@@ -1,0 +1,9 @@
+/*
+ * File that constans the various global constants needed throughout the dapp
+ */
+
+// Current PRECISION_NUMBER is 10^18 -> 1000000000000000000
+// For 10^6 -> 1000000
+// For 10^10 -> 10000000000
+export const PRECISION_NUMBER = 1000000000000000000 // (10^18)
+export const DECIMALS_TO_SHOW = 2
