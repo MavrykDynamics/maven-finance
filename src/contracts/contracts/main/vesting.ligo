@@ -109,35 +109,23 @@ function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
-function getWhitelistContractsSet(var s : storage) : set(address) is 
+function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
 block {
-  var _whitelistContractsSet : set(address) := set [];
+  var inWhitelistContractsMap : bool := False;
   for _key -> value in map s.whitelistContracts block {
-    var _whitelistContractsSet : set(address) := Set.add(value, _whitelistContractsSet);
-  }
-} with _whitelistContractsSet
+    if contractAddress = value then inWhitelistContractsMap := True
+      else skip;
+  }  
+} with inWhitelistContractsMap
 
-function checkSenderIsWhitelistContract(var s : storage) : unit is
+function checkInContractAddresses(const contractAddress : address; var s : storage) : bool is 
 block {
-  var whitelistContractsSet : set(address) := getWhitelistContractsSet(s);
-  if (whitelistContractsSet contains Tezos.sender) then skip
-  else failwith("Error. Only whitelisted contracts can call this entrypoint.");
-} with unit
-
-function checkSenderIsAdminOrWhitelistContract(var s : storage) : unit is
-block {
-  var whitelistContractsSet : set(address) := getWhitelistContractsSet(s);
-  if (Tezos.sender = s.admin or whitelistContractsSet contains Tezos.sender) then skip
-  else failwith("Error. Only whitelisted contracts can call this entrypoint.");
-} with unit
-
-function getContractAddressesSet(var s : storage) : set(address) is 
-block {
-  var _contractAddressesSet : set(address) := set [];
+  var inContractAddressMap : bool := False;
   for _key -> value in map s.contractAddresses block {
-    var _contractAddressesSet : set(address) := Set.add(value, _contractAddressesSet);
-  }
-} with _contractAddressesSet
+    if contractAddress = value then inContractAddressMap := True
+      else skip;
+  }  
+} with inContractAddressMap
 
 // function checkSenderIsCouncil(var s : storage) : unit is
 //     if (Tezos.sender = s.councilAddress) then unit
@@ -159,11 +147,9 @@ block{
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
-    var whitelistContractsSet : set(address) := getWhitelistContractsSet(s);
+    var inWhitelistCheck : bool := checkInWhitelistContracts(contractAddress, s);
 
-    const checkIfWhitelistContractExists : bool = whitelistContractsSet contains contractAddress; 
-
-    if (checkIfWhitelistContractExists) then block{
+    if (inWhitelistCheck) then block{
         // whitelist contract exists - remove whitelist contract from set 
         s.whitelistContracts := Map.update(contractName, Some(contractAddress), s.whitelistContracts);
     } else block {
@@ -179,12 +165,10 @@ block{
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
+ 
+    var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
 
-    var contractAddressesSet : set(address) := getContractAddressesSet(s);
-
-    const checkIfContractExists : bool = contractAddressesSet contains contractAddress; 
-
-    if (checkIfContractExists) then block{
+    if (inContractAddressesBool) then block{
         // whitelist contract exists - remove whitelist contract from set 
         s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
     } else block {
@@ -231,7 +215,6 @@ function mintTokens(
     0tez,
     getMintEntrypointFromTokenAddress(tokenAddress)
   );
-
 
 function claim(var s : storage) : return is 
 block {

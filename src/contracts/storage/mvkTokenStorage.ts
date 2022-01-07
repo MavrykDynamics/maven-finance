@@ -2,12 +2,13 @@ import { MichelsonMap } from "@taquito/michelson-encoder";
 
 import { BigNumber } from "bignumber.js";
 import { Buffer } from "buffer";
+import { array } from "yargs";
 
 const { alice, bob, eve, mallory } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from "../test/helpers/Utils";
 
-import { mvkStorageType } from "../test/types/mvkStorageType";
+import { mvkStorageType } from "../test/types/mvkTokenStorageType";
 
 const totalSupply   = 1000000000;
 const initialSupply = new BigNumber(totalSupply); // 1,000 MVK Tokens in mu (10^6)
@@ -65,11 +66,14 @@ const token_metadata = MichelsonMap.fromLiteral({
 
 export const mvkStorage: mvkStorageType = {
   admin: alice.pkh,
-  // whitelistContracts: [],
+
+  contractAddresses: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
+
   metadata: MichelsonMap.fromLiteral({}),
   ledger: ledger,
   token_metadata: token_metadata,
-  doormanAddress: zeroAddress,
-  totalSupply: initialSupply
+  
+  totalSupply: initialSupply,
+
 };
