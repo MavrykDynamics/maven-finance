@@ -18,12 +18,9 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
   admin: alice.pkh,
   config: config,
 
+  contractAddresses: MichelsonMap.fromLiteral({}),
+
   emergencyGovernanceLedger: MichelsonMap.fromLiteral({}),
-  
-  mvkTokenAddress: zeroAddress,
-  breakGlassContractAddress: zeroAddress,
-  governanceContractAddress: zeroAddress,
-  treasuryAddress: zeroAddress,
 
   tempMvkTotalSupply: new BigNumber(1000000000),
   currentEmergencyGovernanceId: new BigNumber(0),

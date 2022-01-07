@@ -5,7 +5,7 @@ type configType is record [
     emergencyGovernanceAddress  : address;             // emergency governance address
 ]
 
-type contractAddressesMapType is map(string, address)
+type contractAddressesType is map(string, address)
 
 type councilMembersType is set(address)
 
@@ -26,9 +26,10 @@ type flushRecordType is record [
 type flushLedgerType is big_map(nat, flushRecordType)
 
 type storage is record [
-    admin                       : address;                  // for init of contract - needed?
+    admin                       : address;               // for init of contract - needed?
     config                      : configType;
-    contractAddresses           : contractAddressesMapType; // map of contract addresses
+    
+    contractAddresses           : contractAddressesType; // map of all contract addresses (e.g. doorman, delegation, vesting)
     
     glassBroken                 : bool;
     councilMembers              : councilMembersType;  // set of council member addresses

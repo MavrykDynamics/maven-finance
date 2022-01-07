@@ -6,9 +6,7 @@ export type councilStorageType = {
   admin: string;
   councilMembers: Array<string>;
 
-  vestingAddress: string;
-  treasuryAddress: string;
-
+  whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
   contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
-  
+    
 };

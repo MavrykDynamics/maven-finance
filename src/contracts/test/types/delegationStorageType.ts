@@ -7,9 +7,10 @@ export type delegationStorageType = {
   config: {};
   breakGlassConfig: {};
 
+  whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
+  contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
+
   delegateLedger: MichelsonMap<MichelsonMapKey, unknown>;
   satelliteLedger: MichelsonMap<MichelsonMapKey, unknown>;
 
-  doormanAddress: string;
-  governanceAddress: string; 
 };
