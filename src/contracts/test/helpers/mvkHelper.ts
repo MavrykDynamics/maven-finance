@@ -3,7 +3,7 @@ import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
-import { mvkStorageType } from "../types/mvkStorageType";
+import { mvkStorageType } from "../types/mvkTokenStorageType";
 
 export class MvkToken {
     contract: Contract;

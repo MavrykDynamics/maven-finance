@@ -47,6 +47,7 @@ type burnParams is (address * nat)
 type onStakeChangeParams is (address * nat * string)
 
 type updateWhitelistContractParams is (string * address)
+// type updateContractAddressesParams is (string * option (address))
 type updateContractAddressesParams is (string * address)
 
 // type operator_t         is [@layout:comb] record [
@@ -73,7 +74,7 @@ type entryAction is
   | GetTotalSupply of totalSupplyParams
   | UpdateMvkTotalSupplyForDoorman of (nat)
   | Mint of mintParams
-  | UpdateUserBalance of mintParams
+  | UpdateUserBalance of mintParams // may be removed
   | Burn of burnParams
   | OnStakeChange of onStakeChangeParams
   // | Update_operators of update_operators_t
@@ -144,6 +145,11 @@ block{
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
  
+    // test None option
+    // var inContractAddressesBool : bool := True;
+    // if contractAddress = None : option (address) then inContractAddressesBool := True
+    //   else inContractAddressesBool := checkInContractAddresses(contractAddress, s);
+
     var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
 
     if (inContractAddressesBool) then block{
@@ -375,6 +381,8 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
     
+    // todo: update doormanledger account in mvk ledger? total supply remains unchanged in any case
+
     if stakeType = "stake" then block {
       // stake -> decrease user balance in mvk ledger 
       (* Balance check *)
