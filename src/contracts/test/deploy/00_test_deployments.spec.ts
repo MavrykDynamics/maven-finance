@@ -115,11 +115,14 @@ describe("Contracts Deployment for Tests", async () => {
       vestingStorage
     );
 
-    // councilStorage.vestingAddress = vesting.contract.address;
-    // council = await Council.originate(
-    //   utils.tezos,
-    //   councilStorage
-    // );
+    councilStorage.contractAddresses = MichelsonMap.fromLiteral({
+      "vesting"  : vesting.contract.address
+    });
+    councilStorage.councilMembers = [alice.pkh, bob.pkh];
+    council = await Council.originate(
+      utils.tezos,
+      councilStorage
+    );
 
     breakGlassStorage.contractAddresses = MichelsonMap.fromLiteral({
       "mvkToken"  : mvkToken.contract.address,
@@ -127,7 +130,7 @@ describe("Contracts Deployment for Tests", async () => {
       "delegation": delegation.contract.address,
       "governance": governance.contract.address,
       "vesting"   : vesting.contract.address,
-      // "council"   : council.contract.address,
+      "council"   : council.contract.address,
       "emergencyGovernance": emergencyGovernance.contract.address
     });
     breakGlass = await BreakGlass.originate(
@@ -167,6 +170,10 @@ describe("Contracts Deployment for Tests", async () => {
     const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateContractAddresses("breakGlass", breakGlass.contract.address).send();
     await setBreakGlassContractAddressInEmergencyGovernance.confirmation();
 
+    // Vesting Contract - set whitelist contract addresses map [council]
+    const setCouncilContractAddressInVesting = await vesting.contract.methods.updateWhitelistContracts("council", council.contract.address).send();
+    await setCouncilContractAddressInVesting.confirmation();
+
     //----------------------------
     // Save Contract Addresses to JSON (for reuse in JS / PyTezos Tests)
     //----------------------------
@@ -177,7 +184,7 @@ describe("Contracts Deployment for Tests", async () => {
     await saveContractAddress("breakGlassAddress", breakGlass.contract.address)
     await saveContractAddress("emergencyGovernanceAddress", emergencyGovernance.contract.address)
     await saveContractAddress("vestingAddress", vesting.contract.address)
-    // await saveContractAddress("councilAddress", council.contract.address)
+    await saveContractAddress("councilAddress", council.contract.address)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
@@ -210,6 +217,7 @@ describe("Contracts Deployment for Tests", async () => {
         console.log("Emergency Governance Contract deployed at:", emergencyGovernance.contract.address);
         console.log("MVK Token Contract deployed at:", mvkToken.contract.address);
         console.log("Vesting Contract deployed at:", vesting.contract.address);
+        console.log("Council Contract deployed at:", council.contract.address);
 
     } catch (e){
         console.log(e);

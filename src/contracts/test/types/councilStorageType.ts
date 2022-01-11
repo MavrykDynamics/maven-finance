@@ -4,9 +4,14 @@ import { BigNumber } from "bignumber.js";
 
 export type councilStorageType = {
   admin: string;
+  config: {};
   councilMembers: Array<string>;
 
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
   contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
-    
+
+  councilActionsLedger: MichelsonMap<MichelsonMapKey, unknown>;
+
+  thresholdSigners: BigNumber;
+  actionCounter: BigNumber;
 };

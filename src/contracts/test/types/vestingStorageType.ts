@@ -13,12 +13,6 @@ export type vestingStorageType = {
 
   totalVestedAmount : BigNumber; 
 
-  // delegationAddress : string;
-  // doormanAddress    : string;
-  // governanceAddress : string;
-  // mvkTokenAddress   : string;
-  // councilAddress   : string;
-
   tempBlockLevel : BigNumber;
 
 };

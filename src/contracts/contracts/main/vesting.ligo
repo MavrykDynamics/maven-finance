@@ -87,11 +87,13 @@ type updateWhitelistContractParams is (string * address)
 type updateContractAddressesParams is (string * address)
 
 type vestingAction is 
+    
     | Claim of (unit)
     | GetVestedBalance of (address * contract(nat))
     | UpdateWhitelistContracts of updateWhitelistContractParams
     | UpdateContractAddresses of updateContractAddressesParams
     | GetTotalVested of contract(nat)
+    
     | AddVestee of (addVesteeType)
     | RemoveVestee of (address)
     | ToggleVesteeLock of (address)
@@ -349,9 +351,17 @@ block {
     // Steps Overview:
     // 1. check if vestee address exists in vestee ledger
     // 2. create new vestee
+    
     s.tempBlockLevel := Tezos.level;
-    checkSenderIsAdmin(s);
     checkNoAmount(unit);
+
+    // checkSenderIsAdmin(s);
+
+    // check sender is from council contract
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
 
     const one_day        : int   = 86_400;
     const thirty_days    : int   = one_day * 30;
@@ -453,8 +463,14 @@ block {
     // 1. check if vestee address exists in vestee ledger
     // 2. update vestee record based on new params
 
-    checkSenderIsAdmin(s);
+    // checkSenderIsAdmin(s);
     checkNoAmount(unit);
+
+    // check sender is from council contract
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
 
     // check for div by 0 error
     if newVestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")

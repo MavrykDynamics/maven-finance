@@ -11,6 +11,5 @@ export type mvkStorageType = {
   ledger: MichelsonMap<MichelsonMapKey, unknown>;
   token_metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
-  doormanAddress: string;
   totalSupply: BigNumber;
 };
