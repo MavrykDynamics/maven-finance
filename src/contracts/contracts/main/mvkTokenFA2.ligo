@@ -1,19 +1,26 @@
+////
+// COMMON TYPES
+////
 type token_id is nat;
+type token_balance is nat;
+type operator is address
+type owner is address
+
+////
+// STORAGE
+////
 type token_metadata_info is record [
   token_id          : token_id;
   token_info        : map(string, bytes);
 ]
-type token_balance is nat;
 type ledger is big_map(address, token_balance);
+type operators is big_map((owner * operator), unit)
+
 type token_metadata is big_map(token_id, token_metadata_info);
 type metadata is big_map (string, bytes);
 
 type whitelist_contracts_type is map (string, address)
 type contract_addresses_type is map (string, address)
-
-type operator is address
-type owner is address
-type operators is big_map((owner * operator), unit)
 
 type storage is record [
     admin                 : address;
@@ -26,6 +33,9 @@ type storage is record [
     operators             : operators
   ]
 
+////
+// RETURN TYPES
+////
 (* define return for readability *)
 type return is list (operation) * storage
 (* define noop for readability *)
