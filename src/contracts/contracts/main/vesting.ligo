@@ -419,8 +419,13 @@ block {
     // 1. check if user address exists in vestee ledger
     // 2. remove vestee from vesteeLedger
 
-    checkSenderIsAdmin(s);
+    // checkSenderIsAdmin(s);
     checkNoAmount(unit);
+
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
 
     var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
         | Some(_record) -> _record
@@ -438,8 +443,13 @@ block {
     // 1. check if vestee address exists in vestee ledger
     // 2. lock vestee account
 
-    checkSenderIsAdmin(s);
+    // checkSenderIsAdmin(s);
     checkNoAmount(unit);
+
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
 
     var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
         | Some(_record) -> _record

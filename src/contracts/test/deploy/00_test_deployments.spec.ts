@@ -118,7 +118,7 @@ describe("Contracts Deployment for Tests", async () => {
     councilStorage.contractAddresses = MichelsonMap.fromLiteral({
       "vesting"  : vesting.contract.address
     });
-    councilStorage.councilMembers = [alice.pkh, bob.pkh];
+    councilStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh];
     council = await Council.originate(
       utils.tezos,
       councilStorage

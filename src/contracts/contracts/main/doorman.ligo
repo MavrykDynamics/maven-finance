@@ -514,7 +514,6 @@ block {
   const mvkLoyaltyIndex : nat = (s.stakedMvkTotalSupply * scaleFactor * 100n / s.tempMvkTotalSupply); 
   const exitFee : nat = (500n * scaleFactor * 100n ) / (mvkLoyaltyIndex + (5n * scaleFactor)); 
 
-
   if exitFee > abs(percentageFactor - 1n) then // exitFee cannot be more than 9999n (with scaleFactor of 10^6)
     failwith("Exit fee calculation error.")
   else skip;
@@ -717,34 +716,36 @@ block {
    userRecordInStakeRecordLedger[userlastRecordIndex] := newUserExitFeeRewardRecord;
    s.userStakeRecordsLedger[userAddress] := userRecordInStakeRecordLedger;
 
-  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found.")
-  end;
+  // const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+  //     Some(_address) -> _address
+  //     | None -> failwith("Error. MVK Token Contract is not found.")
+  // end;
 
-  const delegationAddress : address = case s.contractAddresses["delegation"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found.")
-  end;
+  // const delegationAddress : address = case s.contractAddresses["delegation"] of
+  //     Some(_address) -> _address
+  //     | None -> failwith("Error. Delegation Contract is not found.")
+  // end;
 
    // update user's MVK balance
-  const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (userAddress, exitFeeReward, "stake"),
-      0tez,
-      updateUserBalanceInMvkContract(mvkTokenAddress)
-    );
+  // const updateUserMvkBalanceOperation : operation = Tezos.transaction(
+  //     (userAddress, exitFeeReward, "stake"),
+  //     0tez,
+  //     updateUserBalanceInMvkContract(mvkTokenAddress)
+  //   );
+
 
   // update satellite balance if user is delegated to a satellite
-  const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (userAddress, exitFeeReward, 1n),
-      0tez,
-      updateSatelliteBalance(delegationAddress)
-    );
+  // const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+  //     (userAddress, exitFeeReward, 1n),
+  //     0tez,
+  //     updateSatelliteBalance(delegationAddress)
+  //   );
 
   // create list of operations
-  const operations : list(operation) = list [updateUserMvkBalanceOperation; updateSatelliteBalanceOperation];
+  // const operations : list(operation) = list [updateUserMvkBalanceOperation; updateSatelliteBalanceOperation];
+  // const operations : list(operation) = list [updateSatelliteBalanceOperation];
 
-} with (operations, s)
+} with (noOperations, s)
 
 (* Main entrypoint *)
 function main (const action : stakeAction; const s : storage) : return is
