@@ -53,6 +53,9 @@
 //     console.log('Alice address: ' + alice.pkh);
 //     console.log('Bob address: ' + bob.pkh);
 
+//     // console.log('mvk token storage');
+//     // console.log(mvkTokenStorage);
+
 //   });
 
 //   it("set admin to bob", async () => {
@@ -73,10 +76,10 @@
 //         // console.log('before: Admin should be bob address: '+ doormanStorage.admin); // return bob.pkh        
 //         const resetAdminAddressOperation = await doormanInstance.methods.setAdmin(alice.pkh).send();
 //         await resetAdminAddressOperation.confirmation();
+
 //         doormanStorage = await doormanInstance.storage();
 //         assert.equal(doormanStorage.admin, alice.pkh);
 //         // console.log('after: Admin should be alice address: '+ doormanStorage.admin); // return alice.pkh        
-//         await signerFactory(alice.sk);
 
 //     } catch(e){
 //         console.log(e)
@@ -100,50 +103,6 @@
 //     }
 //   }); 
 
-//   it(`admin set mvk contract address`, async () => {
-//     try{
-//       console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//       console.log('Test: Admin set MVK Contract Address')
-//       console.log("---") // break
-
-//       const dummyMvkTokenAddress = "KT18jjki6TE4AkoNsU3iEJRgSxzWcoqKaf2S";
-//       const setMvkTokenAddressOperation = await doormanInstance.methods.setMvkTokenAddress(dummyMvkTokenAddress).send();
-//       await setMvkTokenAddressOperation.confirmation();
-//       doormanStorage = await doormanInstance.storage();
-//       assert.equal(doormanStorage.mvkTokenAddress, dummyMvkTokenAddress);
-//       // reset state back to alice as admin
-
-//       const resetMvkTokenAddressOperation = await doormanInstance.methods.setMvkTokenAddress(mvkTokenAddress.address).send();
-//       await resetMvkTokenAddressOperation.confirmation();
-//       doormanStorage = await doormanInstance.storage();
-//       assert.equal(doormanStorage.mvkTokenAddress, mvkTokenAddress.address);
-
-//     } catch(e){
-//       console.log(e)
-//     }
-//   });
-
-//   it(`non-admin cannot set mvk contract address`, async () => {
-//     try{
-        
-//         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//         console.log('Test: Non-Admin cannot set MVK Contract Address')
-//         console.log("---") // break
-
-//         // dummy contract address generated from previous tests 
-//         const dummyMvkTokenAddress = "KT18jjki6TE4AkoNsU3iEJRgSxzWcoqKaf2S";
-
-//         // change user to bob
-//         await signerFactory(bob.sk);
-//         const failSetMvkTokenAddressOperation = await doormanInstance.methods.setMvkTokenAddress(dummyMvkTokenAddress);
-//         await chai.expect(failSetMvkTokenAddressOperation.send()).to.be.eventually.rejected;
-//         await signerFactory(alice.sk);
-
-//     } catch (e){
-//         console.log(e);
-//     }
-//   });
-
 //   it(`alice stake 100 MVK tokens`, async () => {
 //       try{
 
@@ -156,13 +115,13 @@
 //           const beforeMvkLedgerAlice   = await mvkTokenStorage.ledger.get(alice.pkh);
 
 //           // console.log(beforeDoormanStorage);
-//           // console.log('beforeMvkStorage');
-//           // console.log(beforeMvkTokenStorage);
+//         //   console.log('beforeMvkStorage');
+//         //   console.log(beforeMvkTokenStorage);
 
 //           // console.log("Before MVK Storage Total Supply: "  + mvkTokenStorage.totalSupply);        // return 1000 MVK - 1,000,000,000 in muMVK
 //           // console.log("Before Alice MVK Balance: "         + beforeMvkLedgerAlice.balance);       // return 250 - 250,000,000 in muMVK
   
-//           // console.log("---") // break
+//           console.log("---") // break
             
 //           // Alice stake 100 MVK tokens - 100,000,000 in muMVK
 //           const stakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
@@ -178,10 +137,10 @@
 //           const afterDoormanAliceStakeRecord          = await afterDeployedDoormanAliceUserRecord.get("0");               // return { amount: 100000000, exitFee: 0, opType: 'stake', time: '2021-10-26T10:14:54.000Z' }
 //           // console.log(afterDeployedDoormanAliceUserRecord);
 //           // console.log(afterDoormanAliceStakeRecord);
-//           // console.log('afterMvkStorage');
-//           // console.log(afterMvkStorage);
+//         //   console.log('afterMvkStorage');        
+//         //   console.log(afterMvkStorage);
 
-//           const afterMvkLedgerAlice                  = await afterMvkStorage.ledger.get(alice.pkh);
+//         //   const afterMvkLedgerAlice                  = await afterMvkStorage.ledger.get(alice.pkh);
 //           // console.log('afterMvkLedgerAlice');
 //           // console.log(afterMvkLedgerAlice);
 //           // console.log("After Alice MVK Balance: "         + afterMvkLedgerAlice.balance);    // return 150 MVK - 150,000,000 in muMVK
@@ -297,7 +256,7 @@
 //             // console.log(afterDoormanBobStakeRecord);
 
 //             const afterDoormanBobUserStakeBalance    = await afterDoormanStorage.userStakeBalanceLedger.get(bob.pkh); // return user staking records - map(nat, stakeRecordType)        
-//             console.log(afterDoormanBobUserStakeBalance);
+//             // console.log(afterDoormanBobUserStakeBalance);
 //             // console.log(afterDoormanBobStakeRecord);
 
 //             // reset back to alice

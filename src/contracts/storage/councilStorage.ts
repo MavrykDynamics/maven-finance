@@ -9,7 +9,7 @@ import { zeroAddress } from "../test/helpers/Utils";
 import { councilStorageType } from "../test/types/councilStorageType";
 
 const config = {
-  threshold                  : 2,       // 2 council members required 
+  threshold                  : 3,       // 3 council members required 
   actionExpiryBlockLevels    : 5760,    // 2 days in block levels (2 * 60 * 24 * 2)
   actionExpiryDays           : 2        // 2 days
 }
@@ -25,7 +25,8 @@ export const councilStorage: councilStorageType = {
   councilActionsLedger: MichelsonMap.fromLiteral({}),
 
   thresholdSigners: new BigNumber(2),
-  actionCounter: new BigNumber(0)
+  actionCounter: new BigNumber(0),
 
+  tempString: "NULL"
 
 };

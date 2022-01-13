@@ -6,22 +6,21 @@ type whitelistContractsType is map (string, address)
 
 // todo: consideration: include a signature hash of signer for added security?
 
-type signType is (string * timestamp)              // sign type (e.g. "APPROVE" / "REJECT"), timestamp
-type signersMapType is map (address, signType)
+type signersType is set(address)
 
 type councilActionRecordType is record [
 
     initiator                  : address;          // address of action initiator
     actionType                 : string;           // addVestee / updateVestee / toggleTreasury
-    signers                    : signersMapType;   // map of signers and sign type (e.g. ("APPROVE" / "REJECT", timestamp) )
+    signers                    : signersType;      // set of signers
 
     status                     : string;           // PENDING / FLUSHED / EXECUTED / EXPIRED
-    approveCount               : nat;              // total number of council members who approve action
-    rejectCount                : nat;              // total number of council members who reject action 
+    signersCount               : nat;              // total number of signers
     executed                   : bool;             // boolean of whether action has been executed
 
     // ----------------------------------
     // use placeholders for params if not in use for action type
+    // - using snake_case instead of camelCase for better readability (address_param_1 vs addressParam1)
     // ----------------------------------
     address_param_1            : address;
     address_param_2            : address;
@@ -62,14 +61,14 @@ type storage is record [
     thresholdSigners            : nat; 
     actionCounter               : nat;
 
-    // todo: 3 out of 5 to sign for any action to take place 
+    tempString                  : string;
 ]
 
 type updateWhitelistContractParams is (string * address)
 type updateContractAddressesParams is (string * address)
 
-type newActionAddVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
-type newActionUpdateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
+type councilActionAddVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
+type councilActionUpdateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
 
 type signActionType is (nat * nat) // councilActionId, voteType to be decided and confirmed: on frontend, set 1 as APPROVE, 0 as REJECT 
 type flushActionType is (nat)
@@ -78,15 +77,19 @@ type councilAction is
     | UpdateWhitelistContracts of updateWhitelistContractParams
     | UpdateContractAddresses of updateContractAddressesParams
 
-    | NewActionAddVestee of newActionAddVesteeType
-    | NewActionUpdateVestee of newActionUpdateVesteeType
-    | NewActionToggleVesteeLock of address
-    | NewActionToggleTreasuryWithdraw of unit
-    | NewActionAddCouncilMember of address
-    | NewActionRemoveCouncilMember of address
+    | CouncilActionAddVestee of councilActionAddVesteeType
+    | CouncilActionRemoveVestee of address
+    | CouncilActionUpdateVestee of councilActionUpdateVesteeType
+    | CouncilActionToggleVesteeLock of address
+    // | councilActionToggleTreasuryWithdraw of unit
+    | CouncilActionAddCouncilMember of address
+    | CouncilActionRemoveMember of address
 
-    | SignAction of signActionType                
+    | SignAction of nat                
     | FlushAction of flushActionType
+
+    // todo:
+    // transfer -> entrypoint
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -164,20 +167,36 @@ block{
 
 } with (noOperations, s) 
 
-function sendAddVesteeParams(const contractAddress : address) : contract(newActionAddVesteeType) is
+function sendAddVesteeParams(const contractAddress : address) : contract(councilActionAddVesteeType) is
   case (Tezos.get_entrypoint_opt(
       "%addVestee",
-      contractAddress) : option(contract(newActionAddVesteeType))) of
+      contractAddress) : option(contract(councilActionAddVesteeType))) of
     Some(contr) -> contr
-  | None -> (failwith("addVestee entrypoint in Vesting Contract not found") : contract(newActionAddVesteeType))
+  | None -> (failwith("addVestee entrypoint in Vesting Contract not found") : contract(councilActionAddVesteeType))
 end;
 
-function sendUpdateVesteeParams(const contractAddress : address) : contract(newActionUpdateVesteeType) is
+function sendRemoveVesteeParams(const contractAddress : address) : contract(address) is
+  case (Tezos.get_entrypoint_opt(
+      "%removeVestee",
+      contractAddress) : option(contract(address))) of
+    Some(contr) -> contr
+  | None -> (failwith("removeVestee entrypoint in Vesting Contract not found") : contract(address))
+end;
+
+function sendUpdateVesteeParams(const contractAddress : address) : contract(councilActionUpdateVesteeType) is
 case (Tezos.get_entrypoint_opt(
     "%updateVestee",
-    contractAddress) : option(contract(newActionUpdateVesteeType))) of
+    contractAddress) : option(contract(councilActionUpdateVesteeType))) of
 Some(contr) -> contr
-| None -> (failwith("updateVestee entrypoint in Vesting Contract not found") : contract(newActionUpdateVesteeType))
+| None -> (failwith("updateVestee entrypoint in Vesting Contract not found") : contract(councilActionUpdateVesteeType))
+end;
+
+function sendToggleVesteeLockParams(const contractAddress : address) : contract(address) is
+case (Tezos.get_entrypoint_opt(
+    "%toggleVesteeLock",
+    contractAddress) : option(contract(address))) of
+Some(contr) -> contr
+| None -> (failwith("toggleVesteeLock entrypoint in Vesting Contract not found") : contract(address))
 end;
 
 // function toggleTreasuryParams(const contractAddress : address) : contract(unit) is
@@ -188,24 +207,20 @@ end;
 // | None -> (failwith("toggleMintWithdraw entrypoint in Treasury Contract not found") : contract(unit))
 // end;
 
-function newActionAddCouncilMember(const newCouncilMemberAddress : address ; var s : storage) : return is 
+function councilActionAddCouncilMember(const newCouncilMemberAddress : address ; var s : storage) : return is 
 block {
 
     checkSenderIsCouncilMember(s);
 
-    const signType : signType = ("APPROVE", Tezos.now);
-    const signersMap : signersMapType = map [Tezos.sender -> signType];
-
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 
-    var newActionRecord : councilActionRecordType := record[
+    var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
         actionType            = "addCouncilMember";
-        signers               = signersMap;
+        signers               = set[Tezos.sender];
 
         status                = "PENDING";
-        approveCount          = 1n;
-        rejectCount           = 0n; 
+        signersCount          = 1n;
         executed              = False;
 
         address_param_1       = newCouncilMemberAddress;
@@ -223,31 +238,27 @@ block {
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
         expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
-    s.councilActionsLedger[s.actionCounter] := newActionRecord; 
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
-function newActionRemoveCouncilMember(const councilMemberAddress : address ; var s : storage) : return is 
+function councilActionRemoveMember(const councilMemberAddress : address ; var s : storage) : return is 
 block {
 
     checkSenderIsCouncilMember(s);
 
-    const signType : signType = ("APPROVE", Tezos.now);
-    const signersMap : signersMapType = map [Tezos.sender -> signType];
-
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 
-    var newActionRecord : councilActionRecordType := record[
+    var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
         actionType            = "removeCouncilMember";
-        signers               = signersMap;
+        signers               = set[Tezos.sender];
 
         status                = "PENDING";
-        approveCount          = 1n;
-        rejectCount           = 0n; 
+        signersCount          = 1n;
         executed              = False;
 
         address_param_1       = councilMemberAddress;
@@ -265,31 +276,28 @@ block {
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
         expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
-    s.councilActionsLedger[s.actionCounter] := newActionRecord; 
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
-function newActionAddVestee(const addVestee : newActionAddVesteeType ; var s : storage) : return is 
+
+function councilActionAddVestee(const addVestee : councilActionAddVesteeType ; var s : storage) : return is 
 block {
 
     checkSenderIsCouncilMember(s);
 
-    const signType : signType = ("APPROVE", Tezos.now);
-    const signersMap : signersMapType = map [Tezos.sender -> signType];
-
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 
-    var newActionRecord : councilActionRecordType := record[
+    var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
         actionType            = "addVestee";
-        signers               = signersMap;
+        signers               = set[Tezos.sender];
 
         status                = "PENDING";
-        approveCount          = 1n;
-        rejectCount           = 0n; 
+        signersCount          = 1n;
         executed              = False;
 
         address_param_1       = addVestee.0;
@@ -307,74 +315,27 @@ block {
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
         expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
-    s.councilActionsLedger[s.actionCounter] := newActionRecord; 
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
-
-function newActionUpdateVestee(const updateVestee : newActionUpdateVesteeType; var s : storage) : return is 
-block {
-    
-    checkSenderIsCouncilMember(s);
-
-    const signType : signType = ("APPROVE", Tezos.now);
-    const signersMap : signersMapType = map [Tezos.sender -> signType];
-
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
-
-    var newActionRecord : councilActionRecordType := record[
-        initiator             = Tezos.sender;
-        actionType            = "updateVestee";
-        signers               = signersMap;
-
-        status                = "PENDING";
-        approveCount          = 1n;
-        rejectCount           = 0n; 
-        executed              = False;
-
-        address_param_1       = updateVestee.0;
-        address_param_2       = zeroAddress;     // extra slot for address if needed
-        nat_param_1           = updateVestee.1;
-        nat_param_2           = updateVestee.2;
-        nat_param_3           = updateVestee.3;
-        string_param_1        = "EMPTY";         // extra slot for string if needed
-        string_param_2        = "EMPTY";         // extra slot for string if needed
-
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
-    ];
-    s.councilActionsLedger[s.actionCounter] := newActionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
-
-} with (noOperations, s)
-
-function newActionToggleVesteeLock(const vesteeAddress : address ; var s : storage) : return is 
+function councilActionRemoveVestee(const vesteeAddress : address ; var s : storage) : return is 
 block {
 
     checkSenderIsCouncilMember(s);
 
-    const signType : signType = ("APPROVE", Tezos.now);
-    const signersMap : signersMapType = map [Tezos.sender -> signType];
-
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 
-    var newActionRecord : councilActionRecordType := record[
+    var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
-        actionType            = "toggleVesteeLock";
-        signers               = signersMap;
+        actionType            = "removeVestee";
+        signers               = set[Tezos.sender];
 
         status                = "PENDING";
-        approveCount          = 1n;
-        rejectCount           = 0n; 
+        signersCount          = 1n;
         executed              = False;
 
         address_param_1       = vesteeAddress;
@@ -392,14 +353,90 @@ block {
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
         expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
-    s.councilActionsLedger[s.actionCounter] := newActionRecord; 
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
-function newActionToggleTreasuryWithdraw(var s : storage) : return is 
+function councilActionUpdateVestee(const updateVestee : councilActionUpdateVesteeType; var s : storage) : return is 
+block {
+    
+    checkSenderIsCouncilMember(s);
+
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+
+    var councilActionRecord : councilActionRecordType := record[
+        initiator             = Tezos.sender;
+        actionType            = "updateVestee";
+        signers               = set[Tezos.sender];
+
+        status                = "PENDING";
+        signersCount          = 1n;
+        executed              = False;
+
+        address_param_1       = updateVestee.0;
+        address_param_2       = zeroAddress;     // extra slot for address if needed
+        nat_param_1           = updateVestee.1;
+        nat_param_2           = updateVestee.2;
+        nat_param_3           = updateVestee.3;
+        string_param_1        = "EMPTY";         // extra slot for string if needed
+        string_param_2        = "EMPTY";         // extra slot for string if needed
+
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
+    ];
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
+
+function councilActionToggleVesteeLock(const vesteeAddress : address ; var s : storage) : return is 
+block {
+
+    checkSenderIsCouncilMember(s);
+
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+
+    var councilActionRecord : councilActionRecordType := record[
+        initiator             = Tezos.sender;
+        actionType            = "toggleVesteeLock";
+        signers               = set[Tezos.sender];
+
+        status                = "PENDING";
+        signersCount          = 1n;
+        executed              = False;
+
+        address_param_1       = vesteeAddress;
+        address_param_2       = zeroAddress;     // extra slot for address if needed
+        nat_param_1           = 0n;
+        nat_param_2           = 0n;
+        nat_param_3           = 0n;
+        string_param_1        = "EMPTY";         // extra slot for string if needed
+        string_param_2        = "EMPTY";         // extra slot for string if needed
+
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
+    ];
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
+
+function councilActionToggleTreasuryWithdraw(var s : storage) : return is 
 block {
     
     checkSenderIsCouncilMember(s);
@@ -417,7 +454,8 @@ block {
 
 } with (noOperations, s)
 
-function signAction(const actionId: nat; const voteType: nat; var s : storage) : return is 
+// function signAction(const actionId: nat; const voteType: nat; var s : storage) : return is 
+function signAction(const actionId: nat; var s : storage) : return is 
 block {
     
     checkSenderIsCouncilMember(s);
@@ -427,27 +465,20 @@ block {
         | None -> failwith("Error. Council Action not found")
     end;
 
-    var voteTypeName : string := "";
-    var approveCount : nat    := _councilActionRecord.approveCount;
-    
-    if voteType = 1n then block{
-        voteTypeName := "APPROVE";
-        _councilActionRecord.approveCount := approveCount + 1n;
-    } else block {
-        voteTypeName := "REJECT";
-        _councilActionRecord.rejectCount := _councilActionRecord.rejectCount + 1n;
-    };
-
-    // add new signer to council action
-    const newSigner : signType = (voteTypeName, Tezos.now);
-    _councilActionRecord.signers[Tezos.sender] := newSigner;
+    // update signers and signersCount for council action record
+    var signersCount : nat             := _councilActionRecord.signersCount + 1n;
+    _councilActionRecord.signersCount  := signersCount;
+    _councilActionRecord.signers       := Set.add(Tezos.sender, _councilActionRecord.signers);
+    s.councilActionsLedger[actionId]   := _councilActionRecord;
 
     const actionType : string = _councilActionRecord.actionType;
 
     var operations : list(operation) := nil;
 
+    s.tempString := actionType;
+
     // check if threshold has been reached
-    if approveCount > s.config.threshold then block {
+    if signersCount = s.config.threshold then block {
         
         // --------------------------------------
         // execute action based on action types
@@ -457,12 +488,12 @@ block {
         if actionType = "addVestee" then block {
 
             // send operation to vesting contract to add a new vestee
-            var vestingAddress : address := case s.contractAddresses["vestingAddress"] of 
+            var vestingAddress : address := case s.contractAddresses["vesting"] of 
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
             end;
 
-            const addVesteeParams : newActionAddVesteeType = (
+            const addVesteeParams : councilActionAddVesteeType = (
                 _councilActionRecord.address_param_1,
                 _councilActionRecord.nat_param_1,
                 _councilActionRecord.nat_param_2,
@@ -479,14 +510,33 @@ block {
 
         } else skip;
 
-        // updateVestee action type
-        if actionType = "updateVestee" then block {
-            var vestingAddress : address := case s.contractAddresses["vestingAddress"] of 
+        // addVestee action type
+        if actionType = "removeVestee" then block {
+
+            // send operation to vesting contract to add a new vestee
+            var vestingAddress : address := case s.contractAddresses["vesting"] of 
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
             end;
 
-            const updateVesteeParams : newActionUpdateVesteeType = (
+            const removeVesteeOperation : operation = Tezos.transaction(
+                _councilActionRecord.address_param_1,
+                0tez, 
+                sendRemoveVesteeParams(vestingAddress)
+            );
+            
+            operations := removeVesteeOperation # operations;
+
+        } else skip;
+
+        // updateVestee action type
+        if actionType = "updateVestee" then block {
+            var vestingAddress : address := case s.contractAddresses["vesting"] of 
+                Some(_address) -> _address
+                | None -> failwith("Error. Vesting Contract Address not found")
+            end;
+
+            const updateVesteeParams : councilActionUpdateVesteeType = (
                 _councilActionRecord.address_param_1,
                 _councilActionRecord.nat_param_1,
                 _councilActionRecord.nat_param_2,
@@ -500,6 +550,23 @@ block {
             );
 
             operations := updateVesteeOperation # operations;
+            
+        } else skip;    
+
+        // updateVestee action type
+        if actionType = "toggleVesteeLock" then block {
+            var vestingAddress : address := case s.contractAddresses["vesting"] of 
+                Some(_address) -> _address
+                | None -> failwith("Error. Vesting Contract Address not found")
+            end;
+
+            const toggleVesteeLockOperation : operation = Tezos.transaction(
+                _councilActionRecord.address_param_1,
+                0tez, 
+                sendToggleVesteeLockParams(vestingAddress)
+            );
+
+            operations := toggleVesteeLockOperation # operations;
             
         } else skip;    
 
@@ -548,13 +615,14 @@ function main (const action : councilAction; const s : storage) : return is
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters.0, parameters.1, s)
         | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
 
-        | NewActionAddVestee(parameters) -> newActionAddVestee(parameters, s)
-        | NewActionUpdateVestee(parameters) -> newActionUpdateVestee(parameters, s)
-        | NewActionToggleVesteeLock(parameters) -> newActionToggleVesteeLock(parameters, s)
-        | NewActionToggleTreasuryWithdraw(_parameters) -> newActionToggleTreasuryWithdraw(s)
-        | NewActionAddCouncilMember(parameters) -> newActionAddCouncilMember(parameters, s)
-        | NewActionRemoveCouncilMember(parameters) -> newActionRemoveCouncilMember(parameters, s)
+        | CouncilActionAddVestee(parameters) -> councilActionAddVestee(parameters, s)
+        | CouncilActionRemoveVestee(parameters) -> councilActionRemoveVestee(parameters, s)
+        | CouncilActionUpdateVestee(parameters) -> councilActionUpdateVestee(parameters, s)
+        | CouncilActionToggleVesteeLock(parameters) -> councilActionToggleVesteeLock(parameters, s)
+        // | CouncilActionToggleTreasuryWithdraw(_parameters) -> councilActionToggleTreasuryWithdraw(s)
+        | CouncilActionAddCouncilMember(parameters) -> councilActionAddCouncilMember(parameters, s)
+        | CouncilActionRemoveMember(parameters) -> councilActionRemoveMember(parameters, s)
 
-        | SignAction(parameters) -> signAction(parameters.0, parameters.1, s)
+        | SignAction(parameters) -> signAction(parameters, s)
         | FlushAction(parameters) -> flushAction(parameters, s)
     end

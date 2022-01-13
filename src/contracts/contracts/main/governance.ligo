@@ -101,10 +101,6 @@ type storage is record [
     currentRoundHighestVotedProposalId  : nat;        // set to 0 if there is no proposal currently, if not set to proposal id
     currentRoundTimelockProposalId      : nat;        // set to 0 if there is proposal in timelock, if not set to proposal id
 
-    // delegationAddress           : address; 
-    // mvkTokenAddress             : address; 
-    // emergencyGovernanceAddress  : address;
-
     snapshotMvkTotalSupply      : nat;                // for quorum calculation use - snapshot of total MVK supply 
 
     tempFlag : nat;  // test variable - currently used to show block levels per transaction

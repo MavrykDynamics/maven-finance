@@ -63,6 +63,9 @@
 
 //         tezos = doormanInstance.tezos;
 
+//         console.log("doorman storage:");
+//         console.log(doormanStorage);
+
 //         // uncomment console logs if needed to visually check storage and details
 
 //     });
@@ -206,7 +209,7 @@
 //         }
 //     });
 
-//     it(`alice  cannot unstake more than the minimum satellite bond requirement (e.g. 100 MVK)`, async () => {
+//     it(`alice cannot unstake more than the minimum satellite bond requirement (e.g. 100 MVK)`, async () => {
 //         try{
 
 //             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
@@ -245,111 +248,166 @@
 //         }
 //     });
 
-//     it('bob and eve can delegate to alice satellite', async () => {
-//         try{        
+//     // it('bob and eve can delegate to alice satellite', async () => {
+//     //     try{        
 
-//             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//             console.log("Test: Bob and Eve can delegate to alice's satellite") 
-//             console.log("---") // break
+//     //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+//     //         console.log("Test: Bob and Eve can delegate to alice's satellite") 
+//     //         console.log("---") // break
 
-//             // console.log('Storage test: console log checks  ----');
-//             // console.log(delegationStorage);
-//             // console.log(doormanStorage);
+//     //         // console.log('Storage test: console log checks  ----');
+//     //         // console.log(delegationStorage);
+//     //         // console.log(doormanStorage);
 
-//             await signerFactory(bob.sk);
-//             const bobStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
-//             await bobStakeAmountOperation.confirmation();
+//     //         await signerFactory(bob.sk);
+//     //         const bobStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
+//     //         await bobStakeAmountOperation.confirmation();
 
-//             const afterDoormanStorage = await doormanInstance.storage();            
+//     //         const afterDoormanStorage = await doormanInstance.storage();            
             
-//             // const afterDoormanBobUserStakeRecords    = await afterDoormanStorage.userStakeRecordsLedger.get(bob.pkh); // return user staking records - map(nat, stakeRecordType)        
-//             // const afterDoormanBobUserStakeBalance    = await afterDoormanStorage.userStakeBalanceLedger.get(bob.pkh); // return user staking records - map(nat, stakeRecordType)        
-//             // console.log('Bob stake balance: '+afterDoormanBobUserStakeBalance);
-//             // console.log(afterDoormanBobUserStakeRecords);
+//     //         // const afterDoormanBobUserStakeRecords    = await afterDoormanStorage.userStakeRecordsLedger.get(bob.pkh); // return user staking records - map(nat, stakeRecordType)        
+//     //         // const afterDoormanBobUserStakeBalance    = await afterDoormanStorage.userStakeBalanceLedger.get(bob.pkh); // return user staking records - map(nat, stakeRecordType)        
+//     //         // console.log('Bob stake balance: '+afterDoormanBobUserStakeBalance);
+//     //         // console.log(afterDoormanBobUserStakeRecords);
             
-//             const bobDelegatesToAliceSatelliteOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
-//             const delegateConfirmation = await bobDelegatesToAliceSatelliteOperation.confirmation();
+//     //         const bobDelegatesToAliceSatelliteOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
+//     //         const delegateConfirmation = await bobDelegatesToAliceSatelliteOperation.confirmation();
             
-//             const afterDelegationStorage = await delegationInstance.storage();            
+//     //         const afterDelegationStorage = await delegationInstance.storage();            
             
-//             // const bobDelegateRecord = await afterDelegationStorage.delegateLedger.get(bob.pkh);
-//             // console.log(bobDelegateRecord);
+//     //         // const bobDelegateRecord = await afterDelegationStorage.delegateLedger.get(bob.pkh);
+//     //         // console.log(bobDelegateRecord);
 
-//             /** eve wallet not loaded in docket - empty_implicit_account error */
-//             // const eveWallet = await signerFactory(eve.sk);
-//             // const afterMvkLedgerEve            = await mvkTokenStorage.ledger.get(eve.pkh);
-//             // console.log(afterMvkLedgerEve)
-//             // const eveStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
-//             // await eveStakeAmountOperation.confirmation();
-//             // const afterDoormanEveUserStakeRecords    = await afterDoormanStorage.userStakeRecordsLedger.get(eve.pkh); // return user staking records - map(nat, stakeRecordType)        
-//             // const afterDoormanEveUserStakeBalance    = await afterDoormanStorage.userStakeBalanceLedger.get(eve.pkh); // return user staked balance 
-//             // console.log('Eve stake balance: '+afterDoormanEveUserStakeBalance);
-//             // console.log(afterDoormanEveUserStakeRecords);
-//             // const eveDelegatesToAliceSatelliteOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
-//             // await eveDelegatesToAliceSatelliteOperation.confirmation();
+//     //         /** eve wallet not loaded in docket - empty_implicit_account error */
+//     //         // const eveWallet = await signerFactory(eve.sk);
+//     //         // const afterMvkLedgerEve            = await mvkTokenStorage.ledger.get(eve.pkh);
+//     //         // console.log(afterMvkLedgerEve)
+//     //         // const eveStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
+//     //         // await eveStakeAmountOperation.confirmation();
+//     //         // const afterDoormanEveUserStakeRecords    = await afterDoormanStorage.userStakeRecordsLedger.get(eve.pkh); // return user staking records - map(nat, stakeRecordType)        
+//     //         // const afterDoormanEveUserStakeBalance    = await afterDoormanStorage.userStakeBalanceLedger.get(eve.pkh); // return user staked balance 
+//     //         // console.log('Eve stake balance: '+afterDoormanEveUserStakeBalance);
+//     //         // console.log(afterDoormanEveUserStakeRecords);
+//     //         // const eveDelegatesToAliceSatelliteOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
+//     //         // await eveDelegatesToAliceSatelliteOperation.confirmation();
 
-//             const afterDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);         // should return alice's satellite record
-//             assert.equal(afterDelegationLedgerAlice.totalDelegatedAmount, 100000000);
+//     //         const afterDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);         // should return alice's satellite record
+//     //         assert.equal(afterDelegationLedgerAlice.totalDelegatedAmount, 100000000);
         
-//             // console.log("After test: console log checks  ----")
-//             // console.log(afterDelegationLedgerAlice);
-//             // console.log('Alice Satellite total delegated amount: '+afterDelegationLedgerAlice.totalDelegatedAmount);
-//             // console.log(afterAliceStakedBalance);
+//     //         // console.log("After test: console log checks  ----")
+//     //         // console.log(afterDelegationLedgerAlice);
+//     //         // console.log('Alice Satellite total delegated amount: '+afterDelegationLedgerAlice.totalDelegatedAmount);
+//     //         // console.log(afterAliceStakedBalance);
 
-//             await signerFactory(alice.sk);
+//     //         await signerFactory(alice.sk);
 
-//         } catch(e){
-//             console.log(e);
-//         } 
-//     });
+//     //     } catch(e){
+//     //         console.log(e);
+//     //     } 
+//     // });
 
-//     it('bob and eve can undelegate from alice satellite', async () => {
-//         try{        
+//     // it('test redelegation of satellite', async () => {
+//     //     try{        
 
-//             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//             console.log("Test: Bob and Eve can undelegate from alice's satellite") 
-//             console.log("---") // break
+//     //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+//     //         console.log("Test: Redelegation of satellite") 
+//     //         console.log("---") // break
 
-//             // console.log('Storage test: console log checks  ----');
-//             // console.log(delegationStorage);
-//             // console.log(doormanStorage);
+//     //         // console.log('Storage test: console log checks  ----');
+//     //         // console.log(delegationStorage);
+//     //         // console.log(doormanStorage);
 
-//             await signerFactory(bob.sk);               
+//     //         await signerFactory(bob.sk);
+//     //         const bobStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
+//     //         await bobStakeAmountOperation.confirmation();
+
+//     //         const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite (Bob)", "New Satellite Description (Bob)", "https://image.url", "700").send();
+//     //         await bobRegisterAsSatelliteOperation.confirmation();
+
+
+//     //         const bobDelegatesToAliceSatelliteOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
+//     //         const delegateConfirmation = await bobDelegatesToAliceSatelliteOperation.confirmation();
             
-//             const bobUndelegatesFromAliceSatelliteOperation = await delegationInstance.methods.undelegateFromSatellite(alice.pkh).send();
-//             const delegateConfirmation = await bobUndelegatesFromAliceSatelliteOperation.confirmation();
+//     //         const afterDelegationStorage = await delegationInstance.storage();            
             
-//             const afterDelegationStorage = await delegationInstance.storage();            
-            
-//             // const bobDelegateRecord = await afterDelegationStorage.delegateLedger.get(bob.pkh);
+//     //         // const bobDelegateRecord = await afterDelegationStorage.delegateLedger.get(bob.pkh);
+//     //         // console.log(bobDelegateRecord);
 
-//             /** eve wallet not loaded in docket - empty_implicit_account error */
-//             // const eveWallet = await signerFactory(eve.sk);
-//             // const afterMvkLedgerEve            = await mvkTokenStorage.ledger.get(eve.pkh);
-//             // console.log(afterMvkLedgerEve)
-//             // const eveStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
-//             // await eveStakeAmountOperation.confirmation();
-//             // const afterDoormanEveUserStakeRecords    = await afterDoormanStorage.userStakeRecordsLedger.get(eve.pkh); // return user staking records - map(nat, stakeRecordType)        
-//             // const afterDoormanEveUserStakeBalance    = await afterDoormanStorage.userStakeBalanceLedger.get(eve.pkh); // return user staked balance 
-//             // console.log('Eve stake balance: '+afterDoormanEveUserStakeBalance);
-//             // console.log(afterDoormanEveUserStakeRecords);
-//             // const eveDelegatesToAliceSatelliteOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
-//             // await eveDelegatesToAliceSatelliteOperation.confirmation();
+//     //         /** eve wallet not loaded in docket - empty_implicit_account error */
+//     //         // const eveWallet = await signerFactory(eve.sk);
+//     //         // const afterMvkLedgerEve            = await mvkTokenStorage.ledger.get(eve.pkh);
+//     //         // console.log(afterMvkLedgerEve)
+//     //         // const eveStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
+//     //         // await eveStakeAmountOperation.confirmation();
+//     //         // const afterDoormanEveUserStakeRecords    = await afterDoormanStorage.userStakeRecordsLedger.get(eve.pkh); // return user staking records - map(nat, stakeRecordType)        
+//     //         // const afterDoormanEveUserStakeBalance    = await afterDoormanStorage.userStakeBalanceLedger.get(eve.pkh); // return user staked balance 
+//     //         // console.log('Eve stake balance: '+afterDoormanEveUserStakeBalance);
+//     //         // console.log(afterDoormanEveUserStakeRecords);
+//     //         // const eveDelegatesToAliceSatelliteOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
+//     //         // await eveDelegatesToAliceSatelliteOperation.confirmation();
 
-//             const afterDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);         // should return alice's satellite record
-//             assert.equal(afterDelegationLedgerAlice.totalDelegatedAmount, 0);
+//     //         const afterDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);         // should return alice's satellite record
+//     //         assert.equal(afterDelegationLedgerAlice.totalDelegatedAmount, 100000000);
         
-//             // console.log("After test: console log checks  ----")
-//             // console.log(afterDelegationLedgerAlice);
-//             // console.log('Alice Satellite total delegated amount: '+afterDelegationLedgerAlice.totalDelegatedAmount);
-//             // console.log(afterAliceStakedBalance);
+//     //         // console.log("After test: console log checks  ----")
+//     //         // console.log(afterDelegationLedgerAlice);
+//     //         // console.log('Alice Satellite total delegated amount: '+afterDelegationLedgerAlice.totalDelegatedAmount);
+//     //         // console.log(afterAliceStakedBalance);
 
-//             await signerFactory(alice.sk);
+//     //         await signerFactory(alice.sk);
 
-//         } catch(e){
-//             console.log(e);
-//         } 
-//     });
+//     //     } catch(e){
+//     //         console.log(e);
+//     //     } 
+//     // });
+
+//     // it('bob and eve can undelegate from alice satellite', async () => {
+//     //     try{        
+
+//     //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+//     //         console.log("Test: Bob and Eve can undelegate from alice's satellite") 
+//     //         console.log("---") // break
+
+//     //         // console.log('Storage test: console log checks  ----');
+//     //         // console.log(delegationStorage);
+//     //         // console.log(doormanStorage);
+
+//     //         await signerFactory(bob.sk);               
+            
+//     //         const bobUndelegatesFromAliceSatelliteOperation = await delegationInstance.methods.undelegateFromSatellite(alice.pkh).send();
+//     //         const delegateConfirmation = await bobUndelegatesFromAliceSatelliteOperation.confirmation();
+            
+//     //         const afterDelegationStorage = await delegationInstance.storage();            
+            
+//     //         // const bobDelegateRecord = await afterDelegationStorage.delegateLedger.get(bob.pkh);
+
+//     //         /** eve wallet not loaded in docker - empty_implicit_account error */
+//     //         // const eveWallet = await signerFactory(eve.sk);
+//     //         // const afterMvkLedgerEve            = await mvkTokenStorage.ledger.get(eve.pkh);
+//     //         // console.log(afterMvkLedgerEve)
+//     //         // const eveStakeAmountOperation = await doormanInstance.methods.stake(100000000).send();
+//     //         // await eveStakeAmountOperation.confirmation();
+//     //         // const afterDoormanEveUserStakeRecords    = await afterDoormanStorage.userStakeRecordsLedger.get(eve.pkh); // return user staking records - map(nat, stakeRecordType)        
+//     //         // const afterDoormanEveUserStakeBalance    = await afterDoormanStorage.userStakeBalanceLedger.get(eve.pkh); // return user staked balance 
+//     //         // console.log('Eve stake balance: '+afterDoormanEveUserStakeBalance);
+//     //         // console.log(afterDoormanEveUserStakeRecords);
+//     //         // const eveDelegatesToAliceSatelliteOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh).send();
+//     //         // await eveDelegatesToAliceSatelliteOperation.confirmation();
+
+//     //         const afterDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);         // should return alice's satellite record
+//     //         assert.equal(afterDelegationLedgerAlice.totalDelegatedAmount, 0);
+        
+//     //         // console.log("After test: console log checks  ----")
+//     //         // console.log(afterDelegationLedgerAlice);
+//     //         // console.log('Alice Satellite total delegated amount: '+afterDelegationLedgerAlice.totalDelegatedAmount);
+//     //         // console.log(afterAliceStakedBalance);
+
+//     //         await signerFactory(alice.sk);
+
+//     //     } catch(e){
+//     //         console.log(e);
+//     //     } 
+//     // });
 
 //     // it('alice can unregister as a satellite', async () => {
 //     //     try{        
