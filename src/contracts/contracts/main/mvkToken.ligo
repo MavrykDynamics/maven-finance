@@ -14,7 +14,7 @@ type tokenMetadataInfo is record [
   token_info        : map(string, bytes);
 ]
 type ledger is big_map(address, tokenBalance);
-type operators is big_map((owner * operator), unit)
+type operators is big_map((owner * operator * nat), unit)
 
 type tokenMetadata is big_map(tokenId, tokenMetadataInfo);
 type metadata is big_map (string, bytes);
@@ -45,22 +45,44 @@ const noOperations : list (operation) = nil;
 // INPUTS
 ////
 (* Transfer entrypoint inputs *)
-type transferDestination is michelson_pair(address, "to_", michelson_pair(tokenId, "token_id", tokenBalance, "amount"), "")
-type transfer is michelson_pair(address, "from_", list(transferDestination), "txs")
+type transferDestination is [@layout:comb] record[
+  to_: address;
+  token_id: tokenId;
+  amount: tokenBalance;
+]
+type transfer is [@layout:comb] record[
+  from_: address;
+  txs: list(transferDestination);
+]
 type transferParams is list(transfer)
 (* Balance_of entrypoint inputs *)
-type balanceOfRequest is michelson_pair(owner, "owner", tokenId, "token_id")
-type balanceOfResponse is michelson_pair(balanceOfRequest, "request", tokenBalance, "balance")
-type callbackParams is michelson_pair(balanceOfRequest, "request", tokenBalance, "balance")
-type balanceOfParams is michelson_pair(list(balanceOfRequest), "requests", contract(list(callbackParams)), "callback")
+type balanceOfRequest is [@layout:comb] record[
+  owner: owner;
+  token_id: tokenId;
+]
+type balanceOfResponse is [@layout:comb] record[
+  request: balanceOfRequest;
+  balance: tokenBalance;
+]
+type balanceOfParams is [@layout:comb] record[
+  requests: list(balanceOfRequest);
+  callback: contract(list(balanceOfResponse));
+]
 (* Update_operators entrypoint inputs *)
-type operatorParameter is michelson_pair(owner, "owner", michelson_pair(operator, "operator", tokenId, "token_id"), "")
+type operatorParameter is [@layout:comb] record[
+  owner: owner;
+  operator: operator;
+  token_id: tokenId;
+]
 type updateOperator is 
   Add_operator of operatorParameter
 | Remove_operator of operatorParameter
 type updateOperatorsParams is list(updateOperator)
 (* AssertMetadata entrypoint inputs *)
-type assertMetadataParams is michelson_pair(string, "key", bytes, "hash")
+type assertMetadataParams is [@layout:comb] record[
+  key: string;
+  hash: bytes;
+]
 (* TotalSupply entrypoint inputs *)
 type getTotalSupplyParams is contract(tokenBalance)
 (* Mint entrypoint inputs *)
@@ -118,9 +140,9 @@ function checkOwnership(const owner: owner): unit is
   if Tezos.sender =/= owner then failwith("FA2_NOT_OWNER")
   else unit
 
-function checkOperator(const operator: operator; const owner: owner; const store: storage): unit is
-  if owner =/= operator and not Big_map.mem((owner, operator), store.operators) then failwith ("FA2_NOT_OPERATOR")
-  else unit
+function checkOperator(const owner: owner; const token_id: tokenId; const operators: operators): unit is
+  if owner = Tezos.sender or Big_map.mem((owner, Tezos.sender, token_id), operators) then unit
+  else failwith ("FA2_NOT_OPERATOR")
 
 function checkSenderIsDoormanContract(const store: storage): unit is
   case Map.find_opt("doorman", store.contractAddresses) of
@@ -164,22 +186,21 @@ function mergeOperations(const first: list (operation); const second: list (oper
 
 function transfer(const transferParams: transferParams; const store: storage): return is
   block{
-    const senderAddress: address = Tezos.sender;
     function makeTransfer(const account: return; const transferParam: transfer) : return is
       block {
-        const owner: owner = transferParam.0;
-        const txs: list(transferDestination) = transferParam.1;
-
-        // Validate operator
-        checkOperator(senderAddress, owner, account.1);
+        const owner: owner = transferParam.from_;
+        const txs: list(transferDestination) = transferParam.txs;
         
         function transferTokens(const accumulator: storage; const destination: transferDestination): storage is
           block {
-            const tokenId: tokenId = destination.1.0;
-            const tokenAmount: tokenBalance = destination.1.1;
-            const receiver: owner = destination.0;
+            const tokenId: tokenId = destination.token_id;
+            const tokenAmount: tokenBalance = destination.amount;
+            const receiver: owner = destination.to_;
             const ownerBalance: tokenBalance = getBalance(owner, accumulator);
             const receiverBalance: tokenBalance = getBalance(receiver, accumulator);
+
+            // Validate operator
+            checkOperator(owner, tokenId, account.1.operators);
 
             // Validate token type
             checkTokenId(tokenId);
@@ -188,11 +209,17 @@ function transfer(const transferParams: transferParams; const store: storage): r
             checkSpenderBalance(ownerBalance,tokenAmount);
 
             // Update users' balances
-            const ownerNewBalance: tokenBalance = abs(ownerBalance - tokenAmount);
-            const receiverNewBalance: tokenBalance = receiverBalance + tokenAmount;
+            var ownerNewBalance: tokenBalance := ownerBalance;
+            var receiverNewBalance: tokenBalance := receiverBalance;
 
-            var updatedLedger: ledger := Big_map.update(receiver, Some (receiverNewBalance), accumulator.ledger);
-            updatedLedger := Big_map.update(owner, Some (ownerNewBalance), updatedLedger);
+            if owner =/= receiver then {
+              ownerNewBalance := abs(ownerBalance - tokenAmount);
+              receiverNewBalance := receiverBalance + tokenAmount;
+            }
+            else skip;
+
+            var updatedLedger: ledger := Big_map.update(owner, Some (ownerNewBalance), accumulator.ledger);
+            updatedLedger := Big_map.update(receiver, Some (receiverNewBalance), updatedLedger);
           } with accumulator with record[ledger=updatedLedger];
 
           const updatedOperations: list(operation) = (nil: list(operation));
@@ -205,16 +232,16 @@ function balanceOf(const balanceOfParams: balanceOfParams; const store: storage)
   block{
     function retrieveBalance(const request: balanceOfRequest): balanceOfResponse is
       block{
-        const requestOwner: owner = request.0;
+        const requestOwner: owner = request.owner;
         const tokenBalance: tokenBalance = 
           case Big_map.find_opt(requestOwner, store.ledger) of
             Some (b) -> b
           | None -> 0n
           end;
-        const response: balanceOfResponse = (request, tokenBalance);
+        const response: balanceOfResponse = record[request=request;balance=tokenBalance];
       } with (response);
-      const requests: list(balanceOfRequest) = balanceOfParams.0;
-      const callback: contract(list(callbackParams)) = balanceOfParams.1;
+      const requests: list(balanceOfRequest) = balanceOfParams.requests;
+      const callback: contract(list(balanceOfResponse)) = balanceOfParams.callback;
       const responses: list(balanceOfResponse) = List.map(retrieveBalance, requests);
       const operation: operation = Tezos.transaction(responses, 0tez, callback);
   } with (list[operation],store)
@@ -226,45 +253,47 @@ function getTotalSupply(const getTotalSupplyParams: getTotalSupplyParams; const 
 (* Update_operators Entrypoint *)
 function addOperator(const operatorParameter: operatorParameter; const operators: operators): operators is
   block{
-    const owner: owner = operatorParameter.0;
-    const operator: operator = operatorParameter.1.0;
-    const tokenId: tokenId = operatorParameter.1.1;
+    const owner: owner = operatorParameter.owner;
+    const operator: operator = operatorParameter.operator;
+    const tokenId: tokenId = operatorParameter.token_id;
 
     checkTokenId(tokenId);
     checkOwnership(owner);
 
-    const operatorKey: (owner * operator) = (owner, operator)
+    const operatorKey: (owner * operator * tokenId) = (owner, operator, tokenId)
   } with(Big_map.update(operatorKey, Some (unit), operators))
 
 function removeOperator(const operatorParameter: operatorParameter; const operators: operators): operators is
   block{
-    const owner: owner = operatorParameter.0;
-    const operator: operator = operatorParameter.1.0;
-    const tokenId: tokenId = operatorParameter.1.1;
+    const owner: owner = operatorParameter.owner;
+    const operator: operator = operatorParameter.operator;
+    const tokenId: tokenId = operatorParameter.token_id;
 
     checkTokenId(tokenId);
     checkOwnership(owner);
 
-    const operatorKey: (owner * operator) = (owner, operator)
+    const operatorKey: (owner * operator * tokenId) = (owner, operator, tokenId)
   } with(Big_map.remove(operatorKey, operators))
 
 function updateOperators(const updateOperatorsParams: updateOperatorsParams; const store: storage) : return is
   block{
-    var updatedOperators: operators := store.operators;
-    for updateOperator in list updateOperatorsParams block {
-      updatedOperators := 
-      case updateOperator of
-        Add_operator (param) -> addOperator(param, updatedOperators)
-      | Remove_operator (param) -> removeOperator(param, updatedOperators)
-      end;
-    }
+    var updatedOperators: operators := List.fold(
+      function(const operators: operators; const updateOperator: updateOperator): operators is
+        case updateOperator of
+          Add_operator (param) -> addOperator(param, operators)
+        | Remove_operator (param) -> removeOperator(param, operators)
+        end
+      ,
+      updateOperatorsParams,
+      store.operators
+    )
   } with(noOperations,store with record[operators=updatedOperators])
 
 (* AssertMetadata Entrypoint *)
 function assertMetadata(const assertMetadataParams: assertMetadataParams; const store: storage): return is
   block{
-    const key: string = assertMetadataParams.0;
-    const hash: bytes = assertMetadataParams.1;
+    const key: string = assertMetadataParams.key;
+    const hash: bytes = assertMetadataParams.hash;
     case Big_map.find_opt(key, store.metadata) of
       Some (v) -> if v =/= hash then failwith("METADATA_HAS_A_WRONG_HASH") else skip
     | None -> failwith("METADATA_NOT_FOUND")
@@ -278,7 +307,7 @@ function mint(const mintParams: mintParams; const store : storage) : return is
     const mintedTokens: tokenBalance = mintParams.1;
 
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, store) then failwith("ACCESS_NOT_ALLOWED") else skip;
+    if checkInWhitelistContracts(Tezos.sender, store) then failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED") else skip;
 
     // Update sender's balance
     const senderNewBalance: tokenBalance = getBalance(senderAddress, store) + mintedTokens;
@@ -312,7 +341,7 @@ function burn (const burnParams: burnParams; const store: storage) : return is
 function onStakeChange(const onStakeChangeParams: onStakeChangeParams; const store: storage): return is
   block{
     // check sender is from doorman contract or vesting contract
-    if checkInWhitelistContracts(Tezos.sender, store) then failwith("ACCESS_NOT_ALLOWED") else skip;
+    if checkInWhitelistContracts(Tezos.sender, store) then failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED") else skip;
     
     const owner: owner = onStakeChangeParams.0;
     var ownerBalance: tokenBalance := getBalance(owner, store);
