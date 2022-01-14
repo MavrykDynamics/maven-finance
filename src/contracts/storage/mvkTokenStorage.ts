@@ -1,5 +1,4 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-import { char2Bytes } from '@taquito/utils';
 
 import { BigNumber } from "bignumber.js";
 import { Buffer } from "buffer";
@@ -59,7 +58,7 @@ const token_metadata = MichelsonMap.fromLiteral({
         name: Buffer.from('MAVRYK').toString('hex'),
         decimals: Buffer.from('6').toString('hex'),
         icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
-        shouldPreferSymbol: char2Bytes('1'),
+        shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
         thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex')
       }),
     },
