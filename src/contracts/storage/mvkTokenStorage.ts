@@ -1,4 +1,5 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
+import { char2Bytes } from '@taquito/utils';
 
 import { BigNumber } from "bignumber.js";
 import { Buffer } from "buffer";
@@ -25,31 +26,29 @@ const metadata = MichelsonMap.fromLiteral({
             tools: ['Ligo', 'Flextesa'],
             location: 'https://ligolang.org/',
           },
-          interfaces: ['TZIP-7', 'TZIP-16'],
+          interfaces: ['TZIP-7', 'TZIP-16', 'TZIP-21'],
           errors: [],
           views: [],
+          assets: [
+            {
+              symbol: Buffer.from('MVK').toString('hex'),
+              name: Buffer.from('MAVRYK').toString('hex'),
+              decimals: Buffer.from('6').toString('hex'),
+              icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+              shouldPreferSymbol: true,
+              thumbnailUri: 'https://mavryk.finance/logo192.png'
+            }
+          ]
         }),
         'ascii',
       ).toString('hex'),
   })
 
 const ledger = MichelsonMap.fromLiteral({
-    [alice.pkh]: {
-      balance: singleUserSupply,
-      allowances: new MichelsonMap(),
-    },
-    [bob.pkh]: {
-        balance: singleUserSupply,
-        allowances: new MichelsonMap(),
-    },
-    [eve.pkh]: {
-        balance: singleUserSupply,
-        allowances: new MichelsonMap(),
-    },
-    [mallory.pkh]: {
-        balance: singleUserSupply,
-        allowances: new MichelsonMap(),
-    }
+    [alice.pkh]: singleUserSupply,
+    [bob.pkh]: singleUserSupply,
+    [eve.pkh]: singleUserSupply,
+    [mallory.pkh]: singleUserSupply
   })
 
 const token_metadata = MichelsonMap.fromLiteral({
@@ -60,6 +59,8 @@ const token_metadata = MichelsonMap.fromLiteral({
         name: Buffer.from('MAVRYK').toString('hex'),
         decimals: Buffer.from('6').toString('hex'),
         icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+        shouldPreferSymbol: char2Bytes('1'),
+        thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex')
       }),
     },
   })
@@ -70,10 +71,11 @@ export const mvkStorage: mvkStorageType = {
   contractAddresses: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
 
-  metadata: MichelsonMap.fromLiteral({}),
-  ledger: ledger,
+  metadata: metadata,
   token_metadata: token_metadata,
-  
-  totalSupply: initialSupply,
 
+  totalSupply: initialSupply,
+  
+  ledger: ledger,
+  operators:  MichelsonMap.fromLiteral({})
 };
