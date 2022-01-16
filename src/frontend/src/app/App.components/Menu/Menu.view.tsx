@@ -43,7 +43,7 @@ export const MenuView = ({
                   <use xlinkHref="/icons/sprites.svg#switch" />
                 </svg>
               </p>
-              <CommaNumber value={Number(myMvkTokenBalance || 0)} endingText={'MVK'} />
+              <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
             </MenuConnected>
           ) : (
             <MenuButton onClick={handleConnect}>

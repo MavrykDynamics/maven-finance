@@ -3,8 +3,15 @@ import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constan
 import delegationAddress from 'deployments/delegationAddress.json'
 import { getDoormanStorage, getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
-import { DelegateRecord, DelegationConfig, DelegationLedger, DelegationStorage, SatelliteRecord } from 'reducers/delegation'
+import {
+  DelegateRecord,
+  DelegationConfig,
+  DelegationLedger,
+  DelegationStorage,
+  SatelliteRecord,
+} from 'reducers/delegation'
 import { getContractBigmapKeys, getContractStorage } from 'utils/api'
+import { PRECISION_NUMBER } from '../../utils/constants'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: any, getState: any) => {
@@ -19,12 +26,14 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
 
     satelliteLedgerBigMap.forEach((element: any) => {
       const satelliteFee =
-          Number(element.value?.satelliteFee) > 0 ? (Number(element.value?.satelliteFee) / 1000000).toFixed(2) : 0,
+          Number(element.value?.satelliteFee) > 0
+            ? (Number(element.value?.satelliteFee) / PRECISION_NUMBER).toFixed(2)
+            : 0,
         mvkBalance =
-          Number(element.value?.mvkBalance) > 0 ? (Number(element.value?.mvkBalance) / 1000000).toFixed(2) : 0,
+          Number(element.value?.mvkBalance) > 0 ? (Number(element.value?.mvkBalance) / PRECISION_NUMBER).toFixed(2) : 0,
         totalDelegatedAmount =
           Number(element.value?.totalDelegatedAmount) > 0
-            ? (Number(element.value?.totalDelegatedAmount) / 1000000).toFixed(2)
+            ? (Number(element.value?.totalDelegatedAmount) / PRECISION_NUMBER).toFixed(2)
             : 0
 
       const newSatellite: SatelliteRecord = {
@@ -55,7 +64,10 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
     const delegationConfig: DelegationConfig = {
       maxSatellites: storage.config.maxSatellites,
       delegationRatio: storage.config.delegationRatio,
-      minimumStakedMvkBalance: Number(storage.config.minimumStakedMvkBalance || 0) / 1000000,
+      minimumStakedMvkBalance:
+        Number(storage.config.minimumStakedMvkBalance) > 0
+          ? Number(storage.config.minimumStakedMvkBalance) / PRECISION_NUMBER
+          : 0,
     }
     const delegationStorage: DelegationStorage = {
       admin: storage.admin,
