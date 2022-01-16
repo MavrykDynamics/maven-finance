@@ -10,21 +10,24 @@ import { DoormanStats } from './DoormanStats/DoormanStats.controller'
 import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
+import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
 
 export const Doorman = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { doormanStorage } = useSelector((state: State) => state.doorman)
+  const { doormanStorage, totalStakedMvkSupply } = useSelector((state: State) => state.doorman)
   const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
   const myMvkStakeBalance = userStakeBalanceLedger?.get(accountPkh || '') || '0.00'
 
   useEffect(() => {
     if (accountPkh) {
       dispatch(getMvkTokenStorage(accountPkh))
-      dispatch(getDoormanStorage())
+    } else {
+      dispatch(getMvkTokenStorage())
     }
+    dispatch(getDoormanStorage())
   }, [dispatch, accountPkh])
 
   const stakeCallback = (amount: number) => {
@@ -45,8 +48,14 @@ export const Doorman = () => {
         stakeCallback={stakeCallback}
         unstakeCallback={unstakeCallback}
         loading={loading}
+        accountPkh={accountPkh}
       />
-      <DoormanStats />
+      <DoormanStatsView
+        loading={loading}
+        mvkTotalSupply={mvkTokenStorage?.totalSupply}
+        totalStakedMvkSupply={totalStakedMvkSupply}
+      />
+      {/*<DoormanStats />*/}
     </Page>
   )
 }

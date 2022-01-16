@@ -9,17 +9,18 @@ export const DoormanStats = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { doormanStorage } = useSelector((state: State) => state.doorman)
+  const { doormanStorage, totalStakedMvkSupply } = useSelector((state: State) => state.doorman)
+
   useEffect(() => {
     dispatch(getMvkTokenStorage())
     dispatch(getDoormanStorage())
-  }, [dispatch])
+  }, [dispatch, totalStakedMvkSupply])
 
   return (
     <DoormanStatsView
       loading={loading}
       mvkTotalSupply={mvkTokenStorage?.totalSupply}
-      totalStakedMvkSupply={doormanStorage?.stakedMvkTotalSupply}
+      totalStakedMvkSupply={totalStakedMvkSupply}
     />
   )
 }

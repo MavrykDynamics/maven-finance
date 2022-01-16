@@ -3,6 +3,9 @@ import * as PropTypes from 'prop-types'
 import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
 
 import { ExitFeeModalButtons, ExitFeeModalContent, ExitFeeModalFee, ExitFeeModalGrid } from './ExitFeeModal.style'
+import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
+import { PRECISION_NUMBER } from '../../../utils/constants'
+import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
 
 type ExitFeeModalViewProps = {
   loading: boolean
@@ -10,7 +13,7 @@ type ExitFeeModalViewProps = {
   unstakeCallback: (amount: number) => void
   cancelCallback: () => void
   mvkTotalSupply?: number
-  vMvkTotalSupply?: number
+  totalStakedMvkSupply?: number
   amount: number
 }
 
@@ -20,14 +23,13 @@ export const ExitFeeModalView = ({
   unstakeCallback,
   cancelCallback,
   mvkTotalSupply,
-  vMvkTotalSupply,
+  totalStakedMvkSupply,
   amount,
 }: ExitFeeModalViewProps) => {
-  const mvkTokens = (mvkTotalSupply ?? 0) / 1000000
-  const vMvkTokens = (vMvkTotalSupply ?? 0) / 1000000
-  const mli = (vMvkTokens / ((mvkTokens + vMvkTokens) | 1)) * 100
-  const fee = 500 / mli + 5
-
+  const mvkTokens = (mvkTotalSupply ?? 0) / PRECISION_NUMBER
+  const stakedMvkTokens = totalStakedMvkSupply ?? 0
+  const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
+  const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
   return (
     <ModalStyled showing={showing}>
       {showing && (
@@ -45,12 +47,12 @@ export const ExitFeeModalView = ({
 
                 <ExitFeeModalGrid>
                   <div>MVK Total Supply</div>
-                  <div>vMVK Total Supply</div>
-                  <p>{mvkTokens.toFixed(2)} MVK</p>
-                  <p>{vMvkTokens.toFixed(2)} vMVK</p>
-                  <div>Amount Unstaking</div>
+                  <div>Total Staked MVK Supply</div>
+                  <CommaNumber value={mvkTokens} endingText={'MVK'} />
+                  <CommaNumber value={stakedMvkTokens} endingText={'MVK'} />
+                  <div>Amount to Unstake</div>
                   <div>
-                    MLI{' '}
+                    MVK Loyalty Index{' '}
                     <a
                       href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
                       target="_blank"
@@ -59,8 +61,8 @@ export const ExitFeeModalView = ({
                       [?]
                     </a>
                   </div>
-                  <p>{amount} MVK</p>
-                  <p>{mli.toFixed(2)} %</p>
+                  <CommaNumber value={Number(amount)} endingText={'MVK'} />
+                  <p>{mli.toFixed(2)} </p>
                 </ExitFeeModalGrid>
 
                 <ExitFeeModalFee>

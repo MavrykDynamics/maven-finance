@@ -3,6 +3,8 @@ import { ButtonLoadingIcon } from 'app/App.components/Button/Button.style'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 import { DoormanStatsGrid, DoormanStatsStyled } from './DoormanStats.style'
+import { PRECISION_NUMBER } from '../../../utils/constants'
+import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
 
 type DoormanStatsViewProps = {
   loading: boolean
@@ -11,16 +13,15 @@ type DoormanStatsViewProps = {
 }
 
 export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply }: DoormanStatsViewProps) => {
-  const mvkTokens = (mvkTotalSupply ?? 0) / 1000000
-  const stakedMvkTokens = (totalStakedMvkSupply ?? 0) / 1000000
-  const mli = (stakedMvkTokens / ((mvkTokens + stakedMvkTokens) | 1)) * 100
-  const fee = 500 / (mli + 5)
+  const mvkTokens = (mvkTotalSupply ?? 0) / PRECISION_NUMBER
+  const stakedMvkTokens = totalStakedMvkSupply ?? 0
+  const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
+  const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
   return (
     <DoormanStatsStyled>
       <DoormanStatsGrid>
         <div>MVK Total Supply</div>
-        <div>Staked MVK Total Supply</div>
-
+        <div>Total Staked MVK Supply</div>
         {mvkTokens <= 0 ? (
           <>
             <p>
@@ -38,10 +39,10 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
           </>
         ) : (
           <>
-            <CommaNumber value={mvkTokens} endingText={'MVK'} />
-            <CommaNumber value={stakedMvkTokens} endingText={'MVK'} />
+            <CommaNumber value={mvkTokens} loading={loading} endingText={'MVK'} />
+            <CommaNumber value={stakedMvkTokens} loading={loading} endingText={'MVK'} />
             <div>
-              MLI{' '}
+              MVK Loyalty Index{' '}
               <a
                 href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
                 target="_blank"
@@ -60,7 +61,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
                 [?]
               </a>
             </div>
-            <p>{mli.toFixed(2)} %</p>
+            <p>{mli.toFixed(2)}</p>
             <p>{fee.toFixed(2)} %</p>
           </>
         )}

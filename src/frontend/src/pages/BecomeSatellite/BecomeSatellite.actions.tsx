@@ -4,6 +4,7 @@ import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constan
 import delegationAddress from 'deployments/delegationAddress.json'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import { State } from 'reducers'
+import { PRECISION_NUMBER } from '../../utils/constants'
 
 export type RegisterAsSatelliteForm = { name: string; description: string; fee: number; image: string | undefined }
 
@@ -29,7 +30,7 @@ export const registerAsSatellite =
       console.log('contract', contract)
 
       const transaction = await contract?.methods
-        .registerAsSatellite(form.name, form.description, form.image, form.fee * 1000000)
+        .registerAsSatellite(form.name, form.description, form.image, form.fee * PRECISION_NUMBER)
         .send()
       console.log('transaction', transaction)
 
@@ -78,7 +79,7 @@ export const updateSatelliteRecord = (form: RegisterAsSatelliteForm) => async (d
     console.log('contract', contract)
 
     const transaction = await contract?.methods
-      .updateSatelliteRecord(form.name, form.description, form.image, form.fee * 1000000)
+      .updateSatelliteRecord(form.name, form.description, form.image, form.fee * PRECISION_NUMBER)
       .send()
     console.log('transaction', transaction)
 

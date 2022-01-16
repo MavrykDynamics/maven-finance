@@ -1,4 +1,11 @@
-import { STAKE_ERROR, STAKE_REQUEST, STAKE_RESULT, UNSTAKE_ERROR, UNSTAKE_REQUEST, UNSTAKE_RESULT } from "pages/Doorman/Doorman.actions"
+import {
+  STAKE_ERROR,
+  STAKE_REQUEST,
+  STAKE_RESULT,
+  UNSTAKE_ERROR,
+  UNSTAKE_REQUEST,
+  UNSTAKE_RESULT,
+} from 'pages/Doorman/Doorman.actions'
 
 const STAKE = 'STAKE'
 const UNSTAKE = 'UNSTAKE'
@@ -10,7 +17,7 @@ export interface UserStakeRecord {
   exitFee: number
   mvkLoyaltyIndex: number
   mvkTotalSupply: number
-  opType: typeof STAKE | typeof UNSTAKE 
+  opType: typeof STAKE | typeof UNSTAKE
 }
 export type UserStakeBalanceLedger = Map<string, string>
 
@@ -22,21 +29,22 @@ export interface DoormanBreakGlassConfigType {
 export interface DoormanStorage {
   userStakeBalanceLedger: UserStakeBalanceLedger
   userStakeRecordsLedger: UserStakeRecordsLedger
-  stakedMvkTotalSupply: number
+  totalStakedMvkSupply: number
   admin: string
   breakGlassConfig: DoormanBreakGlassConfigType
   mvkTokenAddress: string
   delegationAddress: string
   exitFeePoolAddress: string
   tempMvkTotalSupply: number
-  logExitFee?: number            // to be removed after testing
-  logFinalAmount?: number        // to be removed after testing
+  logExitFee?: number // to be removed after testing
+  logFinalAmount?: number // to be removed after testing
 }
 export interface DoormanState {
   type?: typeof STAKE | typeof UNSTAKE | typeof GET_DOORMAN_STORAGE
   amount: number
   error?: any
   doormanStorage?: DoormanStorage | undefined
+  totalStakedMvkSupply?: number
 }
 
 const doormanDefaultState: DoormanState = {
@@ -46,19 +54,20 @@ const doormanDefaultState: DoormanState = {
   doormanStorage: {
     userStakeBalanceLedger: new Map<string, string>(),
     userStakeRecordsLedger: new Map<string, Map<number, UserStakeRecord>>(),
-    stakedMvkTotalSupply: 0,
+    totalStakedMvkSupply: 0,
     admin: '',
     breakGlassConfig: {
       stakeIsPaused: false,
-      unstakeIsPaused: false
+      unstakeIsPaused: false,
     },
     mvkTokenAddress: '',
     delegationAddress: '',
     exitFeePoolAddress: '',
     tempMvkTotalSupply: 0,
-    logExitFee: 0,            // to be removed after testing
-    logFinalAmount: 0        // to be removed after testing
-  } 
+    logExitFee: 0, // to be removed after testing
+    logFinalAmount: 0, // to be removed after testing
+  },
+  totalStakedMvkSupply: 0,
 }
 
 export function doorman(state = doormanDefaultState, action: any): DoormanState {
@@ -103,8 +112,9 @@ export function doorman(state = doormanDefaultState, action: any): DoormanState 
       return {
         type: GET_DOORMAN_STORAGE,
         doormanStorage: action.storage,
+        totalStakedMvkSupply: action.totalStakedMvkSupply,
+        amount: 0,
         error: undefined,
-        amount: state.amount
       }
     default:
       return state
