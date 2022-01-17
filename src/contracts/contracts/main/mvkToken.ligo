@@ -13,16 +13,21 @@ type token_metadata_info is record [
   token_info        : map(string, bytes);
 ]
 
-type whitelistContractsType is set (address)
+type whitelistContractsType is map (string, address);
+type contractAddressesType is map (string, address)
 
 type storage is record [
     admin           : address;
-    whitelistContracts    : whitelistContractsType;      // whitelist of contracts that can access mint / onStakeChange entrypoints
+    
+    contractAddresses   : contractAddressesType;   // map of contract addresses
+    whitelistContracts  : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
+
     metadata        : big_map (string, bytes);
     token_metadata  : big_map(token_id, token_metadata_info);
     totalSupply     : amt;
     ledger          : big_map (address, account);
-    doormanAddress  : address;    
+
+    // doormanAddress  : address;   
   ]
 
 (* define return for readability *)
@@ -41,6 +46,10 @@ type mintParams is (address * nat)
 type burnParams is (address * nat)
 type onStakeChangeParams is (address * nat * string)
 
+type updateWhitelistContractParams is (string * address)
+// type updateContractAddressesParams is (string * option (address))
+type updateContractAddressesParams is (string * address)
+
 // type operator_t         is [@layout:comb] record [
 //   owner                   : address;
 //   operator                : address;
@@ -55,7 +64,9 @@ type onStakeChangeParams is (address * nat * string)
 
 (* Valid entry points *)
 type entryAction is
-  | UpdateWhitelistContracts of (address)
+  | UpdateWhitelistContracts of updateWhitelistContractParams
+  | UpdateContractAddresses of updateContractAddressesParams
+
   | Transfer of transferParams
   | Approve of approveParams
   | GetBalance of balanceParams
@@ -63,7 +74,7 @@ type entryAction is
   | GetTotalSupply of totalSupplyParams
   | UpdateMvkTotalSupplyForDoorman of (nat)
   | Mint of mintParams
-  | UpdateUserBalance of mintParams
+  | UpdateUserBalance of mintParams // may be removed
   | Burn of burnParams
   | OnStakeChange of onStakeChangeParams
   // | Update_operators of update_operators_t
@@ -72,32 +83,81 @@ type entryAction is
 // admin helper functions begin ---------------------------------------------------------
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
-    else failwith("Only the administrator can call this entrypoint.");
+    else failwith("Error. Only the administrator can call this entrypoint.");
 
-function checkSenderIsWhitelistContract(var s : storage) : unit is
-    if (s.whitelistContracts contains Tezos.sender) then unit
-    else failwith("Only whitelisted contracts can call this entrypoint.");
+function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
+block {
+  var inWhitelistContractsMap : bool := False;
+  for _key -> value in map s.whitelistContracts block {
+    if contractAddress = value then inWhitelistContractsMap := True
+      else skip;
+  }  
+} with inWhitelistContractsMap
+
+function checkInContractAddresses(const contractAddress : address; var s : storage) : bool is 
+block {
+  var inContractAddressMap : bool := False;
+  for _key -> value in map s.contractAddresses block {
+    if contractAddress = value then inContractAddressMap := True
+      else skip;
+  }  
+} with inContractAddressMap
+
+function checkSenderIsDoormanContract(var s : storage) : unit is
+block{
+  const doormanAddress : address = case s.contractAddresses["doorman"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. Doorman Contract is not found.")
+  end;
+  if (Tezos.sender = doormanAddress) then skip
+  else failwith("Error. Only the Doorman Contract can call this entrypoint.");
+} with unit
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
-    else failwith("This entrypoint should not receive any tez.");
+    else failwith("Error. This entrypoint should not receive any tez.");
+
 // admin helper functions end ---------------------------------------------------------
 
 // toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractAddress : address; var s : storage) : return is 
+function updateWhitelistContracts(const contractName : string; const contractAddress : address; var s : storage) : return is 
 block{
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
-    const checkIfWhitelistContractExists : bool = s.whitelistContracts contains contractAddress; 
+    var inWhitelistCheck : bool := checkInWhitelistContracts(contractAddress, s);
 
-    if (checkIfWhitelistContractExists) then block{
+    if (inWhitelistCheck) then block{
         // whitelist contract exists - remove whitelist contract from set 
-        s.whitelistContracts := Set.remove(contractAddress, s.whitelistContracts);
+        s.whitelistContracts := Map.update(contractName, Some(contractAddress), s.whitelistContracts);
     } else block {
         // whitelist contract does not exist - add whitelist contract to set 
-        s.whitelistContracts := Set.add(contractAddress, s.whitelistContracts);
+        s.whitelistContracts := Map.add(contractName, contractAddress, s.whitelistContracts);
+    }
+
+} with (noOperations, s) 
+
+// toggle adding and removal of contract addresses
+function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
+block{
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+ 
+    // test None option
+    // var inContractAddressesBool : bool := True;
+    // if contractAddress = None : option (address) then inContractAddressesBool := True
+    //   else inContractAddressesBool := checkInContractAddresses(contractAddress, s);
+
+    var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
+
+    if (inContractAddressesBool) then block{
+        // whitelist contract exists - remove whitelist contract from set 
+        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
+    } else block {
+        // whitelist contract does not exist - add whitelist contract to set 
+        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
     }
 
 } with (noOperations, s) 
@@ -229,13 +289,16 @@ function updateMvkTotalSupplyForDoorman (const unstakeAmount : nat; var s : stor
   block {
 
     (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    checkSenderIsDoormanContract(s);
 
-    const setTempMvkTotalSupplyInDoormanOperation : operation = Tezos.transaction(s.totalSupply, 0tez, setTempMvkTotalSupplyInDoorman(s.doormanAddress));
+    const doormanAddress : address = case s.contractAddresses["doorman"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. Doorman Contract is not found")
+    end;
 
-    const unstakeCompleteOperation : operation = Tezos.transaction(unstakeAmount, 0tez, unstakeCompleteInDoorman(s.doormanAddress));
+    const setTempMvkTotalSupplyInDoormanOperation : operation = Tezos.transaction(s.totalSupply, 0tez, setTempMvkTotalSupplyInDoorman(doormanAddress));
+
+    const unstakeCompleteOperation : operation = Tezos.transaction(unstakeAmount, 0tez, unstakeCompleteInDoorman(doormanAddress));
 
     const operations : list (operation) = list [setTempMvkTotalSupplyInDoormanOperation; unstakeCompleteOperation];
 
@@ -248,9 +311,7 @@ function updateUserBalance (const to_ : address; const value : amt; var s : stor
     var targetAccount : account := getAccount(to_, s);
 
     (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    checkSenderIsDoormanContract(s);
 
     (* Update sender balance *)
     targetAccount.balance := targetAccount.balance + value;
@@ -268,13 +329,11 @@ function mint (const to_ : address; const value : amt; var s : storage) : return
     (* Retrieve target account from storage *)
     var targetAccount : account := getAccount(to_, s);
 
-    // check sender is from doorman contract or vesting contract
-    checkSenderIsWhitelistContract(s);
+    // check sender is from doorman contract or vesting contract - may add treasury contract in future
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
 
-    (* Check this call is comming from the doorman contract *)
-    // if s.doormanAddress =/= Tezos.sender then
-    //   failwith("NotAuthorized")
-    // else skip;
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
 
     (* Update sender balance *)
     targetAccount.balance := targetAccount.balance + value;
@@ -292,9 +351,7 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     var targetAccount : account := getAccount(from_, s);
 
     (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
+    checkSenderIsDoormanContract(s);
 
     (* Balance check *)
     if targetAccount.balance < value then
@@ -319,13 +376,13 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     var _targetAccount : account := getAccount(userAddress, s);
 
     // check sender is from doorman contract or vesting contract
-    checkSenderIsWhitelistContract(s);
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
 
-    (* Check this call is comming from the doorman contract *)
-    // if s.doormanAddress =/= Tezos.sender then
-    //   failwith("NotAuthorized")
-    // else skip;
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
     
+    // todo: update doormanledger account in mvk ledger? total supply remains unchanged in any case
+
     if stakeType = "stake" then block {
       // stake -> decrease user balance in mvk ledger 
       (* Balance check *)
@@ -353,7 +410,9 @@ function main (const action : entryAction; var s : storage) : return is
   block {
     skip
   } with case action of
-    | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+    | UpdateWhitelistContracts(params) -> updateWhitelistContracts(params.0, params.1, s)
+    | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
+
     | Transfer(params) -> transfer(params.0, params.1.0, params.1.1, s)
     | Approve(params) -> approve(params.0, params.1, s)
     | GetBalance(params) -> getBalance(params.0, params.1, s)

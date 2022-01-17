@@ -32,6 +32,8 @@ const config = {
 export const governanceStorage: governanceStorageType = {
   admin: alice.pkh,
   config: config,
+  
+  whitelistContracts: MichelsonMap.fromLiteral({}),
   contractAddresses: MichelsonMap.fromLiteral({}),
 
   proposalLedger: MichelsonMap.fromLiteral({}),
@@ -51,10 +53,6 @@ export const governanceStorage: governanceStorageType = {
   currentRoundHighestVotedProposalId: new BigNumber(0),
   currentRoundTimelockProposalId: new BigNumber(0),
   
-  delegationAddress: zeroAddress,
-  mvkTokenAddress: zeroAddress,
-  emergencyGovernanceAddress: zeroAddress,
-
   snapshotMvkTotalSupply: new BigNumber(1000000000),
 
   tempFlag : new BigNumber(0)

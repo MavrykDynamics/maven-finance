@@ -27,11 +27,13 @@ export const delegationStorage: delegationStorageType = {
   admin: alice.pkh,
   config: config,
   breakGlassConfig: breakGlassConfig,
+
+  whitelistContracts : MichelsonMap.fromLiteral({}),
+  contractAddresses: MichelsonMap.fromLiteral({}),
   
   delegateLedger: MichelsonMap.fromLiteral({}),
   satelliteLedger: MichelsonMap.fromLiteral({}),
   
-  doormanAddress: zeroAddress,
-  governanceAddress: zeroAddress,
+
 
 };
