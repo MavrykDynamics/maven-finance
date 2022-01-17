@@ -557,14 +557,14 @@ block {
 
   // update user's MVK balance -> increase user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (Tezos.source, unstakeAmount, "unstake"),
+      (Tezos.source, finalAmount, "unstake"),
       0tez,
       updateUserBalanceInMvkContract(mvkTokenAddress)
     );
 
   // update satellite balance if user is delegated to a satellite
   const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (Tezos.source, unstakeAmount, 0n),
+      (Tezos.source, finalAmount, 0n),
       0tez,
       updateSatelliteBalance(delegationAddress)
     );
