@@ -6,13 +6,13 @@ type whitelistContractsType is set (address)
 type storage is record [
     admin                 : address;
     whitelistContracts    : whitelistContractsType;   // whitelist of contracts that can access treasury contract
+    glassBroken           : bool;
 ]
 
 type treasuryAction is 
-    | Default of (unit)
     | UpdateWhitelistContracts of (address)
     | Transfer of (nat)
-    | Second of (nat)
+
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -35,35 +35,35 @@ function checkGlassIsBroken(var s : storage) : unit is
         else failwith("Error. Glass has not been broken");
 // admin helper functions end ---------------------------------------------------------
 
-function get_fa12_token_transfer_entrypoint(
-  const token           : address)
-                        : contract(fa12_transfer_t) is
-  case (Tezos.get_entrypoint_opt("%transfer", token) : option(contract(fa12_transfer_t))) of
+
+// function get_fa12_token_transfer_entrypoint(
+//   const token           : address)
+//                         : contract(fa12_transfer_type) is
+//   case (Tezos.get_entrypoint_opt("%transfer", token) : option(contract(fa12_transfer_type))) of
+//   | Some(contr) -> contr
+//   | None        -> (failwith("Error. FA12 Token transfer entrypoint is not found.") : contract(fa12_transfer_type))
+//   end
+
+
+// treasury -> buy back MVK from the open market (DEX / CEX) 
+// council to buy back the MVK
+// council should not have access to transfer entrypoint / governance dao to have access to transfer entrypoint
+
+
+function get_fa2_token_transfer_entrypoint(const token : address) : contract(fa2_transfer_type) is
+  case (Tezos.get_entrypoint_opt("%transfer", token) : option(contract(fa2_transfer_type))) of
   | Some(contr) -> contr
-  | None        -> (failwith("Error. FA12 Token transfer entrypoint is not found.") : contract(fa12_transfer_t))
+  | None        -> (failwith("Error. FA2 Token transfer entrypoint is not found.") : contract(fa2_transfer_type))
   end
 
-function get_fa2_token_transfer_entrypoint(
-  const token           : address)
-                        : contract(fa2_transfer_t) is
-  case (Tezos.get_entrypoint_opt("%transfer", token) : option(contract(fa2_transfer_t))) of
-  | Some(contr) -> contr
-  | None        -> (failwith("Error. FA2 Token transfer entrypoint is not found.") : contract(fa2_transfer_t))
-  end
-
-[@inline] function wrap_fa12_transfer_trx(
-  const from_           : address;
-  const to_             : address;
-  const amt             : nat)
-                        : fa12_transfer_t is
-  FA12_transfer(from_, (to_, amt))
+[@inline] function wrap_fa12_transfer_trx(const from_ : address; const to_ : address; const amt : nat) : fa12_transfer_type is FA12_transfer(from_, (to_, amt))
 
 [@inline] function wrap_fa2_transfer_trx(
   const from_           : address;
   const to_             : address;
   const amt             : nat;
-  const id              : token_id_t)
-                        : fa2_transfer_t is
+  const id              : fa2_token_id_type)
+                        : fa2_transfer_type is
   FA2_transfer(
     list [
       record [
@@ -102,7 +102,7 @@ function transfer_fa2(
   const to_             : address;
   const amt             : nat;
   const token           : address;
-  const id              : token_id_t)
+  const id              : fa2_token_id_type)
                         : operation is
   Tezos.transaction(
     wrap_fa2_transfer_trx(from_, to_, amt, id),
@@ -122,11 +122,6 @@ function transfer_token(
   | Fa2(token)  -> transfer_fa2(from_, to_, amt, token.token, token.id)
   end
 
-
-function default(var s : storage) : return is 
-block {
-    skip
-} with (noOperations, s)
 
 // toggle adding and removal of whitelist contract addresses
 function updateWhitelistContracts(const contractAddress : address; var s : storage) : return is 
@@ -156,19 +151,18 @@ block {
 
 } with (noOperations, s)
 
-function second(const _parameters : nat; var s : storage) : return is 
-block {
-    // Steps Overview:
-    // 1. 
-    // 2.
+// function second(const _parameters : nat; var s : storage) : return is 
+// block {
+//     // Steps Overview:
+//     // 1. 
+//     // 2.
     
-    skip
-} with (noOperations, s)
+//     skip
+// } with (noOperations, s)
 
 function main (const action : treasuryAction; const s : storage) : return is 
     case action of
-        | Default(parameters) -> default(parameters, s)
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | Transfer(parameters) -> transfer(parameters, s)
-        | Second(parameters) -> second(parameters, s)
+
     end

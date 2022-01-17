@@ -7,7 +7,7 @@ type emergencyGovernanceRecordType is record [
     description                      : string;   
     voters                           : voterMapType; 
     totalStakedMvkVotes              : nat;
-    minStakedMvkRequiredPercentage   : nat;        // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
+    minStakedMvkRequiredPercentage   : nat;              // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
     minTotalStakedMvkRequired        : nat;              // capture state of min MVK vote required
     startDateTime                    : timestamp;
     startLevel                       : nat;              // block level of submission, used to order proposals
@@ -17,29 +17,30 @@ type emergencyGovernanceRecordType is record [
 type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType)
 
 type configType is record [
-    voteDuration : nat;                 // track time by tezos blocks - e.g. 2 days 
+    voteDuration : nat;                       // track time by tezos blocks - e.g. 2 days 
     minStakedMvkPercentageForTrigger : nat;   // minimum staked MVK percentage amount required to trigger emergency control
-    requiredFee : tez;                  // fee for triggering emergency control - e.g. 100 tez
+    requiredFee : tez;                        // fee for triggering emergency control - e.g. 100 tez
 ]
+
+type contractAddressesType is map (string, address)
 
 type storage is record [
     admin                               : address;
     config                              : configType;
     
+    contractAddresses                   : contractAddressesType;
+
     emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
-    
-    mvkTokenAddress                     : address;  
-    breakGlassContractAddress           : address; 
-    governanceContractAddress           : address; 
-    treasuryAddress                     : address;
     
     tempMvkTotalSupply                  : nat;           // at point where emergency control is triggered
     currentEmergencyGovernanceId        : nat;
     nextEmergencyGovernanceProposalId   : nat;
 ]
 
+type updateContractAddressesParams is (string * address)
+
 type emergencyGovernanceAction is 
-    | SetBreakGlassContractAddress of (address)
+    | UpdateContractAddresses of updateContractAddressesParams
     | TriggerEmergencyControl of (string * string)
     | VoteForEmergencyControl of (nat)
     | VoteForEmergencyControlComplete of (nat)
@@ -55,12 +56,27 @@ function checkSenderIsAdmin(var s : storage) : unit is
     else failwith("Only the administrator can call this entrypoint.");
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
-    if (Tezos.sender = s.mvkTokenAddress) then unit
-    else failwith("Only the MVK Token Contract can call this entrypoint.");
+block{
+  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. MVK Token Contract is not found.")
+  end;
+  if (Tezos.sender = mvkTokenAddress) then skip
+  else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
+} with unit
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
+
+// return set of contract addresses from contract addresses map
+function getContractAddressesSet(var s : storage) : set(address) is 
+block {
+  var _contractAddressesSet : set(address) := set [];
+  for _key -> value in map s.contractAddresses block {
+    var _contractAddressesSet : set(address) := Set.add(value, _contractAddressesSet);
+  }
+} with _contractAddressesSet
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to get token total supply (for MVK)
@@ -90,12 +106,34 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
   | None -> (failwith("breakGlass entrypoint in Contract not found") : contract(unit))
   end;
 
-function setBreakGlassContractAddress(const newBreakGlassContractAddress : address; var s : storage) is 
-block {
+// toggle adding and removal of contract addresses
+function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
+block{
+
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
-    s.breakGlassContractAddress := newBreakGlassContractAddress;
-} with (noOperations, s)
+
+    var contractAddressesSet : set(address) := getContractAddressesSet(s);
+
+    const checkIfContractExists : bool = contractAddressesSet contains contractAddress; 
+
+    if (checkIfContractExists) then block{
+        // whitelist contract exists - remove whitelist contract from set 
+        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
+    } else block {
+        // whitelist contract does not exist - add whitelist contract to set 
+        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
+    }
+
+} with (noOperations, s) 
+
+
+// function setBreakGlassContractAddress(const newBreakGlassContractAddress : address; var s : storage) is 
+// block {
+//     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+//     checkSenderIsAdmin(s); // check that sender is admin
+//     s.breakGlassContractAddress := newBreakGlassContractAddress;
+// } with (noOperations, s)
 
 
 function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
@@ -149,12 +187,17 @@ block {
     s.currentEmergencyGovernanceId := s.nextEmergencyGovernanceProposalId;
     s.nextEmergencyGovernanceProposalId := s.nextEmergencyGovernanceProposalId + 1n;
 
+    const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+        Some(_address) -> _address
+        | None -> failwith("Error. MVK Token Contract is not found.")
+    end;
+
     // update temp MVK total supply
     const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
     const updateMvkTotalSupplyOperation : operation = Tezos.transaction(
         (unit, setTempMvkTotalSupplyCallback),
          0tez, 
-         getTokenTotalSupply(s.mvkTokenAddress)
+         getTokenTotalSupply(mvkTokenAddress)
          );
     
     const operations : list(operation) = list [updateMvkTotalSupplyOperation];
@@ -181,13 +224,18 @@ block {
 
     const checkIfUserHasVotedFlag : bool = Map.mem(Tezos.sender, emergencyGovernance.voters);
     if checkIfUserHasVotedFlag = False then block {
+
+        const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+            Some(_address) -> _address
+            | None -> failwith("Error. MVK Token Contract is not found.")
+        end;
         
         // get user MVK Balance
         const voteForEmergencyControlCompleteCallback : contract(nat) = Tezos.self("%voteForEmergencyControlComplete");    
         const voteForEmergencyControlCompleteOperation : operation = Tezos.transaction(
             (Tezos.sender, voteForEmergencyControlCompleteCallback),
             0tez, 
-            fetchMvkBalance(s.mvkTokenAddress)
+            fetchMvkBalance(mvkTokenAddress)
             );
 
         operations := voteForEmergencyControlCompleteOperation # operations;
@@ -217,17 +265,27 @@ block {
     var operations : list(operation) := nil;
     if emergencyGovernance.totalStakedMvkVotes > emergencyGovernance.minTotalStakedMvkRequired then block {
 
+        const breakGlassContractAddress : address = case s.contractAddresses["breakGlass"] of
+            Some(_address) -> _address
+            | None -> failwith("Error. Break Glass Contract is not found.")
+        end;
+
+        const governanceContractAddress : address = case s.contractAddresses["governance"] of
+            Some(_address) -> _address
+            | None -> failwith("Error. Governance Contract is not found.")
+        end;
+
         // trigger break glass - set glassbroken to true in breakglass contract to give council members access to protected entrypoints
         const triggerBreakGlassOperation : operation = Tezos.transaction(
             unit,
             0tez, 
-            triggerBreakGlass(s.breakGlassContractAddress)
+            triggerBreakGlass(breakGlassContractAddress)
             );
 
         const triggerGovernanceBreakGlassOperation : operation = Tezos.transaction(
             unit,
             0tez, 
-            triggerBreakGlass(s.governanceContractAddress)
+            triggerBreakGlass(governanceContractAddress)
             );
         
         operations := triggerBreakGlassOperation # operations;
@@ -266,10 +324,10 @@ block {
 
 function main (const action : emergencyGovernanceAction; const s : storage) : return is 
     case action of
-        | SetBreakGlassContractAddress(parameters) -> setBreakGlassContractAddress(parameters, s)
         | TriggerEmergencyControl(parameters) -> triggerEmergencyControl(parameters.0, parameters.1, s)
         | VoteForEmergencyControl(parameters) -> voteForEmergencyControl(parameters, s)
         | VoteForEmergencyControlComplete(parameters) -> voteForEmergencyControlComplete(parameters, s)
         | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
         | DropEmergencyGovernance(_parameters) -> dropEmergencyGovernance(s)
+        | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
     end

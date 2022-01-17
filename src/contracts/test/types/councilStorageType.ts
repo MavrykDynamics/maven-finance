@@ -2,15 +2,16 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 
 import { BigNumber } from "bignumber.js";
 
-export type delegationStorageType = {
+export type councilStorageType = {
   admin: string;
   config: {};
-  breakGlassConfig: {};
+  councilMembers: Array<string>;
 
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
   contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
 
-  delegateLedger: MichelsonMap<MichelsonMapKey, unknown>;
-  satelliteLedger: MichelsonMap<MichelsonMapKey, unknown>;
+  councilActionsLedger: MichelsonMap<MichelsonMapKey, unknown>;
 
+  thresholdSigners: BigNumber;
+  actionCounter: BigNumber;
 };

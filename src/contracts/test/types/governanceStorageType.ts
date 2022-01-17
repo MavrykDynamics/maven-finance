@@ -7,6 +7,7 @@ export type governanceStorageType = {
   admin: string;
   config: {};
 
+  whitelistContracts : MichelsonMap<MichelsonMapKey, unknown>;
   contractAddresses : MichelsonMap<MichelsonMapKey, unknown>;
 
   proposalLedger: MichelsonMap<MichelsonMapKey, unknown>;
@@ -25,10 +26,6 @@ export type governanceStorageType = {
 
   currentRoundHighestVotedProposalId: BigNumber;
   currentRoundTimelockProposalId: BigNumber;
-  
-  delegationAddress: string;
-  mvkTokenAddress: string;
-  emergencyGovernanceAddress: string; 
 
   snapshotMvkTotalSupply: BigNumber;
   tempFlag :BigNumber;

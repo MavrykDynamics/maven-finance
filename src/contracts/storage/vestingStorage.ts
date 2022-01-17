@@ -21,15 +21,13 @@ export const vestingStorage: vestingStorageType = {
   admin: alice.pkh,
   config: config,
 
+  whitelistContracts : MichelsonMap.fromLiteral({}),
+  contractAddresses: MichelsonMap.fromLiteral({}),
+
   claimLedger: MichelsonMap.fromLiteral({}),
   vesteeLedger: MichelsonMap.fromLiteral({}),
 
   totalVestedAmount: new BigNumber(0),
-
-  delegationAddress: zeroAddress,
-  doormanAddress: zeroAddress,
-  governanceAddress: zeroAddress,
-  mvkTokenAddress: zeroAddress,
 
   tempBlockLevel: new BigNumber(0)
 };
