@@ -6,7 +6,9 @@
                           (list (pair (pair %request (address %owner) (nat %token_id)) (nat %balance))))))
                 (or (pair %burn address nat) (contract %getTotalSupply nat)))
             (or (or (pair %mint address nat)
-                    (pair %onStakeChange (pair address nat) (or (unit %stake) (unit %unstake))))
+                    (pair %onStakeChange
+                       (pair address nat)
+                       (or (unit %stakeAction) (unit %unstakeAction))))
                 (or (list %transfer
                        (pair (address %from_)
                              (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))))
