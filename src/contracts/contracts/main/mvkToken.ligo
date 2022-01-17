@@ -25,7 +25,7 @@ type contractAddressesType is map (string, address)
 type storage is record [
     admin                 : address;
     contractAddresses     : contractAddressesType;   // map of contract addresses
-    whitelistContracts   : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
+    whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
     metadata              : metadata;
     token_metadata        : tokenMetadata;
     totalSupply           : tokenBalance;
@@ -132,7 +132,7 @@ function checkTokenId(const tokenId: tokenId): unit is
   if tokenId =/= 0n then failwith("FA2_TOKEN_UNDEFINED") // TODO: Check if that's the right syntax
   else unit
 
-function checkSpenderBalance(const spenderBalance: tokenBalance; const tokenAmount: tokenBalance): unit is
+function checkBalance(const spenderBalance: tokenBalance; const tokenAmount: tokenBalance): unit is
   if spenderBalance < tokenAmount then failwith("FA2_INSUFFICIENT_BALANCE") // TODO: See if the balance is decrease correctly if the same user send tokens to multiple destinations at once 
   else unit
 
@@ -206,7 +206,7 @@ function transfer(const transferParams: transferParams; const store: storage): r
             checkTokenId(tokenId);
 
             // Validate that sender has enough token
-            checkSpenderBalance(ownerBalance,tokenAmount);
+            checkBalance(ownerBalance,tokenAmount);
 
             // Update users' balances
             var ownerNewBalance: tokenBalance := ownerBalance;
@@ -307,17 +307,18 @@ function mint(const mintParams: mintParams; const store : storage) : return is
     const mintedTokens: tokenBalance = mintParams.1;
 
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, store) then failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED") else skip;
+    if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
     // Update sender's balance
     const senderNewBalance: tokenBalance = getBalance(senderAddress, store) + mintedTokens;
+    const newTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
 
     // Update storage
     const updatedLedger: ledger = Big_map.update(senderAddress, Some(senderNewBalance), store.ledger);
-  } with (noOperations, store with record[ledger=updatedLedger])
+  } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
 
 (* Burn Entrypoint *)
-function burn (const burnParams: burnParams; const store: storage) : return is
+function burn(const burnParams: burnParams; const store: storage) : return is
   block {
     const targetAddress: owner = burnParams.0;
     const burnedTokens: tokenBalance = burnParams.1;
@@ -327,7 +328,7 @@ function burn (const burnParams: burnParams; const store: storage) : return is
     checkSenderIsDoormanContract(store);
 
     (* Balance check *)
-    checkSpenderBalance(targetBalance, burnedTokens);
+    checkBalance(targetBalance, burnedTokens);
 
     (* Update sender balance *)
     targetBalance := abs(targetBalance - burnedTokens);
@@ -341,7 +342,7 @@ function burn (const burnParams: burnParams; const store: storage) : return is
 function onStakeChange(const onStakeChangeParams: onStakeChangeParams; const store: storage): return is
   block{
     // check sender is from doorman contract or vesting contract
-    if checkInWhitelistContracts(Tezos.sender, store) then failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED") else skip;
+    if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
     
     const owner: owner = onStakeChangeParams.0;
     var ownerBalance: tokenBalance := getBalance(owner, store);
@@ -352,7 +353,7 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParams; const sto
       Stake (_v) -> block{
         // stake -> decrease user balance in mvk ledger 
         (* Balance check *)
-        checkSpenderBalance(ownerBalance, value);
+        checkBalance(ownerBalance, value);
         (* Update sender balance *)
         ownerBalance := abs(ownerBalance - value);
       }
@@ -368,14 +369,13 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParams; const sto
 (* UpdateWhitelistContracts Entrypoint *)
 function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; const store: storage) : return is 
   block{
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(store); // check that sender is admin
 
     const contractName: string = updateWhitelistContractsParams.0;
     const contractAddress: address = updateWhitelistContractsParams.1;
     
     const exitingAddress: option(address) = 
-      if checkInWhitelistContracts(contractAddress, store) then Some (contractAddress) else (None : option(address));
+      if checkInWhitelistContracts(contractAddress, store) then (None : option(address)) else Some (contractAddress);
 
     const updatedWhitelistedContracts: whitelistContractsType = 
       Map.update(
@@ -388,14 +388,13 @@ function updateWhitelistContracts(const updateWhitelistContractsParams: updateWh
 (* UpdateContractAddresses Entrypoint *)
 function updateContractAddresses(const updateContractAddressesParams: updateContractAddressesParams; const store: storage) : return is 
   block{
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(store); // check that sender is admin
 
     const contractName: string = updateContractAddressesParams.0;
     const contractAddress: address = updateContractAddressesParams.1;
     
     const exitingAddress: option(address) = 
-      if checkInContractAddresses(contractAddress, store) then Some (contractAddress) else (None : option(address));
+      if checkInContractAddresses(contractAddress, store) then (None : option(address)) else Some (contractAddress);
 
     const updatedContractAddresses: contractAddressesType = 
       Map.update(
@@ -433,16 +432,21 @@ function updateMvkTotalSupplyForDoorman(const updateMvkTotalSupplyForDoormanPara
 
 (* Main entrypoint *)
 function main (const action : action; const store : storage) : return is
-  case action of
-      Transfer (params) -> transfer(params, store)
-    | Balance_of (params) -> balanceOf(params, store)
-    | Update_operators (params) -> updateOperators(params, store)
-    | AssertMetadata (params) -> assertMetadata(params, store)
-    | GetTotalSupply (params) -> getTotalSupply(params, store)
-    | Mint (params) -> mint(params, store)
-    | Burn (params) -> burn(params, store)
-    | OnStakeChange (params) -> onStakeChange(params, store)
-    | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
-    | UpdateContractAddresses (params) -> updateContractAddresses(params, store)
-    | UpdateMvkTotalSupplyForDoorman (params) -> updateMvkTotalSupplyForDoorman(params, store)
-  end;
+  block{
+    // Check that sender didn't send Tezos while calling an entrypoint
+    checkNoAmount(Unit);
+  } with(
+    case action of
+        Transfer (params) -> transfer(params, store)
+      | Balance_of (params) -> balanceOf(params, store)
+      | Update_operators (params) -> updateOperators(params, store)
+      | AssertMetadata (params) -> assertMetadata(params, store)
+      | GetTotalSupply (params) -> getTotalSupply(params, store)
+      | Mint (params) -> mint(params, store)
+      | Burn (params) -> burn(params, store)
+      | OnStakeChange (params) -> onStakeChange(params, store)
+      | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
+      | UpdateContractAddresses (params) -> updateContractAddresses(params, store)
+      | UpdateMvkTotalSupplyForDoorman (params) -> updateMvkTotalSupplyForDoorman(params, store)
+    end
+  )
