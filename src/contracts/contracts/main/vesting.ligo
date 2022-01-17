@@ -58,20 +58,20 @@ type vesteeRecordType is record [
 ] 
 type vesteeLedgerType is big_map(address, vesteeRecordType) // address, vestee record
 
+type whitelistContractsType is map (string, address)
+type contractAddressesType is map (string, address)
+
 type storage is record [
     admin               : address;
     config              : configType;
+
+    whitelistContracts    : whitelistContractsType;      
+    contractAddresses     : contractAddressesType;
 
     claimLedger         : claimLedgerType;
     vesteeLedger        : vesteeLedgerType;
 
     totalVestedAmount   : nat;          // record of how much has been vested so far
-
-    delegationAddress   : address;
-    doormanAddress      : address; 
-    governanceAddress   : address;
-    mvkTokenAddress     : address;
-    councilAddress      : address;
 
     tempBlockLevel      : nat; 
 ]
@@ -83,11 +83,17 @@ type storage is record [
     
 type addVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
 type updateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
+type updateWhitelistContractParams is (string * address)
+type updateContractAddressesParams is (string * address)
 
 type vestingAction is 
+    
     | Claim of (unit)
     | GetVestedBalance of (address * contract(nat))
+    | UpdateWhitelistContracts of updateWhitelistContractParams
+    | UpdateContractAddresses of updateContractAddressesParams
     | GetTotalVested of contract(nat)
+    
     | AddVestee of (addVesteeType)
     | RemoveVestee of (address)
     | ToggleVesteeLock of (address)
@@ -105,18 +111,74 @@ function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
-function checkSenderIsCouncil(var s : storage) : unit is
-    if (Tezos.sender = s.councilAddress) then unit
-    else failwith("Only the council contract can call this entrypoint.");
+function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
+block {
+  var inWhitelistContractsMap : bool := False;
+  for _key -> value in map s.whitelistContracts block {
+    if contractAddress = value then inWhitelistContractsMap := True
+      else skip;
+  }  
+} with inWhitelistContractsMap
 
-function checkSenderIsAdminOrCouncil(var s : storage) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.councilAddress) then unit
-    else failwith("Only the administrator or council contract can call this entrypoint.");
+function checkInContractAddresses(const contractAddress : address; var s : storage) : bool is 
+block {
+  var inContractAddressMap : bool := False;
+  for _key -> value in map s.contractAddresses block {
+    if contractAddress = value then inContractAddressMap := True
+      else skip;
+  }  
+} with inContractAddressMap
+
+// function checkSenderIsCouncil(var s : storage) : unit is
+//     if (Tezos.sender = s.councilAddress) then unit
+//     else failwith("Only the council contract can call this entrypoint.");
+
+// function checkSenderIsAdminOrCouncil(var s : storage) : unit is
+//     if (Tezos.sender = s.admin or Tezos.sender = s.councilAddress) then unit
+//     else failwith("Only the administrator or council contract can call this entrypoint.");
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
 // admin helper functions end ---------------------------------------------------------
+
+// toggle adding and removal of whitelist contract addresses
+function updateWhitelistContracts(const contractName : string; const contractAddress : address; var s : storage) : return is 
+block{
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    var inWhitelistCheck : bool := checkInWhitelistContracts(contractAddress, s);
+
+    if (inWhitelistCheck) then block{
+        // whitelist contract exists - remove whitelist contract from set 
+        s.whitelistContracts := Map.update(contractName, Some(contractAddress), s.whitelistContracts);
+    } else block {
+        // whitelist contract does not exist - add whitelist contract to set 
+        s.whitelistContracts := Map.add(contractName, contractAddress, s.whitelistContracts);
+    }
+
+} with (noOperations, s) 
+
+// toggle adding and removal of contract addresses
+function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
+block{
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+ 
+    var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
+
+    if (inContractAddressesBool) then block{
+        // whitelist contract exists - remove whitelist contract from set 
+        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
+    } else block {
+        // whitelist contract does not exist - add whitelist contract to set 
+        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
+    }
+
+} with (noOperations, s) 
 
 // helper function to update user's staked balance in doorman contract after vesting
 function vestingUpdateStakedBalanceInDoorman(const contractAddress : address) : contract(address * nat) is
@@ -128,13 +190,13 @@ function vestingUpdateStakedBalanceInDoorman(const contractAddress : address) : 
   end;
 
 // helper function to update user balance in MVK contract
-function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * string) is
-case (Tezos.get_entrypoint_opt(
-    "%onStakeChange",
-    tokenAddress) : option(contract(address * nat * string))) of
-Some(contr) -> contr
-| None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(address * nat * string))
-end;
+// function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * string) is
+// case (Tezos.get_entrypoint_opt(
+//     "%onStakeChange",
+//     tokenAddress) : option(contract(address * nat * string))) of
+// Some(contr) -> contr
+// | None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(address * nat * string))
+// end;
 
 // helper function to get mint entrypoint from token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
@@ -155,7 +217,6 @@ function mintTokens(
     0tez,
     getMintEntrypointFromTokenAddress(tokenAddress)
   );
-
 
 function claim(var s : storage) : return is 
 block {
@@ -202,16 +263,21 @@ block {
             numberOfClaimMonths              := blockLevelsSinceLastClaim / s.config.blocksPerMonth;
         } else skip;
     
-        // tepmp: for testing that mint inter-contract call works 
+        // temp: for testing that mint inter-contract call works 
         // const numberOfClaimMonths : nat = 1n;
 
         // get total claim amount
         const totalClaimAmount = _vestee.claimAmountPerMonth * numberOfClaimMonths;  
 
+        const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+            Some(_address) -> _address
+            | None -> failwith("Error. MVK Token Contract is not found.")
+        end;
+
         const mintVMvkTokensOperation : operation = mintTokens(
             Tezos.sender,           // to address
             totalClaimAmount,       // amount of mvk Tokens to be minted
-            s.mvkTokenAddress       // mvkTokenAddress
+            mvkTokenAddress         // mvkTokenAddress
         ); 
 
         // update user's MVK balance -> increase user balance in mvk ledger
@@ -285,9 +351,17 @@ block {
     // Steps Overview:
     // 1. check if vestee address exists in vestee ledger
     // 2. create new vestee
+    
     s.tempBlockLevel := Tezos.level;
-    checkSenderIsAdmin(s);
     checkNoAmount(unit);
+
+    // checkSenderIsAdmin(s);
+
+    // check sender is from council contract
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
 
     const one_day        : int   = 86_400;
     const thirty_days    : int   = one_day * 30;
@@ -345,8 +419,13 @@ block {
     // 1. check if user address exists in vestee ledger
     // 2. remove vestee from vesteeLedger
 
-    checkSenderIsAdmin(s);
+    // checkSenderIsAdmin(s);
     checkNoAmount(unit);
+
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
 
     var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
         | Some(_record) -> _record
@@ -364,8 +443,13 @@ block {
     // 1. check if vestee address exists in vestee ledger
     // 2. lock vestee account
 
-    checkSenderIsAdmin(s);
+    // checkSenderIsAdmin(s);
     checkNoAmount(unit);
+
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
 
     var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
         | Some(_record) -> _record
@@ -389,8 +473,14 @@ block {
     // 1. check if vestee address exists in vestee ledger
     // 2. update vestee record based on new params
 
-    checkSenderIsAdmin(s);
+    // checkSenderIsAdmin(s);
     checkNoAmount(unit);
+
+    // check sender is from council contract
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
 
     // check for div by 0 error
     if newVestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
@@ -464,6 +554,8 @@ block {
 
 function main (const action : vestingAction; const s : storage) : return is 
     case action of
+        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters.0, parameters.1, s)
+        | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
         | Claim(_params) -> claim(s)
         | AddVestee(params) -> addVestee(params.0, params.1, params.2, params.3, s)
         | RemoveVestee(params) -> removeVestee(params, s)

@@ -12,7 +12,8 @@ export const doormanStorage: doormanStorageType = {
 
   admin: alice.pkh,
 
-  whitelistContracts : [],
+  whitelistContracts : MichelsonMap.fromLiteral({}),
+  contractAddresses: MichelsonMap.fromLiteral({}),
   
   breakGlassConfig: {
     stakeIsPaused           : false,
@@ -20,10 +21,6 @@ export const doormanStorage: doormanStorageType = {
   },
   userStakeRecordsLedger: MichelsonMap.fromLiteral({}),
   userStakeBalanceLedger: MichelsonMap.fromLiteral({}),
-  
-  delegationAddress: zeroAddress,
-  exitFeePoolAddress: zeroAddress,
-  mvkTokenAddress: zeroAddress,
 
   tempMvkTotalSupply: new BigNumber(1000000000),
   stakedMvkTotalSupply: new BigNumber(0),

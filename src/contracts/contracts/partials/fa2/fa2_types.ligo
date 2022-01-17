@@ -49,7 +49,21 @@ type balance_of_type       is [@layout:comb] record [
 
 type fa2_balance_of_type   is FA2_balance_of of balance_of_type
 
-type fa2_is_tx_operator_type   is [@laoyout:comb] record [
+type fa2_is_tx_operator_type   is [@layout:comb] record [
   owner                   : address;
   approved                : bool;
 ]
+
+type tez_t              is unit
+
+type fa12_token_t       is address
+
+type fa2_token_t        is [@layout:comb] record [
+  token                   : address;
+  id                      : nat;
+]
+
+type token_t       is
+| Tez                     of tez_t
+// | Fa12                    of fa12_token_t
+| Fa2                     of fa2_token_t

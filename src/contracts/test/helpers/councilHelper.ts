@@ -3,11 +3,11 @@ import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
-import { mvkStorageType } from "../types/mvkTokenStorageType";
+import { councilStorageType } from "../types/councilStorageType";
 
-export class MvkToken {
+export class Council {
     contract: Contract;
-    storage: mvkStorageType;
+    storage: councilStorageType;
     tezos: TezosToolkit;
   
     constructor(contract: Contract, tezos: TezosToolkit) {
@@ -16,22 +16,22 @@ export class MvkToken {
     }
   
     static async init(
-      mvkTokenAddress: string,
+      councilContractAddress: string,
       tezos: TezosToolkit
-    ): Promise<MvkToken> {
-      return new MvkToken(
-        await tezos.contract.at(mvkTokenAddress),
+    ): Promise<Council> {
+      return new Council(
+        await tezos.contract.at(councilContractAddress),
         tezos
       );
     }
 
     static async originate(
       tezos: TezosToolkit,
-      storage: mvkStorageType
-    ): Promise<MvkToken> {       
+      storage: councilStorageType
+    ): Promise<Council> {       
 
       const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/mvkToken.json`).toString()
+        fs.readFileSync(`${env.buildDir}/council.json`).toString()
       );
       const operation: OriginationOperation = await tezos.contract
         .originate({
@@ -46,7 +46,7 @@ export class MvkToken {
   
       await confirmOperation(tezos, operation.hash);
   
-      return new MvkToken(
+      return new Council(
         await tezos.contract.at(operation.contractAddress),
         tezos
       );

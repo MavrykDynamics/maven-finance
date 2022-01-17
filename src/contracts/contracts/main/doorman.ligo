@@ -20,23 +20,23 @@ type breakGlassConfigType is record [
     unstakeIsPaused         : bool;
 ]
 
-type whitelistContractsType is set (address)
+type whitelistContractsType is map (string, address)
+type contractAddressesType is map (string, address)
 
 type storage is record [
 
     admin                 : address;
-    whitelistContracts    : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints if needed
-
+    
+    whitelistContracts    : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
+    contractAddresses     : contractAddressesType;
+    
     breakGlassConfig      : breakGlassConfigType;
-    mvkTokenAddress       : address; 
-    delegationAddress     : address;
-    exitFeePoolAddress    : address;
     
     userStakeRecordsLedger    : userStakeRecordsType;  // records of all user transactions
     userStakeBalanceLedger    : userStakeBalanceType;  // user staked balance
     
-    tempMvkTotalSupply    : nat;    
-    stakedMvkTotalSupply  : nat;  
+    tempMvkTotalSupply    : nat; // temporary mvk total supply in circulation   
+    stakedMvkTotalSupply  : nat; // current total staked MVK 
 
     logExitFee            : nat; // to be removed after testing
     logFinalAmount        : nat; // to be removed after testing
@@ -47,15 +47,15 @@ type return is list (operation) * storage
 
 type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
 type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
+type updateWhitelistContractParams is (string * address)
+type updateContractAddressesParams is (string * address)
 
 type stakeAction is 
 
-    | Stake of (nat)
-    | Unstake of (nat)
-    | UnstakeComplete of (nat)
-    | DistributeExitFeeReward of (address * nat)
     | SetAdmin of (address)
-    | UpdateWhitelistContracts of (address)
+    | UpdateWhitelistContracts of updateWhitelistContractParams
+    | UpdateContractAddresses of updateContractAddressesParams
+    | SetTempMvkTotalSupply of (nat)    
 
     | PauseAll of (unit)
     | UnpauseAll of (unit)
@@ -65,33 +65,65 @@ type stakeAction is
     | GetStakedBalance of (address * contract(nat))
     | GetSatelliteBalance of getSatelliteBalanceType
 
-    | SetMvkTokenAddress of (address)
-    | SetDelegationAddress of (address)
-    | SetExitFeePoolAddress of (address)
-    | SetTempMvkTotalSupply of (nat)    
+    | Stake of (nat)
+    | Unstake of (nat)
+    | UnstakeComplete of (nat)
+    | DistributeExitFeeReward of (address * nat)
 
 (* ---- Helper functions begin ---- *)
 
 // admin helper functions begin ---------------------------------------------------------
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
-    else failwith("Only the administrator can call this entrypoint.");
+    else failwith("Error. Only the administrator can call this entrypoint.");
 
-function checkSenderIsWhitelistContract(var s : storage) : unit is
-    if (s.whitelistContracts contains Tezos.sender) then unit
-    else failwith("Only whitelisted contracts can call this entrypoint.");
+function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
+block {
+  var inWhitelistContractsMap : bool := False;
+  for _key -> value in map s.whitelistContracts block {
+    if contractAddress = value then inWhitelistContractsMap := True
+      else skip;
+  }  
+} with inWhitelistContractsMap
+
+function checkInContractAddresses(const contractAddress : address; var s : storage) : bool is 
+block {
+  var inContractAddressMap : bool := False;
+  for _key -> value in map s.contractAddresses block {
+    if contractAddress = value then inContractAddressMap := True
+      else skip;
+  }  
+} with inContractAddressMap
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
-    if (Tezos.sender = s.mvkTokenAddress) then unit
-    else failwith("Only the MVK Token Contract can call this entrypoint.");
+block{
+  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. MVK Token Contract is not found.")
+  end;
+  if (Tezos.sender = mvkTokenAddress) then skip
+  else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
+} with unit
 
 function checkSenderIsExitFeePoolContract(var s : storage) : unit is
-    if (Tezos.sender = s.exitFeePoolAddress) then unit
-    else failwith("Only the Exit Fee Pool Contract can call this entrypoint.");
+block{
+    const exitFeePoolAddress : address = case s.contractAddresses["exitFeePool"] of
+        Some(_address) -> _address
+        | None -> failwith("Error. Exit Fee Pool Contract is not found.")
+    end;
+    if (Tezos.sender = exitFeePoolAddress) then skip
+    else failwith("Error. Only the Exit Fee Pool Contract can call this entrypoint.");
+} with unit
 
 function checkSenderIsDelegationContract(var s : storage) : unit is
-    if (Tezos.sender = s.delegationAddress) then unit
-    else failwith("Only the Delegation Contract can call this entrypoint.");
+block{
+    const delegationAddress : address = case s.contractAddresses["delegation"] of
+        Some(_address) -> _address
+        | None -> failwith("Error. Delegation Contract is not found.")
+    end;
+    if (Tezos.sender = delegationAddress) then skip
+    else failwith("Error. Only the Delegation Contract can call this entrypoint.");
+} with unit
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
@@ -248,35 +280,35 @@ block {
 } with (noOperations, s)
 
 (* set mvk contract address *)
-function setMvkTokenAddress(const newTokenAddress : address; var s : storage) : return is
-block {
-    checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
-    s.mvkTokenAddress := newTokenAddress;
-} with (noOperations, s)
+// function setMvkTokenAddress(const newTokenAddress : address; var s : storage) : return is
+// block {
+//     checkNoAmount(Unit); // entrypoint should not receive any tez amount
+//     checkSenderIsAdmin(s); // check that sender is admin
+//     s.mvkTokenAddress := newTokenAddress;
+// } with (noOperations, s)
 
-(* set mvk contract address *)
-function setDelegationAddress(const newContractAddress : address; var s : storage) : return is
-block {
+// (* set mvk contract address *)
+// function setDelegationAddress(const newContractAddress : address; var s : storage) : return is
+// block {
 
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
+//     // entrypoint should not receive any tez amount
+//     checkNoAmount(Unit);
 
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+//     // check that sender is admin
+//     checkSenderIsAdmin(s);
 
-    s.delegationAddress := newContractAddress;
-} with (noOperations, s)
+//     s.delegationAddress := newContractAddress;
+// } with (noOperations, s)
 
-(* set mvk contract address *)
-function setExitFeePoolAddress(const newContractAddress : address; var s : storage) : return is
-block {
+// (* set mvk contract address *)
+// function setExitFeePoolAddress(const newContractAddress : address; var s : storage) : return is
+// block {
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
+//     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+//     checkSenderIsAdmin(s); // check that sender is admin
 
-    s.exitFeePoolAddress := newContractAddress;
-} with (noOperations, s)
+//     s.exitFeePoolAddress := newContractAddress;
+// } with (noOperations, s)
 
 
 (* View function that forwards the staked balance of source to a contract *)
@@ -300,20 +332,39 @@ function getSatelliteBalance (const userAddress : address; const name : string; 
   } with (list [transaction((name, description, image, satelliteFee, userBalanceInStakeBalanceLedger), 0tz, contr)], s)
 
 // toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractAddress : address; var s : storage) : return is 
+function updateWhitelistContracts(const contractName : string; const contractAddress : address; var s : storage) : return is 
 block{
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
-    const checkIfWhitelistContractExists : bool = s.whitelistContracts contains contractAddress; 
+    var inWhitelistCheck : bool := checkInWhitelistContracts(contractAddress, s);
 
-    if (checkIfWhitelistContractExists) then block{
+    if (inWhitelistCheck) then block{
         // whitelist contract exists - remove whitelist contract from set 
-        s.whitelistContracts := Set.remove(contractAddress, s.whitelistContracts);
+        s.whitelistContracts := Map.update(contractName, Some(contractAddress), s.whitelistContracts);
     } else block {
         // whitelist contract does not exist - add whitelist contract to set 
-        s.whitelistContracts := Set.add(contractAddress, s.whitelistContracts);
+        s.whitelistContracts := Map.add(contractName, contractAddress, s.whitelistContracts);
+    }
+
+} with (noOperations, s) 
+
+// toggle adding and removal of contract addresses
+function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
+block{
+
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+ 
+    var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
+
+    if (inContractAddressesBool) then block{
+        // whitelist contract exists - remove whitelist contract from set 
+        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
+    } else block {
+        // whitelist contract does not exist - add whitelist contract to set 
+        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
     }
 
 } with (noOperations, s) 
@@ -339,17 +390,27 @@ block {
   if stakeAmount = 0n then failwith("You have to stake more than 0 MVK tokens.")
     else skip;
 
+  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. MVK Token Contract is not found.")
+  end;
+
+  const delegationAddress : address = case s.contractAddresses["delegation"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. Delegation Contract is not found.")
+  end;
+        
   // update user's MVK balance -> increase user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
       (Tezos.sender, stakeAmount, "stake"),
       0tez,
-      updateUserBalanceInMvkContract(s.mvkTokenAddress)
+      updateUserBalanceInMvkContract(mvkTokenAddress)
     );
 
   const updateSatelliteBalanceOperation : operation = Tezos.transaction(
     (Tezos.sender, stakeAmount, 1n),
     0tez,
-    updateSatelliteBalance(s.delegationAddress)
+    updateSatelliteBalance(delegationAddress)
   );
 
   // list of operations: burn mvk tokens first, then mint vmvk tokens
@@ -425,8 +486,13 @@ block {
   if unstakeAmount = 0n then failwith("You have to unstake more than 0 MVK tokens.")
     else skip;
 
+  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. MVK Token Contract is not found.")
+  end;
+
   // update temp MVK total supply
-  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, updateMvkTotalSupplyForDoorman(s.mvkTokenAddress));
+  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, updateMvkTotalSupplyForDoorman(mvkTokenAddress));
 
   // list of operations: get MVK total supply first, then get vMVK total supply (which will trigger unstake complete)
   const operations : list(operation) = list [updateMvkTotalSupplyProxyOperation];
@@ -439,6 +505,8 @@ function unstakeComplete(const unstakeAmount : nat; var s : storage) : return is
 block {
 
   checkSenderIsMvkTokenContract(s);
+
+  // todo: use scalefactor of 10^18
 
   const scaleFactor : nat = 1000000n;                // mu (10^6) - can be adjusted for greater accuracy by increasing the value
   const percentageFactor : nat = scaleFactor / 100n; // with mu, percentageFactor returns 10000n
@@ -477,18 +545,28 @@ block {
   var userBalanceInStakeBalanceLedger : nat := abs(userBalanceInStakeBalanceLedger - unstakeAmount); 
   s.userStakeBalanceLedger[Tezos.source] := userBalanceInStakeBalanceLedger;
 
+  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. MVK Token Contract is not found.")
+  end;
+
+  const delegationAddress : address = case s.contractAddresses["delegation"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. Delegation Contract is not found.")
+  end;
+
   // update user's MVK balance -> increase user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (Tezos.source, unstakeAmount, "unstake"),
+      (Tezos.source, finalAmount, "unstake"),
       0tez,
-      updateUserBalanceInMvkContract(s.mvkTokenAddress)
+      updateUserBalanceInMvkContract(mvkTokenAddress)
     );
 
   // update satellite balance if user is delegated to a satellite
   const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (Tezos.source, unstakeAmount, 0n),
+      (Tezos.source, finalAmount, 0n),
       0tez,
-      updateSatelliteBalance(s.delegationAddress)
+      updateSatelliteBalance(delegationAddress)
     );
 
   // create list of operations
@@ -519,13 +597,18 @@ block {
   userRecordInStakeLedger[lastRecordIndex] := newStakeRecord;
   s.userStakeRecordsLedger[Tezos.source] := userRecordInStakeLedger;
 
-  // update exit fee pool's staked balance in staked balance ledger
-  var exitFeePoolBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[s.exitFeePoolAddress] of
-      Some(_val) -> _val
-      | None -> 0n
-  end;
-  var exitFeePoolBalanceInStakeBalanceLedger : nat := exitFeePoolBalanceInStakeBalanceLedger + exitFeeRecord; 
-  s.userStakeBalanceLedger[s.exitFeePoolAddress] := exitFeePoolBalanceInStakeBalanceLedger;
+  // const exitFeePoolAddress : address = case s.contractAddresses["exitFeePool"] of
+  //     Some(_address) -> _address
+  //     | None -> failwith("Error. Exit Fee Pool Contract is not found.")
+  // end;
+
+  // // update exit fee pool's staked balance in staked balance ledger
+  // var exitFeePoolBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[exitFeePoolAddress] of
+  //     Some(_val) -> _val
+  //     | None -> 0n
+  // end;
+  // var exitFeePoolBalanceInStakeBalanceLedger : nat := exitFeePoolBalanceInStakeBalanceLedger + exitFeeRecord; 
+  // s.userStakeBalanceLedger[exitFeePoolAddress] := exitFeePoolBalanceInStakeBalanceLedger;
 
 } with (operations, s)
 
@@ -546,14 +629,19 @@ block {
   // only the exit fee pool can call this entrypoint
   checkSenderIsExitFeePoolContract(s);
 
+  const exitFeePoolAddress : address = case s.contractAddresses["exitFeePool"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. Exit Fee Pool Contract is not found.")
+  end;
+
   // check if exit fee pool address exists in stake record ledger 
-  var exitFeePoolRecordInStakeRecordLedger : map(nat, stakeRecordType) := case s.userStakeRecordsLedger[s.exitFeePoolAddress] of
+  var exitFeePoolRecordInStakeRecordLedger : map(nat, stakeRecordType) := case s.userStakeRecordsLedger[exitFeePoolAddress] of
       | Some(_val) -> _val
       | None -> map[]
   end;
 
   // check if exit fee pool address exist in stake balance ledger
-  var exitFeePoolBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[s.exitFeePoolAddress] of
+  var exitFeePoolBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[exitFeePoolAddress] of
       | Some(_val) -> _val
       | None -> failwith("Exit Fee Pool Balance not found in stake balance ledger.")
   end;
@@ -576,10 +664,10 @@ block {
   
   // reduce exit fee pool by exit fee reward to be distributed
   var exitFeePoolBalanceInStakeBalanceLedger : nat := abs(exitFeePoolBalanceInStakeBalanceLedger - exitFeeReward); 
-  s.userStakeBalanceLedger[s.exitFeePoolAddress] := exitFeePoolBalanceInStakeBalanceLedger;
+  s.userStakeBalanceLedger[exitFeePoolAddress] := exitFeePoolBalanceInStakeBalanceLedger;
 
   // check last index of records in exitFeePoolRecordInStakeRecordLedger
-  if size(exitFeePoolRecordInStakeRecordLedger) = 0n then s.userStakeRecordsLedger[s.exitFeePoolAddress] := exitFeePoolRecordInStakeRecordLedger
+  if size(exitFeePoolRecordInStakeRecordLedger) = 0n then s.userStakeRecordsLedger[exitFeePoolAddress] := exitFeePoolRecordInStakeRecordLedger
     else skip;
 
   const exitFeePoollastRecordIndex : nat = size(exitFeePoolRecordInStakeRecordLedger);
@@ -598,7 +686,7 @@ block {
       ]
    end;
    exitFeePoolRecordInStakeRecordLedger[exitFeePoollastRecordIndex] := newExitFeePoolDistributedRewardRecord;
-   s.userStakeRecordsLedger[s.exitFeePoolAddress] := exitFeePoolRecordInStakeRecordLedger;
+   s.userStakeRecordsLedger[exitFeePoolAddress] := exitFeePoolRecordInStakeRecordLedger;
 
   // ---- do the opposite for user ----
   
@@ -607,7 +695,7 @@ block {
   s.userStakeBalanceLedger[userAddress] := userBalanceInStakeBalanceLedger;
 
   // check last index of records in userRecordInStakeRecordLedger 
-  if size(userRecordInStakeRecordLedger) = 0n then s.userStakeRecordsLedger[s.exitFeePoolAddress] := exitFeePoolRecordInStakeRecordLedger
+  if size(userRecordInStakeRecordLedger) = 0n then s.userStakeRecordsLedger[exitFeePoolAddress] := exitFeePoolRecordInStakeRecordLedger
     else skip;
   
   const userlastRecordIndex : nat = size(userRecordInStakeRecordLedger);
@@ -628,34 +716,44 @@ block {
    userRecordInStakeRecordLedger[userlastRecordIndex] := newUserExitFeeRewardRecord;
    s.userStakeRecordsLedger[userAddress] := userRecordInStakeRecordLedger;
 
+  // const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+  //     Some(_address) -> _address
+  //     | None -> failwith("Error. MVK Token Contract is not found.")
+  // end;
+
+  // const delegationAddress : address = case s.contractAddresses["delegation"] of
+  //     Some(_address) -> _address
+  //     | None -> failwith("Error. Delegation Contract is not found.")
+  // end;
+
    // update user's MVK balance
-  const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (userAddress, exitFeeReward, "stake"),
-      0tez,
-      updateUserBalanceInMvkContract(s.mvkTokenAddress)
-    );
+  // const updateUserMvkBalanceOperation : operation = Tezos.transaction(
+  //     (userAddress, exitFeeReward, "stake"),
+  //     0tez,
+  //     updateUserBalanceInMvkContract(mvkTokenAddress)
+  //   );
+
 
   // update satellite balance if user is delegated to a satellite
-  const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (userAddress, exitFeeReward, 1n),
-      0tez,
-      updateSatelliteBalance(s.delegationAddress)
-    );
+  // const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+  //     (userAddress, exitFeeReward, 1n),
+  //     0tez,
+  //     updateSatelliteBalance(delegationAddress)
+  //   );
 
   // create list of operations
-  const operations : list(operation) = list [updateUserMvkBalanceOperation; updateSatelliteBalanceOperation];
+  // const operations : list(operation) = list [updateUserMvkBalanceOperation; updateSatelliteBalanceOperation];
+  // const operations : list(operation) = list [updateSatelliteBalanceOperation];
 
-} with (operations, s)
+} with (noOperations, s)
 
 (* Main entrypoint *)
 function main (const action : stakeAction; const s : storage) : return is
   case action of
-  | Stake(parameters) -> stake(parameters, s)  
-  | Unstake(parameters) -> unstake(parameters, s)  
-  | UnstakeComplete(parameters) -> unstakeComplete(parameters, s)  
   | SetAdmin(parameters) -> setAdmin(parameters, s)  
-  | DistributeExitFeeReward(parameters) -> distributeExitFeeReward(parameters.0, parameters.1, s)
-  | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+  | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters.0, parameters.1, s)
+  | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
+  | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
 
   | PauseAll(_parameters) -> pauseAll(s)
   | UnpauseAll(_parameters) -> unpauseAll(s)
@@ -664,9 +762,10 @@ function main (const action : stakeAction; const s : storage) : return is
 
   | GetStakedBalance(params) -> getStakedBalance(params.0, params.1, s)
   | GetSatelliteBalance(params) -> getSatelliteBalance(params.0, params.1, params.2, params.3, params.4, params.5, s)
-
-  | SetMvkTokenAddress(parameters) -> setMvkTokenAddress(parameters, s)   
-  | SetDelegationAddress(parameters) -> setDelegationAddress(parameters, s)  
-  | SetExitFeePoolAddress(parameters) -> setExitFeePoolAddress(parameters, s)  
-  | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
+  
+  | Stake(parameters) -> stake(parameters, s)  
+  | Unstake(parameters) -> unstake(parameters, s)  
+  | UnstakeComplete(parameters) -> unstakeComplete(parameters, s)  
+  | DistributeExitFeeReward(parameters) -> distributeExitFeeReward(parameters.0, parameters.1, s)
+  
   end
