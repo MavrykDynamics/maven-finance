@@ -74,7 +74,7 @@ export const StakeUnstakeInputCheck = styled.div<{ inputOk: boolean; accountPkh?
 `
 export const StakeUnstakeErrorMessage = styled.div<{ inputOk: boolean; accountPkh?: string }>`
   color: ${({ inputOk }) => (inputOk ? upColor : downColor)};
-  font-size: 12ípx;
+  font-size: 12px;
   font-weight: 600;
 `
 
