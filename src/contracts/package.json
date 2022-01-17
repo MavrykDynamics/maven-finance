@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
-    "@taquito/taquito": "^11.0.1",
+    "@taquito/taquito": "^11.1.0",
     "@types/jest": "^27.0.3",
     "@types/mocha": "^9.0.0",
     "@types/yargs": "^17.0.7",
