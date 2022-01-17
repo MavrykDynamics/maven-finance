@@ -6,6 +6,7 @@ import { confirmOperation } from "../scripts/confirmation";
 
 const chai = require("chai");
 const assert = require("chai").assert;
+const { createHash } = require("crypto")
 const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);   
 chai.should();
@@ -992,7 +993,7 @@ describe("MVK Token", async () => {
                 const operation = await tokenInstance.methods.onStakeChange(
                     alice.pkh,
                     1000,
-                    'stake'
+                    'stakeAction'
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -1011,7 +1012,7 @@ describe("MVK Token", async () => {
                 const operation = await tokenInstance.methods.onStakeChange(
                     alice.pkh,
                     1000,
-                    'stake'
+                    'stakeAction'
                 ).send();
                 await operation.confirmation();
 
@@ -1035,7 +1036,7 @@ describe("MVK Token", async () => {
                 const operation = await tokenInstance.methods.onStakeChange(
                     alice.pkh,
                     aliceBalance,
-                    'stake'
+                    'stakeAction'
                 ).send();
                 await operation.confirmation();
 
@@ -1059,7 +1060,7 @@ describe("MVK Token", async () => {
                 const operation = await tokenInstance.methods.onStakeChange(
                     alice.pkh,
                     aliceBalance + 1,
-                    'stake'
+                    'stakeAction'
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -1079,7 +1080,7 @@ describe("MVK Token", async () => {
                 const operation = await tokenInstance.methods.onStakeChange(
                     alice.pkh,
                     1000,
-                    'unstake'
+                    'unstakeAction'
                 ).send();
                 await operation.confirmation();
             } catch(e){
@@ -1098,7 +1099,7 @@ describe("MVK Token", async () => {
                 const operation = await tokenInstance.methods.onStakeChange(
                     alice.pkh,
                     1000,
-                    'unstake'
+                    'unstakeAction'
                 ).send();
                 await operation.confirmation();
 
@@ -1114,19 +1115,98 @@ describe("MVK Token", async () => {
         });
     })
 
-    // describe('%updateMvkTotalSupplyForDoorman', function() {
-    //     it('Updates Doorman MVK total supply for a known doorman in the token contract', async() => {
-    //         try{
-    //             const doormanInstance = await utils.tezos.contract.at(doormanAddress.address);
+    describe('%updateMvkTotalSupplyForDoorman', function() {
+        it('Updates Doorman MVK total supply for a known doorman in the token contract', async() => {
+            try{
+                const doormanInstance = await utils.tezos.contract.at(doormanAddress.address);
 
-    //             // Doorman calls
-    //             const stakeOperation = await doormanInstance.methods.stake(2000).send();
-    //             await stakeOperation.confirmation();
-    //             const unstakeOperation = await doormanInstance.methods.unstake(1000).send();
-    //             await unstakeOperation.confirmation();
-    //         } catch(e){
-    //             console.log(e)
-    //         }
-    //     });
-    // })
+                // Doorman calls
+                const stakeOperation = await doormanInstance.methods.stake(2000).send();
+                await stakeOperation.confirmation();
+                const unstakeOperation = await doormanInstance.methods.unstake(1000).send();
+                await unstakeOperation.confirmation();
+            } catch(e){
+                console.log(e)
+            }
+        });
+
+        it('Updates Doorman MVK total supply for a unknown doorman or vesting contract in the token contract', async() => {
+            try{
+                const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('doorman', alice.pkh).send();
+                await whitelistAliceOperationAdd.confirmation();
+
+                const doormanInstance = await utils.tezos.contract.at(doormanAddress.address);
+
+                // Doorman calls
+                const stakeOperation = await doormanInstance.methods.stake(2000).send();
+                await stakeOperation.confirmation();
+                const unstakeOperation = await doormanInstance.methods.unstake(1000).send();
+                await unstakeOperation.confirmation();
+            } catch(e){
+                const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('doorman', alice.pkh).send();
+                await whitelistAliceOperationRemove.confirmation();
+                assert.equal(e.message, 'ONLY_WHITELISTED_CONTRACTS_ALLOWED', "This entrypoint should only be called by whitelisted contracts");
+            }
+        });
+    })
+
+    describe('%assertMetadata', function() {
+        it('Checks an unexisting value in the metadata', async() => {
+            try{
+                const metadata = Buffer.from(
+                    'test',
+                    'ascii',
+                  ).toString('hex')
+                const operation = await tokenInstance.methods.assertMetadata('test',metadata).send();
+                await operation.confirmation();
+            } catch(e){
+                assert.strictEqual(e.message, 'METADATA_NOT_FOUND', 'The metadata should not be found in the contract storage')
+            }
+        });
+        it('Checks a value with a correct key but a wrong hash in the metadata', async() => {
+            try{
+                const metadata = Buffer.from(
+                    'test',
+                    'ascii',
+                  ).toString('hex')
+                const operation = await tokenInstance.methods.assertMetadata('',metadata).send();
+                await operation.confirmation();
+            } catch(e){
+                assert.strictEqual(e.message, 'METADATA_HAS_A_WRONG_HASH', 'The metadata equal to the provided key should not be equal to the provided metata')
+            }
+        });
+        it('Checks a value with a correct key and a correct hash in the metadata', async() => {
+            try{
+                const metadata = Buffer.from(
+                    JSON.stringify({
+                      version: 'v1.0.0',
+                      description: 'MAVRYK Token',
+                      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                      source: {
+                        tools: ['Ligo', 'Flextesa'],
+                        location: 'https://ligolang.org/',
+                      },
+                      interfaces: ['TZIP-7', 'TZIP-16', 'TZIP-21'],
+                      errors: [],
+                      views: [],
+                      assets: [
+                        {
+                          symbol: Buffer.from('MVK').toString('hex'),
+                          name: Buffer.from('MAVRYK').toString('hex'),
+                          decimals: Buffer.from('6').toString('hex'),
+                          icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
+                          shouldPreferSymbol: true,
+                          thumbnailUri: 'https://mavryk.finance/logo192.png'
+                        }
+                      ]
+                    }),
+                    'ascii',
+                  ).toString('hex')
+                const operation = await tokenInstance.methods.assertMetadata('data',metadata).send();
+                await operation.confirmation();
+            } catch(e){
+                console.log(e)
+            }
+        });
+    })
 });

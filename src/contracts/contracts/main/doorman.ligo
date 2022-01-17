@@ -49,6 +49,9 @@ type getSatelliteBalanceType is (address * string * string * string * nat * cont
 type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
 type updateWhitelistContractParams is (string * address)
 type updateContractAddressesParams is (string * address)
+type stakeType is 
+  StakeAction of unit
+| UnstakeAction of unit
 
 type stakeAction is 
 
@@ -206,12 +209,12 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(ud
 //   | None -> (failwith("updateUserBalance entrypoint in Token Contract not found") : contract(address * nat))
 //   end;
 
-  function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * string) is
+  function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * stakeType) is
   case (Tezos.get_entrypoint_opt(
       "%onStakeChange",
-      tokenAddress) : option(contract(address * nat * string))) of
+      tokenAddress) : option(contract(address * nat * stakeType))) of
     Some(contr) -> contr
-  | None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(address * nat * string))
+  | None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(address * nat * stakeType))
   end;
 
 (* ---- Helper functions end ---- *)
@@ -402,7 +405,7 @@ block {
         
   // update user's MVK balance -> increase user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (Tezos.sender, stakeAmount, "stake"),
+      (Tezos.sender, stakeAmount, (StakeAction: stakeType)),
       0tez,
       updateUserBalanceInMvkContract(mvkTokenAddress)
     );
@@ -557,7 +560,7 @@ block {
 
   // update user's MVK balance -> increase user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (Tezos.source, finalAmount, "unstake"),
+      (Tezos.source, unstakeAmount, (UnstakeAction: stakeType)),
       0tez,
       updateUserBalanceInMvkContract(mvkTokenAddress)
     );
@@ -728,7 +731,7 @@ block {
 
    // update user's MVK balance
   // const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-  //     (userAddress, exitFeeReward, "stake"),
+  //     (userAddress, exitFeeReward, (StakeAction: stakeType)),
   //     0tez,
   //     updateUserBalanceInMvkContract(mvkTokenAddress)
   //   );

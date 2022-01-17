@@ -91,8 +91,8 @@ type mintParams is (owner * tokenBalance)
 type burnParams is (owner * tokenBalance)
 (* OnStakeChange entrypoint inputs *)
 type stakeType is 
-  Stake of unit
-| Unstake of unit
+  StakeAction of unit
+| UnstakeAction of unit
 type onStakeChangeParams is (owner * tokenBalance * stakeType)
 (* Update_whitelist_contract entrypoint inputs *)
 type updateWhitelistContractsParams is (string * address)
@@ -292,11 +292,11 @@ function updateOperators(const updateOperatorsParams: updateOperatorsParams; con
 (* AssertMetadata Entrypoint *)
 function assertMetadata(const assertMetadataParams: assertMetadataParams; const store: storage): return is
   block{
-    const key: string = assertMetadataParams.key;
-    const hash: bytes = assertMetadataParams.hash;
-    case Big_map.find_opt(key, store.metadata) of
-      Some (v) -> if v =/= hash then failwith("METADATA_HAS_A_WRONG_HASH") else skip
-    | None -> failwith("METADATA_NOT_FOUND")
+    const metadataKey: string = assertMetadataParams.key;
+    const metadataHash: bytes = assertMetadataParams.hash;
+    case Big_map.find_opt(metadataKey, store.metadata) of
+      Some (v) -> if v =/= metadataHash then failwith("METADATA_HAS_A_WRONG_HASH") else skip
+    | None -> failwith("NOT_FOUND")
     end
   } with (noOperations, store)
 
@@ -350,7 +350,7 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParams; const sto
     const stakeType: stakeType = onStakeChangeParams.2;
 
     case stakeType of
-      Stake (_v) -> block{
+      StakeAction (_v) -> block{
         // stake -> decrease user balance in mvk ledger 
         (* Balance check *)
         checkBalance(ownerBalance, value);
@@ -359,7 +359,7 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParams; const sto
       }
       // unstake -> increase user balance in mvk ledger
       // claim   -> increase user balance in mvk ledger (from vesting)
-    | Unstake (_v) -> ownerBalance := ownerBalance + value
+    | UnstakeAction (_v) -> ownerBalance := ownerBalance + value
     end;
 
     (* Update ledger *)

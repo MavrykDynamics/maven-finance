@@ -86,8 +86,9 @@
                {} } ;
          LAMBDA
            address
-           (contract (pair (pair address nat) string))
-           { CONTRACT %onStakeChange (pair (pair address nat) string) ;
+           (contract (pair (pair address nat) (or unit unit)))
+           { CONTRACT %onStakeChange
+               (pair (pair address nat) (or (unit %stakeAction) (unit %unstakeAction))) ;
              IF_NONE
                { PUSH string "onStakeChange entrypoint in Token Contract not found" ;
                  FAILWITH }
@@ -434,7 +435,8 @@
                          SWAP ;
                          EXEC ;
                          PUSH mutez 0 ;
-                         PUSH string "stake" ;
+                         UNIT ;
+                         LEFT unit ;
                          DUP 7 ;
                          DUP 7 ;
                          PAIR ;
@@ -754,7 +756,8 @@
                          SWAP ;
                          EXEC ;
                          PUSH mutez 0 ;
-                         PUSH string "stake" ;
+                         UNIT ;
+                         LEFT unit ;
                          DUP 5 ;
                          SENDER ;
                          PAIR ;
@@ -1418,7 +1421,8 @@
                          SWAP ;
                          EXEC ;
                          PUSH mutez 0 ;
-                         PUSH string "unstake" ;
+                         UNIT ;
+                         RIGHT unit ;
                          DUP 9 ;
                          SOURCE ;
                          PAIR ;
