@@ -25,7 +25,7 @@ const metadata = MichelsonMap.fromLiteral({
             tools: ['Ligo', 'Flextesa'],
             location: 'https://ligolang.org/',
           },
-          interfaces: ['TZIP-7', 'TZIP-16', 'TZIP-21'],
+          interfaces: ['TZIP-7', 'TZIP-12', 'TZIP-16', 'TZIP-21'],
           errors: [],
           views: [],
           assets: [

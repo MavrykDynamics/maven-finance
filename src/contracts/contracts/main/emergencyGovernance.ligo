@@ -91,10 +91,10 @@ function getTokenTotalSupply(const tokenAddress : address) : contract(unit * con
 // helper function to get User's MVK balance from MVK token address
 function fetchMvkBalance(const tokenAddress : address) : contract(address * contract(nat)) is
   case (Tezos.get_entrypoint_opt(
-      "%getBalance",
+      "%balance_of",
       tokenAddress) : option(contract(address * contract(nat)))) of
     Some(contr) -> contr
-  | None -> (failwith("GetBalance entrypoint in MVK Token Contract not found") : contract(address * contract(nat)))
+  | None -> (failwith("Balance_of entrypoint in MVK Token Contract not found") : contract(address * contract(nat)))
   end;
 
 // helper function to break glass in the governance or breakGlass contract
