@@ -8,10 +8,12 @@ export type councilStorageType = {
   councilMembers: Array<string>;
 
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
-  contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
   councilActionsLedger: MichelsonMap<MichelsonMapKey, unknown>;
 
   thresholdSigners: BigNumber;
   actionCounter: BigNumber;
+
+  tempString: string;
 };

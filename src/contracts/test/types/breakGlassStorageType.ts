@@ -6,7 +6,7 @@ export type breakGlassStorageType = {
   admin: string;
   config: {};
 
-  contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
   glassBroken: boolean;
 
   councilMembers: [];

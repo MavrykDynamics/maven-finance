@@ -1,3 +1,9 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
+
 // Stores all voter data during proposal round
 type proposalRoundVoteType is (nat * timestamp)       // total voting power (MVK) * timestamp
 type passVotersMapType is map (address, proposalRoundVoteType)
@@ -74,9 +80,6 @@ type configType is record [
     blocksPerVotingRound        : nat;  // to determine duration of voting round
 ]
 
-type whitelistContractsType is map (string, address)
-type contractAddressesMapType is map(string, address)
-
 type activeSatellitesMapType is map(address, timestamp) // satellite address, timestamp of when satellite was added to the active satellites map
 
 type storage is record [
@@ -84,7 +87,7 @@ type storage is record [
     config                      : configType;
 
     whitelistContracts          : whitelistContractsType;      
-    contractAddresses           : contractAddressesMapType; 
+    generalContracts            : generalContractsType; 
     
     proposalLedger              : proposalLedgerType;
     snapshotLedger              : snapshotLedgerType;
@@ -109,14 +112,11 @@ type storage is record [
     tempFlag : nat;  // test variable - currently used to show block levels per transaction
 ]
 
-type updateWhitelistContractParams is (string * address)
-type updateContractAddressesParams is (string * address)
-
 type governanceAction is 
     | BreakGlass of (unit)
     | SetAdmin of (address)
-    | UpdateWhitelistContracts of updateWhitelistContractParams
-    | UpdateContractAddresses of updateContractAddressesParams
+    | UpdateWhitelistContracts of updateWhitelistContractsParams
+    | UpdateGeneralContracts of updateGeneralContractsParams
     
     | StartProposalRound of (unit)
     | Propose of newProposalType
@@ -146,7 +146,7 @@ function checkSenderIsAdminOrSelf(var s : storage) : unit is
 
 function checkSenderIsDelegationContract(var s : storage) : unit is
 block{
-  const delegationAddress : address = case s.contractAddresses["delegation"] of
+  const delegationAddress : address = case s.generalContracts["delegation"] of
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found.")
   end;
@@ -156,7 +156,7 @@ block{
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
 block{
-  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
       Some(_address) -> _address
       | None -> failwith("Error. MVK Token Contract is not found.")
   end;
@@ -166,7 +166,7 @@ block{
 
 function checkSenderIsEmergencyGovernanceContract(var s : storage) : unit is
 block{
-  const emergencyGovernanceAddress : address = case s.contractAddresses["emergencyGovernance"] of
+  const emergencyGovernanceAddress : address = case s.generalContracts["emergencyGovernance"] of
       Some(_address) -> _address
       | None -> failwith("Error. Emergency Governance Contract is not found.")
   end;
@@ -181,60 +181,11 @@ function checkNoAmount(const _p : unit) : unit is
 
 // helper functions begin: --
 
-function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inWhitelistContractsMap : bool := False;
-  for _key -> value in map s.whitelistContracts block {
-    if contractAddress = value then inWhitelistContractsMap := True
-      else skip;
-  }  
-} with inWhitelistContractsMap
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
 
-function checkInContractAddresses(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inContractAddressMap : bool := False;
-  for _key -> value in map s.contractAddresses block {
-    if contractAddress = value then inContractAddressMap := True
-      else skip;
-  }  
-} with inContractAddressMap
-
-// toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractName : string; const contractAddress : address; const store : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(store); // check that sender is admin
-    
-    const exitingAddress: option(address) = 
-      if checkInWhitelistContracts(contractAddress, store) then (None : option(address)) else Some (contractAddress);
-
-    const updatedWhitelistedContracts: whitelistContractsType = 
-      Map.update(
-        contractName, 
-        exitingAddress,
-        store.whitelistContracts
-      );
-  } with (noOperations, store with record[whitelistContracts=updatedWhitelistedContracts]) 
-
-// toggle adding and removal of contract addresses
-function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
- 
-    var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
-
-    if (inContractAddressesBool) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
-    }
-
-} with (noOperations, s) 
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
 
 // helper function to fetch satellite's balance and total delegated amount from delegation contract
 function fetchSatelliteBalanceAndTotalDelegatedAmount(const tokenAddress : address) : contract(address * contract(address * nat * nat)) is
@@ -418,14 +369,14 @@ block {
     // check that sender is from emergency governance contract 
     checkSenderIsEmergencyGovernanceContract(s);
 
-    const _breakGlassAddress : address = case s.contractAddresses["breakGlass"] of
+    const _breakGlassAddress : address = case s.generalContracts["breakGlass"] of
       Some(_address) -> _address
       | None -> failwith("Error. Break Glass Contract is not found")
     end;
 
 
     var operations : list(operation) := nil;
-    for _contractName -> contractAddress in map s.contractAddresses block {
+    for _contractName -> contractAddress in map s.generalContracts block {
         const pauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
             unit, 
             0tez, 
@@ -521,12 +472,12 @@ block {
     s.currentRoundHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
     s.currentRoundTimelockProposalId       := 0n;                  // flush proposal id in timelock - reset to 0
 
-    const delegationAddress : address = case s.contractAddresses["delegation"] of
+    const delegationAddress : address = case s.generalContracts["delegation"] of
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found")
     end;
 
-    const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+    const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
       Some(_address) -> _address
       | None -> failwith("Error. MVK Token Contract is not found")
     end;
@@ -948,8 +899,8 @@ function main (const action : governanceAction; const s : storage) : return is
     case action of
         | BreakGlass(_parameters) -> breakGlass(s)  
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters.0, parameters.1, s)
-        | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
+        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
   
         | StartProposalRound(_parameters) -> startProposalRound(s)
         | Propose(parameters) -> propose((parameters.0, parameters.1, parameters.2), s)

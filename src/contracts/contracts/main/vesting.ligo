@@ -1,3 +1,9 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
+
 type mintTokenType is (address * nat)
 
 type blockLevel is nat; 
@@ -58,15 +64,12 @@ type vesteeRecordType is record [
 ] 
 type vesteeLedgerType is big_map(address, vesteeRecordType) // address, vestee record
 
-type whitelistContractsType is map (string, address)
-type contractAddressesType is map (string, address)
-
 type storage is record [
     admin               : address;
     config              : configType;
 
-    whitelistContracts    : whitelistContractsType;      
-    contractAddresses     : contractAddressesType;
+    whitelistContracts  : whitelistContractsType;      
+    generalContracts    : generalContractsType;
 
     claimLedger         : claimLedgerType;
     vesteeLedger        : vesteeLedgerType;
@@ -83,15 +86,13 @@ type storage is record [
     
 type addVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
 type updateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
-type updateWhitelistContractParams is (string * address)
-type updateContractAddressesParams is (string * address)
 
 type vestingAction is 
     
     | Claim of (unit)
     | GetVestedBalance of (address * contract(nat))
-    | UpdateWhitelistContracts of updateWhitelistContractParams
-    | UpdateContractAddresses of updateContractAddressesParams
+    | UpdateWhitelistContracts of updateWhitelistContractsParams
+    | UpdateGeneralContracts of updateGeneralContractsParams
     | GetTotalVested of contract(nat)
     
     | AddVestee of (addVesteeType)
@@ -111,24 +112,6 @@ function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
-function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inWhitelistContractsMap : bool := False;
-  for _key -> value in map s.whitelistContracts block {
-    if contractAddress = value then inWhitelistContractsMap := True
-      else skip;
-  }  
-} with inWhitelistContractsMap
-
-function checkInContractAddresses(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inContractAddressMap : bool := False;
-  for _key -> value in map s.contractAddresses block {
-    if contractAddress = value then inContractAddressMap := True
-      else skip;
-  }  
-} with inContractAddressMap
-
 // function checkSenderIsCouncil(var s : storage) : unit is
 //     if (Tezos.sender = s.councilAddress) then unit
 //     else failwith("Only the council contract can call this entrypoint.");
@@ -142,42 +125,11 @@ function checkNoAmount(const _p : unit) : unit is
     else failwith("This entrypoint should not receive any tez.");
 // admin helper functions end ---------------------------------------------------------
 
-// toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractName : string; const contractAddress : address; const store : storage) : return is 
-block{
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(store); // check that sender is admin
-    
-    const exitingAddress: option(address) = 
-      if checkInWhitelistContracts(contractAddress, store) then (None : option(address)) else Some (contractAddress);
-
-    const updatedWhitelistedContracts: whitelistContractsType = 
-      Map.update(
-        contractName, 
-        exitingAddress,
-        store.whitelistContracts
-      );
-  } with (noOperations, store with record[whitelistContracts=updatedWhitelistedContracts]) 
-
-// toggle adding and removal of contract addresses
-function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
- 
-    var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
-
-    if (inContractAddressesBool) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
-    }
-
-} with (noOperations, s) 
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
 
 // helper function to update user's staked balance in doorman contract after vesting
 function vestingUpdateStakedBalanceInDoorman(const contractAddress : address) : contract(address * nat) is
@@ -268,7 +220,7 @@ block {
         // get total claim amount
         const totalClaimAmount = _vestee.claimAmountPerMonth * numberOfClaimMonths;  
 
-        const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+        const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
             Some(_address) -> _address
             | None -> failwith("Error. MVK Token Contract is not found.")
         end;
@@ -553,8 +505,8 @@ block {
 
 function main (const action : vestingAction; const s : storage) : return is 
     case action of
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters.0, parameters.1, s)
-        | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
+        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
         | Claim(_params) -> claim(s)
         | AddVestee(params) -> addVestee(params.0, params.1, params.2, params.3, s)
         | RemoveVestee(params) -> removeVestee(params, s)

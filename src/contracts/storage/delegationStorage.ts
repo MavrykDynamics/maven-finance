@@ -29,11 +29,9 @@ export const delegationStorage: delegationStorageType = {
   breakGlassConfig: breakGlassConfig,
 
   whitelistContracts : MichelsonMap.fromLiteral({}),
-  contractAddresses: MichelsonMap.fromLiteral({}),
+  generalContracts: MichelsonMap.fromLiteral({}),
   
   delegateLedger: MichelsonMap.fromLiteral({}),
   satelliteLedger: MichelsonMap.fromLiteral({}),
   
-
-
 };
