@@ -356,7 +356,7 @@ block {
       | None -> failwith("Error. Delegation Contract is not found.")
   end;
         
-  // update user's MVK balance -> increase user balance in mvk ledger
+  // update user's MVK balance (stake) -> decrease user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
       (Tezos.sender, stakeAmount, (StakeAction: stakeType)),
       0tez,
@@ -516,16 +516,16 @@ block {
       | None -> failwith("Error. Delegation Contract is not found.")
   end;
 
-  // update user's MVK balance -> increase user balance in mvk ledger
+  // update user's MVK balance (unstake) -> increase user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (Tezos.source, unstakeAmount, (UnstakeAction: stakeType)),
+      (Tezos.source, finalAmount, (UnstakeAction: stakeType)),
       0tez,
       updateUserBalanceInMvkContract(mvkTokenAddress)
     );
 
   // update satellite balance if user is delegated to a satellite
   const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (Tezos.source, finalAmount, 0n),
+      (Tezos.source, unstakeAmount, 0n),
       0tez,
       updateSatelliteBalance(delegationAddress)
     );
