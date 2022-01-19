@@ -900,8 +900,13 @@
                              CAR ;
                              PAIR ;
                              DIG 2 ;
+<<<<<<< HEAD
+                             CAR ;
+=======
+>>>>>>> bab5837 (Preparing tests for farm with LP Token)
                              CAR ;
                              CAR ;
+                             PAIR ;
                              PAIR ;
                              PAIR ;
                              SWAP ;
@@ -1760,8 +1765,13 @@
                                   CAR ;
                                   PAIR ;
                                   DIG 2 ;
+<<<<<<< HEAD
+=======
+                                  CAR ;
+>>>>>>> bab5837 (Preparing tests for farm with LP Token)
                                   CAR ;
                                   CAR ;
+                                  PAIR ;
                                   PAIR ;
                                   PAIR ;
                                   SWAP ;
@@ -2075,13 +2085,107 @@
                          SWAP ;
                          EXEC ;
                          DROP ;
+<<<<<<< HEAD
                          SWAP ;
+=======
+                         PUSH string "delegationRatio" ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         COMPARE ;
+                         EQ ;
+                         IF { DUP 3 ;
+                              CDR ;
+                              DUP 4 ;
+                              CAR ;
+                              CDR ;
+                              CDR ;
+                              DUP 5 ;
+                              CAR ;
+                              CDR ;
+                              CAR ;
+                              UNPAIR ;
+                              CDR ;
+                              DUP 6 ;
+                              PAIR ;
+                              PAIR ;
+                              PAIR ;
+                              DIG 4 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR }
+                            { DIG 2 } ;
+                         PUSH string "minimumStakedMvkBalance" ;
+                         DUP 3 ;
+                         COMPARE ;
+                         EQ ;
+                         IF { DUP ;
+                              CDR ;
+                              SWAP ;
+                              DUP ;
+                              DUG 2 ;
+                              CAR ;
+                              CDR ;
+                              CDR ;
+                              DUP 5 ;
+                              DUP 4 ;
+                              CAR ;
+                              CDR ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR }
+                            {} ;
+                         PUSH string "maxSatellites" ;
+                         DIG 2 ;
+                         COMPARE ;
+                         EQ ;
+                         IF { DUP ;
+                              CDR ;
+                              SWAP ;
+                              DUP ;
+                              DUG 2 ;
+                              CAR ;
+                              CDR ;
+                              CDR ;
+                              DUP 3 ;
+                              CAR ;
+                              CDR ;
+                              CAR ;
+                              DUP ;
+                              CDR ;
+                              DIG 5 ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR ;
+                              PAIR ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR }
+                            { SWAP ; DROP } ;
+                         SWAP ;
+                         PAIR }
+                       { DIG 2 ;
+                         DROP ;
+                         SWAP ;
+>>>>>>> bab5837 (Preparing tests for farm with LP Token)
                          DUP ;
                          DUG 2 ;
                          DIG 3 ;
                          SWAP ;
                          EXEC ;
                          DROP ;
+<<<<<<< HEAD
                          UNPAIR ;
                          IF_LEFT
                            { IF_LEFT
@@ -2169,6 +2273,8 @@
                          SWAP ;
                          EXEC ;
                          DROP ;
+=======
+>>>>>>> bab5837 (Preparing tests for farm with LP Token)
                          DUP ;
                          CDR ;
                          DUP 3 ;
@@ -2178,8 +2284,13 @@
                          PUSH bool False ;
                          DIG 2 ;
                          CDR ;
+<<<<<<< HEAD
                          CAR ;
                          CAR ;
+=======
+                         CAR ;
+                         CAR ;
+>>>>>>> bab5837 (Preparing tests for farm with LP Token)
                          ITER { SWAP ;
                                 PAIR ;
                                 DUP ;

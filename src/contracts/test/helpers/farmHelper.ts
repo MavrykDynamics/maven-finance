@@ -3,11 +3,11 @@ import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
-import { councilStorageType } from "../types/councilStorageType";
+import { farmStorageType } from "../types/farmStorageType";
 
-export class Council {
+export class Farm {
     contract: Contract;
-    storage: councilStorageType;
+    storage: farmStorageType;
     tezos: TezosToolkit;
   
     constructor(contract: Contract, tezos: TezosToolkit) {
@@ -16,22 +16,22 @@ export class Council {
     }
   
     static async init(
-      councilContractAddress: string,
+      farmContractAddress: string,
       tezos: TezosToolkit
-    ): Promise<Council> {
-      return new Council(
-        await tezos.contract.at(councilContractAddress),
+    ): Promise<Farm> {
+      return new Farm(
+        await tezos.contract.at(farmContractAddress),
         tezos
       );
     }
 
     static async originate(
       tezos: TezosToolkit,
-      storage: councilStorageType
-    ): Promise<Council> {       
+      storage: farmStorageType
+    ): Promise<Farm> {       
 
       const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/council.json`).toString()
+        fs.readFileSync(`${env.buildDir}/farm.json`).toString()
       );
       const operation: OriginationOperation = await tezos.contract
         .originate({
@@ -46,7 +46,7 @@ export class Council {
   
       await confirmOperation(tezos, operation.hash);
   
-      return new Council(
+      return new Farm(
         await tezos.contract.at(operation.contractAddress),
         tezos
       );

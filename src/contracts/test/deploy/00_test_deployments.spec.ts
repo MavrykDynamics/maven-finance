@@ -10,9 +10,10 @@ const {
 const { InMemorySigner, importKey } = require("@taquito/signer");
 import assert, { ok, rejects, strictEqual } from "assert";
 import { Utils, zeroAddress } from "../helpers/Utils";
-import fs from "fs";
 import { confirmOperation } from "../../scripts/confirmation";
-const saveContractAddress = require("../../helpers/saveContractAddress")
+import saveContractAddress from "../../helpers/saveContractAddress"
+import { describe, before } from "mocha"
+// const saveContractAddress = require("../../helpers/saveContractAddress")
 import { MichelsonMap } from "@taquito/michelson-encoder";
 
 const chai = require("chai");
@@ -33,6 +34,8 @@ import { BreakGlass } from "../helpers/breakGlassHelper";
 import { EmergencyGovernance } from "../helpers/emergencyGovernanceHelper";
 import { Vesting } from "../helpers/vestingHelper";
 import { Council } from "../helpers/councilHelper";
+import { Farm } from "../helpers/farmHelper";
+import { LPToken } from "../helpers/testLPHelper";
 
 import { doormanStorage } from "../../storage/doormanStorage";
 import { delegationStorage } from "../../storage/delegationStorage";
@@ -42,6 +45,8 @@ import { breakGlassStorage } from "../../storage/breakGlassStorage";
 import { emergencyGovernanceStorage } from "../../storage/emergencyGovernanceStorage";
 import { vestingStorage } from "../../storage/vestingStorage";
 import { councilStorage } from "../../storage/councilStorage";
+import { farmStorage } from "../../storage/farmStorage";
+import { lpStorage } from "../../storage/testLPTokenStorage";
 
 describe("Contracts Deployment for Tests", async () => {
   var utils: Utils;
@@ -53,6 +58,8 @@ describe("Contracts Deployment for Tests", async () => {
   var emergencyGovernance : EmergencyGovernance;
   var vesting : Vesting;
   var council : Council;
+  var farm: Farm;
+  var lpToken: LPToken;
   var tezos;
   let deployedDoormanStorage;
   let deployedDelegationStorage;
@@ -164,6 +171,25 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("break glass contract originated")
 
+    lpToken = await LPToken.originate(
+      utils.tezos,
+      lpStorage
+    );
+
+    console.log("lp token contract originated")
+
+    farmStorage.generalContracts = MichelsonMap.fromLiteral({
+      "mvkToken"  : mvkToken.contract.address,
+      "reserve"   : alice.pkh,
+      "lpToken"   : lpToken.contract.address
+    });
+    farm = await Farm.originate(
+      utils.tezos,
+      farmStorage
+    );
+
+    console.log("farm contract originated")
+
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos;
@@ -227,6 +253,8 @@ describe("Contracts Deployment for Tests", async () => {
     await saveContractAddress("emergencyGovernanceAddress", emergencyGovernance.contract.address)
     await saveContractAddress("vestingAddress", vesting.contract.address)
     await saveContractAddress("councilAddress", council.contract.address)
+    await saveContractAddress("lpTokenAddress", lpToken.contract.address)
+    await saveContractAddress("farmAddress", farm.contract.address)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
@@ -260,6 +288,7 @@ describe("Contracts Deployment for Tests", async () => {
         console.log("MVK Token Contract deployed at:", mvkToken.contract.address);
         console.log("Vesting Contract deployed at:", vesting.contract.address);
         console.log("Council Contract deployed at:", council.contract.address);
+        console.log("Farm Contract deployed at:", farm.contract.address);
 
     } catch (e){
         console.log(e);
