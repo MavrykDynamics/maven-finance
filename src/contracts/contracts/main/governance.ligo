@@ -7,9 +7,12 @@ type votingRoundVoteType is (nat * nat * timestamp)       // 1 is Yay, 0 is Nay,
 type votersMapType is map (address, votingRoundVoteType)
 
 type newProposalType is (string * string * string) // title, description, invoice ipfs - add more if needed
+type proposalMetadataType is map (nat, bytes)
 
 type proposalRecordType is record [
+    
     proposerAddress      : address;
+    proposalMetadata     : proposalMetadataType;
 
     status               : nat;                     // status - active: 1, inactive (dropped): 0
     title                : string;                  // title
@@ -591,9 +594,11 @@ block {
     // const passVotersMap       : passVotersMapType     = map [Tezos.sender -> (satelliteTotalVotingPower, Tezos.now)];
     const emptyPassVotersMap  : passVotersMapType     = map [];
     const emptyVotersMap      : votersMapType         = map [];
+    const proposalMetadata    : proposalMetadataType  = map [];
 
     var newProposalRecord : proposalRecordType := record [
         proposerAddress         = Tezos.sender;
+        proposalMetadata        = proposalMetadata;
 
         status                  = 1n;                              // status: active - 1n | inactive/drop - 0n
         title                   = newProposal.0;                   // title
