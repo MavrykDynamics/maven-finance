@@ -1,3 +1,9 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
+
 type stakeRecordType is record [
     time              : timestamp;
     amount            : nat;    // MVK / vMvk in mu (10^6)
@@ -20,15 +26,12 @@ type breakGlassConfigType is record [
     unstakeIsPaused         : bool;
 ]
 
-type whitelistContractsType is map (string, address)
-type contractAddressesType is map (string, address)
-
 type storage is record [
 
     admin                 : address;
     
     whitelistContracts    : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    contractAddresses     : contractAddressesType;
+    generalContracts      : generalContractsType;
     
     breakGlassConfig      : breakGlassConfigType;
     
@@ -47,8 +50,7 @@ type return is list (operation) * storage
 
 type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
 type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
-type updateWhitelistContractParams is (string * address)
-type updateContractAddressesParams is (string * address)
+
 type stakeType is 
   StakeAction of unit
 | UnstakeAction of unit
@@ -56,8 +58,8 @@ type stakeType is
 type stakeAction is 
 
     | SetAdmin of (address)
-    | UpdateWhitelistContracts of updateWhitelistContractParams
-    | UpdateContractAddresses of updateContractAddressesParams
+    | UpdateWhitelistContracts of updateWhitelistContractsParams
+    | UpdateGeneralContracts of updateGeneralContractsParams
     | SetTempMvkTotalSupply of (nat)    
 
     | PauseAll of (unit)
@@ -80,27 +82,9 @@ function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Error. Only the administrator can call this entrypoint.");
 
-function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inWhitelistContractsMap : bool := False;
-  for _key -> value in map s.whitelistContracts block {
-    if contractAddress = value then inWhitelistContractsMap := True
-      else skip;
-  }  
-} with inWhitelistContractsMap
-
-function checkInContractAddresses(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inContractAddressMap : bool := False;
-  for _key -> value in map s.contractAddresses block {
-    if contractAddress = value then inContractAddressMap := True
-      else skip;
-  }  
-} with inContractAddressMap
-
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
 block{
-  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
       Some(_address) -> _address
       | None -> failwith("Error. MVK Token Contract is not found.")
   end;
@@ -110,7 +94,7 @@ block{
 
 function checkSenderIsExitFeePoolContract(var s : storage) : unit is
 block{
-    const exitFeePoolAddress : address = case s.contractAddresses["exitFeePool"] of
+    const exitFeePoolAddress : address = case s.generalContracts["exitFeePool"] of
         Some(_address) -> _address
         | None -> failwith("Error. Exit Fee Pool Contract is not found.")
     end;
@@ -120,7 +104,7 @@ block{
 
 function checkSenderIsDelegationContract(var s : storage) : unit is
 block{
-    const delegationAddress : address = case s.contractAddresses["delegation"] of
+    const delegationAddress : address = case s.generalContracts["delegation"] of
         Some(_address) -> _address
         | None -> failwith("Error. Delegation Contract is not found.")
     end;
@@ -131,6 +115,13 @@ block{
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
+
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to get token total supply (works for either MVK and vMVK)
@@ -334,43 +325,6 @@ function getSatelliteBalance (const userAddress : address; const name : string; 
       end;
   } with (list [transaction((name, description, image, satelliteFee, userBalanceInStakeBalanceLedger), 0tz, contr)], s)
 
-// toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractName : string; const contractAddress : address; const store : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(store); // check that sender is admin
-    
-    const exitingAddress: option(address) = 
-      if checkInWhitelistContracts(contractAddress, store) then (None : option(address)) else Some (contractAddress);
-
-    const updatedWhitelistedContracts: whitelistContractsType = 
-      Map.update(
-        contractName, 
-        exitingAddress,
-        store.whitelistContracts
-      );
-  } with (noOperations, store with record[whitelistContracts=updatedWhitelistedContracts]) 
-
-// toggle adding and removal of contract addresses
-function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
- 
-    var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
-
-    if (inContractAddressesBool) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
-    }
-
-} with (noOperations, s) 
-
 function stake(const stakeAmount : nat; var s : storage) : return is
 block {
 
@@ -392,12 +346,12 @@ block {
   if stakeAmount = 0n then failwith("You have to stake more than 0 MVK tokens.")
     else skip;
 
-  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
       Some(_address) -> _address
       | None -> failwith("Error. MVK Token Contract is not found.")
   end;
 
-  const delegationAddress : address = case s.contractAddresses["delegation"] of
+  const delegationAddress : address = case s.generalContracts["delegation"] of
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found.")
   end;
@@ -488,7 +442,7 @@ block {
   if unstakeAmount = 0n then failwith("You have to unstake more than 0 MVK tokens.")
     else skip;
 
-  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
       Some(_address) -> _address
       | None -> failwith("Error. MVK Token Contract is not found.")
   end;
@@ -552,12 +506,12 @@ block {
   var userBalanceInStakeBalanceLedger : nat := abs(userBalanceInStakeBalanceLedger - unstakeAmount); 
   s.userStakeBalanceLedger[Tezos.source] := userBalanceInStakeBalanceLedger;
 
-  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
       Some(_address) -> _address
       | None -> failwith("Error. MVK Token Contract is not found.")
   end;
 
-  const delegationAddress : address = case s.contractAddresses["delegation"] of
+  const delegationAddress : address = case s.generalContracts["delegation"] of
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found.")
   end;
@@ -604,7 +558,7 @@ block {
   userRecordInStakeLedger[lastRecordIndex] := newStakeRecord;
   s.userStakeRecordsLedger[Tezos.source] := userRecordInStakeLedger;
 
-  // const exitFeePoolAddress : address = case s.contractAddresses["exitFeePool"] of
+  // const exitFeePoolAddress : address = case s.generalContracts["exitFeePool"] of
   //     Some(_address) -> _address
   //     | None -> failwith("Error. Exit Fee Pool Contract is not found.")
   // end;
@@ -636,7 +590,7 @@ block {
   // only the exit fee pool can call this entrypoint
   checkSenderIsExitFeePoolContract(s);
 
-  const exitFeePoolAddress : address = case s.contractAddresses["exitFeePool"] of
+  const exitFeePoolAddress : address = case s.generalContracts["exitFeePool"] of
       Some(_address) -> _address
       | None -> failwith("Error. Exit Fee Pool Contract is not found.")
   end;
@@ -723,12 +677,12 @@ block {
    userRecordInStakeRecordLedger[userlastRecordIndex] := newUserExitFeeRewardRecord;
    s.userStakeRecordsLedger[userAddress] := userRecordInStakeRecordLedger;
 
-  // const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+  // const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
   //     Some(_address) -> _address
   //     | None -> failwith("Error. MVK Token Contract is not found.")
   // end;
 
-  // const delegationAddress : address = case s.contractAddresses["delegation"] of
+  // const delegationAddress : address = case s.generalContracts["delegation"] of
   //     Some(_address) -> _address
   //     | None -> failwith("Error. Delegation Contract is not found.")
   // end;
@@ -758,8 +712,8 @@ block {
 function main (const action : stakeAction; const s : storage) : return is
   case action of
   | SetAdmin(parameters) -> setAdmin(parameters, s)  
-  | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters.0, parameters.1, s)
-  | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
+  | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+  | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
   | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
 
   | PauseAll(_parameters) -> pauseAll(s)

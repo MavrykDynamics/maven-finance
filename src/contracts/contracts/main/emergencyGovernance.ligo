@@ -1,3 +1,6 @@
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
+
 type voteType is (nat * timestamp)              // mvk amount, timestamp
 type voterMapType is map (address, voteType)
 type emergencyGovernanceRecordType is record [
@@ -22,13 +25,12 @@ type configType is record [
     requiredFee : tez;                        // fee for triggering emergency control - e.g. 100 tez
 ]
 
-type contractAddressesType is map (string, address)
 
 type storage is record [
     admin                               : address;
     config                              : configType;
     
-    contractAddresses                   : contractAddressesType;
+    generalContracts                    : generalContractsType;
 
     emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
     
@@ -37,10 +39,8 @@ type storage is record [
     nextEmergencyGovernanceProposalId   : nat;
 ]
 
-type updateContractAddressesParams is (string * address)
-
 type emergencyGovernanceAction is 
-    | UpdateContractAddresses of updateContractAddressesParams
+    | UpdateGeneralContracts of updateGeneralContractsParams
     | TriggerEmergencyControl of (string * string)
     | VoteForEmergencyControl of (nat)
     | VoteForEmergencyControlComplete of (nat)
@@ -57,7 +57,7 @@ function checkSenderIsAdmin(var s : storage) : unit is
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
 block{
-  const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
       Some(_address) -> _address
       | None -> failwith("Error. MVK Token Contract is not found.")
   end;
@@ -69,14 +69,9 @@ function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
 
-// return set of contract addresses from contract addresses map
-function getContractAddressesSet(var s : storage) : set(address) is 
-block {
-  var _contractAddressesSet : set(address) := set [];
-  for _key -> value in map s.contractAddresses block {
-    var _contractAddressesSet : set(address) := Set.add(value, _contractAddressesSet);
-  }
-} with _contractAddressesSet
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
+
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to get token total supply (for MVK)
@@ -105,27 +100,6 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
     Some(contr) -> contr
   | None -> (failwith("breakGlass entrypoint in Contract not found") : contract(unit))
   end;
-
-// toggle adding and removal of contract addresses
-function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    var contractAddressesSet : set(address) := getContractAddressesSet(s);
-
-    const checkIfContractExists : bool = contractAddressesSet contains contractAddress; 
-
-    if (checkIfContractExists) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
-    }
-
-} with (noOperations, s) 
 
 
 // function setBreakGlassContractAddress(const newBreakGlassContractAddress : address; var s : storage) is 
@@ -187,7 +161,7 @@ block {
     s.currentEmergencyGovernanceId := s.nextEmergencyGovernanceProposalId;
     s.nextEmergencyGovernanceProposalId := s.nextEmergencyGovernanceProposalId + 1n;
 
-    const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+    const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
         Some(_address) -> _address
         | None -> failwith("Error. MVK Token Contract is not found.")
     end;
@@ -225,7 +199,7 @@ block {
     const checkIfUserHasVotedFlag : bool = Map.mem(Tezos.sender, emergencyGovernance.voters);
     if checkIfUserHasVotedFlag = False then block {
 
-        const mvkTokenAddress : address = case s.contractAddresses["mvkToken"] of
+        const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
             Some(_address) -> _address
             | None -> failwith("Error. MVK Token Contract is not found.")
         end;
@@ -265,12 +239,12 @@ block {
     var operations : list(operation) := nil;
     if emergencyGovernance.totalStakedMvkVotes > emergencyGovernance.minTotalStakedMvkRequired then block {
 
-        const breakGlassContractAddress : address = case s.contractAddresses["breakGlass"] of
+        const breakGlassContractAddress : address = case s.generalContracts["breakGlass"] of
             Some(_address) -> _address
             | None -> failwith("Error. Break Glass Contract is not found.")
         end;
 
-        const governanceContractAddress : address = case s.contractAddresses["governance"] of
+        const governanceContractAddress : address = case s.generalContracts["governance"] of
             Some(_address) -> _address
             | None -> failwith("Error. Governance Contract is not found.")
         end;
@@ -329,5 +303,5 @@ function main (const action : emergencyGovernanceAction; const s : storage) : re
         | VoteForEmergencyControlComplete(parameters) -> voteForEmergencyControlComplete(parameters, s)
         | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
         | DropEmergencyGovernance(_parameters) -> dropEmergencyGovernance(s)
-        | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
+        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
     end

@@ -1,3 +1,9 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
+
 ////
 // COMMON TYPES
 ////
@@ -19,12 +25,9 @@ type operators is big_map((owner * operator * nat), unit)
 type tokenMetadata is big_map(tokenId, tokenMetadataInfo);
 type metadata is big_map (string, bytes);
 
-type whitelistContractsType is map (string, address)
-type contractAddressesType is map (string, address)
-
 type storage is record [
     admin                 : address;
-    contractAddresses     : contractAddressesType;   // map of contract addresses
+    generalContracts      : generalContractsType;    // map of contract addresses
     whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
     metadata              : metadata;
     token_metadata        : tokenMetadata;
@@ -55,6 +58,7 @@ type transfer is [@layout:comb] record[
   txs: list(transferDestination);
 ]
 type transferParams is list(transfer)
+
 (* Balance_of entrypoint inputs *)
 type balanceOfRequest is [@layout:comb] record[
   owner: owner;
@@ -68,6 +72,7 @@ type balanceOfParams is [@layout:comb] record[
   requests: list(balanceOfRequest);
   callback: contract(list(balanceOfResponse));
 ]
+
 (* Update_operators entrypoint inputs *)
 type operatorParameter is [@layout:comb] record[
   owner: owner;
@@ -78,26 +83,28 @@ type updateOperator is
   Add_operator of operatorParameter
 | Remove_operator of operatorParameter
 type updateOperatorsParams is list(updateOperator)
+
 (* AssertMetadata entrypoint inputs *)
 type assertMetadataParams is [@layout:comb] record[
   key: string;
   hash: bytes;
 ]
+
 (* TotalSupply entrypoint inputs *)
 type getTotalSupplyParams is contract(tokenBalance)
+
 (* Mint entrypoint inputs *)
 type mintParams is (owner * tokenBalance)
+
 (* Burn entrypoint inputs *)
 type burnParams is (owner * tokenBalance)
+
 (* OnStakeChange entrypoint inputs *)
 type stakeType is 
   StakeAction of unit
 | UnstakeAction of unit
 type onStakeChangeParams is (owner * tokenBalance * stakeType)
-(* Update_whitelist_contract entrypoint inputs *)
-type updateWhitelistContractsParams is (string * address)
-(* UpdateContractAddresses entrypoint inputs *)
-type updateContractAddressesParams is (string * address)
+
 (* UpdateMvkDoormanTotalSupply entrypoint inputs *)
 type updateMvkTotalSupplyForDoormanParams is tokenBalance
 
@@ -114,7 +121,7 @@ type action is
 | Burn of burnParams
 | OnStakeChange of onStakeChangeParams
 | UpdateWhitelistContracts of updateWhitelistContractsParams
-| UpdateContractAddresses of updateContractAddressesParams
+| UpdateGeneralContracts of updateGeneralContractsParams
 | UpdateMvkTotalSupplyForDoorman of updateMvkTotalSupplyForDoormanParams
 
 ////
@@ -145,7 +152,7 @@ function checkOperator(const owner: owner; const token_id: tokenId; const operat
   else failwith ("FA2_NOT_OPERATOR")
 
 function checkSenderIsDoormanContract(const store: storage): unit is
-  case Map.find_opt("doorman", store.contractAddresses) of
+  case Map.find_opt("doorman", store.generalContracts) of
     Some (v) -> if v =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
   | None -> failwith("DOORMAN_CONTRACT_NOT_FOUND")
   end
@@ -154,27 +161,15 @@ function checkSenderIsAdmin(const store: storage): unit is
   if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
-function checkInWhitelistContracts(const contractAddress: address; const store : storage): bool is
-  block{
-    var inWhitelistContractsMap: bool := False;
-    for _key -> value in map store.whitelistContracts block {
-      if value = contractAddress then inWhitelistContractsMap := True
-      else skip;
-    }
-  } with inWhitelistContractsMap
-
-function checkInContractAddresses(const contractAddress: address; var store: storage) : bool is 
-block {
-  var inContractAddressMap : bool := False;
-  for _key -> value in map store.contractAddresses block {
-    if contractAddress = value then inContractAddressMap := True
-      else skip;
-  }  
-} with inContractAddressMap
-
 function checkNoAmount(const _p: unit): unit is
   if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
   else unit
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
 
 (* Transfer Entrypoint *)
 function mergeOperations(const first: list (operation); const second: list (operation)) : list (operation) is 
@@ -338,7 +333,9 @@ function burn(const burnParams: burnParams; const store: storage) : return is
     const updatedLedger: ledger = Big_map.update(targetAddress, Some(targetBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
 
+
 (* OnStakeChange Entrypoint *)
+(* type onStakeChangeParams is (owner * tokenBalance * stakeType) *)
 function onStakeChange(const onStakeChangeParams: onStakeChangeParams; const store: storage): return is
   block{
     // check sender is from doorman contract or vesting contract
@@ -365,44 +362,6 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParams; const sto
     (* Update ledger *)
     const updatedLedger = Big_map.update(owner, Some(ownerBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger])
-
-(* UpdateWhitelistContracts Entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; const store: storage) : return is 
-  block{
-    checkSenderIsAdmin(store); // check that sender is admin
-
-    const contractName: string = updateWhitelistContractsParams.0;
-    const contractAddress: address = updateWhitelistContractsParams.1;
-    
-    const exitingAddress: option(address) = 
-      if checkInWhitelistContracts(contractAddress, store) then (None : option(address)) else Some (contractAddress);
-
-    const updatedWhitelistedContracts: whitelistContractsType = 
-      Map.update(
-        contractName, 
-        exitingAddress,
-        store.whitelistContracts
-      );
-  } with (noOperations, store with record[whitelistContracts=updatedWhitelistedContracts]) 
-
-(* UpdateContractAddresses Entrypoint *)
-function updateContractAddresses(const updateContractAddressesParams: updateContractAddressesParams; const store: storage) : return is 
-  block{
-    checkSenderIsAdmin(store); // check that sender is admin
-
-    const contractName: string = updateContractAddressesParams.0;
-    const contractAddress: address = updateContractAddressesParams.1;
-    
-    const exitingAddress: option(address) = 
-      if checkInContractAddresses(contractAddress, store) then (None : option(address)) else Some (contractAddress);
-
-    const updatedContractAddresses: contractAddressesType = 
-      Map.update(
-        contractName, 
-        exitingAddress,
-        store.contractAddresses
-      );
-  } with (noOperations, store with record[contractAddresses=updatedContractAddresses])
 
 function updateMvkTotalSupplyForDoorman(const updateMvkTotalSupplyForDoormanParams: updateMvkTotalSupplyForDoormanParams; const store: storage): return is
   block {
@@ -446,7 +405,7 @@ function main (const action : action; const store : storage) : return is
       | Burn (params) -> burn(params, store)
       | OnStakeChange (params) -> onStakeChange(params, store)
       | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
-      | UpdateContractAddresses (params) -> updateContractAddresses(params, store)
+      | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
       | UpdateMvkTotalSupplyForDoorman (params) -> updateMvkTotalSupplyForDoorman(params, store)
     end
   )

@@ -8,7 +8,7 @@ export type governanceStorageType = {
   config: {};
 
   whitelistContracts : MichelsonMap<MichelsonMapKey, unknown>;
-  contractAddresses : MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts : MichelsonMap<MichelsonMapKey, unknown>;
 
   proposalLedger: MichelsonMap<MichelsonMapKey, unknown>;
   snapshotLedger: MichelsonMap<MichelsonMapKey, unknown>;

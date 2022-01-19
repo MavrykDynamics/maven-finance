@@ -6,7 +6,7 @@ export type doormanStorageType = {
   admin: string;
   
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
-  contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
   breakGlassConfig: {};
   userStakeRecordsLedger: MichelsonMap<MichelsonMapKey, unknown>;

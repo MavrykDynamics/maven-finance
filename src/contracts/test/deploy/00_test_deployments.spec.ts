@@ -69,7 +69,7 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("doorman contract originated")
 
-    delegationStorage.contractAddresses = MichelsonMap.fromLiteral({
+    delegationStorage.generalContracts = MichelsonMap.fromLiteral({
       "doorman" : doorman.contract.address
     });
     delegation = await Delegation.originate(
@@ -79,7 +79,7 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("delegation contract originated")
 
-    mvkStorage.contractAddresses = MichelsonMap.fromLiteral({
+    mvkStorage.generalContracts = MichelsonMap.fromLiteral({
       "doorman" : doorman.contract.address
     });
     mvkStorage.whitelistContracts = MichelsonMap.fromLiteral({
@@ -92,7 +92,7 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("MVK token contract originated")
 
-    governanceStorage.contractAddresses = MichelsonMap.fromLiteral({
+    governanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation" : delegation.contract.address,
       "mvkToken" : mvkToken.contract.address,
     });
@@ -103,7 +103,7 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("governance contract originated")
 
-    emergencyGovernanceStorage.contractAddresses = MichelsonMap.fromLiteral({
+    emergencyGovernanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"  : mvkToken.contract.address,
       "governance": governance.contract.address,
     });
@@ -114,7 +114,7 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("emergency governance contract originated")
 
-    vestingStorage.contractAddresses = MichelsonMap.fromLiteral({
+    vestingStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"  : mvkToken.contract.address,
       "doorman"   : doorman.contract.address,
       "delegation": delegation.contract.address,
@@ -127,7 +127,7 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("vesting contract originated")
 
-    councilStorage.contractAddresses = MichelsonMap.fromLiteral({
+    councilStorage.generalContracts = MichelsonMap.fromLiteral({
       "vesting"  : vesting.contract.address
     });
     councilStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh];
@@ -138,7 +138,7 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("council contract originated")
 
-    breakGlassStorage.contractAddresses = MichelsonMap.fromLiteral({
+    breakGlassStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"  : mvkToken.contract.address,
       "doorman"   : doorman.contract.address,
       "delegation": delegation.contract.address,
@@ -163,14 +163,14 @@ describe("Contracts Deployment for Tests", async () => {
     //----------------------------
 
     // Doorman Contract - set contract addresses [delegation, mvkToken]
-    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateContractAddresses("delegation", delegation.contract.address).send();  
+    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("delegation", delegation.contract.address).send();  
     await setDelegationContractAddressInDoormanOperation.confirmation();
-    const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods.updateContractAddresses("mvkToken", mvkToken.contract.address).send();
+    const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("mvkToken", mvkToken.contract.address).send();
     await setMvkTokenAddressInDoormanOperation.confirmation();
     console.log("doorman contract address set")
 
     // Delegation Contract - set contract addresses [governance]
-    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateContractAddresses("governance", governance.contract.address).send();  
+    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts("governance", governance.contract.address).send();  
     await setGovernanceContractAddressInDelegationOperation.confirmation();
     console.log("delegation contract address set")
 
@@ -180,14 +180,14 @@ describe("Contracts Deployment for Tests", async () => {
     console.log("vesting contract address put in whitelist")
 
     // Governance Contract - set contract addresses [emergencyGovernance, breakGlass]
-    const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods.updateContractAddresses("emergencyGovernance", emergencyGovernance.contract.address).send();
+    const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts("emergencyGovernance", emergencyGovernance.contract.address).send();
     await setEmergencyGovernanceContractInGovernanceOperation.confirmation();
-    const setBreakGlassContractInGovernanceOperation = await governance.contract.methods.updateContractAddresses("breakGlass", breakGlass.contract.address).send();
+    const setBreakGlassContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts("breakGlass", breakGlass.contract.address).send();
     await setBreakGlassContractInGovernanceOperation.confirmation();
     console.log("governance contract address set")
 
     // Emergency Governance Contract - set contract addresses map [breakGlass]
-    const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateContractAddresses("breakGlass", breakGlass.contract.address).send();
+    const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateGeneralContracts("breakGlass", breakGlass.contract.address).send();
     await setBreakGlassContractAddressInEmergencyGovernance.confirmation();
 
     // Vesting Contract - set whitelist contract addresses map [council]
