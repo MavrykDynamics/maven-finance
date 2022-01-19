@@ -1,9 +1,10 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
 // prettier-ignore
 import {
+  StakeUnstakeActionCard,
   StakeUnstakeBalance,
   StakeUnstakeButtonGrid,
   StakeUnstakeCard, StakeUnstakeErrorMessage,
@@ -16,7 +17,6 @@ import {
   StakeUnstakeRate,
   StakeUnstakeStyled,
 } from './StakeUnstake.style'
-import { isNumber } from 'util'
 
 type StakeUnstakeViewProps = {
   myMvkTokenBalance?: string
@@ -64,7 +64,6 @@ export const StakeUnstakeView = ({
   }
 
   const handleStakeUnstakeClick = (actionType: string) => {
-    console.log('Got to here in handleStakeUnstakeClick')
     if (!Number(inputAmount)) {
       setStakeUnstakeValueError('Stake/Unstake value is not a valid number')
       setStakeUnstakeValueOK(false)
@@ -75,7 +74,6 @@ export const StakeUnstakeView = ({
       setStakeUnstakeValueOK(false)
       setStakeUnstakeValueError('Stake value cannot exceed your MVK balance')
     } else if (accountPkh && inputAmount > Number(userStakeBalance) && actionType === 'UNSTAKE') {
-      setStakeUnstakeValueOK(false)
       setStakeUnstakeValueError('Unstake value cannot exceed your Total MVK Staked')
     } else {
       switch (actionType) {
@@ -92,7 +90,7 @@ export const StakeUnstakeView = ({
   }
   return (
     <StakeUnstakeStyled>
-      <StakeUnstakeCard>
+      <StakeUnstakeActionCard>
         <StakeUnstakeInputGrid>
           <img src="/images/coin-gold.svg" alt="coin" />
           <StakeUnstakeInputColumn>
@@ -121,7 +119,7 @@ export const StakeUnstakeView = ({
             onClick={() => handleStakeUnstakeClick('UNSTAKE')}
           />
         </StakeUnstakeButtonGrid>
-      </StakeUnstakeCard>
+      </StakeUnstakeActionCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>My MVK Balance</h3>
@@ -131,14 +129,14 @@ export const StakeUnstakeView = ({
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
-          <h3>Total MVK Staked</h3>
+          <h3>My Staked MVK</h3>
           <img src="/images/coin-silver.svg" alt="coin" />
           <CommaNumber value={Number(userStakeBalance || 0)} loading={loading} endingText={'MVK'} />
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
-          <h3>Total MVK Earned</h3>
+          <h3>My Earned MVK</h3>
           <img src="/images/coin-bronze.svg" alt="coin" />
           <CommaNumber value={Number(0)} loading={loading} endingText={'MVK'} />
         </StakeUnstakeBalance>
