@@ -50,10 +50,7 @@ type storage is record[
     claimedRewards          : claimedRewards;
     plannedRewards          : plannedRewards;
     delegators              : big_map(delegator, delegatorRecord);
-    lpTokenContract         : address;
     farmTokenBalance        : token_balance;
-    mvkTokenContract        : address;
-    rewardReserveContract   : address; // useful?
 ]
 
 (* define return for readability *)
@@ -114,11 +111,11 @@ function transferReward(const reserveAddress: address; const to_: address; const
                     ]
                 ]
             ]
-        ]
+        ];
 
         // For now it only transfers MVK to the user for the reserve
         const tokenContract: contract(tempTransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(tempTransferType))) of
+            case (Tezos.get_entrypoint_opt("%transfer", rewardTokenContract): option(contract(tempTransferType))) of
                 Some (c) -> c
             |   None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(tempTransferType))
             end;
@@ -188,37 +185,45 @@ function claim(const s: storage): return is
         // Compute new rewardDebt
         const newDelegators: big_map(delegator, delegatorRecord) = Big_map.update(delegator, Some (delegatorRecord with record[rewardDebt=accumulatedMVKPerShare]),  s.delegators);
 
-        // Transfer sMVK rewards operation
-        const operation: operation = transferReward(s.rewardReserveContract, delegator, delegatorReward, s.mvkTokenContract);
-
-    } with([operation], s)
+        // Transfer sMVK rewards
+        const mvkTokenContract: address = getGeneralContract("mvkToken",s);
+        const reserveContract: address = getGeneralContract("reserve",s);
+        const operation: operation = transferReward(reserveContract, delegator, delegatorReward, mvkTokenContract);
+        const operations: list(operation) = list[operation];
+    } with(operations, updatedStorage with record[delegators=newDelegators])
 
 function deposit(const tokenAmount: token_balance; const s: storage): return is
     block{
         // Update pool storage
         const updatedStorage: storage = updatePool(s);
 
+        const delegator: delegator = Tezos.sender;
+
         // Prepare to perform a claim if user already deposited tokens
         var delegatorClaim: return := (noOperations, s);
 
         // Check if sender as already a record
-        const delegatorRecord: delegatorRecord =
-            case getDelegatorDeposit(Tezos.sender, s) of
-                Some (r) -> block{
-                    // Perform a claim
-                    delegatorClaim := claim(s);
-                } with (r)
-            |   None -> record[balance=tokenAmount; rewardDebt=0n]
-            end;
+        const existingDelegator: bool = Big_map.mem(delegator, s.delegators);
+        var delegatorRecord: delegatorRecord := record[balance=tokenAmount; rewardDebt=0n];
+        if existingDelegator then {
+            delegatorRecord := 
+                case getDelegatorDeposit(delegator, s) of
+                    Some (d) -> d
+                |   None -> failwith("Delegator not found")
+                end;
+            delegatorClaim := claim(s);
+        }
+        else skip;
 
         // Update delegators Big_map and farmTokenBalance
-        const newFarmTokenBalance: token_balance = s.farmTokenBalance + tokenAmount;
-        const newDelegators: big_map(delegator, delegatorRecord) = Big_map.update(Tezos.sender, Some (delegatorRecord), s.delegators);
+        const newFarmTokenBalance: token_balance = updatedStorage.farmTokenBalance + tokenAmount;
+        const newDelegators: big_map(delegator, delegatorRecord) = Big_map.update(Tezos.sender, Some (delegatorRecord), updatedStorage.delegators);
 
         // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
-        const operation: operation = transferLP(Tezos.sender, Tezos.self_address, tokenAmount, s.lpTokenContract);
-
-    } with(operation # delegatorClaim.0, s with record[farmTokenBalance=newFarmTokenBalance; delegators=newDelegators])
+        const lpTokenContract: address = getGeneralContract("lpToken",s);
+        const operation: operation = transferLP(Tezos.sender, Tezos.self_address, tokenAmount, lpTokenContract);
+        const operations: list(operation) = operation # delegatorClaim.0;
+    } with(operations, updatedStorage with record[farmTokenBalance=newFarmTokenBalance; delegators=newDelegators])
 
 function withdraw(const tokenAmount: token_balance; const s: storage): return is
     block{
@@ -240,20 +245,22 @@ function withdraw(const tokenAmount: token_balance; const s: storage): return is
         if tokenAmount > delegatorRecord.balance then failwith("NOT_ENOUGH_BALANCE") else skip;
         const newDelegatorBalance: token_balance = abs(delegatorRecord.balance - tokenAmount);
         delegatorRecord := delegatorRecord with record[balance=newDelegatorBalance];
-        const newDelegators: big_map(delegator, delegatorRecord) = Big_map.update(delegator, Some (delegatorRecord),s.delegators);
+        const newDelegators: big_map(delegator, delegatorRecord) = Big_map.update(delegator, Some (delegatorRecord),updatedStorage.delegators);
 
         // Check if the farm has enough token
-        if tokenAmount > s.farmTokenBalance then failwith("NOT_ENOUGH_BALANCE") else skip;
-        const newFarmBalance: token_balance = abs(s.farmTokenBalance - tokenAmount);
+        if tokenAmount > updatedStorage.farmTokenBalance then failwith("NOT_ENOUGH_BALANCE") else skip;
+        const newFarmBalance: token_balance = abs(updatedStorage.farmTokenBalance - tokenAmount);
         
         // Transfer LP tokens to the user from the farm balance in the LP Contract
+        const lpTokenContract: address = getGeneralContract("lpToken",s);
         const operation: operation = transferLP(
             Tezos.self_address,
             delegator,
             tokenAmount,
-            s.lpTokenContract
-        )
-    } with(operation # delegatorClaim.0, s with record[farmTokenBalance=newFarmBalance; delegators=newDelegators])
+            lpTokenContract
+        );
+        const operations: list(operation) = operation # delegatorClaim.0;
+    } with(operations, updatedStorage with record[farmTokenBalance=newFarmBalance; delegators=newDelegators])
 
 (* Main entrypoint *)
 function main (const action: entryAction; var s: storage): return is

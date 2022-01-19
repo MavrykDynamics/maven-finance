@@ -3,11 +3,11 @@ import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
-import { councilStorageType } from "../types/councilStorageType";
+import { lpStorageType } from "../types/testLPTokenType";
 
-export class Council {
+export class LPToken {
     contract: Contract;
-    storage: councilStorageType;
+    storage: lpStorageType;
     tezos: TezosToolkit;
   
     constructor(contract: Contract, tezos: TezosToolkit) {
@@ -16,22 +16,22 @@ export class Council {
     }
   
     static async init(
-      councilContractAddress: string,
+      lpTokenAddress: string,
       tezos: TezosToolkit
-    ): Promise<Council> {
-      return new Council(
-        await tezos.contract.at(councilContractAddress),
+    ): Promise<LPToken> {
+      return new LPToken(
+        await tezos.contract.at(lpTokenAddress),
         tezos
       );
     }
 
     static async originate(
       tezos: TezosToolkit,
-      storage: councilStorageType
-    ): Promise<Council> {       
+      storage: lpStorageType
+    ): Promise<LPToken> {       
 
       const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/council.json`).toString()
+        fs.readFileSync(`${env.buildDir}/testLPToken.json`).toString()
       );
       const operation: OriginationOperation = await tezos.contract
         .originate({
@@ -46,7 +46,7 @@ export class Council {
   
       await confirmOperation(tezos, operation.hash);
   
-      return new Council(
+      return new LPToken(
         await tezos.contract.at(operation.contractAddress),
         tezos
       );
