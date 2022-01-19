@@ -49,6 +49,9 @@ type getSatelliteBalanceType is (address * string * string * string * nat * cont
 type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
 type updateWhitelistContractParams is (string * address)
 type updateContractAddressesParams is (string * address)
+type stakeType is 
+  StakeAction of unit
+| UnstakeAction of unit
 
 type stakeAction is 
 
@@ -206,12 +209,12 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(ud
 //   | None -> (failwith("updateUserBalance entrypoint in Token Contract not found") : contract(address * nat))
 //   end;
 
-  function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * string) is
+  function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * stakeType) is
   case (Tezos.get_entrypoint_opt(
       "%onStakeChange",
-      tokenAddress) : option(contract(address * nat * string))) of
+      tokenAddress) : option(contract(address * nat * stakeType))) of
     Some(contr) -> contr
-  | None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(address * nat * string))
+  | None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(address * nat * stakeType))
   end;
 
 (* ---- Helper functions end ---- *)
@@ -332,23 +335,22 @@ function getSatelliteBalance (const userAddress : address; const name : string; 
   } with (list [transaction((name, description, image, satelliteFee, userBalanceInStakeBalanceLedger), 0tz, contr)], s)
 
 // toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractName : string; const contractAddress : address; var s : storage) : return is 
+function updateWhitelistContracts(const contractName : string; const contractAddress : address; const store : storage) : return is 
 block{
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkSenderIsAdmin(store); // check that sender is admin
+    
+    const exitingAddress: option(address) = 
+      if checkInWhitelistContracts(contractAddress, store) then (None : option(address)) else Some (contractAddress);
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(contractAddress, s);
-
-    if (inWhitelistCheck) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.whitelistContracts := Map.update(contractName, Some(contractAddress), s.whitelistContracts);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.whitelistContracts := Map.add(contractName, contractAddress, s.whitelistContracts);
-    }
-
-} with (noOperations, s) 
+    const updatedWhitelistedContracts: whitelistContractsType = 
+      Map.update(
+        contractName, 
+        exitingAddress,
+        store.whitelistContracts
+      );
+  } with (noOperations, store with record[whitelistContracts=updatedWhitelistedContracts]) 
 
 // toggle adding and removal of contract addresses
 function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
@@ -402,7 +404,7 @@ block {
         
   // update user's MVK balance -> increase user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (Tezos.sender, stakeAmount, "stake"),
+      (Tezos.sender, stakeAmount, (StakeAction: stakeType)),
       0tez,
       updateUserBalanceInMvkContract(mvkTokenAddress)
     );
@@ -562,7 +564,7 @@ block {
 
   // update user's MVK balance -> increase user balance in mvk ledger
   const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-      (Tezos.source, finalAmount, "unstake"),
+      (Tezos.source, unstakeAmount, (UnstakeAction: stakeType)),
       0tez,
       updateUserBalanceInMvkContract(mvkTokenAddress)
     );
@@ -733,7 +735,7 @@ block {
 
    // update user's MVK balance
   // const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-  //     (userAddress, exitFeeReward, "stake"),
+  //     (userAddress, exitFeeReward, (StakeAction: stakeType)),
   //     0tez,
   //     updateUserBalanceInMvkContract(mvkTokenAddress)
   //   );

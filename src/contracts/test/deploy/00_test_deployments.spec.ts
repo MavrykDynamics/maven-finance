@@ -67,6 +67,8 @@ describe("Contracts Deployment for Tests", async () => {
       doormanStorage
     );
 
+    console.log("doorman contract originated")
+
     delegationStorage.contractAddresses = MichelsonMap.fromLiteral({
       "doorman" : doorman.contract.address
     });
@@ -74,6 +76,8 @@ describe("Contracts Deployment for Tests", async () => {
       utils.tezos,
       delegationStorage
     );
+
+    console.log("delegation contract originated")
 
     mvkStorage.contractAddresses = MichelsonMap.fromLiteral({
       "doorman" : doorman.contract.address
@@ -86,6 +90,8 @@ describe("Contracts Deployment for Tests", async () => {
       mvkStorage
     );
 
+    console.log("MVK token contract originated")
+
     governanceStorage.contractAddresses = MichelsonMap.fromLiteral({
       "delegation" : delegation.contract.address,
       "mvkToken" : mvkToken.contract.address,
@@ -95,6 +101,8 @@ describe("Contracts Deployment for Tests", async () => {
       governanceStorage
     );
 
+    console.log("governance contract originated")
+
     emergencyGovernanceStorage.contractAddresses = MichelsonMap.fromLiteral({
       "mvkToken"  : mvkToken.contract.address,
       "governance": governance.contract.address,
@@ -103,6 +111,8 @@ describe("Contracts Deployment for Tests", async () => {
       utils.tezos,
       emergencyGovernanceStorage
     );
+
+    console.log("emergency governance contract originated")
 
     vestingStorage.contractAddresses = MichelsonMap.fromLiteral({
       "mvkToken"  : mvkToken.contract.address,
@@ -115,6 +125,8 @@ describe("Contracts Deployment for Tests", async () => {
       vestingStorage
     );
 
+    console.log("vesting contract originated")
+
     councilStorage.contractAddresses = MichelsonMap.fromLiteral({
       "vesting"  : vesting.contract.address
     });
@@ -123,6 +135,8 @@ describe("Contracts Deployment for Tests", async () => {
       utils.tezos,
       councilStorage
     );
+
+    console.log("council contract originated")
 
     breakGlassStorage.contractAddresses = MichelsonMap.fromLiteral({
       "mvkToken"  : mvkToken.contract.address,
@@ -138,6 +152,8 @@ describe("Contracts Deployment for Tests", async () => {
       breakGlassStorage
     );
 
+    console.log("break glass contract originated")
+
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos;
@@ -151,20 +167,24 @@ describe("Contracts Deployment for Tests", async () => {
     await setDelegationContractAddressInDoormanOperation.confirmation();
     const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods.updateContractAddresses("mvkToken", mvkToken.contract.address).send();
     await setMvkTokenAddressInDoormanOperation.confirmation();
+    console.log("doorman contract address set")
 
     // Delegation Contract - set contract addresses [governance]
     const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateContractAddresses("governance", governance.contract.address).send();  
     await setGovernanceContractAddressInDelegationOperation.confirmation();
+    console.log("delegation contract address set")
 
     // MVK Token Contract - set whitelist contract addresses [vesting]
     const setWhitelistVestingContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts("vesting", vesting.contract.address).send();
     await setWhitelistVestingContractInMvkTokenOperation.confirmation();
+    console.log("vesting contract address put in whitelist")
 
     // Governance Contract - set contract addresses [emergencyGovernance, breakGlass]
     const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods.updateContractAddresses("emergencyGovernance", emergencyGovernance.contract.address).send();
     await setEmergencyGovernanceContractInGovernanceOperation.confirmation();
     const setBreakGlassContractInGovernanceOperation = await governance.contract.methods.updateContractAddresses("breakGlass", breakGlass.contract.address).send();
     await setBreakGlassContractInGovernanceOperation.confirmation();
+    console.log("governance contract address set")
 
     // Emergency Governance Contract - set contract addresses map [breakGlass]
     const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateContractAddresses("breakGlass", breakGlass.contract.address).send();
@@ -173,6 +193,7 @@ describe("Contracts Deployment for Tests", async () => {
     // Vesting Contract - set whitelist contract addresses map [council]
     const setCouncilContractAddressInVesting = await vesting.contract.methods.updateWhitelistContracts("council", council.contract.address).send();
     await setCouncilContractAddressInVesting.confirmation();
+    console.log("vesting contract address put in whitelist")
 
     //----------------------------
     // Save Contract Addresses to JSON (for reuse in JS / PyTezos Tests)

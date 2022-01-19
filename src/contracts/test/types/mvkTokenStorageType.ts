@@ -8,8 +8,10 @@ export type mvkStorageType = {
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
   metadata: MichelsonMap<MichelsonMapKey, unknown>;
-  ledger: MichelsonMap<MichelsonMapKey, unknown>;
   token_metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
   totalSupply: BigNumber;
+
+  ledger: MichelsonMap<MichelsonMapKey, unknown>;
+  operators: MichelsonMap<MichelsonMapKey, unknown>;
 };

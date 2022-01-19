@@ -143,23 +143,22 @@ function checkNoAmount(const _p : unit) : unit is
 // admin helper functions end ---------------------------------------------------------
 
 // toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractName : string; const contractAddress : address; var s : storage) : return is 
+function updateWhitelistContracts(const contractName : string; const contractAddress : address; const store : storage) : return is 
 block{
 
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkSenderIsAdmin(store); // check that sender is admin
+    
+    const exitingAddress: option(address) = 
+      if checkInWhitelistContracts(contractAddress, store) then (None : option(address)) else Some (contractAddress);
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(contractAddress, s);
-
-    if (inWhitelistCheck) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.whitelistContracts := Map.update(contractName, Some(contractAddress), s.whitelistContracts);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.whitelistContracts := Map.add(contractName, contractAddress, s.whitelistContracts);
-    }
-
-} with (noOperations, s) 
+    const updatedWhitelistedContracts: whitelistContractsType = 
+      Map.update(
+        contractName, 
+        exitingAddress,
+        store.whitelistContracts
+      );
+  } with (noOperations, store with record[whitelistContracts=updatedWhitelistedContracts]) 
 
 // toggle adding and removal of contract addresses
 function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
