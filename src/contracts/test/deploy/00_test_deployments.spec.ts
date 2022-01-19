@@ -4,62 +4,66 @@ const {
   ContractProvider,
   TezosOperationError,
   WalletParamsWithKind,
-  OpKind,
-  Tezos,
-} = require('@taquito/taquito')
-const { InMemorySigner, importKey } = require('@taquito/signer')
-import assert, { ok, rejects, strictEqual } from 'assert'
-import { Utils, zeroAddress } from '../helpers/Utils'
-import fs from 'fs'
-import { confirmOperation } from '../../scripts/confirmation'
-const saveContractAddress = require('../../helpers/saveContractAddress')
-import { MichelsonMap } from '@taquito/michelson-encoder'
+  OpKind, 
+  Tezos, 
+} = require("@taquito/taquito")
+const { InMemorySigner, importKey } = require("@taquito/signer");
+import assert, { ok, rejects, strictEqual } from "assert";
+import { Utils, zeroAddress } from "../helpers/Utils";
+import { confirmOperation } from "../../scripts/confirmation";
+import saveContractAddress from "../../helpers/saveContractAddress"
+import { describe, before } from "mocha"
+// const saveContractAddress = require("../../helpers/saveContractAddress")
+import { MichelsonMap } from "@taquito/michelson-encoder";
 
-const chai = require('chai')
-const chaiAsPromised = require('chai-as-promised')
-chai.use(chaiAsPromised)
-chai.should()
+const chai = require("chai");
+const chaiAsPromised = require("chai-as-promised");
+chai.use(chaiAsPromised);   
+chai.should();
 
-import env from '../../env'
-import { alice, bob, eve, mallory } from '../../scripts/sandbox/accounts'
+import env from "../../env";
+import { alice, bob, eve, mallory } from "../../scripts/sandbox/accounts";
 
-import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
+import governanceLambdas from "../../build/lambdas/governanceLambdas.json";
 
-import { Doorman } from '../helpers/doormanHelper'
-import { Delegation } from '../helpers/delegationHelper'
-import { MvkToken } from '../helpers/mvkHelper'
-import { Governance } from '../helpers/governanceHelper'
-import { BreakGlass } from '../helpers/breakGlassHelper'
-import { EmergencyGovernance } from '../helpers/emergencyGovernanceHelper'
-import { Vesting } from '../helpers/vestingHelper'
-import { Council } from '../helpers/councilHelper'
-import { Treasury } from '../helpers/treasuryHelper'
+import { Doorman } from "../helpers/doormanHelper";
+import { Delegation } from "../helpers/delegationHelper";
+import { MvkToken } from "../helpers/mvkHelper";
+import { Governance } from "../helpers/governanceHelper";
+import { BreakGlass } from "../helpers/breakGlassHelper";
+import { EmergencyGovernance } from "../helpers/emergencyGovernanceHelper";
+import { Vesting } from "../helpers/vestingHelper";
+import { Council } from "../helpers/councilHelper";
+import { Farm } from "../helpers/farmHelper";
+import { LPToken } from "../helpers/testLPHelper";
 
-import { doormanStorage } from '../../storage/doormanStorage'
-import { delegationStorage } from '../../storage/delegationStorage'
-import { mvkStorage } from '../../storage/mvkTokenStorage'
-import { governanceStorage } from '../../storage/governanceStorage'
-import { breakGlassStorage } from '../../storage/breakGlassStorage'
-import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceStorage'
-import { vestingStorage } from '../../storage/vestingStorage'
-import { councilStorage } from '../../storage/councilStorage'
-import { treasuryStorage } from '../../storage/treasuryStorage'
+import { doormanStorage } from "../../storage/doormanStorage";
+import { delegationStorage } from "../../storage/delegationStorage";
+import { mvkStorage } from "../../storage/mvkTokenStorage";
+import { governanceStorage } from "../../storage/governanceStorage";
+import { breakGlassStorage } from "../../storage/breakGlassStorage";
+import { emergencyGovernanceStorage } from "../../storage/emergencyGovernanceStorage";
+import { vestingStorage } from "../../storage/vestingStorage";
+import { councilStorage } from "../../storage/councilStorage";
+import { farmStorage } from "../../storage/farmStorage";
+import { lpStorage } from "../../storage/testLPTokenStorage";
 
-describe('Contracts Deployment for Tests', async () => {
-  var utils: Utils
-  var doorman: Doorman
-  var mvkToken: MvkToken
-  var delegation: Delegation
-  var governance: Governance
-  var breakGlass: BreakGlass
-  var emergencyGovernance: EmergencyGovernance
-  var vesting: Vesting
-  var council: Council
-  var treasury: Treasury
-  var tezos
-  let deployedDoormanStorage
-  let deployedDelegationStorage
-  let deployedMvkTokenStorage
+describe("Contracts Deployment for Tests", async () => {
+  var utils: Utils;
+  var doorman: Doorman;
+  var mvkToken : MvkToken;
+  var delegation : Delegation;
+  var governance : Governance;
+  var breakGlass : BreakGlass;
+  var emergencyGovernance : EmergencyGovernance;
+  var vesting : Vesting;
+  var council : Council;
+  var farm: Farm;
+  var lpToken: LPToken;
+  var tezos;
+  let deployedDoormanStorage;
+  let deployedDelegationStorage;
+  let deployedMvkTokenStorage;
 
   const signerFactory = async (pk) => {
     await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -154,6 +158,25 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('treasury contract originated')
 
+    lpToken = await LPToken.originate(
+      utils.tezos,
+      lpStorage
+    );
+
+    console.log("lp token contract originated")
+
+    farmStorage.generalContracts = MichelsonMap.fromLiteral({
+      "mvkToken"  : mvkToken.contract.address,
+      "reserve"   : alice.pkh,
+      "lpToken"   : lpToken.contract.address
+    });
+    farm = await Farm.originate(
+      utils.tezos,
+      farmStorage
+    );
+
+    console.log("farm contract originated")
+
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos
@@ -230,6 +253,7 @@ describe('Contracts Deployment for Tests', async () => {
     //----------------------------
     // Save Contract Addresses to JSON (for reuse in JS / PyTezos Tests)
     //----------------------------
+<<<<<<< HEAD
     await saveContractAddress('doormanAddress', doorman.contract.address)
     await saveContractAddress('delegationAddress', delegation.contract.address)
     await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
@@ -238,6 +262,18 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
     await saveContractAddress('vestingAddress', vesting.contract.address)
     await saveContractAddress('councilAddress', council.contract.address)
+=======
+    await saveContractAddress("doormanAddress", doorman.contract.address)
+    await saveContractAddress("delegationAddress", delegation.contract.address)
+    await saveContractAddress("mvkTokenAddress", mvkToken.contract.address)
+    await saveContractAddress("governanceAddress", governance.contract.address)
+    await saveContractAddress("breakGlassAddress", breakGlass.contract.address)
+    await saveContractAddress("emergencyGovernanceAddress", emergencyGovernance.contract.address)
+    await saveContractAddress("vestingAddress", vesting.contract.address)
+    await saveContractAddress("councilAddress", council.contract.address)
+    await saveContractAddress("lpTokenAddress", lpToken.contract.address)
+    await saveContractAddress("farmAddress", farm.contract.address)
+>>>>>>> 204ce3d (Preparing tests for farm with LP Token)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
@@ -256,21 +292,23 @@ describe('Contracts Deployment for Tests', async () => {
   })
 
   it(`test all contract deployments`, async () => {
-    try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --') // break
-      console.log('Test: All contracts deployed')
-      console.log('-- -- -- -- -- Deployments -- -- -- --')
-      console.log('Doorman Contract deployed at:', doorman.contract.address)
-      console.log('Delegation Contract deployed at:', delegation.contract.address)
-      console.log('Governance Contract deployed at:', governance.contract.address)
-      console.log('BreakGlass Contract deployed at:', breakGlass.contract.address)
-      console.log('Emergency Governance Contract deployed at:', emergencyGovernance.contract.address)
-      console.log('MVK Token Contract deployed at:', mvkToken.contract.address)
-      console.log('Vesting Contract deployed at:', vesting.contract.address)
-      console.log('Council Contract deployed at:', council.contract.address)
-      console.log('Treasury Contract deployed at:', treasury.contract.address)
-    } catch (e) {
-      console.log(e)
+    try{
+        
+        console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+        console.log("Test: All contracts deployed")
+        console.log("-- -- -- -- -- Deployments -- -- -- --")
+        console.log("Doorman Contract deployed at:", doorman.contract.address);
+        console.log("Delegation Contract deployed at:", delegation.contract.address);
+        console.log("Governance Contract deployed at:", governance.contract.address);
+        console.log("BreakGlass Contract deployed at:", breakGlass.contract.address);
+        console.log("Emergency Governance Contract deployed at:", emergencyGovernance.contract.address);
+        console.log("MVK Token Contract deployed at:", mvkToken.contract.address);
+        console.log("Vesting Contract deployed at:", vesting.contract.address);
+        console.log("Council Contract deployed at:", council.contract.address);
+        console.log("Farm Contract deployed at:", farm.contract.address);
+
+    } catch (e){
+        console.log(e);
     }
   })
 })
