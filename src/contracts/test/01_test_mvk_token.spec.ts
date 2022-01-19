@@ -40,11 +40,11 @@ describe("MVK Token", async () => {
         await utils.init(alice.sk);
         tokenInstance   = await utils.tezos.contract.at(tokenAddress.address);
         tokenStorage    = await tokenInstance.storage();
-        // console.log('-- -- -- -- -- Token Tests -- -- -- --')
-        // console.log('Token Contract deployed at:', tokenInstance.address);
-        // console.log('Alice address: ' + alice.pkh);
-        // console.log('Bob address: ' + bob.pkh);
-        // console.log('Eve address: ' + eve.pkh);
+        console.log('-- -- -- -- -- Token Tests -- -- -- --')
+        console.log('Token Contract deployed at:', tokenInstance.address);
+        console.log('Alice address: ' + alice.pkh);
+        console.log('Bob address: ' + bob.pkh);
+        console.log('Eve address: ' + eve.pkh);
     });
 
     beforeEach("storage", async () => {
@@ -842,14 +842,14 @@ describe("MVK Token", async () => {
 
         it('Alice tries to burn 20000MVK on Bob address being the doorman contract', async () => {
             try{
-                const contractAddressesOperationSet = await tokenInstance.methods.updateContractAddresses('doorman', alice.pkh).send();
-                await contractAddressesOperationSet.confirmation();
+                const generalContractsOperationSet = await tokenInstance.methods.updateGeneralContracts('doorman', alice.pkh).send();
+                await generalContractsOperationSet.confirmation();
 
                 const mintBob = await tokenInstance.methods.burn(bob.pkh,20000).send()
                 await mintBob.confirmation();
 
-                const contractAddressesOperationReset = await tokenInstance.methods.updateContractAddresses('doorman', doormanAddress.address).send();
-                await contractAddressesOperationReset.confirmation();
+                const generalContractsOperationReset = await tokenInstance.methods.updateGeneralContracts('doorman', doormanAddress.address).send();
+                await generalContractsOperationReset.confirmation();
 
                 const newTokenStorage = await tokenInstance.storage();
                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
@@ -865,14 +865,14 @@ describe("MVK Token", async () => {
 
         it('Alice tries to burn 2500000001MVK on Bob address being the doorman contract', async () => {
             try{
-                const contractAddressesOperationSet = await tokenInstance.methods.updateContractAddresses('doorman', alice.pkh).send();
-                await contractAddressesOperationSet.confirmation();
+                const generalContractsOperationSet = await tokenInstance.methods.updateGeneralContracts('doorman', alice.pkh).send();
+                await generalContractsOperationSet.confirmation();
 
                 const mintBob = await tokenInstance.methods.burn(bob.pkh,2500000001).send()
                 await mintBob.confirmation();
 
-                const contractAddressesOperationReset = await tokenInstance.methods.updateContractAddresses('doorman', doormanAddress.address).send();
-                await contractAddressesOperationReset.confirmation();
+                const generalContractsOperationReset = await tokenInstance.methods.updateGeneralContracts('doorman', doormanAddress.address).send();
+                await generalContractsOperationReset.confirmation();
             } catch(e){
                 const newTokenStorage = await tokenInstance.storage();
                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
@@ -887,14 +887,14 @@ describe("MVK Token", async () => {
 
         it('Alice tries to burn 20000MVK on Bob address being the doorman contract and sending 1XTZ in the process', async () => {
             try{
-                const contractAddressesOperationSet = await tokenInstance.methods.updateContractAddresses('doorman', alice.pkh).send();
-                await contractAddressesOperationSet.confirmation();
+                const generalContractsOperationSet = await tokenInstance.methods.updateGeneralContracts('doorman', alice.pkh).send();
+                await generalContractsOperationSet.confirmation();
 
                 const mintBob = await tokenInstance.methods.burn(bob.pkh,20000).send({amount: 1})
                 await mintBob.confirmation();
 
-                const contractAddressesOperationReset = await tokenInstance.methods.updateContractAddresses('doorman', doormanAddress.address).send();
-                await contractAddressesOperationReset.confirmation();
+                const generalContractsOperationReset = await tokenInstance.methods.updateGeneralContracts('doorman', doormanAddress.address).send();
+                await generalContractsOperationReset.confirmation();
             } catch(e){
                 const newTokenStorage = await tokenInstance.storage();
                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
@@ -942,15 +942,15 @@ describe("MVK Token", async () => {
         });
     });
 
-    describe('%updateContractAddresses', function() {
+    describe('%updateGeneralContracts', function() {
         it('Adds Alice to the Addresses Contracts map', async() => {
             try{
-                const oldAddressesContractsMapAlice = await tokenStorage['contractAddresses'].get('alice');
-                const AddressesAliceOperationAdd = await tokenInstance.methods.updateContractAddresses('alice', alice.pkh).send();
+                const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice');
+                const AddressesAliceOperationAdd = await tokenInstance.methods.updateGeneralContracts('alice', alice.pkh).send();
                 await AddressesAliceOperationAdd.confirmation();
 
                 const newTokenStorage = await tokenInstance.storage();
-                const newAddressesContractsMapAlice = await newTokenStorage['contractAddresses'].get('alice');
+                const newAddressesContractsMapAlice = await newTokenStorage['generalContracts'].get('alice');
 
                 assert.strictEqual(oldAddressesContractsMapAlice, undefined, "Alice should not be in the Addresses Contracts map before adding her to it")
                 assert.strictEqual(newAddressesContractsMapAlice, alice.pkh, "Alice should be in the Addresses Contracts map after adding her to it")
@@ -959,14 +959,14 @@ describe("MVK Token", async () => {
             }
         });
 
-        it('Removes Alice from the Addresses Contracts map', async() => {
+        it('Removes Alice from the General Contracts map', async() => {
             try{
-                const oldAddressesContractsMapAlice = await tokenStorage['contractAddresses'].get('alice');
-                const AddressesAliceOperationAdd = await tokenInstance.methods.updateContractAddresses('alice', alice.pkh).send();
+                const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice');
+                const AddressesAliceOperationAdd = await tokenInstance.methods.updateGeneralContracts('alice', alice.pkh).send();
                 await AddressesAliceOperationAdd.confirmation();
 
                 const newTokenStorage = await tokenInstance.storage();
-                const newAddressesContractsMapAlice = await newTokenStorage['contractAddresses'].get('alice');
+                const newAddressesContractsMapAlice = await newTokenStorage['generalContracts'].get('alice');
 
                 assert.strictEqual(oldAddressesContractsMapAlice, alice.pkh, "Alice should be in the Addresses Contracts map before adding her to it")
                 assert.strictEqual(newAddressesContractsMapAlice, undefined, "Alice should not be in the Addresses Contracts map after adding her to it")
