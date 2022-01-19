@@ -381,8 +381,6 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
     
-    // todo: update doormanledger account in mvk ledger? total supply remains unchanged in any case
-
     if stakeType = "stake" then block {
       // stake -> decrease user balance in mvk ledger 
       (* Balance check *)

@@ -510,8 +510,13 @@ block {
 
   const scaleFactor : nat = 1000000n;                // mu (10^6) - can be adjusted for greater accuracy by increasing the value
   const percentageFactor : nat = scaleFactor / 100n; // with mu, percentageFactor returns 10000n
+  
+  // note on MLI:
+  // stakedMvkTotalSupply becomes an implicit part of tempMvkTotalSupply, after the changes were done where 
+  //   vMVK token contract is not used so that tempMvkTotalSupply does not fluctuate with staking/unstaking
   // const mvkLoyaltyIndex : nat = (s.stakedMvkTotalSupply * scaleFactor * 100n / (s.stakedMvkTotalSupply + s.tempMvkTotalSupply)); 
   const mvkLoyaltyIndex : nat = (s.stakedMvkTotalSupply * scaleFactor * 100n / s.tempMvkTotalSupply); 
+  
   const exitFee : nat = (500n * scaleFactor * 100n ) / (mvkLoyaltyIndex + (5n * scaleFactor)); 
 
   if exitFee > abs(percentageFactor - 1n) then // exitFee cannot be more than 9999n (with scaleFactor of 10^6)

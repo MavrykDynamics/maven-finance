@@ -94,7 +94,7 @@ type councilAction is
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
 
-// may need a lambda function to be able to send calls to future unspecified entrypoints if needed
+// consideration: may need a lambda function to be able to send calls to future unspecified entrypoints if needed
 
 // admin helper functions begin ---------------------------------------------------------
 function checkSenderIsAdmin(var s : storage) : unit is
