@@ -13,7 +13,7 @@ export const doormanStorage: doormanStorageType = {
   admin: alice.pkh,
 
   whitelistContracts : MichelsonMap.fromLiteral({}),
-  contractAddresses: MichelsonMap.fromLiteral({}),
+  generalContracts: MichelsonMap.fromLiteral({}),
   
   breakGlassConfig: {
     stakeIsPaused           : false,
