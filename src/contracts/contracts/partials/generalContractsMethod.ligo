@@ -1,4 +1,4 @@
-function checkInGeneralContracts(const contractAddress : address; var s : storage) : bool is 
+function checkInGeneralContracts(const contractAddress : address; const s : storage) : bool is 
 block {
   var inContractAddressMap : bool := False;
   for _key -> value in map s.generalContracts block {
@@ -6,6 +6,12 @@ block {
       else skip;
   }  
 } with inContractAddressMap
+
+function getGeneralContract(const contractName: string; const s: storage): address is
+  case Big_map.find_opt(contractName, s.generalContracts) of
+    Some (a) -> a
+  | None -> (failwith("Contract with name " ^ contractName ^ " not found in generalContracts map"): address)
+  end
 
 (* UpdateGeneralContracts Entrypoint *)
 function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsParams; var s : storage) : return is 
@@ -30,7 +36,6 @@ function updateGeneralContracts(const updateGeneralContractsParams : updateGener
     s.generalContracts := updatedGeneralContracts;
 
   } with (noOperations, s)
-
 
 //   function updateContractAddresses(const updateContractAddressesParams : updateContractAddressesParams; const store: storage) : return is 
 //   block{
