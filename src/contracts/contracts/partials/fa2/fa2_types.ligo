@@ -1,11 +1,11 @@
-type fa2_token_id_type         is nat
+type fa2_token_id_type is nat
 
-type fa2_token_metadata_type   is [@layout:comb] record [
+type fa2_token_metadata_type is [@layout:comb] record [
   token_id                : fa2_token_id_type;
   token_info              : map(string, bytes);
 ]
 
-type fa2_transfer_dst_type     is [@layout:comb] record [
+type fa2_transfer_destination_type is [@layout:comb] record [
   to_                     : address;
   token_id                : fa2_token_id_type;
   amount                  : nat;
@@ -13,7 +13,7 @@ type fa2_transfer_dst_type     is [@layout:comb] record [
 
 type transfer_type         is [@layout:comb] record [
   from_                   : address;
-  txs                     : list(fa2_transfer_dst_type);
+  txs                     : list(fa2_transfer_destination_type);
 ]
 
 type transfers_type        is list(transfer_type)
@@ -64,6 +64,6 @@ type fa2_token_t        is [@layout:comb] record [
 ]
 
 type token_t       is
-| Tez                     of tez_t
-// | Fa12                    of fa12_token_t
-| Fa2                     of fa2_token_t
+| Tez                     of tez_t          // unit
+| Fa12                    of fa12_token_t   // address
+| Fa2                     of fa2_token_t    // record [ token : address; id : nat; ]
