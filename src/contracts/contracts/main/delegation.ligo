@@ -68,9 +68,11 @@ type storage is record [
 
 type updateWhitelistContractParams is (string * address)
 type updateContractAddressesParams is (string * address)
+type updateConfigParams is (string * nat)
 
 type delegationAction is 
     | SetAdmin of (address)
+    | UpdateConfig of updateConfigParams
 
     | UpdateWhitelistContracts of updateWhitelistContractParams
     | UpdateContractAddresses of updateContractAddressesParams
@@ -318,8 +320,26 @@ block {
 
 } with (noOperations, s)
 
-// break glass toggle entrypoints begin ---------------------------------------------------------
 
+function updateConfig(const configName : string; const newConfigValue : nat; var s : storage) : return is 
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  checkSenderIsAdmin(s); // check that sender is admin
+
+  if configName = "delegationRatio" then s.config.delegationRatio := newConfigValue
+    else skip;
+
+  if configName = "minimumStakedMvkBalance" then s.config.minimumStakedMvkBalance := newConfigValue
+    else skip;
+
+  if configName = "maxSatellites" then s.config.maxSatellites := newConfigValue
+    else skip;
+
+} with (noOperations, s)
+
+
+// break glass toggle entrypoints begin ---------------------------------------------------------
 function togglePauseDelegateToSatellite(var s : storage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
@@ -883,6 +903,8 @@ block {
 function main (const action : delegationAction; const s : storage) : return is 
     case action of    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
+        | UpdateConfig(parameters) -> updateConfig(parameters.0, parameters.1, s)
+
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters.0, parameters.1, s)
         | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
 
