@@ -13,6 +13,19 @@ export const StakeUnstakeStyled = styled.div`
 export const StakeUnstakeCard = styled.div`
   background-color: ${backgroundColor};
   border-radius: 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${subTextColor};
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
+  min-width: 130px;
+`
+export const StakeUnstakeActionCard = styled.div`
+  background-color: ${backgroundColor};
+  border-radius: 10px;
   padding: 35px;
   text-align: center;
   font-size: 14px;
@@ -91,11 +104,12 @@ export const StakeUnstakeInput = styled.input`
   color: ${subTextColor};
   -webkit-appearance: none;
   appearance: none;
+  flex: 0 0 1;
+  position: relative;
 `
 
 export const StakeUnstakeInputLabel = styled.div`
   position: absolute;
-  top: 36px;
   right: 17px;
   color: ${subTextColor};
   font-size: 22px;
@@ -118,17 +132,23 @@ export const StakeUnstakeButtonGrid = styled.div`
 `
 
 export const StakeUnstakeBalance = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
   h3 {
     font-size: 14px;
     font-weight: 600;
     color: ${subTextColor};
   }
-
   img {
     margin: 26px auto;
   }
 
   div {
+    max-width: fit-content;
+    align-items: center;
     font-size: 20px;
     font-weight: 600;
     color: ${subTextColor};

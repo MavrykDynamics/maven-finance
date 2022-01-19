@@ -40,11 +40,11 @@ export const DoormanHeaderView = ({}: DoormanHeaderViewProps) => {
             </Fragment>
           }
         >
-          <Tween to={{ x: '400px', opacity: 1 }} duration={1} target={0} ease="power2.in" />
-          <Tween to={{ x: '400px', opacity: 0 }} duration={0.1} target={0} position="-=0.1" />
+          <Tween to={{ x: '300px', opacity: 1 }} duration={1} target={0} ease="power2.in" />
+          <Tween to={{ x: '300px', opacity: 0 }} duration={0.1} target={0} position="-=0.1" />
           <Tween to={{ x: '0px', opacity: 1 }} duration={0.1} target={1} position="+=1" />
           <Tween
-            to={{ x: '-400px', opacity: 1 }}
+            to={{ x: '-300px', opacity: 1 }}
             duration={2}
             target={1}
             ease="elastic.out(0.5,0.3)"

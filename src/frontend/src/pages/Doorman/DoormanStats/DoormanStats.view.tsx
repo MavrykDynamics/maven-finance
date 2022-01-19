@@ -3,7 +3,6 @@ import { ButtonLoadingIcon } from 'app/App.components/Button/Button.style'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
 import { DoormanStatsGrid, DoormanStatsStyled } from './DoormanStats.style'
-import { PRECISION_NUMBER } from '../../../utils/constants'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
 
 type DoormanStatsViewProps = {
@@ -13,7 +12,7 @@ type DoormanStatsViewProps = {
 }
 
 export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply }: DoormanStatsViewProps) => {
-  const mvkTokens = (mvkTotalSupply ?? 0) / PRECISION_NUMBER
+  const mvkTokens = mvkTotalSupply ?? 0
   const stakedMvkTokens = totalStakedMvkSupply ?? 0
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)

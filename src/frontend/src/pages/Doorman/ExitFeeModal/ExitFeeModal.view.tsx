@@ -4,7 +4,6 @@ import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 
 
 import { ExitFeeModalButtons, ExitFeeModalContent, ExitFeeModalFee, ExitFeeModalGrid } from './ExitFeeModal.style'
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
-import { PRECISION_NUMBER } from '../../../utils/constants'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
 
 type ExitFeeModalViewProps = {
@@ -26,7 +25,7 @@ export const ExitFeeModalView = ({
   totalStakedMvkSupply,
   amount,
 }: ExitFeeModalViewProps) => {
-  const mvkTokens = (mvkTotalSupply ?? 0) / PRECISION_NUMBER
+  const mvkTokens = mvkTotalSupply ?? 0
   const stakedMvkTokens = totalStakedMvkSupply ?? 0
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
@@ -62,7 +61,9 @@ export const ExitFeeModalView = ({
                     </a>
                   </div>
                   <CommaNumber value={Number(amount)} endingText={'MVK'} />
-                  <p>{mli.toFixed(2)} </p>
+                  <div>
+                    <p>{mli.toFixed(2)} </p>
+                  </div>
                 </ExitFeeModalGrid>
 
                 <ExitFeeModalFee>

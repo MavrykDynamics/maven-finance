@@ -15,6 +15,8 @@ import { getContractBigmapKeys, getContractStorage } from 'utils/api'
 
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import { PRECISION_NUMBER } from '../../utils/constants'
+import { MvkTokenStorage } from '../../reducers/mvkToken'
+import delegationAddress from '../../deployments/delegationAddress.json'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -30,14 +32,22 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
         (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
       ).contract.at(mvkTokenAddress.address)
   const storage = await (contract as any).storage()
-
   const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
   const myBalanceMu = myLedgerEntry?.balance.toNumber()
   const myBalance = myBalanceMu > 0 ? myBalanceMu / PRECISION_NUMBER : 0
 
+  const totalMvkSupplyMu = parseFloat(storage?.totalSupply) || 0
+  const totalMvkSupply = totalMvkSupplyMu > 0 ? totalMvkSupplyMu / PRECISION_NUMBER : 0
+
+  const mvkTokenStorage: MvkTokenStorage = {
+    admin: storage.admin,
+    contractAddresses: storage.contractAddresses,
+    totalSupply: totalMvkSupply,
+    whitelistContracts: storage.contractAddresses,
+  }
   dispatch({
     type: GET_MVK_TOKEN_STORAGE,
-    mvkTokenStorage: storage,
+    mvkTokenStorage: mvkTokenStorage,
     myMvkTokenBalance: myBalance?.toFixed(2),
   })
 }
@@ -184,7 +194,6 @@ export const getDoormanStorage = () => async (dispatch: any, getState: any) => {
     const stakedMvkTotalSupply = stakedMvkTotalSupplyMu > 0 ? stakedMvkTotalSupplyMu / PRECISION_NUMBER : 0
     const tempMvkTotalSupplyMu = parseFloat(storage?.tempMvkTotalSupply) || 0
     const tempMvkTotalSupply = tempMvkTotalSupplyMu > 0 ? tempMvkTotalSupplyMu / PRECISION_NUMBER : 0
-    console.log(`Printing out totalStakedMvkSupply ${stakedMvkTotalSupply}`)
     const doormanStorage: DoormanStorage = {
       admin: storage.admin,
       breakGlassConfig: doormanBreakGlassConfig,
