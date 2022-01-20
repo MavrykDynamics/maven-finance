@@ -1,1 +1,5 @@
+<<<<<<< HEAD
 { "address" : "KT1JhSoaYChjdUJvGihCtsTofeBDXUWWsnVP"}
+=======
+{ "address" : "KT1R8FWrNj4si4q6ehiZBNAn9M1N6ZZLmaPA"}
+>>>>>>> acb632d (Fake LPToken contract created for farm testing + farm contract written but not fully tested (and still without governance))
