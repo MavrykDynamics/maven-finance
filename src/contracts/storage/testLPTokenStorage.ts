@@ -42,10 +42,22 @@ const metadata = MichelsonMap.fromLiteral({
   })
 
 const ledger = MichelsonMap.fromLiteral({
-    [alice.pkh]: singleUserSupply,
-    [bob.pkh]: singleUserSupply,
-    [eve.pkh]: singleUserSupply,
-    [mallory.pkh]: singleUserSupply
+    [alice.pkh]: {
+      balance: singleUserSupply,
+      allowances: MichelsonMap.fromLiteral({})
+    },
+    [bob.pkh]: {
+      balance: singleUserSupply,
+      allowances: MichelsonMap.fromLiteral({})
+    },
+    [eve.pkh]: {
+      balance: singleUserSupply,
+      allowances: MichelsonMap.fromLiteral({})
+    },
+    [mallory.pkh]: {
+      balance: singleUserSupply,
+      allowances: MichelsonMap.fromLiteral({})
+    }
   })
 
 const token_metadata = MichelsonMap.fromLiteral({
