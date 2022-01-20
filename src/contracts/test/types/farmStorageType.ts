@@ -8,8 +8,19 @@ export type farmStorageType = {
 
   lastBlockUpdate: BigNumber;
   accumulatedMVKPerShare: BigNumber;
-  claimedRewards: {}
-  plannedRewards: {}
+  claimedRewards: {
+    unpaid: BigNumber;
+    paid: BigNumber;
+  }
+  plannedRewards: {
+    totalBlocks: BigNumber;
+    rewardPerBlock: BigNumber;
+  }
   delegators: MichelsonMap<MichelsonMapKey, unknown>;
   farmTokenBalance: BigNumber;
+  lpToken: {
+    tokenAddress: String;
+    tokenId: BigNumber;
+    tokenStandard: {};
+  }
 };
