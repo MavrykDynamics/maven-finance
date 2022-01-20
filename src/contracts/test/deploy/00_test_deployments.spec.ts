@@ -180,9 +180,10 @@ describe("Contracts Deployment for Tests", async () => {
 
     farmStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"  : mvkToken.contract.address,
-      "reserve"   : alice.pkh,
-      "lpToken"   : lpToken.contract.address
+      "reserve"   : bob.pkh
     });
+    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+      
     farm = await Farm.originate(
       utils.tezos,
       farmStorage
@@ -288,6 +289,7 @@ describe("Contracts Deployment for Tests", async () => {
         console.log("MVK Token Contract deployed at:", mvkToken.contract.address);
         console.log("Vesting Contract deployed at:", vesting.contract.address);
         console.log("Council Contract deployed at:", council.contract.address);
+        console.log("LP Token Contract deployed at:", lpToken.contract.address);
         console.log("Farm Contract deployed at:", farm.contract.address);
 
     } catch (e){

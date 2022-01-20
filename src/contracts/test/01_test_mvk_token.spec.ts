@@ -1,261 +1,261 @@
-const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
-const { InMemorySigner, importKey } = require("@taquito/signer");
-import { Utils, zeroAddress } from "./helpers/Utils";
-import fs from "fs";
-import { confirmOperation } from "../scripts/confirmation";
+// const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
+// const { InMemorySigner, importKey } = require("@taquito/signer");
+// import { Utils, zeroAddress } from "./helpers/Utils";
+// import fs from "fs";
+// import { confirmOperation } from "../scripts/confirmation";
 
-const chai = require("chai");
-const assert = require("chai").assert;
-const { createHash } = require("crypto")
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);   
-chai.should();
+// const chai = require("chai");
+// const assert = require("chai").assert;
+// const { createHash } = require("crypto")
+// const chaiAsPromised = require('chai-as-promised');
+// chai.use(chaiAsPromised);   
+// chai.should();
 
-import env from "../env";
-import { alice, bob, eve } from "../scripts/sandbox/accounts";
+// import env from "../env";
+// import { alice, bob, eve } from "../scripts/sandbox/accounts";
 
-import tokenAddress from '../deployments/mvkTokenAddress.json';
-import doormanAddress from '../deployments/doormanAddress.json';
+// import tokenAddress from '../deployments/mvkTokenAddress.json';
+// import doormanAddress from '../deployments/doormanAddress.json';
 
-describe("MVK Token", async () => {
-    var utils: Utils;
+// describe("MVK Token", async () => {
+//     var utils: Utils;
 
-    let tokenInstance;
+//     let tokenInstance;
 
-    let tokenStorage;
+//     let tokenStorage;
 
-    let aliceTokenLedgerBase;
-    let bobTokenLedgerBase;
-    let eveTokenLedgerBase;
+//     let aliceTokenLedgerBase;
+//     let bobTokenLedgerBase;
+//     let eveTokenLedgerBase;
 
-    let totalSupplyBase;
+//     let totalSupplyBase;
 
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
+//     const signerFactory = async (pk) => {
+//         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
+//         return utils.tezos;
+//     };
 
-    before("setup", async () => {
-        utils = new Utils();
-        await utils.init(alice.sk);
-        tokenInstance   = await utils.tezos.contract.at(tokenAddress.address);
-        tokenStorage    = await tokenInstance.storage();
-        console.log('-- -- -- -- -- Token Tests -- -- -- --')
-        console.log('Token Contract deployed at:', tokenInstance.address);
-        console.log('Alice address: ' + alice.pkh);
-        console.log('Bob address: ' + bob.pkh);
-        console.log('Eve address: ' + eve.pkh);
-    });
+//     before("setup", async () => {
+//         utils = new Utils();
+//         await utils.init(alice.sk);
+//         tokenInstance   = await utils.tezos.contract.at(tokenAddress.address);
+//         tokenStorage    = await tokenInstance.storage();
+//         console.log('-- -- -- -- -- Token Tests -- -- -- --')
+//         console.log('Token Contract deployed at:', tokenInstance.address);
+//         console.log('Alice address: ' + alice.pkh);
+//         console.log('Bob address: ' + bob.pkh);
+//         console.log('Eve address: ' + eve.pkh);
+//     });
 
-    beforeEach("storage", async () => {
-        tokenStorage = await tokenInstance.storage();
-        aliceTokenLedgerBase  = parseInt(await tokenStorage.ledger.get(alice.pkh));
-        bobTokenLedgerBase  = parseInt(await tokenStorage.ledger.get(bob.pkh));
-        eveTokenLedgerBase  = parseInt(await tokenStorage.ledger.get(eve.pkh));
-        totalSupplyBase = parseInt(await tokenStorage.totalSupply)
-        await signerFactory(alice.sk)
-    })
+//     beforeEach("storage", async () => {
+//         tokenStorage = await tokenInstance.storage();
+//         aliceTokenLedgerBase  = parseInt(await tokenStorage.ledger.get(alice.pkh));
+//         bobTokenLedgerBase  = parseInt(await tokenStorage.ledger.get(bob.pkh));
+//         eveTokenLedgerBase  = parseInt(await tokenStorage.ledger.get(eve.pkh));
+//         totalSupplyBase = parseInt(await tokenStorage.totalSupply)
+//         await signerFactory(alice.sk)
+//     })
 
-    describe('%transfer', function() {
-        it('Alice sends 2000MVK to Eve', async () => {
-            try{
-                const operation = await tokenInstance.methods.transfer([
-                    {
-                        from_: alice.pkh,
-                        txs: [
-                            {
-                                to_: eve.pkh,
-                                token_id: 0,
-                                amount: 2000
-                            }
-                        ]
-                    }
-                ]).send();
-                await operation.confirmation();
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                const eveTokenLedgerAfter  = await newTokenStorage.ledger.get(eve.pkh);            
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase - 2000, "Alice MVK Ledger should have "+(aliceTokenLedgerBase - 2000)+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
-                assert.equal(eveTokenLedgerAfter, eveTokenLedgerBase + 2000, "Eve MVK Ledger should have "+(eveTokenLedgerBase + 2000)+"MVK but she has "+eveTokenLedgerAfter+"MVK")
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//     describe('%transfer', function() {
+//         it('Alice sends 2000MVK to Eve', async () => {
+//             try{
+//                 const operation = await tokenInstance.methods.transfer([
+//                     {
+//                         from_: alice.pkh,
+//                         txs: [
+//                             {
+//                                 to_: eve.pkh,
+//                                 token_id: 0,
+//                                 amount: 2000
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await operation.confirmation();
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 const eveTokenLedgerAfter  = await newTokenStorage.ledger.get(eve.pkh);            
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase - 2000, "Alice MVK Ledger should have "+(aliceTokenLedgerBase - 2000)+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
+//                 assert.equal(eveTokenLedgerAfter, eveTokenLedgerBase + 2000, "Eve MVK Ledger should have "+(eveTokenLedgerBase + 2000)+"MVK but she has "+eveTokenLedgerAfter+"MVK")
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('Alice sends 0MVK to Bob', async () => {
-            try{
-                const operation = await tokenInstance.methods.transfer([
-                    {
-                        from_: alice.pkh,
-                        txs: [
-                            {
-                                to_: bob.pkh,
-                                token_id: 0,
-                                amount: 0
-                            }
-                        ]
-                    }
-                ]).send();
-                await operation.confirmation();
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);            
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK Ledger should have "+aliceTokenLedgerBase+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
-                assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK Ledger should have "+bobTokenLedgerBase+"MVK but she has "+bobTokenLedgerAfter+"MVK")
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//         it('Alice sends 0MVK to Bob', async () => {
+//             try{
+//                 const operation = await tokenInstance.methods.transfer([
+//                     {
+//                         from_: alice.pkh,
+//                         txs: [
+//                             {
+//                                 to_: bob.pkh,
+//                                 token_id: 0,
+//                                 amount: 0
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await operation.confirmation();
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);            
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK Ledger should have "+aliceTokenLedgerBase+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
+//                 assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK Ledger should have "+bobTokenLedgerBase+"MVK but she has "+bobTokenLedgerAfter+"MVK")
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('Alice sends 3000MVK to herself', async () => {
-            try{
-                const operation = await tokenInstance.methods.transfer([
-                    {
-                        from_: alice.pkh,
-                        txs: [
-                            {
-                                to_: alice.pkh,
-                                token_id: 0,
-                                amount: 3000
-                            }
-                        ]
-                    }
-                ]).send();
-                await operation.confirmation();
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK Ledger should have "+aliceTokenLedgerBase+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//         it('Alice sends 3000MVK to herself', async () => {
+//             try{
+//                 const operation = await tokenInstance.methods.transfer([
+//                     {
+//                         from_: alice.pkh,
+//                         txs: [
+//                             {
+//                                 to_: alice.pkh,
+//                                 token_id: 0,
+//                                 amount: 3000
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await operation.confirmation();
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK Ledger should have "+aliceTokenLedgerBase+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('Alice sends 0MVK to herself', async () => {
-            try{
-                const operation = await tokenInstance.methods.transfer([
-                    {
-                        from_: alice.pkh,
-                        txs: [
-                            {
-                                to_: alice.pkh,
-                                token_id: 0,
-                                amount: 0
-                            }
-                        ]
-                    }
-                ]).send();
-                await operation.confirmation();
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK Ledger should have "+aliceTokenLedgerBase+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//         it('Alice sends 0MVK to herself', async () => {
+//             try{
+//                 const operation = await tokenInstance.methods.transfer([
+//                     {
+//                         from_: alice.pkh,
+//                         txs: [
+//                             {
+//                                 to_: alice.pkh,
+//                                 token_id: 0,
+//                                 amount: 0
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await operation.confirmation();
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK Ledger should have "+aliceTokenLedgerBase+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('Alice sends 250000001MVK to herself', async () => {
-            try{
-                const operation = await tokenInstance.methods.transfer([
-                    {
-                        from_: alice.pkh,
-                        txs: [
-                            {
-                                to_: alice.pkh,
-                                token_id: 0,
-                                amount: 250000001
-                            }
-                        ]
-                    }
-                ]).send();
-                await operation.confirmation();
-            } catch(e){
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice shouldn't be able to send more than she has")
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
-            } 
-        });
+//         it('Alice sends 250000001MVK to herself', async () => {
+//             try{
+//                 const operation = await tokenInstance.methods.transfer([
+//                     {
+//                         from_: alice.pkh,
+//                         txs: [
+//                             {
+//                                 to_: alice.pkh,
+//                                 token_id: 0,
+//                                 amount: 250000001
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await operation.confirmation();
+//             } catch(e){
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice shouldn't be able to send more than she has")
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
+//             } 
+//         });
 
-        it('Alice sends 2000MVK to herself then 20000MVK to Eve then 0MVK to Bob', async () => {
-            try{
-                const operation = await tokenInstance.methods.transfer([
-                    {
-                        from_: alice.pkh,
-                        txs: [
-                            {
-                                to_: alice.pkh,
-                                token_id: 0,
-                                amount: 2000
-                            },
-                            {
-                                to_: eve.pkh,
-                                token_id: 0,
-                                amount: 20000
-                            },
-                            {
-                                to_: bob.pkh,
-                                token_id: 0,
-                                amount: 0
-                            }
-                        ]
-                    }
-                ]).send();
-                await operation.confirmation();
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
-                const eveTokenLedgerAfter  = await newTokenStorage.ledger.get(eve.pkh);
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase - 20000, "Alice MVK Ledger should have "+(aliceTokenLedgerBase - 20000)+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
-                assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK Ledger should have "+bobTokenLedgerBase+"MVK but she has "+bobTokenLedgerAfter+"MVK")
-                assert.equal(eveTokenLedgerAfter, eveTokenLedgerBase + 20000, "Eve MVK Ledger should have "+(eveTokenLedgerBase + 20000)+"MVK but she has "+eveTokenLedgerAfter+"MVK")
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//         it('Alice sends 2000MVK to herself then 20000MVK to Eve then 0MVK to Bob', async () => {
+//             try{
+//                 const operation = await tokenInstance.methods.transfer([
+//                     {
+//                         from_: alice.pkh,
+//                         txs: [
+//                             {
+//                                 to_: alice.pkh,
+//                                 token_id: 0,
+//                                 amount: 2000
+//                             },
+//                             {
+//                                 to_: eve.pkh,
+//                                 token_id: 0,
+//                                 amount: 20000
+//                             },
+//                             {
+//                                 to_: bob.pkh,
+//                                 token_id: 0,
+//                                 amount: 0
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await operation.confirmation();
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
+//                 const eveTokenLedgerAfter  = await newTokenStorage.ledger.get(eve.pkh);
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase - 20000, "Alice MVK Ledger should have "+(aliceTokenLedgerBase - 20000)+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
+//                 assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK Ledger should have "+bobTokenLedgerBase+"MVK but she has "+bobTokenLedgerAfter+"MVK")
+//                 assert.equal(eveTokenLedgerAfter, eveTokenLedgerBase + 20000, "Eve MVK Ledger should have "+(eveTokenLedgerBase + 20000)+"MVK but she has "+eveTokenLedgerAfter+"MVK")
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('Alice sends 250000001MVK to Bob', async () => {
-            try{
-                const operation = await tokenInstance.methods.transfer([
-                    {
-                        from_: alice.pkh,
-                        txs: [
-                            {
-                                to_: bob.pkh,
-                                token_id: 0,
-                                amount: 250000001
-                            }
-                        ]
-                    }
-                ]).send();
-                await operation.confirmation();
-            } catch(e){
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
-                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice shouldn't be able to send more than she has")
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
-                assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK balance shouldn't have changed: "+bobTokenLedgerAfter+"MVK")
-            } 
-        });
+//         it('Alice sends 250000001MVK to Bob', async () => {
+//             try{
+//                 const operation = await tokenInstance.methods.transfer([
+//                     {
+//                         from_: alice.pkh,
+//                         txs: [
+//                             {
+//                                 to_: bob.pkh,
+//                                 token_id: 0,
+//                                 amount: 250000001
+//                             }
+//                         ]
+//                     }
+//                 ]).send();
+//                 await operation.confirmation();
+//             } catch(e){
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
+//                 assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice shouldn't be able to send more than she has")
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
+//                 assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK balance shouldn't have changed: "+bobTokenLedgerAfter+"MVK")
+//             } 
+//         });
 
-        it('Alice sends 10MVK to Bob and 50MVK to Eve in one transaction', async () => {
-            try{
-                const operation = await tokenInstance.methods.transfer([{
-                    from_: alice.pkh,
-                    txs: [
-                        {
-                            to_: bob.pkh,
-                            token_id: 0,
-                            amount: 10
-                        },
-                        {
-                            to_: eve.pkh,
-                            token_id: 0,
-                            amount: 50
-                        }
-                    ]
-                }]).send()
-                await operation.confirmation();
+//         it('Alice sends 10MVK to Bob and 50MVK to Eve in one transaction', async () => {
+//             try{
+//                 const operation = await tokenInstance.methods.transfer([{
+//                     from_: alice.pkh,
+//                     txs: [
+//                         {
+//                             to_: bob.pkh,
+//                             token_id: 0,
+//                             amount: 10
+//                         },
+//                         {
+//                             to_: eve.pkh,
+//                             token_id: 0,
+//                             amount: 50
+//                         }
+//                     ]
+//                 }]).send()
+//                 await operation.confirmation();
     
 //                 const newTokenStorage = await tokenInstance.storage();
 //                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
@@ -818,257 +818,257 @@ describe("MVK Token", async () => {
 //             }
 //         });
         
-        it('Alice tries to burn 20000MVK on Bob address being whitelisted', async () => {
-            try{
-                const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationAdd.confirmation();
+//         it('Alice tries to burn 20000MVK on Bob address being whitelisted', async () => {
+//             try{
+//                 const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationAdd.confirmation();
 
-                const mintBob = await tokenInstance.methods.burn(bob.pkh,20000).send()
-                await mintBob.confirmation();
+//                 const mintBob = await tokenInstance.methods.burn(bob.pkh,20000).send()
+//                 await mintBob.confirmation();
 
-                const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationRemove.confirmation();
-            } catch(e){
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
-                const totalSupplyAfter = await newTokenStorage.totalSupply;  
-                assert.equal(e.message, 'ONLY_DOORMAN_CONTRACT_ALLOWED', "Alice address isn't the doorman contract map");
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
-                assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK balance shouldn't have changed: "+bobTokenLedgerAfter+"MVK")
-                assert.equal(totalSupplyAfter, totalSupplyBase, "MVK Total Supply shouldn't have changed: "+totalSupplyAfter+"MVK")
-            }
-        });
+//                 const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationRemove.confirmation();
+//             } catch(e){
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
+//                 const totalSupplyAfter = await newTokenStorage.totalSupply;  
+//                 assert.equal(e.message, 'ONLY_DOORMAN_CONTRACT_ALLOWED', "Alice address isn't the doorman contract map");
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
+//                 assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK balance shouldn't have changed: "+bobTokenLedgerAfter+"MVK")
+//                 assert.equal(totalSupplyAfter, totalSupplyBase, "MVK Total Supply shouldn't have changed: "+totalSupplyAfter+"MVK")
+//             }
+//         });
 
-        it('Alice tries to burn 20000MVK on Bob address being the doorman contract', async () => {
-            try{
-                const generalContractsOperationSet = await tokenInstance.methods.updateGeneralContracts('doorman', alice.pkh).send();
-                await generalContractsOperationSet.confirmation();
+//         it('Alice tries to burn 20000MVK on Bob address being the doorman contract', async () => {
+//             try{
+//                 const generalContractsOperationSet = await tokenInstance.methods.updateGeneralContracts('doorman', alice.pkh).send();
+//                 await generalContractsOperationSet.confirmation();
 
-                const mintBob = await tokenInstance.methods.burn(bob.pkh,20000).send()
-                await mintBob.confirmation();
+//                 const mintBob = await tokenInstance.methods.burn(bob.pkh,20000).send()
+//                 await mintBob.confirmation();
 
-                const generalContractsOperationReset = await tokenInstance.methods.updateGeneralContracts('doorman', doormanAddress.address).send();
-                await generalContractsOperationReset.confirmation();
+//                 const generalContractsOperationReset = await tokenInstance.methods.updateGeneralContracts('doorman', doormanAddress.address).send();
+//                 await generalContractsOperationReset.confirmation();
 
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
-                const totalSupplyAfter = await newTokenStorage.totalSupply;
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
-                assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase - 20000, "Bob MVK Ledger should have "+(bobTokenLedgerBase - 20000)+"MVK but he has "+bobTokenLedgerAfter+"MVK")
-                assert.equal(totalSupplyAfter, totalSupplyBase - 20000, "MVK total supply should have decrease by 20000MVK. Current supply: "+totalSupplyBase+"MVK")
-            } catch(e){
-                console.log(e)
-            }
-        });
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
+//                 const totalSupplyAfter = await newTokenStorage.totalSupply;
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
+//                 assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase - 20000, "Bob MVK Ledger should have "+(bobTokenLedgerBase - 20000)+"MVK but he has "+bobTokenLedgerAfter+"MVK")
+//                 assert.equal(totalSupplyAfter, totalSupplyBase - 20000, "MVK total supply should have decrease by 20000MVK. Current supply: "+totalSupplyBase+"MVK")
+//             } catch(e){
+//                 console.log(e)
+//             }
+//         });
 
-        it('Alice tries to burn 2500000001MVK on Bob address being the doorman contract', async () => {
-            try{
-                const generalContractsOperationSet = await tokenInstance.methods.updateGeneralContracts('doorman', alice.pkh).send();
-                await generalContractsOperationSet.confirmation();
+//         it('Alice tries to burn 2500000001MVK on Bob address being the doorman contract', async () => {
+//             try{
+//                 const generalContractsOperationSet = await tokenInstance.methods.updateGeneralContracts('doorman', alice.pkh).send();
+//                 await generalContractsOperationSet.confirmation();
 
-                const mintBob = await tokenInstance.methods.burn(bob.pkh,2500000001).send()
-                await mintBob.confirmation();
+//                 const mintBob = await tokenInstance.methods.burn(bob.pkh,2500000001).send()
+//                 await mintBob.confirmation();
 
-                const generalContractsOperationReset = await tokenInstance.methods.updateGeneralContracts('doorman', doormanAddress.address).send();
-                await generalContractsOperationReset.confirmation();
-            } catch(e){
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
-                const totalSupplyAfter = await newTokenStorage.totalSupply;
-                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice address isn't in the withelistContracts map");
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
-                assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK balance shouldn't have changed: "+bobTokenLedgerAfter+"MVK")
-                assert.equal(totalSupplyAfter, totalSupplyBase, "MVK Total Supply shouldn't have changed: "+totalSupplyAfter+"MVK")
-            }
-        });
+//                 const generalContractsOperationReset = await tokenInstance.methods.updateGeneralContracts('doorman', doormanAddress.address).send();
+//                 await generalContractsOperationReset.confirmation();
+//             } catch(e){
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
+//                 const totalSupplyAfter = await newTokenStorage.totalSupply;
+//                 assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice address isn't in the withelistContracts map");
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
+//                 assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK balance shouldn't have changed: "+bobTokenLedgerAfter+"MVK")
+//                 assert.equal(totalSupplyAfter, totalSupplyBase, "MVK Total Supply shouldn't have changed: "+totalSupplyAfter+"MVK")
+//             }
+//         });
 
-        it('Alice tries to burn 20000MVK on Bob address being the doorman contract and sending 1XTZ in the process', async () => {
-            try{
-                const generalContractsOperationSet = await tokenInstance.methods.updateGeneralContracts('doorman', alice.pkh).send();
-                await generalContractsOperationSet.confirmation();
+//         it('Alice tries to burn 20000MVK on Bob address being the doorman contract and sending 1XTZ in the process', async () => {
+//             try{
+//                 const generalContractsOperationSet = await tokenInstance.methods.updateGeneralContracts('doorman', alice.pkh).send();
+//                 await generalContractsOperationSet.confirmation();
 
-                const mintBob = await tokenInstance.methods.burn(bob.pkh,20000).send({amount: 1})
-                await mintBob.confirmation();
+//                 const mintBob = await tokenInstance.methods.burn(bob.pkh,20000).send({amount: 1})
+//                 await mintBob.confirmation();
 
-                const generalContractsOperationReset = await tokenInstance.methods.updateGeneralContracts('doorman', doormanAddress.address).send();
-                await generalContractsOperationReset.confirmation();
-            } catch(e){
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
-                const totalSupplyAfter = await newTokenStorage.totalSupply;
-                assert.equal(e.message, 'THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ', "This entrypoint should not receive XTZ");
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
-                assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK balance shouldn't have changed: "+bobTokenLedgerAfter+"MVK")
-                assert.equal(totalSupplyAfter, totalSupplyBase, "MVK Total Supply shouldn't have changed: "+totalSupplyAfter+"MVK")
-            }
-        });
-    })
+//                 const generalContractsOperationReset = await tokenInstance.methods.updateGeneralContracts('doorman', doormanAddress.address).send();
+//                 await generalContractsOperationReset.confirmation();
+//             } catch(e){
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
+//                 const totalSupplyAfter = await newTokenStorage.totalSupply;
+//                 assert.equal(e.message, 'THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ', "This entrypoint should not receive XTZ");
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
+//                 assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK balance shouldn't have changed: "+bobTokenLedgerAfter+"MVK")
+//                 assert.equal(totalSupplyAfter, totalSupplyBase, "MVK Total Supply shouldn't have changed: "+totalSupplyAfter+"MVK")
+//             }
+//         });
+//     })
 
-    describe('%updateWhitelistContracts', function() {
-        it('Adds Alice to the Whitelisted Contracts map', async() => {
-            try{
-                const oldWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice');
-                const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationAdd.confirmation();
+//     describe('%updateWhitelistContracts', function() {
+//         it('Adds Alice to the Whitelisted Contracts map', async() => {
+//             try{
+//                 const oldWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice');
+//                 const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationAdd.confirmation();
 
-                const newTokenStorage = await tokenInstance.storage();
-                const newWhitelistContractsMapAlice = await newTokenStorage['whitelistContracts'].get('alice');
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const newWhitelistContractsMapAlice = await newTokenStorage['whitelistContracts'].get('alice');
 
-                assert.strictEqual(oldWhitelistContractsMapAlice, undefined, "Alice should not be in the Whitelist Contracts map before adding her to it")
-                assert.strictEqual(newWhitelistContractsMapAlice, alice.pkh, "Alice should be in the Whitelist Contracts map after adding her to it")
-            } catch(e){
-                console.log(e)
-            }
-        });
+//                 assert.strictEqual(oldWhitelistContractsMapAlice, undefined, "Alice should not be in the Whitelist Contracts map before adding her to it")
+//                 assert.strictEqual(newWhitelistContractsMapAlice, alice.pkh, "Alice should be in the Whitelist Contracts map after adding her to it")
+//             } catch(e){
+//                 console.log(e)
+//             }
+//         });
 
-        it('Removes Alice from the Whitelisted Contracts map', async() => {
-            try{
-                const oldWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice');
-                const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationAdd.confirmation();
+//         it('Removes Alice from the Whitelisted Contracts map', async() => {
+//             try{
+//                 const oldWhitelistContractsMapAlice = await tokenStorage['whitelistContracts'].get('alice');
+//                 const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationAdd.confirmation();
 
-                const newTokenStorage = await tokenInstance.storage();
-                const newWhitelistContractsMapAlice = await newTokenStorage['whitelistContracts'].get('alice');
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const newWhitelistContractsMapAlice = await newTokenStorage['whitelistContracts'].get('alice');
 
-                assert.strictEqual(oldWhitelistContractsMapAlice, alice.pkh, "Alice should be in the Whitelist Contracts map before adding her to it")
-                assert.strictEqual(newWhitelistContractsMapAlice, undefined, "Alice should not be in the Whitelist Contracts map after adding her to it")
-            } catch(e){
-                console.log(e)
-            }
-        });
-    });
+//                 assert.strictEqual(oldWhitelistContractsMapAlice, alice.pkh, "Alice should be in the Whitelist Contracts map before adding her to it")
+//                 assert.strictEqual(newWhitelistContractsMapAlice, undefined, "Alice should not be in the Whitelist Contracts map after adding her to it")
+//             } catch(e){
+//                 console.log(e)
+//             }
+//         });
+//     });
 
-    describe('%updateGeneralContracts', function() {
-        it('Adds Alice to the Addresses Contracts map', async() => {
-            try{
-                const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice');
-                const AddressesAliceOperationAdd = await tokenInstance.methods.updateGeneralContracts('alice', alice.pkh).send();
-                await AddressesAliceOperationAdd.confirmation();
+//     describe('%updateGeneralContracts', function() {
+//         it('Adds Alice to the Addresses Contracts map', async() => {
+//             try{
+//                 const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice');
+//                 const AddressesAliceOperationAdd = await tokenInstance.methods.updateGeneralContracts('alice', alice.pkh).send();
+//                 await AddressesAliceOperationAdd.confirmation();
 
-                const newTokenStorage = await tokenInstance.storage();
-                const newAddressesContractsMapAlice = await newTokenStorage['generalContracts'].get('alice');
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const newAddressesContractsMapAlice = await newTokenStorage['generalContracts'].get('alice');
 
-                assert.strictEqual(oldAddressesContractsMapAlice, undefined, "Alice should not be in the Addresses Contracts map before adding her to it")
-                assert.strictEqual(newAddressesContractsMapAlice, alice.pkh, "Alice should be in the Addresses Contracts map after adding her to it")
-            } catch(e){
-                console.log(e)
-            }
-        });
+//                 assert.strictEqual(oldAddressesContractsMapAlice, undefined, "Alice should not be in the Addresses Contracts map before adding her to it")
+//                 assert.strictEqual(newAddressesContractsMapAlice, alice.pkh, "Alice should be in the Addresses Contracts map after adding her to it")
+//             } catch(e){
+//                 console.log(e)
+//             }
+//         });
 
-        it('Removes Alice from the General Contracts map', async() => {
-            try{
-                const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice');
-                const AddressesAliceOperationAdd = await tokenInstance.methods.updateGeneralContracts('alice', alice.pkh).send();
-                await AddressesAliceOperationAdd.confirmation();
+//         it('Removes Alice from the General Contracts map', async() => {
+//             try{
+//                 const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice');
+//                 const AddressesAliceOperationAdd = await tokenInstance.methods.updateGeneralContracts('alice', alice.pkh).send();
+//                 await AddressesAliceOperationAdd.confirmation();
 
-                const newTokenStorage = await tokenInstance.storage();
-                const newAddressesContractsMapAlice = await newTokenStorage['generalContracts'].get('alice');
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const newAddressesContractsMapAlice = await newTokenStorage['generalContracts'].get('alice');
 
-                assert.strictEqual(oldAddressesContractsMapAlice, alice.pkh, "Alice should be in the Addresses Contracts map before adding her to it")
-                assert.strictEqual(newAddressesContractsMapAlice, undefined, "Alice should not be in the Addresses Contracts map after adding her to it")
-            } catch(e){
-                console.log(e)
-            }
-        });
-    });
+//                 assert.strictEqual(oldAddressesContractsMapAlice, alice.pkh, "Alice should be in the Addresses Contracts map before adding her to it")
+//                 assert.strictEqual(newAddressesContractsMapAlice, undefined, "Alice should not be in the Addresses Contracts map after adding her to it")
+//             } catch(e){
+//                 console.log(e)
+//             }
+//         });
+//     });
 
-    describe('%onStakeChange', function() {
+//     describe('%onStakeChange', function() {
 
-        before('Mint MVKs for Alice', async() => {
-            const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-            await whitelistAliceOperationAdd.confirmation();
-            const mintBobOperation = await tokenInstance.methods.mint(alice.pkh,20000).send()
-            await mintBobOperation.confirmation();
-            const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-            await whitelistAliceOperationRemove.confirmation();
-            tokenStorage = await tokenInstance.storage();
-        })
+//         before('Mint MVKs for Alice', async() => {
+//             const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//             await whitelistAliceOperationAdd.confirmation();
+//             const mintBobOperation = await tokenInstance.methods.mint(alice.pkh,20000).send()
+//             await mintBobOperation.confirmation();
+//             const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//             await whitelistAliceOperationRemove.confirmation();
+//             tokenStorage = await tokenInstance.storage();
+//         })
 
-        it('Stakes 1000MVK on Alice account without being whitelisted', async() => {
-            try{
-                const operation = await tokenInstance.methods.onStakeChange(
-                    alice.pkh,
-                    1000,
-                    'stakeAction'
-                ).send();
-                await operation.confirmation();
-            } catch(e){
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                assert.equal(e.message, 'ONLY_WHITELISTED_CONTRACTS_ALLOWED', "This entrypoint should only be called by whitelisted contracts");
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
-            }
-        });
+//         it('Stakes 1000MVK on Alice account without being whitelisted', async() => {
+//             try{
+//                 const operation = await tokenInstance.methods.onStakeChange(
+//                     alice.pkh,
+//                     1000,
+//                     'stakeAction'
+//                 ).send();
+//                 await operation.confirmation();
+//             } catch(e){
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 assert.equal(e.message, 'ONLY_WHITELISTED_CONTRACTS_ALLOWED', "This entrypoint should only be called by whitelisted contracts");
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
+//             }
+//         });
 
-        it('Stakes 1000MVK on Alice account while being whitelisted', async() => {
-            try{
-                const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationAdd.confirmation();
+//         it('Stakes 1000MVK on Alice account while being whitelisted', async() => {
+//             try{
+//                 const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationAdd.confirmation();
 
-                const operation = await tokenInstance.methods.onStakeChange(
-                    alice.pkh,
-                    1000,
-                    'stakeAction'
-                ).send();
-                await operation.confirmation();
+//                 const operation = await tokenInstance.methods.onStakeChange(
+//                     alice.pkh,
+//                     1000,
+//                     'stakeAction'
+//                 ).send();
+//                 await operation.confirmation();
 
-                const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationRemove.confirmation();
+//                 const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationRemove.confirmation();
 
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase - 1000, "Alice MVK Ledger should have "+(aliceTokenLedgerBase - 1000)+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
-            } catch(e){
-                console.log(e)
-            }
-        });
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase - 1000, "Alice MVK Ledger should have "+(aliceTokenLedgerBase - 1000)+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
+//             } catch(e){
+//                 console.log(e)
+//             }
+//         });
 
-        it('Stakes all Alice MVKs while being whitelisted', async() => {
-            try{
-                const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationAdd.confirmation();
+//         it('Stakes all Alice MVKs while being whitelisted', async() => {
+//             try{
+//                 const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationAdd.confirmation();
 
-                const aliceBalance = await tokenStorage.ledger.get(alice.pkh)
-                const operation = await tokenInstance.methods.onStakeChange(
-                    alice.pkh,
-                    aliceBalance,
-                    'stakeAction'
-                ).send();
-                await operation.confirmation();
+//                 const aliceBalance = await tokenStorage.ledger.get(alice.pkh)
+//                 const operation = await tokenInstance.methods.onStakeChange(
+//                     alice.pkh,
+//                     aliceBalance,
+//                     'stakeAction'
+//                 ).send();
+//                 await operation.confirmation();
 
-                const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationRemove.confirmation();
+//                 const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationRemove.confirmation();
 
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
-                assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase - aliceBalance, "Alice MVK Ledger should have "+(aliceTokenLedgerBase - aliceBalance)+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
-            } catch(e){
-                console.log(e)
-            }
-        });
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase - aliceBalance, "Alice MVK Ledger should have "+(aliceTokenLedgerBase - aliceBalance)+"MVK but she has "+aliceTokenLedgerAfter+"MVK")
+//             } catch(e){
+//                 console.log(e)
+//             }
+//         });
 
-        it('Stakes too much MVK from Alice account while being whitelisted', async() => {
-            try{
-                const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationAdd.confirmation();
+//         it('Stakes too much MVK from Alice account while being whitelisted', async() => {
+//             try{
+//                 const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationAdd.confirmation();
 
-                const aliceBalance = await tokenStorage.ledger.get(alice.pkh)
-                const operation = await tokenInstance.methods.onStakeChange(
-                    alice.pkh,
-                    aliceBalance + 1,
-                    'stakeAction'
-                ).send();
-                await operation.confirmation();
-            } catch(e){
-                const newTokenStorage = await tokenInstance.storage();
-                const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
+//                 const aliceBalance = await tokenStorage.ledger.get(alice.pkh)
+//                 const operation = await tokenInstance.methods.onStakeChange(
+//                     alice.pkh,
+//                     aliceBalance + 1,
+//                     'stakeAction'
+//                 ).send();
+//                 await operation.confirmation();
+//             } catch(e){
+//                 const newTokenStorage = await tokenInstance.storage();
+//                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
 
-                const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
-                await whitelistAliceOperationRemove.confirmation();
+//                 const whitelistAliceOperationRemove = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send();
+//                 await whitelistAliceOperationRemove.confirmation();
                 
 //                 assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "This entrypoint should only be called by whitelisted contracts");
 //                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
