@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sleep 5
+
 docker exec -it mavryk-sandbox tezos-client import secret key eve unencrypted:edsk3QbYXUV92sMoLyMtUSHr4ymkVBWMWUsiG9Z2DuPhvFNPHrKM5B
 docker exec -it mavryk-sandbox tezos-client import secret key mallory unencrypted:edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
 docker exec -it mavryk-sandbox tezos-client import secret key oscar unencrypted:edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs

@@ -180,7 +180,7 @@ describe("Contracts Deployment for Tests", async () => {
 
     farmStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"  : mvkToken.contract.address,
-      "reserve"   : bob.pkh
+      "reserve"   : eve.pkh
     });
     farmStorage.lpToken.tokenAddress = lpToken.contract.address;
       
