@@ -3,8 +3,8 @@ import { BigNumber } from "bignumber.js";
 import { alice } from '../scripts/sandbox/accounts'
 import { farmStorageType } from "../test/types/farmStorageType";
 
-const totalBlocks = new BigNumber(20);
-const rewardPerBlock = new BigNumber(100);
+const totalBlocks = new BigNumber(0);
+const rewardPerBlock = new BigNumber(0);
 const plannedRewards = {
   totalBlocks: totalBlocks, // 1hour with a block_time of 5seconds
   rewardPerBlock: rewardPerBlock
@@ -24,7 +24,8 @@ const lpTokenStandard = {
 const lpToken = {
   tokenAddress: "",
   tokenId: lpTokenId,
-  tokenStandard: lpTokenStandard
+  tokenStandard: lpTokenStandard,
+  tokenBalance: new BigNumber(0)
 }
 
 export const farmStorage: farmStorageType = {
@@ -37,6 +38,5 @@ export const farmStorage: farmStorageType = {
   claimedRewards: claimedRewards,
   plannedRewards: plannedRewards,
   delegators: MichelsonMap.fromLiteral({}),
-  farmTokenBalance: new BigNumber(0),
   lpToken: lpToken
 };

@@ -17,10 +17,10 @@ export type farmStorageType = {
     rewardPerBlock: BigNumber;
   }
   delegators: MichelsonMap<MichelsonMapKey, unknown>;
-  farmTokenBalance: BigNumber;
   lpToken: {
     tokenAddress: String;
     tokenId: BigNumber;
     tokenStandard: {};
+    tokenBalance: BigNumber;
   }
 };
