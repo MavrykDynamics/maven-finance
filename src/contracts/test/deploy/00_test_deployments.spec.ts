@@ -255,13 +255,13 @@ describe("Contracts Deployment for Tests", async () => {
     // Save Contract Addresses to JSON (for reuse in JS / PyTezos Tests)
     //----------------------------
     await saveContractAddress("doormanAddress", doorman.contract.address)
-    await saveContractAddress("delegationAddress", delegation.contract.address)
+    // await saveContractAddress("delegationAddress", delegation.contract.address)
     await saveContractAddress("mvkTokenAddress", mvkToken.contract.address)
-    await saveContractAddress("governanceAddress", governance.contract.address)
-    await saveContractAddress("breakGlassAddress", breakGlass.contract.address)
-    await saveContractAddress("emergencyGovernanceAddress", emergencyGovernance.contract.address)
-    await saveContractAddress("vestingAddress", vesting.contract.address)
-    await saveContractAddress("councilAddress", council.contract.address)
+    // await saveContractAddress("governanceAddress", governance.contract.address)
+    // await saveContractAddress("breakGlassAddress", breakGlass.contract.address)
+    // await saveContractAddress("emergencyGovernanceAddress", emergencyGovernance.contract.address)
+    // await saveContractAddress("vestingAddress", vesting.contract.address)
+    // await saveContractAddress("councilAddress", council.contract.address)
     await saveContractAddress("lpTokenAddress", lpToken.contract.address)
     await saveContractAddress("farmAddress", farm.contract.address)
 
@@ -287,14 +287,14 @@ describe("Contracts Deployment for Tests", async () => {
         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
         console.log("Test: All contracts deployed")
         console.log("-- -- -- -- -- Deployments -- -- -- --")
-        console.log("Doorman Contract deployed at:", doorman.contract.address);
-        console.log("Delegation Contract deployed at:", delegation.contract.address);
-        console.log("Governance Contract deployed at:", governance.contract.address);
-        console.log("BreakGlass Contract deployed at:", breakGlass.contract.address);
-        console.log("Emergency Governance Contract deployed at:", emergencyGovernance.contract.address);
+        // console.log("Doorman Contract deployed at:", doorman.contract.address);
+        // console.log("Delegation Contract deployed at:", delegation.contract.address);
+        // console.log("Governance Contract deployed at:", governance.contract.address);
+        // console.log("BreakGlass Contract deployed at:", breakGlass.contract.address);
+        // console.log("Emergency Governance Contract deployed at:", emergencyGovernance.contract.address);
         console.log("MVK Token Contract deployed at:", mvkToken.contract.address);
-        console.log("Vesting Contract deployed at:", vesting.contract.address);
-        console.log("Council Contract deployed at:", council.contract.address);
+        // console.log("Vesting Contract deployed at:", vesting.contract.address);
+        // console.log("Council Contract deployed at:", council.contract.address);
         console.log("LP Token Contract deployed at:", lpToken.contract.address);
         console.log("Farm Contract deployed at:", farm.contract.address);
 

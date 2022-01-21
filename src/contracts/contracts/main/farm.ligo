@@ -1,16 +1,24 @@
+////
+// TYPES INCLUDED
+////
 // Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
 #include "../partials/whitelistContractsType.ligo"
 
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-// Types
+////
+// COMMON TYPES
+////
 type delegator is address
 type tokenBalance is nat
 
+////
+// STORAGE
+////
 type delegatorRecord is record[
     balance: tokenBalance;
-    rewardDebt: tokenBalance;
+    participationMVKPerShare: tokenBalance;
 ]
 type claimedRewards is record[
     unpaid: tokenBalance;
@@ -20,31 +28,9 @@ type plannedRewards is record[
     totalBlocks: nat;
     rewardPerBlock: tokenBalance;
 ]
-
-(* Transfer entrypoint inputs *)
-type transferDestination is [@layout:comb] record[
-  to_: address;
-  token_id: nat;
-  amount: tokenBalance;
-]
-type transfer is [@layout:comb] record[
-  from_: address;
-  txs: list(transferDestination);
-]
-type newTransferType is list(transfer)
-type oldTransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
-
-(* initFarm entrypoint inputs *)
-type initFarmParamsType is record[
-    totalBlocks: nat;
-    rewardPerBlock: nat;
-]
-
-(* LP Token standards *)
 type lpStandard is
     Fa12 of unit
 |   Fa2 of unit
-
 type lpToken is record[
     tokenAddress: address;
     tokenId: nat;
@@ -63,34 +49,61 @@ type storage is record[
     plannedRewards          : plannedRewards;
     delegators              : big_map(delegator, delegatorRecord);
     lpToken                 : lpToken;
+    open                    : bool;
 ]
 
+////
+// RETURN TYPES
+////
 (* define return for readability *)
 type return is list (operation) * storage
-
 (* define noop for readability *)
 const noOperations : list (operation) = nil;
-const fixedPointAccuracy: nat = 1_000_000n; // 10^6
 
+////
+// INPUTS
+////
+(* Transfer entrypoint inputs for FA12 and FA2 *)
+type transferDestination is [@layout:comb] record[
+  to_: address;
+  token_id: nat;
+  amount: tokenBalance;
+]
+type transfer is [@layout:comb] record[
+  from_: address;
+  txs: list(transferDestination);
+]
+type newTransferType is list(transfer)
+type oldTransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
+
+(* initFarm entrypoint inputs *)
+type initFarmParamsType is record[
+    totalBlocks: nat;
+    rewardPerBlock: nat;
+]
+
+////
+// ENTRYPOINTS
+////
 type entryAction is
     Deposit of nat
 |   Claim of unit
 |   Withdraw of nat
 |   InitFarm of initFarmParamsType
 
-type updatePoolAction is
-    UpdateBlock of storage
-|   UpdatePoolParameters of storage
-|   Skip of unit
+////
+// EXTRA VARIABLES
+////
+const fixedPointAccuracy: nat = 1_000_000n; // 10^6
 
-(* Check and Get functions *)
+////
+// HELPER FUNCTIONS
+///
+(* Getters and Setters *)
 function getDelegatorDeposit(const delegator: delegator; const s: storage): option(delegatorRecord) is
     Big_map.find_opt(delegator, s.delegators)
 
-function checkSenderIsAdmin(const store: storage): unit is
-  if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
-  else unit
-
+(* Checks functions *)
 function checkNoAmount(const _p: unit): unit is
   if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
   else unit
@@ -103,13 +116,18 @@ function checkFarmIsInit(const s: storage): unit is
   if s.plannedRewards.rewardPerBlock = 0n or s.plannedRewards.totalBlocks = 0n then failwith("This farm has not yet been initiated")
   else unit
 
+////
+// FUNCTIONS INCLUDED
+////
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
-(* Utils functions *)
+////
+// TRANSFER FUNCTIONS
+///
 function transferLPOld(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenContractAddress: address): operation is
     block{
         const transferParams: oldTransferType = (from_,(to_,tokenAmount));
@@ -172,17 +190,19 @@ function transferReward(const reserveAddress: address; const to_: address; const
             end;
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
-(* updatePool functions *)
+////
+// UPDATE FARM FUNCTIONS
+///
 function updateBlock(const s: storage): storage is
     s with record[lastBlockUpdate=Tezos.level]
 
-function updatePoolParameters(var s: storage): storage is
+function updateFarmParameters(var s: storage): storage is
     block{
         // Compute the potential reward of this block
         const multiplier: nat = abs(Tezos.level - s.lastBlockUpdate);
         const suspectedReward: tokenBalance = multiplier * s.plannedRewards.rewardPerBlock;
 
-        // This check is necessary in case updatePoolWithRewards was not called for a long time
+        // This check is necessary in case the farm unpaid reward was not updated for a long time
         // and the outstandingReward grew to such a big number that it exceeds the planned rewards.
         // In that case only the difference between planned and claimed rewards is paid out to empty
         // the account.
@@ -195,50 +215,39 @@ function updatePoolParameters(var s: storage): storage is
             |   False -> suspectedReward
             end;
 
+        // Close the farm if totalFarmRewards > totalPlannedRewards
+        s.open := totalFarmRewards < totalPlannedRewards;
+
         // Updates the storage
         s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
         s.accumulatedMVKPerShare := s.accumulatedMVKPerShare + ((reward * fixedPointAccuracy) / s.lpToken.tokenBalance);
         s := updateBlock(s);
     } with(s)
 
-function updatePool(var s: storage): storage is
+function updateFarm(var s: storage): storage is
     block{
-        (*
-        const newBlockUpdate: nat = Tezos.level;
-        const lastBlockUpdate: nat = s.lastBlockUpdate;
-
-        
-        const updateAction: updatePoolAction = 
-            case newBlockUpdate =/= lastBlockUpdate of
-                True -> case s.lpToken.tokenBalance = 0n of
-                        True -> UpdateBlock (s)
-                    |   False -> UpdatePoolParameters (s)
-                    end
-            |   False -> Skip
-            end;
-
-        s := 
-            case updateAction of
-                UpdateBlock (v) -> updateBlock(v)
-            |   UpdatePoolParameters (v) -> updatePoolParameters(v)
-            |   Skip (_v) -> s
-            end;
-        *)
         s := 
             case s.lpToken.tokenBalance = 0n of
                 True -> updateBlock(s)
-            |   False -> updatePoolParameters(s)
+            |   False ->
+                    case s.lastBlockUpdate = Tezos.level of
+                        True -> s
+                    |   False -> updateFarmParameters(s)
+                    end
             end;
     } with(s)
 
-(* Entrypoints *)
+////
+// ENTRYPOINTS FUNCTIONS
+///
+(* Claim Entrypoint *)
 function claim(var s: storage): return is
     block{
         // Check if farm has started
         checkFarmIsInit(s);
 
         // Update pool storage
-        s := updatePool(s);
+        s := updateFarm(s);
 
         const delegator: delegator = Tezos.sender;
 
@@ -250,14 +259,14 @@ function claim(var s: storage): return is
             end;
 
         // Compute delegator reward
-        const accumulatedMVKPerShareStart: tokenBalance = delegatorRecord.rewardDebt;
+        const accumulatedMVKPerShareStart: tokenBalance = delegatorRecord.participationMVKPerShare;
         const accumulatedMVKPerShareEnd: tokenBalance = s.accumulatedMVKPerShare;
         if accumulatedMVKPerShareStart > accumulatedMVKPerShareEnd then failwith("The delegator reward debt is higher than the accumulated MVK per share") else skip;
-        const delegatorAccumulatedMVKPerShare = abs(accumulatedMVKPerShareEnd - accumulatedMVKPerShareStart);
-        const delegatorReward = (delegatorAccumulatedMVKPerShare * delegatorRecord.balance) / fixedPointAccuracy;
+        const currentMVKPerShare = abs(accumulatedMVKPerShareEnd - accumulatedMVKPerShareStart);
+        const delegatorReward = (currentMVKPerShare * delegatorRecord.balance) / fixedPointAccuracy;
 
-        // Store new rewardDebt
-        delegatorRecord.rewardDebt := accumulatedMVKPerShareEnd;
+        // Store new participationMVKPerShare
+        delegatorRecord.participationMVKPerShare := accumulatedMVKPerShareEnd;
         s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
 
         // Update paid and unpaid rewards in storage
@@ -274,13 +283,17 @@ function claim(var s: storage): return is
         const operations: list(operation) = list[operation];
     } with(operations, s)
 
+(* Deposit Entrypoint *)
 function deposit(const tokenAmount: tokenBalance; var s: storage): return is
     block{
         // Check if farm has started
         checkFarmIsInit(s);
 
         // Update pool storage
-        s := updatePool(s);
+        s := updateFarm(s);
+
+        // Check if farm is closed or not
+        if s.open then skip else failwith("This farm is closed you cannot deposit on it");
 
         // Delegator address
         const delegator: delegator = Tezos.sender;
@@ -289,7 +302,7 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
         const existingDelegator: bool = Big_map.mem(delegator, s.delegators);
 
         // Prepare new delegator record
-        var delegatorRecord: delegatorRecord := record[balance=0n; rewardDebt=0n];
+        var delegatorRecord: delegatorRecord := record[balance=0n; participationMVKPerShare=0n];
 
         var depositReturn: return := (noOperations, s);
 
@@ -309,7 +322,7 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
 
         // Update delegator token balance
         delegatorRecord.balance := delegatorRecord.balance + tokenAmount;
-        delegatorRecord.rewardDebt := s.accumulatedMVKPerShare;
+        delegatorRecord.participationMVKPerShare := s.accumulatedMVKPerShare;
 
         // Update delegators Big_map and farmTokenBalance
         s.lpToken.tokenBalance := s.lpToken.tokenBalance + tokenAmount;
@@ -320,13 +333,14 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
         const operations: list(operation) = operation # depositReturn.0;
     } with(operations, s)
 
+(* Withdraw Entrypoint *)
 function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
     block{
         // Check if farm has started
         checkFarmIsInit(s);
 
         // Update pool storage
-        s := updatePool(s);
+        s := updateFarm(s);
 
         const delegator: delegator = Tezos.sender;
 
@@ -341,7 +355,7 @@ function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
             end;
 
         // Check if the delegator has enough token to withdraw
-        if tokenAmount > delegatorRecord.balance then failwith("The amount withdrawn is higher than the delegator stake") else skip;
+        if tokenAmount > delegatorRecord.balance then failwith("The amount withdrawn is higher than the delegator deposit") else skip;
         delegatorRecord.balance := abs(delegatorRecord.balance - tokenAmount);
         s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
 
@@ -361,14 +375,16 @@ function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
         const operations: list(operation) = operation # claimReturn.0;
     } with(operations, s)
 
+(* InitFarm Entrypoint *)
 function initFarm (const initFarmParams: initFarmParamsType; var s: storage): return is
     block{
         checkSenderIsAdmin(s);
 
-        s := updatePool(s);
+        s := updateFarm(s);
 
         s.plannedRewards.rewardPerBlock := initFarmParams.rewardPerBlock;
         s.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
+        s.open := True ;
 
     } with (noOperations, s)
 
