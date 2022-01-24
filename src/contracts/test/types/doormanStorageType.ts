@@ -2,11 +2,11 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type doormanStorageType = {
-  
+
   admin: string;
-  
+
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
-  contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
   breakGlassConfig: {};
   userStakeRecordsLedger: MichelsonMap<MichelsonMapKey, unknown>;
@@ -14,7 +14,7 @@ export type doormanStorageType = {
 
   tempMvkTotalSupply: BigNumber;
   stakedMvkTotalSupply: BigNumber;
-  
+
   logExitFee: BigNumber;
   logFinalAmount: BigNumber;
 };

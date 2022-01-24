@@ -6,7 +6,7 @@ export type breakGlassStorageType = {
   admin: string;
   config: {};
 
-  contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
   glassBroken: boolean;
 
   councilMembers: [];
@@ -16,5 +16,5 @@ export type breakGlassStorageType = {
 
   actionLedger: MichelsonMap<MichelsonMapKey, unknown>;
   flushLedger: MichelsonMap<MichelsonMapKey, unknown>;
-  
+
 };

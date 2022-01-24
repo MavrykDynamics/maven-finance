@@ -1,12 +1,14 @@
 const doormanContract = artifacts.require('doorman')
-const mvkTokenContract = artifacts.require('mvkToken')
+const delegationContract = artifacts.require('doorman')
+const vMvkTokenContract = artifacts.require('vMvkToken')
 const { MichelsonMap } = require('@taquito/taquito')
 
-const { alice, bob, eve, mallory } = require('../../scripts/sandbox/accounts')
-const saveContractAddress = require('../../helpers/saveContractAddress')
-//const doormanAddress = require('../../deployments/doormanAddress')
+const { alice, bob } = require('../scripts/sandbox/accounts')
+const saveContractAddress = require('../helpers/saveContractAddress')
+const doormanAddress = require('../deployments/doormanAddress')
+const delegationAddress = require('../deployments/delegationAddress')
 
-const initialSupply = '10000000000000' // 10,000,000 MVK Tokens in mu (10^6)
+const initialSupply = '10000000000000' // 10,000,000 vMVK Tokens in mu (10^6)
 
 const metadata = MichelsonMap.fromLiteral({
   '': Buffer('tezos-storage:data', 'ascii').toString('hex'),
@@ -29,19 +31,11 @@ const metadata = MichelsonMap.fromLiteral({
 
 const ledger = MichelsonMap.fromLiteral({
   [alice.pkh]: {
-    balance: initialSupply / 4,
+    balance: initialSupply / 2,
     allowances: new MichelsonMap(),
   },
   [bob.pkh]: {
-    balance: initialSupply / 4,
-    allowances: new MichelsonMap(),
-  },
-  [eve.pkh]: {
-    balance: initialSupply / 4,
-    allowances: new MichelsonMap(),
-  },
-  [mallory.pkh]: {
-    balance: initialSupply / 4,
+    balance: initialSupply / 2,
     allowances: new MichelsonMap(),
   },
 })
@@ -50,8 +44,8 @@ const tokenMetadata = MichelsonMap.fromLiteral({
   0: {
     token_id: '0',
     token_info: MichelsonMap.fromLiteral({
-      symbol: Buffer.from('MVK').toString('hex'),
-      name: Buffer.from('MAVRYK').toString('hex'),
+      symbol: Buffer.from('vMVK').toString('hex'),
+      name: Buffer.from('vMVK').toString('hex'),
       decimals: Buffer.from('6').toString('hex'),
       icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
     }),
@@ -59,22 +53,28 @@ const tokenMetadata = MichelsonMap.fromLiteral({
 })
 
 const initialStorage = {
+  admin             : alice.pkh,
   totalSupply       : initialSupply,
   metadata          : metadata,
   ledger            : ledger,
   token_metadata    : tokenMetadata,
   doormanAddress    : doormanAddress,
+  delegationAddress : delegationAddress
 }
 
 module.exports = async (deployer, network, accounts) => {
-  await deployer.deploy(mvkTokenContract, initialStorage)
-  const deployedMvkToken = await mvkTokenContract.deployed()
+  await deployer.deploy(vMvkTokenContract, initialStorage)
+  const deployedVMvkToken = await vMvkTokenContract.deployed()
 
-  // Set MVK token address in Doorman
-  const deployedDoorman = await doormanContract.deployed()
-  await deployedDoorman.setMvkTokenAddress(deployedMvkToken.address)
+  // Set vMVK token address in Doorman
+  // const deployedDoorman = await doormanContract.deployed()
+  // await deployedDoorman.setVMvkTokenAddress(deployedVMvkToken.address)
 
-  await saveContractAddress('mvkTokenAddress', deployedMvkToken.address)
+  // Set vMVK token address in Delegation
+  // const deployedDelegation = await delegationContract.deployed()
+  // await deployedDelegation.setVMvkTokenAddress(deployedVMvkToken.address)
+
+  await saveContractAddress('vMvkTokenAddress', deployedVMvkToken.address)
 }
 
 module.exports.initial_storage = initialStorage

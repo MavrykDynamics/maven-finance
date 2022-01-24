@@ -1,27 +1,38 @@
 { parameter
-    (or (or (or (or (pair %approve (address %spender) (nat %value))
-                    (pair %burn (address %spender) (nat %value)))
-                (or (pair %getAllowance (pair (address %owner) (address %spender)) (contract nat))
-                    (pair %getBalance (address %owner) (contract nat))))
-            (or (or (pair %getTotalSupply unit (contract nat))
-                    (pair %mint (address %spender) (nat %value)))
-                (or (pair %onStakeChange (pair address nat) string)
-                    (pair %transfer (address %from) (pair (address %to) (nat %value))))))
-        (or (nat %updateMvkTotalSupplyForDoorman)
-            (pair %updateUserBalance (address %spender) (nat %value)))) ;
+    (or (or (or (or (pair %assertMetadata (string %key) (bytes %hash))
+                    (pair %balance_of
+                       (list %requests (pair (address %owner) (nat %token_id)))
+                       (contract %callback
+                          (list (pair (pair %request (address %owner) (nat %token_id)) (nat %balance))))))
+                (or (pair %burn address nat) (contract %getTotalSupply nat)))
+            (or (or (pair %mint address nat)
+                    (pair %onStakeChange
+                       (pair address nat)
+                       (or (unit %stakeAction) (unit %unstakeAction))))
+                (or (list %transfer
+                       (pair (address %from_)
+                             (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))))
+                    (pair %updateContractAddresses string address))))
+        (or (or (nat %updateMvkTotalSupplyForDoorman)
+                (pair %updateWhitelistContracts string address))
+            (list %update_operators
+               (or (pair %add_operator (address %owner) (pair (address %operator) (nat %token_id)))
+                   (pair %remove_operator (address %owner) (pair (address %operator) (nat %token_id))))))) ;
   storage
-    (pair (pair (pair (address %admin) (address %doormanAddress))
-                (pair (big_map %ledger address (pair (map %allowances address nat) (nat %balance)))
-                      (big_map %metadata string bytes)))
-          (pair (big_map %token_metadata nat (pair (nat %token_id) (map %token_info string bytes)))
-                (nat %totalSupply))) ;
+    (pair (pair (pair (address %admin) (map %contractAddresses string address))
+                (pair (big_map %ledger address nat) (big_map %metadata string bytes)))
+          (pair (pair (big_map %operators (pair (pair address address) nat) unit)
+                      (big_map %token_metadata nat (pair (nat %token_id) (map %token_info string bytes))))
+                (pair (nat %totalSupply) (map %whitelistContracts string address)))) ;
   code { NIL operation ;
          LAMBDA
            (pair address
-                 (pair (pair (pair address address)
-                             (pair (big_map address (pair (map address nat) nat)) (big_map string bytes)))
-                       (pair (big_map nat (pair nat (map string bytes))) nat)))
-           (pair (map address nat) nat)
+                 (pair (pair (pair address (map string address))
+                             (pair (big_map address nat) (big_map string bytes)))
+                       (pair (pair (big_map (pair (pair address address) nat) unit)
+                                   (big_map nat (pair nat (map string bytes))))
+                             (pair nat (map string address)))))
+           nat
            { UNPAIR ;
              SWAP ;
              CAR ;
@@ -29,45 +40,199 @@
              CAR ;
              SWAP ;
              GET ;
-             IF_NONE { PUSH nat 0 ; EMPTY_MAP address nat ; PAIR } {} } ;
+             IF_NONE { PUSH nat 0 } {} } ;
          LAMBDA
-           (pair (pair (pair (map address nat) nat) address)
-                 (pair (pair (pair address address)
-                             (pair (big_map address (pair (map address nat) nat)) (big_map string bytes)))
-                       (pair (big_map nat (pair nat (map string bytes))) nat)))
            nat
-           { CAR ; UNPAIR ; CAR ; SWAP ; GET ; IF_NONE { PUSH nat 0 } {} } ;
-         DIG 3 ;
+           unit
+           { PUSH nat 0 ;
+             SWAP ;
+             COMPARE ;
+             NEQ ;
+             IF { PUSH string "FA2_TOKEN_UNDEFINED" ; FAILWITH } { UNIT } } ;
+         LAMBDA
+           (pair nat nat)
+           unit
+           { UNPAIR ;
+             COMPARE ;
+             LT ;
+             IF { PUSH string "FA2_INSUFFICIENT_BALANCE" ; FAILWITH } { UNIT } } ;
+         LAMBDA
+           address
+           unit
+           { SENDER ;
+             COMPARE ;
+             NEQ ;
+             IF { PUSH string "FA2_NOT_OWNER" ; FAILWITH } { UNIT } } ;
+         LAMBDA
+           (pair (pair (pair address (map string address))
+                       (pair (big_map address nat) (big_map string bytes)))
+                 (pair (pair (big_map (pair (pair address address) nat) unit)
+                             (big_map nat (pair nat (map string bytes))))
+                       (pair nat (map string address))))
+           unit
+           { CAR ;
+             CAR ;
+             CDR ;
+             PUSH string "doorman" ;
+             GET ;
+             IF_NONE
+               { PUSH string "DOORMAN_CONTRACT_NOT_FOUND" ; FAILWITH }
+               { SENDER ;
+                 SWAP ;
+                 COMPARE ;
+                 NEQ ;
+                 IF { PUSH string "ONLY_DOORMAN_CONTRACT_ALLOWED" ; FAILWITH } { UNIT } } } ;
+         LAMBDA
+           (pair (pair (pair address (map string address))
+                       (pair (big_map address nat) (big_map string bytes)))
+                 (pair (pair (big_map (pair (pair address address) nat) unit)
+                             (big_map nat (pair nat (map string bytes))))
+                       (pair nat (map string address))))
+           unit
+           { CAR ;
+             CAR ;
+             CAR ;
+             SENDER ;
+             COMPARE ;
+             NEQ ;
+             IF { PUSH string "ONLY_ADMINISTRATOR_ALLOWED" ; FAILWITH } { UNIT } } ;
+         LAMBDA
+           (pair address
+                 (pair (pair (pair address (map string address))
+                             (pair (big_map address nat) (big_map string bytes)))
+                       (pair (pair (big_map (pair (pair address address) nat) unit)
+                                   (big_map nat (pair nat (map string bytes))))
+                             (pair nat (map string address)))))
+           bool
+           { UNPAIR ;
+             PUSH bool False ;
+             DIG 2 ;
+             CDR ;
+             CDR ;
+             CDR ;
+             ITER { SWAP ;
+                    PAIR ;
+                    SWAP ;
+                    DUP ;
+                    DUG 2 ;
+                    SWAP ;
+                    DUP ;
+                    DUG 2 ;
+                    CDR ;
+                    CDR ;
+                    COMPARE ;
+                    EQ ;
+                    IF { DROP ; PUSH bool True } { CAR } } ;
+             SWAP ;
+             DROP } ;
+         DIG 8 ;
          UNPAIR ;
+         PUSH mutez 0 ;
+         AMOUNT ;
+         COMPARE ;
+         NEQ ;
+         IF { PUSH string "THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ" ; FAILWITH } {} ;
          IF_LEFT
-           { IF_LEFT
-               { IF_LEFT
+           { DIG 5 ;
+             DROP ;
+             IF_LEFT
+               { DIG 2 ;
+                 DIG 3 ;
+                 DIG 6 ;
+                 DROP 3 ;
+                 IF_LEFT
+                   { DIG 2 ;
+                     DIG 3 ;
+                     DIG 4 ;
+                     DROP 3 ;
+                     IF_LEFT
+                       { SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         CAR ;
+                         GET ;
+                         IF_NONE
+                           { DROP ; PUSH string "METADATA_NOT_FOUND" ; FAILWITH }
+                           { SWAP ;
+                             CDR ;
+                             SWAP ;
+                             COMPARE ;
+                             NEQ ;
+                             IF { PUSH string "METADATA_HAS_A_WRONG_HASH" ; FAILWITH } {} } ;
+                         SWAP ;
+                         PAIR }
+                       { DIG 2 ;
+                         DROP ;
+                         DUP ;
+                         CAR ;
+                         MAP { DUP 3 ;
+                               CAR ;
+                               CDR ;
+                               CAR ;
+                               SWAP ;
+                               DUP ;
+                               DUG 2 ;
+                               CAR ;
+                               GET ;
+                               IF_NONE { PUSH nat 0 } {} ;
+                               SWAP ;
+                               PAIR } ;
+                         SWAP ;
+                         CDR ;
+                         PUSH mutez 0 ;
+                         DIG 2 ;
+                         TRANSFER_TOKENS ;
+                         SWAP ;
+                         NIL operation ;
+                         DIG 2 ;
+                         CONS ;
+                         PAIR } }
                    { IF_LEFT
-                       { UNPAIR ;
+                       { DUP ;
+                         CAR ;
+                         SWAP ;
+                         CDR ;
                          DUP 3 ;
-                         SENDER ;
+                         DUP 3 ;
                          PAIR ;
-                         DIG 5 ;
+                         DIG 6 ;
                          SWAP ;
                          EXEC ;
                          DUP 4 ;
-                         DUP 3 ;
-                         DUP 3 ;
-                         PAIR ;
+                         DIG 5 ;
+                         SWAP ;
+                         EXEC ;
+                         DROP ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
                          PAIR ;
                          DIG 5 ;
                          SWAP ;
                          EXEC ;
-                         PUSH nat 0 ;
-                         DUP 5 ;
-                         COMPARE ;
-                         GT ;
-                         PUSH nat 0 ;
-                         DIG 2 ;
-                         COMPARE ;
-                         GT ;
-                         AND ;
-                         IF { PUSH string "UnsafeAllowanceChange" ; FAILWITH } {} ;
+                         DROP ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         SWAP ;
+                         SUB ;
+                         ABS ;
+                         SWAP ;
+                         DUP 4 ;
+                         CDR ;
+                         CDR ;
+                         CAR ;
+                         SUB ;
+                         ABS ;
                          DUP 4 ;
                          CDR ;
                          DUP 5 ;
@@ -78,95 +243,173 @@
                          CAR ;
                          CDR ;
                          CAR ;
-                         DUP 4 ;
-                         CDR ;
                          DIG 4 ;
+                         SOME ;
+                         DIG 5 ;
+                         UPDATE ;
+                         PAIR ;
+                         DIG 3 ;
                          CAR ;
-                         DIG 6 ;
-                         DIG 6 ;
-                         SWAP ;
-                         SOME ;
-                         SWAP ;
-                         UPDATE ;
+                         CAR ;
                          PAIR ;
-                         SOME ;
-                         SENDER ;
-                         UPDATE ;
                          PAIR ;
+                         DUP ;
+                         CDR ;
+                         CDR ;
+                         CDR ;
                          DIG 2 ;
-                         CAR ;
+                         PAIR ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         CDR ;
                          CAR ;
                          PAIR ;
+                         SWAP ;
+                         CAR ;
                          PAIR ;
                          SWAP ;
                          PAIR }
                        { DIG 2 ;
-                         DROP ;
-                         UNPAIR ;
-                         DUP 3 ;
+                         DIG 3 ;
+                         DIG 4 ;
+                         DIG 5 ;
+                         DROP 4 ;
                          SWAP ;
                          DUP ;
                          DUG 2 ;
+                         NIL operation ;
+                         DIG 2 ;
+                         PUSH mutez 0 ;
+                         DIG 4 ;
+                         CDR ;
+                         CDR ;
+                         CAR ;
+                         TRANSFER_TOKENS ;
+                         CONS ;
+                         PAIR } } }
+               { DIG 4 ;
+                 DROP ;
+                 IF_LEFT
+                   { DIG 3 ;
+                     DIG 5 ;
+                     DROP 2 ;
+                     IF_LEFT
+                       { DIG 3 ;
+                         DROP ;
+                         DUP ;
+                         CAR ;
+                         SWAP ;
+                         CDR ;
+                         DUP 3 ;
+                         SENDER ;
                          PAIR ;
                          DIG 4 ;
                          SWAP ;
                          EXEC ;
-                         SENDER ;
+                         IF {} { PUSH string "ONLY_WHITELISTED_CONTRACTS_ALLOWED" ; FAILWITH } ;
+                         DUP ;
+                         DUP 4 ;
+                         DUP 4 ;
+                         PAIR ;
+                         DIG 5 ;
+                         SWAP ;
+                         EXEC ;
+                         ADD ;
+                         SWAP ;
+                         DUP 4 ;
+                         CDR ;
+                         CDR ;
+                         CAR ;
+                         ADD ;
+                         DUP 4 ;
+                         CDR ;
                          DUP 5 ;
                          CAR ;
-                         CAR ;
-                         CDR ;
-                         COMPARE ;
-                         NEQ ;
-                         IF { PUSH string "NotAuthorized" ; FAILWITH } {} ;
-                         DUP 3 ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         COMPARE ;
-                         LT ;
-                         IF { PUSH string "NotEnoughBalance" ; FAILWITH } {} ;
-                         DUP 3 ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         SUB ;
-                         ABS ;
-                         SWAP ;
-                         CAR ;
-                         PAIR ;
-                         DIG 2 ;
-                         DUP 4 ;
                          CDR ;
                          CDR ;
-                         SUB ;
-                         ABS ;
-                         DUP 4 ;
-                         CDR ;
-                         CAR ;
-                         PAIR ;
-                         DIG 3 ;
-                         CAR ;
-                         PAIR ;
-                         DUP ;
-                         CDR ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CAR ;
-                         CDR ;
-                         CDR ;
-                         DUP 3 ;
+                         DUP 6 ;
                          CAR ;
                          CDR ;
                          CAR ;
                          DIG 4 ;
+                         SOME ;
+                         DIG 5 ;
+                         UPDATE ;
+                         PAIR ;
+                         DIG 3 ;
+                         CAR ;
+                         CAR ;
+                         PAIR ;
+                         PAIR ;
+                         DUP ;
+                         CDR ;
+                         CDR ;
+                         CDR ;
+                         DIG 2 ;
+                         PAIR ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         CDR ;
+                         CAR ;
+                         PAIR ;
+                         SWAP ;
+                         CAR ;
+                         PAIR ;
+                         SWAP ;
+                         PAIR }
+                       { SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         SENDER ;
+                         PAIR ;
+                         DIG 3 ;
+                         SWAP ;
+                         EXEC ;
+                         IF {} { PUSH string "ONLY_WHITELISTED_CONTRACTS_ALLOWED" ; FAILWITH } ;
+                         DUP ;
+                         CAR ;
+                         CAR ;
+                         DUP 3 ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         PAIR ;
                          DIG 5 ;
                          SWAP ;
+                         EXEC ;
+                         DUP 3 ;
+                         CAR ;
+                         CDR ;
+                         DIG 3 ;
+                         CDR ;
+                         IF_LEFT
+                           { DROP ;
+                             DUP ;
+                             DUP 3 ;
+                             PAIR ;
+                             DIG 5 ;
+                             SWAP ;
+                             EXEC ;
+                             DROP ;
+                             SWAP ;
+                             SUB ;
+                             ABS }
+                           { DIG 5 ; DROP 2 ; ADD } ;
+                         DUP 3 ;
+                         CDR ;
+                         DUP 4 ;
+                         CAR ;
+                         CDR ;
+                         CDR ;
+                         DUP 5 ;
+                         CAR ;
+                         CDR ;
+                         CAR ;
+                         DIG 3 ;
                          SOME ;
-                         SWAP ;
+                         DIG 4 ;
                          UPDATE ;
                          PAIR ;
                          DIG 2 ;
@@ -176,504 +419,347 @@
                          PAIR ;
                          SWAP ;
                          PAIR } }
-                   { DIG 4 ;
-                     DROP ;
-                     IF_LEFT
-                       { DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         PAIR ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CAR ;
-                         CDR ;
-                         DIG 2 ;
-                         CAR ;
-                         CAR ;
-                         DIG 2 ;
-                         UNPAIR ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         DIG 3 ;
-                         PAIR ;
-                         DIG 5 ;
-                         SWAP ;
-                         EXEC ;
-                         DUP 3 ;
-                         DIG 4 ;
-                         DIG 2 ;
-                         PAIR ;
-                         PAIR ;
-                         DIG 3 ;
-                         SWAP ;
-                         EXEC ;
-                         DIG 2 ;
-                         NIL operation ;
-                         DIG 3 ;
-                         PUSH mutez 0 ;
-                         DIG 4 ;
-                         TRANSFER_TOKENS ;
-                         CONS ;
-                         PAIR }
-                       { DIG 2 ;
-                         DROP ;
-                         UNPAIR ;
-                         DUP 3 ;
-                         SWAP ;
-                         PAIR ;
-                         DIG 3 ;
-                         SWAP ;
-                         EXEC ;
-                         DIG 2 ;
-                         NIL operation ;
-                         DIG 3 ;
-                         PUSH mutez 0 ;
-                         DIG 4 ;
-                         CDR ;
-                         TRANSFER_TOKENS ;
-                         CONS ;
-                         PAIR } } }
-               { IF_LEFT
                    { DIG 2 ;
                      DROP ;
                      IF_LEFT
                        { DIG 2 ;
-                         DIG 3 ;
+                         DIG 6 ;
                          DROP 2 ;
-                         CDR ;
                          SWAP ;
-                         DUP ;
-                         DUG 2 ;
                          NIL operation ;
+                         PAIR ;
+                         SWAP ;
+                         ITER { DUP ;
+                                DUG 2 ;
+                                CAR ;
+                                SWAP ;
+                                DUP ;
+                                DUG 2 ;
+                                CDR ;
+                                DIG 3 ;
+                                CDR ;
+                                ITER { DUP ;
+                                       DUG 2 ;
+                                       GET 3 ;
+                                       DUP 3 ;
+                                       GET 4 ;
+                                       DIG 3 ;
+                                       CAR ;
+                                       DUP 4 ;
+                                       DUP 6 ;
+                                       PAIR ;
+                                       DUP 10 ;
+                                       SWAP ;
+                                       EXEC ;
+                                       DUP 5 ;
+                                       DUP 3 ;
+                                       PAIR ;
+                                       DUP 11 ;
+                                       SWAP ;
+                                       EXEC ;
+                                       DUP 8 ;
+                                       CDR ;
+                                       CDR ;
+                                       CAR ;
+                                       CAR ;
+                                       DUP 6 ;
+                                       DUP 9 ;
+                                       DUG 2 ;
+                                       SENDER ;
+                                       DUP 4 ;
+                                       PAIR ;
+                                       PAIR ;
+                                       MEM ;
+                                       SENDER ;
+                                       DIG 2 ;
+                                       COMPARE ;
+                                       EQ ;
+                                       OR ;
+                                       IF {} { PUSH string "FA2_NOT_OPERATOR" ; FAILWITH } ;
+                                       DIG 4 ;
+                                       DUP 10 ;
+                                       SWAP ;
+                                       EXEC ;
+                                       DROP ;
+                                       DUP 4 ;
+                                       DUP 3 ;
+                                       PAIR ;
+                                       DUP 9 ;
+                                       SWAP ;
+                                       EXEC ;
+                                       DROP ;
+                                       DUP 3 ;
+                                       DUP 7 ;
+                                       COMPARE ;
+                                       NEQ ;
+                                       IF { DUP 4 ; DIG 2 ; SUB ; ABS ; DIG 3 ; DIG 2 ; ADD ; SWAP ; PAIR }
+                                          { DIG 3 ; DROP ; SWAP ; PAIR } ;
+                                       DUP 3 ;
+                                       CDR ;
+                                       DUP 4 ;
+                                       CAR ;
+                                       CDR ;
+                                       CDR ;
+                                       DUP 5 ;
+                                       CAR ;
+                                       CDR ;
+                                       CAR ;
+                                       DUP 4 ;
+                                       CAR ;
+                                       SOME ;
+                                       DUP 8 ;
+                                       UPDATE ;
+                                       DIG 3 ;
+                                       CDR ;
+                                       SOME ;
+                                       DIG 4 ;
+                                       UPDATE ;
+                                       PAIR ;
+                                       DIG 2 ;
+                                       CAR ;
+                                       CAR ;
+                                       PAIR ;
+                                       PAIR } ;
+                                SWAP ;
+                                DROP ;
+                                SWAP ;
+                                CAR ;
+                                NIL operation ;
+                                ITER { CONS } ;
+                                PAIR } ;
+                         SWAP ;
                          DIG 2 ;
-                         PUSH mutez 0 ;
-                         DIG 4 ;
-                         CDR ;
-                         CDR ;
-                         TRANSFER_TOKENS ;
-                         CONS ;
-                         PAIR }
-                       { UNPAIR ;
-                         DUP 3 ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         PAIR ;
-                         DIG 4 ;
-                         SWAP ;
-                         EXEC ;
-                         SENDER ;
-                         DUP 5 ;
-                         CAR ;
-                         CAR ;
-                         CDR ;
-                         COMPARE ;
-                         NEQ ;
-                         IF { PUSH string "NotAuthorized" ; FAILWITH } {} ;
-                         DUP 3 ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         ADD ;
-                         SWAP ;
-                         CAR ;
-                         PAIR ;
-                         DIG 2 ;
-                         DUP 4 ;
-                         CDR ;
-                         CDR ;
-                         ADD ;
-                         DUP 4 ;
-                         CDR ;
-                         CAR ;
-                         PAIR ;
                          DIG 3 ;
-                         CAR ;
-                         PAIR ;
-                         DUP ;
-                         CDR ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CAR ;
-                         CDR ;
-                         CDR ;
-                         DUP 3 ;
-                         CAR ;
-                         CDR ;
-                         CAR ;
+                         DROP 3 }
+                       { DIG 3 ;
                          DIG 4 ;
                          DIG 5 ;
+                         DROP 3 ;
                          SWAP ;
-                         SOME ;
+                         DUP ;
+                         DUG 2 ;
+                         DIG 3 ;
                          SWAP ;
-                         UPDATE ;
-                         PAIR ;
-                         DIG 2 ;
-                         CAR ;
-                         CAR ;
-                         PAIR ;
-                         PAIR ;
-                         SWAP ;
-                         PAIR } }
-                   { IF_LEFT
-                       { DIG 2 ;
+                         EXEC ;
                          DROP ;
                          DUP ;
-                         DUG 2 ;
                          CDR ;
-                         PAIR ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CAR ;
-                         CDR ;
-                         DIG 2 ;
-                         CAR ;
-                         CAR ;
-                         DIG 2 ;
-                         UNPAIR ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         DUP 4 ;
-                         PAIR ;
-                         DIG 5 ;
-                         SWAP ;
-                         EXEC ;
-                         SENDER ;
-                         DUP 4 ;
-                         CAR ;
-                         CAR ;
-                         CDR ;
-                         COMPARE ;
-                         NEQ ;
-                         IF { PUSH string "NotAuthorized" ; FAILWITH } {} ;
-                         PUSH string "stake" ;
-                         DIG 2 ;
-                         COMPARE ;
-                         EQ ;
-                         IF { DUP 4 ;
-                              SWAP ;
-                              DUP ;
-                              DUG 2 ;
-                              CDR ;
-                              COMPARE ;
-                              LT ;
-                              IF { PUSH string "NotEnoughBalance" ; FAILWITH } {} ;
-                              DIG 3 ;
-                              SWAP ;
-                              DUP ;
-                              DUG 2 ;
-                              CDR ;
-                              SUB ;
-                              ABS ;
-                              SWAP ;
-                              CAR ;
-                              PAIR ;
-                              SWAP ;
-                              DUP ;
-                              DUG 2 ;
-                              CDR ;
-                              DUP 3 ;
-                              CAR ;
-                              CDR ;
-                              CDR ;
-                              DUP 4 ;
-                              CAR ;
-                              CDR ;
-                              CAR ;
-                              DUP 4 ;
-                              DIG 6 ;
-                              SWAP ;
-                              SOME ;
-                              SWAP ;
-                              UPDATE ;
-                              PAIR ;
-                              DIG 3 ;
-                              CAR ;
-                              CAR ;
-                              PAIR ;
-                              PAIR ;
-                              SWAP ;
-                              PAIR }
-                            { DIG 3 ;
-                              SWAP ;
-                              DUP ;
-                              DUG 2 ;
-                              CDR ;
-                              ADD ;
-                              SWAP ;
-                              CAR ;
-                              PAIR ;
-                              SWAP ;
-                              DUP ;
-                              DUG 2 ;
-                              CDR ;
-                              DUP 3 ;
-                              CAR ;
-                              CDR ;
-                              CDR ;
-                              DUP 4 ;
-                              CAR ;
-                              CDR ;
-                              CAR ;
-                              DUP 4 ;
-                              DIG 6 ;
-                              SWAP ;
-                              SOME ;
-                              SWAP ;
-                              UPDATE ;
-                              PAIR ;
-                              DIG 3 ;
-                              CAR ;
-                              CAR ;
-                              PAIR ;
-                              PAIR ;
-                              SWAP ;
-                              PAIR } ;
-                         CDR ;
-                         SWAP ;
-                         PAIR }
-                       { DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         CDR ;
-                         PAIR ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         CAR ;
-                         DIG 2 ;
-                         CAR ;
-                         DIG 2 ;
-                         UNPAIR ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         DUP 4 ;
-                         PAIR ;
-                         DUP 7 ;
-                         SWAP ;
-                         EXEC ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         COMPARE ;
-                         LT ;
-                         IF { PUSH string "NotEnoughBalance" ; FAILWITH } {} ;
-                         SENDER ;
-                         DUP 5 ;
-                         COMPARE ;
-                         NEQ ;
-                         IF { DUP 3 ;
-                              SENDER ;
-                              DUP 3 ;
-                              PAIR ;
-                              PAIR ;
-                              DIG 6 ;
-                              SWAP ;
-                              EXEC ;
-                              DUP 3 ;
-                              SWAP ;
-                              DUP ;
-                              DUG 2 ;
-                              COMPARE ;
-                              LT ;
-                              IF { PUSH string "NotEnoughAllowance" ; FAILWITH } {} ;
-                              SWAP ;
-                              DUP ;
-                              DUG 2 ;
-                              CDR ;
-                              DIG 2 ;
-                              CAR ;
-                              DUP 4 ;
-                              DIG 3 ;
-                              SUB ;
-                              ABS ;
-                              SOME ;
-                              SENDER ;
-                              UPDATE ;
-                              PAIR }
-                            { DIG 5 ; DROP } ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         SUB ;
-                         ABS ;
-                         SWAP ;
-                         CAR ;
-                         PAIR ;
                          DUP 3 ;
-                         CDR ;
-                         DUP 4 ;
+                         SWAP ;
+                         DUP ;
+                         DUG 2 ;
+                         PUSH bool False ;
+                         DIG 2 ;
+                         CAR ;
                          CAR ;
                          CDR ;
+                         ITER { SWAP ;
+                                PAIR ;
+                                DUP ;
+                                CDR ;
+                                CDR ;
+                                DUP 3 ;
+                                COMPARE ;
+                                EQ ;
+                                IF { DROP ; PUSH bool True } { CAR } } ;
+                         SWAP ;
+                         DROP ;
+                         DUP 4 ;
                          CDR ;
                          DUP 5 ;
                          CAR ;
                          CDR ;
+                         DUP 6 ;
                          CAR ;
+                         CAR ;
+                         CDR ;
                          DIG 3 ;
-                         DIG 6 ;
-                         SWAP ;
-                         SOME ;
-                         SWAP ;
-                         UPDATE ;
-                         PAIR ;
-                         DIG 3 ;
-                         CAR ;
-                         CAR ;
-                         PAIR ;
-                         PAIR ;
-                         DUP ;
-                         DUP 4 ;
-                         PAIR ;
+                         IF { DIG 3 ; DROP ; NONE address } { DIG 3 ; SOME } ;
                          DIG 4 ;
-                         SWAP ;
-                         EXEC ;
-                         DIG 2 ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         ADD ;
-                         SWAP ;
                          CAR ;
-                         PAIR ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         DUP 3 ;
-                         CAR ;
-                         CDR ;
-                         CDR ;
-                         DUP 4 ;
-                         CAR ;
-                         CDR ;
-                         CAR ;
-                         DIG 3 ;
-                         DIG 5 ;
-                         SWAP ;
-                         SOME ;
-                         SWAP ;
                          UPDATE ;
+                         DIG 3 ;
+                         CAR ;
+                         CAR ;
+                         CAR ;
                          PAIR ;
-                         DIG 2 ;
-                         CAR ;
-                         CAR ;
                          PAIR ;
                          PAIR ;
                          SWAP ;
                          PAIR } } } }
-           { DIG 2 ;
-             DROP ;
+           { DIG 6 ;
+             DIG 8 ;
+             DROP 2 ;
              IF_LEFT
+               { DIG 5 ;
+                 DIG 6 ;
+                 DROP 2 ;
+                 IF_LEFT
+                   { DIG 2 ;
+                     DIG 3 ;
+                     DIG 5 ;
+                     DROP 3 ;
+                     SWAP ;
+                     DUP ;
+                     DUG 2 ;
+                     DIG 3 ;
+                     SWAP ;
+                     EXEC ;
+                     DROP ;
+                     SENDER ;
+                     DUP ;
+                     CONTRACT %setTempMvkTotalSupply nat ;
+                     IF_NONE { PUSH string "ENTRYPOINT_NOT_FOUND" ; FAILWITH } {} ;
+                     PUSH mutez 0 ;
+                     DUP 5 ;
+                     CDR ;
+                     CDR ;
+                     CAR ;
+                     TRANSFER_TOKENS ;
+                     SWAP ;
+                     CONTRACT %unstakeComplete nat ;
+                     IF_NONE { PUSH string "ENTRYPOINT_NOT_FOUND" ; FAILWITH } {} ;
+                     PUSH mutez 0 ;
+                     DIG 3 ;
+                     TRANSFER_TOKENS ;
+                     DIG 2 ;
+                     NIL operation ;
+                     DIG 2 ;
+                     CONS ;
+                     DIG 2 ;
+                     CONS ;
+                     PAIR }
+                   { DIG 4 ;
+                     DROP ;
+                     SWAP ;
+                     DUP ;
+                     DUG 2 ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     DROP ;
+                     DUP ;
+                     CDR ;
+                     DUP 3 ;
+                     SWAP ;
+                     DUP ;
+                     DUG 2 ;
+                     PAIR ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     DUP 4 ;
+                     CDR ;
+                     CDR ;
+                     CDR ;
+                     SWAP ;
+                     IF { SWAP ; DROP ; NONE address } { SWAP ; SOME } ;
+                     DIG 2 ;
+                     CAR ;
+                     UPDATE ;
+                     SWAP ;
+                     DUP ;
+                     DUG 2 ;
+                     CDR ;
+                     CDR ;
+                     CAR ;
+                     PAIR ;
+                     SWAP ;
+                     DUP ;
+                     DUG 2 ;
+                     CDR ;
+                     CAR ;
+                     PAIR ;
+                     SWAP ;
+                     CAR ;
+                     PAIR ;
+                     SWAP ;
+                     PAIR } }
                { DIG 2 ;
                  DIG 3 ;
+                 DIG 4 ;
+                 DROP 3 ;
+                 SWAP ;
+                 DUP ;
+                 DUG 2 ;
+                 CDR ;
+                 CAR ;
+                 CAR ;
+                 SWAP ;
+                 ITER { IF_LEFT
+                          { DUP ;
+                            CAR ;
+                            SWAP ;
+                            DUP ;
+                            DUG 2 ;
+                            GET 4 ;
+                            DUP ;
+                            DUP 8 ;
+                            SWAP ;
+                            EXEC ;
+                            DROP ;
+                            SWAP ;
+                            DUP ;
+                            DUG 2 ;
+                            DUP 7 ;
+                            SWAP ;
+                            EXEC ;
+                            DROP ;
+                            DIG 3 ;
+                            UNIT ;
+                            SOME ;
+                            DIG 2 ;
+                            DIG 4 ;
+                            GET 3 ;
+                            DIG 4 ;
+                            PAIR ;
+                            PAIR ;
+                            UPDATE }
+                          { DUP ;
+                            CAR ;
+                            SWAP ;
+                            DUP ;
+                            DUG 2 ;
+                            GET 4 ;
+                            DUP ;
+                            DUP 8 ;
+                            SWAP ;
+                            EXEC ;
+                            DROP ;
+                            SWAP ;
+                            DUP ;
+                            DUG 2 ;
+                            DUP 7 ;
+                            SWAP ;
+                            EXEC ;
+                            DROP ;
+                            DIG 3 ;
+                            SWAP ;
+                            DIG 3 ;
+                            GET 3 ;
+                            DIG 3 ;
+                            PAIR ;
+                            PAIR ;
+                            NONE unit ;
+                            SWAP ;
+                            UPDATE } } ;
+                 DIG 2 ;
+                 DIG 3 ;
                  DROP 2 ;
-                 SENDER ;
-                 DUP 3 ;
-                 CAR ;
-                 CAR ;
-                 CDR ;
-                 COMPARE ;
-                 NEQ ;
-                 IF { PUSH string "NotAuthorized" ; FAILWITH } {} ;
-                 SWAP ;
-                 DUP ;
-                 DUG 2 ;
-                 CAR ;
-                 CAR ;
-                 CDR ;
-                 CONTRACT %setTempMvkTotalSupply nat ;
-                 IF_NONE
-                   { PUSH string "SetTempMvkTotalSupply entrypoint not found" ; FAILWITH }
-                   {} ;
-                 PUSH mutez 0 ;
-                 DUP 4 ;
-                 CDR ;
-                 CDR ;
-                 TRANSFER_TOKENS ;
-                 DUP 3 ;
-                 CAR ;
-                 CAR ;
-                 CDR ;
-                 CONTRACT %unstakeComplete nat ;
-                 IF_NONE
-                   { PUSH string "unstakeComplete entrypoint in Doorman Contract not found" ;
-                     FAILWITH }
-                   {} ;
-                 PUSH mutez 0 ;
-                 DIG 3 ;
-                 TRANSFER_TOKENS ;
-                 DIG 2 ;
-                 NIL operation ;
-                 DIG 2 ;
-                 CONS ;
-                 DIG 2 ;
-                 CONS ;
-                 PAIR }
-               { UNPAIR ;
-                 DUP 3 ;
-                 SWAP ;
-                 DUP ;
-                 DUG 2 ;
-                 PAIR ;
-                 DIG 4 ;
-                 SWAP ;
-                 EXEC ;
-                 SENDER ;
-                 DUP 5 ;
-                 CAR ;
-                 CAR ;
-                 CDR ;
-                 COMPARE ;
-                 NEQ ;
-                 IF { PUSH string "NotAuthorized" ; FAILWITH } {} ;
-                 DIG 2 ;
                  SWAP ;
                  DUP ;
                  DUG 2 ;
                  CDR ;
-                 ADD ;
-                 SWAP ;
-                 CAR ;
-                 PAIR ;
+                 CDR ;
                  DUP 3 ;
                  CDR ;
-                 DUP 4 ;
                  CAR ;
                  CDR ;
-                 CDR ;
-                 DUP 5 ;
-                 CAR ;
-                 CDR ;
-                 CAR ;
-                 DIG 3 ;
-                 DIG 4 ;
-                 SWAP ;
-                 SOME ;
-                 SWAP ;
-                 UPDATE ;
-                 PAIR ;
                  DIG 2 ;
-                 CAR ;
-                 CAR ;
                  PAIR ;
+                 PAIR ;
+                 SWAP ;
+                 CAR ;
                  PAIR ;
                  SWAP ;
                  PAIR } } } }

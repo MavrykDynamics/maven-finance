@@ -1,12 +1,18 @@
+import {
+  TransactionOperation,
+  TezosToolkit,
+  MichelsonMap,
+} from "@taquito/taquito";
 import { InMemorySigner } from "@taquito/signer";
-import { MichelsonMap, TezosToolkit, TransactionOperation } from "@taquito/taquito";
+
 import { BigNumber } from "bignumber.js";
 
-import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
 
-const defaultNetwork = "hangzhounet";
-const network = defaultNetwork;
+import env from "../../env";
+
+const defaultNetwork = "development";
+const network = env.network || defaultNetwork;
 
 export class Utils {
   tezos: TezosToolkit;

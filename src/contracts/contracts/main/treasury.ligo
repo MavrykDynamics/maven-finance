@@ -2,17 +2,31 @@
 #include "../partials/fa12/fa12_types.ligo"
 #include "../partials/fa2/fa2_types.ligo"
 
+// type action_type is
+//     | Transfer                of transfers_type
+//     | Update_operators        of fa2_update_operators_type
+//     | Balance_of              of fa2_balance_of_type
+
+type configType is record [
+    max_proposal_size   : nat;
+    min_xtz_amount      : nat;
+    max_xtz_amount      : nat;
+]
+
 type whitelistContractsType is set (address)
 type storage is record [
     admin                 : address;
+    config                : configType;
+
     whitelistContracts    : whitelistContractsType;   // whitelist of contracts that can access treasury contract
     glassBroken           : bool;
 ]
 
 type treasuryAction is 
     | UpdateWhitelistContracts of (address)
-    | Transfer of (nat)
-
+    | Transfer of transfers_type
+    | Update_operators        of fa2_update_operators_type
+    | Balance_of              of fa2_balance_of_type
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -22,9 +36,14 @@ function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
         else failwith("Only the administrator can call this entrypoint.");
 
-function checkSenderIsWhitelistContract(var s : storage) : unit is
-    if (s.whitelistContracts contains Tezos.sender) then unit
-    else failwith("Only whitelisted contracts can call this entrypoint.");
+function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
+block {
+  var inWhitelistContractsMap : bool := False;
+  for _key -> value in map s.whitelistContracts block {
+    if contractAddress = value then inWhitelistContractsMap := True
+      else skip;
+  }  
+} with inWhitelistContractsMap
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
@@ -110,6 +129,17 @@ function transfer_fa2(
     get_fa2_token_transfer_entrypoint(token)
   )
 
+// function check_tez_or_token_and_transfer(
+//   const inv_liq_params : invest_liquidity_t;
+//   const tokens_required : nat;
+//   const token_type      : token_t;
+//   const tez_store_opt   : option(address))
+//                         : operation is
+//   if token_type = Tez
+//   then get_invest_tez_op(inv_liq_params.shares_receiver, get_tez_store_or_fail(tez_store_opt))
+//   else transfer_token(Tezos.sender, Tezos.self_address, tokens_required, token_type)
+
+
 function transfer_token(
   const from_           : address;
   const to_             : address;
@@ -142,27 +172,51 @@ block{
 
 } with (noOperations, s) 
 
-function transfer(const _proposal : nat ; var s : storage) : return is 
+
+function transfer(const action : action_t ; var s : storage) : return is 
 block {
-    // Steps Overview:
-    // 1. 
-    // 2. 
-    skip
-
-} with (noOperations, s)
-
-// function second(const _parameters : nat; var s : storage) : return is 
-// block {
-//     // Steps Overview:
-//     // 1. 
-//     // 2.
     
-//     skip
-// } with (noOperations, s)
+    // Steps Overview:
+    // 1. Receive and unpack proposal metadata in lambda format from Governance DAO 
+    // 2. Loop over transfers in the proposal metadata
+    //    - case match xtz, fa12, and fa2 types
+
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+
+    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+      else skip;
+
+    var operations : list(operation) := nil;
+
+    case action of
+    | Transfer(params) -> {
+      result.1 := transfer_sender_check(params, action, s);
+      result := List.fold(iterate_transfer, params, result);
+    }
+    | _ -> skip
+    end
+    
+} with (operations, s)
+
+// function transfer(
+//   const action          : action_t;
+//   var s                 : storage_t)
+//                         : return_t is
+//   block {
+//     var result : return_t := ((nil : list(operation)), s);
+
+//     case action of
+//     | Transfer(params) -> {
+//       result.1 := transfer_sender_check(params, action, s);
+//       result := List.fold(iterate_transfer, params, result);
+//     }
+//     | _ -> skip
+//     end
+//   } with result
+
 
 function main (const action : treasuryAction; const s : storage) : return is 
     case action of
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | Transfer(parameters) -> transfer(parameters, s)
-
     end

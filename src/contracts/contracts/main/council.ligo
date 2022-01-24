@@ -1,8 +1,10 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
 
 type councilMembersType is set(address)
-
-type contractAddressesType is map (string, address)
-type whitelistContractsType is map (string, address)
 
 // todo: consideration: include a signature hash of signer for added security?
 
@@ -54,7 +56,7 @@ type storage is record [
     councilMembers              : councilMembersType;  // set of council member addresses
     
     whitelistContracts          : whitelistContractsType;      
-    contractAddresses           : contractAddressesType;
+    generalContracts            : generalContractsType;
 
     councilActionsLedger        : councilActionsLedgerType; 
 
@@ -64,9 +66,6 @@ type storage is record [
     tempString                  : string;
 ]
 
-type updateWhitelistContractParams is (string * address)
-type updateContractAddressesParams is (string * address)
-
 type councilActionAddVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
 type councilActionUpdateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
 
@@ -74,8 +73,8 @@ type signActionType is (nat * nat) // councilActionId, voteType to be decided an
 type flushActionType is (nat)
 
 type councilAction is 
-    | UpdateWhitelistContracts of updateWhitelistContractParams
-    | UpdateContractAddresses of updateContractAddressesParams
+    | UpdateWhitelistContracts of updateWhitelistContractsParams
+    | UpdateGeneralContracts of updateGeneralContractsParams
 
     | CouncilActionAddVestee of councilActionAddVesteeType
     | CouncilActionRemoveVestee of address
@@ -94,7 +93,7 @@ type councilAction is
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
 
-// may need a lambda function to be able to send calls to future unspecified entrypoints if needed
+// consideration: may need a lambda function to be able to send calls to future unspecified entrypoints if needed
 
 // admin helper functions begin ---------------------------------------------------------
 function checkSenderIsAdmin(var s : storage) : unit is
@@ -105,67 +104,17 @@ function checkSenderIsCouncilMember(var s : storage) : unit is
     if Set.mem(Tezos.sender, s.councilMembers) then unit 
         else failwith("Only council members can call this entrypoint.");
 
-function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inWhitelistContractsMap : bool := False;
-  for _key -> value in map s.whitelistContracts block {
-    if contractAddress = value then inWhitelistContractsMap := True
-      else skip;
-  }  
-} with inWhitelistContractsMap
-
-function checkInContractAddresses(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inContractAddressMap : bool := False;
-  for _key -> value in map s.contractAddresses block {
-    if contractAddress = value then inContractAddressMap := True
-      else skip;
-  }  
-} with inContractAddressMap
-
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
         else failwith("This entrypoint should not receive any tez.");
 
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
+
 // admin helper functions end ---------------------------------------------------------
-
-// toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractName : string; const contractAddress : address; var s : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    var inWhitelistCheck : bool := checkInWhitelistContracts(contractAddress, s);
-
-    if (inWhitelistCheck) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.whitelistContracts := Map.update(contractName, Some(contractAddress), s.whitelistContracts);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.whitelistContracts := Map.add(contractName, contractAddress, s.whitelistContracts);
-    }
-
-} with (noOperations, s) 
-
-// toggle adding and removal of contract addresses
-function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
- 
-    var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
-
-    if (inContractAddressesBool) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
-    }
-
-} with (noOperations, s) 
 
 function sendAddVesteeParams(const contractAddress : address) : contract(councilActionAddVesteeType) is
   case (Tezos.get_entrypoint_opt(
@@ -488,7 +437,7 @@ block {
         if actionType = "addVestee" then block {
 
             // send operation to vesting contract to add a new vestee
-            var vestingAddress : address := case s.contractAddresses["vesting"] of 
+            var vestingAddress : address := case s.generalContracts["vesting"] of 
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
             end;
@@ -514,7 +463,7 @@ block {
         if actionType = "removeVestee" then block {
 
             // send operation to vesting contract to add a new vestee
-            var vestingAddress : address := case s.contractAddresses["vesting"] of 
+            var vestingAddress : address := case s.generalContracts["vesting"] of 
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
             end;
@@ -531,7 +480,7 @@ block {
 
         // updateVestee action type
         if actionType = "updateVestee" then block {
-            var vestingAddress : address := case s.contractAddresses["vesting"] of 
+            var vestingAddress : address := case s.generalContracts["vesting"] of 
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
             end;
@@ -555,7 +504,7 @@ block {
 
         // updateVestee action type
         if actionType = "toggleVesteeLock" then block {
-            var vestingAddress : address := case s.contractAddresses["vesting"] of 
+            var vestingAddress : address := case s.generalContracts["vesting"] of 
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
             end;
@@ -582,7 +531,7 @@ block {
 
         // toggleTreasury action type
         // if actionType = "toggleTreasury" then block {
-        //     var treasuryAddress : address := case s.contractAddresses["treasuryAddress"] of 
+        //     var treasuryAddress : address := case s.generalContracts["treasuryAddress"] of 
         //         Some(_address) -> _address
         //         | None -> failwith("Error. Treasury Contract Address not found")
         //     end;
@@ -612,8 +561,8 @@ block {
 
 function main (const action : councilAction; const s : storage) : return is 
     case action of
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters.0, parameters.1, s)
-        | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
+        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
         | CouncilActionAddVestee(parameters) -> councilActionAddVestee(parameters, s)
         | CouncilActionRemoveVestee(parameters) -> councilActionRemoveVestee(parameters, s)
