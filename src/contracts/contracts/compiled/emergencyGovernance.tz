@@ -1,24 +1,24 @@
 { parameter
-    (or (or (or (unit %dropEmergencyGovernance) (address %setBreakGlassContractAddress))
-            (or (nat %setTempMvkTotalSupply) (pair %triggerEmergencyControl string string)))
+    (or (or (or (unit %dropEmergencyGovernance) (nat %setTempMvkTotalSupply))
+            (or (pair %triggerEmergencyControl string string)
+                (pair %updateContractAddresses string address)))
         (or (nat %voteForEmergencyControl) (nat %voteForEmergencyControlComplete))) ;
   storage
-    (pair (pair (pair (pair (address %admin) (address %breakGlassContractAddress))
-                      (pair (pair %config
-                               (pair (nat %minStakedMvkPercentageForTrigger) (mutez %requiredFee))
-                               (nat %voteDuration))
-                            (nat %currentEmergencyGovernanceId)))
-                (pair (pair (big_map %emergencyGovernanceLedger
-                               nat
-                               (pair (pair (pair (pair (string %description) (nat %endLevel))
-                                                 (pair (nat %minStakedMvkRequiredPercentage) (nat %minTotalStakedMvkRequired)))
-                                           (pair (pair (address %proposerAddress) (timestamp %startDateTime))
-                                                 (pair (nat %startLevel) (nat %status))))
-                                     (pair (pair (string %title) (nat %totalStakedMvkVotes))
-                                           (map %voters address (pair nat timestamp)))))
-                            (address %governanceContractAddress))
-                      (pair (address %mvkTokenAddress) (nat %nextEmergencyGovernanceProposalId))))
-          (pair (nat %tempMvkTotalSupply) (address %treasuryAddress))) ;
+    (pair (pair (pair (address %admin)
+                      (pair %config
+                         (pair (nat %minStakedMvkPercentageForTrigger) (mutez %requiredFee))
+                         (nat %voteDuration)))
+                (pair (map %contractAddresses string address) (nat %currentEmergencyGovernanceId)))
+          (pair (pair (big_map %emergencyGovernanceLedger
+                         nat
+                         (pair (pair (pair (pair (string %description) (nat %endLevel))
+                                           (pair (nat %minStakedMvkRequiredPercentage) (nat %minTotalStakedMvkRequired)))
+                                     (pair (pair (address %proposerAddress) (timestamp %startDateTime))
+                                           (pair (nat %startLevel) (nat %status))))
+                               (pair (pair (string %title) (nat %totalStakedMvkVotes))
+                                     (map %voters address (pair nat timestamp)))))
+                      (nat %nextEmergencyGovernanceProposalId))
+                (nat %tempMvkTotalSupply))) ;
   code { NIL operation ;
          LAMBDA
            unit
@@ -51,7 +51,6 @@
                      DUP ;
                      DUG 2 ;
                      CAR ;
-                     CAR ;
                      CDR ;
                      CDR ;
                      COMPARE ;
@@ -60,14 +59,12 @@
                           FAILWITH }
                         {} ;
                      DUP ;
-                     CAR ;
                      CDR ;
                      CAR ;
                      CAR ;
                      SWAP ;
                      DUP ;
                      DUG 2 ;
-                     CAR ;
                      CAR ;
                      CDR ;
                      CDR ;
@@ -93,41 +90,35 @@
                      DUP ;
                      DUG 2 ;
                      CDR ;
-                     DUP 3 ;
-                     CAR ;
                      CDR ;
+                     DUP 3 ;
+                     CDR ;
+                     CAR ;
                      CDR ;
                      DUP 4 ;
-                     CAR ;
-                     CDR ;
-                     CAR ;
-                     CDR ;
-                     DUP 5 ;
-                     CAR ;
                      CDR ;
                      CAR ;
                      CAR ;
-                     DUP 5 ;
+                     DUP 4 ;
                      CDR ;
                      PUSH nat 0 ;
-                     DUP 7 ;
+                     DUP 6 ;
                      CAR ;
                      CDR ;
                      CDR ;
                      CAR ;
-                     PAIR ;
-                     DUP 7 ;
-                     CAR ;
-                     CDR ;
-                     CAR ;
-                     PAIR ;
-                     DIG 6 ;
-                     CAR ;
-                     CAR ;
-                     PAIR ;
                      PAIR ;
                      DUP 6 ;
                      CAR ;
+                     CDR ;
+                     CAR ;
+                     PAIR ;
+                     DIG 5 ;
+                     CAR ;
+                     CAR ;
+                     PAIR ;
+                     PAIR ;
+                     DUP 5 ;
                      CAR ;
                      CDR ;
                      CDR ;
@@ -137,30 +128,20 @@
                      UPDATE ;
                      PAIR ;
                      PAIR ;
+                     SWAP ;
+                     CAR ;
+                     PAIR ;
+                     DUP ;
+                     CDR ;
+                     PUSH nat 0 ;
+                     DUP 3 ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     PAIR ;
                      DIG 2 ;
                      CAR ;
                      CAR ;
-                     PAIR ;
-                     PAIR ;
-                     DUP ;
-                     CDR ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     CAR ;
-                     CDR ;
-                     PUSH nat 0 ;
-                     DUP 4 ;
-                     CAR ;
-                     CAR ;
-                     CDR ;
-                     CAR ;
-                     PAIR ;
-                     DIG 3 ;
-                     CAR ;
-                     CAR ;
-                     CAR ;
-                     PAIR ;
                      PAIR ;
                      PAIR ;
                      SWAP ;
@@ -174,64 +155,23 @@
                      DUP ;
                      DUG 2 ;
                      CAR ;
+                     CDR ;
                      CAR ;
-                     CAR ;
-                     CAR ;
+                     PUSH string "mvkToken" ;
+                     GET ;
+                     IF_NONE
+                       { PUSH string "Error. MVK Token Contract is not found." ; FAILWITH }
+                       {} ;
                      SENDER ;
                      COMPARE ;
                      EQ ;
                      IF {}
-                        { PUSH string "Only the administrator can call this entrypoint." ; FAILWITH } ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     CDR ;
-                     DUP 3 ;
-                     CAR ;
-                     CDR ;
-                     DUP 4 ;
-                     CAR ;
-                     CAR ;
-                     CDR ;
-                     DIG 3 ;
-                     DIG 4 ;
-                     CAR ;
-                     CAR ;
-                     CAR ;
-                     CAR ;
-                     PAIR ;
-                     PAIR ;
-                     PAIR ;
-                     PAIR ;
-                     SWAP ;
-                     PAIR } }
-               { IF_LEFT
-                   { UNIT ;
-                     DIG 3 ;
-                     SWAP ;
-                     EXEC ;
-                     DROP ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     CAR ;
-                     CDR ;
-                     CDR ;
-                     CAR ;
-                     SENDER ;
-                     COMPARE ;
-                     EQ ;
-                     IF {}
-                        { PUSH string "Only the MVK Token Contract can call this entrypoint." ;
+                        { PUSH string "Error. Only the MVK Token Contract can call this entrypoint." ;
                           FAILWITH } ;
-                     SWAP ;
                      DUP ;
-                     DUG 2 ;
+                     DUP 3 ;
                      CDR ;
-                     CDR ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
+                     CAR ;
                      PAIR ;
                      DIG 2 ;
                      CAR ;
@@ -240,16 +180,14 @@
                      SWAP ;
                      DUP ;
                      DUG 2 ;
+                     CDR ;
                      CAR ;
-                     CDR ;
-                     CDR ;
                      CDR ;
                      SUB ;
                      ABS ;
                      SWAP ;
                      DUP ;
                      DUG 2 ;
-                     CAR ;
                      CDR ;
                      CAR ;
                      CAR ;
@@ -268,7 +206,6 @@
                      CDR ;
                      CAR ;
                      CAR ;
-                     CAR ;
                      MUL ;
                      EDIV ;
                      IF_NONE { PUSH string "DIV by 0" ; FAILWITH } {} ;
@@ -276,60 +213,53 @@
                      ABS ;
                      DUP 4 ;
                      CDR ;
+                     CDR ;
                      DUP 5 ;
+                     CDR ;
                      CAR ;
                      CDR ;
+                     DUP 6 ;
+                     CDR ;
+                     CAR ;
+                     CAR ;
+                     DUP 5 ;
                      CDR ;
                      DUP 6 ;
                      CAR ;
                      CDR ;
-                     CAR ;
-                     CDR ;
-                     DUP 7 ;
-                     CAR ;
-                     CDR ;
-                     CAR ;
-                     CAR ;
-                     DUP 6 ;
-                     CDR ;
-                     DUP 7 ;
-                     CAR ;
-                     CDR ;
-                     DIG 6 ;
-                     DUP 8 ;
-                     CAR ;
-                     CAR ;
-                     CDR ;
-                     CAR ;
-                     PAIR ;
-                     DIG 7 ;
-                     CAR ;
-                     CAR ;
-                     CAR ;
-                     PAIR ;
-                     PAIR ;
-                     PAIR ;
                      DIG 5 ;
+                     DUP 7 ;
+                     CAR ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     PAIR ;
+                     DIG 6 ;
+                     CAR ;
+                     CAR ;
+                     CAR ;
+                     PAIR ;
+                     PAIR ;
+                     PAIR ;
+                     DIG 4 ;
                      SWAP ;
                      SOME ;
                      SWAP ;
                      UPDATE ;
                      PAIR ;
                      PAIR ;
-                     DIG 2 ;
+                     SWAP ;
                      CAR ;
-                     CAR ;
-                     PAIR ;
                      PAIR ;
                      SWAP ;
-                     PAIR }
+                     PAIR } }
+               { IF_LEFT
                    { DIG 2 ;
                      DIG 3 ;
                      DROP 2 ;
                      UNPAIR ;
                      PUSH nat 0 ;
                      DUP 4 ;
-                     CAR ;
                      CAR ;
                      CDR ;
                      CDR ;
@@ -357,7 +287,6 @@
                      CDR ;
                      CAR ;
                      CAR ;
-                     CAR ;
                      PAIR ;
                      PUSH nat 2 ;
                      DIG 4 ;
@@ -369,25 +298,19 @@
                      DUP ;
                      DUG 2 ;
                      CDR ;
-                     DUP 3 ;
-                     CAR ;
                      CDR ;
+                     DUP 3 ;
+                     CDR ;
+                     CAR ;
                      CDR ;
                      DUP 4 ;
-                     CAR ;
                      CDR ;
                      CAR ;
-                     CDR ;
+                     CAR ;
+                     DIG 3 ;
                      DUP 5 ;
-                     CAR ;
                      CDR ;
                      CAR ;
-                     CAR ;
-                     DIG 4 ;
-                     DUP 6 ;
-                     CAR ;
-                     CDR ;
-                     CDR ;
                      CDR ;
                      SWAP ;
                      SOME ;
@@ -395,6 +318,22 @@
                      UPDATE ;
                      PAIR ;
                      PAIR ;
+                     SWAP ;
+                     CAR ;
+                     PAIR ;
+                     DUP ;
+                     CDR ;
+                     SWAP ;
+                     DUP ;
+                     DUG 2 ;
+                     CDR ;
+                     CAR ;
+                     CDR ;
+                     DUP 3 ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     PAIR ;
                      DIG 2 ;
                      CAR ;
                      CAR ;
@@ -402,62 +341,33 @@
                      PAIR ;
                      DUP ;
                      CDR ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     CAR ;
-                     CDR ;
-                     DUP 3 ;
-                     CAR ;
-                     CDR ;
-                     CDR ;
-                     CDR ;
-                     DUP 4 ;
-                     CAR ;
-                     CAR ;
-                     CDR ;
-                     CAR ;
-                     PAIR ;
-                     DIG 3 ;
-                     CAR ;
-                     CAR ;
-                     CAR ;
-                     PAIR ;
-                     PAIR ;
-                     PAIR ;
-                     DUP ;
                      CDR ;
                      PUSH nat 1 ;
                      DUP 3 ;
+                     CDR ;
                      CAR ;
-                     CDR ;
-                     CDR ;
                      CDR ;
                      ADD ;
                      DUP 3 ;
-                     CAR ;
-                     CDR ;
                      CDR ;
                      CAR ;
+                     CAR ;
                      PAIR ;
-                     DUP 3 ;
+                     PAIR ;
+                     SWAP ;
+                     CAR ;
+                     PAIR ;
+                     DUP ;
                      CAR ;
                      CDR ;
                      CAR ;
-                     PAIR ;
-                     DIG 2 ;
-                     CAR ;
-                     CAR ;
-                     PAIR ;
-                     PAIR ;
+                     PUSH string "mvkToken" ;
+                     GET ;
+                     IF_NONE
+                       { PUSH string "Error. MVK Token Contract is not found." ; FAILWITH }
+                       {} ;
                      SELF %setTempMvkTotalSupply ;
                      SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     CAR ;
-                     CDR ;
-                     CDR ;
-                     CAR ;
                      CONTRACT %getTotalSupply (pair unit (contract nat)) ;
                      IF_NONE
                        { PUSH string "GetTotalSupply entrypoint in Token Contract not found" ;
@@ -472,6 +382,75 @@
                      NIL operation ;
                      DIG 2 ;
                      CONS ;
+                     PAIR }
+                   { UNPAIR ;
+                     UNIT ;
+                     DIG 4 ;
+                     SWAP ;
+                     EXEC ;
+                     DROP ;
+                     DUP 3 ;
+                     CAR ;
+                     CAR ;
+                     CAR ;
+                     SENDER ;
+                     COMPARE ;
+                     EQ ;
+                     IF {}
+                        { PUSH string "Only the administrator can call this entrypoint." ; FAILWITH } ;
+                     UNIT ;
+                     DUP 4 ;
+                     CAR ;
+                     CDR ;
+                     CAR ;
+                     ITER { SWAP ; PAIR ; CAR } ;
+                     DROP ;
+                     EMPTY_SET address ;
+                     DUP 3 ;
+                     MEM ;
+                     IF { DUP 3 ;
+                          CDR ;
+                          DUP 4 ;
+                          CAR ;
+                          CDR ;
+                          CDR ;
+                          DUP 5 ;
+                          CAR ;
+                          CDR ;
+                          CAR ;
+                          DIG 4 ;
+                          SOME ;
+                          DIG 4 ;
+                          UPDATE ;
+                          PAIR ;
+                          DIG 2 ;
+                          CAR ;
+                          CAR ;
+                          PAIR ;
+                          PAIR }
+                        { DUP 3 ;
+                          CDR ;
+                          DUP 4 ;
+                          CAR ;
+                          CDR ;
+                          CDR ;
+                          DUP 5 ;
+                          CAR ;
+                          CDR ;
+                          CAR ;
+                          DIG 4 ;
+                          DIG 4 ;
+                          SWAP ;
+                          SOME ;
+                          SWAP ;
+                          UPDATE ;
+                          PAIR ;
+                          DIG 2 ;
+                          CAR ;
+                          CAR ;
+                          PAIR ;
+                          PAIR } ;
+                     SWAP ;
                      PAIR } } }
            { DIG 3 ;
              DIG 4 ;
@@ -481,7 +460,6 @@
                  DROP ;
                  PUSH nat 0 ;
                  DUP 3 ;
-                 CAR ;
                  CAR ;
                  CDR ;
                  CDR ;
@@ -493,7 +471,6 @@
                  SWAP ;
                  DUP ;
                  DUG 2 ;
-                 CAR ;
                  CDR ;
                  CAR ;
                  CAR ;
@@ -513,12 +490,19 @@
                  SWAP ;
                  COMPARE ;
                  EQ ;
-                 IF { SELF %voteForEmergencyControlComplete ;
-                      DUP 3 ;
+                 IF { SWAP ;
+                      DUP ;
+                      DUG 2 ;
                       CAR ;
                       CDR ;
-                      CDR ;
                       CAR ;
+                      PUSH string "mvkToken" ;
+                      GET ;
+                      IF_NONE
+                        { PUSH string "Error. MVK Token Contract is not found." ; FAILWITH }
+                        {} ;
+                      SELF %voteForEmergencyControlComplete ;
+                      SWAP ;
                       CONTRACT %getBalance (pair address (contract nat)) ;
                       IF_NONE
                         { PUSH string "GetBalance entrypoint in MVK Token Contract not found" ;
@@ -535,12 +519,10 @@
                { SWAP ;
                  DUP ;
                  DUG 2 ;
-                 CAR ;
                  CDR ;
                  CAR ;
                  CAR ;
                  DUP 3 ;
-                 CAR ;
                  CAR ;
                  CDR ;
                  CDR ;
@@ -601,23 +583,17 @@
                  DUP ;
                  DUG 2 ;
                  CDR ;
-                 DUP 3 ;
-                 CAR ;
                  CDR ;
+                 DUP 3 ;
+                 CDR ;
+                 CAR ;
                  CDR ;
                  DUP 4 ;
-                 CAR ;
-                 CDR ;
-                 CAR ;
-                 CDR ;
-                 DUP 5 ;
-                 CAR ;
                  CDR ;
                  CAR ;
                  CAR ;
-                 DUP 5 ;
-                 DUP 7 ;
-                 CAR ;
+                 DUP 4 ;
+                 DUP 6 ;
                  CAR ;
                  CDR ;
                  CDR ;
@@ -627,10 +603,8 @@
                  UPDATE ;
                  PAIR ;
                  PAIR ;
-                 DIG 3 ;
+                 DIG 2 ;
                  CAR ;
-                 CAR ;
-                 PAIR ;
                  PAIR ;
                  NIL operation ;
                  DUP 3 ;
@@ -648,20 +622,30 @@
                       DUP ;
                       DUG 2 ;
                       CAR ;
+                      CDR ;
                       CAR ;
+                      PUSH string "breakGlass" ;
+                      GET ;
+                      IF_NONE
+                        { PUSH string "Error. Break Glass Contract is not found." ; FAILWITH }
+                        {} ;
+                      DUP 3 ;
                       CAR ;
                       CDR ;
-                      DUP 4 ;
+                      CAR ;
+                      PUSH string "governance" ;
+                      GET ;
+                      IF_NONE
+                        { PUSH string "Error. Governance Contract is not found." ; FAILWITH }
+                        {} ;
+                      SWAP ;
+                      DUP 5 ;
                       SWAP ;
                       EXEC ;
                       PUSH mutez 0 ;
                       UNIT ;
                       TRANSFER_TOKENS ;
-                      DUP 3 ;
-                      CAR ;
-                      CDR ;
-                      CAR ;
-                      CDR ;
+                      SWAP ;
                       DIG 4 ;
                       SWAP ;
                       EXEC ;

@@ -13,8 +13,8 @@ export const doormanStorage: doormanStorageType = {
   admin: alice.pkh,
 
   whitelistContracts : MichelsonMap.fromLiteral({}),
-  contractAddresses: MichelsonMap.fromLiteral({}),
-  
+  generalContracts: MichelsonMap.fromLiteral({}),
+
   breakGlassConfig: {
     stakeIsPaused           : false,
     unstakeIsPaused         : false
@@ -24,7 +24,7 @@ export const doormanStorage: doormanStorageType = {
 
   tempMvkTotalSupply: new BigNumber(1000000000),
   stakedMvkTotalSupply: new BigNumber(0),
-  
+
   logExitFee: new BigNumber(1),
   logFinalAmount: new BigNumber(1),
 };

@@ -13,7 +13,7 @@ const delegateLedger   = MichelsonMap.fromLiteral({});
 const satelliteLedger  = MichelsonMap.fromLiteral({});
 const adminAddress     = alice.pkh;
 const configType        = {
-    minimumStakedMvkBalance: 100,  // 100,000 vMVK in mu (10^6)
+    minimumStakedMvkBalance: 100_000_000_000,  // 100,000 vMVK in mu (10^6)
     delegationRatio: 10_000,                   // 10%
     maxSatellites: 100                         // max number of satellites
 };

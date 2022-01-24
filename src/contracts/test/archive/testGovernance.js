@@ -75,12 +75,14 @@
 //             console.log("before:")
 //             console.log(beforeGovernanceStorage)
             
-//             const testAddToSetOperation = await governanceInstance.methods.updateActiveSatellitesMap(alice.pkh).send();
-//             await testAddToSetOperation.confirmation();
+
+
+//             // const testAddToSetOperation = await governanceInstance.methods.updateActiveSatellitesMap(alice.pkh).send();
+//             // await testAddToSetOperation.confirmation();
 
 //             // await signerFactory(bob.sk);
-//             const testAddToSetOperation2 = await governanceInstance.methods.updateActiveSatellitesMap(bob.pkh).send();
-//             await testAddToSetOperation2.confirmation();
+//             // const testAddToSetOperation2 = await governanceInstance.methods.updateActiveSatellitesMap(bob.pkh).send();
+//             // await testAddToSetOperation2.confirmation();
 
 
 //             afterGovernanceStorage     = await governanceInstance.storage();

@@ -1,3 +1,9 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
+
 type onStakeChangeParams is (address * nat * nat)
 type updateSatelliteRecordParams is (string * string * string * nat)
 
@@ -51,29 +57,26 @@ type breakGlassConfigType is record [
     updateSatelliteRecordIsPaused    : bool;
 ]
 
-type whitelistContractsType is map (string, address)
-type contractAddressesType is map (string, address)
-
 type storage is record [
     admin                : address;
     config               : configType;
 
     whitelistContracts   : whitelistContractsType;      
-    contractAddresses    : contractAddressesType;
+    generalContracts     : generalContractsType;
 
     breakGlassConfig     : breakGlassConfigType;
     delegateLedger       : delegateLedgerType;
     satelliteLedger      : satelliteLedgerType;
 ]
 
-type updateWhitelistContractParams is (string * address)
-type updateContractAddressesParams is (string * address)
+type updateConfigParams is (string * nat)
 
 type delegationAction is 
     | SetAdmin of (address)
+    | UpdateConfig of updateConfigParams
 
-    | UpdateWhitelistContracts of updateWhitelistContractParams
-    | UpdateContractAddresses of updateContractAddressesParams
+    | UpdateWhitelistContracts of updateWhitelistContractsParams
+    | UpdateGeneralContracts of updateGeneralContractsParams
 
     | TogglePauseDelegateToSatellite of (unit)
     | TogglePauseUndelegateSatellite of (unit)
@@ -108,31 +111,13 @@ function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
-function checkInWhitelistContracts(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inWhitelistContractsMap : bool := False;
-  for _key -> value in map s.whitelistContracts block {
-    if contractAddress = value then inWhitelistContractsMap := True
-      else skip;
-  }  
-} with inWhitelistContractsMap
-
-function checkInContractAddresses(const contractAddress : address; var s : storage) : bool is 
-block {
-  var inContractAddressMap : bool := False;
-  for _key -> value in map s.contractAddresses block {
-    if contractAddress = value then inContractAddressMap := True
-      else skip;
-  }  
-} with inContractAddressMap
-
 function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.sender = Tezos.self_address) then unit
     else failwith("Only this contract can call this entrypoint.");
 
 function checkSenderIsDoormanContract(var s : storage) : unit is
 block{
-  const doormanAddress : address = case s.contractAddresses["doorman"] of
+  const doormanAddress : address = case s.generalContracts["doorman"] of
       Some(_address) -> _address
       | None -> failwith("Error. Doorman Contract is not found.")
   end;
@@ -143,6 +128,13 @@ block{
   function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
+
 // admin helper functions end -----------------------------------------------------------------------------------
 
 (* View function that forwards the record of source to a contract *)
@@ -177,44 +169,6 @@ function checkUndelegateFromSatelliteIsNotPaused(var s : storage) : unit is
 // break glass: checkIsNotPaused helper functions end -----------------------------------------------------------
 
 // helper functions begin: --------------------------------------------------------------------------------------
-
-// toggle adding and removal of whitelist contract addresses
-function updateWhitelistContracts(const contractName : string; const contractAddress : address; var s : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    var inWhitelistCheck : bool := checkInWhitelistContracts(contractAddress, s);
-
-    if (inWhitelistCheck) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.whitelistContracts := Map.update(contractName, Some(contractAddress), s.whitelistContracts);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.whitelistContracts := Map.add(contractName, contractAddress, s.whitelistContracts);
-    }
-
-} with (noOperations, s) 
-
-// toggle adding and removal of contract addresses
-function updateContractAddresses(const contractName : string; const contractAddress : address; var s : storage) : return is 
-block{
-
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
- 
-    var inContractAddressesBool : bool := checkInContractAddresses(contractAddress, s);
-
-    if (inContractAddressesBool) then block{
-        // whitelist contract exists - remove whitelist contract from set 
-        s.contractAddresses := Map.update(contractName, Some(contractAddress), s.contractAddresses);
-    } else block {
-        // whitelist contract does not exist - add whitelist contract to set 
-        s.contractAddresses := Map.add(contractName, contractAddress, s.contractAddresses);
-    }
-
-} with (noOperations, s) 
 
 // helper function to update governance satellite set
 function updateGovernanceActiveSatellitesMap(const contractAddress : address) : contract(unit * address) is
@@ -318,8 +272,26 @@ block {
 
 } with (noOperations, s)
 
-// break glass toggle entrypoints begin ---------------------------------------------------------
 
+function updateConfig(const configName : string; const newConfigValue : nat; var s : storage) : return is 
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  checkSenderIsAdmin(s); // check that sender is admin
+
+  if configName = "delegationRatio" then s.config.delegationRatio := newConfigValue
+    else skip;
+
+  if configName = "minimumStakedMvkBalance" then s.config.minimumStakedMvkBalance := newConfigValue
+    else skip;
+
+  if configName = "maxSatellites" then s.config.maxSatellites := newConfigValue
+    else skip;
+
+} with (noOperations, s)
+
+
+// break glass toggle entrypoints begin ---------------------------------------------------------
 function togglePauseDelegateToSatellite(var s : storage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
@@ -439,7 +411,7 @@ block {
         | None -> failwith("Satellite does not exist")
     end;
 
-    const doormanAddress : address = case s.contractAddresses["doorman"] of
+    const doormanAddress : address = case s.generalContracts["doorman"] of
       Some(_address) -> _address
       | None -> failwith("Error. Doorman Contract is not found")
     end;
@@ -570,7 +542,7 @@ block {
         | None -> failwith("User address not found in delegateLedger.")
     end;
 
-    const doormanAddress : address = case s.contractAddresses["doorman"] of
+    const doormanAddress : address = case s.generalContracts["doorman"] of
       Some(_address) -> _address
       | None -> failwith("Error. Doorman Contract is not found")
     end;
@@ -690,7 +662,7 @@ block {
 
     } else skip;
 
-    const doormanAddress : address = case s.contractAddresses["doorman"] of
+    const doormanAddress : address = case s.generalContracts["doorman"] of
       Some(_address) -> _address
       | None -> failwith("Error. Doorman Contract is not found")
     end;
@@ -732,7 +704,7 @@ block {
 
     s.satelliteLedger[Tezos.source] := newSatelliteRecord;
 
-    const governanceAddress : address = case s.contractAddresses["governance"] of
+    const governanceAddress : address = case s.generalContracts["governance"] of
       Some(_address) -> _address
       | None -> failwith("Error. Governance Contract is not found")
     end;
@@ -771,7 +743,7 @@ block {
     _checkSatelliteExists.status := 0n;
     s.satelliteLedger[Tezos.sender] := _checkSatelliteExists;
 
-    const governanceAddress : address = case s.contractAddresses["governance"] of
+    const governanceAddress : address = case s.generalContracts["governance"] of
       Some(_address) -> _address
       | None -> failwith("Error. Governance Contract is not found")
     end;
@@ -883,8 +855,10 @@ block {
 function main (const action : delegationAction; const s : storage) : return is 
     case action of    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters.0, parameters.1, s)
-        | UpdateContractAddresses(parameters) -> updateContractAddresses(parameters.0, parameters.1, s)
+        | UpdateConfig(parameters) -> updateConfig(parameters.0, parameters.1, s)
+
+        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
         | TogglePauseDelegateToSatellite(_parameters) -> togglePauseDelegateToSatellite(s)
         | TogglePauseUndelegateSatellite(_parameters) -> togglePauseUndelegateSatellite(s)
