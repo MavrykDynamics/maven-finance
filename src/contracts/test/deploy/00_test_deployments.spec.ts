@@ -9,7 +9,7 @@ import { MichelsonMap } from "@taquito/michelson-encoder";
 
 const chai = require("chai");
 const chaiAsPromised = require("chai-as-promised");
-chai.use(chaiAsPromised);   
+chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../../env";
@@ -54,12 +54,12 @@ describe("Contracts Deployment for Tests", async () => {
   };
 
   before("setup", async () => {
-    
+
     utils = new Utils();
     await utils.init(alice.sk);
 
     //----------------------------
-    // Originate and deploy contracts 
+    // Originate and deploy contracts
     //----------------------------
 
     doorman = await Doorman.originate(
@@ -163,14 +163,14 @@ describe("Contracts Deployment for Tests", async () => {
     //----------------------------
 
     // Doorman Contract - set contract addresses [delegation, mvkToken]
-    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("delegation", delegation.contract.address).send();  
+    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("delegation", delegation.contract.address).send();
     await setDelegationContractAddressInDoormanOperation.confirmation();
     const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("mvkToken", mvkToken.contract.address).send();
     await setMvkTokenAddressInDoormanOperation.confirmation();
     console.log("doorman contract address set")
 
     // Delegation Contract - set contract addresses [governance]
-    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts("governance", governance.contract.address).send();  
+    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts("governance", governance.contract.address).send();
     await setGovernanceContractAddressInDelegationOperation.confirmation();
     console.log("delegation contract address set")
 
@@ -227,7 +227,7 @@ describe("Contracts Deployment for Tests", async () => {
 
   it(`test all contract deployments`, async () => {
     try{
-        
+
         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
         console.log("Test: All contracts deployed")
         console.log("-- -- -- -- -- Deployments -- -- -- --")
@@ -243,6 +243,6 @@ describe("Contracts Deployment for Tests", async () => {
     } catch (e){
         console.log(e);
     }
-  }); 
+  });
 
 });
