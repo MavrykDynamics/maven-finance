@@ -23,5 +23,6 @@ export type farmStorageType = {
     tokenStandard: {};
     tokenBalance: BigNumber;
   }
-  open: Boolean
+  open: Boolean;
+  initBlock: BigNumber
 };

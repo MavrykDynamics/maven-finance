@@ -5,3 +5,5 @@ scripts/tools/**
 # Webstorm IDE
 ./.idea
 **/.idea/**
+__pycache__/
+venv/
