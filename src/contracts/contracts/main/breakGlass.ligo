@@ -1,11 +1,12 @@
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
+
 type configType is record [
     threshold                   : nat;                 // min number of council members who need to agree on action
     actionExpiryDuration        : nat;                 // action expiry duration in block levels
     developerAddress            : address;             // developer address
     emergencyGovernanceAddress  : address;             // emergency governance address
 ]
-
-type contractAddressesType is map(string, address)
 
 type councilMembersType is set(address)
 
@@ -29,7 +30,7 @@ type storage is record [
     admin                       : address;               // for init of contract - needed?
     config                      : configType;
     
-    contractAddresses           : contractAddressesType; // map of all contract addresses (e.g. doorman, delegation, vesting)
+    generalContracts            : generalContractsType; // map of all contract addresses (e.g. doorman, delegation, vesting)
     
     glassBroken                 : bool;
     councilMembers              : councilMembersType;  // set of council member addresses
@@ -45,6 +46,7 @@ type breakGlassAction is
 
     // glass broken not required
     | SetEmergencyGovernanceAddress of (address)      // set emergency governance contract address
+    | UpdateGeneralContracts of updateGeneralContractsParams
     | AddCouncilMember of address
     | RemoveCouncilMember of address
     | SetThreshold of (nat)
@@ -80,6 +82,9 @@ function checkNoAmount(const _p : unit) : unit is
 function checkGlassIsBroken(var s : storage) : unit is
     if s.glassBroken = True then unit
         else failwith("Error. Glass has not been broken");
+
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
 
 // admin helper functions end ---------------------------------------------------------
 
@@ -415,7 +420,7 @@ block {
         if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {
             
             s.currentActionId := 0n; // reset current action id to 0n since action has been completed
-            for _contractName -> contractAddress in map s.contractAddresses block {
+            for _contractName -> contractAddress in map s.generalContracts block {
                 const pauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
                     unit, 
                     0tez, 
@@ -470,7 +475,7 @@ block {
         // threshold has been reached, so release operations to pause all entrypoints in other contracts
         if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {        
             s.currentActionId := 0n; // reset current action id to 0n since action has been completed
-            for _contractName -> contractAddress in map s.contractAddresses block {
+            for _contractName -> contractAddress in map s.generalContracts block {
                 const unpauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
                     unit, 
                     0tez, 
@@ -580,7 +585,7 @@ block {
         if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {
             s.currentActionId := 0n; // reset current action id to 0n since action has been completed
 
-            for _contractName -> contractAddress in map s.contractAddresses block {
+            for _contractName -> contractAddress in map s.generalContracts block {
                 const setContractAdminOperation : operation = Tezos.transaction(
                     newAdminAddress, 
                     0tez, 
@@ -647,6 +652,7 @@ function main (const action : breakGlassAction; const s : storage) : return is
 
         // glass broken not required
         | SetEmergencyGovernanceAddress(parameters) -> setEmergencyGovernanceAddress(parameters, s)
+        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
         | AddCouncilMember(parameters) -> addCouncilMember(parameters, s)
         | RemoveCouncilMember(parameters) -> removeCouncilMember(parameters, s)
         | SetThreshold(parameters) -> setThreshold(parameters, s)
