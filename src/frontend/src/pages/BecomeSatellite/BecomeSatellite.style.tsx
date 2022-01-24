@@ -15,6 +15,7 @@ export const BecomeSatelliteForm = styled(Card)`
   > button {
     width: 300px;
     float: right;
+    margin: 0 0 0 10px;
   }
 `
 
