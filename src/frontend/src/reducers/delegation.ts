@@ -26,7 +26,7 @@ export type DelegationLedger = Map<string, DelegateRecord>
 export interface DelegationStorage {
   admin: string,
   satelliteLedger: SatelliteRecord[],
-  config: DelegationConfig,    
+  config: DelegationConfig,
   delegateLedger: DelegationLedger,
   breakGlassConfig: any,
   sMvkTokenAddress: string,
