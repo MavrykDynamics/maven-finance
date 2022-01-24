@@ -39,5 +39,6 @@ export const farmStorage: farmStorageType = {
   plannedRewards: plannedRewards,
   delegators: MichelsonMap.fromLiteral({}),
   lpToken: lpToken,
-  open: false
+  open: false,
+  initBlock: new BigNumber(0)
 };
