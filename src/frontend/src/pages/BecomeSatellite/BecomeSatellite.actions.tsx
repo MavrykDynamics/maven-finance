@@ -1,4 +1,3 @@
-import { TezosToolkit } from '@taquito/taquito'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import delegationAddress from 'deployments/delegationAddress.json'
@@ -102,6 +101,52 @@ export const updateSatelliteRecord = (form: RegisterAsSatelliteForm) => async (d
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
       type: UPDATE_AS_SATELLITE_ERROR,
+      error,
+    })
+  }
+}
+
+export const UNREGISTER_AS_SATELLITE_REQUEST = 'UNREGISTER_AS_SATELLITE_REQUEST'
+export const UNREGISTER_AS_SATELLITE_RESULT = 'UNREGISTER_AS_SATELLITE_RESULT'
+export const UNREGISTER_AS_SATELLITE_ERROR = 'UNREGISTER_AS_SATELLITE_ERROR'
+export const unregisterAsSatellite = () => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
+    console.log('contract', contract)
+
+    const transaction = await contract?.methods.unregisterAsSatellite().send()
+    console.log('transaction', transaction)
+
+    dispatch({
+      type: UNREGISTER_AS_SATELLITE_REQUEST,
+    })
+    dispatch(showToaster(INFO, 'Unregistering...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Satellite is no longer registered.', 'All good :)'))
+
+    dispatch({
+      type: UNREGISTER_AS_SATELLITE_RESULT,
+    })
+    dispatch(getDelegationStorage())
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: UNREGISTER_AS_SATELLITE_ERROR,
       error,
     })
   }

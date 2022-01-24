@@ -11,7 +11,7 @@ import { SatelliteRecord } from 'reducers/delegation'
 import { Page } from 'styles'
 
 import { TextEditor } from '../../app/App.components/TextEditor/TextEditor.controller'
-import { RegisterAsSatelliteForm } from './BecomeSatellite.actions'
+import { RegisterAsSatelliteForm, unregisterAsSatellite } from './BecomeSatellite.actions'
 // prettier-ignore
 import { BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteFormFeeCheck, BecomeSatelliteProfilePic, UploaderFileSelector, UploadIcon, UploadIconContainer } from './BecomeSatellite.style'
 
@@ -102,6 +102,9 @@ export const BecomeSatelliteView = ({
     }
   }
 
+  const handleUnregisterSatellite = () => {
+    dispatch(unregisterAsSatellite())
+  }
   const validateForm = () => {
     console.log(form.fee % 1 === 0)
     const validForm = {
@@ -152,7 +155,6 @@ export const BecomeSatelliteView = ({
         />
         {updateSatellite ? <p>3- Update description</p> : <p>3- Enter your description</p>}
         <TextEditor onChange={handleTextEditorChange} initialValue={form.description} />
-        <p></p>
         {updateSatellite ? <p>4- Update your fee (%)</p> : <p>4- Enter your fee (%)</p>}
         <BecomeSatelliteFormFeeCheck feeOk={false}>
           <Input
@@ -197,6 +199,15 @@ export const BecomeSatelliteView = ({
           loading={loading}
           onClick={handleSubmit}
         />
+        {updateSatellite && (
+          <Button
+            icon="satellite"
+            text={'Unregister Satellite'}
+            loading={loading}
+            kind={'secondary'}
+            onClick={handleUnregisterSatellite}
+          />
+        )}
       </BecomeSatelliteForm>
     </Page>
   )
