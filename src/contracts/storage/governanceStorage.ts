@@ -34,7 +34,7 @@ export const governanceStorage: governanceStorageType = {
   config: config,
   
   whitelistContracts: MichelsonMap.fromLiteral({}),
-  contractAddresses: MichelsonMap.fromLiteral({}),
+  generalContracts: MichelsonMap.fromLiteral({}),
 
   proposalLedger: MichelsonMap.fromLiteral({}),
   snapshotLedger: MichelsonMap.fromLiteral({}),
@@ -54,6 +54,8 @@ export const governanceStorage: governanceStorageType = {
   currentRoundTimelockProposalId: new BigNumber(0),
   
   snapshotMvkTotalSupply: new BigNumber(1000000000),
+
+  governanceLambdaLedger: MichelsonMap.fromLiteral({}),
 
   tempFlag : new BigNumber(0)
 

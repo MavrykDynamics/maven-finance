@@ -1,0 +1,12 @@
+[
+    {
+      "index": 0,
+      "name": "updateGovernanceConfig"
+    },
+    {
+      "index": 1,
+      "name": "updateDelegationConfig"
+    }
+
+]
+  

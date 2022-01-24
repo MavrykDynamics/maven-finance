@@ -54,13 +54,13 @@ yargs
         type: "string",
       },
       contract: {
-        description: "input file realtive path (with lambdas Ligo code)",
+        description: "input file relative path (with lambdas Ligo code)",
         alias: "c",
         type: "string",
       },
     },
     async (argv) => {
-      compileLambdas('argv.json', 'argv.contract');
+      compileLambdas(argv.json, argv.contract);
     }
   )
   .command(

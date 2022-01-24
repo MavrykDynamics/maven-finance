@@ -69,11 +69,16 @@ type storage is record [
     satelliteLedger      : satelliteLedgerType;
 ]
 
-type updateConfigParams is (string * nat)
+type updateConfigNewValueType is nat
+type updateConfigActionType is 
+  ConfigMinimumStakedMvkBalance of unit
+| ConfigDelegationRatio of unit
+| ConfigMaxSatellites of unit
+type updateConfigParamsType is (updateConfigActionType * updateConfigNewValueType)
 
 type delegationAction is 
     | SetAdmin of (address)
-    | UpdateConfig of updateConfigParams
+    | UpdateConfig of updateConfigParamsType
 
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
@@ -273,20 +278,20 @@ block {
 } with (noOperations, s)
 
 
-function updateConfig(const configName : string; const newConfigValue : nat; var s : storage) : return is 
+function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   checkSenderIsAdmin(s); // check that sender is admin
 
-  if configName = "delegationRatio" then s.config.delegationRatio := newConfigValue
-    else skip;
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.0;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.1;
 
-  if configName = "minimumStakedMvkBalance" then s.config.minimumStakedMvkBalance := newConfigValue
-    else skip;
-
-  if configName = "maxSatellites" then s.config.maxSatellites := newConfigValue
-    else skip;
+  case updateConfigAction of
+    ConfigDelegationRatio (_v)         -> s.config.delegationRatio          := updateConfigNewValue
+  | ConfigMinimumStakedMvkBalance (_v) -> s.config.minimumStakedMvkBalance  := updateConfigNewValue
+  | ConfigMaxSatellites (_v)           -> s.config.maxSatellites            := updateConfigNewValue
+  end;
 
 } with (noOperations, s)
 
@@ -443,7 +448,7 @@ block {
           fetchStakedMvkBalance(doormanAddress)
           );
 
-      // redelgate satellite
+      // redelegate satellite
       const redelegateSatelliteOperation : operation = Tezos.transaction(
           satelliteAddress,
           0tez, 
@@ -855,7 +860,7 @@ block {
 function main (const action : delegationAction; const s : storage) : return is 
     case action of    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | UpdateConfig(parameters) -> updateConfig(parameters.0, parameters.1, s)
+        | UpdateConfig(parameters) -> updateConfig(parameters, s)
 
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
