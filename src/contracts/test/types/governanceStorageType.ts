@@ -10,23 +10,26 @@ export type governanceStorageType = {
   whitelistContracts : MichelsonMap<MichelsonMapKey, unknown>;
   generalContracts : MichelsonMap<MichelsonMapKey, unknown>;
 
-  proposalLedger: MichelsonMap<MichelsonMapKey, unknown>;
-  snapshotLedger: MichelsonMap<MichelsonMapKey, unknown>;
-  activeSatellitesMap: MichelsonMap<MichelsonMapKey, unknown>;
+  proposalLedger : MichelsonMap<MichelsonMapKey, unknown>;
+  snapshotLedger : MichelsonMap<MichelsonMapKey, unknown>;
+  activeSatellitesMap : MichelsonMap<MichelsonMapKey, unknown>;
 
-  startLevel: BigNumber;
-  nextProposalId: BigNumber;
+  startLevel : BigNumber;
+  nextProposalId : BigNumber;
 
-  currentRound: string;
-  currentRoundStartLevel: BigNumber;
+  currentRound : string;
+  currentRoundStartLevel : BigNumber;
   currentRoundEndLevel : BigNumber;
   currentCycleEndLevel : BigNumber;
   currentRoundProposals : MichelsonMap<MichelsonMapKey, unknown>;
   currentRoundVotes     : MichelsonMap<MichelsonMapKey, unknown>;
 
-  currentRoundHighestVotedProposalId: BigNumber;
-  currentRoundTimelockProposalId: BigNumber;
+  currentRoundHighestVotedProposalId : BigNumber;
+  currentRoundTimelockProposalId : BigNumber;
 
-  snapshotMvkTotalSupply: BigNumber;
+  snapshotMvkTotalSupply : BigNumber;
+
+  governanceLambdaLedger : MichelsonMap<MichelsonMapKey, unknown>;
+
   tempFlag :BigNumber;
 };

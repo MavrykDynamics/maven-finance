@@ -67,7 +67,7 @@ export const compile = async (
       `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo ${
         format === "json" ? "--michelson-format json" : ""
       } --protocol hangzhou`,
-      { maxBuffer: 1024 * 500 }
+      { maxBuffer: 1024 * 500 * 1024 }
     ).toString();
 
     try {
@@ -132,10 +132,11 @@ export const compileLambdas = async (
     }
 
     fs.writeFileSync(
-      `${env.buildDir}/lambdas/dex_core_lambdas.json`,
+      `${env.buildDir}/lambdas/governance_lambdas.json`,
       JSON.stringify(res)
     );
   } catch (e) {
+    console.log('error in compiling lambdas');
     console.error(e);
   }
 };

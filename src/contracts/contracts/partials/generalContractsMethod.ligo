@@ -8,14 +8,15 @@ block {
 } with inContractAddressMap
 
 (* UpdateGeneralContracts Entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: storage) : return is 
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s : storage) : return is 
   block{
     
     checkSenderIsAdmin(s); // check that sender is admin
 
     const contractName    : string  = updateGeneralContractsParams.0;
-    const contractAddress : address = updateGeneralContractsParams.1;
-    
+    const contractAddress : address = updateGeneralContractsParams.1; 
+    // type
+
     const existingAddress: option(address) = 
       if checkInGeneralContracts(contractAddress, s) then (None : option(address)) else Some (contractAddress);
 
