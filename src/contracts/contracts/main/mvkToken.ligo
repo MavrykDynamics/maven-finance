@@ -103,7 +103,7 @@ type burnParams is (owner * tokenBalance)
 type stakeType is 
   StakeAction of unit
 | UnstakeAction of unit
-type onStakeChangeParams is (owner * tokenBalance * stakeType)
+type onStakeChangeParamsType is (owner * tokenBalance * stakeType)
 
 (* UpdateMvkDoormanTotalSupply entrypoint inputs *)
 type updateMvkTotalSupplyForDoormanParams is tokenBalance
@@ -119,7 +119,7 @@ type action is
 | GetTotalSupply of getTotalSupplyParams
 | Mint of mintParams
 | Burn of burnParams
-| OnStakeChange of onStakeChangeParams
+| OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
 | UpdateGeneralContracts of updateGeneralContractsParams
 | UpdateMvkTotalSupplyForDoorman of updateMvkTotalSupplyForDoormanParams
@@ -335,8 +335,8 @@ function burn(const burnParams: burnParams; const store: storage) : return is
 
 
 (* OnStakeChange Entrypoint *)
-(* type onStakeChangeParams is (owner * tokenBalance * stakeType) *)
-function onStakeChange(const onStakeChangeParams: onStakeChangeParams; const store: storage): return is
+(* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
+function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const store: storage): return is
   block{
     // check sender is from doorman contract or vesting contract
     if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
