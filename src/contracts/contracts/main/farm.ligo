@@ -50,6 +50,7 @@ type storage is record[
     delegators              : big_map(delegator, delegatorRecord);
     lpToken                 : lpToken;
     open                    : bool;
+    initBlock               : nat;
 ]
 
 ////
@@ -94,7 +95,7 @@ type entryAction is
 ////
 // EXTRA VARIABLES
 ////
-const fixedPointAccuracy: nat = 1_000_000n; // 10^6
+const fixedPointAccuracy: nat = 1_000_000_000_000n; // 10^12
 
 ////
 // HELPER FUNCTIONS
@@ -193,8 +194,16 @@ function transferReward(const reserveAddress: address; const to_: address; const
 ////
 // UPDATE FARM FUNCTIONS
 ///
-function updateBlock(const s: storage): storage is
-    s with record[lastBlockUpdate=Tezos.level]
+function updateBlock(var s: storage): storage is
+    block{
+        // Close farm is totalBlocks duration has been exceeded
+        const lastBlock: nat = s.plannedRewards.totalBlocks + s.initBlock;
+        s.open := Tezos.level <= lastBlock;
+
+        // Update lastBlockUpdate in storage
+        s.lastBlockUpdate := Tezos.level;
+    }
+    with(s)
 
 function updateFarmParameters(var s: storage): storage is
     block{
@@ -214,9 +223,6 @@ function updateFarmParameters(var s: storage): storage is
                 True -> abs(totalPlannedRewards - totalClaimedRewards)
             |   False -> suspectedReward
             end;
-
-        // Close the farm if totalFarmRewards > totalPlannedRewards
-        s.open := totalFarmRewards < totalPlannedRewards;
 
         // Updates the storage
         s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
@@ -380,8 +386,11 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: storage): re
     block{
         checkSenderIsAdmin(s);
 
+        if s.open then failwith("This farm is already opened you cannot initialize it again") else skip;
+        
         s := updateFarm(s);
-
+    
+        s.initBlock := Tezos.level;
         s.plannedRewards.rewardPerBlock := initFarmParams.rewardPerBlock;
         s.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
         s.open := True ;
