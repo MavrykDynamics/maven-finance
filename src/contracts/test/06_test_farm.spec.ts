@@ -35,90 +35,11 @@
 
 //     // Tolerance and accuracy for mathematical rewards calculation
 //     const FIXED_POINT_ACCURACY= 100000000000;
-//     const TOLERANCE = 0.05
 
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
 //         return utils.tezos;
 //     };
-
-//     const claimCalculation = async(pkh) => {
-//         // Get variables before claiming
-//         const delegatorMVKBalanceStart = parseInt(await mvkTokenStorage.ledger.get(pkh));
-//         const delegatorDelegatorRecordStart = await farmStorage.delegators.get(pkh);
-//         const delegatorLPDelegatedStart = parseInt(delegatorDelegatorRecordStart===undefined ? 0 : delegatorDelegatorRecordStart.balance);
-//         const delegatorParticipationStart = parseInt(delegatorDelegatorRecordStart===undefined ? 0 : delegatorDelegatorRecordStart.participationMVKPerShare);
-//         const farmLastBlockStart = parseInt(farmStorage.lastBlockUpdate);
-//         const farmAccumulatedMVKStart = parseInt(farmStorage.accumulatedMVKPerShare);
-//         const farmUnpaidRewardsStart = parseInt(farmStorage.claimedRewards.unpaid);
-//         const farmPaidRewardsStart = parseInt(farmStorage.claimedRewards.paid);
-//         const farmLPBalanceStart = parseInt(farmStorage.lpToken.tokenBalance);
-
-//         // Create a transaction for claiming Delegator's rewards
-//         const claimOperation = await farmInstance.methods.claim().send();
-//         await claimOperation.confirmation();
-
-//         // Get variables after claiming
-//         farmStorage = await farmInstance.storage();
-//         const delegatorMVKBalanceEnd = parseInt(await mvkTokenStorage.ledger.get(pkh));
-//         const delegatorDelegatorRecordEnd = await farmStorage.delegators.get(pkh);
-//         const delegatorLPDelegatedEnd = parseInt(delegatorDelegatorRecordEnd===undefined ? 0 : delegatorDelegatorRecordEnd.balance);
-//         const delegatorParticipationEnd = parseInt(delegatorDelegatorRecordEnd===undefined ? 0 : delegatorDelegatorRecordEnd.participationMVKPerShare);
-//         const farmLastBlockEnd = parseInt(farmStorage.lastBlockUpdate);
-//         const farmAccumulatedMVKEnd = parseInt(farmStorage.accumulatedMVKPerShare);
-//         const farmUnpaidRewardsEnd = parseInt(farmStorage.claimedRewards.unpaid);
-//         const farmPaidRewardsEnd = parseInt(farmStorage.claimedRewards.paid);
-//         const farmLPBalanceEnd = parseInt(farmStorage.lpToken.tokenBalance);
-//         const farmOpen = farmStorage.open;
-
-//         // Compute parameter for reward calculation
-//         const multiplier = Math.abs(farmLastBlockEnd - farmLastBlockStart);
-//         const suspectedReward = multiplier * parseInt(farmStorage.plannedRewards.rewardPerBlock);
-//         const totalClaimedReward = farmPaidRewardsStart + farmUnpaidRewardsStart;
-//         const totalFarmReward = suspectedReward + totalClaimedReward;
-//         const totalPlannedReward = parseInt(farmStorage.plannedRewards.rewardPerBlock) * parseInt(farmStorage.plannedRewards.totalBlocks);
-//         var reward = 0;
-
-//         // Change behavior if farm is open or not (I now it's not very good in tests)
-//         if(farmBlockEnd <= farmLastBlockEnd && totalFarmReward > totalPlannedReward){
-//             // Assert that farm is close
-//             assert.equal(farmOpen, false, "Farm should be closed because the farm duration was exceeded")
-
-//             // Calculate reward
-//             reward = Math.abs(totalPlannedReward - totalClaimedReward);
-//         } else{
-//             // Assert that farm is open
-//             assert.equal(farmOpen, true, "Farm should be opened because the farm duration was not exceeded")
-
-//             // Calculate reward
-//             reward = suspectedReward;
-//         }
-
-//         const unpaidRewardBeforeClaim = reward + farmUnpaidRewardsStart;
-
-//         // Assert accumulatedMVKPerShare 
-//         const rewardWithFixedPoint = reward * FIXED_POINT_ACCURACY;
-//         const accumulatedMVKFarm = farmAccumulatedMVKStart + Math.trunc(rewardWithFixedPoint / farmLPBalanceStart);
-//         // Use of chai for the tolerance because the claim operation could happen 
-//         chai.expect(accumulatedMVKFarm).to.be.closeTo(farmAccumulatedMVKEnd,TOLERANCE*farmAccumulatedMVKEnd)
-//         chai.expect(accumulatedMVKFarm).to.be.closeTo(delegatorParticipationEnd,TOLERANCE*delegatorParticipationEnd)
-
-//         const currentMVKPerShare =  Math.abs(accumulatedMVKFarm - delegatorParticipationStart);
-//         const delegatorShare = currentMVKPerShare * delegatorLPDelegatedStart;
-//         const delegatorRewards = Math.trunc(delegatorShare / FIXED_POINT_ACCURACY);
-
-//         // Assert unpaid and paid rewards
-//         const farmUnpaidRewards =  Math.abs(unpaidRewardBeforeClaim - delegatorRewards);
-//         const farmPaidRewards =  Math.abs(farmPaidRewardsStart - delegatorRewards);
-//         assert.equal(farmUnpaidRewardsEnd, farmUnpaidRewards, "Farm unpaid rewards after a claim should be equal to : "+farmUnpaidRewardsEnd)
-//         chai.expect(farmPaidRewards).to.be.closeTo(farmPaidRewardsEnd,TOLERANCE*farmPaidRewardsEnd)
-
-//         // Assert delegator earned rewards
-//         const calculatedLPBalance = delegatorMVKBalanceStart + delegatorRewards;
-//         assert.equal(delegatorMVKBalanceEnd, calculatedLPBalance, "Delegator rewards balance should be equal to: "+delegatorMVKBalanceEnd);
-//         assert.equal(delegatorLPDelegatedStart, delegatorLPDelegatedEnd, "Delegator LP balance should have remain the same");
-//         assert.equal(farmLPBalanceStart, farmLPBalanceEnd, "Farm LP balance should have remain the same");
-//     }
 
 //     before("setup", async () => {
 //         utils = new Utils();
