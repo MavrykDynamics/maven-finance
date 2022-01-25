@@ -806,109 +806,108 @@ class FarmContract(TestCase):
         print('users claimed rewards:')
         print(totalUserClaimedRewards)
 
-
-    def test_03_multiple_users_deposit_withdraw_claim_until_end(self):
-        init_farm_storage = deepcopy(self.farmStorage)
+    # def test_03_multiple_users_deposit_withdraw_claim_until_end(self):
+    #     init_farm_storage = deepcopy(self.farmStorage)
         
-        # Initial parameters
-        aliceFirstDepositAmount     = 20
-        aliceFirstWithdrawAmount    = 5
-        aliceSecondWithdrawAmount   = 10
-        bobFirstDepositAmount       = 8
-        bobSecondDepositAmount      = 1
-        bobThirdDepositAmount       = 12
-        eveFirstDepositAmount       = 10
-        eveSecondDepositAmount      = 10
-        eveFirstWithdrawAmount      = 2
-        totalBlocks                 = 100
-        rewardPerBlock              = 1000
+    #     # Initial parameters
+    #     aliceFirstDepositAmount     = 20
+    #     aliceFirstWithdrawAmount    = 5
+    #     aliceSecondWithdrawAmount   = 10
+    #     bobFirstDepositAmount       = 8
+    #     bobSecondDepositAmount      = 1
+    #     bobThirdDepositAmount       = 12
+    #     eveFirstDepositAmount       = 10
+    #     eveSecondDepositAmount      = 10
+    #     eveFirstWithdrawAmount      = 2
+    #     totalBlocks                 = 100
+    #     rewardPerBlock              = 1000
         
-        # Init farm
-        res = self.farmContract.initFarm({
-            "rewardPerBlock": rewardPerBlock,
-            "totalBlocks": totalBlocks
-        }).interpret(storage=init_farm_storage, sender=alice)
-        lastBlockUpdate = res.storage['lastBlockUpdate']
+    #     # Init farm
+    #     res = self.farmContract.initFarm({
+    #         "rewardPerBlock": rewardPerBlock,
+    #         "totalBlocks": totalBlocks
+    #     }).interpret(storage=init_farm_storage, sender=alice)
+    #     lastBlockUpdate = res.storage['lastBlockUpdate']
 
-        # Alice First deposit
-        res = self.farmContract.deposit(aliceFirstDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
-        nextBlock = lastBlockUpdate + 10;
+    #     # Alice First deposit
+    #     res = self.farmContract.deposit(aliceFirstDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
+    #     nextBlock = lastBlockUpdate + 10;
 
-        # Bob First deposit
-        res = self.farmContract.deposit(bobFirstDepositAmount).interpret(storage=res.storage, sender=bob, level=nextBlock)
-        nextBlock += 2;
+    #     # Bob First deposit
+    #     res = self.farmContract.deposit(bobFirstDepositAmount).interpret(storage=res.storage, sender=bob, level=nextBlock)
+    #     nextBlock += 2;
 
-        # Alice First Withdrawal
-        res = self.farmContract.withdraw(aliceFirstWithdrawAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
-        aliceClaimAmount = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
-        nextBlock += 11;
+    #     # Alice First Withdrawal
+    #     res = self.farmContract.withdraw(aliceFirstWithdrawAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
+    #     aliceClaimAmount = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     nextBlock += 11;
 
-        # Eve First deposit
-        res = self.farmContract.deposit(eveFirstDepositAmount).interpret(storage=res.storage, sender=eve, level=nextBlock)
-        nextBlock += 20;
+    #     # Eve First deposit
+    #     res = self.farmContract.deposit(eveFirstDepositAmount).interpret(storage=res.storage, sender=eve, level=nextBlock)
+    #     nextBlock += 20;
 
-        # Bob Second deposit
-        res = self.farmContract.deposit(bobSecondDepositAmount).interpret(storage=res.storage, sender=bob, level=nextBlock)
-        bobClaimAmount = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
-        nextBlock += 5;
+    #     # Bob Second deposit
+    #     res = self.farmContract.deposit(bobSecondDepositAmount).interpret(storage=res.storage, sender=bob, level=nextBlock)
+    #     bobClaimAmount = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     nextBlock += 5;
 
-        # Alice Second Withdrawal
-        res = self.farmContract.withdraw(aliceSecondWithdrawAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
-        aliceClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
-        nextBlock += 23;
+    #     # Alice Second Withdrawal
+    #     res = self.farmContract.withdraw(aliceSecondWithdrawAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
+    #     aliceClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     nextBlock += 23;
 
-        # Bob Third deposit
-        res = self.farmContract.deposit(bobThirdDepositAmount).interpret(storage=res.storage, sender=bob, level=nextBlock)
-        bobClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
-        nextBlock += 16;
+    #     # Bob Third deposit
+    #     res = self.farmContract.deposit(bobThirdDepositAmount).interpret(storage=res.storage, sender=bob, level=nextBlock)
+    #     bobClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     nextBlock += 16;
 
-        # Eve Second deposit
-        res = self.farmContract.deposit(eveSecondDepositAmount).interpret(storage=res.storage, sender=eve, level=nextBlock)
-        eveClaimAmount = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
-        nextBlock += 8;
+    #     # Eve Second deposit
+    #     res = self.farmContract.deposit(eveSecondDepositAmount).interpret(storage=res.storage, sender=eve, level=nextBlock)
+    #     eveClaimAmount = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     nextBlock += 8;
 
-        # Eve First withdraw
-        res = self.farmContract.withdraw(eveFirstWithdrawAmount).interpret(storage=res.storage, sender=eve, level=nextBlock)
-        eveClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
-        nextBlock += 4;
+    #     # Eve First withdraw
+    #     res = self.farmContract.withdraw(eveFirstWithdrawAmount).interpret(storage=res.storage, sender=eve, level=nextBlock)
+    #     eveClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     nextBlock += 4;
 
-        # Claim reward after one block
-        res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock + 1000)
-        aliceClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     suspectedAliceRewards = (10 * rewardPerBlock) + (2 * rewardPerBlock * 20/28) + (11 * rewardPerBlock * 15/28) + (20 * rewardPerBlock * 15/38) + (5 * rewardPerBlock * 15/39) + (23 * rewardPerBlock * 5/29) + (16 * rewardPerBlock * 5/41) + (8 * rewardPerBlock * 5/51) + (4 * rewardPerBlock * 5/49)
+    #     suspectedBobRewards = 0
+    #     suspectedEveRewards = 0
 
-        res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=nextBlock + 1001)
-        bobClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     # Claim reward after one block
+    #     res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock + 1000)
+    #     aliceClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
 
-        res = self.farmContract.claim().interpret(storage=res.storage, sender=eve, level=nextBlock + 1002)
-        eveClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=nextBlock + 1001)
+    #     bobClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
 
-        totalFarmRewards = totalBlocks * rewardPerBlock
-        totalUserClaimedRewards = aliceClaimAmount + bobClaimAmount + eveClaimAmount
+    #     res = self.farmContract.claim().interpret(storage=res.storage, sender=eve, level=nextBlock + 1002)
+    #     eveClaimAmount += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
 
-        suspectedAliceRewards = (10 * rewardPerBlock) + (2 * rewardPerBlock * 20/28) + (11 * rewardPerBlock * 15/28) + (20 * rewardPerBlock * 15/38) + (5 * rewardPerBlock * 15/39) + (23 * rewardPerBlock * 5/29) + (16 * rewardPerBlock * 5/41) + (8 * rewardPerBlock * 5/51) + (5 * rewardPerBlock * 5/49)
-        suspectedBobRewards = 0
-        suspectedEveRewards = 0
+    #     totalFarmRewards = totalBlocks * rewardPerBlock
+    #     totalUserClaimedRewards = aliceClaimAmount + bobClaimAmount + eveClaimAmount
                 
-        self.assertEqual(5, res.storage['delegators'][alice]['balance'])
-        self.assertEqual(21, res.storage['delegators'][bob]['balance'])
-        self.assertEqual(18, res.storage['delegators'][eve]['balance'])
-        self.assertEqual(pytest.approx(totalFarmRewards, TOLERANCE), totalUserClaimedRewards)
-        self.assertEqual(suspectedAliceRewards, aliceClaimAmount)
-        print('----')
-        print('✅ Alice ')
-        print('alice delegated lp balance')
-        print(res.storage['delegators'][alice]['balance'])
-        print('alice rewards:')
-        print(aliceClaimAmount)
-        print('bob delegated lp balance')
-        print(res.storage['delegators'][bob]['balance'])
-        print('bob rewards:')
-        print(bobClaimAmount)
-        print('eve delegated lp balance')
-        print(res.storage['delegators'][eve]['balance'])
-        print('eve rewards:')
-        print(eveClaimAmount)
-        print('total farm rewards:')
-        print(totalFarmRewards)
-        print('users claimed rewards:')
-        print(totalUserClaimedRewards)
+    #     self.assertEqual(5, res.storage['delegators'][alice]['balance'])
+    #     self.assertEqual(21, res.storage['delegators'][bob]['balance'])
+    #     self.assertEqual(18, res.storage['delegators'][eve]['balance'])
+    #     self.assertEqual(pytest.approx(totalFarmRewards, TOLERANCE), totalUserClaimedRewards)
+    #     self.assertEqual(suspectedAliceRewards, aliceClaimAmount)
+    #     print('----')
+    #     print('✅ Alice ')
+    #     print('alice delegated lp balance')
+    #     print(res.storage['delegators'][alice]['balance'])
+    #     print('alice rewards:')
+    #     print(aliceClaimAmount)
+    #     print('bob delegated lp balance')
+    #     print(res.storage['delegators'][bob]['balance'])
+    #     print('bob rewards:')
+    #     print(bobClaimAmount)
+    #     print('eve delegated lp balance')
+    #     print(res.storage['delegators'][eve]['balance'])
+    #     print('eve rewards:')
+    #     print(eveClaimAmount)
+    #     print('total farm rewards:')
+    #     print(totalFarmRewards)
+    #     print('users claimed rewards:')
+    #     print(totalUserClaimedRewards)
