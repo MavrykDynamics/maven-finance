@@ -100,7 +100,7 @@ type updateGovernanceConfigActionType is
 | ConfigBlocksPerMinute of unit
 | ConfigBlocksPerProposalRound of unit
 | ConfigBlocksPerVotingRound of unit
-type updateConfigParamsType is (updateGovernanceConfigActionType * updateConfigNewValueType)
+type updateConfigParamsType is (updateConfigNewValueType * updateGovernanceConfigActionType)
 
 type updateDelegationConfigActionType is 
   ConfigMinimumStakedMvkBalance of unit
@@ -108,8 +108,8 @@ type updateDelegationConfigActionType is
 | ConfigMaxSatellites of unit
 
 // execute action variant types - start test with 2 variant action types
-type updateGovernanceConfigType is (updateGovernanceConfigActionType * nat); // unit: type updateConfigParamsType is (updateConfigActionType * updateConfigNewValueType)
-type updateDelegationConfigType is (updateDelegationConfigActionType * nat);
+type updateGovernanceConfigType is (nat * updateGovernanceConfigActionType); // unit: type updateConfigParamsType is (updateConfigActionType * updateConfigNewValueType)
+type updateDelegationConfigType is (nat * updateDelegationConfigActionType);
 
 type executeActionType is 
   UpdateGovernanceConfig of updateGovernanceConfigType
@@ -258,8 +258,8 @@ block {
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   checkSenderIsAdmin(s); // check that sender is admin
 
-  const updateConfigAction    : updateGovernanceConfigActionType   = updateConfigParams.0;
-  const updateConfigNewValue  : updateConfigNewValueType           = updateConfigParams.1;
+  const updateConfigAction    : updateGovernanceConfigActionType   = updateConfigParams.1;
+  const updateConfigNewValue  : updateConfigNewValueType           = updateConfigParams.0;
 
   case updateConfigAction of
     ConfigSuccessReward (_v)              -> s.config.successReward              := updateConfigNewValue

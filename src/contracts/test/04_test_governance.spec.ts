@@ -104,8 +104,9 @@ describe("Governance tests", async () => {
             // console.log(update_operator_wrapped_param);
 
             // const configParams = ["configSuccessReward", 1000];
-            
-            const config_wrapped_param = await governanceInstance.methods.updateConfig("configSuccessReward", 1000).send();
+            const config_wrapped_param = await governanceInstance.methods.updateConfig(
+                1000, "configSuccessReward"
+            ).send();
 
             // const config_wrapped_param = await governanceInstance.methods.updateConfig("configSuccessReward", 1000).send();
             // const config_wrapped_param = await governanceInstance.methods.updateConfig([{configSuccessReward: "unit"}, "1000"]).send();
