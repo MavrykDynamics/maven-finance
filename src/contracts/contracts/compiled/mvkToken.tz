@@ -12,14 +12,14 @@
                 (or (list %transfer
                        (pair (address %from_)
                              (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount))))))
-                    (pair %updateContractAddresses string address))))
+                    (pair %updateGeneralContracts string address))))
         (or (or (nat %updateMvkTotalSupplyForDoorman)
                 (pair %updateWhitelistContracts string address))
             (list %update_operators
                (or (pair %add_operator (address %owner) (pair (address %operator) (nat %token_id)))
                    (pair %remove_operator (address %owner) (pair (address %operator) (nat %token_id))))))) ;
   storage
-    (pair (pair (pair (address %admin) (map %contractAddresses string address))
+    (pair (pair (pair (address %admin) (map %generalContracts string address))
                 (pair (big_map %ledger address nat) (big_map %metadata string bytes)))
           (pair (pair (big_map %operators (pair (pair address address) nat) unit)
                       (big_map %token_metadata nat (pair (nat %token_id) (map %token_info string bytes))))
@@ -112,14 +112,10 @@
              CDR ;
              ITER { SWAP ;
                     PAIR ;
-                    SWAP ;
                     DUP ;
-                    DUG 2 ;
-                    SWAP ;
-                    DUP ;
-                    DUG 2 ;
                     CDR ;
                     CDR ;
+                    DUP 3 ;
                     COMPARE ;
                     EQ ;
                     IF { DROP ; PUSH bool True } { CAR } } ;
@@ -158,7 +154,7 @@
                          CAR ;
                          GET ;
                          IF_NONE
-                           { DROP ; PUSH string "METADATA_NOT_FOUND" ; FAILWITH }
+                           { DROP ; PUSH string "NOT_FOUND" ; FAILWITH }
                            { SWAP ;
                              CDR ;
                              SWAP ;

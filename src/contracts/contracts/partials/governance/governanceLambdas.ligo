@@ -9,19 +9,19 @@ block {
         // find and get updateConfig entrypoint of governance contract
         const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
             "%updateConfig",
-            Tezos.self_address) : option(contract(updateGovernanceConfigActionType * nat))) of
+            Tezos.self_address) : option(contract(nat * updateGovernanceConfigActionType))) of
             Some(contr) -> contr
-            | None -> (failwith("updateConfig entrypoint in Governance Contract not found") : contract(updateGovernanceConfigActionType * nat))
+            | None -> (failwith("updateConfig entrypoint in Governance Contract not found") : contract(nat * updateGovernanceConfigActionType))
         end;
 
         // assign params to constants for easier code readability
         // todo: test if unit configActionType must be set here, or if it's able to be passed through the lambda
-        const updateConfigAction   = params.0;
-        const updateConfigNewValue = params.1;
+        const updateConfigAction   = params.1;
+        const updateConfigNewValue = params.0;
 
         // update governance config operation
         const updateGovernanceConfigOperation : operation = Tezos.transaction(
-          (updateConfigAction, updateConfigNewValue),
+          (updateConfigNewValue, updateConfigAction),
           0tez, 
           updateConfigEntrypoint
           );
@@ -51,19 +51,19 @@ block {
         // find and get updateConfig entrypoint of delegation contract
         const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
             "%updateConfig",
-            delegationAddress) : option(contract(updateDelegationConfigActionType * nat))) of
+            delegationAddress) : option(contract(nat * updateDelegationConfigActionType))) of
             Some(contr) -> contr
-            | None -> (failwith("updateConfig entrypoint in Delegation Contract not found") : contract(updateDelegationConfigActionType * nat))
+            | None -> (failwith("updateConfig entrypoint in Delegation Contract not found") : contract(nat * updateDelegationConfigActionType))
         end;
 
         // assign params to constants for easier code readability
         // todo: test if unit configActionType must be set here, or if it's able to be passed through the lambda
-        const updateConfigAction   = params.0;
-        const updateConfigNewValue = params.1;
+        const updateConfigAction   = params.1;
+        const updateConfigNewValue = params.0;
 
         // update delegation config operation
         const updateDelegationConfigOperation : operation = Tezos.transaction(
-          (updateConfigAction, updateConfigNewValue),
+          (updateConfigNewValue, updateConfigAction),
           0tez, 
           updateConfigEntrypoint
           );
