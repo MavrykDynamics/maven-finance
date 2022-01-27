@@ -1,0 +1,18 @@
+[
+    {
+      "index": 0,
+      "name": "updateGovernanceConfigParams - ConfigSuccessReward: 1000n",
+      "action": "CallGovernanceLambda(UpdateGovernanceConfig(ConfigSuccessReward, 1000n))"
+    },
+    {
+      "index": 1,
+      "name": "updateDelegationConfigParams - ConfigMaxSatellites: 500n",
+      "action": "CallGovernanceLambda(UpdateDelegationConfig(ConfigMaxSatellites, 500n))"
+    },
+    {
+      "index": 2,
+      "name": "test updateConfig",
+      "action": "UpdateConfig(ConfigSuccessReward, 500n)"
+    }
+]
+  

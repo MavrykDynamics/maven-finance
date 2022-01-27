@@ -3,10 +3,12 @@ import fs from "fs";
 import { execSync } from "child_process";
 
 import { OriginationOperation, TezosToolkit } from "@taquito/taquito";
+import { char2Bytes } from "@taquito/utils"
 
 import { confirmOperation } from "./confirmation";
 
 import env from "../env";
+
 
 export const getLigo = (
   isDockerizedLigo: boolean,
@@ -132,7 +134,7 @@ export const compileLambdas = async (
     }
 
     fs.writeFileSync(
-      `${env.buildDir}/lambdas/governance_lambdas.json`,
+      `${env.buildDir}/lambdas/governanceLambdas.json`,
       JSON.stringify(res)
     );
   } catch (e) {
@@ -140,6 +142,106 @@ export const compileLambdas = async (
     console.error(e);
   }
 };
+
+export const compileParameters = async (
+  json: string,
+  contract: string,
+  ligoVersion: string = env.ligoVersion
+) => {
+  const ligo: string = getLigo(true, ligoVersion);
+  const pwd: string = execSync("echo $PWD").toString();
+  const lambdaParams: any = JSON.parse(
+    fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString()
+  );
+  let res: any[] = [];
+
+  try {
+    for (const lambdaParam of lambdaParams) {
+      const michelson = execSync(
+        `${ligo} compile parameter $PWD/${contract} '${lambdaParam.action}' --entry-point main --michelson-format json --syntax pascaligo --protocol hangzhou`,
+        { maxBuffer: 1024 * 500 }
+      ).toString();
+
+      res.push(JSON.parse(michelson));
+
+      console.log(
+        lambdaParam.index + 1 + ". " + lambdaParam.name + " lambda successfully compiled."
+      );
+    }
+
+    if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
+      fs.mkdirSync(`${env.buildDir}/lambdas`);
+    }
+
+    fs.writeFileSync(
+      `${env.buildDir}/lambdas/governanceLambdaParameters.json`,
+      JSON.stringify(res)
+    );
+  } catch (e) {
+    console.log('error in compiling lambda parameters');
+    console.error(e);
+  }
+};
+
+export const packParameters = async (
+  json: string,
+  contract: string,
+  ligoVersion: string = env.ligoVersion
+) => {
+  const ligo: string = getLigo(true, ligoVersion);
+  const pwd: string = execSync("echo $PWD").toString();
+  const lambdaParams: any = JSON.parse(
+    fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString()
+  );
+  
+  let res_michelson: any[] = [];
+  let res_bytes: any[] = [];
+
+  try {
+    for (const lambdaParam of lambdaParams) {
+      const michelson = execSync(
+        `${ligo} compile parameter $PWD/${contract} '${lambdaParam.action}' --entry-point main --michelson-format json --syntax pascaligo --protocol hangzhou`,
+        { maxBuffer: 1024 * 500 }
+      ).toString();
+
+      res_michelson.push(JSON.parse(michelson));
+
+      // console.log("michelson:")
+      // console.log(michelson);
+      
+      const bytes = char2Bytes(michelson);      
+
+      // console.log("bytes:")
+      // console.log(bytes);
+
+      res_bytes.push(bytes);
+
+      console.log(
+        lambdaParam.index + 1 + ". " + lambdaParam.name + " successfully compiled and packed to bytes."
+      );
+    }
+
+    if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
+      fs.mkdirSync(`${env.buildDir}/lambdas`);
+    }
+
+    fs.writeFileSync(
+      `${env.buildDir}/lambdas/governanceLambdaParametersBytes.json`,
+      JSON.stringify(res_bytes)
+    );
+
+    fs.writeFileSync(
+      `${env.buildDir}/lambdas/governanceLambdaParameters.json`,
+      JSON.stringify(res_michelson)
+    );
+
+  } catch (e) {
+    console.log('error in compiling lambda parameters');
+    console.error(e);
+  }
+};
+
+
 
 export const migrate = async (
   tezos: TezosToolkit,

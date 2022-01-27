@@ -2,3 +2,6 @@ build/
 node_modules/
 scripts/tools/**
 !scripts/tools/*.js
+# Webstorm IDE
+./.idea
+**/.idea/**

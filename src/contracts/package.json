@@ -24,9 +24,11 @@
     "pre-compile": "ts-node scripts/cli.ts compile -o contracts/compiled -c",
     "pre-compile-all": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled",
     "compile-lambdas": "ts-node scripts/cli.ts compile-lambda -j contracts/partials/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo",
-    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build",
+    "compile-lambda-parameters": "ts-node scripts/cli.ts compile-lambda-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
+    "compile-pack-parameters": "ts-node scripts/cli.ts compile-pack-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
+    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-lambdas && yarn compile-pack-parameters",
     "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
-    "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",          
+    "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",
     "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 900000",
     "test-full": "yarn compile && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
     "test-only": "ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
@@ -42,6 +44,7 @@
     }
   },
   "dependencies": {
+    "@taquito/utils": "^11.1.0",
     "@types/expect": "^24.3.0",
     "assert": "^2.0.0",
     "convert-string": "^0.1.0",

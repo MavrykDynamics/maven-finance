@@ -1,4 +1,12 @@
-const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
+const { 
+  TezosToolkit, 
+  ContractAbstraction, 
+  ContractProvider, 
+  TezosOperationError,
+  WalletParamsWithKind,
+  OpKind, 
+  Tezos, 
+} = require("@taquito/taquito")
 const { InMemorySigner, importKey } = require("@taquito/signer");
 import assert, { ok, rejects, strictEqual } from "assert";
 import { Utils, zeroAddress } from "../helpers/Utils";
@@ -14,6 +22,8 @@ chai.should();
 
 import env from "../../env";
 import { alice, bob, eve, mallory } from "../../scripts/sandbox/accounts";
+
+import governanceLambdas from "../../build/lambdas/governanceLambdas.json";
 
 import { Doorman } from "../helpers/doormanHelper";
 import { Delegation } from "../helpers/delegationHelper";
@@ -157,6 +167,7 @@ describe("Contracts Deployment for Tests", async () => {
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos;
+    console.log("====== break ======")
 
     //----------------------------
     // Set remaining contract addresses - post-deployment
@@ -194,6 +205,16 @@ describe("Contracts Deployment for Tests", async () => {
     const setCouncilContractAddressInVesting = await vesting.contract.methods.updateWhitelistContracts("council", council.contract.address).send();
     await setCouncilContractAddressInVesting.confirmation();
     console.log("vesting contract address put in whitelist")
+
+    // Governance Setup Lambdas
+    const governanceLambdaBatch = await tezos.wallet.batch()
+    .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0]) )
+    .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1]) );
+
+    const setupGovernanceLambdasOperation = await governanceLambdaBatch.send();
+    await setupGovernanceLambdasOperation.confirmation();
+
+
 
     //----------------------------
     // Save Contract Addresses to JSON (for reuse in JS / PyTezos Tests)
