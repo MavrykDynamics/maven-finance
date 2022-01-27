@@ -16,16 +16,15 @@ const config = {
     votingPowerRatio : 10000,
     proposalSubmissionFee : 10000000, // 10 tez
     minimumStakeReqPercentage : 10, // 0.01% for testing: change to 10,000 later -> 10%
-
     maxProposalsPerDelegate : 20,
-    timelockDuration : 5760,
 
     newBlockTimeLevel : 0,
     newBlocksPerMinute : 0,
     blocksPerMinute : 2,
 
     blocksPerProposalRound : 14400,
-    blocksPerVotingRound : 14400
+    blocksPerVotingRound : 14400,
+    timelockDuration : 5760,
 }
 
 
@@ -57,6 +56,7 @@ export const governanceStorage: governanceStorageType = {
 
   governanceLambdaLedger: MichelsonMap.fromLiteral({}),
 
-  tempFlag : new BigNumber(0)
+  tempFlag : new BigNumber(0),
+  tempString: "empty"
 
 };

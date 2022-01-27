@@ -73,9 +73,7 @@ type configType is [@layout:comb] record [
     votingPowerRatio            : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
     proposalSubmissionFee       : nat;  // e.g. 10 tez per submitted proposal
     minimumStakeReqPercentage   : nat;  // minimum amount of MVK required in percentage of total staked MVK supply (e.g. 0.01%)
-
     maxProposalsPerDelegate     : nat;  // number of active proposals delegate can have at any given time
-    timelockDuration            : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
     
     newBlockTimeLevel           : nat;  // block level where new blocksPerMinute takes effect -> if none, use blocksPerMinute (old); if exists, check block levels, then use newBlocksPerMinute if current block level exceeds block level, if not use old blocksPerMinute
     newBlocksPerMinute          : nat;  // new blocks per minute 
@@ -83,11 +81,35 @@ type configType is [@layout:comb] record [
     
     blocksPerProposalRound      : nat;  // to determine duration of proposal round
     blocksPerVotingRound        : nat;  // to determine duration of voting round
+    timelockDuration            : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
 ]
 
+// update config types
+type updateConfigNewValueType is nat
+type updateGovernanceConfigActionType is 
+  ConfigSuccessReward of unit
+| ConfigMinQuorumPercentage of unit
+| ConfigMinQuorumMvkTotal of unit
+| ConfigVotingPowerRatio of unit
+| ConfigProposalSubmissionFee of unit
+| ConfigMinimumStakeReqPercentage of unit
+| ConfigMaxProposalsPerDelegate of unit
+| ConfigTimelockDuration of unit
+| ConfigNewBlockTimeLevel of unit
+| ConfigNewBlocksPerMinute of unit
+| ConfigBlocksPerMinute of unit
+| ConfigBlocksPerProposalRound of unit
+| ConfigBlocksPerVotingRound of unit
+type updateConfigParamsType is (updateGovernanceConfigActionType * updateConfigNewValueType)
+
+type updateDelegationConfigActionType is 
+  ConfigMinimumStakedMvkBalance of unit
+| ConfigDelegationRatio of unit
+| ConfigMaxSatellites of unit
+
 // execute action variant types - start test with 2 variant action types
-type updateGovernanceConfigType is (unit * nat);
-type updateDelegationConfigType is (unit * nat);
+type updateGovernanceConfigType is (updateGovernanceConfigActionType * nat); // unit: type updateConfigParamsType is (updateConfigActionType * updateConfigNewValueType)
+type updateDelegationConfigType is (updateDelegationConfigActionType * nat);
 
 type executeActionType is 
   UpdateGovernanceConfig of updateGovernanceConfigType
@@ -131,30 +153,13 @@ type storage is record [
 
     governanceLambdaLedger      : governanceLambdaLedgerType;
 
-    tempFlag : nat;  // test variable - currently used to show block levels per transaction
+    tempFlag : nat;     // test variable - currently used to show block levels per transaction
+    tempString: string; // test variable
 ]
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
 type governanceLambdaFunctionType is (executeActionType * storage) -> return
-
-// update config types
-type updateConfigNewValueType is nat
-type updateConfigActionType is 
-  ConfigSuccessReward of unit
-| ConfigMinQuorumPercentage of unit
-| ConfigMinQuorumMvkTotal of unit
-| ConfigVotingPowerRatio of unit
-| ConfigProposalSubmissionFee of unit
-| ConfigMinimumStakeReqPercentage of unit
-| ConfigMaxProposalsPerDelegate of unit
-| ConfigTimelockDuration of unit
-| ConfigNewBlockTimeLevel of unit
-| ConfigNewBlocksPerMinute of unit
-| ConfigBlocksPerMinute of unit
-| ConfigBlocksPerProposalRound of unit
-| ConfigBlocksPerVotingRound of unit
-type updateConfigParamsType is (updateConfigActionType * updateConfigNewValueType)
 
 type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
 
@@ -253,8 +258,8 @@ block {
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   checkSenderIsAdmin(s); // check that sender is admin
 
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.0;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.1;
+  const updateConfigAction    : updateGovernanceConfigActionType   = updateConfigParams.0;
+  const updateConfigNewValue  : updateConfigNewValueType           = updateConfigParams.1;
 
   case updateConfigAction of
     ConfigSuccessReward (_v)              -> s.config.successReward              := updateConfigNewValue
@@ -314,12 +319,12 @@ function getSatelliteSnapshotRecord (const satelliteAddress : address; const s :
   } with satelliteSnapshotRecord
 
 // helper function to get token total supply (for MVK)
-function getMvkTotalSupply(const tokenAddress : address) : contract(unit * contract(nat)) is
+function getMvkTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
   case (Tezos.get_entrypoint_opt(
       "%getTotalSupply",
-      tokenAddress) : option(contract(unit * contract(nat)))) of
+      tokenAddress) : option(contract(contract(nat)))) of
     Some(contr) -> contr
-  | None -> (failwith("GetTotalSupply entrypoint in MVK Token Contract not found") : contract(unit * contract(nat)))
+  | None -> (failwith("GetTotalSupply entrypoint in MVK Token Contract not found") : contract(contract(nat)))
   end;
 
   function setProposalRecordVote(const voteType : nat; const totalVotingPower : nat; var _proposal : proposalRecordType) : proposalRecordType is
@@ -583,7 +588,7 @@ block {
     // update temp MVK total supply
     const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
     const updateMvkTotalSupplyOperation : operation = Tezos.transaction(
-         (unit, setTempMvkTotalSupplyCallback),
+         (setTempMvkTotalSupplyCallback),
          0tez, 
          getMvkTotalSupply(mvkTokenAddress)
          );
@@ -603,6 +608,7 @@ block {
 
 } with (operations, s)
 
+(* Propose Entrypoint *)
 function propose(const newProposal : newProposalType ; var s : storage) : return is 
 block {
     // Steps Overview:
@@ -687,6 +693,8 @@ block {
 
 } with (noOperations, s)
 
+(* AddUpdateProposalData Entrypoint *)
+// type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
 function addUpdateProposalData(const proposalData : addUpdateProposalDataType; var s : storage) : return is 
 block {
 
@@ -714,7 +722,7 @@ block {
 
 } with (noOperations, s)
 
-
+(* ProposalRoundVote Entrypoint *)
 function proposalRoundVote(const proposalId : nat; var s : storage) : return is 
 block {
     // Steps Overview:
@@ -828,7 +836,7 @@ block {
 
 } with (noOperations, s)
 
-
+(* StartVotingRound Entrypoint *)
 function startVotingRound(var s : storage) : return is
 block {
     
@@ -881,7 +889,7 @@ block {
 
 } with (operations, s)
 
-
+(* VotingRoundVote Entrypoint *)
 function votingRoundVote(const proposalId : nat; const voteType : nat; var s : storage) : return is 
 block {
     // Steps Overview:
@@ -977,6 +985,7 @@ block {
 
 } with (noOperations, s)
 
+(* ExecuteProposal Entrypoint *)
 function executeProposal(const proposalId : nat; var s : storage) : return is 
 block {
     // Steps Overview: 
@@ -989,10 +998,13 @@ block {
     checkSenderIsAdminOrSelf(s);
 
     // check that current round is timelock 
-    if s.currentRound = "timelock" then skip
-        else failwith("Error. Proposal can only be executed after timelock period ends.");
+    // if s.currentRound = "timelock" then skip
+    //     else failwith("Error. Proposal can only be executed after timelock period ends.");
 
     if s.currentRoundHighestVotedProposalId = 0n then failwith("Error: No proposal to execute. Please wait for the next proposal round to begin.")
+      else skip; 
+
+    if s.currentRoundHighestVotedProposalId =/= proposalId then failwith("Error: This proposal is not the highest voted proposal and cannot be executed.")
       else skip; 
 
     var proposal : proposalRecordType := case s.proposalLedger[proposalId] of
@@ -1009,7 +1021,9 @@ block {
     // loop metadata for execution
     for _title -> metadataBytes in map proposal.proposalMetadata block {
 
-      // test check if unpacking bytes preserve types
+      // s.tempString := Bytes.unpack(metadataBytes) : option(executeActionType);
+      // s.tempString := metadataBytes;
+
       const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of
         | Some(_action) -> _action
         | None    -> failwith("Error. Unable to unpack proposal metadata.")
@@ -1098,13 +1112,13 @@ function main (const action : governanceAction; const s : storage) : return is
         | StartVotingRound(_parameters) -> startVotingRound(s)        
         | VotingRoundVote(parameters) -> votingRoundVote(parameters.0, parameters.1, s)
         
-        | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
-        | UpdateActiveSatellitesMap(parameters) -> updateActiveSatellitesMap(parameters.1, s)
-        | SetSatelliteVotingPowerSnapshot(parameters) -> setSatelliteVotingPowerSnapshot(parameters.0, parameters.1, parameters.2, s)
-
         | ExecuteProposal(parameters) -> executeProposal(parameters, s)
         | DropProposal(parameters) -> dropProposal(parameters, s)
 
+        | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
+        | UpdateActiveSatellitesMap(parameters) -> updateActiveSatellitesMap(parameters.1, s)
+        | SetSatelliteVotingPowerSnapshot(parameters) -> setSatelliteVotingPowerSnapshot(parameters.0, parameters.1, parameters.2, s)
+        
         | CallGovernanceLambda(parameters) -> callGovernanceLambda(parameters, s)
         | SetupLambdaFunction(parameters) -> setupLambdaFunction(parameters, s)
 

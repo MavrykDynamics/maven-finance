@@ -9,9 +9,9 @@ block {
         // find and get updateConfig entrypoint of governance contract
         const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
             "%updateConfig",
-            Tezos.self_address) : option(contract(unit * nat))) of
+            Tezos.self_address) : option(contract(updateGovernanceConfigActionType * nat))) of
             Some(contr) -> contr
-            | None -> (failwith("updateConfig entrypoint in Governance Contract not found") : contract(unit * nat))
+            | None -> (failwith("updateConfig entrypoint in Governance Contract not found") : contract(updateGovernanceConfigActionType * nat))
         end;
 
         // assign params to constants for easier code readability
@@ -51,9 +51,9 @@ block {
         // find and get updateConfig entrypoint of delegation contract
         const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
             "%updateConfig",
-            delegationAddress) : option(contract(unit * nat))) of
+            delegationAddress) : option(contract(updateDelegationConfigActionType * nat))) of
             Some(contr) -> contr
-            | None -> (failwith("updateConfig entrypoint in Delegation Contract not found") : contract(unit * nat))
+            | None -> (failwith("updateConfig entrypoint in Delegation Contract not found") : contract(updateDelegationConfigActionType * nat))
         end;
 
         // assign params to constants for easier code readability
