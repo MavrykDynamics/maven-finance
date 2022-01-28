@@ -59,6 +59,7 @@ describe("Contracts Deployment for Tests", async () => {
   var vesting : Vesting;
   var council : Council;
   var farm: Farm;
+  var farmFA2: Farm;
   var lpToken: LPToken;
   var tezos;
   let deployedDoormanStorage;
@@ -182,7 +183,23 @@ describe("Contracts Deployment for Tests", async () => {
       farmStorage
     );
 
-    console.log("farm contract originated")
+    console.log("fa12 farm contract originated")
+
+    farmStorage.generalContracts = MichelsonMap.fromLiteral({
+      "mvkToken"  : mvkToken.contract.address,
+      "reserve"   : eve.pkh
+    });
+    farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
+    farmStorage.lpToken.tokenStandard = {
+      fa2: ""
+    };
+      
+    farmFA2 = await Farm.originate(
+      utils.tezos,
+      farmStorage
+    );
+
+    console.log("fa2 farm contract originated")
 
     /* ---- ---- ---- ---- ---- */
 
@@ -250,6 +267,7 @@ describe("Contracts Deployment for Tests", async () => {
     // await saveContractAddress("councilAddress", council.contract.address)
     await saveContractAddress("lpTokenAddress", lpToken.contract.address)
     await saveContractAddress("farmAddress", farm.contract.address)
+    await saveContractAddress("farmFA2Address", farmFA2.contract.address)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
@@ -282,7 +300,8 @@ describe("Contracts Deployment for Tests", async () => {
         // console.log("Vesting Contract deployed at:", vesting.contract.address);
         // console.log("Council Contract deployed at:", council.contract.address);
         console.log("LP Token Contract deployed at:", lpToken.contract.address);
-        console.log("Farm Contract deployed at:", farm.contract.address);
+        console.log("FA12 Farm Contract deployed at:", farm.contract.address);
+        console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
 
     } catch (e){
         console.log(e);

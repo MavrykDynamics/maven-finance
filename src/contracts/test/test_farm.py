@@ -25,12 +25,17 @@ print('fileDir: '+fileDir)
 
 deploymentsDir          = os.path.join(fileDir, 'deployments')
 deployedFarmContract = os.path.join(deploymentsDir, 'farmAddress.json')
+deployedFarmFA2Contract = os.path.join(deploymentsDir, 'farmFA2Address.json')
 deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
 deployedLpTokenContract = os.path.join(deploymentsDir, 'lpTokenAddress.json')
 
 deployedFarm = open(deployedFarmContract)
 farmContractAddress = json.load(deployedFarm)
 farmContractAddress = farmContractAddress['address']
+
+deployedFarmFA2 = open(deployedFarmFA2Contract)
+farmFA2ContractAddress = json.load(deployedFarmFA2)
+farmFA2ContractAddress = farmFA2ContractAddress['address']
 
 deployedMvkToken = open(deployedMvkTokenContract)
 mvkTokenAddress = json.load(deployedMvkToken)
@@ -41,6 +46,7 @@ lpTokenAddress = json.load(deployedLpToken)
 lpTokenAddress = lpTokenAddress['address']
 
 print('Farm Contract Deployed at: ' + farmContractAddress)
+print('Farm FA2 Contract Deployed at: ' + farmContractAddress)
 print('MVK Token Address Deployed at: ' + mvkTokenAddress)
 print('LP Token Address Deployed at: ' + lpTokenAddress)
 
@@ -71,6 +77,8 @@ class FarmContract(TestCase):
     def setUpClass(cls):
         cls.farmContract = pytezos.contract(farmContractAddress)
         cls.farmStorage  = cls.farmContract.storage()
+        cls.farmFA2Contract = pytezos.contract(farmFA2ContractAddress)
+        cls.farmFA2Storage  = cls.farmFA2Contract.storage()
         cls.mvkTokenContract = pytezos.contract(mvkTokenAddress)
         cls.mvkTokenStorage  = cls.mvkTokenContract.storage()
         cls.lpTokenContract = pytezos.contract(lpTokenAddress)
@@ -204,6 +212,30 @@ class FarmContract(TestCase):
         print('✅ Alice deposits 2LP')
         print('alice deposit balance:')
         print(res.storage['delegators'][alice]['balance'])
+
+    def test_01_alice_deposit_2_lp_on_fa2(self):        
+        init_farm_storage = deepcopy(self.farmFA2Storage)
+
+        # Initial parameters
+        totalDepositAmount          = 2
+        totalBlocks                 = 100
+        rewardPerBlock              = 1000
+        
+        # Init farm operation
+        res = self.farmFA2Contract.initFarm({
+            "rewardPerBlock": rewardPerBlock,
+            "totalBlocks": totalBlocks
+        }).interpret(storage=init_farm_storage, sender=alice)
+        lastBlockUpdate = res.storage['lastBlockUpdate']
+
+        # Deposit operation
+        res = self.farmFA2Contract.deposit(totalDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
+
+        self.assertEqual(totalDepositAmount, res.storage['delegators'][alice]['balance'])
+        print('----')
+        print('✅ Alice deposits 2LP on a farm with FA2 LP Tokens')
+        print('alice deposit balance:')
+        print(res.storage['delegators'][alice]['balance'])
         
     def test_01_alice_deposit_2_lp_then_2_lp_on_different_block(self):        
         init_farm_storage = deepcopy(self.farmStorage)
@@ -294,6 +326,37 @@ class FarmContract(TestCase):
         self.assertEqual(0, aliceClaimAmount)
         print('----')
         print('✅ Alice deposits 2LP then withdraws 2LP on the same block')
+        print('alice delegated lp balance')
+        print(res.storage['delegators'][alice]['balance'])
+        print('alice claim during withdrawal')
+        print(aliceClaimAmount)
+
+    def test_02_alice_deposit_2_lp_and_withdraw_2_lp_on_same_block_on_fa2(self):        
+        init_farm_storage = deepcopy(self.farmFA2Storage)
+
+        # Initial parameters
+        totalDepositAmount          = 2
+        totalBlocks                 = 100
+        rewardPerBlock              = 1000
+        
+        # Init farm operation
+        res = self.farmFA2Contract.initFarm({
+            "rewardPerBlock": rewardPerBlock,
+            "totalBlocks": totalBlocks
+        }).interpret(storage=init_farm_storage, sender=alice)
+        lastBlockUpdate = res.storage['lastBlockUpdate']
+
+        # Deposit operation
+        res = self.farmFA2Contract.deposit(totalDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
+
+        # Withdraw operation
+        res = self.farmFA2Contract.withdraw(totalDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
+        aliceClaimAmount = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+
+        self.assertEqual(0, res.storage['delegators'][alice]['balance'])
+        self.assertEqual(0, aliceClaimAmount)
+        print('----')
+        print('✅ Alice deposits 2LP then withdraws 2LP on the same block on a farm with FA2 LP Tokens')
         print('alice delegated lp balance')
         print(res.storage['delegators'][alice]['balance'])
         print('alice claim during withdrawal')
@@ -477,6 +540,50 @@ class FarmContract(TestCase):
         self.assertEqual(suspectedRewards/2, bobClaimAmount)
         print('----')
         print('✅ Alice and Bob deposit 2LP on a block then they both claim on another one')
+        print('alice deposit balance:')
+        print(res.storage['delegators'][alice]['balance'])
+        print('alice claimed sMVK:')
+        print(aliceClaimAmount)
+        print('bob deposit balance:')
+        print(res.storage['delegators'][bob]['balance'])
+        print('bob claimed sMVK:')
+        print(bobClaimAmount)
+
+    def test_03_alice_and_bob_deposit_2_lp_then_claim_on_two_different_blocks_on_fa2(self):        
+        init_farm_storage = deepcopy(self.farmFA2Storage)
+
+        # Initial parameters
+        aliceDepositAmount          = 2
+        bobDepositAmount            = 2
+        totalBlocks                 = 100
+        rewardPerBlock              = 1000
+        
+        # Init farm operation
+        res = self.farmFA2Contract.initFarm({
+            "rewardPerBlock": rewardPerBlock,
+            "totalBlocks": totalBlocks
+        }).interpret(storage=init_farm_storage, sender=alice)
+        lastBlockUpdate = res.storage['lastBlockUpdate']
+
+        # Initial deposit
+        res = self.farmFA2Contract.deposit(aliceDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
+        res = self.farmFA2Contract.deposit(bobDepositAmount).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate)
+        nextBlock = lastBlockUpdate + 50
+
+        # New deposit
+        res = self.farmFA2Contract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
+        aliceClaimAmount = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+
+        res = self.farmFA2Contract.claim().interpret(storage=res.storage, sender=bob, level=nextBlock)
+        bobClaimAmount = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+
+        suspectedRewards = (nextBlock-lastBlockUpdate) * rewardPerBlock
+        self.assertEqual(aliceDepositAmount, res.storage['delegators'][alice]['balance'])
+        self.assertEqual(bobDepositAmount, res.storage['delegators'][bob]['balance'])
+        self.assertEqual(suspectedRewards/2, aliceClaimAmount)
+        self.assertEqual(suspectedRewards/2, bobClaimAmount)
+        print('----')
+        print('✅ Alice and Bob deposit 2LP on a block then they both claim on another one on a farm with FA2 LP Tokens')
         print('alice deposit balance:')
         print(res.storage['delegators'][alice]['balance'])
         print('alice claimed sMVK:')
