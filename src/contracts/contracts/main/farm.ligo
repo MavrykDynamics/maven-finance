@@ -19,6 +19,7 @@ type tokenBalance is nat
 type delegatorRecord is record[
     balance: tokenBalance;
     participationMVKPerShare: tokenBalance;
+    unclaimedRewards: tokenBalance;
 ]
 type claimedRewards is record[
     unpaid: tokenBalance;
@@ -243,18 +244,9 @@ function updateFarm(var s: storage): storage is
             end;
     } with(s)
 
-////
-// ENTRYPOINTS FUNCTIONS
-///
-(* Claim Entrypoint *)
-function claim(var s: storage): return is
+function updateUnclaimedRewards(var s: storage): storage is
     block{
-        // Check if farm has started
-        checkFarmIsInit(s);
-
-        // Update pool storage
-        s := updateFarm(s);
-
+        // Get delegator
         const delegator: delegator = Tezos.sender;
 
         // Check if sender as already a record
@@ -271,10 +263,6 @@ function claim(var s: storage): return is
         const currentMVKPerShare = abs(accumulatedMVKPerShareEnd - accumulatedMVKPerShareStart);
         const delegatorReward = (currentMVKPerShare * delegatorRecord.balance) / fixedPointAccuracy;
 
-        // Store new participationMVKPerShare
-        delegatorRecord.participationMVKPerShare := accumulatedMVKPerShareEnd;
-        s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
-
         // Update paid and unpaid rewards in storage
         if delegatorReward > s.claimedRewards.unpaid then failwith("The delegator reward is higher than the total unpaid reward") else skip;
         s.claimedRewards := record[
@@ -282,12 +270,47 @@ function claim(var s: storage): return is
             paid=s.claimedRewards.paid + delegatorReward;
         ];
 
+        // Update user's unclaimed rewards and participationMVKPerShare
+        delegatorRecord.unclaimedRewards := delegatorRecord.unclaimedRewards + delegatorReward;
+        delegatorRecord.participationMVKPerShare := accumulatedMVKPerShareEnd;
+        s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+    } with(s)
+
+////
+// ENTRYPOINTS FUNCTIONS
+///
+(* Claim Entrypoint *)
+function claim(var s: storage): return is
+    block{
+        // Check if farm has started
+        checkFarmIsInit(s);
+
+        // Update pool storage
+        s := updateFarm(s);
+
+        // Update user's unclaimed rewards
+        s := updateUnclaimedRewards(s);
+
+        const delegator: delegator = Tezos.sender;
+
+        // Check if sender as already a record
+        var delegatorRecord: delegatorRecord :=
+            case getDelegatorDeposit(delegator, s) of
+                Some (r) -> r
+            |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
+            end;
+
+        const claimedRewards: tokenBalance = delegatorRecord.unclaimedRewards;
+
+        // Store new unclaimedRewards value in delegator
+        delegatorRecord.unclaimedRewards := 0n;
+        s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+
         // Transfer sMVK rewards
         const mvkTokenContract: address = getGeneralContract("mvkToken",s);
         const reserveContract: address = getGeneralContract("reserve",s);
-        const operation: operation = transferReward(reserveContract, delegator, delegatorReward, mvkTokenContract);
-        const operations: list(operation) = list[operation];
-    } with(operations, s)
+        const operation: operation = transferReward(reserveContract, delegator, claimedRewards, mvkTokenContract);
+    } with(list[operation], s)
 
 (* Deposit Entrypoint *)
 function deposit(const tokenAmount: tokenBalance; var s: storage): return is
@@ -308,21 +331,19 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
         const existingDelegator: bool = Big_map.mem(delegator, s.delegators);
 
         // Prepare new delegator record
-        var delegatorRecord: delegatorRecord := record[balance=0n; participationMVKPerShare=0n];
-
-        var depositReturn: return := (noOperations, s);
+        var delegatorRecord: delegatorRecord := record[balance=0n; participationMVKPerShare=0n; unclaimedRewards=0n];
 
         // Get delegator deposit and perform a claim
         if existingDelegator then {
+            // Update user's unclaimed rewards
+            s := updateUnclaimedRewards(s);
+
             delegatorRecord := 
                 case getDelegatorDeposit(delegator, s) of
                     Some (d) -> d
                 |   None -> failwith("Delegator not found")
                 end;
             
-            // Claim pending rewards
-            depositReturn := claim(s);
-            s := depositReturn.1;
         }
         else skip;
 
@@ -336,8 +357,7 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
 
         // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
         const operation: operation = transferLP(delegator, Tezos.self_address, tokenAmount, s.lpToken.tokenId, s.lpToken.tokenStandard, s.lpToken.tokenAddress);
-        const operations: list(operation) = operation # depositReturn.0;
-    } with(operations, s)
+    } with(list[operation], s)
 
 (* Withdraw Entrypoint *)
 function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
@@ -350,9 +370,8 @@ function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
 
         const delegator: delegator = Tezos.sender;
 
-        // Prepare to perform a claim if user already deposited tokens
-        var claimReturn: return := claim(s);
-        s := claimReturn.1;
+        // Prepare to update user's unclaimedRewards if user already deposited tokens
+        s := updateUnclaimedRewards(s);
 
         var delegatorRecord: delegatorRecord := 
             case getDelegatorDeposit(delegator, s) of
@@ -378,8 +397,7 @@ function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
             s.lpToken.tokenStandard,
             s.lpToken.tokenAddress
         );
-        const operations: list(operation) = operation # claimReturn.0;
-    } with(operations, s)
+    } with(list[operation], s)
 
 (* InitFarm Entrypoint *)
 function initFarm (const initFarmParams: initFarmParamsType; var s: storage): return is
