@@ -251,12 +251,12 @@ describe("Contracts Deployment for Tests", async () => {
     // console.log("vesting contract address put in whitelist")
 
     // Governance Setup Lambdas
-    const governanceLambdaBatch = await tezos.wallet.batch()
-    .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0]) )
-    .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1]) );
+    // const governanceLambdaBatch = await tezos.wallet.batch()
+    // .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0]) )
+    // .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1]) );
 
-    const setupGovernanceLambdasOperation = await governanceLambdaBatch.send();
-    await setupGovernanceLambdasOperation.confirmation();
+    // const setupGovernanceLambdasOperation = await governanceLambdaBatch.send();
+    // await setupGovernanceLambdasOperation.confirmation();
 
 
 
