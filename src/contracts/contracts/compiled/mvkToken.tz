@@ -154,7 +154,7 @@
                          CAR ;
                          GET ;
                          IF_NONE
-                           { DROP ; PUSH string "NOT_FOUND" ; FAILWITH }
+                           { DROP ; PUSH string "METADATA_NOT_FOUND" ; FAILWITH }
                            { SWAP ;
                              CDR ;
                              SWAP ;
