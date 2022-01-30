@@ -291,7 +291,7 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
     const metadataHash: bytes = assertMetadataParams.hash;
     case Big_map.find_opt(metadataKey, store.metadata) of
       Some (v) -> if v =/= metadataHash then failwith("METADATA_HAS_A_WRONG_HASH") else skip
-    | None -> failwith("NOT_FOUND")
+    | None -> failwith("METADATA_NOT_FOUND")
     end
   } with (noOperations, store)
 

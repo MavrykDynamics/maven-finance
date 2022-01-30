@@ -1,16 +1,15 @@
-import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
+import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder'
 
-import { BigNumber } from "bignumber.js";
+import { BigNumber } from 'bignumber.js'
 
 export type delegationStorageType = {
-  admin: string;
-  config: {};
-  breakGlassConfig: {};
+  admin: string
+  config: {}
+  breakGlassConfig: {}
 
-  whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
-  contractAddresses: MichelsonMap<MichelsonMapKey, unknown>;
+  whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>
+  generalContracts: MichelsonMap<MichelsonMapKey, unknown>
 
-  delegateLedger: MichelsonMap<MichelsonMapKey, unknown>;
-  satelliteLedger: MichelsonMap<MichelsonMapKey, unknown>;
-
-};
+  delegateLedger: MichelsonMap<MichelsonMapKey, unknown>
+  satelliteLedger: MichelsonMap<MichelsonMapKey, unknown>
+}
