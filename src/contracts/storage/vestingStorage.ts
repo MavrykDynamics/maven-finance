@@ -21,7 +21,7 @@ export const vestingStorage: vestingStorageType = {
   admin: alice.pkh,
   config: config,
 
-  whitelistContracts : MichelsonMap.fromLiteral({}),
+  whitelistContracts: MichelsonMap.fromLiteral({}),
   generalContracts: MichelsonMap.fromLiteral({}),
 
   claimLedger: MichelsonMap.fromLiteral({}),
@@ -30,4 +30,4 @@ export const vestingStorage: vestingStorageType = {
   totalVestedAmount: new BigNumber(0),
 
   tempBlockLevel: new BigNumber(0)
-};
+}

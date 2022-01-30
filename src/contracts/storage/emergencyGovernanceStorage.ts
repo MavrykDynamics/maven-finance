@@ -1,17 +1,17 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
+import { MichelsonMap } from '@taquito/michelson-encoder'
 
-import { BigNumber } from "bignumber.js";
+import { BigNumber } from 'bignumber.js'
 
 const { alice } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from "../test/helpers/Utils";
+import { zeroAddress } from '../test/helpers/Utils'
 
-import { emergencyGovernanceStorageType } from "../test/types/emergencyGovernanceStorageType";
+import { emergencyGovernanceStorageType } from '../test/types/emergencyGovernanceStorageType'
 
 const config = {
-    voteDuration                        : 5760,
-    minStakedMvkPercentageForTrigger    : 10000,
-    requiredFee                         : 10000000
+  voteDuration: 5760,
+  minStakedMvkPercentageForTrigger: 10000,
+  requiredFee: 10000000,
 }
 
 export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
@@ -25,5 +25,4 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
   tempMvkTotalSupply: new BigNumber(1000000000),
   currentEmergencyGovernanceId: new BigNumber(0),
   nextEmergencyGovernanceProposalId: new BigNumber(1),
-
-};
+}
