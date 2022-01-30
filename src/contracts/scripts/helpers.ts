@@ -16,10 +16,10 @@ export const getLigo = (
 ) => {
   let path: string = 'ligo'
   let isAppleM1 = JSON.parse(isAppleSilicon)
-  console.log(`Processer type is ${isAppleM1}`)
+
   if (isDockerizedLigo) {
-    if (isAppleSilicon) {
-      path = `docker run --platform=linux/arm64/v8 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+    if (isAppleM1) {
+      path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:next`
     } else {
       path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
     }
@@ -64,8 +64,9 @@ export const compile = async (
   contractsDir: string = env.contractsDir,
   outputDir: string = env.buildDir,
   ligoVersion: string = env.ligoVersion,
+  isAppleSilicon: string = 'false',
 ) => {
-  const ligo: string = getLigo(true, ligoVersion)
+  const ligo: string = getLigo(true, ligoVersion, isAppleSilicon)
   const contracts: string[] = !contract ? getContractsList() : [contract]
 
   contracts.forEach((contract) => {
