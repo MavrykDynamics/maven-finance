@@ -22,13 +22,11 @@ export const breakGlassStorage: breakGlassStorageType = {
   generalContracts: MichelsonMap.fromLiteral({}),
   glassBroken: false,
 
-  councilMembers : [],
+  councilMembers: [],
 
   currentActionId: new BigNumber(0),
   nextActionId: new BigNumber(1),
 
   actionLedger: MichelsonMap.fromLiteral({}),
   flushLedger: MichelsonMap.fromLiteral({}),
-
-
-};
+}
