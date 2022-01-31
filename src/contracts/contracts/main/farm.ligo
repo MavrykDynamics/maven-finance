@@ -302,6 +302,8 @@ function claim(var s: storage): return is
 
         const claimedRewards: tokenBalance = delegatorRecord.unclaimedRewards;
 
+        if claimedRewards = 0n then failwith("The delegator has no rewards to claim") else skip;
+
         // Store new unclaimedRewards value in delegator
         delegatorRecord.unclaimedRewards := 0n;
         s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);

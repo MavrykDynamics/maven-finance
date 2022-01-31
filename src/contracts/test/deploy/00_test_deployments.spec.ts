@@ -35,6 +35,7 @@ import { EmergencyGovernance } from "../helpers/emergencyGovernanceHelper";
 import { Vesting } from "../helpers/vestingHelper";
 import { Council } from "../helpers/councilHelper";
 import { Farm } from "../helpers/farmHelper";
+import { FarmFactory } from "../helpers/farmFactoryHelper";
 import { LPToken } from "../helpers/testLPHelper";
 
 import { doormanStorage } from "../../storage/doormanStorage";
@@ -46,6 +47,7 @@ import { emergencyGovernanceStorage } from "../../storage/emergencyGovernanceSto
 import { vestingStorage } from "../../storage/vestingStorage";
 import { councilStorage } from "../../storage/councilStorage";
 import { farmStorage } from "../../storage/farmStorage";
+import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
 import { lpStorage } from "../../storage/testLPTokenStorage";
 
 describe("Contracts Deployment for Tests", async () => {
@@ -60,6 +62,7 @@ describe("Contracts Deployment for Tests", async () => {
   var council : Council;
   var farm: Farm;
   var farmFA2: Farm;
+  var farmFactory: FarmFactory;
   var lpToken: LPToken;
   var tezos;
   let deployedDoormanStorage;
@@ -167,8 +170,7 @@ describe("Contracts Deployment for Tests", async () => {
     console.log("lp token contract originated")
 
     farmStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"  : mvkToken.contract.address,
-      "reserve"   : eve.pkh
+      "mvkToken"  : mvkToken.contract.address
     });
     farmStorage.lpToken.tokenAddress = lpToken.contract.address;
       
@@ -180,8 +182,7 @@ describe("Contracts Deployment for Tests", async () => {
     console.log("fa12 farm contract originated")
 
     farmStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"  : mvkToken.contract.address,
-      "reserve"   : eve.pkh
+      "mvkToken"  : mvkToken.contract.address
     });
     farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
     farmStorage.lpToken.tokenStandard = {
@@ -194,6 +195,13 @@ describe("Contracts Deployment for Tests", async () => {
     );
 
     console.log("fa2 farm contract originated")
+      
+    farmFactory = await FarmFactory.originate(
+      utils.tezos,
+      farmFactoryStorage
+    );
+
+    console.log("farm factory contract originated")
 
     /* ---- ---- ---- ---- ---- */
 
@@ -282,6 +290,7 @@ describe("Contracts Deployment for Tests", async () => {
     await saveContractAddress("lpTokenAddress", lpToken.contract.address)
     await saveContractAddress("farmAddress", farm.contract.address)
     await saveContractAddress("farmFA2Address", farmFA2.contract.address)
+    await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
@@ -316,6 +325,7 @@ describe("Contracts Deployment for Tests", async () => {
         console.log("LP Token Contract deployed at:", lpToken.contract.address);
         console.log("FA12 Farm Contract deployed at:", farm.contract.address);
         console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
+        console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
 
     } catch (e){
         console.log(e);
