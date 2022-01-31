@@ -70,6 +70,7 @@ error_only_administrator = 'ONLY_ADMINISTRATOR_ALLOWED'
 error_farm_closed = 'This farm is closed you cannot deposit on it'
 error_farm_already_init = 'This farm is already opened you cannot initialize it again'
 error_delegator_not_found = 'DELEGATOR_NOT_FOUND'
+error_no_unclaimed_rewards = 'The delegator has no rewards to claim'
 
 class FarmContract(TestCase):
     
@@ -672,9 +673,12 @@ class FarmContract(TestCase):
         res = self.farmContract.deposit(totalDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
 
         # Claim reward after one block
-        res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
-        aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceUnclaimedRewards = 0;
+        aliceClaimedRewards = 0;
+        with self.raisesMichelsonError(error_no_unclaimed_rewards):
+            res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
+            aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
+            aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
 
         suspectedRewards = 0
         
@@ -712,9 +716,12 @@ class FarmContract(TestCase):
         nextBlock = 15 + lastBlockUpdate
 
         # Claim reward after one block
-        res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
-        aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceUnclaimedRewards = 0
+        aliceClaimedRewards = 0
+        with self.raisesMichelsonError(error_no_unclaimed_rewards):
+            res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
+            aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
+            aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
 
         suspectedRewards = 0
         
@@ -751,6 +758,44 @@ class FarmContract(TestCase):
         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
         aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
         aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+
+        suspectedRewards = (nextBlock-lastBlockUpdate) * rewardPerBlock
+
+        self.assertEqual(aliceClaimedRewards, suspectedRewards)
+        self.assertEqual(aliceUnclaimedRewards, 0)
+        print('----')
+        print('✅ Alice claims sMVK after depositing 2LP')
+        print('rewards:')
+        print(aliceClaimedRewards)
+
+    def test_03_alice_deposits_then_claims_twice(self):        
+        init_farm_storage = deepcopy(self.farmStorage)
+        
+        # Initial parameters
+        totalDepositAmount      = 2
+        totalBlocks             = 100
+        rewardPerBlock          = 1000
+        
+        # Init farm
+        res = self.farmContract.initFarm({
+            "rewardPerBlock": rewardPerBlock,
+            "totalBlocks": totalBlocks
+        }).interpret(storage=init_farm_storage, sender=alice)
+        lastBlockUpdate = res.storage['lastBlockUpdate']
+
+        # Deposit LP Tokens
+        res = self.farmContract.deposit(totalDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
+        nextBlock = lastBlockUpdate + 10
+
+        # Claim reward after one block
+        res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
+        aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
+        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+
+        with self.raisesMichelsonError(error_no_unclaimed_rewards):
+            res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
+            aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
+            aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * rewardPerBlock
 

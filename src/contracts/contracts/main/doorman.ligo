@@ -11,7 +11,7 @@ type stakeRecordType is record [
     mvkLoyaltyIndex   : nat;    // audit log for MVK Loyalty Index at time of transaction
     mvkTotalSupply    : nat;    // audit log for MVK total supply at time of transaction
     vMvkTotalSupply   : nat;    // audit log for vMVK total supply at time of transaction
-    opType            : string; // audit log for type of transaction (stake / unstake / exitFeeReward / exitFeeDistribution)
+    opType            : string; // audit log for type of transaction (stake / unstake / exitFeeReward / exitFeeDistribution / farmClaim)
 ]
 type userStakeRecordsType is big_map(address, map(nat, stakeRecordType))
 
@@ -74,6 +74,8 @@ type stakeAction is
     | Unstake of (nat)
     | UnstakeComplete of (nat)
     | DistributeExitFeeReward of (address * nat)
+
+    | FarmClaim of (address * nat)
 
 (* ---- Helper functions begin ---- *)
 
@@ -676,6 +678,82 @@ block {
 
 } with (noOperations, s)
 
+(* Farm Claim entrypoint *)
+function farmClaim(const delegator: address; const claimAmount: nat; var s: storage): return is
+  block{
+    // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);
+
+    // Get farm address
+    const farmAddress: address = Tezos.sender;
+
+    // Check if farm address is known to the farmFactory
+    const farmFactoryAddress: address = case Map.find_opt("farmFactory", s.generalContracts) of
+        Some(_address) -> _address
+        | None -> failwith("Error. Farm Factory Contract is not found.")
+    end;
+    const farmFactoryContract: contract(address) = 
+      case (Tezos.get_entrypoint_opt("%checkFarm", farmFactoryAddress) : option(contract(address))) of
+        Some(contr) -> contr
+      | None -> (failwith("CheckFarm entrypoint in Farm Factory Contract not found") : contract(address))
+      end;
+    const checkFarmOperation: operation = Tezos.transaction(farmAddress, 0tez, farmFactoryContract);
+
+    // Update the delegation balance
+    const delegationAddress : address = case s.generalContracts["delegation"] of
+        Some(_address) -> _address
+        | None -> failwith("Error. Delegation Contract is not found.")
+    end;
+    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+      (delegator, claimAmount, 1n),
+      0tez,
+      updateSatelliteBalance(delegationAddress)
+    );
+
+    // List of operation, first check the farm exists, then update the Satellite balance
+    const operations: list(operation) = list[checkFarmOperation;updateSatelliteBalanceOperation];
+
+    // update user's staked balance in staked balance ledger
+    var userBalanceInStakeBalanceLedger : nat := 
+      case s.userStakeBalanceLedger[delegator] of
+          Some(_val) -> _val
+          | None -> 0n
+      end;
+    var userBalanceInStakeBalanceLedger : nat := userBalanceInStakeBalanceLedger + claimAmount; 
+    s.userStakeBalanceLedger[delegator] := userBalanceInStakeBalanceLedger;
+
+    // update staked MVK total supply
+    s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + claimAmount;
+
+    // check if user wallet address exists in stake ledger -> can also be taken as the number of user stake records
+    var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeRecordsLedger[delegator] of
+        Some(_val) -> _val
+        | None -> map[]
+    end;
+
+    // if user wallet address does not exist in stake ledger, add user to the stake ledger
+    if size(userRecordInStakeLedger) = 0n then s.userStakeRecordsLedger[delegator] := userRecordInStakeLedger
+      else skip;
+
+    const lastRecordIndex : nat = size(userRecordInStakeLedger);
+
+    var newStakeRecord : stakeRecordType := case userRecordInStakeLedger[lastRecordIndex] of
+        Some(_val) -> _val
+        | None -> record [
+            amount           = claimAmount;
+            time             = Tezos.now;  
+            exitFee          = 0n;     
+            mvkLoyaltyIndex  = 0n; 
+            mvkTotalSupply   = 0n;  // FYI: will not be accurate - set to 0 / null / placeholder?    
+            vMvkTotalSupply  = 0n;  // FYI: will not be accurate - set to 0 / null / placeholder?    
+            opType           = "farmClaim";    
+        ]
+    end;
+
+    userRecordInStakeLedger[lastRecordIndex] := newStakeRecord;
+    s.userStakeRecordsLedger[delegator] := userRecordInStakeLedger;
+  } with(operations, s)
+
 (* Main entrypoint *)
 function main (const action : stakeAction; const s : storage) : return is
   case action of
@@ -696,5 +774,7 @@ function main (const action : stakeAction; const s : storage) : return is
   | Unstake(parameters) -> unstake(parameters, s)  
   | UnstakeComplete(parameters) -> unstakeComplete(parameters, s)  
   | DistributeExitFeeReward(parameters) -> distributeExitFeeReward(parameters.0, parameters.1, s)
+
+  | FarmClaim(parameters) -> farmClaim(parameters.0, parameters.1, s)
   
   end
