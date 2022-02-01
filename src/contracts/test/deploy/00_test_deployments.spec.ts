@@ -87,11 +87,22 @@ describe("Contracts Deployment for Tests", async () => {
     console.log('doorman contract originated')
 
     delegationStorage.generalContracts = MichelsonMap.fromLiteral({
+<<<<<<< HEAD
       doorman: doorman.contract.address,
     })
     delegation = await Delegation.originate(utils.tezos, delegationStorage)
 
     console.log('delegation contract originated')
+=======
+      "doorman" : doorman.contract.address
+    });
+    delegation = await Delegation.originate(
+      utils.tezos,
+      delegationStorage
+    );
+
+    console.log("delegation contract originated")
+>>>>>>> 3d23f9d (farmClaim in Doorman Contract that mint MVK Token + farm claim refactored + tests on farmFactory)
 
     mvkStorage.generalContracts = MichelsonMap.fromLiteral({
       doorman: doorman.contract.address,
@@ -169,9 +180,6 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("lp token contract originated")
 
-    farmStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"  : mvkToken.contract.address
-    });
     farmStorage.lpToken.tokenAddress = lpToken.contract.address;
       
     farm = await Farm.originate(
@@ -181,9 +189,6 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("fa12 farm contract originated")
 
-    farmStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"  : mvkToken.contract.address
-    });
     farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
     farmStorage.lpToken.tokenStandard = {
       fa2: ""
@@ -195,7 +200,10 @@ describe("Contracts Deployment for Tests", async () => {
     );
 
     console.log("fa2 farm contract originated")
-      
+    
+    farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
+      "doorman"  : doorman.contract.address
+    });
     farmFactory = await FarmFactory.originate(
       utils.tezos,
       farmFactoryStorage
@@ -221,6 +229,10 @@ describe("Contracts Deployment for Tests", async () => {
       .updateGeneralContracts('mvkToken', mvkToken.contract.address)
       .send()
     await setMvkTokenAddressInDoormanOperation.confirmation()
+    const setFarmFactoryAddressInDoormanOperation = await doorman.contract.methods
+      .updateGeneralContracts("farmFactory", farmFactory.contract.address)
+      .send();
+    await setFarmFactoryAddressInDoormanOperation.confirmation();
     console.log('doorman contract address set')
 
     // Delegation Contract - set contract addresses [governance]
