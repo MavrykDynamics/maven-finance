@@ -51,6 +51,8 @@ type return is list (operation) * storage
 type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
 type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
 
+type farmClaimType is (address * nat)
+
 type stakeType is 
   StakeAction of unit
 | UnstakeAction of unit
@@ -711,8 +713,12 @@ block {
 } with (noOperations, s)
 
 (* Farm Claim entrypoint *)
-function farmClaim(const delegator: address; const claimAmount: nat; var s: storage): return is
+function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
   block{
+    // Get values from parameter
+    const delegator: address = farmClaim.0;
+    const claimAmount: nat  = farmClaim.1;
+
     // entrypoint should not receive any tez amount
     checkNoAmount(Unit);
 
@@ -742,8 +748,20 @@ function farmClaim(const delegator: address; const claimAmount: nat; var s: stor
       updateSatelliteBalance(delegationAddress)
     );
 
+    // Mint new MVK for the doorman contract: TODO --> Check for minting limit
+    const mvkTokenAddress: address = case Map.find_opt("mvkToken", s.generalContracts) of
+        Some(_address) -> _address
+        | None -> failwith("Error. MVK Token Contract is not found.")
+    end;
+    const mvkTokenContract: contract(address * nat) = 
+      case (Tezos.get_entrypoint_opt("%mint", mvkTokenAddress) : option(contract(address * nat))) of
+        Some(contr) -> contr
+      | None -> (failwith("Mint entrypoint in MVK Token Contract not found") : contract(address * nat))
+      end;
+    const mintOperation: operation = Tezos.transaction((Tezos.self_address, claimAmount), 0tez, mvkTokenContract);
+
     // List of operation, first check the farm exists, then update the Satellite balance
-    const operations: list(operation) = list[checkFarmOperation;updateSatelliteBalanceOperation];
+    const operations: list(operation) = list[checkFarmOperation;updateSatelliteBalanceOperation;mintOperation];
 
     // update user's staked balance in staked balance ledger
     var userBalanceInStakeBalanceLedger : nat := 
@@ -807,6 +825,6 @@ function main (const action : stakeAction; const s : storage) : return is
   | UnstakeComplete(parameters) -> unstakeComplete(parameters, s)  
   | DistributeExitFeeReward(parameters) -> distributeExitFeeReward(parameters.0, parameters.1, s)
 
-  | FarmClaim(parameters) -> farmClaim(parameters.0, parameters.1, s)
+  | FarmClaim(parameters) -> farmClaim(parameters, s)
   
   end
