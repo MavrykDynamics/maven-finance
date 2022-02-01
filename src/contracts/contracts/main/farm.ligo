@@ -84,6 +84,9 @@ type initFarmParamsType is record[
     rewardPerBlock: nat;
 ]
 
+(* doorman's farmClaim entrypoint inputs *)
+type farmClaimType is (address * nat)
+
 ////
 // ENTRYPOINTS
 ////
@@ -169,28 +172,18 @@ function transferLP(const from_: address; const to_: address; const tokenAmount:
     |   Fa2 -> transferLPNew(from_,to_,tokenAmount,tokenId,tokenContractAddress)
     end
 
-function transferReward(const reserveAddress: address; const to_: address; const tokenAmount: tokenBalance; const rewardTokenContract: address): operation is
+function transferReward(const delegator: delegator; const tokenAmount: tokenBalance; const s: storage): operation is
     block{
-        const transferParams: newTransferType = list[
-            record[
-                from_=reserveAddress;
-                txs=list[
-                    record[
-                        to_=to_;
-                        token_id=0n;
-                        amount=tokenAmount;
-                    ]
-                ]
-            ]
-        ];
+        const doormanContractAddress: address = getGeneralContract("doorman",s);
+        
+        const doormanContract: contract(farmClaimType) =
+        case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress): option(contract(farmClaimType))) of
+            Some (c) -> c
+        |   None -> (failwith("FarmClaim entrypoint not found in Doorman contract"): contract(farmClaimType))
+        end;
 
-        // For now it only transfers MVK to the user for the reserve
-        const tokenContract: contract(newTransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", rewardTokenContract): option(contract(newTransferType))) of
-                Some (c) -> c
-            |   None -> (failwith("Transfer entrypoint not found in MVK Token contract"): contract(newTransferType))
-            end;
-    } with (Tezos.transaction(transferParams, 0tez, tokenContract))
+        const farmClaimParams: farmClaimType = (delegator, tokenAmount);
+    } with (Tezos.transaction(farmClaimParams, 0tez, doormanContract))
 
 ////
 // UPDATE FARM FUNCTIONS
@@ -309,9 +302,7 @@ function claim(var s: storage): return is
         s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
 
         // Transfer sMVK rewards
-        const mvkTokenContract: address = getGeneralContract("mvkToken",s);
-        const reserveContract: address = getGeneralContract("reserve",s);
-        const operation: operation = transferReward(reserveContract, delegator, claimedRewards, mvkTokenContract);
+        const operation: operation = transferReward(delegator, claimedRewards, s);
     } with(list[operation], s)
 
 (* Deposit Entrypoint *)
