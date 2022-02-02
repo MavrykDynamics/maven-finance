@@ -20,3 +20,6 @@
 
 # Temp
 ./src/contracts
+# Webstorm IDE
+./.idea
+**/.idea/**
