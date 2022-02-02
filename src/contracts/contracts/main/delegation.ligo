@@ -74,7 +74,11 @@ type updateConfigActionType is
   ConfigMinimumStakedMvkBalance of unit
 | ConfigDelegationRatio of unit
 | ConfigMaxSatellites of unit
-type updateConfigParamsType is (updateConfigActionType * updateConfigNewValueType)
+type updateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: updateConfigNewValueType; 
+  updateConfigAction: updateConfigActionType;
+]
+
 
 type delegationAction is 
     | SetAdmin of (address)
@@ -282,10 +286,10 @@ function updateConfig(const updateConfigParams : updateConfigParamsType; var s :
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  checkSenderIsAdmin(s); // check that sender is admin
+  // checkSenderIsAdmin(s); // check that sender is admin
 
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.0;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.1;
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of
     ConfigDelegationRatio (_v)         -> s.config.delegationRatio          := updateConfigNewValue

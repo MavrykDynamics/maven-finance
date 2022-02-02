@@ -24,7 +24,7 @@ const config = {
 
     blocksPerProposalRound : 14400,
     blocksPerVotingRound : 14400,
-    timelockDuration : 5760,
+    blocksPerTimelockRound : 5760,
 }
 
 
@@ -50,13 +50,12 @@ export const governanceStorage: governanceStorageType = {
   currentRoundVotes     : MichelsonMap.fromLiteral({}),
 
   currentRoundHighestVotedProposalId: new BigNumber(0),
-  currentRoundTimelockProposalId: new BigNumber(0),
+  timelockProposalId: new BigNumber(0),
   
   snapshotMvkTotalSupply: new BigNumber(1000000000),
 
   governanceLambdaLedger: MichelsonMap.fromLiteral({}),
 
   tempFlag : new BigNumber(0),
-  tempString: "empty"
 
 };
