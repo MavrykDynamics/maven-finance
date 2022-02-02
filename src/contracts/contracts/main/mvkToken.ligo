@@ -96,9 +96,6 @@ type getTotalSupplyParams is contract(tokenBalance)
 (* Mint entrypoint inputs *)
 type mintParams is (owner * tokenBalance)
 
-(* Burn entrypoint inputs *)
-type burnParams is (owner * tokenBalance)
-
 (* OnStakeChange entrypoint inputs *)
 type stakeType is 
   StakeAction of unit
@@ -118,7 +115,6 @@ type action is
 | AssertMetadata of assertMetadataParams
 | GetTotalSupply of getTotalSupplyParams
 | Mint of mintParams
-| Burn of burnParams
 | OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
 | UpdateGeneralContracts of updateGeneralContractsParams
@@ -312,28 +308,6 @@ function mint(const mintParams: mintParams; const store : storage) : return is
     const updatedLedger: ledger = Big_map.update(senderAddress, Some(senderNewBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
 
-(* Burn Entrypoint *)
-function burn(const burnParams: burnParams; const store: storage) : return is
-  block {
-    const targetAddress: owner = burnParams.0;
-    const burnedTokens: tokenBalance = burnParams.1;
-    var targetBalance: tokenBalance := getBalance(targetAddress, store);
-
-    (* Check this call is comming from the doorman contract *)
-    checkSenderIsDoormanContract(store);
-
-    (* Balance check *)
-    checkBalance(targetBalance, burnedTokens);
-
-    (* Update sender balance *)
-    targetBalance := abs(targetBalance - burnedTokens);
-    const newTotalSupply: tokenBalance = abs(store.totalSupply - burnedTokens);
-
-    (* Update storage *)
-    const updatedLedger: ledger = Big_map.update(targetAddress, Some(targetBalance), store.ledger);
-  } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
-
-
 (* OnStakeChange Entrypoint *)
 (* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
 function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const store: storage): return is
@@ -402,7 +376,6 @@ function main (const action : action; const store : storage) : return is
       | AssertMetadata (params) -> assertMetadata(params, store)
       | GetTotalSupply (params) -> getTotalSupply(params, store)
       | Mint (params) -> mint(params, store)
-      | Burn (params) -> burn(params, store)
       | OnStakeChange (params) -> onStakeChange(params, store)
       | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
