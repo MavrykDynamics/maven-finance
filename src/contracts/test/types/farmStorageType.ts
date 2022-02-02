@@ -6,6 +6,12 @@ export type farmStorageType = {
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
+  breakGlassConfig: {
+    depositIsPaused: boolean
+    withdrawIsPaused: boolean;
+    claimIsPaused: boolean;
+  }
+
   lastBlockUpdate: BigNumber;
   accumulatedMVKPerShare: BigNumber;
   claimedRewards: {
