@@ -208,8 +208,10 @@ describe("Contracts Deployment for Tests", async () => {
 
     // Governance Setup Lambdas
     const governanceLambdaBatch = await tezos.wallet.batch()
-    .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0]) )
-    .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1]) );
+    .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0]) )   // callGovernanceLambda
+    .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1]) )   // updateLambdaFunction
+    .withContractCall(governance.contract.methods.setupLambdaFunction(2, governanceLambdas[2]) )   // updateGovernanceConfig
+    .withContractCall(governance.contract.methods.setupLambdaFunction(3, governanceLambdas[3]) );  // updateDelegationConfig
 
     const setupGovernanceLambdasOperation = await governanceLambdaBatch.send();
     await setupGovernanceLambdasOperation.confirmation();
