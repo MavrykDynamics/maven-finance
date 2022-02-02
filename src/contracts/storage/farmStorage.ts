@@ -33,6 +33,12 @@ export const farmStorage: farmStorageType = {
   generalContracts: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
 
+  breakGlassConfig: {
+    depositIsPaused: false,
+    withdrawIsPaused: false,
+    claimIsPaused: false
+  },
+
   lastBlockUpdate: new BigNumber(0),
   accumulatedMVKPerShare: new BigNumber(0),
   claimedRewards: claimedRewards,

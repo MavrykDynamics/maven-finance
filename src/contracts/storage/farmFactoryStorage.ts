@@ -6,5 +6,11 @@ export const farmFactoryStorage: farmFactoryStorageType = {
   admin: alice.pkh,
   generalContracts: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
+
+  breakGlassConfig: {
+    createFarmIsPaused: false,
+    untrackFarmIsPaused: false,
+  },
+
   createdFarms: [],
 };

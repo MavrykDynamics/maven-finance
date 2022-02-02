@@ -5,6 +5,11 @@ export type farmFactoryStorageType = {
 
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
+
+  breakGlassConfig: {
+    createFarmIsPaused: boolean;
+    untrackFarmIsPaused: boolean;
+  }
   
   createdFarms: Array<unknown>;
 };
