@@ -39,10 +39,18 @@ type lpToken is record[
     tokenBalance: tokenBalance;
 ]
 
+type breakGlassConfigType is record [
+    depositIsPaused         : bool;
+    withdrawIsPaused        : bool;
+    claimIsPaused           : bool;
+]
+
 type storage is record[
     admin                   : address;
     whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts        : generalContractsType;
+
+    breakGlassConfig        : breakGlassConfigType;
 
     lastBlockUpdate         : nat;
     accumulatedMVKPerShare  : tokenBalance;
@@ -91,9 +99,20 @@ type farmClaimType is (address * nat)
 // ENTRYPOINTS
 ////
 type entryAction is
-    Deposit of nat
-|   Claim of unit
+    SetAdmin of (address)
+|   UpdateWhitelistContracts of updateWhitelistContractsParams
+|   UpdateGeneralContracts of updateGeneralContractsParams
+
+|   PauseAll of (unit)
+|   UnpauseAll of (unit)
+|   TogglePauseDeposit of (unit)
+|   TogglePauseWithdraw of (unit)
+|   TogglePauseClaim of (unit)
+
+|   Deposit of nat
 |   Withdraw of nat
+|   Claim of unit
+
 |   InitFarm of initFarmParamsType
 
 ////
@@ -120,6 +139,23 @@ function checkSenderIsAdmin(const s: storage): unit is
 function checkFarmIsInit(const s: storage): unit is 
   if s.plannedRewards.rewardPerBlock = 0n or s.plannedRewards.totalBlocks = 0n then failwith("This farm has not yet been initiated")
   else unit
+
+////
+// BREAK GLASS CHECKS
+////
+
+// break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
+function checkDepositIsNotPaused(var s : storage) : unit is
+    if s.breakGlassConfig.depositIsPaused then failwith("Deposit entrypoint is paused.")
+    else unit;
+
+function checkWithdrawIsNotPaused(var s : storage) : unit is
+    if s.breakGlassConfig.withdrawIsPaused then failwith("Withdraw entrypoint is paused.")
+    else unit;
+
+function checkClaimIsNotPaused(var s : storage) : unit is
+    if s.breakGlassConfig.claimIsPaused then failwith("Claim entrypoint is paused.")
+    else unit;
 
 ////
 // FUNCTIONS INCLUDED
@@ -270,11 +306,88 @@ function updateUnclaimedRewards(var s: storage): storage is
     } with(s)
 
 ////
+// BREAK GLASS FUNCTIONS
+///
+function pauseAll(var s: storage) : return is
+    block {
+        // check that sender is admin
+        checkSenderIsAdmin(s);
+
+        // set all pause configs to True
+        if s.breakGlassConfig.depositIsPaused then skip
+        else s.breakGlassConfig.depositIsPaused := True;
+
+        if s.breakGlassConfig.withdrawIsPaused then skip
+        else s.breakGlassConfig.withdrawIsPaused := True;
+
+        if s.breakGlassConfig.claimIsPaused then skip
+        else s.breakGlassConfig.claimIsPaused := True;
+
+    } with (noOperations, s)
+
+function unpauseAll(var s : storage) : return is
+    block {
+        // check that sender is admin
+        checkSenderIsAdmin(s);
+
+        // set all pause configs to False
+        if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
+        else skip;
+
+        if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
+        else skip;
+
+        if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
+        else skip;
+
+    } with (noOperations, s)
+
+function togglePauseDeposit(var s : storage) : return is
+    block {
+        // check that sender is admin
+        checkSenderIsAdmin(s);
+
+        if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
+        else s.breakGlassConfig.depositIsPaused := True;
+
+    } with (noOperations, s)
+
+function togglePauseWithdraw(var s : storage) : return is
+    block {
+        // check that sender is admin
+        checkSenderIsAdmin(s);
+
+        if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
+        else s.breakGlassConfig.withdrawIsPaused := True;
+
+    } with (noOperations, s)
+
+function togglePauseClaim(var s : storage) : return is
+    block {
+        // check that sender is admin
+        checkSenderIsAdmin(s);
+
+        if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
+        else s.breakGlassConfig.claimIsPaused := True;
+
+    } with (noOperations, s)
+
+////
 // ENTRYPOINTS FUNCTIONS
 ///
+(*  set contract admin address *)
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin
+    s.admin := newAdminAddress;
+} with (noOperations, s)
+
 (* Claim Entrypoint *)
 function claim(var s: storage): return is
     block{
+        // break glass check
+        checkClaimIsNotPaused(s);
+
         // Check if farm has started
         checkFarmIsInit(s);
 
@@ -308,6 +421,9 @@ function claim(var s: storage): return is
 (* Deposit Entrypoint *)
 function deposit(const tokenAmount: tokenBalance; var s: storage): return is
     block{
+        // break glass check
+        checkDepositIsNotPaused(s);
+
         // Check if farm has started
         checkFarmIsInit(s);
 
@@ -331,6 +447,7 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
             // Update user's unclaimed rewards
             s := updateUnclaimedRewards(s);
 
+            // Refresh delegator deposit with updated unclaimed rewards
             delegatorRecord := 
                 case getDelegatorDeposit(delegator, s) of
                     Some (d) -> d
@@ -355,6 +472,9 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
 (* Withdraw Entrypoint *)
 function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
     block{
+        // break glass check
+        checkWithdrawIsNotPaused(s);
+
         // Check if farm has started
         checkFarmIsInit(s);
 
@@ -415,9 +535,19 @@ function main (const action: entryAction; var s: storage): return is
     checkNoAmount(Unit);
   } with(
     case action of
-        Deposit (params) -> deposit(params, s)
-    |   Claim (_params) -> claim(s)
+        SetAdmin (parameters) -> setAdmin(parameters, s)
+    |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
+    |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
+
+    |   PauseAll (_parameters) -> pauseAll(s)
+    |   UnpauseAll (_parameters) -> unpauseAll(s)
+    |   TogglePauseDeposit (_parameters) -> togglePauseDeposit(s)
+    |   TogglePauseWithdraw (_parameters) -> togglePauseWithdraw(s)
+    |   TogglePauseClaim (_parameters) -> togglePauseClaim(s)
+
+    |   Deposit (params) -> deposit(params, s)
     |   Withdraw (params) -> withdraw(params, s)
+    |   Claim (_params) -> claim(s)
     |   InitFarm (params) -> initFarm(params, s)
     end
   )
