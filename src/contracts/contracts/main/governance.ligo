@@ -4,6 +4,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
+#include "../partials/whitelistTokenContractsType.ligo"
+
 type proposalIdTypeNat is nat 
 
 // Stores all voter data during proposal round
@@ -147,6 +150,7 @@ type storage is record [
     config                      : configType;
 
     whitelistContracts          : whitelistContractsType;      
+    whitelistTokenContracts     : whitelistTokenContractsType;      
     generalContracts            : generalContractsType; 
     
     proposalLedger              : proposalLedgerType;
@@ -185,6 +189,7 @@ type governanceAction is
     | SetAdmin of (address)
     | UpdateConfig of updateConfigParamsType
     | UpdateWhitelistContracts of updateWhitelistContractsParams
+    | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
     
     | StartProposalRound of (unit)
@@ -263,6 +268,10 @@ function checkNoAmount(const _p : unit) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
+#include "../partials/whitelistTokenContractsMethod.ligo"
+
 
 // Governance Lambda Methods: callGovernanceLambda, setupLambdaFunction
 #include "../partials/governance/governanceLambdaMethods.ligo"
@@ -1133,6 +1142,7 @@ function main (const action : governanceAction; const s : storage) : return is
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+        | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
   
         | StartProposalRound(_parameters) -> startProposalRound(s)
