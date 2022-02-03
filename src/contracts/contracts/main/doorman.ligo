@@ -19,7 +19,7 @@ type userStakeBalanceType is big_map(address, nat)
 
 type burnTokenType is (address * nat)
 type mintTokenType is (address * nat)
-type udpateSatelliteBalanceParams is (address * nat * nat)
+type updateSatelliteBalanceParams is (address * nat * nat)
 
 type breakGlassConfigType is record [
     stakeIsPaused           : bool;
@@ -183,12 +183,12 @@ function mintTokens(
   );
 
 // helper function to update satellite's balance
-function updateSatelliteBalance(const delegationAddress : address) : contract(udpateSatelliteBalanceParams) is
+function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceParams) is
   case (Tezos.get_entrypoint_opt(
       "%onStakeChange",
-      delegationAddress) : option(contract(udpateSatelliteBalanceParams))) of
+      delegationAddress) : option(contract(updateSatelliteBalanceParams))) of
     Some(contr) -> contr
-  | None -> (failwith("onStakeChange entrypoint in Satellite Contract not found") : contract(udpateSatelliteBalanceParams))
+  | None -> (failwith("onStakeChange entrypoint in Satellite Contract not found") : contract(updateSatelliteBalanceParams))
   end;
 
   // helper function to update satellite's balance
@@ -272,38 +272,6 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
 } with (noOperations, s)
-
-(* set mvk contract address *)
-// function setMvkTokenAddress(const newTokenAddress : address; var s : storage) : return is
-// block {
-//     checkNoAmount(Unit); // entrypoint should not receive any tez amount
-//     checkSenderIsAdmin(s); // check that sender is admin
-//     s.mvkTokenAddress := newTokenAddress;
-// } with (noOperations, s)
-
-// (* set mvk contract address *)
-// function setDelegationAddress(const newContractAddress : address; var s : storage) : return is
-// block {
-
-//     // entrypoint should not receive any tez amount
-//     checkNoAmount(Unit);
-
-//     // check that sender is admin
-//     checkSenderIsAdmin(s);
-
-//     s.delegationAddress := newContractAddress;
-// } with (noOperations, s)
-
-// (* set mvk contract address *)
-// function setExitFeePoolAddress(const newContractAddress : address; var s : storage) : return is
-// block {
-
-//     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-//     checkSenderIsAdmin(s); // check that sender is admin
-
-//     s.exitFeePoolAddress := newContractAddress;
-// } with (noOperations, s)
-
 
 (* View function that forwards the staked balance of source to a contract *)
 function getStakedBalance (const userAddress : address; const contr : contract(nat); var s : storage) : return is

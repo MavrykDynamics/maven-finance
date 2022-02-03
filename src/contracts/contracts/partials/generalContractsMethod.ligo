@@ -8,7 +8,7 @@ block {
 } with inContractAddressMap
 
 (* UpdateGeneralContracts Entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s : storage) : return is 
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsParams; var s : storage) : return is 
   block{
     
     checkSenderIsAdmin(s); // check that sender is admin

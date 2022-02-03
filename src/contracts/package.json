@@ -19,7 +19,7 @@
     "rimraf": "^3.0.2"
   },
   "scripts": {
-    "start-sandbox": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=1 --detach -p 8732:20000 tqtezos/flextesa:20211206 hangzbox start && bash ./sandbox-init.sh",
+    "start-sandbox": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=3 --detach -p 8732:20000 tqtezos/flextesa:20211206 hangzbox start && bash ./sandbox-init.sh",
     "start-sandbox-m1": "docker run --rm --platform=linux/arm64/v8 --name mavryk-sandbox -e block_time=3 --detach -p 8732:20000 oxheadalpha/flextesa:latest hangzbox start && bash ./sandbox-init.sh",
     "restart-sandbox": "docker restart mavryk-sandbox",
     "pre-compile": "ts-node scripts/cli.ts compile -o contracts/compiled -c",
@@ -29,7 +29,7 @@
     "compile-lambdas": "ts-node scripts/cli.ts compile-lambda -j contracts/partials/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo",
     "compile-lambda-parameters": "ts-node scripts/cli.ts compile-lambda-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
     "compile-pack-parameters": "ts-node scripts/cli.ts compile-pack-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
-    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-lambdas && yarn compile-pack-parameters",
+    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-lambdas",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas && yarn compile-pack-parameters",
     "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
     "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",

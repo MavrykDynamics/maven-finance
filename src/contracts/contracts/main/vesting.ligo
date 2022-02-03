@@ -90,7 +90,8 @@ type updateVesteeType is (address * nat * nat * nat) // vestee address, new tota
 type vestingAction is 
     
     | Claim of (unit)
-    | GetVestedBalance of (address * contract(nat))
+    | GetVesteeBalance of (address * contract(nat))
+    
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
     | GetTotalVested of contract(nat)
@@ -158,7 +159,7 @@ function getMintEntrypointFromTokenAddress(const token_address : address) : cont
   | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
   end;
 
-(* Helper function to mint mvk/vmvk tokens *)
+(* Helper function to mint mvk tokens *)
 function mintTokens(
   const to_ : address;
   const amount_ : nat;
@@ -277,7 +278,7 @@ block {
 
 } with (_operations, s)
 
-function getVestedBalance(const vesteeAddress : address; const contr : contract(nat); var s : storage) : return is 
+function getVesteeBalance(const vesteeAddress : address; const contr : contract(nat); var s : storage) : return is 
 block {
     // Steps Overview:
     // 1. check if vestee address exists in vestee ledger
@@ -511,7 +512,7 @@ function main (const action : vestingAction; const s : storage) : return is
         | AddVestee(params) -> addVestee(params.0, params.1, params.2, params.3, s)
         | RemoveVestee(params) -> removeVestee(params, s)
         | ToggleVesteeLock(params) -> toggleVesteeLock(params, s)
-        | GetVestedBalance(params) -> getVestedBalance(params.0, params.1, s)
+        | GetVesteeBalance(params) -> getVesteeBalance(params.0, params.1, s)
         | GetTotalVested(params) -> getTotalVested(params, s)
         | UpdateVestee(params) -> updateVestee(params.0, params.1, params.2, params.3, s)
         | UpdateVestingRecord(params) -> updateVestingRecord(params.0, params.1, s)
