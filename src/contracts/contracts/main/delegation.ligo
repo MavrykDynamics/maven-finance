@@ -41,7 +41,7 @@ type satelliteLedgerType is big_map (address, satelliteRecordType)
 type getSatelliteVotingPowerParams is (address * contract(address * nat * nat))
 
 type configType is record [
-    minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required as bong to register as delegate (in muMVK)
+    minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required to register as delegate (in muMVK)
     delegationRatio           : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated    
     maxSatellites             : nat;   // 100 -> prevent any gaming of system with mass registration of satellites - can be changed through governance
 ]
