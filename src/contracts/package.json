@@ -30,7 +30,7 @@
     "compile-lambda-parameters": "ts-node scripts/cli.ts compile-lambda-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
     "compile-pack-parameters": "ts-node scripts/cli.ts compile-pack-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
     "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-lambdas",
-    "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas && yarn compile-pack-parameters",
+    "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
     "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
     "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",
     "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 900000",
