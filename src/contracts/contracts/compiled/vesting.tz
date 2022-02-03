@@ -1,6 +1,6 @@
 { parameter
     (or (or (or (or (pair %addVestee (pair address nat) (pair nat nat)) (unit %claim))
-                (or (contract %getTotalVested nat) (pair %getVestedBalance address (contract nat))))
+                (or (contract %getTotalVested nat) (pair %getVesteeBalance address (contract nat))))
             (or (or (address %removeVestee) (address %toggleVesteeLock))
                 (or (pair %updateGeneralContracts string address)
                     (pair %updateVestee (pair address nat) (pair nat nat)))))
@@ -357,14 +357,19 @@
                          COMPARE ;
                          GT ;
                          NIL operation ;
+                         DUP 5 ;
+                         DUP 5 ;
+                         DUP 3 ;
+                         PAIR ;
+                         PAIR ;
                          PUSH bool True ;
-                         DIG 3 ;
+                         DIG 4 ;
                          COMPARE ;
                          EQ ;
-                         DIG 2 ;
+                         DIG 3 ;
                          AND ;
                          IF { PUSH nat 0 ;
-                              DUP 3 ;
+                              DUP 4 ;
                               CAR ;
                               CAR ;
                               CDR ;
@@ -372,9 +377,7 @@
                               CAR ;
                               COMPARE ;
                               EQ ;
-                              IF { SWAP ;
-                                   DUP ;
-                                   DUG 2 ;
+                              IF { DUP 3 ;
                                    CAR ;
                                    CDR ;
                                    CDR ;
@@ -383,7 +386,7 @@
                                    LEVEL ;
                                    SUB ;
                                    ABS ;
-                                   DUP 4 ;
+                                   DUP 5 ;
                                    CAR ;
                                    CDR ;
                                    CAR ;
@@ -396,7 +399,7 @@
                                    CAR }
                                  { PUSH nat 0 } ;
                               PUSH nat 0 ;
-                              DUP 4 ;
+                              DUP 5 ;
                               CAR ;
                               CAR ;
                               CDR ;
@@ -405,9 +408,7 @@
                               COMPARE ;
                               GT ;
                               IF { DROP ;
-                                   SWAP ;
-                                   DUP ;
-                                   DUG 2 ;
+                                   DUP 3 ;
                                    CAR ;
                                    CAR ;
                                    CDR ;
@@ -416,7 +417,7 @@
                                    LEVEL ;
                                    SUB ;
                                    ABS ;
-                                   DUP 4 ;
+                                   DUP 5 ;
                                    CAR ;
                                    CDR ;
                                    CAR ;
@@ -429,14 +430,14 @@
                                    CAR }
                                  {} ;
                               DUP ;
-                              DUP 4 ;
+                              DUP 5 ;
                               CAR ;
                               CAR ;
                               CAR ;
                               CAR ;
                               CAR ;
                               MUL ;
-                              DUP 5 ;
+                              DUP 6 ;
                               CAR ;
                               CDR ;
                               CDR ;
@@ -457,11 +458,21 @@
                               DIG 3 ;
                               PAIR ;
                               TRANSFER_TOKENS ;
+                              DUP 4 ;
+                              CDR ;
+                              DIG 4 ;
+                              CAR ;
+                              CDR ;
+                              DIG 5 ;
+                              DIG 3 ;
+                              CONS ;
+                              PAIR ;
+                              PAIR ;
                               PUSH int 30 ;
                               PUSH int 86400 ;
                               MUL ;
                               DUP 4 ;
-                              DUP 7 ;
+                              DUP 6 ;
                               CAR ;
                               CDR ;
                               CAR ;
@@ -470,20 +481,20 @@
                               COMPARE ;
                               LT ;
                               IF { PUSH nat 0 }
-                                 { DUP 4 ; DUP 7 ; CAR ; CDR ; CAR ; CAR ; CDR ; SUB ; ABS } ;
-                              DUP 7 ;
+                                 { DUP 4 ; DUP 6 ; CAR ; CDR ; CAR ; CAR ; CDR ; SUB ; ABS } ;
+                              DUP 6 ;
                               CDR ;
-                              DUP 8 ;
+                              DUP 7 ;
                               CAR ;
                               CDR ;
                               CDR ;
-                              DUP 9 ;
+                              DUP 8 ;
                               CAR ;
                               CDR ;
                               CAR ;
                               CDR ;
                               DIG 3 ;
-                              DUP 10 ;
+                              DUP 9 ;
                               CAR ;
                               CDR ;
                               CAR ;
@@ -492,7 +503,7 @@
                               PAIR ;
                               PAIR ;
                               PAIR ;
-                              DIG 7 ;
+                              DIG 6 ;
                               CAR ;
                               CAR ;
                               PAIR ;
@@ -530,7 +541,7 @@
                               PAIR ;
                               PAIR ;
                               PAIR ;
-                              DIG 3 ;
+                              DUP 4 ;
                               CAR ;
                               CAR ;
                               PAIR ;
@@ -581,7 +592,7 @@
                               CAR ;
                               PAIR ;
                               PAIR ;
-                              DIG 2 ;
+                              DUP 3 ;
                               CAR ;
                               CAR ;
                               PAIR ;
@@ -594,9 +605,9 @@
                               CAR ;
                               CDR ;
                               CDR ;
-                              DIG 4 ;
+                              DIG 6 ;
                               DUP ;
-                              DIG 5 ;
+                              DIG 6 ;
                               MUL ;
                               DUP 5 ;
                               CAR ;
@@ -620,7 +631,7 @@
                               CAR ;
                               PAIR ;
                               PAIR ;
-                              DIG 2 ;
+                              DUP 3 ;
                               CAR ;
                               CAR ;
                               PAIR ;
@@ -646,7 +657,7 @@
                               CDR ;
                               CAR ;
                               PAIR ;
-                              DIG 3 ;
+                              DUP 4 ;
                               CAR ;
                               CAR ;
                               CAR ;
@@ -674,7 +685,7 @@
                               CDR ;
                               CAR ;
                               PAIR ;
-                              DIG 3 ;
+                              DUP 4 ;
                               CAR ;
                               CAR ;
                               CAR ;
@@ -690,7 +701,7 @@
                               CDR ;
                               CAR ;
                               CDR ;
-                              DUP 5 ;
+                              DUP 10 ;
                               DUP 4 ;
                               CDR ;
                               CAR ;
@@ -699,9 +710,11 @@
                               PAIR ;
                               PAIR ;
                               SWAP ;
+                              DUP ;
+                              DUG 2 ;
                               CAR ;
                               PAIR ;
-                              DUP 3 ;
+                              DUP 9 ;
                               SWAP ;
                               DUP ;
                               DUG 2 ;
@@ -713,7 +726,7 @@
                               COMPARE ;
                               LT ;
                               IF { PUSH nat 0 }
-                                 { DUP 3 ; SWAP ; DUP ; DUG 2 ; CAR ; CDR ; CDR ; CDR ; CDR ; SUB ; ABS } ;
+                                 { DUP 9 ; SWAP ; DUP ; DUG 2 ; CAR ; CDR ; CDR ; CDR ; CDR ; SUB ; ABS } ;
                               SWAP ;
                               DUP ;
                               DUG 2 ;
@@ -727,13 +740,15 @@
                               PAIR ;
                               PAIR ;
                               SWAP ;
+                              DUP ;
+                              DUG 2 ;
                               CAR ;
                               PAIR ;
-                              DUP 5 ;
+                              DUP 11 ;
                               CDR ;
                               CDR ;
                               CDR ;
-                              DUP 6 ;
+                              DUP 12 ;
                               CDR ;
                               CDR ;
                               CAR ;
@@ -742,17 +757,17 @@
                               SENDER ;
                               UPDATE ;
                               PAIR ;
-                              DUP 6 ;
+                              DUP 12 ;
                               CDR ;
                               CAR ;
                               PAIR ;
-                              DIG 5 ;
+                              DIG 11 ;
                               CAR ;
                               PAIR ;
                               DUP ;
                               CDR ;
                               CDR ;
-                              DIG 4 ;
+                              DIG 11 ;
                               DUP 3 ;
                               CDR ;
                               CAR ;
@@ -767,13 +782,78 @@
                               SWAP ;
                               CAR ;
                               PAIR ;
-                              SWAP ;
-                              DIG 3 ;
-                              DIG 3 ;
-                              CONS ;
+                              DUP 10 ;
+                              CDR ;
+                              DIG 9 ;
+                              DIG 10 ;
+                              CAR ;
+                              CAR ;
                               PAIR ;
+                              PAIR ;
+                              DUP ;
+                              CDR ;
+                              DIG 9 ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR ;
+                              DUP ;
+                              CDR ;
+                              DIG 8 ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR ;
+                              DUP ;
+                              CDR ;
+                              DIG 7 ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR ;
+                              DUP ;
+                              CDR ;
+                              DIG 6 ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR ;
+                              DUP ;
+                              CDR ;
+                              DIG 5 ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR ;
+                              DUP ;
+                              CDR ;
+                              DIG 4 ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR ;
+                              DUP ;
+                              CDR ;
+                              DIG 3 ;
+                              DIG 2 ;
+                              CAR ;
+                              CAR ;
+                              PAIR ;
+                              PAIR ;
+                              CAR ;
                               PAIR }
-                            { PUSH string "Error. You are unable to claim now." ; FAILWITH } ;
+                            { SWAP ;
+                              DIG 2 ;
+                              DIG 3 ;
+                              DROP 3 ;
+                              PUSH string "Error. You are unable to claim now." ;
+                              FAILWITH } ;
                          UNPAIR ;
                          CAR ;
                          PAIR } }
