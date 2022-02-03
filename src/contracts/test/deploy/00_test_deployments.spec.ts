@@ -33,6 +33,7 @@ import { BreakGlass } from "../helpers/breakGlassHelper";
 import { EmergencyGovernance } from "../helpers/emergencyGovernanceHelper";
 import { Vesting } from "../helpers/vestingHelper";
 import { Council } from "../helpers/councilHelper";
+import { Treasury } from "../helpers/treasuryHelper";
 
 import { doormanStorage } from "../../storage/doormanStorage";
 import { delegationStorage } from "../../storage/delegationStorage";
@@ -42,6 +43,7 @@ import { breakGlassStorage } from "../../storage/breakGlassStorage";
 import { emergencyGovernanceStorage } from "../../storage/emergencyGovernanceStorage";
 import { vestingStorage } from "../../storage/vestingStorage";
 import { councilStorage } from "../../storage/councilStorage";
+import { treasuryStorage } from "../../storage/treasuryStorage";
 
 describe("Contracts Deployment for Tests", async () => {
   var utils: Utils;
@@ -53,6 +55,7 @@ describe("Contracts Deployment for Tests", async () => {
   var emergencyGovernance : EmergencyGovernance;
   var vesting : Vesting;
   var council : Council;
+  var treasury : Treasury;
   var tezos;
   let deployedDoormanStorage;
   let deployedDelegationStorage;
@@ -164,6 +167,20 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("break glass contract originated")
 
+    treasuryStorage.generalContracts = MichelsonMap.fromLiteral({
+      "mvkToken"  : mvkToken.contract.address,
+      "delegation": delegation.contract.address,
+    });
+    treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
+      "governance" : governance.contract.address
+    });
+    treasury = await Treasury.originate(
+      utils.tezos,
+      treasuryStorage
+    );
+
+    console.log("treasury contract originated")
+
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos;
@@ -185,9 +202,11 @@ describe("Contracts Deployment for Tests", async () => {
     await setGovernanceContractAddressInDelegationOperation.confirmation();
     console.log("delegation contract address set")
 
-    // MVK Token Contract - set whitelist contract addresses [vesting]
+    // MVK Token Contract - set whitelist contract addresses [vesting, treasury]
     const setWhitelistVestingContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts("vesting", vesting.contract.address).send();
     await setWhitelistVestingContractInMvkTokenOperation.confirmation();
+    const setWhitelistTreasuryContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts("treasury", treasury.contract.address).send();
+    await setWhitelistTreasuryContractInMvkTokenOperation.confirmation();
     console.log("vesting contract address put in whitelist")
 
     // Governance Contract - set contract addresses [emergencyGovernance, breakGlass]
@@ -208,8 +227,10 @@ describe("Contracts Deployment for Tests", async () => {
 
     // Governance Setup Lambdas
     const governanceLambdaBatch = await tezos.wallet.batch()
-    .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0]) )
-    .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1]) );
+    .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0]) )   // callGovernanceLambda
+    .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1]) )   // updateLambdaFunction
+    .withContractCall(governance.contract.methods.setupLambdaFunction(2, governanceLambdas[2]) )   // updateGovernanceConfig
+    .withContractCall(governance.contract.methods.setupLambdaFunction(3, governanceLambdas[3]) );  // updateDelegationConfig
 
     const setupGovernanceLambdasOperation = await governanceLambdaBatch.send();
     await setupGovernanceLambdasOperation.confirmation();
@@ -260,6 +281,7 @@ describe("Contracts Deployment for Tests", async () => {
         console.log("MVK Token Contract deployed at:", mvkToken.contract.address);
         console.log("Vesting Contract deployed at:", vesting.contract.address);
         console.log("Council Contract deployed at:", council.contract.address);
+        console.log("Treasury Contract deployed at:", treasury.contract.address);
 
     } catch (e){
         console.log(e);

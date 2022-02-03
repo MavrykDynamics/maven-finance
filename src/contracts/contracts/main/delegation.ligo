@@ -41,7 +41,7 @@ type satelliteLedgerType is big_map (address, satelliteRecordType)
 type getSatelliteVotingPowerParams is (address * contract(address * nat * nat))
 
 type configType is record [
-    minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required as bong to register as delegate (in muMVK)
+    minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required to register as delegate (in muMVK)
     delegationRatio           : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated    
     maxSatellites             : nat;   // 100 -> prevent any gaming of system with mass registration of satellites - can be changed through governance
 ]
@@ -74,7 +74,11 @@ type updateConfigActionType is
   ConfigMinimumStakedMvkBalance of unit
 | ConfigDelegationRatio of unit
 | ConfigMaxSatellites of unit
-type updateConfigParamsType is (updateConfigActionType * updateConfigNewValueType)
+type updateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: updateConfigNewValueType; 
+  updateConfigAction: updateConfigActionType;
+]
+
 
 type delegationAction is 
     | SetAdmin of (address)
@@ -282,10 +286,10 @@ function updateConfig(const updateConfigParams : updateConfigParamsType; var s :
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  checkSenderIsAdmin(s); // check that sender is admin
+  // checkSenderIsAdmin(s); // check that sender is admin
 
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.0;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.1;
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of
     ConfigDelegationRatio (_v)         -> s.config.delegationRatio          := updateConfigNewValue

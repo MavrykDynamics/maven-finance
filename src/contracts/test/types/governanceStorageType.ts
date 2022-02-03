@@ -25,11 +25,12 @@ export type governanceStorageType = {
   currentRoundVotes     : MichelsonMap<MichelsonMapKey, unknown>;
 
   currentRoundHighestVotedProposalId : BigNumber;
-  currentRoundTimelockProposalId : BigNumber;
+  timelockProposalId : BigNumber;
 
   snapshotMvkTotalSupply : BigNumber;
 
   governanceLambdaLedger : MichelsonMap<MichelsonMapKey, unknown>;
 
   tempFlag :BigNumber;
+  
 };
