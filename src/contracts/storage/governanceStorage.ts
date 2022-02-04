@@ -33,6 +33,7 @@ export const governanceStorage: governanceStorageType = {
   config: config,
   
   whitelistContracts: MichelsonMap.fromLiteral({}),
+  whitelistTokenContracts: MichelsonMap.fromLiteral({}),
   generalContracts: MichelsonMap.fromLiteral({}),
 
   proposalLedger: MichelsonMap.fromLiteral({}),

@@ -5,8 +5,10 @@ export type treasuryStorageType = {
   admin: string;
   config: {};
 
-  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
+  whitelistTokenContracts : MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
+  
   
   breakGlassConfig: {};
 };
