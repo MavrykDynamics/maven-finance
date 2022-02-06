@@ -30,8 +30,8 @@ describe('MVK Token', async () => {
 
   let totalSupplyBase
 
-  const signerFactory = async (pk) => {
-    await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
+  const signerFactory = async (sk) => {
+    await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(sk) })
     return utils.tezos
   }
 
@@ -591,6 +591,8 @@ describe('MVK Token', async () => {
           eveTokenLedgerBase + 200,
           'Eve MVK Ledger should have ' + (eveTokenLedgerBase + 200) + 'MVK but she has ' + eveTokenLedgerAfter + 'MVK',
         )
+        //Resetting Alice to be the current signer
+        await signerFactory(alice.sk)
       } catch (e) {
         console.log(e)
       }
@@ -652,7 +654,6 @@ describe('MVK Token', async () => {
     })
 
     it('Alice becomes an operator on Bob and Eve, then sends 300MVK from Bob and Eve accounts to her account', async () => {
-      // TODO: Test is currently broken because of a issues of signing as Eve with Taquito
       try {
         await signerFactory(bob.sk)
         const updateOperatorsOperationBobAdd = await tokenInstance.methods
@@ -716,9 +717,9 @@ describe('MVK Token', async () => {
 
         assert.equal(
           aliceTokenLedgerAfter,
-          aliceTokenLedgerBase + 300,
+          aliceTokenLedgerBase + 600,
           'Alice MVK Ledger should have ' +
-            (aliceTokenLedgerBase + 300) +
+            (aliceTokenLedgerBase + 600) +
             'MVK but she has ' +
             aliceTokenLedgerAfter +
             'MVK',
@@ -767,6 +768,703 @@ describe('MVK Token', async () => {
           .send()
         await updateOperatorsOperationEveRemove.confirmation()
         await signerFactory(alice.sk)
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    // Testing the same functions tested on Alice and Bob but for Eve and Mallory (non admin addresses)
+    it('Eve sends 2000MVK to Mallory', async () => {
+      try {
+        await signerFactory(eve.sk)
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: eve.pkh,
+              txs: [
+                {
+                  to_: mallory.pkh,
+                  token_id: 0,
+                  amount: 2000,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase - 2000,
+          "Eve's MVK Ledger should have " +
+            (eveTokenLedgerBase - 2000) +
+            'MVK but she has ' +
+            eveTokenLedgerAfter +
+            'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase + 2000,
+          "Mallory's MVK Ledger should have " +
+            (malloryTokenLedgerBase + 2000) +
+            'MVK but she has ' +
+            malloryTokenLedgerAfter +
+            'MVK',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Eve sends 0MVK to Bob', async () => {
+      try {
+        await signerFactory(eve.sk)
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: eve.pkh,
+              txs: [
+                {
+                  to_: bob.pkh,
+                  token_id: 0,
+                  amount: 0,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          'Eve MVK Ledger should have ' + eveTokenLedgerBase + 'MVK but she has ' + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          bobTokenLedgerAfter,
+          bobTokenLedgerBase,
+          "Bob's MVK Ledger should have " + bobTokenLedgerBase + 'MVK but she has ' + bobTokenLedgerAfter + 'MVK',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Eve sends 3000MVK to herself', async () => {
+      try {
+        await signerFactory(eve.sk)
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: eve.pkh,
+              txs: [
+                {
+                  to_: eve.pkh,
+                  token_id: 0,
+                  amount: 3000,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK Ledger should have " + eveTokenLedgerBase + 'MVK but she has ' + eveTokenLedgerAfter + 'MVK',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Eve sends 0MVK to herself', async () => {
+      try {
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: eve.pkh,
+              txs: [
+                {
+                  to_: eve.pkh,
+                  token_id: 0,
+                  amount: 0,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK Ledger should have " + eveTokenLedgerBase + 'MVK but she has ' + eveTokenLedgerAfter + 'MVK',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Eve sends 250000001MVK to herself', async () => {
+      try {
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: eve.pkh,
+              txs: [
+                {
+                  to_: eve.pkh,
+                  token_id: 0,
+                  amount: 250000001,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+      }
+    })
+
+    it('Eve sends 2000MVK to herself then 20000MVK to Bob then 0MVK to Mallory', async () => {
+      try {
+        await signerFactory(eve.sk)
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: eve.pkh,
+              txs: [
+                {
+                  to_: eve.pkh,
+                  token_id: 0,
+                  amount: 2000,
+                },
+                {
+                  to_: bob.pkh,
+                  token_id: 0,
+                  amount: 20000,
+                },
+                {
+                  to_: mallory.pkh,
+                  token_id: 0,
+                  amount: 0,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase - 20000,
+          "Eve's MVK Ledger should have " +
+            (eveTokenLedgerBase - 20000) +
+            'MVK but she has ' +
+            eveTokenLedgerAfter +
+            'MVK',
+        )
+        assert.equal(
+          bobTokenLedgerAfter,
+          bobTokenLedgerBase + 20000,
+          "Bob's MVK Ledger should have " +
+            (bobTokenLedgerBase + 20000) +
+            'MVK but he has ' +
+            bobTokenLedgerAfter +
+            'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK Ledger should have " +
+            malloryTokenLedgerBase +
+            'MVK but she has ' +
+            malloryTokenLedgerAfter +
+            'MVK',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Eve sends 250000001MVK to Mallory', async () => {
+      try {
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: eve.pkh,
+              txs: [
+                {
+                  to_: mallory.pkh,
+                  token_id: 0,
+                  amount: 250000001,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+      }
+    })
+
+    it('Eve sends 10MVK to Mallory and 50MVK to Bob in one transaction', async () => {
+      try {
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: eve.pkh,
+              txs: [
+                {
+                  to_: mallory.pkh,
+                  token_id: 0,
+                  amount: 10,
+                },
+                {
+                  to_: bob.pkh,
+                  token_id: 0,
+                  amount: 50,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase - 60,
+          "Eve's MVK Ledger should have " +
+            (eveTokenLedgerBase - 60) +
+            'MVK but she has ' +
+            eveTokenLedgerAfter +
+            'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase + 10,
+          "Mallory's MVK Ledger should have " +
+            (malloryTokenLedgerBase + 10) +
+            'MVK but she has ' +
+            malloryTokenLedgerAfter +
+            'MVK',
+        )
+        assert.equal(
+          bobTokenLedgerAfter,
+          bobTokenLedgerBase + 50,
+          "Bob's MVK Ledger should have " + (bobTokenLedgerBase + 50) + 'MVK but he has ' + bobTokenLedgerAfter + 'MVK',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Mallory sends a 100 tokens from an id that is not supported in the contract to Eve', async () => {
+      try {
+        await signerFactory(mallory.sk)
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: mallory.pkh,
+              txs: [
+                {
+                  to_: eve.pkh,
+                  token_id: 1,
+                  amount: 100,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        assert.equal(
+          e.message,
+          'FA2_TOKEN_UNDEFINED',
+          "Mallory shouldn't be able to send a token from an id that does not exist on the contract",
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Alice MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+      }
+    })
+
+    it('Eve sends 2000MVK to Mallory then 250000001MVK to her again', async () => {
+      try {
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: eve.pkh,
+              txs: [
+                {
+                  to_: mallory.pkh,
+                  token_id: 0,
+                  amount: 2000,
+                },
+                {
+                  to_: mallory.pkh,
+                  token_id: 0,
+                  amount: 250000001,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+      }
+    })
+
+    it("Eve uses Mallory's address to transfer 200MVK to herself and uses Bob's address to send 35MVK to herself without being one of Mallory or Bob's operators", async () => {
+      try {
+        await signerFactory(eve.sk)
+        const operation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: mallory.pkh,
+              txs: [
+                {
+                  to_: eve.pkh,
+                  token_id: 0,
+                  amount: 200,
+                },
+              ],
+            },
+            {
+              from_: bob.pkh,
+              txs: [
+                {
+                  to_: eve.pkh,
+                  token_id: 0,
+                  amount: 35,
+                },
+              ],
+            },
+          ])
+          .send()
+        await operation.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Bob and Mallory")
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          bobTokenLedgerAfter,
+          bobTokenLedgerBase,
+          "Bob's MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+      }
+    })
+
+    it('Eve becomes an operator on Mallory address and send 200MVK from Mallory Address to Bob', async () => {
+      try {
+        await signerFactory(mallory.sk)
+        const updateOperatorsOperation = await tokenInstance.methods
+          .update_operators([
+            {
+              add_operator: {
+                owner: mallory.pkh,
+                operator: eve.pkh,
+                token_id: 0,
+              },
+            },
+          ])
+          .send()
+        await updateOperatorsOperation.confirmation()
+
+        await signerFactory(eve.sk)
+        const transferOperation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: mallory.pkh,
+              txs: [
+                {
+                  to_: bob.pkh,
+                  token_id: 0,
+                  amount: 200,
+                },
+              ],
+            },
+          ])
+          .send()
+        await transferOperation.confirmation()
+        const newTokenStorage = await tokenInstance.storage()
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase - 200,
+          "Mallory's MVK Ledger should have " +
+            (malloryTokenLedgerBase - 200) +
+            'MVK but she has ' +
+            malloryTokenLedgerAfter +
+            'MVK',
+        )
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          bobTokenLedgerAfter,
+          bobTokenLedgerBase + 200,
+          "Bob's MVK Ledger should have " +
+            (bobTokenLedgerBase + 200) +
+            'MVK but she has ' +
+            bobTokenLedgerAfter +
+            'MVK',
+        )
+        //Resetting Alice to be the current signer
+        await signerFactory(alice.sk)
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Eve is removed from Mallory operators and send 200MVK from Mallory Address to Bob', async () => {
+      try {
+        await signerFactory(mallory.sk)
+        const updateOperatorsOperation = await tokenInstance.methods
+          .update_operators([
+            {
+              remove_operator: {
+                owner: mallory.pkh,
+                operator: eve.pkh,
+                token_id: 0,
+              },
+            },
+          ])
+          .send()
+        await updateOperatorsOperation.confirmation()
+
+        await signerFactory(eve.sk)
+        const transferOperation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: mallory.pkh,
+              txs: [
+                {
+                  to_: bob.pkh,
+                  token_id: 0,
+                  amount: 200,
+                },
+              ],
+            },
+          ])
+          .send()
+        await transferOperation.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        assert.equal(e.message, 'FA2_NOT_OPERATOR', "Eve isn't the operator of Mallory")
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          bobTokenLedgerAfter,
+          bobTokenLedgerBase,
+          "Bob's MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+      }
+    })
+
+    it("Eve becomes an operator on Bob's and Mallory's accounts, then sends 300MVK from Bob's and Mallory's accounts to her account", async () => {
+      try {
+        await signerFactory(bob.sk)
+        const updateOperatorsOperationBobAdd = await tokenInstance.methods
+          .update_operators([
+            {
+              add_operator: {
+                owner: bob.pkh,
+                operator: eve.pkh,
+                token_id: 0,
+              },
+            },
+          ])
+          .send()
+        await updateOperatorsOperationBobAdd.confirmation()
+
+        await signerFactory(mallory.sk)
+        const updateOperatorsOperationMalloryAdd = await tokenInstance.methods
+          .update_operators([
+            {
+              add_operator: {
+                owner: mallory.pkh,
+                operator: eve.pkh,
+                token_id: 0,
+              },
+            },
+          ])
+          .send()
+        await updateOperatorsOperationMalloryAdd.confirmation()
+
+        await signerFactory(eve.sk)
+        const transferOperation = await tokenInstance.methods
+          .transfer([
+            {
+              from_: bob.pkh,
+              txs: [
+                {
+                  to_: eve.pkh,
+                  token_id: 0,
+                  amount: 300,
+                },
+              ],
+            },
+            {
+              from_: mallory.pkh,
+              txs: [
+                {
+                  to_: eve.pkh,
+                  token_id: 0,
+                  amount: 300,
+                },
+              ],
+            },
+          ])
+          .send()
+        await transferOperation.confirmation()
+
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase + 600,
+          "Eve's MVK Ledger should have " +
+            (eveTokenLedgerBase + 600) +
+            'MVK but she has ' +
+            eveTokenLedgerAfter +
+            'MVK',
+        )
+        assert.equal(
+          bobTokenLedgerAfter,
+          bobTokenLedgerBase - 300,
+          'Bob MVK Ledger should have ' + (bobTokenLedgerBase - 300) + 'MVK but he has ' + bobTokenLedgerAfter + 'MVK',
+        )
+
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase - 300,
+          "Mallory's MVK Ledger shouldn't have changed. Should have " +
+            (eveTokenLedgerBase - 300) +
+            'MVK but she has ' +
+            malloryTokenLedgerAfter +
+            'MVK',
+        )
+
+        await signerFactory(bob.sk)
+        const updateOperatorsOperationBobRemove = await tokenInstance.methods
+          .update_operators([
+            {
+              remove_operator: {
+                owner: bob.pkh,
+                operator: eve.pkh,
+                token_id: 0,
+              },
+            },
+          ])
+          .send()
+        await updateOperatorsOperationBobRemove.confirmation()
+
+        await signerFactory(mallory.sk)
+        const updateOperatorsOperationEveRemove = await tokenInstance.methods
+          .update_operators([
+            {
+              remove_operator: {
+                owner: mallory.pkh,
+                operator: eve.pkh,
+                token_id: 0,
+              },
+            },
+          ])
+          .send()
+        await updateOperatorsOperationEveRemove.confirmation()
+        await signerFactory(eve.sk)
       } catch (e) {
         console.log(e)
       }
@@ -1065,7 +1763,7 @@ describe('MVK Token', async () => {
   })
 
   describe('%mint', function () {
-    it('Alice tries to mint 20000MVK on Bob address without being whitelisted', async () => {
+    it("Alice tries to mint 20000MVK on Bob's address without being whitelisted", async () => {
       try {
         const mintBobOperation = await tokenInstance.methods.mint(bob.pkh, 20000).send()
         await mintBobOperation.confirmation()
@@ -1077,7 +1775,7 @@ describe('MVK Token', async () => {
         assert.equal(
           e.message,
           'ONLY_WHITELISTED_CONTRACTS_ALLOWED',
-          "Alice address isn't in the withelistContracts map",
+          "Alice address isn't in the whitelistContracts map",
         )
         assert.equal(
           aliceTokenLedgerAfter,
@@ -1096,19 +1794,15 @@ describe('MVK Token', async () => {
         )
       }
     })
-    it('Alice tries to mint 20000MVK on Bob address being whitelisted', async () => {
+
+    it("Alice tries to mint 20000MVK on Bob's address being whitelisted", async () => {
       try {
         const whitelistAliceOperationAdd = await tokenInstance.methods
           .updateWhitelistContracts('alice', alice.pkh)
           .send()
         await whitelistAliceOperationAdd.confirmation()
 
-        const mintBob = await tokenInstance.methods
-          .mint(bob.pkh, 20000)
-          .send()
-          .then((res) => {
-            console.log(res)
-          })
+        const mintBob = await tokenInstance.methods.mint(bob.pkh, 20000).send()
         await mintBob.confirmation()
 
         const whitelistAliceOperationRemove = await tokenInstance.methods
@@ -1145,16 +1839,16 @@ describe('MVK Token', async () => {
       }
     })
 
-    it('Alice tries to mint 20000MVK on Bob address being whitelisted and sending 5XTZ in the process', async () => {
+    it("Alice tries to mint 20000MVK on Bob's address being whitelisted and sending 5XTZ in the process", async () => {
       try {
         const whitelistAliceOperationAdd = await tokenInstance.methods
           .updateWhitelistContracts('alice', alice.pkh)
           .send()
         await whitelistAliceOperationAdd.confirmation()
-
         const mintBob = await tokenInstance.methods.mint(bob.pkh, 20000).send({ amount: 5 })
         await mintBob.confirmation()
-
+      } catch (e) {
+        assert.equal(e.message, 'THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ', 'This entrypoint should not receive XTZ')
         const whitelistAliceOperationRemove = await tokenInstance.methods
           .updateWhitelistContracts('alice', alice.pkh)
           .send()
@@ -1172,26 +1866,123 @@ describe('MVK Token', async () => {
         )
         assert.equal(
           bobTokenLedgerAfter,
-          bobTokenLedgerBase + 20000,
-          'Bob MVK Ledger should have ' +
-            (bobTokenLedgerBase + 20000) +
+          bobTokenLedgerBase,
+          'Bob MVK Ledger should have ' + bobTokenLedgerBase + 'MVK but he has ' + bobTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          totalSupplyAfter,
+          totalSupplyBase,
+          "MVK total supply shouldn't have increased. Current supply: " + totalSupplyAfter + 'MVK',
+        )
+      }
+    })
+
+    // Testing the same functions tested on Alice and Bob but for Eve and Mallory (non admin addresses)
+    it("Eve tries to mint 20000MVK on Mallory's address without being whitelisted", async () => {
+      try {
+        await signerFactory(eve.sk)
+        const mintMalloryOperation = await tokenInstance.methods.mint(mallory.pkh, 20000).send()
+        await mintMalloryOperation.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const totalSupplyAfter = await newTokenStorage.totalSupply
+        assert.equal(
+          e.message,
+          'ONLY_WHITELISTED_CONTRACTS_ALLOWED',
+          "Eve's address isn't in the whitelistContracts map",
+        )
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          totalSupplyAfter,
+          totalSupplyBase,
+          "MVK Total Supply shouldn't have changed: " + totalSupplyAfter + 'MVK',
+        )
+      }
+    })
+
+    it("Eve tries to mint 20000MVK on Mallory's address being whitelisted", async () => {
+      try {
+        const whitelistEveOperationAdd = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+        await whitelistEveOperationAdd.confirmation()
+      } catch (e) {
+        assert.equal(e.message, 'ONLY_ADMINISTRATOR_ALLOWED', "Eve's address isn't an admin on the MVK Token contract")
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const totalSupplyAfter = await newTokenStorage.totalSupply
+
+        const whitelistEveOperationRemove = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+        await whitelistEveOperationRemove.confirmation()
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          totalSupplyAfter,
+          totalSupplyBase,
+          "MVK Total Supply shouldn't have changed: " + totalSupplyAfter + 'MVK',
+        )
+      }
+    })
+
+    it("Eve tries to mint 20000MVK on Mallory's address being whitelisted and sending 5XTZ in the process", async () => {
+      try {
+        const whitelistEveOperationAdd = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+        await whitelistEveOperationAdd.confirmation()
+        const mintMallory = await tokenInstance.methods.mint(mallory.pkh, 20000).send({ amount: 5 })
+        await mintMallory.confirmation()
+      } catch (e) {
+        assert.equal(e.message, 'THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ', 'This entrypoint should not receive XTZ')
+        const whitelistEveOperationRemove = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+        await whitelistEveOperationRemove.confirmation()
+
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const totalSupplyAfter = await newTokenStorage.totalSupply
+
+        assert.equal(
+          eveTokenLedgerAfter,
+          aliceTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK Ledger should have " +
+            malloryTokenLedgerBase +
             'MVK but he has ' +
-            bobTokenLedgerAfter +
+            malloryTokenLedgerAfter +
             'MVK',
         )
         assert.equal(
           totalSupplyAfter,
-          totalSupplyBase + 20000,
-          'MVK total supply should have increased by 20000MVK. Current supply: ' + totalSupplyBase + 'MVK',
+          totalSupplyBase,
+          "MVK total supply shouldn't have increased. Current supply: " + totalSupplyAfter + 'MVK',
         )
-      } catch (e) {
-        assert.equal(e.message, 'THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ', 'This entrypoint should not receive XTZ')
       }
     })
   })
 
   describe('%burn', function () {
-    it('Alice tries to burn 20000MVK on Bob address without being whitelisted', async () => {
+    it('Alice tries to burn 20000MVK on Bob address without being whitelisted and without being the Doorman Contract', async () => {
       try {
         const burnBobOperation = await tokenInstance.methods.burn(bob.pkh, 20000).send()
         await burnBobOperation.confirmation()
@@ -1200,7 +1991,7 @@ describe('MVK Token', async () => {
         const aliceTokenLedgerAfter = await newTokenStorage.ledger.get(alice.pkh)
         const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
         const totalSupplyAfter = await newTokenStorage.totalSupply
-        assert.equal(e.message, 'ONLY_DOORMAN_CONTRACT_ALLOWED', "Alice address isn't the doorman contract map")
+        assert.equal(e.message, 'ONLY_DOORMAN_CONTRACT_ALLOWED', "Alice address isn't in the Doorman Contract map")
         assert.equal(
           aliceTokenLedgerAfter,
           aliceTokenLedgerBase,
@@ -1219,7 +2010,7 @@ describe('MVK Token', async () => {
       }
     })
 
-    it('Alice tries to burn 20000MVK on Bob address being whitelisted', async () => {
+    it('Alice tries to burn 20000MVK on Bob address being whitelisted but without being the Doorman Contract', async () => {
       try {
         const whitelistAliceOperationAdd = await tokenInstance.methods
           .updateWhitelistContracts('alice', alice.pkh)
@@ -1238,7 +2029,7 @@ describe('MVK Token', async () => {
         const aliceTokenLedgerAfter = await newTokenStorage.ledger.get(alice.pkh)
         const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
         const totalSupplyAfter = await newTokenStorage.totalSupply
-        assert.equal(e.message, 'ONLY_DOORMAN_CONTRACT_ALLOWED', "Alice address isn't the doorman contract map")
+        assert.equal(e.message, 'ONLY_DOORMAN_CONTRACT_ALLOWED', "Alice address isn't the Doorman Contract map")
         assert.equal(
           aliceTokenLedgerAfter,
           aliceTokenLedgerBase,
@@ -1257,7 +2048,7 @@ describe('MVK Token', async () => {
       }
     })
 
-    it('Alice tries to burn 20000MVK on Bob address being the doorman contract', async () => {
+    it('Alice tries to burn 20000MVK on Bob address with being the Doorman Contract', async () => {
       try {
         const generalContractsOperationSet = await tokenInstance.methods
           .updateGeneralContracts('doorman', alice.pkh)
@@ -1300,8 +2091,9 @@ describe('MVK Token', async () => {
       }
     })
 
-    it('Alice tries to burn 2500000001MVK on Bob address being the doorman contract', async () => {
+    it('Alice tries to burn 2500000001MVK on Bob address with being the Doorman Contract', async () => {
       try {
+        // Faking the signing by the contract.
         const generalContractsOperationSet = await tokenInstance.methods
           .updateGeneralContracts('doorman', alice.pkh)
           .send()
@@ -1319,7 +2111,7 @@ describe('MVK Token', async () => {
         const aliceTokenLedgerAfter = await newTokenStorage.ledger.get(alice.pkh)
         const bobTokenLedgerAfter = await newTokenStorage.ledger.get(bob.pkh)
         const totalSupplyAfter = await newTokenStorage.totalSupply
-        assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice address isn't in the withelistContracts map")
+        assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice's doesn't have enough MVk to send to Bob'")
         assert.equal(
           aliceTokenLedgerAfter,
           aliceTokenLedgerBase,
@@ -1338,7 +2130,7 @@ describe('MVK Token', async () => {
       }
     })
 
-    it('Alice tries to burn 20000MVK on Bob address being the doorman contract and sending 1XTZ in the process', async () => {
+    it('Alice tries to burn 20000MVK on Bob address with being the Doorman Contract and sending 1XTZ in the process', async () => {
       try {
         const generalContractsOperationSet = await tokenInstance.methods
           .updateGeneralContracts('doorman', alice.pkh)
@@ -1367,6 +2159,191 @@ describe('MVK Token', async () => {
           bobTokenLedgerAfter,
           bobTokenLedgerBase,
           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          totalSupplyAfter,
+          totalSupplyBase,
+          "MVK Total Supply shouldn't have changed: " + totalSupplyAfter + 'MVK',
+        )
+      }
+    })
+
+    // Testing the same functions tested on Alice and Bob but for Eve and Mallory (non admin addresses)
+    it("Eve tries to burn 20000MVK on Mallory's address without being whitelisted and without Eve being the Doorman Contract", async () => {
+      try {
+        await signerFactory(eve.sk)
+        const burnEveOperation = await tokenInstance.methods.burn(mallory.pkh, 20000).send()
+        await burnEveOperation.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const totalSupplyAfter = await newTokenStorage.totalSupply
+        assert.equal(e.message, 'ONLY_DOORMAN_CONTRACT_ALLOWED', "Eve's address isn't in the Doorman Contract map")
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          totalSupplyAfter,
+          totalSupplyBase,
+          "MVK Total Supply shouldn't have changed: " + totalSupplyAfter + 'MVK',
+        )
+      }
+    })
+
+    it("Eve tries to burn 20000MVK on Mallory's address being whitelisted but without Eve being the Doorman Contract", async () => {
+      try {
+        const whitelistEveOperationAdd = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+        await whitelistEveOperationAdd.confirmation()
+
+        const mintMallory = await tokenInstance.methods.burn(mallory.pkh, 20000).send()
+        await mintMallory.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const totalSupplyAfter = await newTokenStorage.totalSupply
+        const whitelistEveOperationRemove = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
+        await whitelistEveOperationRemove.confirmation()
+        assert.equal(e.message, 'ONLY_DOORMAN_CONTRACT_ALLOWED', "Eve address isn't the Doorman Contract map")
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          totalSupplyAfter,
+          totalSupplyBase,
+          "MVK Total Supply shouldn't have changed: " + totalSupplyAfter + 'MVK',
+        )
+      }
+    })
+
+    it("Eve tries to burn 20000MVK on Mallory's address with Eve being the Doorman Contract", async () => {
+      try {
+        const generalContractsOperationSet = await tokenInstance.methods
+          .updateGeneralContracts('doorman', eve.pkh)
+          .send()
+        await generalContractsOperationSet.confirmation()
+
+        const mintMallory = await tokenInstance.methods.burn(mallory.pkh, 20000).send()
+        await mintMallory.confirmation()
+
+        const generalContractsOperationReset = await tokenInstance.methods
+          .updateGeneralContracts('doorman', doormanAddress.address)
+          .send()
+        await generalContractsOperationReset.confirmation()
+
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const totalSupplyAfter = await newTokenStorage.totalSupply
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase - 20000,
+          'Bob MVK Ledger should have ' +
+            (malloryTokenLedgerBase - 20000) +
+            'MVK but he has ' +
+            malloryTokenLedgerAfter +
+            'MVK',
+        )
+        assert.equal(
+          totalSupplyAfter,
+          totalSupplyBase - 20000,
+          'MVK total supply should have decrease by 20000MVK. Current supply: ' + totalSupplyBase + 'MVK',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it("Eve tries to burn 2500000001MVK on Mallory's address with Eve being the Doorman Contract", async () => {
+      try {
+        // Faking the signing by the contract.
+        const generalContractsOperationSet = await tokenInstance.methods
+          .updateGeneralContracts('doorman', eve.pkh)
+          .send()
+        await generalContractsOperationSet.confirmation()
+
+        const mintBob = await tokenInstance.methods.burn(mallory.pkh, 2500000001).send()
+        await mintBob.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const totalSupplyAfter = await newTokenStorage.totalSupply
+
+        const generalContractsOperationReset = await tokenInstance.methods
+          .updateGeneralContracts('doorman', doormanAddress.address)
+          .send()
+        await generalContractsOperationReset.confirmation()
+
+        assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Mallory doesn't have enough MVK to burn")
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Mallory's MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          totalSupplyAfter,
+          totalSupplyBase,
+          "MVK Total Supply shouldn't have changed: " + totalSupplyAfter + 'MVK',
+        )
+      }
+    })
+
+    it("Eve tries to burn 20000MVK on Mallory's address with Eve being the Doorman Contract and sending 1XTZ in the process", async () => {
+      try {
+        const generalContractsOperationSet = await tokenInstance.methods
+          .updateGeneralContracts('doorman', eve.pkh)
+          .send()
+        await generalContractsOperationSet.confirmation()
+
+        const mintMallory = await tokenInstance.methods.burn(mallory.pkh, 20000).send({ amount: 1 })
+        await mintMallory.confirmation()
+      } catch (e) {
+        const newTokenStorage = await tokenInstance.storage()
+        const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
+        const malloryTokenLedgerAfter = await newTokenStorage.ledger.get(mallory.pkh)
+        const totalSupplyAfter = await newTokenStorage.totalSupply
+
+        const generalContractsOperationReset = await tokenInstance.methods
+          .updateGeneralContracts('doorman', doormanAddress.address)
+          .send()
+        await generalContractsOperationReset.confirmation()
+
+        assert.equal(e.message, 'THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ', 'This entrypoint should not receive XTZ')
+        assert.equal(
+          eveTokenLedgerAfter,
+          eveTokenLedgerBase,
+          "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
+        )
+        assert.equal(
+          malloryTokenLedgerAfter,
+          malloryTokenLedgerBase,
+          "Bob MVK balance shouldn't have changed: " + malloryTokenLedgerAfter + 'MVK',
         )
         assert.equal(
           totalSupplyAfter,
@@ -1429,10 +2406,58 @@ describe('MVK Token', async () => {
         console.log(e)
       }
     })
+
+    it('Adds Bob to the Whitelisted Contracts map', async () => {
+      try {
+        const oldWhitelistContractsMapBob = await tokenStorage['whitelistContracts'].get('bob')
+        const whitelistBobOperationAdd = await tokenInstance.methods.updateWhitelistContracts('bob', alice.pkh).send()
+        await whitelistBobOperationAdd.confirmation()
+
+        const newTokenStorage = await tokenInstance.storage()
+        const newWhitelistContractsMapBob = await newTokenStorage['whitelistContracts'].get('bob')
+
+        assert.strictEqual(
+          oldWhitelistContractsMapBob,
+          undefined,
+          'Bob should not be in the Whitelist Contracts map before adding him to it',
+        )
+        assert.strictEqual(
+          newWhitelistContractsMapBob,
+          alice.pkh,
+          'Bob should be in the Whitelist Contracts map after adding him to it',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Removes Bob from the Whitelisted Contracts map', async () => {
+      try {
+        const oldWhitelistContractsMapBob = await tokenStorage['whitelistContracts'].get('bob')
+        const whitelistBobOperationAdd = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
+        await whitelistBobOperationAdd.confirmation()
+
+        const newTokenStorage = await tokenInstance.storage()
+        const newWhitelistContractsMapBob = await newTokenStorage['whitelistContracts'].get('bob')
+
+        assert.strictEqual(
+          oldWhitelistContractsMapBob,
+          bob.pkh,
+          'Bob should be in the Whitelist Contracts map before adding him to it',
+        )
+        assert.strictEqual(
+          newWhitelistContractsMapBob,
+          undefined,
+          'Bob should not be in the Whitelist Contracts map after adding him to it',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
   })
 
   describe('%updateGeneralContracts', function () {
-    it('Adds Alice to the Addresses Contracts map', async () => {
+    it('Adds Alice to the General Contracts map', async () => {
       try {
         const oldAddressesContractsMapAlice = await tokenStorage['generalContracts'].get('alice')
         const AddressesAliceOperationAdd = await tokenInstance.methods.updateGeneralContracts('alice', alice.pkh).send()
@@ -1444,12 +2469,12 @@ describe('MVK Token', async () => {
         assert.strictEqual(
           oldAddressesContractsMapAlice,
           undefined,
-          'Alice should not be in the Addresses Contracts map before adding her to it',
+          'Alice should not be in the General Contracts map before adding her to it',
         )
         assert.strictEqual(
           newAddressesContractsMapAlice,
           alice.pkh,
-          'Alice should be in the Addresses Contracts map after adding her to it',
+          'Alice should be in the General Contracts map after adding her to it',
         )
       } catch (e) {
         console.log(e)
@@ -1468,12 +2493,60 @@ describe('MVK Token', async () => {
         assert.strictEqual(
           oldAddressesContractsMapAlice,
           alice.pkh,
-          'Alice should be in the Addresses Contracts map before adding her to it',
+          'Alice should be in the General Contracts map before adding her to it',
         )
         assert.strictEqual(
           newAddressesContractsMapAlice,
           undefined,
-          'Alice should not be in the Addresses Contracts map after adding her to it',
+          'Alice should not be in the General Contracts map after adding her to it',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Adds Bob to the General Contracts map', async () => {
+      try {
+        const oldAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
+        const AddressesBobOperationAdd = await tokenInstance.methods.updateGeneralContracts('bob', bob.pkh).send()
+        await AddressesBobOperationAdd.confirmation()
+
+        const newTokenStorage = await tokenInstance.storage()
+        const newAddressesContractsMapBob = await newTokenStorage['generalContracts'].get('bob')
+
+        assert.strictEqual(
+          oldAddressesContractsMapBob,
+          undefined,
+          'Bob should not be in the General Contracts map before adding him to it',
+        )
+        assert.strictEqual(
+          newAddressesContractsMapBob,
+          bob.pkh,
+          'Bob should be in the General Contracts map after adding bob to it',
+        )
+      } catch (e) {
+        console.log(e)
+      }
+    })
+
+    it('Removes Bob from the General Contracts map', async () => {
+      try {
+        const oldAddressesContractsMapBob = await tokenStorage['generalContracts'].get('bob')
+        const AddressesBobOperationAdd = await tokenInstance.methods.updateGeneralContracts('bob', bob.pkh).send()
+        await AddressesBobOperationAdd.confirmation()
+
+        const newTokenStorage = await tokenInstance.storage()
+        const newAddressesContractsMapBob = await newTokenStorage['generalContracts'].get('bob')
+
+        assert.strictEqual(
+          oldAddressesContractsMapBob,
+          alice.pkh,
+          'Bob should be in the General Contracts map before adding him to it',
+        )
+        assert.strictEqual(
+          newAddressesContractsMapBob,
+          undefined,
+          'Bob should not be in the General Contracts map after adding him to it',
         )
       } catch (e) {
         console.log(e)
@@ -1482,11 +2555,11 @@ describe('MVK Token', async () => {
   })
 
   describe('%onStakeChange', function () {
-    before('Mint MVKs for Alice', async () => {
+    before('Mint MVK tokens for Alice', async () => {
       const whitelistAliceOperationAdd = await tokenInstance.methods.updateWhitelistContracts('alice', alice.pkh).send()
       await whitelistAliceOperationAdd.confirmation()
-      const mintBobOperation = await tokenInstance.methods.mint(alice.pkh, 20000).send()
-      await mintBobOperation.confirmation()
+      const mintAliceOperation = await tokenInstance.methods.mint(alice.pkh, 20000).send()
+      await mintAliceOperation.confirmation()
       const whitelistAliceOperationRemove = await tokenInstance.methods
         .updateWhitelistContracts('alice', alice.pkh)
         .send()
@@ -1545,7 +2618,7 @@ describe('MVK Token', async () => {
       }
     })
 
-    it('Stakes all Alice MVKs while being whitelisted', async () => {
+    it('Stakes all Alice MVK tokens while being whitelisted', async () => {
       try {
         const whitelistAliceOperationAdd = await tokenInstance.methods
           .updateWhitelistContracts('alice', alice.pkh)
@@ -1672,7 +2745,11 @@ describe('MVK Token', async () => {
         const unstakeOperation = await doormanInstance.methods.unstake(1000).send()
         await unstakeOperation.confirmation()
       } catch (e) {
-        console.log(e)
+        assert.equal(
+          e.message,
+          'ONLY_WHITELISTED_CONTRACTS_ALLOWED',
+          'This entrypoint should only be called by whitelisted contracts',
+        )
       }
     })
 
@@ -1705,8 +2782,9 @@ describe('MVK Token', async () => {
   })
 
   describe('%assertMetadata', function () {
-    it('Checks an unexisting value in the metadata', async () => {
+    it('Checks an non-existent value in the metadata', async () => {
       try {
+        console.log(tokenStorage.token_metadata)
         const metadata = Buffer.from('test', 'ascii').toString('hex')
         const operation = await tokenInstance.methods.assertMetadata('test', metadata).send()
         await operation.confirmation()
@@ -1714,6 +2792,7 @@ describe('MVK Token', async () => {
         assert.strictEqual(e.message, 'METADATA_NOT_FOUND', 'The metadata should not be found in the contract storage')
       }
     })
+
     it('Checks a value with a correct key but a wrong hash in the metadata', async () => {
       try {
         const metadata = Buffer.from('test', 'ascii').toString('hex')
@@ -1727,6 +2806,7 @@ describe('MVK Token', async () => {
         )
       }
     })
+
     it('Checks a value with a correct key and a correct hash in the metadata', async () => {
       try {
         const metadata = Buffer.from(
