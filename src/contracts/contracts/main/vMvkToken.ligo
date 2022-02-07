@@ -15,13 +15,11 @@ type token_metadata_info is record [
 
 type storage is
   record [
-    admin           : address;
     metadata        : big_map (string, bytes);
     token_metadata  : big_map(token_id, token_metadata_info);
     totalSupply     : amt;
     ledger          : big_map (address, account);
     doormanAddress  : address;
-    delegationAddress  : address;
   ]
 
 (* define return for readability *)
@@ -29,9 +27,6 @@ type return is list (operation) * storage
 
 (* define noop for readability *)
 const noOperations : list (operation) = nil;
-
-type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
-type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
 
 (* Inputs *)
 type transferParams is michelson_pair(address, "from", michelson_pair(address, "to", amt, "value"), "")
@@ -41,19 +36,15 @@ type allowanceParams is michelson_pair(michelson_pair(address, "owner", trusted,
 type totalSupplyParams is (unit * contract(amt))
 type mintParams is (address * nat)
 type burnParams is (address * nat)
-type updateVMvkBalanceForDelegationParams is (address * address)
 
 (* Valid entry points *)
 type entryAction is
   | Transfer of transferParams
   | Approve of approveParams
   | GetBalance of balanceParams
-  | GetSatelliteBalance of getSatelliteBalanceType
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
   | UpdateVMvkTotalSupplyForDoorman of nat
-  | UpdateVMvkBalanceForDelegation of updateVMvkBalanceForDelegationParams
-  | SetDelegationTokenAddress of (address)
   | Mint of mintParams
   | Burn of burnParams
 
@@ -72,17 +63,9 @@ function unstakeCompleteInDoorman(const tokenAddress : address) : contract(nat) 
       "%unstakeComplete",
       tokenAddress) : option(contract(nat))) of
     Some(contr) -> contr
-  | None -> (failwith("UnstakeComplete entrypoint in Doorman Contract not found") : contract(nat))
+  | None -> (failwith("UnstakeComplete entrypoint not found") : contract(nat))
   end;
 
-(*  helper function to setDelegateComplete in Delegation module *)
-function setDelegateCompleteInDelegation(const delegationAddress : address) : contract(nat * address) is
-  case (Tezos.get_entrypoint_opt(
-      "%setDelegateComplete",
-      delegationAddress) : option(contract(nat * address))) of
-    Some(contr) -> contr
-  | None -> (failwith("SetDelegateComplete entrypoint in Delegation contract not found") : contract(nat * address))
-  end;
 
 (* Helper function to get account *)
 function getAccount (const addr : address; const s : storage) : account is
@@ -140,48 +123,6 @@ function getBalance (const owner : address; const contr : contract(amt); var s :
     const ownerAccount : account = getAccount(owner, s);
   } with (list [transaction(ownerAccount.balance, 0tz, contr)], s)
 
-// type getSatelliteBalanceType is (address * string * string * string * nat) // name, description, image, satellite fee
-// type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
-
-(* View function that forwards the balance of source to a contract *)
-function getSatelliteBalance (const owner : address; const name : string; const description : string; const image : string; const satelliteFee : nat; const contr : contract(satelliteInfoType); var s : storage) : return is
-  block {
-    const ownerAccount : account = getAccount(owner, s);
-  } with (list [transaction((name, description, image, satelliteFee, ownerAccount.balance), 0tz, contr)], s)
-
-
-(* set delegation contract address *)
-function setDelegationTokenAddress(const parameters : address; var s : storage) : return is
-block {
-  if Tezos.sender =/= s.admin then failwith("Access denied")
-    else skip;
-    s.delegationAddress := parameters;
-} with (noOperations, s)
-
-function updateVMvkBalanceForDelegation (const owner : address; const delegatorAddress : address; var s : storage) : return is
-  block{
-    
-    (* Check this call is comming from the doorman contract *)
-    if s.delegationAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
-
-    const ownerAccount : account = getAccount(owner, s); 
-
-    const balance_ : nat = ownerAccount.balance;
-    const delegatorAddress_ : address = delegatorAddress;
-
-    const setDelegateCompleteOperation : operation = Tezos.transaction(
-      (balance_, delegatorAddress_), 
-      0tez, 
-      setDelegateCompleteInDelegation(s.delegationAddress)
-      );
-
-    const operations : list (operation) = list [setDelegateCompleteOperation];
-
-  } with (operations, s)
-  
-
 (* View function that forwards the allowance amt of spender in the name of tokenOwner to a contract *)
 function getAllowance (const owner : address; const spender : address; const contr : contract(amt); var s : storage) : return is
   block {
@@ -218,9 +159,9 @@ function mint (const to_ : address; const value : amt; var s : storage) : return
     var targetAccount : account := getAccount(to_, s);
 
     (* Check this call is comming from the doorman contract *)
-    // if s.doormanAddress =/= Tezos.sender then
-    //   failwith("NotAuthorized")
-    // else skip;
+    if s.doormanAddress =/= Tezos.sender then
+      failwith("NotAuthorized")
+    else skip;
 
     (* Update sender balance *)
     targetAccount.balance := targetAccount.balance + value;
@@ -238,9 +179,9 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     var targetAccount : account := getAccount(from_, s);
 
     (* Check this call is comming from the doorman contract *)
-    // if s.doormanAddress =/= Tezos.sender then
-    //   failwith("NotAuthorized")
-    // else skip;
+    if s.doormanAddress =/= Tezos.sender then
+      failwith("NotAuthorized")
+    else skip;
 
     (* Balance check *)
     if targetAccount.balance < value then
@@ -264,12 +205,9 @@ function main (const action : entryAction; var s : storage) : return is
     | Transfer(params) -> transfer(params.0, params.1.0, params.1.1, s)
     | Approve(params) -> approve(params.0, params.1, s)
     | GetBalance(params) -> getBalance(params.0, params.1, s)
-    | GetSatelliteBalance(params) -> getSatelliteBalance(params.0, params.1, params.2, params.3, params.4, params.5, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)
     | UpdateVMvkTotalSupplyForDoorman(params) -> updateVMvkTotalSupplyForDoorman(params, s)
-    | UpdateVMvkBalanceForDelegation(params) -> updateVMvkBalanceForDelegation(params.0, params.1, s)
-    | SetDelegationTokenAddress(params) -> setDelegationTokenAddress(params, s)
     | Mint(params) -> mint(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
   end;

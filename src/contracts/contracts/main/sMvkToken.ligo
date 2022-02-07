@@ -15,11 +15,11 @@ type token_metadata_info is record [
 
 type storage is
   record [
-    metadata        : big_map (string, bytes);
-    token_metadata  : big_map(token_id, token_metadata_info);
-    totalSupply     : amt;
-    ledger          : big_map (address, account);
-    doormanAddress  : address;
+    metadata            : big_map (string, bytes);
+    token_metadata      : big_map(token_id, token_metadata_info);
+    totalSupply         : amt;
+    ledger              : big_map (address, account);
+    delegationAddress   : address;
   ]
 
 (* define return for readability *)
@@ -44,7 +44,6 @@ type entryAction is
   | GetBalance of balanceParams
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
-  | UpdateMvkTotalSupplyForDoorman of (unit)
   | Mint of mintParams
   | Burn of burnParams
 
@@ -62,15 +61,6 @@ function getAccount (const addr : address; const s : storage) : account is
     end;
   } with acct
 
-(*  helper function to set temp mvk total supply in Doorman module *)
-function setTempMvkTotalSupplyInDoorman(const tokenAddress : address) : contract(nat) is
-  case (Tezos.get_entrypoint_opt(
-      "%setTempMvkTotalSupply",
-      tokenAddress) : option(contract(nat))) of
-    Some(contr) -> contr
-  | None -> (failwith("SetTempMvkTotalSupply entrypoint not found") : contract(nat))
-  end;
-
 (* Helper function to get allowance for an account *)
 function getAllowance (const ownerAccount : account; const spender : address; const _s : storage) : amt is
   case ownerAccount.allowances[spender] of
@@ -79,44 +69,9 @@ function getAllowance (const ownerAccount : account; const spender : address; co
   end;
 
 (* Transfer token to another account *)
-function transfer (const from_ : address; const to_ : address; const value : amt; var s : storage) : return is
+function transfer (const _from : address; const _to : address; const _value : amt; var s : storage) : return is
   block {
-
-    (* Retrieve sender account from storage *)
-    var senderAccount : account := getAccount(from_, s);
-
-    (* Balance check *)
-    if senderAccount.balance < value then
-      failwith("NotEnoughBalance")
-    else skip;
-
-    (* Check this address can spend the tokens *)
-    if from_ =/= Tezos.sender then block {
-      const spenderAllowance : amt = getAllowance(senderAccount, Tezos.sender, s);
-
-      if spenderAllowance < value then
-        failwith("NotEnoughAllowance")
-      else skip;
-
-      (* Decrease any allowances *)
-      senderAccount.allowances[Tezos.sender] := abs(spenderAllowance - value);
-    } else skip;
-
-    (* Update sender balance *)
-    senderAccount.balance := abs(senderAccount.balance - value);
-
-    (* Update storage *)
-    s.ledger[from_] := senderAccount;
-
-    (* Create or get destination account *)
-    var destAccount : account := getAccount(to_, s);
-
-    (* Update destination balance *)
-    destAccount.balance := destAccount.balance + value;
-
-    (* Update storage *)
-    s.ledger[to_] := destAccount;
-
+    failwith("NotAuthorized")
   } with (noOperations, s)
 
 (* Approve an amt to be spent by another address in the name of the sender *)
@@ -161,19 +116,7 @@ function getTotalSupply (const contr : contract(amt); var s : storage) : return 
     skip
   } with (list [transaction(s.totalSupply, 0tz, contr)], s)
 
-function updateMvkTotalSupplyForDoorman (var s : storage) : return is
-  block {
-
-    (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
-      failwith("NotAuthorized")
-    else skip;
-
-    const setTempMvkTotalSupplyInDoormanOperation : operation = Tezos.transaction(s.totalSupply, 0tez, setTempMvkTotalSupplyInDoorman(s.doormanAddress));
-    const operations : list (operation) = list [setTempMvkTotalSupplyInDoormanOperation];
-
-  } with (operations, s)
-
+  
 (* Mint tokens to an address, only callable by the doorman contract *)
 function mint (const to_ : address; const value : amt; var s : storage) : return is
   block {
@@ -181,7 +124,7 @@ function mint (const to_ : address; const value : amt; var s : storage) : return
     var targetAccount : account := getAccount(to_, s);
 
     (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
+    if s.delegationAddress =/= Tezos.sender then
       failwith("NotAuthorized")
     else skip;
 
@@ -201,7 +144,7 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     var targetAccount : account := getAccount(from_, s);
 
     (* Check this call is comming from the doorman contract *)
-    if s.doormanAddress =/= Tezos.sender then
+    if s.delegationAddress =/= Tezos.sender then
       failwith("NotAuthorized")
     else skip;
 
@@ -215,11 +158,8 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
 
     s.totalSupply := abs(s.totalSupply - value);
 
-    // run contract update
-
     (* Update storage *)
     s.ledger[from_] := targetAccount;
-    
   } with (noOperations, s)
 
 (* Main entrypoint *)
@@ -232,8 +172,6 @@ function main (const action : entryAction; var s : storage) : return is
     | GetBalance(params) -> getBalance(params.0, params.1, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)
-    | UpdateMvkTotalSupplyForDoorman(_params) -> updateMvkTotalSupplyForDoorman(s)
     | Mint(params) -> mint(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
-
   end;
