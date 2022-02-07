@@ -1,13 +1,9 @@
 {
-  "name": "mavryk-dapp-contracts",
+  "name": "tezos-starter-kit",
   "version": "1.0.0",
   "description": "",
   "devDependencies": {
-    "@taquito/taquito": "^11.0.1",
-    "@types/jest": "^27.0.3",
-    "@types/mocha": "^9.0.0",
-    "@types/yargs": "^17.0.7",
-    "chai-bignumber": "^3.0.0",
+    "@taquito/taquito": "^6.2.0-beta.1",
     "commitizen": "^4.1.2",
     "cz-conventional-changelog": "^3.2.0",
     "eztz.js": "git+https://github.com/TezTech/eztz.git",
@@ -19,21 +15,32 @@
     "rimraf": "^3.0.2"
   },
   "scripts": {
-    "start-sandbox": "docker run --rm --name mavryk-sandbox -e flextesa_node_cors_origin='*' -e block_time=1 --detach -p 8732:20000 tqtezos/flextesa:20211206 hangzbox start && bash ./sandbox-init.sh",
-    "restart-sandbox": "docker restart mavryk-sandbox",
-    "pre-compile": "ts-node scripts/cli.ts compile -o contracts/compiled -c",
-    "pre-compile-all": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled",
-    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build",
-    "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
-    "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",
-    "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
-    "test-full": "yarn compile && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
-    "test-only": "ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
-    "pytest": "yarn migrate && pytest -s",
-    "pytest-only": "pytest -s",
-    "clean": "rm -rf ./build"
+    "clean": "rm -rf ./build",
+    "test": "truffle test",
+    "test:clean": "npm run clean && npm run test",
+    "test:watch": "onchange -i -k 'contracts/**' 'test/**' 'migrations/**' -- npm run test:clean",
+    "compile": "truffle compile",
+    "compile:clean": "npm run clean && npm run compile",
+    "compile:watch": "onchange -i -k 'contracts/**' 'test/**' 'migrations/**' -- npm run compile:clean",
+    "migrate": "truffle migrate",
+    "migrate:clean": "npm run clean && npm run migrate",
+    "migrate:watch": "onchange -i -k 'contracts/**' 'test/**' 'migrations/**' -- npm run migrate:clean",
+    "tools:start": "node ./scripts/tools.js start",
+    "tools:kill": "node ./scripts/tools.js kill",
+    "tools:update": "node ./scripts/tools.js update",
+    "tools:clean": "node ./scripts/tools.js clean",
+    "tools:init": "node ./scripts/tools.js init",
+    "tools:restart": "node ./scripts/tools.js restart",
+    "wait-for-sandbox": "node ./scripts/sandbox/waitForNetwork.js",
+    "sandbox:start": "./scripts/sandbox/start_ganache-cli.sh",
+    "env:start": "npm run tools:start bbbox && npm run sandbox:start",
+    "env:kill": "npm run tools:kill bbbox",
+    "env:restart": "npm run tools:restart bbbox",
+    "env:clean": "npm run tools:kill bbbox && npm run tools:clean bbbox",
+    "commit": "git-cz",
+    "postinstall": "node ./scripts/postinstall.js"
   },
-  "author": "tim@tezosdynamics.com",
+  "author": "matej.sima@stove-labs.com",
   "license": "MIT",
   "config": {
     "commitizen": {
@@ -41,14 +48,6 @@
     }
   },
   "dependencies": {
-    "@taquito/signer": "^11.1.0",
-    "@types/expect": "^24.3.0",
-    "assert": "^2.0.0",
-    "convert-string": "^0.1.0",
-    "mocha": "^9.1.3",
-    "ts-mocha": "^8.0.0",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.5.3",
-    "yargs": "^17.3.0"
+    "convert-string": "^0.1.0"
   }
 }
