@@ -100,7 +100,6 @@ type vestingAction is
     | RemoveVestee of (address)
     | ToggleVesteeLock of (address)
     | UpdateVestee of (updateVesteeType)
-    | UpdateVestingRecord of (address * vesteeRecordType)
 
 const noOperations : list (operation) = nil;
 const nullTimestamp : timestamp = ("2000-01-01T00:00:00Z" : timestamp);
@@ -483,37 +482,17 @@ block {
 } with (noOperations, s)
 
 
-function updateVestingRecord(const vesteeAddress : address; const newVesteeRecord : vesteeRecordType; var s : storage) : return is 
-block {
-
-    // Steps Overview:
-    // 1. check if vestee address exists in vestee ledger
-    // 2. verify new vestee record params is of correct type
-    // 3. update vestee with new vestee record 
-
-    checkSenderIsAdmin(s);
-    checkNoAmount(unit);
-
-    var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
-        | Some(_record) -> _record
-        | None -> failwith("Error. Vestee is not found.")
-    end;    
-
-    _vestee := newVesteeRecord;
-    s.vesteeLedger[vesteeAddress] := _vestee;
-    
-} with (noOperations, s)
-
 function main (const action : vestingAction; const s : storage) : return is 
     case action of
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
+
         | Claim(_params) -> claim(s)
         | AddVestee(params) -> addVestee(params.0, params.1, params.2, params.3, s)
         | RemoveVestee(params) -> removeVestee(params, s)
         | ToggleVesteeLock(params) -> toggleVesteeLock(params, s)
         | GetVesteeBalance(params) -> getVesteeBalance(params.0, params.1, s)
         | GetTotalVested(params) -> getTotalVested(params, s)
-        | UpdateVestee(params) -> updateVestee(params.0, params.1, params.2, params.3, s)
-        | UpdateVestingRecord(params) -> updateVestingRecord(params.0, params.1, s)
+
+        | UpdateVestee(params) -> updateVestee(params.0, params.1, params.2, params.3, s)        
     end
