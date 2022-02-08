@@ -199,10 +199,16 @@ export const packParameters = async (
 
   try {
     for (const lambdaParam of lambdaParams) {
+      
       const michelson = execSync(
         `${ligo} compile parameter $PWD/${contract} '${lambdaParam.action}' --entry-point main --michelson-format json --syntax pascaligo --protocol hangzhou`,
         { maxBuffer: 1024 * 500 }
       ).toString();
+
+      // const bytes = execSync(
+      //   `${ligo} interpret -s pascaligo 'Bytes.pack(${michelson})'`,
+      //   { maxBuffer: 1024 * 500 }
+      // ).toString();
 
       res_michelson.push(JSON.parse(michelson));
 

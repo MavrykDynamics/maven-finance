@@ -878,7 +878,7 @@ describe("MVK Token", async () => {
                 const aliceTokenLedgerAfter  = await newTokenStorage.ledger.get(alice.pkh);
                 const bobTokenLedgerAfter  = await newTokenStorage.ledger.get(bob.pkh);
                 const totalSupplyAfter = await newTokenStorage.totalSupply;
-                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice address isn't in the withelistContracts map");
+                assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Alice address isn't in the whitelistContracts map");
                 assert.equal(aliceTokenLedgerAfter, aliceTokenLedgerBase, "Alice MVK balance shouldn't have changed: "+aliceTokenLedgerAfter+"MVK")
                 assert.equal(bobTokenLedgerAfter, bobTokenLedgerBase, "Bob MVK balance shouldn't have changed: "+bobTokenLedgerAfter+"MVK")
                 assert.equal(totalSupplyAfter, totalSupplyBase, "MVK Total Supply shouldn't have changed: "+totalSupplyAfter+"MVK")
