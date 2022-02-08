@@ -12,14 +12,14 @@ const config = {
     threshold                  : 3,
     actionExpiryDuration       : 5760,
     developerAddress           : zeroAddress,
-    emergencyGovernanceAddress : zeroAddress
+    emergencyGovernanceAddress : zeroAddress,
 }
 
 export const breakGlassStorage: breakGlassStorageType = {
   admin: alice.pkh,
   config: config,
 
-  contractAddresses: MichelsonMap.fromLiteral({}),
+  generalContracts: MichelsonMap.fromLiteral({}),
   glassBroken: false,
 
   councilMembers : [],
