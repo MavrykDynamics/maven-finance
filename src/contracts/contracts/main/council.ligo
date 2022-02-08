@@ -72,7 +72,19 @@ type councilActionUpdateVesteeType is (address * nat * nat * nat) // vestee addr
 type signActionType is (nat * nat) // councilActionId, voteType to be decided and confirmed: on frontend, set 1 as APPROVE, 0 as REJECT 
 type flushActionType is (nat)
 
+type updateConfigNewValueType is nat
+type updateConfigActionType is 
+  ConfigThreshold of unit
+| ConfigActionExpiryBlockLevels of unit
+| ConfigActionExpiryDays of unit
+type updateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: updateConfigNewValueType; 
+  updateConfigAction: updateConfigActionType;
+]
+
 type councilAction is 
+    | UpdateConfig of updateConfigParamsType    
+
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
 
@@ -80,7 +92,6 @@ type councilAction is
     | CouncilActionRemoveVestee of address
     | CouncilActionUpdateVestee of councilActionUpdateVesteeType
     | CouncilActionToggleVesteeLock of address
-    // | councilActionToggleTreasuryWithdraw of unit
     | CouncilActionAddCouncilMember of address
     | CouncilActionRemoveMember of address
 
@@ -148,13 +159,23 @@ Some(contr) -> contr
 | None -> (failwith("toggleVesteeLock entrypoint in Vesting Contract not found") : contract(address))
 end;
 
-// function toggleTreasuryParams(const contractAddress : address) : contract(unit) is
-// case (Tezos.get_entrypoint_opt(
-//     "%toggleMintWithdraw",
-//     contractAddress) : option(contract(unit))) of
-// Some(contr) -> contr
-// | None -> (failwith("toggleMintWithdraw entrypoint in Treasury Contract not found") : contract(unit))
-// end;
+(*  updateConfig entrypoint  *)
+function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  // checkSenderIsAdmin(s); // check that sender is admin
+
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+  case updateConfigAction of
+    ConfigThreshold (_v)                  -> s.config.threshold                 := updateConfigNewValue
+  | ConfigActionExpiryBlockLevels (_v)    -> s.config.actionExpiryBlockLevels   := updateConfigNewValue
+  | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
+  end;
+
+} with (noOperations, s)
 
 function councilActionAddCouncilMember(const newCouncilMemberAddress : address ; var s : storage) : return is 
 block {
@@ -529,23 +550,6 @@ block {
             s.councilMembers := Set.remove(_councilActionRecord.address_param_1, s.councilMembers);
         } else skip;
 
-        // toggleTreasury action type
-        // if actionType = "toggleTreasury" then block {
-        //     var treasuryAddress : address := case s.generalContracts["treasuryAddress"] of 
-        //         Some(_address) -> _address
-        //         | None -> failwith("Error. Treasury Contract Address not found")
-        //     end;
-
-        //     const toggleTreasuryOperation : operation = Tezos.transaction(
-        //         unit,
-        //         0tez, 
-        //         toggleTreasuryParams(treasuryAddress)
-        //     );
-
-        //     operations := toggleTreasuryOperation # operations;
-            
-        // } else skip;
-
         // update council action record status
         _councilActionRecord.status              := "EXECUTED";
         _councilActionRecord.executed            := True;
@@ -561,6 +565,7 @@ block {
 
 function main (const action : councilAction; const s : storage) : return is 
     case action of
+        | UpdateConfig(parameters) -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
@@ -568,7 +573,6 @@ function main (const action : councilAction; const s : storage) : return is
         | CouncilActionRemoveVestee(parameters) -> councilActionRemoveVestee(parameters, s)
         | CouncilActionUpdateVestee(parameters) -> councilActionUpdateVestee(parameters, s)
         | CouncilActionToggleVesteeLock(parameters) -> councilActionToggleVesteeLock(parameters, s)
-        // | CouncilActionToggleTreasuryWithdraw(_parameters) -> councilActionToggleTreasuryWithdraw(s)
         | CouncilActionAddCouncilMember(parameters) -> councilActionAddCouncilMember(parameters, s)
         | CouncilActionRemoveMember(parameters) -> councilActionRemoveMember(parameters, s)
 
