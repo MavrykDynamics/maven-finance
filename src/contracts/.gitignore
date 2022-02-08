@@ -2,3 +2,10 @@ build/
 node_modules/
 scripts/tools/**
 !scripts/tools/*.js
+__pycache__/
+venv/
+deployments/*.json
+compiled/*.tz
+# Webstorm IDE
+./.idea
+**/.idea/**
