@@ -11,9 +11,10 @@
                     (or (unit %undelegateFromSatellite) (nat %undelegateFromSatelliteComplete)))))
         (or (or (or (unit %unpauseAll) (unit %unregisterAsSatellite))
                 (or (pair %updateConfig
-                       (or (or (unit %configDelegationRatio) (unit %configMaxSatellites))
-                           (unit %configMinimumStakedMvkBalance))
-                       nat)
+                       (nat %updateConfigNewValue)
+                       (or %updateConfigAction
+                          (or (unit %configDelegationRatio) (unit %configMaxSatellites))
+                          (unit %configMinimumStakedMvkBalance)))
                     (pair %updateGeneralContracts string address)))
             (or (pair %updateSatelliteRecord (pair string string) (pair string nat))
                 (pair %updateWhitelistContracts string address)))) ;
@@ -2070,19 +2071,17 @@
                    { DIG 2 ;
                      DROP ;
                      IF_LEFT
-                       { UNIT ;
+                       { DIG 3 ;
+                         DROP ;
+                         UNIT ;
                          DIG 3 ;
                          SWAP ;
                          EXEC ;
                          DROP ;
-                         SWAP ;
                          DUP ;
-                         DUG 2 ;
-                         DIG 3 ;
+                         CAR ;
                          SWAP ;
-                         EXEC ;
-                         DROP ;
-                         UNPAIR ;
+                         CDR ;
                          IF_LEFT
                            { IF_LEFT
                                { DROP ;
