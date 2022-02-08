@@ -87,8 +87,23 @@ type storage is record [
 type addVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
 type updateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
 
+type updateConfigNewValueType is nat
+type updateConfigActionType is 
+  ConfigDefaultCliffPeriod of unit
+| ConfigDefaultCooldownPeriod of unit
+| ConfigNewBlockTimeLevel of unit
+| ConfigNewBlocksPerMinute of unit
+| ConfigBlocksPerMinute of unit
+| ConfigBlocksPerMonth of unit
+type updateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: updateConfigNewValueType; 
+  updateConfigAction: updateConfigActionType;
+]
+
 type vestingAction is 
-    
+    | SetAdmin of (address)
+    | UpdateConfig of updateConfigParamsType    
+
     | Claim of (unit)
     | GetVesteeBalance of (address * contract(nat))
     
@@ -140,15 +155,6 @@ function vestingUpdateStakedBalanceInDoorman(const contractAddress : address) : 
   | None -> (failwith("vestingUpdateStakedBalanceInDoorman entrypoint in Doorman Contract not found") : contract(address * nat))
   end;
 
-// helper function to update user balance in MVK contract
-// function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * string) is
-// case (Tezos.get_entrypoint_opt(
-//     "%onStakeChange",
-//     tokenAddress) : option(contract(address * nat * string))) of
-// Some(contr) -> contr
-// | None -> (failwith("onStakeChange entrypoint in Token Contract not found") : contract(address * nat * string))
-// end;
-
 // helper function to get mint entrypoint from token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
   case (Tezos.get_entrypoint_opt(
@@ -168,6 +174,39 @@ function mintTokens(
     0tez,
     getMintEntrypointFromTokenAddress(tokenAddress)
   );
+
+(*  setAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    s.admin := newAdminAddress;
+
+} with (noOperations, s)
+
+(*  updateConfig entrypoint  *)
+function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  // checkSenderIsAdmin(s); // check that sender is admin
+
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+  case updateConfigAction of
+    ConfigDefaultCliffPeriod (_v)        -> s.config.defaultCliffPeriod         := updateConfigNewValue
+  | ConfigDefaultCooldownPeriod (_v)     -> s.config.defaultCooldownPeriod      := updateConfigNewValue
+  | ConfigNewBlockTimeLevel (_v)         -> s.config.newBlockTimeLevel          := updateConfigNewValue
+  | ConfigNewBlocksPerMinute (_v)        -> s.config.newBlocksPerMinute         := updateConfigNewValue
+  | ConfigBlocksPerMinute (_v)           -> s.config.blocksPerMinute            := updateConfigNewValue
+  | ConfigBlocksPerMonth (_v)            -> s.config.blocksPerMonth             := updateConfigNewValue
+  end;
+
+} with (noOperations, s)
+
 
 function claim(var s : storage) : return is 
 block {
@@ -231,16 +270,7 @@ block {
             mvkTokenAddress         // mvkTokenAddress
         ); 
 
-        // update user's MVK balance -> increase user balance in mvk ledger
-        // const updateUserMvkBalanceOperation : operation = Tezos.transaction(
-        //     (Tezos.sender, totalClaimAmount, "claim"),
-        //     0tez,
-        //     updateUserBalanceInMvkContract(s.mvkTokenAddress)
-        // );
-
         _operations := mintVMvkTokensOperation # _operations;
-
-        // const _operations : list(operation) = list [mintVMvkTokensOperation; updateUserMvkBalanceOperation];
         
         const one_day        : int   = 86_400;
         const thirty_days    : int   = one_day * 30;
@@ -484,6 +514,9 @@ block {
 
 function main (const action : vestingAction; const s : storage) : return is 
     case action of
+        | SetAdmin(parameters) -> setAdmin(parameters, s)  
+        | UpdateConfig(parameters) -> updateConfig(parameters, s)
+        
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 

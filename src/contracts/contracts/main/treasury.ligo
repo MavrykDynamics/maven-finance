@@ -78,7 +78,20 @@ type mintMvkAndTransferType is record [
 
 type updateSatelliteBalanceParams is (address * nat * nat)
 
+type updateConfigNewValueType is nat
+type updateConfigActionType is 
+  ConfigMaxProposalSize of unit
+| ConfigMinXtzAmount of unit
+| ConfigMaxXtzAmount of unit
+type updateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: updateConfigNewValueType; 
+  updateConfigAction: updateConfigActionType;
+]
+
+
 type treasuryAction is 
+    | SetAdmin of (address)
+    | UpdateConfig of updateConfigParamsType    
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
@@ -218,6 +231,37 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
     Some(contr) -> contr
   | None -> (failwith("onStakeChange entrypoint in Satellite Contract not found") : contract(updateSatelliteBalanceParams))
   end;
+
+
+(*  setAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    s.admin := newAdminAddress;
+
+} with (noOperations, s)
+
+(*  updateConfig entrypoint  *)
+function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  // checkSenderIsAdmin(s); // check that sender is admin
+
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+  case updateConfigAction of
+    ConfigMaxProposalSize (_v)        -> s.config.maxProposalSize         := updateConfigNewValue
+  | ConfigMinXtzAmount (_v)           -> s.config.minXtzAmount            := updateConfigNewValue
+  | ConfigMaxXtzAmount (_v)           -> s.config.maxXtzAmount            := updateConfigNewValue
+  end;
+
+} with (noOperations, s)
+
 
 
 (* update_operators entrypoint *)
@@ -372,6 +416,9 @@ block {
 
 function main (const action : treasuryAction; const s : storage) : return is 
     case action of
+        | SetAdmin(parameters) -> setAdmin(parameters, s)  
+        | UpdateConfig(parameters) -> updateConfig(parameters, s)
+        
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
