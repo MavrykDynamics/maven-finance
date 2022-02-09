@@ -1,5 +1,5 @@
-import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
-import { BigNumber } from "bignumber.js";
+import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder'
+import { BigNumber } from 'bignumber.js'
 
 export type treasuryStorageType = {
   admin: string;
@@ -11,4 +11,4 @@ export type treasuryStorageType = {
 
   
   breakGlassConfig: {};
-};
+}
