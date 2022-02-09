@@ -54,16 +54,3 @@ type fa2_is_tx_operator_type   is [@layout:comb] record [
   approved                : bool;
 ]
 
-type tez_t              is unit
-
-type fa12_token_type       is address
-
-type fa2_token_type        is [@layout:comb] record [
-  token                   : address;
-  id                      : nat;
-]
-
-type token_type       is
-| Tez                     of tez_t          // unit
-| Fa12                    of fa12_token_type   // address
-| Fa2                     of fa2_token_type    // record [ token : address; id : nat; ]

@@ -20,7 +20,7 @@ export const councilStorage: councilStorageType = {
   councilMembers: [],
 
   whitelistContracts: MichelsonMap.fromLiteral({}),
-  contractAddresses: MichelsonMap.fromLiteral({}),
+  generalContracts: MichelsonMap.fromLiteral({}),
 
   councilActionsLedger: MichelsonMap.fromLiteral({}),
 

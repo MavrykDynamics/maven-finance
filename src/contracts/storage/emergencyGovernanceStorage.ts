@@ -18,7 +18,7 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
   admin: alice.pkh,
   config: config,
 
-  contractAddresses: MichelsonMap.fromLiteral({}),
+  generalContracts: MichelsonMap.fromLiteral({}),
 
   emergencyGovernanceLedger: MichelsonMap.fromLiteral({}),
 
