@@ -1,14 +1,13 @@
-import fs from "fs";
+import fs from "fs"
 
-import { execSync } from "child_process";
+import { execSync } from "child_process"
 
-import { OriginationOperation, TezosToolkit } from "@taquito/taquito";
+import { OriginationOperation, TezosToolkit } from "@taquito/taquito"
 import { char2Bytes } from "@taquito/utils"
 
-import { confirmOperation } from "./confirmation";
+import { confirmOperation } from "./confirmation"
 
-import env from "../env";
-
+import env from "../env"
 
 export const getLigo = (
   isDockerizedLigo: boolean,
@@ -17,47 +16,47 @@ export const getLigo = (
 ) => {
   let path: string = "ligo"
   let isAppleM1 = JSON.parse(isAppleSilicon)
-  console.log(`Processer type is ${isAppleM1}`)
+
   if (isDockerizedLigo) {
-    if (isAppleSilicon) {
-      path = `docker run --platform=linux/arm64/v8 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+    if (isAppleM1) {
+      path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:next`
     } else {
       path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
     }
 
     try {
-      execSync(`${path}  --help`);
+      execSync(`${path}  --help`)
     } catch (err) {
-      path = "ligo";
+      path = 'ligo'
 
-      execSync(`${path}  --help`);
+      execSync(`${path}  --help`)
     }
   } else {
     try {
-      execSync(`${path}  --help`);
+      execSync(`${path}  --help`)
     } catch (err) {
-      path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`;
+      path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
 
-      execSync(`${path}  --help`);
+      execSync(`${path}  --help`)
     }
   }
 
-  return path;
-};
+  return path
+}
 
 export const getContractsList = () => {
   return fs
     .readdirSync(env.contractsDir)
-    .filter((file) => file.endsWith(".ligo"))
-    .map((file) => file.slice(0, file.length - 5));
-};
+    .filter((file) => file.endsWith('.ligo'))
+    .map((file) => file.slice(0, file.length - 5))
+}
 
 export const getMigrationsList = () => {
   return fs
     .readdirSync(env.migrationsDir)
-    .filter((file) => file.endsWith(".js"))
-    .map((file) => file.slice(0, file.length - 3));
-};
+    .filter((file) => file.endsWith('.js'))
+    .map((file) => file.slice(0, file.length - 3))
+}
 
 export const compile = async (
   format: string,
@@ -170,9 +169,7 @@ export const compileParameters = async (
 
       res.push(JSON.parse(michelson));
 
-      console.log(
-        lambdaParam.index + 1 + ". " + lambdaParam.name + " lambda successfully compiled."
-      );
+      console.log(lambdaParam.index + 1 + '. ' + lambdaParam.name + ' lambda successfully compiled.')
     }
 
     if (!fs.existsSync(`${env.buildDir}/lambdas`)) {
@@ -208,8 +205,8 @@ export const packParameters = async (
 
       const michelson = execSync(
         `${ligo} compile parameter $PWD/${contract} '${lambdaParam.action}' --entry-point main --michelson-format json --syntax pascaligo --protocol hangzhou`,
-        { maxBuffer: 1024 * 500 }
-      ).toString();
+        { maxBuffer: 1024 * 500 },
+      ).toString()
 
       // const bytes = execSync(
       //   `${ligo} interpret -s pascaligo 'Bytes.pack(${michelson})'`,
@@ -222,6 +219,8 @@ export const packParameters = async (
       // console.log(michelson);
 
       const bytes = char2Bytes(michelson);
+
+      const bytes = char2Bytes(michelson)
 
       // console.log("bytes:")
       // console.log(bytes);
@@ -254,12 +253,7 @@ export const packParameters = async (
 };
 
 
-
-export const migrate = async (
-  tezos: TezosToolkit,
-  contract: string,
-  storage: any
-) => {
+export const migrate = async (tezos: TezosToolkit, contract: string, storage: any) => {
   try {
     console.log(`${env.buildDir}/${contract}.json`);
 

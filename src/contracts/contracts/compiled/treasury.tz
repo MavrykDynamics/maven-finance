@@ -1,21 +1,16 @@
 { parameter
-    (or (or (or (pair %mintMvkAndTransfer (nat %amt) (address %to_)) (address %setAdmin))
-            (or (pair %transfer
+    (or (or (or (pair %mintMvkAndTransfer (nat %amt) (address %to_))
+                (pair %transfer
                    (pair (nat %amt) (address %from_))
                    (pair (address %to_)
-                         (or %token (or (address %fa12) (pair %fa2 (address %token) (nat %id))) (unit %tez))))
-                (pair %updateConfig
-                   (nat %updateConfigNewValue)
-                   (or %updateConfigAction
-                      (or (unit %configMaxProposalSize) (unit %configMaxXtzAmount))
-                      (unit %configMinXtzAmount)))))
-        (or (or (pair %updateGeneralContracts string address)
-                (pair %updateWhitelistContracts string address))
-            (or (pair %updateWhitelistTokenContracts string address)
-                (pair %update_operators
-                   address
-                   (list (or (pair %add_operator (address %owner) (pair (address %operator) (nat %token_id)))
-                             (pair %remove_operator (address %owner) (pair (address %operator) (nat %token_id))))))))) ;
+                         (or %token (or (address %fa12) (pair %fa2 (address %token) (nat %id))) (unit %tez)))))
+            (or (pair %updateGeneralContracts string address)
+                (pair %updateWhitelistContracts string address)))
+        (or (pair %updateWhitelistTokenContracts string address)
+            (pair %update_operators
+               address
+               (list (or (pair %add_operator (address %owner) (pair (address %operator) (nat %token_id)))
+                         (pair %remove_operator (address %owner) (pair (address %operator) (nat %token_id)))))))) ;
   storage
     (pair (pair (pair (address %admin)
                       (pair %breakGlassConfig
@@ -39,16 +34,6 @@
              EQ ;
              IF { UNIT }
                 { PUSH string "Only the administrator can call this entrypoint." ; FAILWITH } } ;
-         LAMBDA
-           unit
-           unit
-           { DROP ;
-             PUSH mutez 0 ;
-             AMOUNT ;
-             COMPARE ;
-             EQ ;
-             IF { UNIT }
-                { PUSH string "This entrypoint should not receive any tez." ; FAILWITH } } ;
          LAMBDA
            (pair address
                  (pair (pair (pair address (pair (pair bool bool) bool))
@@ -101,17 +86,16 @@
                { PUSH string "onStakeChange entrypoint in Satellite Contract not found" ;
                  FAILWITH }
                {} } ;
-         DIG 6 ;
+         DIG 5 ;
          UNPAIR ;
          IF_LEFT
            { IF_LEFT
-               { DIG 3 ;
-                 DROP ;
+               { DIG 5 ;
+                 DIG 6 ;
+                 DROP 2 ;
                  IF_LEFT
-                   { DIG 4 ;
-                     DIG 5 ;
-                     DIG 6 ;
-                     DROP 3 ;
+                   { DIG 3 ;
+                     DROP ;
                      SWAP ;
                      DUP ;
                      DUG 2 ;
@@ -175,45 +159,7 @@
                      DIG 2 ;
                      CONS ;
                      PAIR }
-                   { DIG 2 ;
-                     DIG 3 ;
-                     DROP 2 ;
-                     UNIT ;
-                     DIG 3 ;
-                     SWAP ;
-                     EXEC ;
-                     DROP ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     DIG 3 ;
-                     SWAP ;
-                     EXEC ;
-                     DROP ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     CDR ;
-                     DUP 3 ;
-                     CAR ;
-                     CDR ;
-                     DIG 3 ;
-                     CAR ;
-                     CAR ;
-                     CDR ;
-                     DIG 3 ;
-                     PAIR ;
-                     PAIR ;
-                     PAIR ;
-                     SWAP ;
-                     PAIR } }
-               { DIG 6 ;
-                 DROP ;
-                 IF_LEFT
-                   { DIG 5 ;
-                     DIG 6 ;
-                     DROP 2 ;
-                     SWAP ;
+                   { SWAP ;
                      DUP ;
                      DUG 2 ;
                      SENDER ;
@@ -379,103 +325,10 @@
                           TRANSFER_TOKENS ;
                           CONS }
                         { SWAP ; DIG 2 ; DIG 4 ; DROP 3 } ;
-                     PAIR }
-                   { DIG 2 ;
-                     DIG 3 ;
-                     DIG 4 ;
-                     DROP 3 ;
-                     UNIT ;
-                     DIG 3 ;
-                     SWAP ;
-                     EXEC ;
-                     DROP ;
-                     DUP ;
-                     CAR ;
-                     SWAP ;
-                     CDR ;
-                     IF_LEFT
-                       { IF_LEFT
-                           { DROP ;
-                             SWAP ;
-                             DUP ;
-                             DUG 2 ;
-                             CDR ;
-                             DUP 3 ;
-                             CAR ;
-                             CDR ;
-                             CDR ;
-                             DUP 4 ;
-                             CAR ;
-                             CDR ;
-                             CAR ;
-                             UNPAIR ;
-                             CDR ;
-                             DIG 4 ;
-                             PAIR ;
-                             PAIR ;
-                             PAIR ;
-                             DIG 2 ;
-                             CAR ;
-                             CAR ;
-                             PAIR ;
-                             PAIR }
-                           { DROP ;
-                             SWAP ;
-                             DUP ;
-                             DUG 2 ;
-                             CDR ;
-                             DUP 3 ;
-                             CAR ;
-                             CDR ;
-                             CDR ;
-                             DUP 4 ;
-                             CAR ;
-                             CDR ;
-                             CAR ;
-                             DUP ;
-                             CDR ;
-                             DIG 4 ;
-                             DIG 2 ;
-                             CAR ;
-                             CAR ;
-                             PAIR ;
-                             PAIR ;
-                             PAIR ;
-                             DIG 2 ;
-                             CAR ;
-                             CAR ;
-                             PAIR ;
-                             PAIR } }
-                       { DROP ;
-                         SWAP ;
-                         DUP ;
-                         DUG 2 ;
-                         CDR ;
-                         DUP 3 ;
-                         CAR ;
-                         CDR ;
-                         CDR ;
-                         DIG 2 ;
-                         DUP 4 ;
-                         CAR ;
-                         CDR ;
-                         CAR ;
-                         CAR ;
-                         PAIR ;
-                         PAIR ;
-                         DIG 2 ;
-                         CAR ;
-                         CAR ;
-                         PAIR ;
-                         PAIR } ;
-                     SWAP ;
-                     PAIR } } }
-           { DIG 2 ;
-             DIG 5 ;
-             DROP 2 ;
-             IF_LEFT
+                     PAIR } }
                { DIG 2 ;
-                 DROP ;
+                 DIG 3 ;
+                 DROP 2 ;
                  IF_LEFT
                    { DIG 2 ;
                      DROP ;
@@ -564,77 +417,79 @@
                      CAR ;
                      PAIR ;
                      SWAP ;
-                     PAIR } }
-               { IF_LEFT
-                   { DIG 3 ;
-                     DROP ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     DIG 4 ;
-                     SWAP ;
-                     EXEC ;
-                     DROP ;
-                     DUP ;
-                     CDR ;
-                     DUP 3 ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     PAIR ;
-                     DIG 4 ;
-                     SWAP ;
-                     EXEC ;
-                     DUP 4 ;
-                     CDR ;
-                     CDR ;
-                     SWAP ;
-                     IF { SWAP ; DROP ; NONE address } { SWAP ; SOME } ;
-                     DIG 2 ;
-                     CAR ;
-                     UPDATE ;
-                     SWAP ;
-                     DUP ;
-                     DUG 2 ;
-                     CDR ;
-                     CAR ;
-                     PAIR ;
-                     SWAP ;
-                     CAR ;
-                     PAIR ;
-                     SWAP ;
-                     PAIR }
-                   { DIG 2 ;
-                     DIG 4 ;
-                     DIG 5 ;
-                     DROP 3 ;
-                     UNPAIR ;
-                     DUP 3 ;
-                     SENDER ;
-                     PAIR ;
-                     DIG 4 ;
-                     SWAP ;
-                     EXEC ;
-                     PUSH bool False ;
-                     SWAP ;
-                     COMPARE ;
-                     EQ ;
-                     IF { PUSH string "Error. Sender is not allowed to call this entrypoint." ;
-                          FAILWITH }
-                        {} ;
-                     CONTRACT %update_operators
-                       (list (or (pair %add_operator (address %owner) (pair (address %operator) (nat %token_id)))
-                                 (pair %remove_operator (address %owner) (pair (address %operator) (nat %token_id))))) ;
-                     IF_NONE
-                       { PUSH string "update_operators entrypoint in Token Contract not found" ;
-                         FAILWITH }
-                       {} ;
-                     PUSH mutez 0 ;
-                     DIG 2 ;
-                     TRANSFER_TOKENS ;
-                     SWAP ;
-                     NIL operation ;
-                     DIG 2 ;
-                     CONS ;
-                     PAIR } } } } }
+                     PAIR } } }
+           { DIG 2 ;
+             DROP ;
+             IF_LEFT
+               { DIG 3 ;
+                 DROP ;
+                 SWAP ;
+                 DUP ;
+                 DUG 2 ;
+                 DIG 4 ;
+                 SWAP ;
+                 EXEC ;
+                 DROP ;
+                 DUP ;
+                 CDR ;
+                 DUP 3 ;
+                 SWAP ;
+                 DUP ;
+                 DUG 2 ;
+                 PAIR ;
+                 DIG 4 ;
+                 SWAP ;
+                 EXEC ;
+                 DUP 4 ;
+                 CDR ;
+                 CDR ;
+                 SWAP ;
+                 IF { SWAP ; DROP ; NONE address } { SWAP ; SOME } ;
+                 DIG 2 ;
+                 CAR ;
+                 UPDATE ;
+                 SWAP ;
+                 DUP ;
+                 DUG 2 ;
+                 CDR ;
+                 CAR ;
+                 PAIR ;
+                 SWAP ;
+                 CAR ;
+                 PAIR ;
+                 SWAP ;
+                 PAIR }
+               { DIG 2 ;
+                 DIG 4 ;
+                 DIG 5 ;
+                 DROP 3 ;
+                 UNPAIR ;
+                 DUP 3 ;
+                 SENDER ;
+                 PAIR ;
+                 DIG 4 ;
+                 SWAP ;
+                 EXEC ;
+                 PUSH bool False ;
+                 SWAP ;
+                 COMPARE ;
+                 EQ ;
+                 IF { PUSH string "Error. Sender is not allowed to call this entrypoint." ;
+                      FAILWITH }
+                    {} ;
+                 CONTRACT %update_operators
+                   (list (or (pair %add_operator (address %owner) (pair (address %operator) (nat %token_id)))
+                             (pair %remove_operator (address %owner) (pair (address %operator) (nat %token_id))))) ;
+                 IF_NONE
+                   { PUSH string "update_operators entrypoint in Token Contract not found" ;
+                     FAILWITH }
+                   {} ;
+                 PUSH mutez 0 ;
+                 DIG 2 ;
+                 TRANSFER_TOKENS ;
+                 SWAP ;
+                 NIL operation ;
+                 DIG 2 ;
+                 CONS ;
+                 PAIR } } } }
 
