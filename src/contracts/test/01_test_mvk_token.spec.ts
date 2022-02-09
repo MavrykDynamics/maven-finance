@@ -915,6 +915,8 @@ describe('MVK Token', async () => {
 
     it('Eve sends 250000001MVK to herself', async () => {
       try {
+        await signerFactory(eve.sk)
+
         const operation = await tokenInstance.methods
           .transfer([
             {
@@ -932,6 +934,8 @@ describe('MVK Token', async () => {
         await operation.confirmation()
       } catch (e) {
         const newTokenStorage = await tokenInstance.storage()
+        const operators = await newTokenStorage.operators
+        console.log(newTokenStorage)
         const eveTokenLedgerAfter = await newTokenStorage.ledger.get(eve.pkh)
         assert.equal(e.message, 'FA2_INSUFFICIENT_BALANCE', "Eve shouldn't be able to send more than she has")
         assert.equal(
@@ -1008,6 +1012,7 @@ describe('MVK Token', async () => {
 
     it('Eve sends 250000001MVK to Mallory', async () => {
       try {
+        await signerFactory(eve.sk)
         const operation = await tokenInstance.methods
           .transfer([
             {
@@ -1138,6 +1143,7 @@ describe('MVK Token', async () => {
 
     it('Eve sends 2000MVK to Mallory then 250000001MVK to her again', async () => {
       try {
+        await signerFactory(eve.sk)
         const operation = await tokenInstance.methods
           .transfer([
             {
@@ -1960,7 +1966,7 @@ describe('MVK Token', async () => {
 
         assert.equal(
           eveTokenLedgerAfter,
-          aliceTokenLedgerBase,
+          eveTokenLedgerBase,
           "Eve's MVK balance shouldn't have changed: " + eveTokenLedgerAfter + 'MVK',
         )
         assert.equal(

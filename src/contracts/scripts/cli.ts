@@ -33,7 +33,7 @@ yargs
         type: 'string',
       },
       is_apple_silicon: {
-        description: 'cpu is apple apple silicon boolean',
+        description: 'cpu is an apple silicon boolean',
         alias: 'm',
         type: 'string',
       },
@@ -43,7 +43,7 @@ yargs
     },
   )
   .command(
-    'compile-lambda [json] [contract]',
+    'compile-lambda [json] [contract] [is_apple_silicon]',
     'compile lambdas for the specified contract',
     {
       json: {
@@ -56,13 +56,18 @@ yargs
         alias: 'c',
         type: 'string',
       },
+      is_apple_silicon: {
+        description: 'cpu is an apple silicon boolean',
+        alias: 'm',
+        type: 'string',
+      },
     },
     async (argv) => {
-      compileLambdas(argv.json, argv.contract)
+      compileLambdas(argv.json, argv.contract, argv.is_apple_silicon)
     },
   )
   .command(
-    'compile-lambda-parameters [json] [contract]',
+    'compile-lambda-parameters [json] [contract] [is_apple_silicon]',
     'compile lambda parameters for the specified contract',
     {
       json: {
@@ -75,13 +80,18 @@ yargs
         alias: 'c',
         type: 'string',
       },
+      is_apple_silicon: {
+        description: 'cpu is an apple silicon boolean',
+        alias: 'm',
+        type: 'string',
+      },
     },
     async (argv) => {
-      compileParameters(argv.json, argv.contract)
+      compileParameters(argv.json, argv.contract, argv.is_apple_silicon)
     },
   )
   .command(
-    'compile-pack-parameters [json] [contract]',
+    'compile-pack-parameters [json] [contract] [is_apple_silicon]',
     'compile and pack michelson parameters into bytes',
     {
       json: {
@@ -94,9 +104,14 @@ yargs
         alias: 'c',
         type: 'string',
       },
+      is_apple_silicon: {
+        description: 'cpu is an apple silicon boolean',
+        alias: 'm',
+        type: 'string',
+      },
     },
     async (argv) => {
-      packParameters(argv.json, argv.contract)
+      packParameters(argv.json, argv.contract, argv.is_apple_silicon)
     },
   )
   .command(
