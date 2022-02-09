@@ -32,6 +32,9 @@ export type governanceStorageType = {
 
   governanceLambdaLedger : MichelsonMap<MichelsonMapKey, unknown>;
 
+  financialRequestLedger : MichelsonMap<MichelsonMapKey, unknown>;
+  financialRequestCounter : BigNumber;
+
   tempFlag :BigNumber;
   
 };
