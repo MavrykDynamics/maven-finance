@@ -64,10 +64,10 @@ export const compile = async (
   contract: string = undefined,
   contractsDir: string = env.contractsDir,
   outputDir: string = env.buildDir,
-  ligoVersion: string = env.ligoVersion
+  ligoVersion: string = env.ligoVersion,
+  isAppleSilicon: string = "false",
 ) => {
-  
-  const ligo: string = getLigo(true, ligoVersion);
+  const ligo: string = getLigo(true, ligoVersion, isAppleSilicon);
   const contracts: string[] = !contract ? getContractsList() : [contract];
 
   contracts.forEach((contract) => {
@@ -199,7 +199,7 @@ export const packParameters = async (
   const lambdaParams: any = JSON.parse(
     fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString()
   );
-  
+
   let res_michelson: any[] = [];
   let res_bytes: any[] = [];
 
@@ -220,8 +220,8 @@ export const packParameters = async (
 
       // console.log("michelson:")
       // console.log(michelson);
-      
-      const bytes = char2Bytes(michelson);      
+
+      const bytes = char2Bytes(michelson);
 
       // console.log("bytes:")
       // console.log(bytes);
@@ -262,11 +262,11 @@ export const migrate = async (
 ) => {
   try {
     console.log(`${env.buildDir}/${contract}.json`);
-    
+
     const artifacts: any = JSON.parse(
       fs.readFileSync(`${env.buildDir}/${contract}.json`).toString()
     );
-    
+
     // console.log('running migrations')
     // console.log(tezos)
     // console.log('artifacts')
