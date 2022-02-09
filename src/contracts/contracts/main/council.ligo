@@ -475,7 +475,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionRequestMint(const councilAction : councilActionRequestMintType ; var s : storage) : return is 
+function councilActionRequestMint(const councilActionRequestMintParams : councilActionRequestMintType ; var s : storage) : return is 
 block {
 
     checkSenderIsCouncilMember(s);
@@ -491,9 +491,9 @@ block {
         signersCount          = 1n;
         executed              = False;
 
-        address_param_1       = councilActionRequestFundsParams.treasuryAddress;
+        address_param_1       = councilActionRequestMintParams.treasuryAddress;
         address_param_2       = zeroAddress;    
-        nat_param_1           = councilActionRequestFundsParams.tokenAmount;
+        nat_param_1           = councilActionRequestMintParams.tokenAmount;
         nat_param_2           = 0n;
         nat_param_3           = 0n;
         string_param_1        = "EMPTY"; 
@@ -657,11 +657,11 @@ block {
                 | None -> failwith("Error. Governance Contract Address not found")
             end;
 
-            const requestFundsParams : councilActionRequestFundsType = [
-                tokenName        : string_param_1;   // token name should be in whitelist token contracts map in governance contract
-                tokenAmount      : nat_param_1;      // token amount requested
-                treasuryAddress  : address_param_1;  // treasury address
-            ]
+            const requestFundsParams : councilActionRequestFundsType = record[
+                tokenName       = _councilActionRecord.string_param_1;
+                tokenAmount     = _councilActionRecord.nat_param_1;
+                treasuryAddress = _councilActionRecord.address_param_1;
+            ];
 
             const requestFundsOperation : operation = Tezos.transaction(
                 requestFundsParams,
@@ -670,7 +670,7 @@ block {
             );
 
             operations := requestFundsOperation # operations;
-        }
+        } else skip;
 
         // requestMint action type
         if actionType = "requestMint" then block {
@@ -680,10 +680,10 @@ block {
                 | None -> failwith("Error. Governance Contract Address not found")
             end;
 
-            const requestMintParams : councilActionRequestFundsType = [
-                tokenAmount      : nat_param_1;      // token amount requested
-                treasuryAddress  : address_param_1;  // treasury address
-            ]
+            const requestMintParams : councilActionRequestMintType = record[
+                tokenAmount     = _councilActionRecord.nat_param_1;
+                treasuryAddress = _councilActionRecord.address_param_1;
+            ];
 
             const requestMintOperation : operation = Tezos.transaction(
                 requestMintParams,
@@ -691,8 +691,8 @@ block {
                 sendRequestMintParams(governanceAddress)
             );
 
-            operations := requestFundsOperation # operations;
-        }
+            operations := requestMintOperation # operations;
+        } else skip;
 
         // update council action record status
         _councilActionRecord.status              := "EXECUTED";
