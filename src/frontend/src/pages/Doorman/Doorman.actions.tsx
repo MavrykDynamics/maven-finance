@@ -51,7 +51,7 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
     myMvkTokenBalance: myBalance?.toFixed(2),
   })
 }
-export const GET_V_MVK_TOKEN_STORAGE = ''
+
 export const STAKE_REQUEST = 'STAKE_REQUEST'
 export const STAKE_RESULT = 'STAKE_RESULT'
 export const STAKE_ERROR = 'STAKE_ERROR'
