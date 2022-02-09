@@ -1,0 +1,19 @@
+[
+    {
+      "index": 0,
+      "name": "callGovernanceLambda"
+    },
+    {
+      "index": 1,
+      "name": "updateLambdaFunction"
+    },
+    {
+      "index": 2,
+      "name": "updateGovernanceConfig"
+    },
+    {
+      "index": 3,
+      "name": "updateDelegationConfig"
+    }
+]
+  
