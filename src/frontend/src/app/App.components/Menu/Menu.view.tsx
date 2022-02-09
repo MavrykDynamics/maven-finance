@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 
+import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 // prettier-ignore
 import { MenuBanner, MenuButton, MenuConnected, MenuFooter, MenuGrid, MenuIcon, MenuLogo, MenuStyled } from "./Menu.style";
 
@@ -29,7 +30,7 @@ export const MenuView = ({
       <Link to="/">
         <MenuLogo alt="logo" src="/logo.svg" />
       </Link>
-
+      {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
       {wallet ? (
         <div>
           {ready ? (
@@ -42,7 +43,7 @@ export const MenuView = ({
                   <use xlinkHref="/icons/sprites.svg#switch" />
                 </svg>
               </p>
-              <div>{myMvkTokenBalance} MVK</div>
+              <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
             </MenuConnected>
           ) : (
             <MenuButton onClick={handleConnect}>

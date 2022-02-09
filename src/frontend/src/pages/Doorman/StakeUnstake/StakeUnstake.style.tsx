@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, placeholderColor, subTextColor } from 'styles'
+import { backgroundColor, downColor, placeholderColor, subTextColor, upColor } from 'styles'
 
 export const StakeUnstakeStyled = styled.div`
   /* height: 240px; */
@@ -13,13 +13,29 @@ export const StakeUnstakeStyled = styled.div`
 export const StakeUnstakeCard = styled.div`
   background-color: ${backgroundColor};
   border-radius: 10px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${subTextColor};
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
+  min-width: 130px;
+`
+export const StakeUnstakeActionCard = styled.div`
+  background-color: ${backgroundColor};
+  border-radius: 10px;
   padding: 35px;
   text-align: center;
   font-size: 14px;
   font-weight: 600;
   color: ${subTextColor};
 `
-
+export const StakeUnstakeInputColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+`
 export const StakeUnstakeInputGrid = styled.div`
   display: grid;
   grid-template-columns: 62px auto;
@@ -42,33 +58,58 @@ export const StakeUnstakeMin = styled.div`
   margin-left: 10px;
 `
 
-export const StakeUnstakeMax = styled.div`
+export const StakeUnstakeMax = styled.button`
+  font: inherit;
   font-size: 12px;
   font-weight: 600;
   float: right;
   display: inline-block;
   margin-right: 10px;
   text-decoration: underline;
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline: inherit;
+`
+export const StakeUnstakeInputCheck = styled.div<{ inputOk: boolean; accountPkh?: string }>`
+  height: 50px;
+  width: 100%;
+  border: 1px;
+  border-style: ${({ inputOk, accountPkh }) => (inputOk ? (accountPkh ? 'solid' : 'hidden') : 'solid')};
+  border-color: ${({ inputOk, accountPkh }) => (accountPkh ? (inputOk ? upColor : downColor) : 'none')};
+  margin: 10px 0;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`
+export const StakeUnstakeErrorMessage = styled.div<{ inputOk: boolean; accountPkh?: string }>`
+  color: ${({ inputOk }) => (inputOk ? upColor : downColor)};
+  font-size: 12px;
+  font-weight: 600;
 `
 
 export const StakeUnstakeInput = styled.input`
   width: 100%;
-  height: 50px;
+  height: 100%;
   background: ${placeholderColor};
-  border-radius: 10px;
+  margin: 10px 0;
   font-size: 22px;
   font-weight: 600;
   border: none;
-  margin: 10px 0;
   padding: 0 20px;
+  border-radius: 10px;
   color: ${subTextColor};
   -webkit-appearance: none;
   appearance: none;
+  flex: 0 0 1;
+  position: relative;
 `
 
 export const StakeUnstakeInputLabel = styled.div`
   position: absolute;
-  top: 36px;
   right: 17px;
   color: ${subTextColor};
   font-size: 22px;
@@ -78,7 +119,7 @@ export const StakeUnstakeInputLabel = styled.div`
 export const StakeUnstakeRate = styled.div`
   font-size: 12px;
   font-weight: 600;
-  float: right;
+  align-self: end;
   display: inline-block;
   margin-right: 10px;
 `
@@ -91,17 +132,23 @@ export const StakeUnstakeButtonGrid = styled.div`
 `
 
 export const StakeUnstakeBalance = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
   h3 {
     font-size: 14px;
     font-weight: 600;
     color: ${subTextColor};
   }
-
   img {
     margin: 26px auto;
   }
 
   div {
+    max-width: fit-content;
+    align-items: center;
     font-size: 20px;
     font-weight: 600;
     color: ${subTextColor};

@@ -1,26 +1,44 @@
-import { Button } from 'app/App.components/Button/Button.controller'
-import { SatellitesHeader } from 'pages/Satellites/SatellitesHeader/SatellitesHeader.controller'
+import { Loader } from 'app/App.components/Loader/Loader.view'
+import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
 import * as React from 'react'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { State } from 'reducers'
-import { Message, Page } from 'styles'
+import { SatelliteRecord } from 'reducers/delegation'
+
+import { SatelliteDetailsView } from './SatelliteDetails.view'
 
 export const SatelliteDetails = () => {
   const dispatch = useDispatch()
+  const location = useLocation()
   const loading = useSelector((state: State) => state.loading)
-  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { vMvkTokenStorage, myVMvkTokenBalance } = useSelector((state: State) => state.vMvkToken)
+  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const pathAddress = location.pathname?.substring(location.pathname?.lastIndexOf('/') + 1)
+  const neededSatellite = getDesiredSatellite(pathAddress, delegationStorage.satelliteLedger)
+
+  useEffect(() => {
+    dispatch(getDelegationStorage())
+  }, [dispatch])
+
+  const delegateCallback = (address: string) => {
+    dispatch(delegate(address))
+  }
+
+  const undelegateCallback = (address: string) => {
+    dispatch(undelegate(address))
+  }
 
   return (
-    <Page>
-      <SatellitesHeader />
-      <br />
-      <Link to="/become-satellite">
-        <Button icon="satellite" text="Become a Satellite" />
-      </Link>
-    </Page>
+    <SatelliteDetailsView
+      satellite={neededSatellite}
+      loading={loading}
+      delegateCallback={delegateCallback}
+      undelegateCallback={undelegateCallback}
+    />
   )
+}
+
+function getDesiredSatellite(satelliteAddress: string, satelliteLedger: SatelliteRecord[]): SatelliteRecord {
+  return satelliteLedger?.filter((item: SatelliteRecord) => item.address === satelliteAddress)[0]
 }

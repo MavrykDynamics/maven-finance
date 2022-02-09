@@ -1,6 +1,7 @@
 import { TempleWallet } from '@temple-wallet/dapp'
 import { BecomeSatellite } from 'pages/BecomeSatellite/BecomeSatellite.controller'
 import { Doorman } from 'pages/Doorman/Doorman.controller'
+import { SatelliteDetails } from 'pages/SatelliteDetails/SatelliteDetails.controller'
 import { Satellites } from 'pages/Satellites/Satellites.controller'
 import { useEffect } from 'react'
 import { Provider, useDispatch } from 'react-redux'
@@ -19,6 +20,7 @@ const AppContainer = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
+    // For using Beacon wallet, replace following lines with dispatch(setWallet())
     return TempleWallet.onAvailabilityChange((available) => {
       if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))
     })
@@ -41,6 +43,9 @@ const AppContainer = () => {
           </Route>
           <Route exact path="/become-satellite">
             <BecomeSatellite />
+          </Route>
+          <Route exact path="/satellite-details/:satelliteId">
+            <SatelliteDetails />
           </Route>
         </Switch>
       </AppStyled>
