@@ -7,18 +7,18 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams
 #include "../partials/whitelistTokenContractsType.ligo"
 
-type proposalIdTypeNat is nat
+type proposalIdType is nat 
 
 // Stores all voter data during proposal round
-type proposalRoundVoteType is (nat * timestamp)       // total voting power (MVK) * timestamp
+type proposalRoundVoteType is (nat * timestamp)           // total voting power (MVK) * timestamp
 type passVotersMapType is map (address, proposalRoundVoteType)
 
 // Stores all voter data during voting round
 type votingRoundVoteType is (nat * nat * timestamp)       // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundVoteType)
 
-type newProposalType is (string * string * string) // title, description, invoice ipfs - add more if needed
-type proposalMetadataType is map (string, bytes)
+type newProposalType is (string * string * string)        // title, description, invoice ipfs - add more if needed
+type proposalMetadataType is map (string, bytes)   
 
 // action title: change governance config successReward to 100000 MVK, params in bytes
 // action title: change delegation config xxx to xxx , params in bytes
@@ -33,7 +33,8 @@ type proposalRecordType is [@layout:comb] record [
     description          : string;                  // description
     invoice              : string;                  // ipfs hash of invoice file
     successReward        : nat;                     // log of successful proposal reward for voters - may change over time
-    executed             : string;                  // true / false
+    executed             : bool;                    // true / false
+    locked               : bool;                    // true / false
     
     passVoteCount        : nat;                     // proposal round: pass votes count - number of satellites
     passVoteMvkTotal     : nat;                     // proposal round pass vote total mvk from satellites who voted pass
@@ -57,6 +58,16 @@ type proposalRecordType is [@layout:comb] record [
     currentCycleEndLevel     : nat;                 // log of current cycle end block level
 ]
 type proposalLedgerType is big_map (nat, proposalRecordType);
+
+type financialRequestRecordType is [@layout:comb] record [
+
+    requesterAddress     : address;
+    status               : string;                  // status - "ACTIVE", "DROPPED"
+    executed             : bool;                    // true / false
+
+    startDateTime        : timestamp;               // log of when the proposal was proposed
+]
+type financialRequestLedgerType is big_map (nat, financialRequestRecordType);
 
 // snapshot will be valid for current cycle only (proposal + voting rounds)
 type snapshotRecordType is [@layout:comb] record [
@@ -86,6 +97,9 @@ type configType is [@layout:comb] record [
     blocksPerProposalRound      : nat;  // to determine duration of proposal round
     blocksPerVotingRound        : nat;  // to determine duration of voting round
     blocksPerTimelockRound      : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+
+    // threshold for financial request to be approved: 67% of total staked MVK supply
+
 ]
 
 // update config types
@@ -104,7 +118,7 @@ type updateGovernanceConfigActionType is
 | ConfigBlocksPerProposalRound of unit
 | ConfigBlocksPerVotingRound of unit
 | ConfigBlocksPerTimelockRound of unit
-// type updateConfigParamsType is (updateConfigNewValueType * updateGovernanceConfigActionType)
+
 type updateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: updateConfigNewValueType;
   updateConfigAction: updateGovernanceConfigActionType;
@@ -173,6 +187,9 @@ type storage is record [
 
     snapshotMvkTotalSupply      : nat;                // for quorum calculation use - snapshot of total MVK supply
 
+    financialRequestLedger      : financialRequestLedgerType;
+    financialRequestCounter     : nat;
+
     governanceLambdaLedger      : governanceLambdaLedgerType;
 
     tempFlag : nat;     // test variable - currently used to show block levels per transaction
@@ -184,20 +201,38 @@ type governanceLambdaFunctionType is (executeActionType * storage) -> return
 
 type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
 
+type requestFundsType is [@layout:comb] record [
+    tokenName        : string;   // token name should be in whitelist token contracts map in governance contract
+    tokenAmount      : nat;      // token amount requested
+    treasuryAddress  : address;  // treasury address
+]
+
+type requestMintType is [@layout:comb] record [
+    tokenAmount      : nat;      // MVK token amount requested
+    treasuryAddress  : address;  // treasury address
+]
+
+type voteForRequestType is nat; 
+
 type governanceAction is 
     | BreakGlass of (unit)
     | SetAdmin of (address)
     | UpdateConfig of updateConfigParamsType
+
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
 
+    | UpdateActiveSatellitesMap of (unit * address)
+    | SetTempMvkTotalSupply of (nat)  
+    | SetSatelliteVotingPowerSnapshot of (address * nat * nat)
+    
     | StartProposalRound of (unit)
     | Propose of newProposalType
-    | ProposalRoundVote of proposalIdTypeNat
+    | ProposalRoundVote of proposalIdType
     | AddUpdateProposalData of addUpdateProposalDataType
-    // consider locking proposal after metadata has been added (prevent abuse where new metadata is added after voting)
-
+    | LockProposal of proposalIdType  
+    
     | StartVotingRound of (unit)
     | VotingRoundVote of (nat * nat)
 
@@ -205,13 +240,12 @@ type governanceAction is
     | ExecuteProposal of (nat)
     | DropProposal of (nat)
 
-    | SetTempMvkTotalSupply of (nat)
-    | UpdateActiveSatellitesMap of (unit * address)
-    | SetSatelliteVotingPowerSnapshot of (address * nat * nat)
-
     | CallGovernanceLambdaProxy of executeActionType
     | SetupLambdaFunction of setupLambdaFunctionType
 
+    | RequestFunds of requestFundsType
+    | RequestMint of requestMintType
+    | VoteForRequest of voteForRequestType
 
 // admin helper functions begin --
 function checkSenderIsAdmin(var s : storage) : unit is
@@ -272,7 +306,6 @@ function checkNoAmount(const _p : unit) : unit is
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
 #include "../partials/whitelistTokenContractsMethod.ligo"
 
-
 // Governance Lambda Methods: callGovernanceLambda, setupLambdaFunction
 #include "../partials/governance/governanceLambdaMethods.ligo"
 
@@ -284,9 +317,6 @@ block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount
   checkSenderIsAdminOrSelf(s); // check that sender is admin
-
-  // const updateConfigAction    : updateGovernanceConfigActionType   = updateConfigParams.1;
-  // const updateConfigNewValue  : updateConfigNewValueType           = updateConfigParams.0;
 
   const updateConfigAction    : updateGovernanceConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : updateConfigNewValueType           = updateConfigParams.updateConfigNewValue;
@@ -462,20 +492,14 @@ function setAdminInContract(const contractAddress : address) : contract(address)
 // housekeeping functions begin: --
 
 (*  set contract admin address *)
-function setAdmin(const _parameters : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
 block {
-    // checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    // checkSenderIsAdmin(s); // check that sender is admin
-    // s.admin := parameters;
-    skip
-} with (noOperations, s)
+    
+    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+    s.admin := newAdminAddress;
 
-// set delegation contract address
-// function setDelegationAddress(const parameters : address; var s : storage) : return is
-// block {
-//     checkSenderIsAdmin(s); // check that sender is admin
-//     s.delegationAddress := parameters;
-// } with (noOperations, s)
+} with (noOperations, s)
 
 // set temp MVK total supply, and quorum
 function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
@@ -653,14 +677,14 @@ block {
     s.tempFlag := Tezos.level;
 
     if s.currentRound = "proposal" then skip
-        else failwith("You can only make a proposal during a proposal round.");
+        else failwith("Error. You can only make a proposal during a proposal round.");
 
     // if Tezos.level > s.currentRoundEndLevel then failwith("Current proposal round has ended.")
     //   else skip;
 
     // check if satellite exists in the active satellites map
     const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
-    if activeSatelliteExistsFlag = False then failwith("You need to be a satellite to make a governance proposal.")
+    if activeSatelliteExistsFlag = False then failwith("Error. You need to be a satellite to make a governance proposal.")
       else skip;
 
     const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of
@@ -691,8 +715,10 @@ block {
         description             = newProposal.1;                   // description
         invoice                 = newProposal.2;                   // ipfs hash of invoice file
         successReward           = s.config.successReward;          // log of successful proposal reward for voters - may change over time
-        executed                = "FALSE";
 
+        executed                = False;
+        locked                  = False;
+        
         passVoteCount           = 0n;                              // proposal round: pass votes count (to proceed to voting round)
         passVoteMvkTotal        = satelliteTotalVotingPower;       // proposal round pass vote total mvk from satellites who voted pass
         passVotersMap           = emptyPassVotersMap;              // proposal round ledger
@@ -732,7 +758,7 @@ function addUpdateProposalData(const proposalData : addUpdateProposalDataType; v
 block {
 
     if s.currentRound = "proposal" then skip
-        else failwith("You can only add or update proposal data during a proposal round.");
+        else failwith("Error. You can only add or update proposal data during a proposal round.");
 
     const proposalId     : nat     = proposalData.0;
     const proposalTitle  : string  = proposalData.1;
@@ -743,7 +769,11 @@ block {
       | None -> failwith("Error. Proposal not found.")
     end;
 
-    // check that sender is the creator of the proposal
+    // check that proposal is not locked
+    if proposalRecord.locked = True then failwith("Error. Proposal is locked.")
+      else skip;
+
+    // check that sender is the creator of the proposal 
     if proposalRecord.proposerAddress =/= Tezos.sender then failwith("Error. Only the proposer can add or update data.")
       else skip;
 
@@ -752,6 +782,27 @@ block {
 
     // save changes and update proposal ledger
     s.proposalLedger[proposalId] := proposalRecord;
+
+} with (noOperations, s)
+
+
+function lockProposal(const proposalId : nat; var s : storage) : return is 
+block {
+
+  if s.currentRound = "proposal" then skip
+      else failwith("Error. You can only lock a proposal during a proposal round.");
+
+  var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of 
+      Some(_record) -> _record
+    | None -> failwith("Error. Proposal not found.")
+  end;
+
+  // check that proposal is not locked
+  if proposalRecord.locked = True then failwith("Error. Proposal is already locked.")
+      else skip;
+
+  proposalRecord.locked        := True; 
+  s.proposalLedger[proposalId] := proposalRecord;
 
 } with (noOperations, s)
 
@@ -794,6 +845,10 @@ block {
 
     // verify that proposal is active and has not been dropped
     if _proposal.status = "DROPPED" then failwith("Proposal has been dropped")
+      else skip;
+
+    // check that proposal is locked
+    if _proposal.locked = False then failwith("Error. Proposal needs to be locked before it can be voted on.")
       else skip;
 
     const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.sender, s.currentRoundVotes);
@@ -1070,7 +1125,7 @@ block {
       | None -> failwith("Error. Proposal not found.")
     end;
 
-    if proposal.executed = "TRUE" then failwith("Error. Proposal has already been executed")
+    if proposal.executed = True then failwith("Error. Proposal has already been executed")
       else skip;
 
     // check that there is at least one proposal metadata to execute
@@ -1079,9 +1134,9 @@ block {
 
     var operations : list(operation) := nil;
 
-    // update proposal executed boolean to TRUE
-    proposal.executed            := "TRUE";
-    s.proposalLedger[proposalId] := proposal;
+    // update proposal executed boolean to True
+    proposal.executed            := True;
+    s.proposalLedger[proposalId] := proposal;    
 
     // loop metadata for execution
     for _title -> metadataBytes in map proposal.proposalMetadata block {
@@ -1136,19 +1191,42 @@ block {
     
 } with (noOperations, s)
 
+
+function requestFunds(const requestFundsParams : requestFundsType; var s : storage) : return is 
+block {
+  skip
+} with (noOperations, s)
+
+function requestMint(const requestMintParams : requestMintType; var s : storage) : return is 
+block {
+  skip
+} with (noOperations, s)
+
+function voteForRequest(const requestId : nat; var s : storage) : return is 
+block {
+  skip
+} with (noOperations, s)
+
+
 function main (const action : governanceAction; const s : storage) : return is 
     case action of
         | BreakGlass(_parameters) -> breakGlass(s)  
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
+
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
+        | UpdateActiveSatellitesMap(parameters) -> updateActiveSatellitesMap(parameters.1, s)
+        | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
+        | SetSatelliteVotingPowerSnapshot(parameters) -> setSatelliteVotingPowerSnapshot(parameters.0, parameters.1, parameters.2, s)        
+  
         | StartProposalRound(_parameters) -> startProposalRound(s)
         | Propose(parameters) -> propose((parameters.0, parameters.1, parameters.2), s)
         | ProposalRoundVote(parameters) -> proposalRoundVote(parameters, s)
         | AddUpdateProposalData(parameters) -> addUpdateProposalData(parameters, s)
+        | LockProposal(parameters) -> lockProposal(parameters, s)
 
         | StartVotingRound(_parameters) -> startVotingRound(s)
         | VotingRoundVote(parameters) -> votingRoundVote(parameters.0, parameters.1, s)
@@ -1157,11 +1235,11 @@ function main (const action : governanceAction; const s : storage) : return is
         | ExecuteProposal(parameters) -> executeProposal(parameters, s)
         | DropProposal(parameters) -> dropProposal(parameters, s)
 
-        | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
-        | UpdateActiveSatellitesMap(parameters) -> updateActiveSatellitesMap(parameters.1, s)
-        | SetSatelliteVotingPowerSnapshot(parameters) -> setSatelliteVotingPowerSnapshot(parameters.0, parameters.1, parameters.2, s)
-
         | CallGovernanceLambdaProxy(parameters) -> callGovernanceLambdaProxy(parameters, s)
         | SetupLambdaFunction(parameters) -> setupLambdaFunction(parameters, s)
+
+        | RequestFunds(parameters) -> requestFunds(parameters, s)
+        | RequestMint(parameters) -> requestMint(parameters, s)
+        | VoteForRequest(parameters) -> voteForRequest(parameters, s)
 
     end

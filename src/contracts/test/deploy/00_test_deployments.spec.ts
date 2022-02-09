@@ -141,7 +141,8 @@ describe("Contracts Deployment for Tests", async () => {
     console.log("vesting contract originated")
 
     councilStorage.generalContracts = MichelsonMap.fromLiteral({
-      "vesting"  : vesting.contract.address
+      "vesting"    : vesting.contract.address,
+      "governance" : governance.contract.address
     });
     councilStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh];
     council = await Council.originate(

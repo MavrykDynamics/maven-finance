@@ -15,7 +15,6 @@ type owner is address
 type tokenId is nat;
 
 type configType is record [
-    maxProposalSize   : nat;
     minXtzAmount      : nat;
     maxXtzAmount      : nat;
 ]
@@ -80,7 +79,6 @@ type updateSatelliteBalanceParams is (address * nat * nat)
 
 type updateConfigNewValueType is nat
 type updateConfigActionType is 
-  ConfigMaxProposalSize of unit
 | ConfigMinXtzAmount of unit
 | ConfigMaxXtzAmount of unit
 type updateConfigParamsType is [@layout:comb] record [
@@ -195,7 +193,7 @@ function transfer_token(
   const from_           : address;
   const to_             : address;
   const amt             : nat;
-  const token           : token_type)
+  const token           : tokenType)
                         : operation is
   case token of
   | Tez         -> transfer_tez((get_contract(to_) : contract(unit)), amt)
@@ -255,7 +253,6 @@ block {
   const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of
-    ConfigMaxProposalSize (_v)        -> s.config.maxProposalSize         := updateConfigNewValue
   | ConfigMinXtzAmount (_v)           -> s.config.minXtzAmount            := updateConfigNewValue
   | ConfigMaxXtzAmount (_v)           -> s.config.maxXtzAmount            := updateConfigNewValue
   end;
