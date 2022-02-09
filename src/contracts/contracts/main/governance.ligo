@@ -1190,17 +1190,17 @@ block {
 } with (noOperations, s)
 
 
-function requestFunds(const requestFundsParams : requestFundsType; var s : storage) : return is 
+function requestFunds(const _requestFundsParams : requestFundsType; var s : storage) : return is 
 block {
   skip
 } with (noOperations, s)
 
-function requestMint(const requestMintParams : requestMintType; var s : storage) : return is 
+function requestMint(const _requestMintParams : requestMintType; var s : storage) : return is 
 block {
   skip
 } with (noOperations, s)
 
-function voteForRequest(const requestId : nat; var s : storage) : return is 
+function voteForRequest(const _requestId : nat; var s : storage) : return is 
 block {
   skip
 } with (noOperations, s)
