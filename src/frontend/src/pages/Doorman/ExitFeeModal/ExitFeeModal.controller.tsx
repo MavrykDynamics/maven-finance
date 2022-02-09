@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { getMvkTokenStorage, getVMvkTokenStorage, unstake } from '../Doorman.actions'
+import { getMvkTokenStorage, unstake } from '../Doorman.actions'
 
 import { hideExitFeeModal } from './ExitFeeModal.actions'
 import { ExitFeeModalView } from './ExitFeeModal.view'
@@ -12,16 +12,13 @@ export const ExitFeeModal = () => {
   const { showing, amount } = useSelector((state: State) => state.exitFeeModal)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { vMvkTokenStorage, myVMvkTokenBalance } = useSelector((state: State) => state.vMvkToken)
+  const { doormanStorage, totalStakedMvkSupply } = useSelector((state: State) => state.doorman)
 
   useEffect(() => {
     if (accountPkh && showing) {
       dispatch(getMvkTokenStorage(accountPkh))
-      dispatch(getVMvkTokenStorage(accountPkh))
     }
   }, [dispatch, accountPkh, showing])
-
-  // useOnBlock(tezos, loadStorage)
 
   const cancelCallback = () => {
     dispatch(hideExitFeeModal())
@@ -37,7 +34,7 @@ export const ExitFeeModal = () => {
       showing={showing}
       amount={amount}
       mvkTotalSupply={mvkTokenStorage?.totalSupply}
-      vMvkTotalSupply={vMvkTokenStorage?.totalSupply}
+      totalStakedMvkSupply={totalStakedMvkSupply}
       unstakeCallback={unstakeCallback}
       cancelCallback={cancelCallback}
     />

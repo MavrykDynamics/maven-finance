@@ -13,7 +13,7 @@
     "alfnielsen.vsc-organize-imports",
     "emmanuelbeziat.vscode-great-icons",
     "jaspernorth.vscode-pigments",
-    "jpoissonnier.vscode-styled-components",
+    "styled-components.vscode-styled-components",
     "ligolang-publish.ligo-vscode"
   ]
 }

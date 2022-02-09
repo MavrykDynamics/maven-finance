@@ -94,12 +94,12 @@ export const DoormanHeaderPortal = styled.div`
 export const DoormanHeaderAnimation = styled.div`
   position: absolute;
   top: -10px;
-  right: 400px;
+  right: 350px;
 `
 
 export const DoormanHeaderShipGoing = styled.div`
   position: absolute;
-  right: 400px;
+  right: 350px;
 `
 
 export const DoormanHeaderShipComing = styled.div`
