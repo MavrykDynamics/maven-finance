@@ -22,7 +22,7 @@ export const vestingStorage: vestingStorageType = {
   config: config,
 
   whitelistContracts : MichelsonMap.fromLiteral({}),
-  contractAddresses: MichelsonMap.fromLiteral({}),
+  generalContracts: MichelsonMap.fromLiteral({}),
 
   claimLedger: MichelsonMap.fromLiteral({}),
   vesteeLedger: MichelsonMap.fromLiteral({}),

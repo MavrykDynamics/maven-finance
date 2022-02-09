@@ -57,6 +57,9 @@ export const governanceStorage: governanceStorageType = {
 
   governanceLambdaLedger: MichelsonMap.fromLiteral({}),
 
+  financialRequestLedger: MichelsonMap.fromLiteral({}),
+  financialRequestCounter: new BigNumber(1),
+
   tempFlag : new BigNumber(0),
 
 };

@@ -275,7 +275,7 @@ function setAdmin(const newAdminAddress : address; var s : storage) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
     s.admin := newAdminAddress;
 
@@ -286,7 +286,7 @@ function updateConfig(const updateConfigParams : updateConfigParamsType; var s :
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin
+  // checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
   const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
