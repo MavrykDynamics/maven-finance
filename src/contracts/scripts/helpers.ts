@@ -12,12 +12,18 @@ import env from "../env";
 
 export const getLigo = (
   isDockerizedLigo: boolean,
-  ligoVersion: string = env.ligoVersion
+  ligoVersion: string = env.ligoVersion,
+  isAppleSilicon: string = "false",
 ) => {
-  let path: string = "ligo";
-
+  let path: string = "ligo"
+  let isAppleM1 = JSON.parse(isAppleSilicon)
+  console.log(`Processer type is ${isAppleM1}`)
   if (isDockerizedLigo) {
-    path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`;
+    if (isAppleSilicon) {
+      path = `docker run --platform=linux/arm64/v8 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+    } else {
+      path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
+    }
 
     try {
       execSync(`${path}  --help`);
@@ -199,7 +205,7 @@ export const packParameters = async (
 
   try {
     for (const lambdaParam of lambdaParams) {
-      
+
       const michelson = execSync(
         `${ligo} compile parameter $PWD/${contract} '${lambdaParam.action}' --entry-point main --michelson-format json --syntax pascaligo --protocol hangzhou`,
         { maxBuffer: 1024 * 500 }
