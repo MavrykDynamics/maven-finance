@@ -3,7 +3,6 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type governanceStorageType = {
-  
   admin: string;
   config: {};
 

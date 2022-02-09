@@ -1,12 +1,12 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
+import { MichelsonMap } from '@taquito/michelson-encoder'
 
-import { BigNumber } from "bignumber.js";
+import { BigNumber } from 'bignumber.js'
 
 const { alice, bob } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from "../test/helpers/Utils";
+import { zeroAddress } from '../test/helpers/Utils'
 
-import { governanceStorageType } from "../test/types/governanceStorageType";
+import { governanceStorageType } from '../test/types/governanceStorageType'
 
 const config = {
   successReward: 10000,
