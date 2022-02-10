@@ -89,22 +89,11 @@ describe("Contracts Deployment for Tests", async () => {
     console.log('doorman contract originated')
 
     delegationStorage.generalContracts = MichelsonMap.fromLiteral({
-<<<<<<< HEAD
       doorman: doorman.contract.address,
     })
     delegation = await Delegation.originate(utils.tezos, delegationStorage)
 
     console.log('delegation contract originated')
-=======
-      "doorman" : doorman.contract.address
-    });
-    delegation = await Delegation.originate(
-      utils.tezos,
-      delegationStorage
-    );
-
-    console.log("delegation contract originated")
->>>>>>> 3d23f9d (farmClaim in Doorman Contract that mint MVK Token + farm claim refactored + tests on farmFactory)
 
     mvkStorage.generalContracts = MichelsonMap.fromLiteral({
       doorman: doorman.contract.address,
