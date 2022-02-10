@@ -137,7 +137,7 @@ describe("Farm", async () => {
                     const aliceLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
                     const aliceApprovalsStart = await aliceLedgerStart.allowances.get(farmAddress.address);
                     // Check Alice has no pending approvals for the farm
-                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<amountToDeposit){
+                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<=0){
                         const allowances = aliceApprovalsStart===undefined ? amountToDeposit : Math.abs(aliceApprovalsStart - amountToDeposit);
                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress.address,allowances).send();
                         await approveOperation.confirmation();
@@ -174,24 +174,30 @@ describe("Farm", async () => {
                     const amountToDeposit = parseInt(aliceLedgerStart.balance) + 1;
 
                     // Check Alice has no pending approvals for the farm
-                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<amountToDeposit){
+                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<=0){
                         const allowances = aliceApprovalsStart===undefined ? amountToDeposit : Math.abs(aliceApprovalsStart - amountToDeposit);
                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress.address,allowances).send();
+
                         await approveOperation.confirmation();
+
+                        // Check that LP FA12 has been approved
+                        lpTokenStorage = await lpTokenInstance.storage();
+                        const aliceLedgerEnd = await lpTokenStorage.ledger.get(alice.pkh);
+                        assert.notStrictEqual(aliceLedgerEnd, undefined, "Alice should have an account in the LP Token contract");
+                        
+                        const aliceApprovalsEnd = await aliceLedgerEnd.allowances.get(farmAddress.address);
+
+                        assert.notStrictEqual(aliceApprovalsEnd, undefined, "Alice should have the farm address in her approvals");
+                        assert.equal(aliceApprovalsEnd, amountToDeposit, "Alice should have approved "+amountToDeposit+" LP Token to spend to the farm");
+                        
                     }
     
-                    // Check that LP FA12 has been approved
-                    lpTokenStorage = await lpTokenInstance.storage();
-                    const aliceLedgerEnd = await lpTokenStorage.ledger.get(alice.pkh);
-                    assert.notStrictEqual(aliceLedgerEnd, undefined, "Alice should have an account in the LP Token contract");
-                    
-                    const aliceApprovalsEnd = parseInt(await aliceLedgerEnd.allowances.get(farmAddress.address));
-                    assert.notStrictEqual(aliceApprovalsEnd, undefined, "Alice should have the farm address in her approvals");
-                    assert.equal(aliceApprovalsEnd, amountToDeposit, "Alice should have approved "+amountToDeposit+" LP Token to spend to the farm");
-                    
                     // Create a transaction for depositing LP to a farm
                     const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
                     await depositOperation.confirmation();
+
+                    console.log('ZOUSTAS:', amountToDeposit)
+
                 } catch(e){
                     assert.strictEqual(e.message, "NotEnoughBalance", "Alice should not be able to spend more LP than she has");
                 } 
@@ -206,12 +212,12 @@ describe("Farm", async () => {
                     const aliceLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
                     const aliceApprovalsStart = await aliceLedgerStart.allowances.get(farmAddress.address);
                     // Check Alice has no pending approvals for the farm
-                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<amountToDeposit){
+                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<=0){
                         const allowances = aliceApprovalsStart===undefined ? amountToDeposit : Math.abs(aliceApprovalsStart - amountToDeposit);
                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress.address,allowances).send();
                         await approveOperation.confirmation();
                     }
-    
+
                     // Get Alice LP delegated amount before deposing
                     const aliceDelegatorRecordStart = await farmStorage.delegators.get(alice.pkh);
                     const aliceLPDelegatedStart = parseInt(aliceDelegatorRecordStart===undefined ? 0 : aliceDelegatorRecordStart.balance);
@@ -238,8 +244,8 @@ describe("Farm", async () => {
                     const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
                     const bobApprovalsStart = await bobLedgerStart.allowances.get(farmAddress.address);
                     // Check Alice has no pending approvals for the farm
-                    if(bobApprovalsStart===undefined || bobApprovalsStart<amountToDeposit){
-                        const allowances = bobApprovalsStart - amountToDeposit;
+                    if(bobApprovalsStart===undefined || bobApprovalsStart<=0){
+                        const allowances = bobApprovalsStart===undefined ? amountToDeposit : Math.abs(bobApprovalsStart - amountToDeposit);
                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress.address,allowances).send();
                         await approveOperation.confirmation();
                     }
@@ -273,6 +279,9 @@ describe("Farm", async () => {
     
                     // Get Alice LP delegated amount before withdrawing
                     const aliceDelegatorRecordStart = await farmStorage.delegators.get(alice.pkh);
+                    const aliceLPTokensStart = await lpTokenStorage.ledger.get(alice.pkh);
+                    console.log(aliceDelegatorRecordStart)
+                    console.log("alice ledger start: ", aliceLPTokensStart)
                     const aliceLPDelegatedStart = parseInt(aliceDelegatorRecordStart===undefined ? 0 : aliceDelegatorRecordStart.balance);
                     
                     // Create a transaction for depositing LP to a farm
@@ -282,8 +291,13 @@ describe("Farm", async () => {
                     // Refresh Farm storage
                     farmStorage = await farmInstance.storage();
     
-                    // Check that LP have been deposited
+                    // Check that LP have been withdrawed
                     const aliceDelegatorRecordEnd = await farmStorage.delegators.get(alice.pkh);
+                    lpTokenStorage = await lpTokenInstance.storage();
+                    const aliceLPTokensEnd = await lpTokenStorage.ledger.get(alice.pkh);
+                    console.log(aliceDelegatorRecordEnd)
+                    console.log("alice ledger end: ", aliceLPTokensEnd)
+
                     const aliceLPDelegatedEnd = parseInt(aliceDelegatorRecordEnd===undefined ? 0 : aliceDelegatorRecordEnd.balance);
                     assert.equal(aliceLPDelegatedEnd, aliceLPDelegatedStart - amountToWithdraw, "Alice should have "+(aliceLPDelegatedStart - amountToWithdraw)+" LP Tokens withdrawed from the farm");
                 } catch(e){
@@ -298,6 +312,9 @@ describe("Farm", async () => {
     
                     // Get Alice LP delegated amount before withdrawing
                     const aliceDelegatorRecordStart = await farmStorage.delegators.get(alice.pkh);
+                    const aliceLPTokensStart = await lpTokenStorage.ledger.get(alice.pkh);
+                    console.log(aliceDelegatorRecordStart)
+                    console.log("alice ledger start: ", aliceLPTokensStart)
                     const aliceLPDelegatedStart = parseInt(aliceDelegatorRecordStart===undefined ? 0 : aliceDelegatorRecordStart.balance);
                     
                     // Create a transaction for depositing LP to a farm
@@ -309,7 +326,12 @@ describe("Farm", async () => {
     
                     // Check that LP have been deposited
                     const aliceDelegatorRecordEnd = await farmStorage.delegators.get(alice.pkh);
+                    lpTokenStorage = await lpTokenInstance.storage();
+                    const aliceLPTokensEnd = await lpTokenStorage.ledger.get(alice.pkh);
+                    console.log(aliceDelegatorRecordEnd)
+                    console.log("alice ledger end: ", aliceLPTokensEnd)
                     const aliceLPDelegatedEnd = parseInt(aliceDelegatorRecordEnd===undefined ? 0 : aliceDelegatorRecordEnd.balance);
+
                     assert.equal(aliceLPDelegatedEnd, aliceLPDelegatedStart - amountToWithdraw, "Alice should have "+(aliceLPDelegatedStart - amountToWithdraw)+" LP Tokens withdrawed from the farm");
 
                     // Switch signer to Bob
@@ -320,6 +342,9 @@ describe("Farm", async () => {
     
                     // Get Alice LP delegated amount before withdrawing
                     const bobDelegatorRecordStart = await farmStorage.delegators.get(bob.pkh);
+                    const bobLPTokensStart = await lpTokenStorage.ledger.get(alice.pkh);
+                    console.log(bobLPTokensStart)
+                    console.log("bob ledger start: ", bobLPTokensStart)
                     const bobLPDelegatedStart = parseInt(bobDelegatorRecordStart===undefined ? 0 : bobDelegatorRecordStart.balance);
                     
                     // Create a transaction for depositing LP to a farm
@@ -331,6 +356,10 @@ describe("Farm", async () => {
     
                     // Check that LP have been deposited
                     const bobDelegatorRecordEnd = await farmStorage.delegators.get(bob.pkh);
+                    lpTokenStorage = await lpTokenInstance.storage();
+                    const bobLPTokensEnd = await lpTokenStorage.ledger.get(bob.pkh);
+                    console.log(bobDelegatorRecordEnd)
+                    console.log("bob ledger end: ", bobLPTokensEnd)
                     const bobLPDelegatedEnd = parseInt(bobDelegatorRecordEnd===undefined ? 0 : bobDelegatorRecordEnd.balance);
                     assert.equal(bobLPDelegatedEnd, bobLPDelegatedStart - amountToWithdraw, "Bob should have "+(bobLPDelegatedStart - amountToWithdraw)+" LP Tokens withdrawed from the farm");
                 } catch(e){
