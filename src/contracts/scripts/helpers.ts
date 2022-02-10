@@ -28,7 +28,6 @@ export const getLigo = (
       execSync(`${path}  --help`)
     } catch (err) {
       path = 'ligo'
-
       execSync(`${path}  --help`)
     }
   } else {
@@ -70,10 +69,11 @@ export const compile = async (
   ligoVersion: string = env.ligoVersion,
   isAppleSilicon: string = 'false',
 ) => {
-  const ligo: string = getLigo(true, ligoVersion, isAppleSilicon)
+  const ligo: string = getLigo(true, ligoVersion)
   const contracts: string[] = !contract ? getContractsList() : [contract]
 
   contracts.forEach((contract) => {
+    console.log(`Printing out ligo value in compile function: ${ligo}`)
     const michelson: string = execSync(
       `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo ${
         format === 'json' ? '--michelson-format json' : ''
@@ -112,19 +112,15 @@ export const compile = async (
   })
 }
 
-export const compileLambdas = async (
-  json: string,
-  contract: string,
-  ligoVersion: string = env.ligoVersion,
-  isAppleSilicon: string = 'false',
-) => {
-  const ligo: string = getLigo(true, ligoVersion, isAppleSilicon)
+export const compileLambdas = async (json: string, contract: string, ligoVersion: string = env.ligoVersion) => {
+  const ligo: string = getLigo(true, ligoVersion)
   const pwd: string = execSync('echo $PWD').toString()
   const lambdas: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString())
   let res: any[] = []
 
   try {
     for (const lambda of lambdas) {
+      console.log(`Printing out ligo value in compileLambdas function: ${ligo}`)
       const michelson = execSync(
         `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/${contract} --protocol hangzhou`,
         { maxBuffer: 1024 * 500 },
@@ -146,13 +142,8 @@ export const compileLambdas = async (
   }
 }
 
-export const compileParameters = async (
-  json: string,
-  contract: string,
-  ligoVersion: string = env.ligoVersion,
-  isAppleSilicon: string = 'false',
-) => {
-  const ligo: string = getLigo(true, ligoVersion, isAppleSilicon)
+export const compileParameters = async (json: string, contract: string, ligoVersion: string = env.ligoVersion) => {
+  const ligo: string = getLigo(true, ligoVersion)
   const pwd: string = execSync('echo $PWD').toString()
   const lambdaParams: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString())
   let res: any[] = []
@@ -180,13 +171,8 @@ export const compileParameters = async (
   }
 }
 
-export const packParameters = async (
-  json: string,
-  contract: string,
-  ligoVersion: string = env.ligoVersion,
-  isAppleSilicon: string = 'false',
-) => {
-  const ligo: string = getLigo(true, ligoVersion, isAppleSilicon)
+export const packParameters = async (json: string, contract: string, ligoVersion: string = env.ligoVersion) => {
+  const ligo: string = getLigo(true, ligoVersion)
   const pwd: string = execSync('echo $PWD').toString()
   const lambdaParams: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString())
 
