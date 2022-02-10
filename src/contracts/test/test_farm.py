@@ -530,11 +530,14 @@ class FarmContract(TestCase):
         # New deposit
         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
         aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+
+        # breakpoint()
+
+        aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=nextBlock)
         bobUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
-        bobClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * rewardPerBlock
         self.assertEqual(aliceDepositAmount, res.storage['delegators'][alice]['balance'])
@@ -578,11 +581,11 @@ class FarmContract(TestCase):
         # New deposit
         res = self.farmFA2Contract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
         aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         res = self.farmFA2Contract.claim().interpret(storage=res.storage, sender=bob, level=nextBlock)
         bobUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
-        bobClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * rewardPerBlock
         self.assertEqual(aliceDepositAmount, res.storage['delegators'][alice]['balance'])
@@ -628,12 +631,12 @@ class FarmContract(TestCase):
         # New deposit
         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
         aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
         nextBlock += 15
 
         res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=nextBlock)
         bobUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        bobClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         aliceSuspectedRewards = math.trunc((50 * rewardPerBlock) + (25 * rewardPerBlock / 3))
         bobSuspectedRewards = math.trunc(40 * rewardPerBlock * 2 / 3)
@@ -678,7 +681,7 @@ class FarmContract(TestCase):
         with self.raisesMichelsonError(error_no_unclaimed_rewards):
             res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
             aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-            aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+            aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         suspectedRewards = 0
         
@@ -721,7 +724,7 @@ class FarmContract(TestCase):
         with self.raisesMichelsonError(error_no_unclaimed_rewards):
             res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
             aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-            aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+            aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         suspectedRewards = 0
         
@@ -757,7 +760,7 @@ class FarmContract(TestCase):
         # Claim reward after one block
         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
         aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * rewardPerBlock
 
@@ -790,12 +793,12 @@ class FarmContract(TestCase):
         # Claim reward after one block
         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
         aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         with self.raisesMichelsonError(error_no_unclaimed_rewards):
             res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
             aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-            aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+            aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * rewardPerBlock
 
@@ -827,7 +830,7 @@ class FarmContract(TestCase):
         with self.raisesMichelsonError(error_delegator_not_found):
             res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
             aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-            aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+            aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         suspectedRewards = 0
 
@@ -865,7 +868,7 @@ class FarmContract(TestCase):
         # Claim reward after one block
         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
         aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         suspectedRewards = (nextBlock-lastBlockUpdate) * rewardPerBlock
 
@@ -904,15 +907,15 @@ class FarmContract(TestCase):
         # Claim reward after one block
         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=lastBlockUpdate + 1000)
         aliceUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=lastBlockUpdate + 1001)
         bobUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
-        bobClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         res = self.farmContract.claim().interpret(storage=res.storage, sender=eve, level=lastBlockUpdate + 1002)
         eveUnclaimedRewards = res.storage['delegators'][eve]['unclaimedRewards']
-        eveClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        eveClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         totalFarmRewards = totalBlocks * rewardPerBlock
         totalUserClaimedRewards = aliceClaimedRewards + bobClaimedRewards + eveClaimedRewards
@@ -950,7 +953,7 @@ class FarmContract(TestCase):
         # Deposit LP Tokens and claims LP
         res = self.farmContract.deposit(aliceDepositAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate + 1)
         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=lastBlockUpdate + 10)
-        aliceClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         res = self.farmContract.deposit(eveDepositAmount).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate + 20)
         res = self.farmContract.deposit(eveDepositAmount).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate + 23)
@@ -958,14 +961,14 @@ class FarmContract(TestCase):
 
         # Claim reward after one block
         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=lastBlockUpdate + 1000)   
-        aliceClaimedRewards += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        aliceClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=lastBlockUpdate + 1001)
-        bobClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         res = self.farmContract.claim().interpret(storage=res.storage, sender=eve, level=lastBlockUpdate + 1002)
         eveUnclaimedRewards = res.storage['delegators'][eve]['unclaimedRewards']
-        eveClaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+        eveClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
         totalFarmRewards = totalBlocks * rewardPerBlock
 
@@ -1023,7 +1026,7 @@ class FarmContract(TestCase):
 
     #     # Alice First Withdrawal
     #     res = self.farmContract.withdraw(aliceFirstWithdrawAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
-    #     aliceUnclaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     aliceUnclaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
     #     nextBlock += 11;
 
     #     # Eve First deposit
@@ -1032,27 +1035,27 @@ class FarmContract(TestCase):
 
     #     # Bob Second deposit
     #     res = self.farmContract.deposit(bobSecondDepositAmount).interpret(storage=res.storage, sender=bob, level=nextBlock)
-    #     bobUnclaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     bobUnclaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
     #     nextBlock += 5;
 
     #     # Alice Second Withdrawal
     #     res = self.farmContract.withdraw(aliceSecondWithdrawAmount).interpret(storage=res.storage, sender=alice, level=lastBlockUpdate)
-    #     aliceUnclaimedRewards += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     aliceUnclaimedRewards += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
     #     nextBlock += 23;
 
     #     # Bob Third deposit
     #     res = self.farmContract.deposit(bobThirdDepositAmount).interpret(storage=res.storage, sender=bob, level=nextBlock)
-    #     bobUnclaimedRewards += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     bobUnclaimedRewards += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
     #     nextBlock += 16;
 
     #     # Eve Second deposit
     #     res = self.farmContract.deposit(eveSecondDepositAmount).interpret(storage=res.storage, sender=eve, level=nextBlock)
-    #     eveUnclaimedRewards = int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     eveUnclaimedRewards = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
     #     nextBlock += 8;
 
     #     # Eve First withdraw
     #     res = self.farmContract.withdraw(eveFirstWithdrawAmount).interpret(storage=res.storage, sender=eve, level=nextBlock)
-    #     eveUnclaimedRewards += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     eveUnclaimedRewards += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
     #     nextBlock += 4;
 
     #     suspectedAliceRewards = (10 * rewardPerBlock) + (2 * rewardPerBlock * 20/28) + (11 * rewardPerBlock * 15/28) + (20 * rewardPerBlock * 15/38) + (5 * rewardPerBlock * 15/39) + (23 * rewardPerBlock * 5/29) + (16 * rewardPerBlock * 5/41) + (8 * rewardPerBlock * 5/51) + (4 * rewardPerBlock * 5/49)
@@ -1061,13 +1064,13 @@ class FarmContract(TestCase):
 
     #     # Claim reward after one block
     #     res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock + 1000)
-    #     aliceUnclaimedRewards += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     aliceUnclaimedRewards += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
     #     res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=nextBlock + 1001)
-    #     bobUnclaimedRewards += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     bobUnclaimedRewards += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
     #     res = self.farmContract.claim().interpret(storage=res.storage, sender=eve, level=nextBlock + 1002)
-    #     eveUnclaimedRewards += int(res.operations[-1]['parameters']['value'][0]['args'][-1][0]['args'][-1]['int'])
+    #     eveUnclaimedRewards += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
     #     totalFarmRewards = totalBlocks * rewardPerBlock
     #     totalUserClaimedRewards = aliceUnclaimedRewards + bobUnclaimedRewards + eveUnclaimedRewards
