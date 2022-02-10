@@ -33,7 +33,7 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
       ).contract.at(mvkTokenAddress.address)
   const storage = await (contract as any).storage()
   const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
-  const myBalanceMu = myLedgerEntry?.balance.toNumber()
+  const myBalanceMu = myLedgerEntry?.toNumber()
   const myBalance = myBalanceMu > 0 ? myBalanceMu / PRECISION_NUMBER : 0
 
   const totalMvkSupplyMu = parseFloat(storage?.totalSupply) || 0
