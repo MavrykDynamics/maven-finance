@@ -25,8 +25,14 @@ print('root dir: '+rootDir)
 print('file dlr: '+fileDir)
 print('two up: '+ twoUp)
 
-doorman_compiled_contract_path = os.path.join(twoUp, 'contracts/compiled/doorman.tz')
-print('doorman tz: '+ doorman_compiled_contract_path)
+deploymentsDir          = os.path.join(fileDir, 'deployments')
+deployedDoormanContract = os.path.join(deploymentsDir, 'doormanAddress.json')
+
+deployedDoorman = open(deployedDoormanContract)
+doormanContractAddress = json.load(deployedDoorman)
+doormanContractAddress = doormanContractAddress['address']
+
+print('Doorman Contract Deployed at: ' + doormanContractAddress)
 
 alice = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
 admin = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'
@@ -84,15 +90,8 @@ class DoormanContract(TestCase):
     
     @classmethod
     def setUpClass(cls):
-        # cls.doormanContract = ContractInterface.create_from(doorman_compiled_contract_path)
-        cls.doormanContract = pytezos.contract('KT1VgSX6y31iq2gNktPXDr6HPwyqfrHnH6Va')
+        cls.doormanContract = pytezos.contract(doormanContractAddress)
         cls.doormanStorage  = cls.doormanContract.storage()
-        # print(cls.doormanContract.storage())
-        # cls.doormanStorage  = cls.doormanContract.storage
-        # print(cls.doormanContract)
-        # print(cls.doormanStorage.admin)
-        # cls.maxDiff = None
-        # print(cls.doorman.parameter.entrypoint)
 
     @contextmanager
     def raisesMichelsonError(self, error_message):
@@ -116,35 +115,35 @@ class DoormanContract(TestCase):
         # print(client)
 
         # Originate contract with initial storage
+    
+    # def test_admin_set_mvk_contract_address_should_work(self):        
+
+    # #     print('Test: Admin set MVK contract address should work')
+    #     new_doorman_storage = deepcopy(self.doormanStorage)
+    #     # print(new_doorman_storage['userStakeBalanceLedger']['tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'])    
         
-    def test_admin_set_mvk_contract_address_should_work(self):        
+    #     # big_map lookup
+    #     # print(self.doormanContract.storage['userStakeRecordsLedger']['tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb']())
+    #     # print(self.doormanStorage['userStakeBalanceLedger'])    
 
-    #     print('Test: Admin set MVK contract address should work')
-        new_doorman_storage = deepcopy(self.doormanStorage)
-        # print(new_doorman_storage['userStakeBalanceLedger']['tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb'])    
+    #     res = self.doormanContract.setMvkTokenAddress(bob).interpret(storage=new_doorman_storage, sender=admin, now=int(sec_week + sec_week/2))
+    #     print(res.storage['mvkTokenAddress'])
+    #     self.assertEqual(bob, res.storage['mvkTokenAddress'])
         
-        # big_map lookup
-        # print(self.doormanContract.storage['userStakeRecordsLedger']['tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb']())
-        # print(self.doormanStorage['userStakeBalanceLedger'])    
+    # # def test_non_admin_set_mvk_contract_address_should_fail(self):        
+    # #     print('Test: Non-Admin set MVK contract address should fail')
+    # #     doorman_init_storage = deepcopy(doorman_initial_storage)
+    # #     with self.raisesMichelsonError(only_admin):
+    # #         self.doorman.setMvkTokenAddress(bob).interpret(storage=doorman_init_storage, sender=bob, now=int(sec_week + sec_week/2))
 
-        res = self.doormanContract.setMvkTokenAddress(bob).interpret(storage=new_doorman_storage, sender=admin, now=int(sec_week + sec_week/2))
-        print(res.storage['mvkTokenAddress'])
-        self.assertEqual(bob, res.storage['mvkTokenAddress'])
-        
-    # def test_non_admin_set_mvk_contract_address_should_fail(self):        
-    #     print('Test: Non-Admin set MVK contract address should fail')
-    #     doorman_init_storage = deepcopy(doorman_initial_storage)
-    #     with self.raisesMichelsonError(only_admin):
-    #         self.doorman.setMvkTokenAddress(bob).interpret(storage=doorman_init_storage, sender=bob, now=int(sec_week + sec_week/2))
+    # # def test_admin_set_admin_to_bob_should_work(self):        
+    # #     print('Test: Admin set admin to Bob should work')
+    # #     doorman_init_storage = deepcopy(doorman_initial_storage)
+    # #     res = self.doorman.setAdmin(bob).interpret(storage=doorman_init_storage, sender=admin, now=int(sec_week + sec_week/2))
+    # #     self.assertEqual(bob, res.storage['admin'])
 
-    # def test_admin_set_admin_to_bob_should_work(self):        
-    #     print('Test: Admin set admin to Bob should work')
-    #     doorman_init_storage = deepcopy(doorman_initial_storage)
-    #     res = self.doorman.setAdmin(bob).interpret(storage=doorman_init_storage, sender=admin, now=int(sec_week + sec_week/2))
-    #     self.assertEqual(bob, res.storage['admin'])
-
-    # def test_non_admin_set_admin_to_bob_should_fail(self):        
-    #     print('Test: Non-Admin set admin to Bob should fail')
-    #     doorman_init_storage = deepcopy(doorman_initial_storage)
-    #     with self.raisesMichelsonError(only_admin):
-    #         self.doorman.setAdmin(bob).interpret(storage=doorman_init_storage, sender=bob, now=int(sec_week + sec_week/2))
+    # # def test_non_admin_set_admin_to_bob_should_fail(self):        
+    # #     print('Test: Non-Admin set admin to Bob should fail')
+    # #     doorman_init_storage = deepcopy(doorman_initial_storage)
+    # #     with self.raisesMichelsonError(only_admin):
+    # #         self.doorman.setAdmin(bob).interpret(storage=doorman_init_storage, sender=bob, now=int(sec_week + sec_week/2))

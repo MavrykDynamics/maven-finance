@@ -34,7 +34,6 @@ import { EmergencyGovernance } from '../helpers/emergencyGovernanceHelper'
 import { Vesting } from '../helpers/vestingHelper'
 import { Council } from '../helpers/councilHelper'
 import { Treasury } from '../helpers/treasuryHelper'
-import { ExitFeesSolution } from 'test/helpers/exitFeesSolutionHelper'
 
 import { doormanStorage } from '../../storage/doormanStorage'
 import { delegationStorage } from '../../storage/delegationStorage'
@@ -45,7 +44,6 @@ import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceSto
 import { vestingStorage } from '../../storage/vestingStorage'
 import { councilStorage } from '../../storage/councilStorage'
 import { treasuryStorage } from '../../storage/treasuryStorage'
-import { exitFeeSolutionStorage } from '../../storage/exitFeeSolutionStorage'
 
 describe('Contracts Deployment for Tests', async () => {
   var utils: Utils
@@ -58,7 +56,6 @@ describe('Contracts Deployment for Tests', async () => {
   var vesting: Vesting
   var council: Council
   var treasury: Treasury
-  var exitFeesSolution: ExitFeesSolution
   var tezos
   let deployedDoormanStorage
   let deployedDelegationStorage
@@ -157,16 +154,6 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('treasury contract originated')
 
-    exitFeeSolutionStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"  : mvkToken.contract.address
-    });
-    exitFeesSolution = await ExitFeesSolution.originate(
-      utils.tezos,
-      exitFeeSolutionStorage
-    );
-
-    console.log("exit fees solution contract originated")
-
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos
@@ -251,7 +238,6 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
     await saveContractAddress('vestingAddress', vesting.contract.address)
     await saveContractAddress('councilAddress', council.contract.address)
-    await saveContractAddress("exitFeesSolutionAddress", exitFeesSolution.contract.address)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
@@ -283,7 +269,6 @@ describe('Contracts Deployment for Tests', async () => {
       console.log('Vesting Contract deployed at:', vesting.contract.address)
       console.log('Council Contract deployed at:', council.contract.address)
       console.log('Treasury Contract deployed at:', treasury.contract.address)
-      console.log("Exit Fees Solution Contract deployed at:", exitFeesSolution.contract.address);
     } catch (e) {
       console.log(e)
     }
