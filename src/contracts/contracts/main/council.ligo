@@ -83,14 +83,18 @@ type updateConfigParamsType is [@layout:comb] record [
 ]
 
 type councilActionRequestFundsType is [@layout:comb] record [
-    tokenName        : string;   // token name should be in whitelist token contracts map in governance contract
-    tokenAmount      : nat;      // token amount requested
-    treasuryAddress  : address;  // treasury address
+    treasuryAddress  : address;       // treasury address
+    // tokenContractAddress : address;   // token contract address
+    tokenName        : string;        // token name should be in whitelist token contracts map in governance contract
+    tokenAmount      : nat;           // token amount requested
+    
+    purpose          : string;   // financial request purpose
 ]
 
 type councilActionRequestMintType is [@layout:comb] record [
     tokenAmount      : nat;      // MVK token amount requested
     treasuryAddress  : address;  // treasury address
+    purpose          : string;   // financial request purpose
 ]
 
 type councilAction is 
@@ -459,7 +463,7 @@ block {
         nat_param_2           = 0n;
         nat_param_3           = 0n;
         string_param_1        = councilActionRequestFundsParams.tokenName; 
-        string_param_2        = "EMPTY";        
+        string_param_2        = councilActionRequestFundsParams.purpose;        
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -496,7 +500,7 @@ block {
         nat_param_1           = councilActionRequestMintParams.tokenAmount;
         nat_param_2           = 0n;
         nat_param_3           = 0n;
-        string_param_1        = "EMPTY"; 
+        string_param_1        = councilActionRequestMintParams.purpose; 
         string_param_2        = "EMPTY";        
 
         startDateTime         = Tezos.now;
@@ -661,6 +665,7 @@ block {
                 tokenName       = _councilActionRecord.string_param_1;
                 tokenAmount     = _councilActionRecord.nat_param_1;
                 treasuryAddress = _councilActionRecord.address_param_1;
+                purpose         = _councilActionRecord.string_param_2;
             ];
 
             const requestFundsOperation : operation = Tezos.transaction(
@@ -683,6 +688,7 @@ block {
             const requestMintParams : councilActionRequestMintType = record[
                 tokenAmount     = _councilActionRecord.nat_param_1;
                 treasuryAddress = _councilActionRecord.address_param_1;
+                purpose         = _councilActionRecord.string_param_1;
             ];
 
             const requestMintOperation : operation = Tezos.transaction(
