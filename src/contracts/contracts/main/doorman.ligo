@@ -55,6 +55,8 @@ type stakeType is
   StakeAction of unit
 | UnstakeAction of unit
 
+type getTotalStakedSupplyParamsType is contract(nat)
+
 type stakeAction is 
 
     | SetAdmin of (address)
@@ -67,6 +69,7 @@ type stakeAction is
     | TogglePauseStake of (unit)
     | TogglePauseUnstake of (unit)
 
+    | GetTotalStakedSupply of getTotalStakedSupplyParamsType
     | GetStakedBalance of (address * contract(nat))
     | GetSatelliteBalance of getSatelliteBalanceType
 
@@ -191,16 +194,7 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
   | None -> (failwith("onStakeChange entrypoint in Satellite Contract not found") : contract(updateSatelliteBalanceParams))
   end;
 
-  // helper function to update satellite's balance
-// function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat) is
-//   case (Tezos.get_entrypoint_opt(
-//       "%updateUserBalance",
-//       tokenAddress) : option(contract(address * nat))) of
-//     Some(contr) -> contr
-//   | None -> (failwith("updateUserBalance entrypoint in Token Contract not found") : contract(address * nat))
-//   end;
-
-  function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * stakeType) is
+function updateUserBalanceInMvkContract(const tokenAddress : address) : contract(address * nat * stakeType) is
   case (Tezos.get_entrypoint_opt(
       "%onStakeChange",
       tokenAddress) : option(contract(address * nat * stakeType))) of
@@ -292,6 +286,11 @@ function getSatelliteBalance (const userAddress : address; const name : string; 
           | None -> 0n
       end;
   } with (list [transaction((name, description, image, satelliteFee, userBalanceInStakeBalanceLedger), 0tz, contr)], s)
+
+
+(* getTotalStakedSupply Entrypoint *)
+function getTotalStakedSupply(const getTotalStakedSupplyParams: getTotalStakedSupplyParamsType; const s : storage) : return is
+  (list[Tezos.transaction(s.stakedMvkTotalSupply, 0tez, getTotalStakedSupplyParams)], s)
 
 function stake(const stakeAmount : nat; var s : storage) : return is
 block {
@@ -689,6 +688,7 @@ function main (const action : stakeAction; const s : storage) : return is
   | TogglePauseStake(_parameters) -> togglePauseStake(s)
   | TogglePauseUnstake(_parameters) -> togglePauseUnstake(s)
 
+  | GetTotalStakedSupply(params) -> getTotalStakedSupply(params, s)
   | GetStakedBalance(params) -> getStakedBalance(params.0, params.1, s)
   | GetSatelliteBalance(params) -> getSatelliteBalance(params.0, params.1, params.2, params.3, params.4, params.5, s)
   

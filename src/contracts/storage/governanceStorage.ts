@@ -25,6 +25,9 @@ const config = {
     blocksPerProposalRound : 14400,
     blocksPerVotingRound : 14400,
     blocksPerTimelockRound : 5760,
+
+    financialRequestApprovalPercentage : 6700,
+    financialRequestDurationInDays : 3
 }
 
 
@@ -54,6 +57,7 @@ export const governanceStorage: governanceStorageType = {
   timelockProposalId: new BigNumber(0),
   
   snapshotMvkTotalSupply: new BigNumber(1000000000),
+  snapshotStakedMvkTotalSupply: new BigNumber(0),
 
   governanceLambdaLedger: MichelsonMap.fromLiteral({}),
 
