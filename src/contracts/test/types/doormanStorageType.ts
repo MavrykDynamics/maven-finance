@@ -17,4 +17,6 @@ export type doormanStorageType = {
   
   logExitFee: BigNumber;
   logFinalAmount: BigNumber;
+
+  accumulatedFeesPerShare: BigNumber;
 };
