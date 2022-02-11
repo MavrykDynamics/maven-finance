@@ -107,7 +107,8 @@ describe("Contracts Deployment for Tests", async () => {
 
     governanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation" : delegation.contract.address,
-      "mvkToken" : mvkToken.contract.address,
+      "mvkToken"   : mvkToken.contract.address,
+      "doorman"    : doorman.contract.address
     });
     governance = await Governance.originate(
       utils.tezos,
@@ -117,8 +118,8 @@ describe("Contracts Deployment for Tests", async () => {
     console.log("governance contract originated")
 
     emergencyGovernanceStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"  : mvkToken.contract.address,
-      "governance": governance.contract.address,
+      "mvkToken"   : mvkToken.contract.address,
+      "governance" : governance.contract.address,
     });
     emergencyGovernance = await EmergencyGovernance.originate(
       utils.tezos,
@@ -128,10 +129,10 @@ describe("Contracts Deployment for Tests", async () => {
     console.log("emergency governance contract originated")
 
     vestingStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"  : mvkToken.contract.address,
-      "doorman"   : doorman.contract.address,
-      "delegation": delegation.contract.address,
-      "governance": governance.contract.address,
+      "mvkToken"   : mvkToken.contract.address,
+      "doorman"    : doorman.contract.address,
+      "delegation" : delegation.contract.address,
+      "governance" : governance.contract.address,
     });
     vesting = await Vesting.originate(
       utils.tezos,
@@ -153,13 +154,13 @@ describe("Contracts Deployment for Tests", async () => {
     console.log("council contract originated")
 
     breakGlassStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"  : mvkToken.contract.address,
-      "doorman"   : doorman.contract.address,
-      "delegation": delegation.contract.address,
-      "governance": governance.contract.address,
-      "vesting"   : vesting.contract.address,
-      "council"   : council.contract.address,
-      "emergencyGovernance": emergencyGovernance.contract.address
+      "mvkToken"            : mvkToken.contract.address,
+      "doorman"             : doorman.contract.address,
+      "delegation"          : delegation.contract.address,
+      "governance"          : governance.contract.address,
+      "vesting"             : vesting.contract.address,
+      "council"             : council.contract.address,
+      "emergencyGovernance" : emergencyGovernance.contract.address
     });
     breakGlass = await BreakGlass.originate(
       utils.tezos,
@@ -169,11 +170,11 @@ describe("Contracts Deployment for Tests", async () => {
     console.log("break glass contract originated")
 
     treasuryStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"  : mvkToken.contract.address,
-      "delegation": delegation.contract.address,
+      "mvkToken"     : mvkToken.contract.address,
+      "delegation"   : delegation.contract.address,
     });
     treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
-      "governance" : governance.contract.address
+      "governance"   : governance.contract.address
     });
     treasury = await Treasury.originate(
       utils.tezos,

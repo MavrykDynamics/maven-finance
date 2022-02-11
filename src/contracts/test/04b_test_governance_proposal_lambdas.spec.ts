@@ -114,7 +114,8 @@ describe("Governance tests", async () => {
             assert.equal(bobSatelliteSnapshot.totalDelegatedAmount, 0);
             assert.equal(bobSatelliteSnapshot.totalVotingPower, bobStakeAmount);
 
-            assert.notEqual(activeSatellitesMap.get(alice.pkh), null);
+            // key of wallet address in activeSatellitesMap returns timestamp of when satellite was added - hence assert notEqual null to check for an entry
+            assert.notEqual(activeSatellitesMap.get(alice.pkh), null); 
             assert.notEqual(activeSatellitesMap.get(bob.pkh), null);
             
         } catch(e){
@@ -257,111 +258,122 @@ describe("Governance tests", async () => {
             assert.equal(currentRoundVotes.get(alice.pkh), proposalId);
             assert.equal(currentRoundVotes.get(bob.pkh), proposalId);
 
-            // assert.equal(aliceProposalPassVotes.get(alice.pkh)[0].c, aliceSatelliteSnapshot.totalVotingPower.c);
-            // assert.equal(aliceProposalPassVotes.get(bob.pkh)[0].c, bobSatelliteSnapshot.totalVotingPower.c);
+            assert.equal(aliceProposalPassVotes.get(alice.pkh)[0].c, 100000000);
+            assert.equal(aliceProposalPassVotes.get(bob.pkh)[0].c, 100000000);
 
-            // console.log(currentRoundProposals);
-            // console.log(aliceProposalPassVotes.get(alice.pkh)[0]);
+            assert.equal(currentRoundProposals.get("1"), 200000000);
 
         } catch(e){
             console.log(e);
         } 
     });
 
-    // it('admin can start a new voting round', async () => {
-    //     try{        
+    it('admin can start a new voting round', async () => {
+        try{        
 
-    //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-    //         console.log("Test: Admin can start a new voting round") 
-    //         console.log("---") // break
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log("Test: Admin can start a new voting round") 
+            console.log("---") // break
 
-    //         // console.log('storage: console log checks  ----');
-    //         const beforeGovernanceStorage = await governanceInstance.storage();
-    //         // console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
+            // admin starts a new voting round
+            await signerFactory(alice.sk);
+            const adminStartsNewVotingRoundOperation = await governanceInstance.methods.startVotingRound().send();
+            await adminStartsNewVotingRoundOperation.confirmation();
 
-    //         await signerFactory(alice.sk);
-    //         // admin starts a new voting round
-    //         const adminStartsNewVotingRoundOperation = await governanceInstance.methods.startVotingRound().send();
-    //         await adminStartsNewVotingRoundOperation.confirmation();
-
-    //         // console.log("after: console log checks  ----")
-    //         const newGovernanceStorage = await governanceInstance.storage();
-    //         // console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
-
-    //     } catch(e){
-    //         console.log(e);
-    //     } 
-    // });
-
-    // it('alice and bob can vote for her proposal during the voting round', async () => {
-    //     try{        
-
-    //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-    //         console.log("Test: alice and bob can vote for her proposal during the voting round") 
-    //         console.log("---") // break
-
-    //         // console.log('storage: console log checks  ----');
-    //         const beforeGovernanceStorage = await governanceInstance.storage();
-    //         console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
-
-    //         await signerFactory(alice.sk);
-    //         const aliceVotingRoundVoteOperation = await governanceInstance.methods.votingRoundVote(proposalId, 1).send();
-    //         await aliceVotingRoundVoteOperation.confirmation();
-
-    //         await signerFactory(bob.sk)
-    //         const bobVotingRoundVoteOperation = await governanceInstance.methods.votingRoundVote(proposalId, 1).send();
-    //         await bobVotingRoundVoteOperation.confirmation();
-
-    //         // console.log("after: console log checks  ----")
-    //         const newGovernanceStorage = await governanceInstance.storage();
-    //         console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
+            // get new storage and assert tests
+            console.log("--- --- ---")
+            const newGovernanceStorage   = await governanceInstance.storage();
+            const currentRoundVotes      = await newGovernanceStorage.currentRoundVotes;
             
-    //         // console.log(newGovernanceStorage);
+            assert.equal(newGovernanceStorage.currentRound, 'voting');
+            assert.equal(newGovernanceStorage.currentRoundHighestVotedProposalId, proposalId);
 
-    //     } catch(e){
-    //         console.log(e);
-    //     } 
-    // });
+            // check that current round votes has been flushed from proposal round to voting round
+            assert.equal(currentRoundVotes.get(alice.pkh), null);
 
-    // it('alice can execute her proposal', async () => {
-    //     try{        
+            console.log(newGovernanceStorage.currentRoundHighestVotedProposalId);
+            console.log(currentRoundVotes.get(alice.pkh));
 
-    //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-    //         console.log("Test: alice can execute her proposal") 
-    //         console.log("---") // break
+        } catch(e){
+            console.log(e);
+        } 
+    });
 
-    //         // console.log('storage: console log checks  ----');
-    //         const beforeGovernanceStorage = await governanceInstance.storage();
-    //         console.log("Before Test Block Level: ");            
+    it('alice and bob can vote for her proposal during the voting round', async () => {
+        try{        
+
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log("Test: alice and bob can vote for her proposal during the voting round") 
+            console.log("---") // break
+
+            await signerFactory(alice.sk);
+            const aliceVotingRoundVoteOperation = await governanceInstance.methods.votingRoundVote(proposalId, 1).send();
+            await aliceVotingRoundVoteOperation.confirmation();
+
+            await signerFactory(bob.sk)
+            const bobVotingRoundVoteOperation = await governanceInstance.methods.votingRoundVote(proposalId, 1).send();
+            await bobVotingRoundVoteOperation.confirmation();
+
+            // get new storage and assert tests
+            console.log("--- --- ---")
+            const newGovernanceStorage = await governanceInstance.storage();
             
-    //         console.log('old config success reward: ' + beforeGovernanceStorage.config.successReward);
-    //         console.log('old config min quorum mvk total reward: ' + beforeGovernanceStorage.config.minQuorumMvkTotal);
+            const aliceProposal          = await newGovernanceStorage.proposalLedger.get(proposalId);
+            const aliceProposalVoters    = await aliceProposal.voters;
 
-    //         // admin starts timelock round
-    //         await signerFactory(alice.sk);
-    //         const adminStartsTimelockRoundOperation = await governanceInstance.methods.startTimelockRound().send();
-    //         await adminStartsTimelockRoundOperation.confirmation();
-
-    //         // admin starts a new proposal round
-    //         await signerFactory(alice.sk);
-    //         const adminStartsNewProposalRoundOperation = await governanceInstance.methods.startProposalRound().send();
-    //         await adminStartsNewProposalRoundOperation.confirmation();
-
-    //         const aliceExecuteProposalOperation = await governanceInstance.methods.executeProposal(proposalId).send();
-    //         await aliceExecuteProposalOperation.confirmation();
-
-    //         // console.log("after: console log checks  ----")
-    //         const newGovernanceStorage = await governanceInstance.storage();
-    //         console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
+            assert.equal(aliceProposal.upvoteCount, 2);
+            assert.equal(aliceProposal.upvoteMvkTotal, 200000000);
+            assert.equal(aliceProposal.downvoteCount, 0);
+            assert.equal(aliceProposal.downvoteMvkTotal, 0);
+            assert.equal(aliceProposal.abstainCount, 0);
+            assert.equal(aliceProposal.abstainMvkTotal, 0);
             
-    //         // console.log(newGovernanceStorage);
-    //         console.log('new config success reward: ' + newGovernanceStorage.config.successReward);
-    //         console.log('new config min quorum mvk total reward: ' + newGovernanceStorage.config.minQuorumMvkTotal);
+            assert.equal(aliceProposalVoters.get(alice.pkh)[0], 1);             // voteType - 1 is Yay, 0 is Nay, 2 is abstain 
+            assert.equal(aliceProposalVoters.get(alice.pkh)[1], 100000000);     // total voting power    
+            assert.equal(aliceProposalVoters.get(bob.pkh)[0], 1);               // voteType - 1 is Yay, 0 is Nay, 2 is abstain 
+            assert.equal(aliceProposalVoters.get(bob.pkh)[1], 100000000);       // total voting power    
 
-    //     } catch(e){
-    //         console.log(e);
-    //     } 
-    // });
+        } catch(e){
+            console.log(e);
+        } 
+    });
+
+    it('alice can execute her proposal', async () => {
+        try{        
+
+            console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+            console.log("Test: alice can execute her proposal") 
+            console.log("---") // break
+
+            // get old storage and assert tests for old values
+            console.log("--- --- ---")
+            const oldGovernanceStorage = await governanceInstance.storage();
+            assert.equal(oldGovernanceStorage.config.successReward, 10000);
+            assert.equal(oldGovernanceStorage.config.minQuorumMvkTotal, 10000);
+
+            // admin starts timelock round
+            await signerFactory(alice.sk);
+            const adminStartsTimelockRoundOperation = await governanceInstance.methods.startTimelockRound().send();
+            await adminStartsTimelockRoundOperation.confirmation();
+
+            // admin starts a new proposal round
+            await signerFactory(alice.sk);
+            const adminStartsNewProposalRoundOperation = await governanceInstance.methods.startProposalRound().send();
+            await adminStartsNewProposalRoundOperation.confirmation();
+
+            const aliceExecuteProposalOperation = await governanceInstance.methods.executeProposal(proposalId).send();
+            await aliceExecuteProposalOperation.confirmation();
+
+            // get new storage and assert tests for new values
+            console.log("--- --- ---")
+            const newGovernanceStorage = await governanceInstance.storage();            
+            assert.equal(newGovernanceStorage.config.successReward, 995);
+            assert.equal(newGovernanceStorage.config.minQuorumMvkTotal, 42000);
+
+        } catch(e){
+            console.log(e);
+        } 
+    });
 
     // it('admin submits 2nd proposal in 2nd proposal round', async () => {
     //     try{        
