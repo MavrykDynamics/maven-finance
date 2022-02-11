@@ -38,7 +38,13 @@ type satelliteRecordType is record [
     // map of delegate history - all / past delegates
 ]
 type satelliteLedgerType is big_map (address, satelliteRecordType)
-type getSatelliteVotingPowerParams is (address * contract(address * nat * nat))
+type getSatelliteVotingPowerParamsType is (address * contract(address * nat * nat))
+
+type getSatelliteRequestSnapshotType is [@layout:comb] record [
+  satelliteAddress  : address;
+  requestId         : nat; 
+  callbackContract  : contract(address * nat * nat * nat);
+]
 
 type configType is record [
     minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required to register as delegate (in muMVK)
@@ -79,6 +85,8 @@ type updateConfigParamsType is [@layout:comb] record [
   updateConfigAction: updateConfigActionType;
 ]
 
+// satelliteAddress, requestId, voteType, contract(totalVotingPower, requestId, voteType)
+// type governanceVoteRequestCompleteType is (address * nat * unit * contract(nat * nat * unit))
 
 type delegationAction is 
     | SetAdmin of (address)
@@ -99,7 +107,8 @@ type delegationAction is
     | DelegateToSatelliteComplete of (nat)
     | RedelegateSatellite of (address)
 
-    | GetSatelliteVotingPower of getSatelliteVotingPowerParams
+    | GetSatelliteVotingPower of getSatelliteVotingPowerParamsType
+    | GetSatelliteRequestSnapshot of getSatelliteRequestSnapshotType
     
     | UndelegateFromSatellite of (unit)
     | UndelegateFromSatelliteComplete of (nat)
@@ -110,6 +119,7 @@ type delegationAction is
 
     | UpdateSatelliteRecord of (updateSatelliteRecordParams)
     | OnStakeChange of onStakeChangeParams
+    // | GovernanceVoteRequestComplete of governanceVoteRequestCompleteType
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -134,9 +144,19 @@ block{
   else failwith("Error. Only the Doorman Contract can call this entrypoint.");
 } with unit
 
-  function checkNoAmount(const _p : unit) : unit is
-    if (Tezos.amount = 0tez) then unit
-    else failwith("This entrypoint should not receive any tez.");
+function checkSenderIsGovernanceContract(var s : storage) : unit is
+block{
+  const governanceAddress : address = case s.generalContracts["governance"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. Governance Contract is not found.")
+  end;
+  if (Tezos.sender = governanceAddress) then skip
+  else failwith("Error. Only the Governance Contract can call this entrypoint.");
+} with unit
+
+function checkNoAmount(const _p : unit) : unit is
+  if (Tezos.amount = 0tez) then unit
+  else failwith("This entrypoint should not receive any tez.");
 
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
@@ -146,7 +166,7 @@ block{
 
 // admin helper functions end -----------------------------------------------------------------------------------
 
-(* View function that forwards the record of source to a contract *)
+(* View function that forwards the satellite voting power to the Governance or other contract *)
 function getSatelliteVotingPower(const satelliteAddress : address; const contr : contract(address * nat * nat); var s : storage) : return is
   block {
     const satelliteRecord : satelliteRecordType = case s.satelliteLedger[satelliteAddress] of
@@ -154,6 +174,15 @@ function getSatelliteVotingPower(const satelliteAddress : address; const contr :
     | Some(instance) -> instance
     end;
   } with (list [transaction((satelliteAddress, satelliteRecord.mvkBalance, satelliteRecord.totalDelegatedAmount), 0tz, contr)], s)
+
+(* View function that forwards the satellite voting power and financial request id to the Governance contract *)
+function getSatelliteRequestSnapshot(const satelliteRequestSnapshot : getSatelliteRequestSnapshotType; var s : storage) : return is
+  block {
+    const satelliteRecord : satelliteRecordType = case s.satelliteLedger[satelliteRequestSnapshot.satelliteAddress] of
+      None -> failwith("Satellite not found")
+    | Some(instance) -> instance
+    end;
+  } with (list [transaction((satelliteRequestSnapshot.satelliteAddress, satelliteRequestSnapshot.requestId, satelliteRecord.mvkBalance, satelliteRecord.totalDelegatedAmount), 0tz, satelliteRequestSnapshot.callbackContract)], s)
 
 // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
 function checkDelegateToSatelliteIsNotPaused(var s : storage) : unit is
@@ -861,6 +890,25 @@ block {
 
 } with (noOperations, s)
 
+(* View function that forwards the total voting power of satellite back to the governance contract *)
+// function governanceVoteRequestComplete (const governanceVoteRequestComplete : governanceVoteRequestCompleteType; var s : storage) : return is
+//   block {
+//     checkSenderIsGovernanceContract(s);
+
+//     const satelliteAddress : address = governanceVoteRequestComplete.0;
+//     const proposalId : nat = governanceVoteRequestComplete.1;
+//     const voteType : unit  = governanceVoteRequestComplete.2;
+//     const callbackContract : contract(nat * nat * unit) = governanceVoteRequestComplete.3;
+
+//     var satelliteRecord : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of
+//           Some(_val) -> _val
+//           | None -> 0n
+//       end;
+//     const totalVotingPower : nat = satelliteRecord.mvkBalance + satelliteRecord.totalDelegatedAmount;
+//   } with (list [transaction((totalVotingPower, proposalId, voteType ), 0tz, callbackContract)], s)
+
+
+
 function main (const action : delegationAction; const s : storage) : return is 
     case action of    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
@@ -890,5 +938,7 @@ function main (const action : delegationAction; const s : storage) : return is
 
         | UpdateSatelliteRecord(parameters) -> updateSatelliteRecord(parameters.0, parameters.1, parameters.2, parameters.3, s)
         | GetSatelliteVotingPower(parameters) -> getSatelliteVotingPower(parameters.0, parameters.1, s)
+        | GetSatelliteRequestSnapshot(parameters) -> getSatelliteRequestSnapshot(parameters, s)
         | OnStakeChange(parameters) -> onStakeChange(parameters.0, parameters.1, parameters.2, s)    
+        // | GovernanceVoteRequestComplete(parameters) -> governanceVoteRequestComplete(parameters.0, parameters.1, parameters.2, s)    
     end
