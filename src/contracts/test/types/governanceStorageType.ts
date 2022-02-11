@@ -30,6 +30,7 @@ export type governanceStorageType = {
   timelockProposalId : BigNumber;
 
   snapshotMvkTotalSupply : BigNumber;
+  snapshotStakedMvkTotalSupply : BigNumber;
 
   governanceLambdaLedger : MichelsonMap<MichelsonMapKey, unknown>;
 
