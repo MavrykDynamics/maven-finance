@@ -1,5 +1,4 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-
 import { BigNumber } from "bignumber.js";
 
 const { alice } = require('../scripts/sandbox/accounts')
@@ -27,4 +26,6 @@ export const doormanStorage: doormanStorageType = {
   
   logExitFee: new BigNumber(1),
   logFinalAmount: new BigNumber(1),
+
+  accumulatedFeesPerShare: new BigNumber(0)
 };
