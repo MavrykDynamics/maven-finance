@@ -86,7 +86,6 @@ export const StakeUnstakeView = ({
           break
       }
     }
-    setInputAmount(1)
   }
   return (
     <StakeUnstakeStyled>
