@@ -45,20 +45,28 @@ export const ExitFeeModalView = ({
                 <h1>Exit Fee</h1>
 
                 <ExitFeeModalGrid>
-                  <div>MVK Total Supply</div>
-                  <div>Total Staked MVK Supply</div>
+                  <div>
+                    <h4 className={'primary'}>MVK Total Supply</h4>
+                  </div>
+                  <div>
+                    <h4 className={'primary'}>Total Staked MVK Supply</h4>
+                  </div>
                   <CommaNumber value={mvkTokens} endingText={'MVK'} />
                   <CommaNumber value={stakedMvkTokens} endingText={'MVK'} />
-                  <div>Amount to Unstake</div>
                   <div>
-                    MVK Loyalty Index{' '}
-                    <a
-                      href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      [?]
-                    </a>
+                    <h4 className={'primary'}>Amount to Unstake</h4>
+                  </div>
+                  <div>
+                    <h4 className={'primary'}>
+                      MVK Loyalty Index{' '}
+                      <a
+                        href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        [?]
+                      </a>
+                    </h4>
                   </div>
                   <CommaNumber value={Number(amount)} endingText={'MVK'} />
                   <div>
