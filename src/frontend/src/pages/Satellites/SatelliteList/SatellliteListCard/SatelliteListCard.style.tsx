@@ -21,13 +21,6 @@ export const SatelliteCardRow = styled.div`
   justify-content: center;
   font-size: 14px;
 `
-export const SatelliteCardButtonGrid = styled.div`
-  margin: 30px auto 0 auto;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: repeat(2, 1fr);
-  grid-gap: 20px;
-`
 
 export const SatelliteProfileImageContainer = styled.div`
   display: flex;

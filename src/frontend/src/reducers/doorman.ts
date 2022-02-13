@@ -81,7 +81,7 @@ export function doorman(state = doormanDefaultState, action: any): DoormanState 
     case STAKE_RESULT:
       return {
         type: STAKE,
-        amount: 0,
+        amount: state.amount,
         error: undefined,
       }
     case STAKE_ERROR:
@@ -99,7 +99,7 @@ export function doorman(state = doormanDefaultState, action: any): DoormanState 
     case UNSTAKE_RESULT:
       return {
         type: UNSTAKE,
-        amount: 0,
+        amount: state.amount,
         error: undefined,
       }
     case UNSTAKE_ERROR:
