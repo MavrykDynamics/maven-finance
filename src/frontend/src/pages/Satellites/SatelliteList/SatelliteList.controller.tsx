@@ -2,7 +2,6 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { SatelliteRecord } from 'reducers/delegation'
 
-import { testData } from '../__tests__/testData'
 import { SatelliteListView } from './SatelliteList.view'
 
 type SatelliteListProps = {

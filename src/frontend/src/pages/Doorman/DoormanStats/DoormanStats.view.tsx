@@ -19,8 +19,12 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
   return (
     <DoormanStatsStyled>
       <DoormanStatsGrid>
-        <div>MVK Total Supply</div>
-        <div>Total Staked MVK Supply</div>
+        <div>
+          <h4 className={'primary bold'}>MVK Total Supply</h4>
+        </div>
+        <div>
+          <h4 className={'primary bold'}>Total Staked MVK Supply</h4>
+        </div>
         {mvkTokens <= 0 ? (
           <>
             <p>
@@ -41,27 +45,31 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
             <CommaNumber value={mvkTokens} loading={loading} endingText={'MVK'} />
             <CommaNumber value={stakedMvkTokens} loading={loading} endingText={'MVK'} />
             <div>
-              MVK Loyalty Index{' '}
-              <a
-                href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
-                target="_blank"
-                rel="noreferrer"
-              >
-                [?]
-              </a>
+              <h4 className={'primary bold'}>
+                MVK Loyalty Index{' '}
+                <a
+                  href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  [?]
+                </a>
+              </h4>
             </div>
             <div>
-              Exit Fee{' '}
-              <a
-                href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
-                target="_blank"
-                rel="noreferrer"
-              >
-                [?]
-              </a>
+              <h4 className={'primary bold'}>
+                Exit Fee{' '}
+                <a
+                  href="https://mavryk.finance/litepaper#converting-vmvk-back-to-mvk-exit-fees"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  [?]
+                </a>
+              </h4>
             </div>
-            <p>{mli.toFixed(2)}</p>
-            <p>{fee.toFixed(2)} %</p>
+            <CommaNumber value={mli} loading={loading} endingText={' '} />
+            <CommaNumber value={fee} loading={loading} endingText={'%'} />
           </>
         )}
       </DoormanStatsGrid>
