@@ -102,8 +102,6 @@ export const StakeUnstakeInput = styled.input`
   padding: 0 20px;
   border-radius: 10px;
   color: ${subTextColor};
-  -webkit-appearance: none;
-  appearance: none;
   flex: 0 0 1;
   position: relative;
 `
@@ -147,7 +145,7 @@ export const StakeUnstakeBalance = styled.div`
   }
 
   div {
-    max-width: fit-content;
+    max-width: max-content;
     align-items: center;
     font-size: 20px;
     font-weight: 600;
