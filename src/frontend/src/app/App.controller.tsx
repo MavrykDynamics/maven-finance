@@ -13,6 +13,12 @@ import { ProgressBar } from './App.components/ProgressBar/ProgressBar.controller
 import { Toaster } from './App.components/Toaster/Toaster.controller'
 import { configureStore } from './App.store'
 import { AppStyled } from './App.style'
+import { Governance } from '../pages/Governance/Governance.controller'
+import { Treasury } from '../pages/Treasury/Treasury.controller'
+import { Loans } from '../pages/Loans/Loans.controller'
+import { Farms } from '../pages/Farms/Farms.controller'
+import { Vaults } from '../pages/Vaults/Vaults.controller'
+import { Dashboard } from '../pages/Dashboard/Dashboard.controller'
 
 export const store = configureStore({})
 
@@ -35,6 +41,9 @@ const AppContainer = () => {
           <Route exact path="/">
             <Doorman />
           </Route>
+          <Route exact path="/dashboard">
+            <Dashboard />
+          </Route>
           <Route exact path="/stake">
             <Doorman />
           </Route>
@@ -46,6 +55,21 @@ const AppContainer = () => {
           </Route>
           <Route exact path="/satellite-details/:satelliteId">
             <SatelliteDetails />
+          </Route>
+          <Route exact path="/governance">
+            <Governance />
+          </Route>
+          <Route exact path="/treasury">
+            <Treasury />
+          </Route>
+          <Route exact path="/loans">
+            <Loans />
+          </Route>
+          <Route exact path="/yield-farms">
+            <Farms />
+          </Route>
+          <Route exact path="/vaults">
+            <Vaults />
           </Route>
         </Switch>
       </AppStyled>

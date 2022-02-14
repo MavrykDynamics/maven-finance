@@ -6,7 +6,6 @@ import { Message, Page } from 'styles'
 
 import { getDoormanStorage, getMvkTokenStorage, stake, unstake } from './Doorman.actions'
 import { DoormanHeader } from './DoormanHeader/DoormanHeader.controller'
-import { DoormanStats } from './DoormanStats/DoormanStats.controller'
 import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
