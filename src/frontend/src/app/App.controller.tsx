@@ -19,6 +19,7 @@ import { Loans } from '../pages/Loans/Loans.controller'
 import { Farms } from '../pages/Farms/Farms.controller'
 import { Vaults } from '../pages/Vaults/Vaults.controller'
 import { Dashboard } from '../pages/Dashboard/Dashboard.controller'
+import DarkThemeProvider from './App.components/DarkThemeProvider/DarkThemeProvider.view'
 
 export const store = configureStore({})
 
