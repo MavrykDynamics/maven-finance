@@ -12,3 +12,37 @@ export const downColor = '#FF4343'
 export const warningColor = '#FF7A00'
 export const infoColor = '#00C2FF'
 export const selectedColor = '#aea3ff3d'
+
+export const darkMode = {
+  backgroundColor: '#171735',
+  containerColor: '#1C1C3F',
+  borderColor: '#4F457C',
+  textColor: '#F7F9FD',
+  subTextColor: '#fff',
+  backgroundTextColor: '#2B2B60',
+  placeholderColor: '#F7F9FD',
+  primaryColor: '#7068AA',
+  secondaryColor: '#73d7c3',
+  upColor: '#00E205',
+  downColor: '#F90021',
+  warningColor: '#FF7A00',
+  infoColor: '#00C2FF',
+  selectedColor: '#aea3ff3d',
+}
+
+export const lightMode = {
+  backgroundColor: '#FFFFFF',
+  containerColor: '#F7F9FD',
+  borderColor: '#4F457C',
+  textColor: '#29264C',
+  subTextColor: '#7E8794',
+  backgroundTextColor: '#F7F9FD',
+  placeholderColor: '#F7F9FD',
+  primaryColor: '#7068AA',
+  secondaryColor: '#73d7c3',
+  upColor: '#27AE60',
+  downColor: '#FF4343',
+  warningColor: '#FF7A00',
+  infoColor: '#00C2FF',
+  selectedColor: '#aea3ff3d',
+}
