@@ -1,14 +1,16 @@
 #!/bin/bash
+MAIN_SANDBOX_V="901d451a"
+APPLE_SANDBOX_V="cc4f24db"
 TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox tezos-node --version)
 NODE_BOOTSTRAPPED=$(docker exec -it mavryk-sandbox tezos-client bootstrapped)
-until [ "$TZ_NODE_VERSION" == *"cc4f24db"* ] && [ "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ];
+until [[ "$TZ_NODE_VERSION" == *"$MAIN_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]] || [[ "$TZ_NODE_VERSION" == *"$APPLE_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]];
 do
   echo "Waiting for Tezos Node to finish starting up......"
   sleep 10
   TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox tezos-node --version)
   NODE_BOOTSTRAPPED=$(docker exec -it mavryk-sandbox tezos-client bootstrapped)
 
-  if [[ "$TZ_NODE_VERSION" == *"cc4f24db"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]]; then
+  if [[ "$TZ_NODE_VERSION" == *"$MAIN_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]] || [[ "$TZ_NODE_VERSION" == *"$APPLE_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]]; then
     echo "Tezos Node is ready"
     TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox tezos-node --version)
     echo "Flextesa Tezos Node version $TZ_NODE_VERSION"
