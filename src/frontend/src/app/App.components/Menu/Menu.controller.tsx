@@ -5,9 +5,11 @@ import { State } from 'reducers'
 import { connect } from './Menu.actions'
 
 import { MenuView } from './Menu.view'
+import { toggleDarkTheme } from '../DarkThemeProvider/DarkThemeProvider.actions'
 
 export const Menu = () => {
   const dispatch = useDispatch()
+  const { darkThemeEnabled } = useSelector((state: any) => state.preferences)
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
@@ -15,8 +17,6 @@ export const Menu = () => {
   useEffect(() => {
     if (accountPkh) dispatch(getMvkTokenStorage(accountPkh))
   }, [dispatch, accountPkh])
-
-  // useOnBlock(tezos, loadStorage)
 
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
@@ -26,6 +26,9 @@ export const Menu = () => {
     dispatch(connect({ forcePermission: true }))
   }
 
+  const handleToggleTheme = () => {
+    dispatch(toggleDarkTheme())
+  }
   return (
     <MenuView
       loading={loading}
@@ -35,6 +38,8 @@ export const Menu = () => {
       ready={ready}
       handleConnect={handleConnect}
       handleNewConnect={handleNewConnect}
+      darkThemeEnabled={darkThemeEnabled}
+      handleToggleTheme={handleToggleTheme}
     />
   )
 }
