@@ -1,8 +1,19 @@
 import { Link, useLocation } from 'react-router-dom'
-
+import Toggle from 'react-toggle'
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 // prettier-ignore
-import { MenuBanner, MenuButton, MenuConnected, MenuFooter, MenuGrid, MenuIcon, MenuLogo, MenuStyled } from "./Menu.style";
+import {
+  MenuBanner,
+  MenuButton,
+  MenuConnected,
+  MenuFooter,
+  MenuGrid,
+  MenuIcon,
+  MenuLogo,
+  MenuStyled,
+  ThemeToggleIcon,
+} from './Menu.style'
+import * as React from 'react'
 
 type MenuViewProps = {
   loading: boolean
@@ -12,6 +23,8 @@ type MenuViewProps = {
   wallet: any
   ready: boolean
   handleConnect: () => void
+  darkThemeEnabled: boolean
+  handleToggleTheme: () => void
 }
 
 export const MenuView = ({
@@ -22,6 +35,8 @@ export const MenuView = ({
   wallet,
   ready,
   handleConnect,
+  darkThemeEnabled,
+  handleToggleTheme,
 }: MenuViewProps) => {
   const location = useLocation()
 
@@ -141,7 +156,25 @@ export const MenuView = ({
       </MenuGrid>
 
       <MenuBanner src="/images/buy-mvk.svg" alt="buy" />
-
+      <label>
+        <Toggle
+          defaultChecked={darkThemeEnabled}
+          icons={{
+            checked: (
+              <ThemeToggleIcon>
+                <use xlinkHref="/icons/sprites.svg#moon" />
+              </ThemeToggleIcon>
+            ),
+            unchecked: (
+              <ThemeToggleIcon>
+                <use xlinkHref="/icons/sprites.svg#sun" />
+              </ThemeToggleIcon>
+            ),
+          }}
+          aria-label="Dark mode toggle"
+          onChange={handleToggleTheme}
+        />
+      </label>
       <MenuFooter>
         MAVRYK App <p>v1.0</p>
       </MenuFooter>

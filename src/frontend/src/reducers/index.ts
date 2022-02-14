@@ -16,6 +16,7 @@ import { breakGlass, BreakGlassState } from './breakGlass'
 import { vesting, VestingState } from './vesting'
 import { farm, FarmState } from './farm'
 import { farmFactory, FarmFactoryState } from './farmFactory'
+import { preferences, PreferencesState } from './preferences'
 
 export const reducers = combineReducers({
   loading,
@@ -34,6 +35,7 @@ export const reducers = combineReducers({
   vesting,
   farm,
   farmFactory,
+  preferences,
 })
 
 export interface State {
@@ -53,4 +55,5 @@ export interface State {
   vesting: VestingState
   farm: FarmState
   farmFactory: FarmFactoryState
+  preferences: PreferencesState
 }
