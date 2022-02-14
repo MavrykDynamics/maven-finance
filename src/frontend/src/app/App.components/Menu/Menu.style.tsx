@@ -7,7 +7,10 @@ export const MenuStyled = styled.div`
   height: 100vh;
   width: 270px;
   padding: 0 20px;
-
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   background-image: url('/images/menu-bg.svg');
   background-position: top left;
   background-repeat: no-repeat;
@@ -20,7 +23,7 @@ export const MenuLogo = styled.img`
 `
 
 export const MenuButton = styled.div`
-  margin: 0 auto 25px auto;
+  margin: 0 auto;
   width: 160px;
   height: 50px;
   cursor: pointer;
@@ -53,7 +56,7 @@ export const MenuGrid = styled.div`
   grid-template-columns: 50px 50px;
   grid-gap: 20px 60px;
   width: 160px;
-  margin: auto;
+  margin: 0 auto;
 `
 
 export const MenuIcon = styled.div<{ selected: boolean }>`
@@ -133,11 +136,11 @@ export const MenuConnected = styled.div`
 `
 
 export const MenuBanner = styled.img`
-  margin: 40px auto 0 auto;
+  margin: 0 auto;
 `
 
 export const MenuFooter = styled.div`
-  margin: 60px auto 0 auto;
+  margin: 0 auto;
   font-size: 11px;
   font-weight: 600;
 
@@ -145,4 +148,9 @@ export const MenuFooter = styled.div`
     display: inline-block;
     font-weight: 500;
   }
+`
+
+export const ThemeToggleIcon = styled.svg`
+  width: inherit;
+  height: inherit;
 `
