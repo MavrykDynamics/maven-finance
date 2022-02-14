@@ -221,4 +221,22 @@
         </g>
     </symbol>
 
+    <symbol id="sibdebarMenu" viewBox="0 0 24 24" >
+        <g>
+            <path d="M2.8125 18.0029H27.1875" stroke="#4F457C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2.8125 12.0029H27.1875" stroke="#4F457C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2.8125 6.00293H27.1875" stroke="#4F457C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+    </symbol>
+    <symbol id="treasury" viewBox="0 0 30 29" >
+            <path d="M10.6064 28.3528L10.6232 28.266H11.2117H18.2427H18.8306L18.8474 28.3528H10.6064ZM17.9223 23.5871H17.5287H11.9259H11.5313L11.5482 23.5H17.9054L17.9223 23.5871Z" stroke="#7E8794"/>
+            <path d="M20.6063 28.3528L20.6232 28.266H21.2117H28.2427H28.8306L28.8475 28.3528H20.6063ZM27.9226 23.5871H27.5287H21.9261H21.5311L21.548 23.5H27.9057L27.9226 23.5871Z" stroke="#7E8794"/>
+            <path d="M0.606368 28.3528L0.623226 28.266H1.21171H8.24268H8.83056L8.84742 28.3528H0.606368ZM7.92232 23.5871H7.5287H1.92587H1.53128L1.54819 23.5H7.90541L7.92232 23.5871Z" stroke="#7E8794"/>
+            <path d="M10.6064 13.3528L10.6232 13.266H11.2117H18.2427H18.8306L18.8474 13.3528H10.6064ZM17.9223 8.58714L17.5287 8.58712L11.9259 8.58687L11.5313 8.58685L11.5482 8.5H17.9054L17.9223 8.58714Z" stroke="#7E8794"/>
+            <path d="M16.061 20.8521L16.0778 20.7652H16.6657H23.6967H24.2851L24.302 20.8521H16.061ZM23.3769 16.0871L22.9827 16.0871L17.3799 16.0868L16.9859 16.0868L17.0028 16H23.36L23.3769 16.0871Z" stroke="#7E8794"/>
+            <path d="M4.60637 20.8528L4.62328 20.7657H5.21171H12.2427H12.831L12.8479 20.8528H4.60637ZM11.9223 16.0869H11.5287H5.92564H5.53134L5.54819 16H11.9054L11.9223 16.0869Z" stroke="#7E8794"/>
+            <path d="M15 5V1" stroke="#7E8794" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6.82861 7.82861L4.00019 5.00019" stroke="#7E8794" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M22 7.82861L24.8284 5.00019" stroke="#7E8794" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
 </svg>
