@@ -1,8 +1,9 @@
 import styled from 'styled-components/macro'
 import { backgroundColor, borderColor, Card, containerColor, downColor, primaryColor, textColor, upColor } from 'styles'
+import { MavrykTheme } from '../../styles/interfaces'
 
-export const BecomeSatelliteStyled = styled.div`
-  background-color: ${containerColor};
+export const BecomeSatelliteStyled = styled.div<{ theme: MavrykTheme }>`
+  background-color: ${({ theme }) => theme.containerColor};
 `
 
 export const BecomeSatelliteForm = styled(Card)`
@@ -19,18 +20,18 @@ export const BecomeSatelliteForm = styled(Card)`
   }
 `
 
-export const BecomeSatelliteFormBalanceCheck = styled.div<{ balanceOk: boolean }>`
-  color: ${(props) => (props.balanceOk ? upColor : downColor)};
+export const BecomeSatelliteFormBalanceCheck = styled.div<{ balanceOk: boolean; theme: MavrykTheme }>`
+  color: ${({ balanceOk, theme }) => (balanceOk ? theme.upColor : theme.downColor)};
 `
-export const BecomeSatelliteFormFeeCheck = styled.div<{ feeOk: boolean }>`
-  color: ${(props) => (props.feeOk ? upColor : downColor)};
+export const BecomeSatelliteFormFeeCheck = styled.div<{ feeOk: boolean; theme: MavrykTheme }>`
+  color: ${({ feeOk, theme }) => (feeOk ? theme.upColor : theme.downColor)};
 `
-export const UploaderFileSelector = styled.div`
+export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   margin: 15px 0;
   cursor: pointer;
   height: 100px;
   width: 100%;
-  border: dashed ${borderColor};
+  border: dashed ${({ theme }) => theme.borderColor};
   display: inline-block;
   border-radius: 10px;
   border-width: 2px;
@@ -54,7 +55,7 @@ export const UploaderFileSelector = styled.div`
   }
 `
 
-export const UploadIconContainer = styled.div`
+export const UploadIconContainer = styled.div<{ theme: MavrykTheme }>`
   position: absolute;
   top: 15%;
   left: 47.5%;
@@ -63,11 +64,11 @@ export const UploadIconContainer = styled.div`
   > div {
     font-size: 14px;
     font-weight: 400;
-    color: ${textColor};
+    color: ${({ theme }) => theme.textColor};
   }
 `
-export const UploadIcon = styled.svg`
-  stroke: ${primaryColor};
+export const UploadIcon = styled.svg<{ theme: MavrykTheme }>`
+  stroke: ${({ theme }) => theme.primaryColor};
   width: 37px;
   height: 37px;
 
@@ -75,15 +76,15 @@ export const UploadIcon = styled.svg`
     overflow: visible;
   }
   &.primary {
-    stroke: ${backgroundColor};
+    stroke: ${({ theme }) => theme.backgroundColor};
   }
 
   &.secondary {
-    stroke: ${primaryColor};
+    stroke: ${({ theme }) => theme.primaryColor};
   }
 
   &.transparent {
-    stroke: ${textColor};
+    stroke: ${({ theme }) => theme.textColor};
   }
 `
 export const BecomeSatelliteProfilePic = styled.div`
