@@ -229,6 +229,20 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
     console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
 
+    mockFa12Token = await MockFa12Token.originate(
+      utils.tezos,
+      mockFa12TokenStorage
+    );
+
+    console.log("mock FA12 Token originated")
+
+    mockFa2Token = await MockFa2Token.originate(
+      utils.tezos,
+      mockFa2TokenStorage
+    );
+
+    console.log("mock FA2 Token originated")
+
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos
