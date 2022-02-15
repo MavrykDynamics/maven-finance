@@ -40,10 +40,16 @@ type satelliteRecordType is record [
 type satelliteLedgerType is big_map (address, satelliteRecordType)
 type getSatelliteVotingPowerParamsType is (address * contract(address * nat * nat))
 
+type requestSatelliteSnapshotType is  [@layout:comb] record [
+    satelliteAddress      : address;
+    requestId             : nat; 
+    stakedMvkBalance      : nat; 
+    totalDelegatedAmount  : nat; 
+]
 type getSatelliteRequestSnapshotType is [@layout:comb] record [
   satelliteAddress  : address;
   requestId         : nat; 
-  callbackContract  : contract(address * nat * nat * nat);
+  callbackContract  : contract(requestSatelliteSnapshotType);
 ]
 
 type configType is record [
@@ -184,7 +190,15 @@ function getSatelliteRequestSnapshot(const satelliteRequestSnapshot : getSatelli
       None -> failwith("Satellite not found")
     | Some(instance) -> instance
     end;
-  } with (list [transaction((satelliteRequestSnapshot.satelliteAddress, satelliteRequestSnapshot.requestId, satelliteRecord.mvkBalance, satelliteRecord.totalDelegatedAmount), 0tz, satelliteRequestSnapshot.callbackContract)], s)
+
+    const requestSatelliteSnapshotParams : requestSatelliteSnapshotType = record [
+      satelliteAddress      = satelliteRequestSnapshot.satelliteAddress;
+      requestId             = satelliteRequestSnapshot.requestId;
+      stakedMvkBalance      = satelliteRecord.mvkBalance;
+      totalDelegatedAmount  = satelliteRecord.totalDelegatedAmount;
+    ]
+
+  } with (list [transaction(requestSatelliteSnapshotParams, 0tz, satelliteRequestSnapshot.callbackContract)], s)
 
 // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
 function checkDelegateToSatelliteIsNotPaused(var s : storage) : unit is

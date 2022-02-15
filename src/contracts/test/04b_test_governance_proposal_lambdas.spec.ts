@@ -106,13 +106,13 @@
 
 //             assert.equal(newGovernanceStorage.currentRound, 'proposal')
             
-//             assert.equal(aliceSatelliteSnapshot.totalMvkBalance, aliceStakeAmount);
-//             assert.equal(aliceSatelliteSnapshot.totalDelegatedAmount, 0);
-//             assert.equal(aliceSatelliteSnapshot.totalVotingPower, aliceStakeAmount);
+//             assert.equal(aliceSatelliteSnapshot.totalDelegatedAmount,  0);
+//             assert.equal(aliceSatelliteSnapshot.totalMvkBalance,       aliceStakeAmount);
+//             assert.equal(aliceSatelliteSnapshot.totalVotingPower,      aliceStakeAmount);
 
-//             assert.equal(bobSatelliteSnapshot.totalMvkBalance, bobStakeAmount);
-//             assert.equal(bobSatelliteSnapshot.totalDelegatedAmount, 0);
-//             assert.equal(bobSatelliteSnapshot.totalVotingPower, bobStakeAmount);
+//             assert.equal(bobSatelliteSnapshot.totalDelegatedAmount,    0);
+//             assert.equal(bobSatelliteSnapshot.totalMvkBalance,         bobStakeAmount);
+//             assert.equal(bobSatelliteSnapshot.totalVotingPower,        bobStakeAmount);
 
 //             // key of wallet address in activeSatellitesMap returns timestamp of when satellite was added - hence assert notEqual null to check for an entry
 //             assert.notEqual(activeSatellitesMap.get(alice.pkh), null); 
@@ -144,12 +144,12 @@
 //             const newGovernanceStorage  = await governanceInstance.storage();
 //             const proposalRecord        = await newGovernanceStorage.proposalLedger.get(proposalId);
 
-//             assert.equal(proposalRecord.title, proposalName);
+//             assert.equal(proposalRecord.title,       proposalName);
 //             assert.equal(proposalRecord.description, proposalDesc);
-//             assert.equal(proposalRecord.invoice, proposalIpfs);
-//             assert.equal(proposalRecord.status, "ACTIVE");
-//             assert.equal(proposalRecord.executed, false);
-//             assert.equal(proposalRecord.locked, false);
+//             assert.equal(proposalRecord.invoice,     proposalIpfs);
+//             assert.equal(proposalRecord.status,      "ACTIVE");
+//             assert.equal(proposalRecord.executed,    false);
+//             assert.equal(proposalRecord.locked,      false);
 
 //         } catch(e){
 //             console.log(e);
@@ -256,10 +256,10 @@
 //             const bobSatelliteSnapshot   = await newGovernanceStorage.snapshotLedger.get(bob.pkh);
 
 //             assert.equal(currentRoundVotes.get(alice.pkh), proposalId);
-//             assert.equal(currentRoundVotes.get(bob.pkh), proposalId);
+//             assert.equal(currentRoundVotes.get(bob.pkh),   proposalId);
 
 //             assert.equal(aliceProposalPassVotes.get(alice.pkh)[0].c, 100000000);
-//             assert.equal(aliceProposalPassVotes.get(bob.pkh)[0].c, 100000000);
+//             assert.equal(aliceProposalPassVotes.get(bob.pkh)[0].c,   100000000);
 
 //             assert.equal(currentRoundProposals.get("1"), 200000000);
 
@@ -330,8 +330,8 @@
             
 //             assert.equal(aliceProposalVoters.get(alice.pkh)[0], 1);             // voteType - 1 is Yay, 0 is Nay, 2 is abstain 
 //             assert.equal(aliceProposalVoters.get(alice.pkh)[1], 100000000);     // total voting power    
-//             assert.equal(aliceProposalVoters.get(bob.pkh)[0], 1);               // voteType - 1 is Yay, 0 is Nay, 2 is abstain 
-//             assert.equal(aliceProposalVoters.get(bob.pkh)[1], 100000000);       // total voting power    
+//             assert.equal(aliceProposalVoters.get(bob.pkh)[0],   1);             // voteType - 1 is Yay, 0 is Nay, 2 is abstain 
+//             assert.equal(aliceProposalVoters.get(bob.pkh)[1],   100000000);     // total voting power    
 
 //         } catch(e){
 //             console.log(e);
@@ -367,7 +367,7 @@
 //             // get new storage and assert tests for new values
 //             console.log("--- --- ---")
 //             const newGovernanceStorage = await governanceInstance.storage();            
-//             assert.equal(newGovernanceStorage.config.successReward, 995);
+//             assert.equal(newGovernanceStorage.config.successReward,     995);
 //             assert.equal(newGovernanceStorage.config.minQuorumMvkTotal, 42000);
 
 //         } catch(e){

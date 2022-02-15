@@ -86,7 +86,7 @@ type updateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : updateConfigActionType;
 ]
 
-type councilActionRequestFundsType is [@layout:comb] record [
+type councilActionRequestTokensType is [@layout:comb] record [
     treasuryAddress  : address;       // treasury address
     // tokenContractAddress : address;   // token contract address
     tokenName        : string;        // token name should be in whitelist token contracts map in governance contract
@@ -114,10 +114,11 @@ type councilAction is
     | CouncilActionRemoveVestee of address
     | CouncilActionUpdateVestee of councilActionUpdateVesteeType
     | CouncilActionToggleVesteeLock of address
+    
     | CouncilActionAddCouncilMember of address
     | CouncilActionRemoveMember of address
 
-    | CouncilActionRequestFunds of councilActionRequestFundsType
+    | CouncilActionRequestTokens of councilActionRequestTokensType
     | CouncilActionRequestMint of councilActionRequestMintType
 
     | SignAction of nat                
@@ -184,12 +185,12 @@ Some(contr) -> contr
 | None -> (failwith("toggleVesteeLock entrypoint in Vesting Contract not found") : contract(address))
 end;
 
-function sendRequestFundsParams(const contractAddress : address) : contract(councilActionRequestFundsType) is
+function sendRequestTokensParams(const contractAddress : address) : contract(councilActionRequestTokensType) is
   case (Tezos.get_entrypoint_opt(
-      "%requestFunds",
-      contractAddress) : option(contract(councilActionRequestFundsType))) of
+      "%requestTokens",
+      contractAddress) : option(contract(councilActionRequestTokensType))) of
     Some(contr) -> contr
-  | None -> (failwith("requestFunds entrypoint in Governance Contract not found") : contract(councilActionRequestFundsType))
+  | None -> (failwith("requestTokens entrypoint in Governance Contract not found") : contract(councilActionRequestTokensType))
 end;
 
 function sendRequestMintParams(const contractAddress : address) : contract(councilActionRequestMintType) is
@@ -221,6 +222,11 @@ block {
 
 function councilActionAddCouncilMember(const newCouncilMemberAddress : address ; var s : storage) : return is 
 block {
+
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -261,6 +267,11 @@ block {
 
 function councilActionRemoveMember(const councilMemberAddress : address ; var s : storage) : return is 
 block {
+
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -303,6 +314,11 @@ block {
 function councilActionAddVestee(const addVestee : councilActionAddVesteeType ; var s : storage) : return is 
 block {
 
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
+
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
@@ -343,6 +359,11 @@ block {
 function councilActionRemoveVestee(const vesteeAddress : address ; var s : storage) : return is 
 block {
 
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
+
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
@@ -382,6 +403,11 @@ block {
 
 function councilActionUpdateVestee(const updateVestee : councilActionUpdateVesteeType; var s : storage) : return is 
 block {
+
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
     
     checkSenderIsCouncilMember(s);
 
@@ -423,6 +449,11 @@ block {
 function councilActionToggleVesteeLock(const vesteeAddress : address ; var s : storage) : return is 
 block {
 
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
+
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
@@ -460,8 +491,13 @@ block {
 
 } with (noOperations, s)
 
-function councilActionRequestFunds(const councilActionRequestFundsParams : councilActionRequestFundsType ; var s : storage) : return is 
+function councilActionRequestTokens(const councilActionRequestTokensParams : councilActionRequestTokensType ; var s : storage) : return is 
 block {
+
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -469,22 +505,22 @@ block {
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
-        actionType            = "requestFunds";
+        actionType            = "requestTokens";
         signers               = set[Tezos.sender];
 
         status                = "PENDING";
         signersCount          = 1n;
         executed              = False;
 
-        address_param_1       = councilActionRequestFundsParams.treasuryAddress;
+        address_param_1       = councilActionRequestTokensParams.treasuryAddress;
         address_param_2       = zeroAddress;    
         address_param_3       = zeroAddress;    
-        nat_param_1           = councilActionRequestFundsParams.tokenAmount;
-        nat_param_2           = councilActionRequestFundsParams.tokenId;
+        nat_param_1           = councilActionRequestTokensParams.tokenAmount;
+        nat_param_2           = councilActionRequestTokensParams.tokenId;
         nat_param_3           = 0n;
-        string_param_1        = councilActionRequestFundsParams.tokenName; 
-        string_param_2        = councilActionRequestFundsParams.purpose;        
-        string_param_3        = councilActionRequestFundsParams.tokenType;        
+        string_param_1        = councilActionRequestTokensParams.tokenName; 
+        string_param_2        = councilActionRequestTokensParams.purpose;        
+        string_param_3        = councilActionRequestTokensParams.tokenType;        
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -502,6 +538,11 @@ block {
 
 function councilActionRequestMint(const councilActionRequestMintParams : councilActionRequestMintType ; var s : storage) : return is 
 block {
+    
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
 
@@ -676,15 +717,15 @@ block {
             s.councilMembers := Set.remove(_councilActionRecord.address_param_1, s.councilMembers);
         } else skip;
 
-        // requestFunds action type
-        if actionType = "requestFunds" then block {
+        // requestTokens action type
+        if actionType = "requestTokens" then block {
             
             var governanceAddress : address := case s.generalContracts["governance"] of 
                 Some(_address) -> _address
                 | None -> failwith("Error. Governance Contract Address not found")
             end;
 
-            const requestFundsParams : councilActionRequestFundsType = record[
+            const requestTokensParams : councilActionRequestTokensType = record[
                 tokenName       = _councilActionRecord.string_param_1;
                 tokenAmount     = _councilActionRecord.nat_param_1;
                 tokenType       = _councilActionRecord.string_param_3;
@@ -693,13 +734,13 @@ block {
                 purpose         = _councilActionRecord.string_param_2;
             ];
 
-            const requestFundsOperation : operation = Tezos.transaction(
-                requestFundsParams,
+            const requestTokensOperation : operation = Tezos.transaction(
+                requestTokensParams,
                 0tez, 
-                sendRequestFundsParams(governanceAddress)
+                sendRequestTokensParams(governanceAddress)
             );
 
-            operations := requestFundsOperation # operations;
+            operations := requestTokensOperation # operations;
         } else skip;
 
         // requestMint action type
@@ -752,7 +793,7 @@ function main (const action : councilAction; const s : storage) : return is
         | CouncilActionToggleVesteeLock(parameters) -> councilActionToggleVesteeLock(parameters, s)
         | CouncilActionAddCouncilMember(parameters) -> councilActionAddCouncilMember(parameters, s)
         | CouncilActionRemoveMember(parameters) -> councilActionRemoveMember(parameters, s)
-        | CouncilActionRequestFunds(parameters) -> councilActionRequestFunds(parameters, s)
+        | CouncilActionRequestTokens(parameters) -> councilActionRequestTokens(parameters, s)
         | CouncilActionRequestMint(parameters) -> councilActionRequestMint(parameters, s)
 
         | SignAction(parameters) -> signAction(parameters, s)
