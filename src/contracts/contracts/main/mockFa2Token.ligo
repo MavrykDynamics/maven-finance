@@ -1,9 +1,3 @@
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
-
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
-
 ////
 // COMMON TYPES
 ////
@@ -26,9 +20,7 @@ type tokenMetadata is big_map(tokenId, tokenMetadataInfo);
 type metadata is big_map (string, bytes);
 
 type storage is record [
-    admin                 : address;
-    generalContracts      : generalContractsType;    // map of contract addresses
-    whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
+    admin                 : address;    
     metadata              : metadata;
     token_metadata        : tokenMetadata;
     totalSupply           : tokenBalance;
@@ -99,15 +91,6 @@ type mintParams is (owner * tokenBalance)
 (* Burn entrypoint inputs *)
 type burnParams is (owner * tokenBalance)
 
-(* OnStakeChange entrypoint inputs *)
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
-type onStakeChangeParamsType is (owner * tokenBalance * stakeType)
-
-(* UpdateMvkDoormanTotalSupply entrypoint inputs *)
-type updateMvkTotalSupplyForDoormanParams is tokenBalance
-
 ////
 // ENTRYPOINTS
 ////
@@ -119,10 +102,6 @@ type action is
 | GetTotalSupply of getTotalSupplyParams
 | Mint of mintParams
 | Burn of burnParams
-| OnStakeChange of onStakeChangeParamsType
-| UpdateWhitelistContracts of updateWhitelistContractsParams
-| UpdateGeneralContracts of updateGeneralContractsParams
-| UpdateMvkTotalSupplyForDoorman of updateMvkTotalSupplyForDoormanParams
 
 ////
 // FUNCTIONS
@@ -151,12 +130,6 @@ function checkOperator(const owner: owner; const token_id: tokenId; const operat
   if owner = Tezos.sender or Big_map.mem((owner, Tezos.sender, token_id), operators) then unit
   else failwith ("FA2_NOT_OPERATOR")
 
-function checkSenderIsDoormanContract(const store: storage): unit is
-  case Map.find_opt("doorman", store.generalContracts) of
-    Some (v) -> if v =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
-  | None -> failwith("DOORMAN_CONTRACT_NOT_FOUND")
-  end
-
 function checkSenderIsAdmin(const store: storage): unit is
   if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
@@ -164,12 +137,6 @@ function checkSenderIsAdmin(const store: storage): unit is
 function checkNoAmount(const _p: unit): unit is
   if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
   else unit
-
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
 
 (* Transfer Entrypoint *)
 function mergeOperations(const first: list (operation); const second: list (operation)) : list (operation) is 
@@ -301,8 +268,8 @@ function mint(const mintParams: mintParams; const store : storage) : return is
     const senderAddress: owner = mintParams.0;
     const mintedTokens: tokenBalance = mintParams.1;
 
-    // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    (* Check this call is coming from admin *)
+    checkSenderIsAdmin(store);
 
     // Update sender's balance
     const senderNewBalance: tokenBalance = getBalance(senderAddress, store) + mintedTokens;
@@ -319,8 +286,8 @@ function burn(const burnParams: burnParams; const store: storage) : return is
     const burnedTokens: tokenBalance = burnParams.1;
     var targetBalance: tokenBalance := getBalance(targetAddress, store);
 
-    (* Check this call is coming from the doorman contract *)
-    checkSenderIsDoormanContract(store);
+    (* Check this call is coming from admin *)
+    checkSenderIsAdmin(store);
 
     (* Balance check *)
     checkBalance(targetBalance, burnedTokens);
@@ -333,61 +300,6 @@ function burn(const burnParams: burnParams; const store: storage) : return is
     const updatedLedger: ledger = Big_map.update(targetAddress, Some(targetBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
 
-
-(* OnStakeChange Entrypoint *)
-(* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
-function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const store: storage): return is
-  block{
-    // check sender is from doorman contract or vesting contract
-    if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
-    
-    const owner: owner = onStakeChangeParams.0;
-    var ownerBalance: tokenBalance := getBalance(owner, store);
-    const value: tokenBalance = onStakeChangeParams.1;
-    const stakeType: stakeType = onStakeChangeParams.2;
-
-    case stakeType of
-      StakeAction (_v) -> block{
-        // stake -> decrease user balance in mvk ledger 
-        (* Balance check *)
-        checkBalance(ownerBalance, value);
-        (* Update sender balance *)
-        ownerBalance := abs(ownerBalance - value);
-      }
-      // unstake -> increase user balance in mvk ledger
-      // claim   -> increase user balance in mvk ledger (from vesting)
-    | UnstakeAction (_v) -> ownerBalance := ownerBalance + value
-    end;
-
-    (* Update ledger *)
-    const updatedLedger = Big_map.update(owner, Some(ownerBalance), store.ledger);
-  } with (noOperations, store with record[ledger=updatedLedger])
-
-function updateMvkTotalSupplyForDoorman(const updateMvkTotalSupplyForDoormanParams: updateMvkTotalSupplyForDoormanParams; const store: storage): return is
-  block {
-    (* Check this call is coming from the doorman contract *)
-    checkSenderIsDoormanContract(store);
-
-    const unstakeAmount: tokenBalance = updateMvkTotalSupplyForDoormanParams;
-    const doormanAddress: address = Tezos.sender;
-
-    const setTempMvkTotalSupplyEntrypoint: contract(nat) = 
-      case (Tezos.get_entrypoint_opt("%setTempMvkTotalSupply", doormanAddress) : option(contract(nat))) of
-        Some (contr) -> contr
-      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat))
-      end;
-    const setTempMvkTotalSupplyEntrypoint_operation: operation = Tezos.transaction(store.totalSupply, 0tez, setTempMvkTotalSupplyEntrypoint);
-
-    const unstakeCompleteEntrypoint: contract(nat) =
-      case (Tezos.get_entrypoint_opt("%unstakeComplete", doormanAddress) : option(contract(nat))) of
-        Some(contr) -> contr
-      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat))
-      end;
-    const unstakeCompleteOperation: operation = Tezos.transaction(unstakeAmount, 0tez, unstakeCompleteEntrypoint);
-
-    const operations: list(operation) = list [setTempMvkTotalSupplyEntrypoint_operation; unstakeCompleteOperation];
-
-  } with (operations, store)
 
 (* Main entrypoint *)
 function main (const action : action; const store : storage) : return is
@@ -403,9 +315,5 @@ function main (const action : action; const store : storage) : return is
       | GetTotalSupply (params) -> getTotalSupply(params, store)
       | Mint (params) -> mint(params, store)
       | Burn (params) -> burn(params, store)
-      | OnStakeChange (params) -> onStakeChange(params, store)
-      | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
-      | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
-      | UpdateMvkTotalSupplyForDoorman (params) -> updateMvkTotalSupplyForDoorman(params, store)
     end
   )
