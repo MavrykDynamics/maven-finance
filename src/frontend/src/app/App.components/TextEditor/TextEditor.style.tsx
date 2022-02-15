@@ -1,11 +1,12 @@
 import styled from 'styled-components/macro'
 import { backgroundColor, placeholderColor } from 'styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
-export const TextEditorContainer = styled.div`
+export const TextEditorContainer = styled.div<{ theme: MavrykTheme }>`
   border-radius: 10px;
 
   > div {
-    background-color: ${placeholderColor};
+    background-color: ${({ theme }) => theme.placeholderColor};
     min-height: 200px;
     font-family: 'Metropolis', sans-serif;
     border-radius: 10px;
@@ -13,6 +14,6 @@ export const TextEditorContainer = styled.div`
     direction: ltr;
   }
   .ButtonWrap__root___1EO_R > button {
-    background-color: ${backgroundColor};
+    background-color: ${({ theme }) => theme.backgroundColor};
   }
 `

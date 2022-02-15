@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
-import { containerColor } from '../../styles'
+import { MavrykTheme } from '../../styles/interfaces'
 
-export const GovernanceStyled = styled.div`
-  background-color: ${containerColor};
+export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
+  background-color: ${({ theme }) => theme.containerColor};
 `
