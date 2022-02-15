@@ -14,7 +14,7 @@ function getGeneralContract(const contractName: string; const s: storage): addre
   end
 
 (* UpdateGeneralContracts Entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s : storage) : return is 
+function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsParams; var s : storage) : return is 
   block{
     
     checkSenderIsAdmin(s); // check that sender is admin

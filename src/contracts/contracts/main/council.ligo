@@ -13,7 +13,7 @@ type signersType is set(address)
 type councilActionRecordType is record [
 
     initiator                  : address;          // address of action initiator
-    actionType                 : string;           // addVestee / updateVestee / toggleTreasury
+    actionType                 : string;           // addVestee / updateVestee / toggleVesteeLock / addCouncilMember / removeCouncilMember / requestFunds / requestMint
     signers                    : signersType;      // set of signers
 
     status                     : string;           // PENDING / FLUSHED / EXECUTED / EXPIRED
@@ -72,7 +72,30 @@ type councilActionUpdateVesteeType is (address * nat * nat * nat) // vestee addr
 type signActionType is (nat * nat) // councilActionId, voteType to be decided and confirmed: on frontend, set 1 as APPROVE, 0 as REJECT 
 type flushActionType is (nat)
 
+type updateConfigNewValueType is nat
+type updateConfigActionType is 
+  ConfigThreshold of unit
+| ConfigActionExpiryBlockLevels of unit
+| ConfigActionExpiryDays of unit
+type updateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue  : updateConfigNewValueType; 
+  updateConfigAction    : updateConfigActionType;
+]
+
+type councilActionRequestFundsType is [@layout:comb] record [
+    tokenName        : string;   // token name should be in whitelist token contracts map in governance contract
+    tokenAmount      : nat;      // token amount requested
+    treasuryAddress  : address;  // treasury address
+]
+
+type councilActionRequestMintType is [@layout:comb] record [
+    tokenAmount      : nat;      // MVK token amount requested
+    treasuryAddress  : address;  // treasury address
+]
+
 type councilAction is 
+    | UpdateConfig of updateConfigParamsType    
+
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
 
@@ -80,9 +103,11 @@ type councilAction is
     | CouncilActionRemoveVestee of address
     | CouncilActionUpdateVestee of councilActionUpdateVesteeType
     | CouncilActionToggleVesteeLock of address
-    // | councilActionToggleTreasuryWithdraw of unit
     | CouncilActionAddCouncilMember of address
     | CouncilActionRemoveMember of address
+
+    | CouncilActionRequestFunds of councilActionRequestFundsType
+    | CouncilActionRequestMint of councilActionRequestMintType
 
     | SignAction of nat                
     | FlushAction of flushActionType
@@ -148,13 +173,40 @@ Some(contr) -> contr
 | None -> (failwith("toggleVesteeLock entrypoint in Vesting Contract not found") : contract(address))
 end;
 
-// function toggleTreasuryParams(const contractAddress : address) : contract(unit) is
-// case (Tezos.get_entrypoint_opt(
-//     "%toggleMintWithdraw",
-//     contractAddress) : option(contract(unit))) of
-// Some(contr) -> contr
-// | None -> (failwith("toggleMintWithdraw entrypoint in Treasury Contract not found") : contract(unit))
-// end;
+function sendRequestFundsParams(const contractAddress : address) : contract(councilActionRequestFundsType) is
+  case (Tezos.get_entrypoint_opt(
+      "%requestFunds",
+      contractAddress) : option(contract(councilActionRequestFundsType))) of
+    Some(contr) -> contr
+  | None -> (failwith("requestFunds entrypoint in Governance Contract not found") : contract(councilActionRequestFundsType))
+end;
+
+function sendRequestMintParams(const contractAddress : address) : contract(councilActionRequestMintType) is
+  case (Tezos.get_entrypoint_opt(
+      "%requestMint",
+      contractAddress) : option(contract(councilActionRequestMintType))) of
+    Some(contr) -> contr
+  | None -> (failwith("requestMint entrypoint in Governance Contract not found") : contract(councilActionRequestMintType))
+end;
+
+
+(*  updateConfig entrypoint  *)
+function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  // checkSenderIsAdmin(s); // check that sender is admin
+
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+  case updateConfigAction of
+    ConfigThreshold (_v)                  -> s.config.threshold                 := updateConfigNewValue
+  | ConfigActionExpiryBlockLevels (_v)    -> s.config.actionExpiryBlockLevels   := updateConfigNewValue
+  | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
+  end;
+
+} with (noOperations, s)
 
 function councilActionAddCouncilMember(const newCouncilMemberAddress : address ; var s : storage) : return is 
 block {
@@ -385,14 +437,82 @@ block {
 
 } with (noOperations, s)
 
-function councilActionToggleTreasuryWithdraw(var s : storage) : return is 
+function councilActionRequestFunds(const councilActionRequestFundsParams : councilActionRequestFundsType ; var s : storage) : return is 
 block {
-    
+
     checkSenderIsCouncilMember(s);
 
-    skip
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+
+    var councilActionRecord : councilActionRecordType := record[
+        initiator             = Tezos.sender;
+        actionType            = "requestFunds";
+        signers               = set[Tezos.sender];
+
+        status                = "PENDING";
+        signersCount          = 1n;
+        executed              = False;
+
+        address_param_1       = councilActionRequestFundsParams.treasuryAddress;
+        address_param_2       = zeroAddress;    
+        nat_param_1           = councilActionRequestFundsParams.tokenAmount;
+        nat_param_2           = 0n;
+        nat_param_3           = 0n;
+        string_param_1        = councilActionRequestFundsParams.tokenName; 
+        string_param_2        = "EMPTY";        
+
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
+    ];
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
+
+function councilActionRequestMint(const councilActionRequestMintParams : councilActionRequestMintType ; var s : storage) : return is 
+block {
+
+    checkSenderIsCouncilMember(s);
+
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+
+    var councilActionRecord : councilActionRecordType := record[
+        initiator             = Tezos.sender;
+        actionType            = "requestMint";
+        signers               = set[Tezos.sender];
+
+        status                = "PENDING";
+        signersCount          = 1n;
+        executed              = False;
+
+        address_param_1       = councilActionRequestMintParams.treasuryAddress;
+        address_param_2       = zeroAddress;    
+        nat_param_1           = councilActionRequestMintParams.tokenAmount;
+        nat_param_2           = 0n;
+        nat_param_3           = 0n;
+        string_param_1        = "EMPTY"; 
+        string_param_2        = "EMPTY";        
+
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
+    ];
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
+
 
 function flushAction(const _actionId: nat; var s : storage) : return is 
 block {
@@ -529,22 +649,50 @@ block {
             s.councilMembers := Set.remove(_councilActionRecord.address_param_1, s.councilMembers);
         } else skip;
 
-        // toggleTreasury action type
-        // if actionType = "toggleTreasury" then block {
-        //     var treasuryAddress : address := case s.generalContracts["treasuryAddress"] of 
-        //         Some(_address) -> _address
-        //         | None -> failwith("Error. Treasury Contract Address not found")
-        //     end;
-
-        //     const toggleTreasuryOperation : operation = Tezos.transaction(
-        //         unit,
-        //         0tez, 
-        //         toggleTreasuryParams(treasuryAddress)
-        //     );
-
-        //     operations := toggleTreasuryOperation # operations;
+        // requestFunds action type
+        if actionType = "requestFunds" then block {
             
-        // } else skip;
+            var governanceAddress : address := case s.generalContracts["governance"] of 
+                Some(_address) -> _address
+                | None -> failwith("Error. Governance Contract Address not found")
+            end;
+
+            const requestFundsParams : councilActionRequestFundsType = record[
+                tokenName       = _councilActionRecord.string_param_1;
+                tokenAmount     = _councilActionRecord.nat_param_1;
+                treasuryAddress = _councilActionRecord.address_param_1;
+            ];
+
+            const requestFundsOperation : operation = Tezos.transaction(
+                requestFundsParams,
+                0tez, 
+                sendRequestFundsParams(governanceAddress)
+            );
+
+            operations := requestFundsOperation # operations;
+        } else skip;
+
+        // requestMint action type
+        if actionType = "requestMint" then block {
+            
+            var governanceAddress : address := case s.generalContracts["governance"] of 
+                Some(_address) -> _address
+                | None -> failwith("Error. Governance Contract Address not found")
+            end;
+
+            const requestMintParams : councilActionRequestMintType = record[
+                tokenAmount     = _councilActionRecord.nat_param_1;
+                treasuryAddress = _councilActionRecord.address_param_1;
+            ];
+
+            const requestMintOperation : operation = Tezos.transaction(
+                requestMintParams,
+                0tez, 
+                sendRequestMintParams(governanceAddress)
+            );
+
+            operations := requestMintOperation # operations;
+        } else skip;
 
         // update council action record status
         _councilActionRecord.status              := "EXECUTED";
@@ -561,6 +709,7 @@ block {
 
 function main (const action : councilAction; const s : storage) : return is 
     case action of
+        | UpdateConfig(parameters) -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
@@ -568,9 +717,10 @@ function main (const action : councilAction; const s : storage) : return is
         | CouncilActionRemoveVestee(parameters) -> councilActionRemoveVestee(parameters, s)
         | CouncilActionUpdateVestee(parameters) -> councilActionUpdateVestee(parameters, s)
         | CouncilActionToggleVesteeLock(parameters) -> councilActionToggleVesteeLock(parameters, s)
-        // | CouncilActionToggleTreasuryWithdraw(_parameters) -> councilActionToggleTreasuryWithdraw(s)
         | CouncilActionAddCouncilMember(parameters) -> councilActionAddCouncilMember(parameters, s)
         | CouncilActionRemoveMember(parameters) -> councilActionRemoveMember(parameters, s)
+        | CouncilActionRequestFunds(parameters) -> councilActionRequestFunds(parameters, s)
+        | CouncilActionRequestMint(parameters) -> councilActionRequestMint(parameters, s)
 
         | SignAction(parameters) -> signAction(parameters, s)
         | FlushAction(parameters) -> flushAction(parameters, s)

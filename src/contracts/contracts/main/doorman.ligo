@@ -258,38 +258,6 @@ block {
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
-(* set mvk contract address *)
-// function setMvkTokenAddress(const newTokenAddress : address; var s : storage) : return is
-// block {
-//     checkNoAmount(Unit); // entrypoint should not receive any tez amount
-//     checkSenderIsAdmin(s); // check that sender is admin
-//     s.mvkTokenAddress := newTokenAddress;
-// } with (noOperations, s)
-
-// (* set mvk contract address *)
-// function setDelegationAddress(const newContractAddress : address; var s : storage) : return is
-// block {
-
-//     // entrypoint should not receive any tez amount
-//     checkNoAmount(Unit);
-
-//     // check that sender is admin
-//     checkSenderIsAdmin(s);
-
-//     s.delegationAddress := newContractAddress;
-// } with (noOperations, s)
-
-// (* set mvk contract address *)
-// function setExitFeePoolAddress(const newContractAddress : address; var s : storage) : return is
-// block {
-
-//     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-//     checkSenderIsAdmin(s); // check that sender is admin
-
-//     s.exitFeePoolAddress := newContractAddress;
-// } with (noOperations, s)
-
-
 (* View function that forwards the staked balance of source to a contract *)
 function getStakedBalance (const userAddress : address; const contr : contract(nat); var s : storage) : return is
   block {

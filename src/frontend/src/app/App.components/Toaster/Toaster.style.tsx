@@ -1,8 +1,8 @@
-import styled, { keyframes } from 'styled-components/macro'
+import styled, { css, keyframes } from 'styled-components/macro'
 
-import { backgroundColor, downColor, subTextColor, textColor, upColor } from '../../../styles'
+import { backgroundColor, downColor, infoColor, subTextColor, textColor, upColor, warningColor } from '../../../styles'
 
-export const ToasterStyled = styled.div`
+export const ToasterStyled = styled.div<{ showing: boolean }>`
   position: fixed;
   top: 0;
   right: -470px;
@@ -19,9 +19,11 @@ export const ToasterStyled = styled.div`
   will-change: transform;
   overflow: hidden;
 
-  &.showing {
-    transform: translate3d(-470px, 0, 0);
-  }
+  ${(props) =>
+    props.showing &&
+    css`
+      transform: translate3d(-470px, 0, 0);
+    `}
 `
 
 export const decreaseBar = keyframes`
@@ -33,7 +35,7 @@ export const decreaseBar = keyframes`
   }
 `
 
-export const ToasterCountdown = styled.div`
+export const ToasterCountdown = styled.div<{ showing: boolean; status?: string }>`
   position: absolute;
   bottom: 0;
   right: 0;
@@ -43,12 +45,26 @@ export const ToasterCountdown = styled.div`
   border-radius: 0 0 4px 0;
   will-change: transform;
   transform: translate3d(470px, 0, 0);
+  background-color: ${(props) => {
+    switch (props.status) {
+      case 'info':
+        return infoColor
+      case 'warning':
+        return warningColor
+      case 'error':
+        return downColor
+      default:
+        return upColor
+    }
+  }};
 
-  &.showing {
-    animation: ${decreaseBar} ease-in-out 1;
-    animation-fill-mode: forwards;
-    animation-duration: 5s;
-  }
+  ${(props) =>
+    props.showing &&
+    css`
+      animation: ${decreaseBar} ease-in-out 1;
+      animation-fill-mode: forwards;
+      animation-duration: 5s;
+    `}
 `
 
 export const ToasterGrid = styled.div`
@@ -72,9 +88,9 @@ export const ToasterIcon = styled.div<{ status?: string }>`
     stroke: ${(props) => {
       switch (props.status) {
         case 'info':
-          return upColor
+          return infoColor
         case 'warning':
-          return downColor
+          return warningColor
         case 'error':
           return downColor
         default:
