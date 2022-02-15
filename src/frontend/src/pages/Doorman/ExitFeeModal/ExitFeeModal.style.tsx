@@ -1,5 +1,6 @@
 import styled from 'styled-components/macro'
 import { primaryColor, subTextColor } from 'styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const ExitFeeModalContent = styled.div`
   padding: 0 20px 20px 20px;
@@ -11,7 +12,7 @@ export const ExitFeeModalButtons = styled.div`
   grid-gap: 10px;
 `
 
-export const ExitFeeModalGrid = styled.div`
+export const ExitFeeModalGrid = styled.div<{ theme: MavrykTheme }>`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-gap: 10px;
@@ -20,26 +21,26 @@ export const ExitFeeModalGrid = styled.div`
   text-align: center;
 
   > div {
-    color: ${subTextColor};
+    color: ${({ theme }) => theme.subTextColor};
   }
 
   > p {
-    color: ${primaryColor};
+    color: ${({ theme }) => theme.primaryColor};
     margin-top: 0;
   }
 `
 
-export const ExitFeeModalFee = styled.div`
+export const ExitFeeModalFee = styled.div<{ theme: MavrykTheme }>`
   font-size: 24px;
   font-weight: bold;
   margin: 50px auto;
   text-align: center;
 
   > div {
-    color: ${subTextColor};
+    color: ${({ theme }) => theme.subTextColor};
   }
 
   > p {
-    color: ${primaryColor};
+    color: ${({ theme }) => theme.primaryColor};
   }
 `
