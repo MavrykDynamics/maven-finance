@@ -48,9 +48,7 @@ type updateOperator is
 type updateOperatorsParamsType is list(updateOperator)
 
 type tezType             is unit
-
 type fa12TokenType       is address
-
 type fa2TokenType        is [@layout:comb] record [
   token                   : address;
   id                      : nat;
@@ -353,7 +351,7 @@ block {
 
         const updateSatelliteBalanceOperation : operation = Tezos.transaction(
             (to_, amt, 1n),
-            0tez,
+            0mutez,
             updateSatelliteBalance(delegationAddress)
         );
 
@@ -400,7 +398,7 @@ block {
 
     const updateSatelliteBalanceOperation : operation = Tezos.transaction(
         (to_, amt, 1n),
-        0tez,
+        0mutez,
         updateSatelliteBalance(delegationAddress)
     );
 
