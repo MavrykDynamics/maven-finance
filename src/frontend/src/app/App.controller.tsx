@@ -19,7 +19,6 @@ import { Loans } from '../pages/Loans/Loans.controller'
 import { Farms } from '../pages/Farms/Farms.controller'
 import { Vaults } from '../pages/Vaults/Vaults.controller'
 import { Dashboard } from '../pages/Dashboard/Dashboard.controller'
-import DarkThemeProvider from './App.components/DarkThemeProvider/DarkThemeProvider.view'
 
 export const store = configureStore({})
 
@@ -45,6 +44,9 @@ const AppContainer = () => {
           <Route exact path="/dashboard">
             <Dashboard />
           </Route>
+          <Route exact path="/dashboard-personal">
+            <Dashboard />
+          </Route>
           <Route exact path="/stake">
             <Doorman />
           </Route>
@@ -58,6 +60,9 @@ const AppContainer = () => {
             <SatelliteDetails />
           </Route>
           <Route exact path="/governance">
+            <Governance />
+          </Route>
+          <Route exact path="/break-glass">
             <Governance />
           </Route>
           <Route exact path="/treasury">

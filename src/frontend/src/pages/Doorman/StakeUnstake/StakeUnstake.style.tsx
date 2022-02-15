@@ -1,5 +1,6 @@
 import styled from 'styled-components/macro'
 import { backgroundColor, downColor, placeholderColor, subTextColor, upColor } from 'styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const StakeUnstakeStyled = styled.div`
   /* height: 240px; */
@@ -10,27 +11,27 @@ export const StakeUnstakeStyled = styled.div`
   grid-gap: 30px;
 `
 
-export const StakeUnstakeCard = styled.div`
-  background-color: ${backgroundColor};
+export const StakeUnstakeCard = styled.div<{ theme: MavrykTheme }>`
+  background-color: ${({ theme }) => theme.backgroundColor};
   border-radius: 10px;
   text-align: center;
   font-size: 14px;
   font-weight: 600;
-  color: ${subTextColor};
+  color: ${({ theme }) => theme.subTextColor};
   display: flex;
   justify-content: center;
   align-items: flex-start;
   padding: 30px;
   min-width: 130px;
 `
-export const StakeUnstakeActionCard = styled.div`
-  background-color: ${backgroundColor};
+export const StakeUnstakeActionCard = styled.div<{ theme: MavrykTheme }>`
+  background-color: ${({ theme }) => theme.backgroundColor};
   border-radius: 10px;
   padding: 35px;
   text-align: center;
   font-size: 14px;
   font-weight: 600;
-  color: ${subTextColor};
+  color: ${({ theme }) => theme.subTextColor};
 `
 export const StakeUnstakeInputColumn = styled.div`
   display: flex;
@@ -73,43 +74,44 @@ export const StakeUnstakeMax = styled.button`
   cursor: pointer;
   outline: inherit;
 `
-export const StakeUnstakeInputCheck = styled.div<{ inputOk: boolean; accountPkh?: string }>`
+export const StakeUnstakeInputCheck = styled.div<{ inputOk: boolean; accountPkh?: string; theme: MavrykTheme }>`
   height: 50px;
   width: 100%;
   border: 1px;
   border-style: ${({ inputOk, accountPkh }) => (inputOk ? (accountPkh ? 'solid' : 'hidden') : 'solid')};
-  border-color: ${({ inputOk, accountPkh }) => (accountPkh ? (inputOk ? upColor : downColor) : 'none')};
+  border-color: ${({ inputOk, accountPkh, theme }) =>
+    accountPkh ? (inputOk ? theme.upColor : theme.downColor) : 'none'};
   margin: 10px 0;
   border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
 `
-export const StakeUnstakeErrorMessage = styled.div<{ inputOk: boolean; accountPkh?: string }>`
-  color: ${({ inputOk }) => (inputOk ? upColor : downColor)};
+export const StakeUnstakeErrorMessage = styled.div<{ inputOk: boolean; accountPkh?: string; theme: MavrykTheme }>`
+  color: ${({ inputOk, theme }) => (inputOk ? theme.upColor : theme.downColor)};
   font-size: 12px;
   font-weight: 600;
 `
 
-export const StakeUnstakeInput = styled.input`
+export const StakeUnstakeInput = styled.input<{ theme: MavrykTheme }>`
   width: 100%;
   height: 100%;
-  background: ${placeholderColor};
+  background: ${({ theme }) => theme.placeholderColor};
   margin: 10px 0;
   font-size: 22px;
   font-weight: 600;
   border: none;
   padding: 0 20px;
   border-radius: 10px;
-  color: ${subTextColor};
+  color: ${({ theme }) => theme.subTextColor};
   flex: 0 0 1;
   position: relative;
 `
 
-export const StakeUnstakeInputLabel = styled.div`
+export const StakeUnstakeInputLabel = styled.div<{ theme: MavrykTheme }>`
   position: absolute;
   right: 17px;
-  color: ${subTextColor};
+  color: ${({ theme }) => theme.subTextColor};
   font-size: 22px;
   font-weight: 600;
 `
@@ -129,7 +131,7 @@ export const StakeUnstakeButtonGrid = styled.div`
   grid-gap: 30px;
 `
 
-export const StakeUnstakeBalance = styled.div`
+export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -138,7 +140,7 @@ export const StakeUnstakeBalance = styled.div`
   h3 {
     font-size: 14px;
     font-weight: 600;
-    color: ${subTextColor};
+    color: ${({ theme }) => theme.subTextColor};
   }
   img {
     margin: 26px auto;
@@ -149,7 +151,7 @@ export const StakeUnstakeBalance = styled.div`
     align-items: center;
     font-size: 20px;
     font-weight: 600;
-    color: ${subTextColor};
+    color: ${({ theme }) => theme.subTextColor};
 
     &::after {
       content: '';

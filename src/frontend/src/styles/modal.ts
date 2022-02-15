@@ -1,5 +1,6 @@
 import styled from 'styled-components/macro'
 import { backgroundColor } from 'styles'
+import { MavrykTheme } from './interfaces'
 
 export const ModalStyled = styled.div<{ showing: boolean }>`
   position: fixed;
@@ -28,16 +29,16 @@ export const ModalCard = styled.div`
   transform: translate(-50%, -50%);
 `
 
-export const ModalCardContent = styled.div<{ width?: number, height?: number }>`
-  background: ${backgroundColor};
+export const ModalCardContent = styled.div<{ width?: number; height?: number; theme: MavrykTheme }>`
+  background: ${({ theme }) => theme.backgroundColor};
   border-radius: 10px;
-  min-height: ${props => props.height ? `${props.height}vh` : 'initial'};
+  min-height: ${(props) => (props.height ? `${props.height}vh` : 'initial')};
   max-height: calc(90vh - 50px);
-  min-width: ${props => props.width ? `${props.width}vw` : 'initial'};
+  min-width: ${(props) => (props.width ? `${props.width}vw` : 'initial')};
   max-width: 90vw;
 `
 
-export const ModalClose = styled.div`
+export const ModalClose = styled.div<{ theme: MavrykTheme }>`
   position: absolute;
   top: 0;
   right: -40px;
@@ -46,6 +47,6 @@ export const ModalClose = styled.div`
   > svg {
     height: 24px;
     width: 24px;
-    stroke: ${backgroundColor};
+    stroke: ${({ theme }) => theme.subTextColor};
   }
 `

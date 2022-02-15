@@ -20,7 +20,7 @@ export const darkMode = {
   textColor: '#F7F9FD',
   subTextColor: '#fff',
   backgroundTextColor: '#2B2B60',
-  placeholderColor: '#F7F9FD',
+  placeholderColor: '#7068AA',
   primaryColor: '#7068AA',
   secondaryColor: '#73d7c3',
   upColor: '#00E205',
