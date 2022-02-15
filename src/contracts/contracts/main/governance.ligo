@@ -84,6 +84,8 @@ type financialRequestRecordType is [@layout:comb] record [
     // tokenContractAddress    : address; 
     tokenAmount             : nat;
     tokenName               : string; 
+    tokenType               : string;
+    tokenId                 : nat;
     requestPurpose          : string;
 
     voters                  : financialRequestVotersMapType; 
@@ -219,14 +221,14 @@ type tokenType       is
 | Fa12                    of fa12TokenType   // address
 | Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
 
-type transferTokenType is record [
+type transferTokenType is [@layout:comb] record [
     from_           : address;
     to_             : address;
     amt             : nat;
     token           : tokenType;
 ]
 type mintTokenType is (address * nat)
-type mintMvkAndTransferType is record [
+type mintMvkAndTransferType is [@layout:comb] record [
     to_             : address;
     amt             : nat;
 ]
@@ -279,7 +281,9 @@ type requestFundsType is [@layout:comb] record [
     treasuryAddress       : address;  // treasury address
     // tokenContractAddress  : address   // token contract address
     tokenName             : string;   // token name should be in whitelist token contracts map in governance contract
+    tokenType             : string;
     tokenAmount           : nat;      // token amount requested
+    tokenId               : nat;      // token amount requested
     purpose               : string;   // financial request purpose
 ]
 
@@ -287,6 +291,8 @@ type requestMintType is [@layout:comb] record [
     treasuryAddress       : address;  // treasury address
     // tokenContractAddress  : address   // token contract address
     tokenAmount           : nat;      // MVK token amount requested
+    tokenType             : string;
+    tokenId               : nat;      // token amount requested
     purpose               : string;   // financial request purpose
 ]
 
@@ -321,9 +327,9 @@ type governanceAction is
     | StartVotingRound of (unit)
     | VotingRoundVote of (nat * nat)
     
-    | StartTimelockRound of (unit)
-    | ExecuteProposal of (nat)
-    | DropProposal of (nat)
+    // | StartTimelockRound of (unit)
+    // | ExecuteProposal of (nat)
+    // | DropProposal of (nat)
 
     | CallGovernanceLambdaProxy of executeActionType
     | SetupLambdaFunction of setupLambdaFunctionType
@@ -331,7 +337,7 @@ type governanceAction is
     | RequestFunds of requestFundsType
     | RequestMint of requestMintType
     | DropFinancialRequest of (nat)
-    | RequestMvkSnapshotComplete of (nat)
+    | RequestStakedMvkSnapshot of (nat)
     | RequestSatelliteSnapshot of requestSatelliteSnapshotType
     | VoteForRequest of voteForRequestType
 
@@ -524,15 +530,6 @@ function getStakedMvkBalance(const contractAddress : address) : contract(address
     Some(contr) -> contr
   | None -> (failwith("GetStakedBalance entrypoint in Doorman Contract not found") : contract(address * contract(nat)))
   end;
-
-// helper function to get satellite's total voting power (from delegation contract)
-// function getSatelliteTotalVotingPower(const contractAddress : address) : contract(address * contract(nat)) is
-//   case (Tezos.get_entrypoint_opt(
-//       "%governanceVoteRequestComplete",
-//       contractAddress) : option(contract(address * contract(nat)))) of
-//     Some(contr) -> contr
-//   | None -> (failwith("GovernanceVoteRequestComplete entrypoint in Delegation Contract not found") : contract(address * contract(nat)))
-//   end;
 
 // helper function to send transfer operation to treasury
 function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferTokenType) is
@@ -1239,120 +1236,120 @@ block {
 } with (noOperations, s)
 
 (* StartTimelockRound Entrypoint *)
-function startTimelockRound(var s : storage) : return is
-block {
+// function startTimelockRound(var s : storage) : return is
+// block {
     
-    // Steps Overview:
-    // 1. verify sender is admin
-    // 2. set current round from "voting" to "timelock", and set current round start level and end level 
-    // 3. set timelockProposalId to currentRoundHighestVotedProposalId
+//     // Steps Overview:
+//     // 1. verify sender is admin
+//     // 2. set current round from "voting" to "timelock", and set current round start level and end level 
+//     // 3. set timelockProposalId to currentRoundHighestVotedProposalId
     
-    checkSenderIsAdmin(s);
+//     checkSenderIsAdmin(s);
 
-    // timelock round can be triggered at any time by admin, but boundaries will still remain fixed to the start and end of the cycle (calculated at start of proposal round)
-    s.currentRound               := "timelock";
-    s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
-    s.currentRoundEndLevel       := s.currentCycleEndLevel;
+//     // timelock round can be triggered at any time by admin, but boundaries will still remain fixed to the start and end of the cycle (calculated at start of proposal round)
+//     s.currentRound               := "timelock";
+//     s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
+//     s.currentRoundEndLevel       := s.currentCycleEndLevel;
 
-    // set timelockProposalId to currentRoundHighestVotedProposalId
-    s.timelockProposalId         := s.currentRoundHighestVotedProposalId; 
+//     // set timelockProposalId to currentRoundHighestVotedProposalId
+//     s.timelockProposalId         := s.currentRoundHighestVotedProposalId; 
 
-} with (noOperations, s)
+// } with (noOperations, s)
 
 (* ExecuteProposal Entrypoint *)
-function executeProposal(const proposalId : nat; var s : storage) : return is 
-block {
-    // Steps Overview: 
-    // 1. verify that user is a satellite and can execute proposal
-    // 2. verify that proposal can be executed
-    // 3. execute proposal - list of operations to run
+// function executeProposal(const proposalId : nat; var s : storage) : return is 
+// block {
+//     // Steps Overview: 
+//     // 1. verify that user is a satellite and can execute proposal
+//     // 2. verify that proposal can be executed
+//     // 3. execute proposal - list of operations to run
 
-    // to be confirmed: who should execute the proposal? originator/admin/anyone? 
-    // checkSenderIsSelf(Unit);
-    checkSenderIsAdminOrSelf(s);
+//     // to be confirmed: who should execute the proposal? originator/admin/anyone? 
+//     // checkSenderIsSelf(Unit);
+//     checkSenderIsAdminOrSelf(s);
 
-    // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-    if s.currentRound = "timelock" or s.currentRound = "voting" then failwith("Error. Proposal can only be executed after timelock period ends.");
-        else skip;
+//     // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+//     if s.currentRound = "timelock" or s.currentRound = "voting" then failwith("Error. Proposal can only be executed after timelock period ends.");
+//         else skip;
 
-    // check that there is a highest voted proposal in the current round
-    if s.timelockProposalId = 0n then failwith("Error: No proposal to execute. Please wait for the next proposal round to begin.")
-      else skip; 
+//     // check that there is a highest voted proposal in the current round
+//     if s.timelockProposalId = 0n then failwith("Error: No proposal to execute. Please wait for the next proposal round to begin.")
+//       else skip; 
 
-    // check that proposal to be executed is the timelock proposal
-    if s.timelockProposalId =/= proposalId then failwith("Error: This proposal is not the highest voted proposal and cannot be executed.")
-      else skip; 
+//     // check that proposal to be executed is the timelock proposal
+//     if s.timelockProposalId =/= proposalId then failwith("Error: This proposal is not the highest voted proposal and cannot be executed.")
+//       else skip; 
 
-    var proposal : proposalRecordType := case s.proposalLedger[proposalId] of
-        Some(_record) -> _record
-      | None -> failwith("Error. Proposal not found.")
-    end;
+//     var proposal : proposalRecordType := case s.proposalLedger[proposalId] of
+//         Some(_record) -> _record
+//       | None -> failwith("Error. Proposal not found.")
+//     end;
 
-    if proposal.executed = True then failwith("Error. Proposal has already been executed")
-      else skip;
+//     if proposal.executed = True then failwith("Error. Proposal has already been executed")
+//       else skip;
 
-    // check that there is at least one proposal metadata to execute
-    if Map.size(proposal.proposalMetadata) = 0n then failwith("Error. No data to execute.")
-      else skip;
+//     // check that there is at least one proposal metadata to execute
+//     if Map.size(proposal.proposalMetadata) = 0n then failwith("Error. No data to execute.")
+//       else skip;
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    // update proposal executed boolean to True
-    proposal.executed            := True;
-    s.proposalLedger[proposalId] := proposal;    
+//     // update proposal executed boolean to True
+//     proposal.executed            := True;
+//     s.proposalLedger[proposalId] := proposal;    
 
-    // loop metadata for execution
-    for _title -> metadataBytes in map proposal.proposalMetadata block {
+//     // loop metadata for execution
+//     for _title -> metadataBytes in map proposal.proposalMetadata block {
 
-      const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of
-        | Some(_action) -> _action
-        | None    -> failwith("Error. Unable to unpack proposal metadata.")
-      end;
+//       const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of
+//         | Some(_action) -> _action
+//         | None    -> failwith("Error. Unable to unpack proposal metadata.")
+//       end;
 
-      const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
-        executeAction,
-        0tez,
-        sendOperationToGovernanceLambda(unit)
-      );
+//       const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
+//         executeAction,
+//         0tez,
+//         sendOperationToGovernanceLambda(unit)
+//       );
 
-      operations := sendActionToGovernanceLambdaOperation # operations;
+//       operations := sendActionToGovernanceLambdaOperation # operations;
     
-    }     
+//     }     
 
-} with (operations, s)
+// } with (operations, s)
 
-function dropProposal(const proposalId : nat; var s : storage) : return is 
-block {
-    // Steps Overview: 
-    // 1. verify that proposal is in the current round / cycle
-    // 2. verify that satellite made the proposal
-    // 3. change status of proposal to inactive
+// function dropProposal(const proposalId : nat; var s : storage) : return is 
+// block {
+//     // Steps Overview: 
+//     // 1. verify that proposal is in the current round / cycle
+//     // 2. verify that satellite made the proposal
+//     // 3. change status of proposal to inactive
 
-    // check if satellite exists in the active satellites map
-    const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
-    if activeSatelliteExistsFlag = False then failwith("You need to be a satellite to make a governance action.")
-      else skip;
+//     // check if satellite exists in the active satellites map
+//     const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
+//     if activeSatelliteExistsFlag = False then failwith("You need to be a satellite to make a governance action.")
+//       else skip;
 
-    // check if proposal exists in the current round's proposals
-    const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentRoundProposals);
-    if checkProposalExistsFlag = False then failwith("Error: Proposal not found in the current round.")
-      else skip;
+//     // check if proposal exists in the current round's proposals
+//     const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentRoundProposals);
+//     if checkProposalExistsFlag = False then failwith("Error: Proposal not found in the current round.")
+//       else skip;
 
-    var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of
-        None -> failwith("Error: Proposal not found in the proposal ledger.")
-        | Some(_proposal) -> _proposal        
-    end;
+//     var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of
+//         None -> failwith("Error: Proposal not found in the proposal ledger.")
+//         | Some(_proposal) -> _proposal        
+//     end;
 
-    // verify that proposal has not been dropped already
-    if _proposal.status = "DROPPED" then failwith("Error: Proposal has already been dropped.")
-      else skip;
+//     // verify that proposal has not been dropped already
+//     if _proposal.status = "DROPPED" then failwith("Error: Proposal has already been dropped.")
+//       else skip;
 
-    if _proposal.proposerAddress = Tezos.sender then block {
-        _proposal.status               := "DROPPED";
-        s.proposalLedger[proposalId]   := _proposal;
-    } else failwith("Error: You are not allowed to drop this proposal.")
+//     if _proposal.proposerAddress = Tezos.sender then block {
+//         _proposal.status               := "DROPPED";
+//         s.proposalLedger[proposalId]   := _proposal;
+//     } else failwith("Error: You are not allowed to drop this proposal.")
     
-} with (noOperations, s)
+// } with (noOperations, s)
 
 
 function requestFunds(const requestFundsParams : requestFundsType; var s : storage) : return is 
@@ -1375,6 +1372,8 @@ block {
         // tokenContractAddress = requestFundsParams.tokenContractAddress;
         tokenAmount          = requestFundsParams.tokenAmount;
         tokenName            = requestFundsParams.tokenName; 
+        tokenType            = requestFundsParams.tokenType;
+        tokenId              = requestFundsParams.tokenId;
         requestPurpose       = requestFundsParams.purpose; 
         voters               = emptyFinancialRequestVotersMap;
 
@@ -1470,6 +1469,8 @@ block {
         // tokenContractAddress = requestMintParams.tokenContractAddress;
         tokenAmount          = requestMintParams.tokenAmount;
         tokenName            = "MVK"; 
+        tokenType            = requestMintParams.tokenType;
+        tokenId              = requestMintParams.tokenId;
         requestPurpose       = requestMintParams.purpose;
         voters               = emptyFinancialRequestVotersMap;
 
@@ -1513,9 +1514,9 @@ block {
 
     operations := updateSnapshotStakedMvkTotalSupplyOperation # operations;
     const requestSnapshotCompleteEntrypoint: contract(nat) =
-      case (Tezos.get_entrypoint_opt("%requestMvkSnapshotComplete", Tezos.self_address) : option(contract(nat))) of
+      case (Tezos.get_entrypoint_opt("%requestStakedMvkSnapshot", Tezos.self_address) : option(contract(nat))) of
         Some(contr) -> contr
-      | None -> (failwith("Error. RequestMvkSnapshotComplete entrypoint not found in Governance contract."): contract(nat))
+      | None -> (failwith("Error. RequestStakedMvkSnapshot entrypoint not found in Governance contract."): contract(nat))
       end;
     const requestSnapshotCompleteOperation: operation = Tezos.transaction(financialRequestId, 0tez, requestSnapshotCompleteEntrypoint);
 
@@ -1548,7 +1549,7 @@ block {
 
 } with (operations, s)
 
-function requestMvkSnapshotComplete(const requestId : nat; var s : storage) : return is 
+function requestStakedMvkSnapshot(const requestId : nat; var s : storage) : return is 
 block {
   
   checkSenderIsAdminOrSelf(s);
@@ -1660,17 +1661,20 @@ block {
     | None -> failwith("Error. Satellite not found in financial request snapshot.")
   end;
 
-  const voteType : voteForRequestChoiceType = voteForRequest.vote;
-  const totalVotingPower : nat = satelliteSnapshotRecord.totalVotingPower;
+  // Save and update satellite's vote record
+  const voteType         : voteForRequestChoiceType  = voteForRequest.vote;
+  const totalVotingPower : nat                       = satelliteSnapshotRecord.totalVotingPower;
 
-  const newVoteRecord : financialRequestVoteType = record [
+  const newVoteRecord : financialRequestVoteType     = record [
       vote             = voteType;
       totalVotingPower = totalVotingPower;
       timeVoted        = Tezos.now;
   ];
 
   _financialRequest.voters[Tezos.sender] := newVoteRecord;
+  s.financialRequestLedger[financialRequestId] := _financialRequest;
 
+  // Satellite cast vote and send request to Treasury if enough votes have been gathered
   case voteType of
     Approve(_v) -> block {
 
@@ -1678,62 +1682,88 @@ block {
 
         _financialRequest.approveVoteTotal := newApproveVoteTotal;
 
+        // send request to treasury if total approved votes exceed staked MVK required for approval
         if newApproveVoteTotal > _financialRequest.stakedMvkRequiredForApproval then block {
 
-          const _councilAddress : address = case s.generalContracts["council"] of
+          const treasuryAddress : address = _financialRequest.treasuryAddress;
+
+          const councilAddress : address = case s.generalContracts["council"] of
             Some(_address) -> _address
             | None -> failwith("Error. Council Contract is not found")
           end;
 
-          const _tokenAddress : address = case s.whitelistTokenContracts[_financialRequest.tokenName] of
+          const tokenAddress : address = case s.whitelistTokenContracts[_financialRequest.tokenName] of
             Some(_address) -> _address
             | None -> failwith("Error. Token Contract Address is not found")
-          end;
+          end;        
 
-          // const token = case tokenInfo of
-          //     XTZ(_v) -> unit
-          //   | FA12(_v) -> tokenInfo.tokenContractAddress
-          //   | FA2(_v) -> record [ 
-          //      token = token.address;
-          //      id    = token.id;
-          //    ]
+          // ---- set token type ----
+          var _tokenType : tokenType := Tez;
 
-          // if _financialRequest.requestType = "TRANSFER" then block {
+          if  _financialRequest.tokenType = "XTZ" then block {
+            var _tokenType : tokenType := Tez; 
+          } else skip;
 
-          //   const treasuryAddress : address = _financialRequest.treasuryAddress;
+          if  _financialRequest.tokenType = "FA12" then block {
+            var _tokenType : tokenType := Fa12(tokenAddress); 
+          } else skip;
 
-          //   const transferTokenParams : transferTokenType = record [
-          //     from_      = treasuryAddress;
-          //     to_        = councilAddress;
-          //     amt        = _financialRequest.tokenAmount;
-          //     token      = tokenAddress;
-          //   ];
+          if  _financialRequest.tokenType = "FA2" then block {
+            var _tokenType : tokenType := Fa2(record [
+              token = tokenAddress;
+              id    = _financialRequest.tokenId;
+            ]); 
+          } else skip;
+          // --- --- ---
 
-          //   const treasuryTransferOperation : operation = Tezos.transaction(
-          //       transferTokenParams, 
-          //       0tez, 
-          //       sendTransferOperationToTreasury(treasuryAddress)
-          //   );
+          if _financialRequest.requestType = "TRANSFER" then block {
 
-          //   operations := financialRequestFetchSatelliteTotalVotingPowerOperation # operations;
+            const transferTokenParams : transferTokenType = record [
+              from_      = treasuryAddress;
+              to_        = councilAddress;
+              amt        = _financialRequest.tokenAmount;
+              token      = _tokenType;
+            ];
 
-          // } else skip;
+            const treasuryTransferOperation : operation = Tezos.transaction(
+              transferTokenParams, 
+              0tez, 
+              sendTransferOperationToTreasury(treasuryAddress)
+            );
+
+            operations := treasuryTransferOperation # operations;
+
+          } else skip;
 
           if _financialRequest.requestType = "MINT" then block {
               
-              skip;
+            const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
+              to_        = councilAddress;
+              amt        = _financialRequest.tokenAmount;
+            ];
+
+            const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
+              mintMvkAndTransferTokenParams, 
+              0tez, 
+              sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
+            );
+
+            operations := treasuryMintMvkAndTransferOperation # operations;
 
           } else skip;
+
+          _financialRequest.executed := True;
+          s.financialRequestLedger[financialRequestId] := _financialRequest;
 
         } else skip;
 
     }
   | Disapprove(_v) -> block {
-      const newDisapproveVoteTotal : nat = _financialRequest.disapproveVoteTotal + totalVotingPower;
-      _financialRequest.disapproveVoteTotal := newDisapproveVoteTotal;
+      const newDisapproveVoteTotal : nat            = _financialRequest.disapproveVoteTotal + totalVotingPower;
+      _financialRequest.disapproveVoteTotal        := newDisapproveVoteTotal;
+      s.financialRequestLedger[financialRequestId] := _financialRequest;
     }
   end;
-
   
 } with (operations, s)
 
@@ -1761,9 +1791,9 @@ function main (const action : governanceAction; const s : storage) : return is
         | StartVotingRound(_parameters) -> startVotingRound(s)        
         | VotingRoundVote(parameters) -> votingRoundVote(parameters.0, parameters.1, s)
         
-        | StartTimelockRound(_parameters) -> startTimelockRound(s)        
-        | ExecuteProposal(parameters) -> executeProposal(parameters, s)
-        | DropProposal(parameters) -> dropProposal(parameters, s)
+        // | StartTimelockRound(_parameters) -> startTimelockRound(s)        
+        // | ExecuteProposal(parameters) -> executeProposal(parameters, s)
+        // | DropProposal(parameters) -> dropProposal(parameters, s)
 
         | CallGovernanceLambdaProxy(parameters) -> callGovernanceLambdaProxy(parameters, s)
         | SetupLambdaFunction(parameters) -> setupLambdaFunction(parameters, s)
@@ -1771,7 +1801,7 @@ function main (const action : governanceAction; const s : storage) : return is
         | RequestFunds(parameters) -> requestFunds(parameters, s)
         | RequestMint(parameters) -> requestMint(parameters, s)
         | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
-        | RequestMvkSnapshotComplete(parameters) -> requestMvkSnapshotComplete(parameters, s)
+        | RequestStakedMvkSnapshot(parameters) -> requestStakedMvkSnapshot(parameters, s)
         | RequestSatelliteSnapshot(parameters) -> requestSatelliteSnapshot(parameters, s)
         | VoteForRequest(parameters) -> voteForRequest(parameters, s)
 
