@@ -53,9 +53,6 @@ describe("Doorman tests", async () => {
     console.log('Alice address: ' + alice.pkh);
     console.log('Bob address: ' + bob.pkh);
 
-    // console.log('mvk token storage');
-    // console.log(mvkTokenStorage);
-
   });
 
 //   it("set admin to bob", async () => {
