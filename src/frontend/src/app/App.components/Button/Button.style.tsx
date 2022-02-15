@@ -1,6 +1,7 @@
 import styled, { keyframes } from 'styled-components/macro'
 
 import { primaryColor, textColor, backgroundColor } from '../../../styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const clickWave = keyframes`
   from {
@@ -11,7 +12,7 @@ export const clickWave = keyframes`
   }
 `
 
-export const ButtonStyled = styled.button`
+export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   padding: 0;
   height: 50px;
   border: none;
@@ -29,19 +30,19 @@ export const ButtonStyled = styled.button`
   }
 
   &.primary {
-    color: ${backgroundColor};
-    background-color: ${primaryColor};
+    color: ${({ theme }) => theme.backgroundColor};
+    background-color: ${({ theme }) => theme.primaryColor};
   }
 
   &.secondary {
-    color: ${primaryColor};
-    background-color: initial;
-    border: 1.5px solid ${primaryColor};
+    color: ${({ theme }) => theme.primaryColor};
+    background-color: ${({ theme }) => theme.containerColor};
+    border: 1.5px solid ${({ theme }) => theme.primaryColor};
   }
 
   &.transparent {
-    color: ${textColor};
-    background-color: initial;
+    color: ${({ theme }) => theme.textColor};
+    background-color: ${({ theme }) => theme.containerColor};
   }
 
   &.loading {
@@ -50,7 +51,7 @@ export const ButtonStyled = styled.button`
   }
 `
 
-export const ButtonText = styled.div`
+export const ButtonText = styled.div<{ theme: MavrykTheme }>`
   > div {
     text-align: center;
     margin: auto;
@@ -59,19 +60,19 @@ export const ButtonText = styled.div`
     vertical-align: top;
   }
   &.primary {
-    color: ${textColor};
+    color: ${({ theme }) => theme.textColor};
   }
 
   &.secondary {
-    color: ${primaryColor};
+    color: ${({ theme }) => theme.primaryColor};
   }
 
   &.transparent {
-    color: ${primaryColor};
+    color: ${({ theme }) => theme.primaryColor};
   }
 `
 
-export const ButtonIcon = styled.svg`
+export const ButtonIcon = styled.svg<{ theme: MavrykTheme }>`
   width: 24px;
   height: 24px;
   display: inline-block;
@@ -79,15 +80,15 @@ export const ButtonIcon = styled.svg`
   margin-right: 15px;
 
   &.primary {
-    stroke: ${backgroundColor};
+    stroke: ${({ theme }) => theme.backgroundColor};
   }
 
   &.secondary {
-    stroke: ${primaryColor};
+    stroke: ${({ theme }) => theme.primaryColor};
   }
 
   &.transparent {
-    stroke: ${textColor};
+    stroke: ${({ theme }) => theme.textColor};
   }
 `
 
@@ -97,27 +98,27 @@ const turn = keyframes`
   }
 `
 
-export const ButtonLoadingIcon = styled.svg`
+export const ButtonLoadingIcon = styled.svg<{ theme: MavrykTheme }>`
   width: 16px;
   height: 16px;
   margin-top: 4px;
   margin-right: 15px;
   vertical-align: sub;
-  stroke: ${textColor};
+  stroke: ${({ theme }) => theme.textColor};
   stroke-width: 1px;
   stroke-dashoffset: 94.248;
   stroke-dasharray: 47.124;
   animation: ${turn} 1.6s linear infinite forwards;
 
   &.primary {
-    stroke: ${backgroundColor};
+    stroke: ${({ theme }) => theme.backgroundColor};
   }
 
   &.secondary {
-    stroke: ${primaryColor};
+    stroke: ${({ theme }) => theme.primaryColor};
   }
 
   &.transparent {
-    stroke: ${textColor};
+    stroke: ${({ theme }) => theme.textColor};
   }
 `

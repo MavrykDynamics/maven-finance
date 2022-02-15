@@ -1,8 +1,9 @@
 import styled, { css, keyframes } from 'styled-components/macro'
 
 import { backgroundColor, downColor, infoColor, subTextColor, textColor, upColor, warningColor } from '../../../styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
-export const ToasterStyled = styled.div<{ showing: boolean }>`
+export const ToasterStyled = styled.div<{ showing: boolean; theme: MavrykTheme }>`
   position: fixed;
   top: 0;
   right: -470px;
@@ -12,7 +13,7 @@ export const ToasterStyled = styled.div<{ showing: boolean }>`
   margin: 10px;
   padding: 21px 20px;
   border-radius: 4px;
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
   box-shadow: 1px 7px 14px -5px rgba(0, 0, 0, 0.2);
   transform: translate3d(0px, 0, 0);
   transition: transform 1s ease-in-out;
@@ -35,7 +36,7 @@ export const decreaseBar = keyframes`
   }
 `
 
-export const ToasterCountdown = styled.div<{ showing: boolean; status?: string }>`
+export const ToasterCountdown = styled.div<{ showing: boolean; status?: string; theme: MavrykTheme }>`
   position: absolute;
   bottom: 0;
   right: 0;
@@ -48,13 +49,13 @@ export const ToasterCountdown = styled.div<{ showing: boolean; status?: string }
   background-color: ${(props) => {
     switch (props.status) {
       case 'info':
-        return infoColor
+        return ({ theme }) => theme.infoColor
       case 'warning':
-        return warningColor
+        return ({ theme }) => theme.warningColor
       case 'error':
-        return downColor
+        return ({ theme }) => theme.downColor
       default:
-        return upColor
+        return ({ theme }) => theme.upColor
     }
   }};
 
@@ -73,7 +74,7 @@ export const ToasterGrid = styled.div`
   grid-template-columns: 30px calc(100% - 100px) 30px;
 `
 
-export const ToasterIcon = styled.div<{ status?: string }>`
+export const ToasterIcon = styled.div<{ status?: string; theme: MavrykTheme }>`
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -88,13 +89,13 @@ export const ToasterIcon = styled.div<{ status?: string }>`
     stroke: ${(props) => {
       switch (props.status) {
         case 'info':
-          return infoColor
+          return ({ theme }) => theme.infoColor
         case 'warning':
-          return warningColor
+          return ({ theme }) => theme.warningColor
         case 'error':
-          return downColor
+          return ({ theme }) => theme.downColor
         default:
-          return upColor
+          return ({ theme }) => theme.upColor
       }
     }};
   }
@@ -104,17 +105,17 @@ export const ToasterContent = styled.div`
   padding: 8px;
 `
 
-export const ToasterTitle = styled.div`
-  color: ${textColor};
+export const ToasterTitle = styled.div<{ theme: MavrykTheme }>`
+  color: ${({ theme }) => theme.textColor};
   font-weight: 700;
   margin-bottom: 8px;
 `
 
-export const ToasterMessage = styled.div`
-  color: ${subTextColor};
+export const ToasterMessage = styled.div<{ theme: MavrykTheme }>`
+  color: ${({ theme }) => theme.subTextColor};
 `
 
-export const ToasterClose = styled.div`
+export const ToasterClose = styled.div<{ theme: MavrykTheme }>`
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -125,7 +126,7 @@ export const ToasterClose = styled.div`
   justify-content: space-around;
 
   > svg {
-    stroke: ${textColor};
+    stroke: ${({ theme }) => theme.textColor};
     height: 14px;
     width: 14px;
   }
