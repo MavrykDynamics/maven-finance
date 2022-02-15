@@ -34,6 +34,8 @@ import { EmergencyGovernance } from "../helpers/emergencyGovernanceHelper";
 import { Vesting } from "../helpers/vestingHelper";
 import { Council } from "../helpers/councilHelper";
 import { Treasury } from "../helpers/treasuryHelper";
+import { MockFa12Token } from "../helpers/mockFa12TokenHelper";
+import { MockFa2Token } from "../helpers/mockFa2TokenHelper";
 
 import { doormanStorage } from "../../storage/doormanStorage";
 import { delegationStorage } from "../../storage/delegationStorage";
@@ -44,6 +46,8 @@ import { emergencyGovernanceStorage } from "../../storage/emergencyGovernanceSto
 import { vestingStorage } from "../../storage/vestingStorage";
 import { councilStorage } from "../../storage/councilStorage";
 import { treasuryStorage } from "../../storage/treasuryStorage";
+import { mockFa12TokenStorage } from "../../storage/mockFa12TokenStorage";
+import { mockFa2TokenStorage } from "../../storage/mockFa2TokenStorage";
 
 describe("Contracts Deployment for Tests", async () => {
   var utils: Utils;
@@ -56,6 +60,8 @@ describe("Contracts Deployment for Tests", async () => {
   var vesting : Vesting;
   var council : Council;
   var treasury : Treasury;
+  var mockFa12Token : MockFa12Token;
+  var mockFa2Token : MockFa2Token;
   var tezos;
   let deployedDoormanStorage;
   let deployedDelegationStorage;
@@ -183,6 +189,20 @@ describe("Contracts Deployment for Tests", async () => {
 
     console.log("treasury contract originated")
 
+    mockFa12Token = await MockFa12Token.originate(
+      utils.tezos,
+      mockFa12TokenStorage
+    );
+
+    console.log("mock FA12 Token originated")
+
+    mockFa2Token = await MockFa2Token.originate(
+      utils.tezos,
+      mockFa2TokenStorage
+    );
+
+    console.log("mock FA2 Token originated")
+
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos;
@@ -250,6 +270,10 @@ describe("Contracts Deployment for Tests", async () => {
     await saveContractAddress("emergencyGovernanceAddress", emergencyGovernance.contract.address)
     await saveContractAddress("vestingAddress", vesting.contract.address)
     await saveContractAddress("councilAddress", council.contract.address)
+    await saveContractAddress("treasuryAddress", treasury.contract.address)
+
+    await saveContractAddress("mockFa12TokenAddress", mockFa12Token.contract.address)
+    await saveContractAddress("mockFa2TokenAddress", mockFa2Token.contract.address)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();
@@ -284,6 +308,8 @@ describe("Contracts Deployment for Tests", async () => {
         console.log("Vesting Contract deployed at:", vesting.contract.address);
         console.log("Council Contract deployed at:", council.contract.address);
         console.log("Treasury Contract deployed at:", treasury.contract.address);
+        console.log("Mock FA12 Token Contract deployed at:", mockFa12Token.contract.address);
+        console.log("Mock Fa2 Token Contract deployed at:", mockFa2Token.contract.address);
 
     } catch (e){
         console.log(e);
