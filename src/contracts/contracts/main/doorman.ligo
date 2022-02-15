@@ -141,6 +141,10 @@ function checkUnstakeIsNotPaused(var s : storage) : unit is
     if s.breakGlassConfig.unstakeIsPaused then failwith("Unstake entrypoint is paused.")
     else unit;
 
+function checkCompoundIsNotPaused(var s : storage) : unit is
+    if s.breakGlassConfig.compoundIsPaused then failwith("Compound entrypoint is paused.")
+    else unit;
+
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
@@ -346,6 +350,10 @@ function compoundUserRewards(var s: storage): (option(operation) * storage) is
 
 function compound(var s: storage): return is
   block{
+    // Check if compound is paused
+    checkCompoundIsNotPaused(s);
+
+    // Compound rewards
     const userCompound: (option(operation) * storage) = compoundUserRewards(s);
     s := userCompound.1;
     const operations: list(operation) = 
@@ -464,7 +472,7 @@ block {
   // ----------------------------------------
 
   // break glass check
-  checkStakeIsNotPaused(s);
+  checkUnstakeIsNotPaused(s);
 
   // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
   if unstakeAmount < minAmount then failwith("You have to unstake at least 1 MVK token.")
