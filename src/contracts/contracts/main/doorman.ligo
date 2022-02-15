@@ -4,17 +4,6 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-type stakeRecordType is record [
-    time              : timestamp;
-    amount            : nat;    // MVK / vMvk in mu (10^6)
-    exitFee           : nat;    // MVK / vMvk in mu (10^6)
-    mvkLoyaltyIndex   : nat;    // audit log for MVK Loyalty Index at time of transaction
-    mvkTotalSupply    : nat;    // audit log for MVK total supply at time of transaction
-    vMvkTotalSupply   : nat;    // audit log for vMVK total supply at time of transaction
-    opType            : string; // audit log for type of transaction (stake / unstake / exitFeeReward / exitFeeDistribution / farmClaim)
-]
-type userStakeRecordsType is big_map(address, map(nat, stakeRecordType))
-
 type userStakeBalanceRecordType is record[
     balance: nat;
     participationFeesPerShare: nat;
@@ -31,7 +20,8 @@ type breakGlassConfigType is record [
 ]
 
 (* Fixed point accuracy *)
-const fixedPointAccuracy: nat = 1_000_000_000_000n // 10^12
+const fixedPointAccuracy: nat = 1_000_000_000_000_000_000n // 10^18
+const minAmount: nat = 1_000_000n // 10^6
 
 (* Transfer entrypoint inputs for FA2 *)
 type transferDestination is [@layout:comb] record[
@@ -54,7 +44,6 @@ type storage is record [
     
     breakGlassConfig      : breakGlassConfigType;
     
-    userStakeRecordsLedger    : userStakeRecordsType;  // records of all user transactions
     userStakeBalanceLedger    : userStakeBalanceType;  // user staked balance
     
     tempMvkTotalSupply    : nat; // temporary mvk total supply in circulation   
@@ -370,8 +359,8 @@ block {
   const userCompound: (option(operation) * storage) = compoundUserRewards(s);
   s := userCompound.1;
 
-  // 1. verify that user is staking more than 0 MVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez 
-  if stakeAmount < 100_000n then failwith("You have to stake more than 0 MVK tokens.")
+  // 1. verify that user is staking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
+  if stakeAmount < minAmount then failwith("You have to stake at least 1 MVK token.")
     else skip;
 
   const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
@@ -431,34 +420,6 @@ block {
 
   // update staked MVK total supply
   s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + stakeAmount;
-
-  // check if user wallet address exists in stake ledger -> can also be taken as the number of user stake records
-  var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeRecordsLedger[Tezos.sender] of
-      Some(_val) -> _val
-      | None -> map[]
-  end;
-
-  // if user wallet address does not exist in stake ledger, add user to the stake ledger
-  if size(userRecordInStakeLedger) = 0n then s.userStakeRecordsLedger[Tezos.sender] := userRecordInStakeLedger
-    else skip;
-
-  const lastRecordIndex : nat = size(userRecordInStakeLedger);
-
-  var newStakeRecord : stakeRecordType := case userRecordInStakeLedger[lastRecordIndex] of
-      Some(_val) -> _val
-      | None -> record [
-          amount           = stakeAmount;
-          time             = Tezos.now;  
-          exitFee          = 0n;     
-          mvkLoyaltyIndex  = 0n; 
-          mvkTotalSupply   = 0n;  // FYI: will not be accurate - set to 0 / null / placeholder?    
-          vMvkTotalSupply  = 0n;  // FYI: will not be accurate - set to 0 / null / placeholder?    
-          opType           = "stake";    
-      ]
-   end;
-
-   userRecordInStakeLedger[lastRecordIndex] := newStakeRecord;
-   s.userStakeRecordsLedger[Tezos.sender] := userRecordInStakeLedger;
  
 } with (operations, s)
 
@@ -487,13 +448,13 @@ block {
   // break glass check
   checkStakeIsNotPaused(s);
 
+  // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
+  if unstakeAmount < minAmount then failwith("You have to unstake at least 1 MVK token.")
+    else skip;
+
   // Compound user rewards
   const userCompound: (option(operation) * storage) = compoundUserRewards(s);
   s := userCompound.1;
-
-  // verify that user is unstaking more than 0 vMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
-  if unstakeAmount = 0n then failwith("You have to unstake more than 0 MVK tokens.")
-    else skip;
 
   const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
       Some(_address) -> _address
@@ -598,33 +559,16 @@ block {
         updateSatelliteBalance(delegationAddress)
       );
 
+    // Compound with the user new rewards if he still have sMVK after unstaking
+    const compoundAction: (option(operation) * storage) = compoundUserRewards(s);
+    s := compoundAction.1;
+
     // create list of operations
-    const operations : list(operation) = list[transferOperation; updateSatelliteBalanceOperation];
-
-    // if user wallet address does not exist in stake records ledger, add user to the stake records ledger
-    var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeRecordsLedger[Tezos.source] of
-      Some(_val) -> _val
-      | None -> map[]
-    end;
-
-    const lastRecordIndex : nat = size(userRecordInStakeLedger);
-
-    const exitFeeRecord : nat = exitFee;
-    var newStakeRecord : stakeRecordType := case userRecordInStakeLedger[lastRecordIndex] of         
-        Some(_val) -> _val
-        | None -> record[
-            amount           = unstakeAmount; //TODO: Does it have to be the amount without fees or the amount with fees?
-            time             = Tezos.now;  
-            exitFee          = exitFeeRecord;   
-            mvkLoyaltyIndex  = mvkLoyaltyIndex; 
-            mvkTotalSupply   = s.tempMvkTotalSupply;
-            vMvkTotalSupply  = s.stakedMvkTotalSupply;          
-            opType           = "unstake";  
-        ]
-    end;
-
-    userRecordInStakeLedger[lastRecordIndex] := newStakeRecord;
-    s.userStakeRecordsLedger[Tezos.source] := userRecordInStakeLedger;
+    const operations : list(operation) = 
+      case compoundAction.0 of
+        Some (o) -> list[o; transferOperation; updateSatelliteBalanceOperation]
+      | None -> list[transferOperation; updateSatelliteBalanceOperation]
+      end;
 
 } with (operations, s);
 
@@ -686,33 +630,6 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     // update staked MVK total supply
     s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + claimAmount;
 
-    // check if user wallet address exists in stake ledger -> can also be taken as the number of user stake records
-    var userRecordInStakeLedger : map(nat, stakeRecordType) := case s.userStakeRecordsLedger[delegator] of
-        Some(_val) -> _val
-        | None -> map[]
-    end;
-
-    // if user wallet address does not exist in stake ledger, add user to the stake ledger
-    if size(userRecordInStakeLedger) = 0n then s.userStakeRecordsLedger[delegator] := userRecordInStakeLedger
-      else skip;
-
-    const lastRecordIndex : nat = size(userRecordInStakeLedger);
-
-    var newStakeRecord : stakeRecordType := case userRecordInStakeLedger[lastRecordIndex] of
-        Some(_val) -> _val
-        | None -> record [
-            amount           = claimAmount;
-            time             = Tezos.now;  
-            exitFee          = 0n;     
-            mvkLoyaltyIndex  = 0n; 
-            mvkTotalSupply   = 0n;  // FYI: will not be accurate - set to 0 / null / placeholder?    
-            vMvkTotalSupply  = 0n;  // FYI: will not be accurate - set to 0 / null / placeholder?    
-            opType           = "farmClaim";    
-        ]
-    end;
-
-    userRecordInStakeLedger[lastRecordIndex] := newStakeRecord;
-    s.userStakeRecordsLedger[delegator] := userRecordInStakeLedger;
   } with(operations, s)
 
 (* Main entrypoint *)
