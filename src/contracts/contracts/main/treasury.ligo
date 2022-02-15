@@ -88,7 +88,6 @@ type updateConfigParamsType is [@layout:comb] record [
   updateConfigAction: updateConfigActionType;
 ]
 
-
 type treasuryAction is 
     | SetAdmin of (address)
     | UpdateConfig of updateConfigParamsType    
