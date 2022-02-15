@@ -2,10 +2,6 @@ import styled from 'styled-components/macro'
 import { backgroundColor } from 'styles'
 
 export const AppStyled = styled.div`
-  display: flex;
-  justify-content: space-around;
-`
-export const AppContainer = styled.div`
   min-height: 100vh;
   display: grid;
   grid-template-columns: 270px auto;

@@ -25,7 +25,6 @@ type configType is record [
     requiredFee : tez;                        // fee for triggering emergency control - e.g. 100 tez
 ]
 
-
 type storage is record [
     admin                               : address;
     config                              : configType;
@@ -41,10 +40,11 @@ type storage is record [
 
 type emergencyGovernanceAction is 
     | UpdateGeneralContracts of updateGeneralContractsParams
+    | SetTempMvkTotalSupply of (nat)
+    
     | TriggerEmergencyControl of (string * string)
     | VoteForEmergencyControl of (nat)
-    | VoteForEmergencyControlComplete of (nat)
-    | SetTempMvkTotalSupply of (nat)
+    | VoteForEmergencyControlComplete of (nat)    
     | DropEmergencyGovernance of (unit)
 
 const noOperations : list (operation) = nil;
@@ -100,14 +100,6 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
     Some(contr) -> contr
   | None -> (failwith("breakGlass entrypoint in Contract not found") : contract(unit))
   end;
-
-
-// function setBreakGlassContractAddress(const newBreakGlassContractAddress : address; var s : storage) is 
-// block {
-//     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-//     checkSenderIsAdmin(s); // check that sender is admin
-//     s.breakGlassContractAddress := newBreakGlassContractAddress;
-// } with (noOperations, s)
 
 
 function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
@@ -277,7 +269,6 @@ block {
     // 2. check that satellite is proposer of emergency governance
     // 3. change emergency governance proposal to inactive and reset currentEmergencyGovernanceId
     
-
     if s.currentEmergencyGovernanceId = 0n then failwith("Error. There is no emergency control governance in process.")
       else skip;
 
@@ -298,10 +289,11 @@ block {
 
 function main (const action : emergencyGovernanceAction; const s : storage) : return is 
     case action of
+        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
+        | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
+
         | TriggerEmergencyControl(parameters) -> triggerEmergencyControl(parameters.0, parameters.1, s)
         | VoteForEmergencyControl(parameters) -> voteForEmergencyControl(parameters, s)
-        | VoteForEmergencyControlComplete(parameters) -> voteForEmergencyControlComplete(parameters, s)
-        | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
+        | VoteForEmergencyControlComplete(parameters) -> voteForEmergencyControlComplete(parameters, s)     
         | DropEmergencyGovernance(_parameters) -> dropEmergencyGovernance(s)
-        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
     end

@@ -3,11 +3,11 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type governanceStorageType = {
-  
   admin: string;
   config: {};
 
   whitelistContracts : MichelsonMap<MichelsonMapKey, unknown>;
+  whitelistTokenContracts : MichelsonMap<MichelsonMapKey, unknown>;
   generalContracts : MichelsonMap<MichelsonMapKey, unknown>;
 
   proposalLedger : MichelsonMap<MichelsonMapKey, unknown>;
@@ -25,11 +25,15 @@ export type governanceStorageType = {
   currentRoundVotes     : MichelsonMap<MichelsonMapKey, unknown>;
 
   currentRoundHighestVotedProposalId : BigNumber;
-  currentRoundTimelockProposalId : BigNumber;
+  timelockProposalId : BigNumber;
 
   snapshotMvkTotalSupply : BigNumber;
 
   governanceLambdaLedger : MichelsonMap<MichelsonMapKey, unknown>;
 
+  financialRequestLedger : MichelsonMap<MichelsonMapKey, unknown>;
+  financialRequestCounter : BigNumber;
+
   tempFlag :BigNumber;
+  
 };

@@ -17,7 +17,7 @@
 // import delegationAddress from '../deployments/delegationAddress.json';
 // import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 
-// describe("Delegation tests", async () => {
+// describe("Doorman tests", async () => {
 //   var utils: Utils;
 
 //   let doormanInstance;

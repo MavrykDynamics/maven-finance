@@ -1,7 +1,7 @@
 import styled, { keyframes } from 'styled-components/macro'
 
 // prettier-ignore
-import { backgroundColor, backgroundTextColor, borderColor, downColor, primaryColor, subTextColor, upColor } from '../../../styles'
+import { backgroundTextColor, downColor, placeholderColor, primaryColor, subTextColor, upColor, selectedColor } from '../../../styles'
 
 export const InputStyled = styled.div`
   position: relative;
@@ -10,19 +10,27 @@ export const InputStyled = styled.div`
 
 export const InputComponent = styled.input`
   width: 100%;
+  height: 50px;
+  background: ${placeholderColor};
+  border-radius: 10px;
+  font-weight: 600;
+  border: none;
+  margin: 10px 0;
+  padding: 0 20px;
+  color: ${subTextColor};
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
   display: block;
   position: relative;
-  height: 40px;
   padding: 12px 16px 12px 16px;
-  text-align: center;
-  border-width: 1px;
-  border-style: solid;
-  border-color: ${borderColor};
   border-radius: 6px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
-  background-color: ${backgroundColor};
 
+  &::placeholder {
+    color: ${subTextColor};
+  }
   &:disabled {
     background: ${backgroundTextColor};
     color: ${subTextColor};

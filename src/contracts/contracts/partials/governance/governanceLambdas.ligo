@@ -1,5 +1,59 @@
+(* CallGovernanceLambda lambda *)
+function callGovernanceLambda(const executeAction : executeActionType; var s : storage) : return is
+  block {
+    
+    checkSenderIsAdminOrSelf(s);
+
+    (* ids to match governanceLambdaIndex.json - id 0 is callGovernanceLambda *)
+    const id : nat = case executeAction of
+      
+      (* Update Lambda Function *)    
+      | UpdateLambdaFunction(_v)      -> 1n
+      
+      (* Update Configs *)    
+      | UpdateGovernanceConfig(_v)    -> 2n
+      | UpdateDelegationConfig(_v)    -> 3n
+
+    end;
+
+    const lambdaBytes : bytes = case s.governanceLambdaLedger[id] of
+      | Some(_v) -> _v
+      | None     -> failwith("Error. Governance Lambda not found.")
+    end;
+
+    // reference: type governanceLambdaFunctionType is (executeActionType * storage) -> return
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceLambdaFunctionType)) of
+      | Some(f) -> f(executeAction, s)
+      | None    -> failwith("Error. Unable to unpack Governance Lambda.")
+    end;
+  
+  } with (res.0, s)
+
+(* updateLambdaFunction lambda *)
+function updateLambdaFunction(const executeAction : executeActionType; var s : storage) : return is
+  block {
+    
+    checkSenderIsAdminOrSelf(s);
+
+    case executeAction of 
+    | UpdateLambdaFunction(params) -> {
+
+        // assign params to constants for better code readability
+        const lambdaId    = params.id;
+        const lambdaBytes = params.func_bytes;
+
+        s.governanceLambdaLedger[lambdaId] := lambdaBytes
+
+        }
+    | _ -> skip
+    end
+
+  } with (noOperations, s)
+
 function updateGovernanceConfig(const executeAction : executeActionType; var s : storage) : return is 
 block {
+
+    checkSenderIsAdminOrSelf(s);
 
     var operations: list(operation) := nil;
 
@@ -14,10 +68,9 @@ block {
             | None -> (failwith("updateConfig entrypoint in Governance Contract not found") : contract(nat * updateGovernanceConfigActionType))
         end;
 
-        // assign params to constants for easier code readability
-        // todo: test if unit configActionType must be set here, or if it's able to be passed through the lambda
-        const updateConfigAction   = params.1;
-        const updateConfigNewValue = params.0;
+        // assign params to constants for better code readability
+        const updateConfigAction   = params.updateConfigAction;
+        const updateConfigNewValue = params.updateConfigNewValue;
 
         // update governance config operation
         const updateGovernanceConfigOperation : operation = Tezos.transaction(
@@ -36,6 +89,8 @@ block {
 
 function updateDelegationConfig(const executeAction : executeActionType; var s : storage) : return is 
 block {
+
+    checkSenderIsAdminOrSelf(s);
 
     var operations: list(operation) := nil;
 
@@ -56,10 +111,9 @@ block {
             | None -> (failwith("updateConfig entrypoint in Delegation Contract not found") : contract(nat * updateDelegationConfigActionType))
         end;
 
-        // assign params to constants for easier code readability
-        // todo: test if unit configActionType must be set here, or if it's able to be passed through the lambda
-        const updateConfigAction   = params.1;
-        const updateConfigNewValue = params.0;
+        // assign params to constants for better code readability
+        const updateConfigAction   = params.updateConfigAction;
+        const updateConfigNewValue = params.updateConfigNewValue;
 
         // update delegation config operation
         const updateDelegationConfigOperation : operation = Tezos.transaction(

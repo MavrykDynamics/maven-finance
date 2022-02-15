@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { containerColor } from 'styles'
+import { backgroundColor, containerColor, subTextColor } from 'styles'
 
 export const Page = styled.div`
   margin: auto;
@@ -46,4 +46,20 @@ export const Message = styled.div`
   align-items: center;
   justify-content: space-around;
   height: 50vh;
+`
+
+export const Card = styled.div`
+  margin-top: 30px;
+  background-color: ${backgroundColor};
+  border-radius: 10px;
+  padding: 35px;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${subTextColor};
+`
+
+export const PageContent = styled.div`
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-gap: 20px;
 `

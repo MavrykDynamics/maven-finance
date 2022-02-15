@@ -1,12 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
 
+import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 // prettier-ignore
 import { MenuBanner, MenuButton, MenuConnected, MenuFooter, MenuGrid, MenuIcon, MenuLogo, MenuStyled } from "./Menu.style";
 
 type MenuViewProps = {
   loading: boolean
-  myMvkBalance?: string
-  accountPkhPreview?: string
+  myMvkTokenBalance?: string
+  accountPkh?: string
   handleNewConnect: () => void
   wallet: any
   ready: boolean
@@ -15,8 +16,8 @@ type MenuViewProps = {
 
 export const MenuView = ({
   loading,
-  myMvkBalance,
-  accountPkhPreview,
+  myMvkTokenBalance,
+  accountPkh,
   handleNewConnect,
   wallet,
   ready,
@@ -29,18 +30,20 @@ export const MenuView = ({
       <Link to="/">
         <MenuLogo alt="logo" src="/logo.svg" />
       </Link>
-
+      {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
       {wallet ? (
         <div>
           {ready ? (
             <MenuConnected>
               <p>
-                {accountPkhPreview}
+                {accountPkh
+                  ? `${accountPkh.slice(0, 7)}...${accountPkh.slice(accountPkh.length - 4, accountPkh.length)}`
+                  : 'undefined'}
                 <svg onClick={() => handleNewConnect()}>
                   <use xlinkHref="/icons/sprites.svg#switch" />
                 </svg>
               </p>
-              <div>{myMvkBalance} MVK</div>
+              <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
             </MenuConnected>
           ) : (
             <MenuButton onClick={handleConnect}>
