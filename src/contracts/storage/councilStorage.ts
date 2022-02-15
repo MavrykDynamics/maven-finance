@@ -27,7 +27,7 @@ export const councilStorage: councilStorageType = {
   councilActionsLedger: MichelsonMap.fromLiteral({}),
 
   thresholdSigners: new BigNumber(2),
-  actionCounter: new BigNumber(0),
+  actionCounter: new BigNumber(1),
 
   tempString: 'NULL',
 }
