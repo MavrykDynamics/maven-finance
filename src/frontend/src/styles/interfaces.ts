@@ -14,3 +14,15 @@ export interface MavrykTheme {
   infoColor: string
   selectedColor: string
 }
+
+export interface SubNavigationLink {
+  subTitle: string
+  subPath: string
+}
+export interface MainNavigationLink {
+  title: string
+  id: number
+  path: string
+  icon: string
+  subPages?: SubNavigationLink[]
+}

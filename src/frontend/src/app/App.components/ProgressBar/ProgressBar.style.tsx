@@ -2,15 +2,16 @@ import styled, { css } from 'styled-components/macro'
 
 import { primaryColor } from '../../../styles'
 import { ProgressBarStatus } from './ProgressBar.constants'
+import { MavrykTheme } from '../../../styles/interfaces'
 
-export const ProgressBarStyled = styled.div<{ status: ProgressBarStatus }>`
+export const ProgressBarStyled = styled.div<{ status: ProgressBarStatus; theme: MavrykTheme }>`
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   z-index: 20;
   height: 2px;
-  background-color: ${primaryColor};
+  background-color: ${({ theme }) => theme.primaryColor};
   will-change: transform;
 
   transform: translate3d(-100vw, 0, 0);

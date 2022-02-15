@@ -1,13 +1,14 @@
 import styled from 'styled-components/macro'
 import { backgroundColor, containerColor, subTextColor } from 'styles'
+import { MavrykTheme } from './interfaces'
 
-export const Page = styled.div`
+export const Page = styled.div<{ theme: MavrykTheme }>`
   margin: auto;
   padding: 40px;
   /* max-width: calc(100vw - 40px); */
   width: 100%;
   position: relative;
-  background-color: ${containerColor};
+  background-color: ${({ theme }) => theme.containerColor};
   min-height: 100vh;
 `
 
@@ -48,18 +49,18 @@ export const Message = styled.div`
   height: 50vh;
 `
 
-export const Card = styled.div`
+export const Card = styled.div<{ theme: MavrykTheme }>`
   margin-top: 30px;
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
   border-radius: 10px;
   padding: 35px;
   font-size: 14px;
   font-weight: 600;
-  color: ${subTextColor};
+  color: ${({ theme }) => theme.subTextColor};
 `
 
 export const PageContent = styled.div`
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-    grid-gap: 20px;
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  grid-gap: 20px;
 `

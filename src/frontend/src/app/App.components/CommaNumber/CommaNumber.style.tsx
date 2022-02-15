@@ -1,5 +1,6 @@
 import styled, { keyframes } from 'styled-components/macro'
 import { backgroundColor, primaryColor, textColor } from '../../../styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 const turn = keyframes`
   100% {
@@ -7,25 +8,25 @@ const turn = keyframes`
   }
 `
 
-export const LoadingIcon = styled.svg`
+export const LoadingIcon = styled.svg<{ theme: MavrykTheme }>`
   width: 20px;
   height: 20px;
   vertical-align: sub;
-  stroke: ${textColor};
+  stroke: ${({ theme }) => theme.textColor};
   stroke-width: 1px;
   stroke-dashoffset: 94.248;
   stroke-dasharray: 47.124;
   animation: ${turn} 1.6s linear infinite forwards;
 
   &.primary {
-    stroke: ${backgroundColor};
+    stroke: ${({ theme }) => theme.backgroundColor};
   }
 
   &.secondary {
-    stroke: ${primaryColor};
+    stroke: ${({ theme }) => theme.primaryColor};
   }
 
   &.transparent {
-    stroke: ${textColor};
+    stroke: ${({ theme }) => theme.textColor};
   }
 `

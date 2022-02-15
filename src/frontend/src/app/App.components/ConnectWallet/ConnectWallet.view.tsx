@@ -1,0 +1,59 @@
+import { MenuButton, MenuConnected } from '../Menu/Menu.style'
+import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
+import * as React from 'react'
+import { ConnectWalletStyled } from './ConnectWallet.style'
+
+type ConnectWalletProps = {
+  type?: string | null
+  loading: boolean
+  wallet: any
+  ready: boolean
+  accountPkh?: string
+  myMvkTokenBalance?: string | number
+  handleConnect: () => void
+  handleNewConnect: () => void
+}
+
+export const ConnectWalletView = ({
+  loading,
+  wallet,
+  ready,
+  accountPkh,
+  myMvkTokenBalance,
+  handleConnect,
+  handleNewConnect,
+}: ConnectWalletProps) => {
+  return (
+    <ConnectWalletStyled>
+      {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
+      {wallet ? (
+        <div>
+          {ready ? (
+            <MenuConnected>
+              <p>
+                {accountPkh
+                  ? `${accountPkh.slice(0, 7)}...${accountPkh.slice(accountPkh.length - 4, accountPkh.length)}`
+                  : 'undefined'}
+                <svg onClick={() => handleNewConnect()}>
+                  <use xlinkHref="/icons/sprites.svg#switch" />
+                </svg>
+              </p>
+              <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
+            </MenuConnected>
+          ) : (
+            <MenuButton onClick={handleConnect}>
+              <svg>
+                <use xlinkHref="/icons/sprites.svg#wallet" />
+              </svg>
+              <div>Connect wallet</div>
+            </MenuButton>
+          )}
+        </div>
+      ) : (
+        <MenuButton onClick={() => window.open('https://templewallet.com/', '_blank')!.focus()}>
+          Install wallet
+        </MenuButton>
+      )}
+    </ConnectWalletStyled>
+  )
+}
