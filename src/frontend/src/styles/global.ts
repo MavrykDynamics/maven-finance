@@ -1,6 +1,5 @@
 import { createGlobalStyle } from 'styled-components/macro'
 
-import { backgroundColor, placeholderColor, primaryColor, secondaryColor, subTextColor, textColor } from './colors'
 import { MavrykTheme } from './interfaces'
 
 export const GlobalStyle = createGlobalStyle<{ theme: MavrykTheme }>`
@@ -167,22 +166,22 @@ p {
   font-size: 12px;
   padding: 0;
   border-radius: 30px;
-  background-color: ${secondaryColor};
+  background-color: ${({ theme }) => theme.secondaryColor};
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;
   transition: all 0.2s ease;
 }
 
 .react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
-  background-color: ${secondaryColor};
+  background-color: ${({ theme }) => theme.secondaryColor};
 }
 
 .react-toggle--checked .react-toggle-track {
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
 }
 
 .react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
 }
 
 .react-toggle-track-check {
@@ -254,15 +253,15 @@ p {
 }
 
 .react-toggle--focus .react-toggle-thumb {
-  -webkit-box-shadow: 0px 0px 3px 2px ${secondaryColor};
-  -moz-box-shadow: 0px 0px 3px 2px ${secondaryColor};
-  box-shadow: 0px 0px 2px 3px ${secondaryColor};
+  -webkit-box-shadow: 0px 0px 3px 2px ${({ theme }) => theme.secondaryColor};
+  -moz-box-shadow: 0px 0px 3px 2px ${({ theme }) => theme.secondaryColor};
+  box-shadow: 0px 0px 2px 3px ${({ theme }) => theme.secondaryColor};
 }
 
 .react-toggle:active:not(.react-toggle--disabled) .react-toggle-thumb {
-  -webkit-box-shadow: 0px 0px 5px 5px ${secondaryColor};
-  -moz-box-shadow: 0px 0px 5px 5px ${secondaryColor};
-  box-shadow: 0px 0px 5px 5px ${secondaryColor};
+  -webkit-box-shadow: 0px 0px 5px 5px ${({ theme }) => theme.secondaryColor};
+  -moz-box-shadow: 0px 0px 5px 5px ${({ theme }) => theme.secondaryColor};
+  box-shadow: 0px 0px 5px 5px ${({ theme }) => theme.secondaryColor};
 }
 
 `
