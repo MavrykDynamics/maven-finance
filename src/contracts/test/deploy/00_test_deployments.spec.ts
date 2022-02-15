@@ -236,6 +236,8 @@ describe("Contracts Deployment for Tests", async () => {
     await setEmergencyGovernanceContractInGovernanceOperation.confirmation();
     const setBreakGlassContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts("breakGlass", breakGlass.contract.address).send();
     await setBreakGlassContractInGovernanceOperation.confirmation();
+    const setCouncilContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts("council", council.contract.address).send();
+    await setCouncilContractInGovernanceOperation.confirmation();
     console.log("governance contract address set")
 
     // Emergency Governance Contract - set contract addresses map [breakGlass]
