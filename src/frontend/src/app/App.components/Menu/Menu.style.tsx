@@ -1,12 +1,12 @@
 import styled, { css } from 'styled-components/macro'
 import { backgroundTextColor, primaryColor, subTextColor, textColor } from 'styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const MenuStyled = styled.div`
   position: relative;
   text-align: center;
   height: 100vh;
   width: 270px;
-  padding: 0 20px;
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -22,14 +22,14 @@ export const MenuLogo = styled.img`
   width: 175px;
 `
 
-export const MenuButton = styled.div`
+export const MenuButton = styled.div<{ theme: MavrykTheme }>`
   margin: 0 auto;
   width: 160px;
   height: 50px;
   cursor: pointer;
-  background: ${backgroundTextColor};
+  background: ${({ theme }) => theme.backgroundTextColor};
   border-radius: 10px;
-  color: ${subTextColor};
+  color: ${({ theme }) => theme.subTextColor};
   text-align: center;
   font-weight: bold;
   line-height: 50px;
@@ -40,7 +40,7 @@ export const MenuButton = styled.div`
     width: 24px;
     height: 24px;
     margin: 14px 9px 13px 8px;
-    stroke: ${subTextColor};
+    stroke: ${({ theme }) => theme.subTextColor};
     vertical-align: top;
   }
 
@@ -52,21 +52,24 @@ export const MenuButton = styled.div`
 `
 
 export const MenuGrid = styled.div`
-  display: grid;
-  grid-template-columns: 50px 50px;
-  grid-gap: 20px 60px;
-  width: 160px;
-  margin: 0 auto;
+  //display: grid;
+  //grid-template-columns: 50px 50px;
+  //grid-gap: 20px 60px;
+  display: flex;
+  align-items: start;
+  flex-direction: column;
+  justify-content: space-evenly;
+  width: 100%;
 `
 
-export const MenuIcon = styled.div<{ selected: boolean }>`
+export const MenuIcon = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   margin: 0 auto 25px auto;
   width: 50px;
   height: 50px;
   cursor: pointer;
-  background: ${backgroundTextColor};
+  background: ${({ theme }) => theme.backgroundTextColor};
   border-radius: 10px;
-  color: ${subTextColor};
+  color: ${({ theme }) => theme.subTextColor};
   text-align: center;
   font-weight: bold;
   line-height: 50px;
@@ -75,7 +78,7 @@ export const MenuIcon = styled.div<{ selected: boolean }>`
     font-size: 11px;
     line-height: 31px;
     font-weight: 600;
-    color: ${subTextColor};
+    color: ${({ theme }) => theme.subTextColor};
     display: flex;
     align-items: center;
     justify-content: space-around;
@@ -86,28 +89,28 @@ export const MenuIcon = styled.div<{ selected: boolean }>`
     width: 24px;
     height: 24px;
     margin: 14px 9px 13px 8px;
-    stroke: ${subTextColor};
+    stroke: ${({ theme }) => theme.subTextColor};
     vertical-align: top;
   }
 
   ${(props) =>
     props.selected &&
     css`
-      background: ${primaryColor};
-      color: ${backgroundTextColor};
+      background: ${({ theme }) => theme.primaryColor};
+      color: ${({ theme }) => theme.backgroundTextColor};
       box-shadow: 2px 4px 4px rgba(112, 104, 170, 0.3);
 
       > div {
-        color: ${textColor};
+        color: ${({ theme }) => theme.textColor};
       }
 
       > svg {
-        stroke: ${backgroundTextColor};
+        stroke: ${({ theme }) => theme.backgroundTextColor};
       }
     `}
 `
 
-export const MenuConnected = styled.div`
+export const MenuConnected = styled.div<{ theme: MavrykTheme }>`
   text-align: center;
   font-weight: 600;
   margin: 10px auto 33px auto;
@@ -116,13 +119,13 @@ export const MenuConnected = styled.div`
     font-size: 11px;
     line-height: 11px;
     margin: 3px;
-    color: ${textColor};
+    color: ${({ theme }) => theme.textColor};
   }
 
   > div {
     font-size: 18px;
     line-height: 18px;
-    color: ${primaryColor};
+    color: ${({ theme }) => theme.primaryColor};
   }
 
   svg {
@@ -131,7 +134,7 @@ export const MenuConnected = styled.div`
     margin-left: 10px;
     width: 20px;
     vertical-align: bottom;
-    stroke: ${primaryColor};
+    stroke: ${({ theme }) => theme.primaryColor};
   }
 `
 

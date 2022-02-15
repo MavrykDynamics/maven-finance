@@ -1,23 +1,24 @@
 import styled from 'styled-components/macro'
 import { backgroundColor, backgroundTextColor, primaryColor, subTextColor, textColor } from 'styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const TzAddressContainer = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
 `
-export const TzAddressStyled = styled.div`
+export const TzAddressStyled = styled.div<{ theme: MavrykTheme }>`
   &.primary {
-    color: ${primaryColor};
+    color: ${({ theme }) => theme.primaryColor};
   }
 
   &.secondary {
     margin: 8px 8px 8px 0;
-    color: ${subTextColor};
+    color: ${({ theme }) => theme.subTextColor};
   }
 
   &.transparent {
-    color: ${backgroundTextColor};
+    color: ${({ theme }) => theme.backgroundTextColor};
   }
 
   &.bold {
@@ -25,21 +26,21 @@ export const TzAddressStyled = styled.div`
   }
 `
 
-export const TzAddressIcon = styled.svg`
+export const TzAddressIcon = styled.svg<{ theme: MavrykTheme }>`
   width: 24px;
   height: 24px;
   display: inline-block;
   vertical-align: sub;
 
   &.primary {
-    stroke: ${backgroundColor};
+    stroke: ${({ theme }) => theme.backgroundTextColor};
   }
 
   &.secondary {
-    stroke: ${subTextColor};
+    stroke: ${({ theme }) => theme.subTextColor};
   }
 
   &.transparent {
-    stroke: ${textColor};
+    stroke: ${({ theme }) => theme.primaryColor};
   }
 `

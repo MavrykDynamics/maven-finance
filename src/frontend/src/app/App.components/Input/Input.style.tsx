@@ -2,22 +2,23 @@ import styled, { keyframes } from 'styled-components/macro'
 
 // prettier-ignore
 import { backgroundTextColor, downColor, placeholderColor, primaryColor, subTextColor, upColor, selectedColor } from '../../../styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const InputStyled = styled.div`
   position: relative;
   margin-bottom: 5px;
 `
 
-export const InputComponent = styled.input`
+export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   width: 100%;
   height: 50px;
-  background: ${placeholderColor};
+  background-color: #7068aa;
   border-radius: 10px;
   font-weight: 600;
   border: none;
   margin: 10px 0;
   padding: 0 20px;
-  color: ${subTextColor};
+  color: ${({ theme }) => theme.subTextColor};
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
@@ -29,35 +30,35 @@ export const InputComponent = styled.input`
   will-change: border-color, box-shadow;
 
   &::placeholder {
-    color: ${subTextColor};
+    color: ${({ theme }) => theme.subTextColor};
   }
   &:disabled {
-    background: ${backgroundTextColor};
-    color: ${subTextColor};
+    background: ${({ theme }) => theme.backgroundTextColor};
+    color: ${({ theme }) => theme.subTextColor};
   }
 
   &:hover {
-    border-color: ${primaryColor}7F;
+    border-color: ${({ theme }) => theme.primaryColor}7F;
   }
 
   &:focus {
-    box-shadow: 0 0 0 2px ${primaryColor}19;
-    border-color: ${primaryColor}7F;
+    box-shadow: 0 0 0 2px ${({ theme }) => theme.primaryColor}19;
+    border-color: ${({ theme }) => theme.primaryColor}7F;
   }
 
   &.error {
-    border-color: ${downColor};
+    border-color: ${({ theme }) => theme.downColor};
 
     &:focus {
-      box-shadow: 0 0 0 2px ${downColor}7F;
+      box-shadow: 0 0 0 2px ${({ theme }) => theme.downColor}7F;
     }
   }
 
   &.success {
-    border-color: ${upColor};
+    border-color: ${({ theme }) => theme.upColor};
 
     &:focus {
-      box-shadow: 0 0 0 2px ${upColor}7F;
+      box-shadow: 0 0 0 2px ${({ theme }) => theme.upColor}7F;
     }
   }
 `
@@ -99,7 +100,7 @@ export const InputStatus = styled.div`
   }
 `
 
-export const InputIcon = styled.svg`
+export const InputIcon = styled.svg<{ theme: MavrykTheme }>`
   display: block;
   position: absolute;
   top: 20px;
@@ -113,7 +114,7 @@ export const InputIcon = styled.svg`
   text-align: center;
   visibility: visible;
   pointer-events: none;
-  stroke: ${backgroundTextColor};
+  stroke: ${({ theme }) => theme.backgroundTextColor};
 `
 
 const slideDown = keyframes`
@@ -127,8 +128,8 @@ const slideDown = keyframes`
   }
 `
 
-export const InputErrorMessage = styled.div`
-  color: ${downColor};
+export const InputErrorMessage = styled.div<{ theme: MavrykTheme }>`
+  color: ${({ theme }) => theme.downColor};
   line-height: 24px;
   will-change: transform, opacity;
   animation: ${slideDown} 0.3s cubic-bezier(0.12, 0.4, 0.29, 1.46);
