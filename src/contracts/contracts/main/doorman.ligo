@@ -17,11 +17,12 @@ type updateSatelliteBalanceParams is (address * nat * nat)
 type breakGlassConfigType is record [
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
+    compoundIsPaused        : bool;
 ]
 
 (* Fixed point accuracy *)
-const fixedPointAccuracy: nat = 1_000_000_000_000_000_000n // 10^18
-const minAmount: nat = 1_000_000n // 10^6
+const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^24
+const minAmount: nat = 1_000_000_000n // 10^9
 
 (* Transfer entrypoint inputs for FA2 *)
 type transferDestination is [@layout:comb] record[
@@ -78,6 +79,7 @@ type stakeAction is
     | UnpauseAll of (unit)
     | TogglePauseStake of (unit)
     | TogglePauseUnstake of (unit)
+    | TogglePauseCompound of (unit)
 
     | GetStakedBalance of (address * contract(nat))
     | GetSatelliteBalance of getSatelliteBalanceType
@@ -210,6 +212,9 @@ block {
     if s.breakGlassConfig.unstakeIsPaused then skip
       else s.breakGlassConfig.unstakeIsPaused := True;
 
+    if s.breakGlassConfig.compoundIsPaused then skip
+      else s.breakGlassConfig.compoundIsPaused := True;
+
 } with (noOperations, s)
 
 function unpauseAll(var s : storage) : return is
@@ -222,6 +227,9 @@ block {
       else skip;
 
     if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
+      else skip;
+    
+    if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
       else skip;
 
 } with (noOperations, s)
@@ -243,6 +251,16 @@ block {
 
     if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
       else s.breakGlassConfig.unstakeIsPaused := True;
+
+} with (noOperations, s)
+
+function togglePauseCompound(var s : storage) : return is
+block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
+      else s.breakGlassConfig.compoundIsPaused := True;
 
 } with (noOperations, s)
 
@@ -648,6 +666,7 @@ function main (const action : stakeAction; const s : storage) : return is
     | UnpauseAll(_parameters) -> unpauseAll(s)
     | TogglePauseStake(_parameters) -> togglePauseStake(s)
     | TogglePauseUnstake(_parameters) -> togglePauseUnstake(s)
+    | TogglePauseCompound(_parameters) -> togglePauseCompound(s)
 
     | GetStakedBalance(params) -> getStakedBalance(params.0, params.1, s)
     | GetSatelliteBalance(params) -> getSatelliteBalance(params.0, params.1, params.2, params.3, params.4, params.5, s)

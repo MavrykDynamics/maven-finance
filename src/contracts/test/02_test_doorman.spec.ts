@@ -428,9 +428,9 @@ describe("Doorman tests", async () => {
         it("alice stakes 2MVK, bob stakes 5MVK then alice unstakes 1MVK and finally bob compounds", async() => {
             try{
                 // Parameters
-                const aliceStake = 2 * 10**6;
-                const bobStake = 5 * 10**6;
-                const aliceUnstake = 10**6;
+                const aliceStake = 2 * 10**9;
+                const bobStake = 5 * 10**9;
+                const aliceUnstake = 10**9;
 
                 // Alice Add operator operation
                 const aliceAddOperatorOperation = await mvkTokenInstance.methods
@@ -549,6 +549,49 @@ describe("Doorman tests", async () => {
                 var bobSMVKAfterCompound = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
                 const bobSMVKAfterCompoundBalance = parseInt(bobSMVKAfterCompound['balance'])
                 console.log("Bob sMVK after compound: ", bobSMVKAfterCompoundBalance)
+
+                // Change signer
+                await signerFactory(alice.sk);
+
+                // Alice stake operation
+                const aliceStakeSecondOperation = await doormanInstance.methods
+                    .stake(7*10**9)
+                    .send()
+                await aliceStakeSecondOperation.confirmation()
+
+                mvkTokenStorage = await mvkTokenInstance.storage();
+                var aliceLedgerAfterStake = await mvkTokenStorage.ledger.get(alice.pkh);
+                console.log("Alice balance after stake: ", parseInt(aliceLedgerAfterStake))
+
+                doormanStorage = await doormanInstance.storage();
+                var sMVKTotalSupply = doormanStorage.stakedMvkTotalSupply;
+                console.log("sMVK Total Supply: ", parseInt(sMVKTotalSupply))
+
+                // Change signer
+                await signerFactory(bob.sk);
+
+                // Unstake operation
+                const unstakeSecondOperation = await doormanInstance.methods
+                    .unstake(10**9)
+                    .send()
+                await unstakeSecondOperation.confirmation()
+
+                mvkTokenStorage = await mvkTokenInstance.storage();
+                var bobLedgerAfterUnstake = await mvkTokenStorage.ledger.get(bob.pkh);
+                console.log("Bob balance after unstake: ", parseInt(bobLedgerAfterUnstake))
+
+                doormanStorage = await doormanInstance.storage();
+                var sMVKTotalSupply = doormanStorage.stakedMvkTotalSupply;
+                console.log("sMVK Total Supply: ", parseInt(sMVKTotalSupply))
+
+                doormanStorage = await doormanInstance.storage();
+
+                console.log("Doorman storage: ",doormanStorage)
+
+                doormanStorage = await doormanInstance.storage();
+                var bobSMVKAfterUnstake = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+                const bobSMVKAfterUnstakeBalance = parseInt(bobSMVKAfterUnstake['balance'])
+                console.log("Bob sMVK after unstake: ", bobSMVKAfterUnstakeBalance)
 
                 // Assertions
                 const aliceFinalUnstake = parseInt(aliceLedgerAfterUnstake) - parseInt(aliceLedgerAfterStake)
