@@ -26,11 +26,13 @@ type councilActionRecordType is record [
     // ----------------------------------
     address_param_1            : address;
     address_param_2            : address;
+    address_param_3            : address;
     nat_param_1                : nat;
     nat_param_2                : nat;
     nat_param_3                : nat;
     string_param_1             : string;
     string_param_2             : string;
+    string_param_3             : string;
     // ----------------------------------
 
     startDateTime              : timestamp;       // timestamp of when action was initiated
@@ -89,13 +91,16 @@ type councilActionRequestFundsType is [@layout:comb] record [
     // tokenContractAddress : address;   // token contract address
     tokenName        : string;        // token name should be in whitelist token contracts map in governance contract
     tokenAmount      : nat;           // token amount requested
-    
-    purpose          : string;   // financial request purpose
+    tokenType        : string;        // "XTZ", "FA12", "FA2"
+    tokenId          : nat;        
+    purpose          : string;        // financial request purpose
 ]
 
 type councilActionRequestMintType is [@layout:comb] record [
-    tokenAmount      : nat;      // MVK token amount requested
     treasuryAddress  : address;  // treasury address
+    tokenAmount      : nat;      // MVK token amount requested
+    tokenType        : string;   // "XTZ", "FA12", "FA2"
+    tokenId          : nat;        
     purpose          : string;   // financial request purpose
 ]
 
@@ -232,11 +237,13 @@ block {
 
         address_param_1       = newCouncilMemberAddress;
         address_param_2       = zeroAddress;     // extra slot for address if needed
+        address_param_3       = zeroAddress;     // extra slot for address if needed
         nat_param_1           = 0n;
         nat_param_2           = 0n;
         nat_param_3           = 0n;
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
+        string_param_3        = "EMPTY";         // extra slot for string if needed
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -270,11 +277,13 @@ block {
 
         address_param_1       = councilMemberAddress;
         address_param_2       = zeroAddress;            // extra slot for address if needed
+        address_param_3       = zeroAddress;            // extra slot for address if needed
         nat_param_1           = 0n;
         nat_param_2           = 0n;
         nat_param_3           = 0n;
         string_param_1        = "EMPTY";                // extra slot for string if needed
         string_param_2        = "EMPTY";                // extra slot for string if needed
+        string_param_3        = "EMPTY";         // extra slot for string if needed
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -309,11 +318,13 @@ block {
 
         address_param_1       = addVestee.0;
         address_param_2       = zeroAddress;     // extra slot for address if needed
+        address_param_3       = zeroAddress;     // extra slot for address if needed
         nat_param_1           = addVestee.1;
         nat_param_2           = addVestee.2;
         nat_param_3           = addVestee.3;
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
+        string_param_3        = "EMPTY";         // extra slot for string if needed
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -347,11 +358,13 @@ block {
 
         address_param_1       = vesteeAddress;
         address_param_2       = zeroAddress;     // extra slot for address if needed
+        address_param_3       = zeroAddress;     // extra slot for address if needed
         nat_param_1           = 0n;
         nat_param_2           = 0n;
         nat_param_3           = 0n;
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
+        string_param_3        = "EMPTY";         // extra slot for string if needed
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -385,11 +398,13 @@ block {
 
         address_param_1       = updateVestee.0;
         address_param_2       = zeroAddress;     // extra slot for address if needed
+        address_param_3       = zeroAddress;     // extra slot for address if needed
         nat_param_1           = updateVestee.1;
         nat_param_2           = updateVestee.2;
         nat_param_3           = updateVestee.3;
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
+        string_param_3        = "EMPTY";         // extra slot for string if needed
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -423,11 +438,13 @@ block {
 
         address_param_1       = vesteeAddress;
         address_param_2       = zeroAddress;     // extra slot for address if needed
+        address_param_3       = zeroAddress;     // extra slot for address if needed
         nat_param_1           = 0n;
         nat_param_2           = 0n;
         nat_param_3           = 0n;
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
+        string_param_3        = "EMPTY";         // extra slot for string if needed
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -461,11 +478,13 @@ block {
 
         address_param_1       = councilActionRequestFundsParams.treasuryAddress;
         address_param_2       = zeroAddress;    
+        address_param_3       = zeroAddress;    
         nat_param_1           = councilActionRequestFundsParams.tokenAmount;
-        nat_param_2           = 0n;
+        nat_param_2           = councilActionRequestFundsParams.tokenId;
         nat_param_3           = 0n;
         string_param_1        = councilActionRequestFundsParams.tokenName; 
         string_param_2        = councilActionRequestFundsParams.purpose;        
+        string_param_3        = councilActionRequestFundsParams.tokenType;        
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -499,11 +518,13 @@ block {
 
         address_param_1       = councilActionRequestMintParams.treasuryAddress;
         address_param_2       = zeroAddress;    
+        address_param_3       = zeroAddress;    
         nat_param_1           = councilActionRequestMintParams.tokenAmount;
-        nat_param_2           = 0n;
+        nat_param_2           = councilActionRequestMintParams.tokenId;
         nat_param_3           = 0n;
         string_param_1        = councilActionRequestMintParams.purpose; 
-        string_param_2        = "EMPTY";        
+        string_param_2        = councilActionRequestMintParams.tokenType;        
+        string_param_3        = "EMPTY";        
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -666,6 +687,8 @@ block {
             const requestFundsParams : councilActionRequestFundsType = record[
                 tokenName       = _councilActionRecord.string_param_1;
                 tokenAmount     = _councilActionRecord.nat_param_1;
+                tokenType       = _councilActionRecord.string_param_3;
+                tokenId         = _councilActionRecord.nat_param_2;
                 treasuryAddress = _councilActionRecord.address_param_1;
                 purpose         = _councilActionRecord.string_param_2;
             ];
@@ -688,9 +711,11 @@ block {
             end;
 
             const requestMintParams : councilActionRequestMintType = record[
-                tokenAmount     = _councilActionRecord.nat_param_1;
-                treasuryAddress = _councilActionRecord.address_param_1;
-                purpose         = _councilActionRecord.string_param_1;
+                tokenAmount      = _councilActionRecord.nat_param_1;
+                tokenType        = _councilActionRecord.string_param_2;
+                tokenId          = _councilActionRecord.nat_param_2;
+                treasuryAddress  = _councilActionRecord.address_param_1;
+                purpose          = _councilActionRecord.string_param_1;
             ];
 
             const requestMintOperation : operation = Tezos.transaction(

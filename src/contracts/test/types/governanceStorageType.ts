@@ -8,34 +8,35 @@ export type governanceStorageType = {
 
   config: {};
 
-  whitelistContracts : MichelsonMap<MichelsonMapKey, unknown>;
+  whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>;
   whitelistTokenContracts : MichelsonMap<MichelsonMapKey, unknown>;
-  generalContracts : MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
-  proposalLedger : MichelsonMap<MichelsonMapKey, unknown>;
-  snapshotLedger : MichelsonMap<MichelsonMapKey, unknown>;
-  activeSatellitesMap : MichelsonMap<MichelsonMapKey, unknown>;
+  proposalLedger          : MichelsonMap<MichelsonMapKey, unknown>;
+  snapshotLedger          : MichelsonMap<MichelsonMapKey, unknown>;
+  activeSatellitesMap     : MichelsonMap<MichelsonMapKey, unknown>;
 
-  startLevel : BigNumber;
-  nextProposalId : BigNumber;
+  startLevel              : BigNumber;
+  nextProposalId          : BigNumber;
 
-  currentRound : string;
-  currentRoundStartLevel : BigNumber;
-  currentRoundEndLevel : BigNumber;
-  currentCycleEndLevel : BigNumber;
-  currentRoundProposals : MichelsonMap<MichelsonMapKey, unknown>;
-  currentRoundVotes     : MichelsonMap<MichelsonMapKey, unknown>;
+  currentRound            : string;
+  currentRoundStartLevel  : BigNumber;
+  currentRoundEndLevel    : BigNumber;
+  currentCycleEndLevel    : BigNumber;
+  currentRoundProposals   : MichelsonMap<MichelsonMapKey, unknown>;
+  currentRoundVotes       : MichelsonMap<MichelsonMapKey, unknown>;
 
   currentRoundHighestVotedProposalId : BigNumber;
-  timelockProposalId : BigNumber;
+  timelockProposalId                 : BigNumber;
 
-  snapshotMvkTotalSupply : BigNumber;
-  snapshotStakedMvkTotalSupply : BigNumber;
+  snapshotMvkTotalSupply             : BigNumber;
+  snapshotStakedMvkTotalSupply       : BigNumber;
 
-  governanceLambdaLedger : MichelsonMap<MichelsonMapKey, unknown>;
+  governanceLambdaLedger             : MichelsonMap<MichelsonMapKey, unknown>;
 
-  financialRequestLedger : MichelsonMap<MichelsonMapKey, unknown>;
-  financialRequestCounter : BigNumber;
+  financialRequestLedger             : MichelsonMap<MichelsonMapKey, unknown>;
+  financialRequestSnapshotLedger     : MichelsonMap<MichelsonMapKey, unknown>;
+  financialRequestCounter            : BigNumber;
 
   tempFlag :BigNumber;
   
