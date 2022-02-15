@@ -1505,22 +1505,21 @@ block {
     s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
 
     // --- update snapshot staked MVK total supply begin ----
-    const setSnapshotStakedMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setSnapshotStakedMvkTotalSupply");    
-    const updateSnapshotStakedMvkTotalSupplyOperation : operation = Tezos.transaction(
-         (setSnapshotStakedMvkTotalSupplyCallback),
-         0tez, 
-         getStakedMvkTotalSupply(doormanAddress)
-         );
-
-    operations := updateSnapshotStakedMvkTotalSupplyOperation # operations;
     const requestSnapshotCompleteEntrypoint: contract(nat) =
       case (Tezos.get_entrypoint_opt("%requestStakedMvkSnapshot", Tezos.self_address) : option(contract(nat))) of
         Some(contr) -> contr
       | None -> (failwith("Error. RequestStakedMvkSnapshot entrypoint not found in Governance contract."): contract(nat))
       end;
     const requestSnapshotCompleteOperation: operation = Tezos.transaction(financialRequestId, 0tez, requestSnapshotCompleteEntrypoint);
-
     operations := requestSnapshotCompleteOperation # operations;
+
+    const setSnapshotStakedMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setSnapshotStakedMvkTotalSupply");    
+    const updateSnapshotStakedMvkTotalSupplyOperation : operation = Tezos.transaction(
+         (setSnapshotStakedMvkTotalSupplyCallback),
+         0tez, 
+         getStakedMvkTotalSupply(doormanAddress)
+         );
+    operations := updateSnapshotStakedMvkTotalSupplyOperation # operations;
     // --- update snapshot staked MVK total supply end ----
 
     // set snapshot of satellites for financial request
@@ -1692,31 +1691,31 @@ block {
             | None -> failwith("Error. Council Contract is not found")
           end;
 
-          const tokenAddress : address = case s.whitelistTokenContracts[_financialRequest.tokenName] of
-            Some(_address) -> _address
-            | None -> failwith("Error. Token Contract Address is not found")
-          end;        
-
-          // ---- set token type ----
-          var _tokenType : tokenType := Tez;
-
-          if  _financialRequest.tokenType = "XTZ" then block {
-            var _tokenType : tokenType := Tez; 
-          } else skip;
-
-          if  _financialRequest.tokenType = "FA12" then block {
-            var _tokenType : tokenType := Fa12(tokenAddress); 
-          } else skip;
-
-          if  _financialRequest.tokenType = "FA2" then block {
-            var _tokenType : tokenType := Fa2(record [
-              token = tokenAddress;
-              id    = _financialRequest.tokenId;
-            ]); 
-          } else skip;
-          // --- --- ---
-
           if _financialRequest.requestType = "TRANSFER" then block {
+
+            const tokenAddress : address = case s.whitelistTokenContracts[_financialRequest.tokenName] of
+              Some(_address) -> _address
+              | None -> failwith("Error. Token Contract Address is not found")
+            end;        
+
+            // ---- set token type ----
+            var _tokenType : tokenType := Tez;
+
+            if  _financialRequest.tokenType = "XTZ" then block {
+              var _tokenType : tokenType := Tez; 
+            } else skip;
+
+            if  _financialRequest.tokenType = "FA12" then block {
+              var _tokenType : tokenType := Fa12(tokenAddress); 
+            } else skip;
+
+            if  _financialRequest.tokenType = "FA2" then block {
+              var _tokenType : tokenType := Fa2(record [
+                token = tokenAddress;
+                id    = _financialRequest.tokenId;
+              ]); 
+            } else skip;
+            // --- --- ---
 
             const transferTokenParams : transferTokenType = record [
               from_      = treasuryAddress;
@@ -1727,7 +1726,7 @@ block {
 
             const treasuryTransferOperation : operation = Tezos.transaction(
               transferTokenParams, 
-              0tez, 
+              0mutez, 
               sendTransferOperationToTreasury(treasuryAddress)
             );
 
@@ -1744,7 +1743,7 @@ block {
 
             const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
               mintMvkAndTransferTokenParams, 
-              0tez, 
+              0mutez, 
               sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
             );
 
