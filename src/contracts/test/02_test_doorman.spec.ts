@@ -425,12 +425,12 @@ describe("Doorman tests", async () => {
         //     }
         // })
 
-        it("alice stakes 1MVK, bob stakes 5MVK then unstakes 0.5MVK", async() => {
+        it("alice stakes 2MVK, bob stakes 5MVK then alice unstakes 1MVK and finally bob compounds", async() => {
             try{
                 // Parameters
-                const aliceStake = 100000;
-                const bobStake = 500000;
-                const aliceUnstake = 50000;
+                const aliceStake = 2 * 10**6;
+                const bobStake = 5 * 10**6;
+                const aliceUnstake = 10**6;
 
                 // Alice Add operator operation
                 const aliceAddOperatorOperation = await mvkTokenInstance.methods
@@ -526,27 +526,37 @@ describe("Doorman tests", async () => {
 
                 console.log("Doorman storage: ",doormanStorage)
 
+                doormanStorage = await doormanInstance.storage();
+                var aliceSMVKAfterUnstake = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+                const aliceSMVKAfterUnstakeBalance = parseInt(aliceSMVKAfterUnstake['balance'])
+                console.log("Alice sMVK after unstake: ", aliceSMVKAfterUnstakeBalance)
+
                 // Change signer
                 await signerFactory(bob.sk);
 
                 doormanStorage = await doormanInstance.storage();
                 var bobSMVKBeforeCompound = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-                console.log(bobSMVKBeforeCompound)
-                console.log("Bob sMVK before compound: ", parseInt(bobSMVKBeforeCompound['balance']))
+                const bobSMVKBeforeCompoundBalance = parseInt(bobSMVKBeforeCompound['balance'])
+                console.log("Bob sMVK before compound: ", bobSMVKBeforeCompoundBalance)
 
-                // Unstake operation
-                const compoundOperation = await doormanInstance.methods
+                // Bob compound operation
+                const bobCompoundOperation = await doormanInstance.methods
                     .compound()
                     .send()
-                await compoundOperation.confirmation()
+                await bobCompoundOperation.confirmation()
 
                 doormanStorage = await doormanInstance.storage();
                 var bobSMVKAfterCompound = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-                console.log("Bob sMVK before compound: ", parseInt(bobSMVKAfterCompound['balance']))
+                const bobSMVKAfterCompoundBalance = parseInt(bobSMVKAfterCompound['balance'])
+                console.log("Bob sMVK after compound: ", bobSMVKAfterCompoundBalance)
 
                 // Assertions
-                // assert.equal(aliceLedgerBeforeStake - aliceStake, aliceLedgerAfterStake);
-                // assert.equal(aliceLedgerBeforeStake - aliceStake + aliceUnstake, aliceLedgerAfterUnstake);
+                const aliceFinalUnstake = parseInt(aliceLedgerAfterUnstake) - parseInt(aliceLedgerAfterStake)
+                const aliceExitFee = aliceUnstake - aliceFinalUnstake
+                console.log("Exit fee: ", aliceExitFee);
+                console.log("Final unstake: ", aliceFinalUnstake);
+                const usersRewards = aliceSMVKAfterUnstakeBalance - (aliceStake - aliceUnstake) + bobSMVKAfterCompoundBalance - bobSMVKBeforeCompoundBalance
+                assert.equal(usersRewards, aliceExitFee);
             } catch(e) {
                 console.log(e)
             }
