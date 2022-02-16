@@ -13,6 +13,7 @@ import { Utils, zeroAddress } from '../helpers/Utils'
 import fs from 'fs'
 import { confirmOperation } from '../../scripts/confirmation'
 const saveContractAddress = require('../../helpers/saveContractAddress')
+const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
 import { MichelsonMap } from '@taquito/michelson-encoder'
 
 const chai = require('chai')
@@ -37,7 +38,7 @@ import { Treasury } from '../helpers/treasuryHelper'
 
 import { doormanStorage } from '../../storage/doormanStorage'
 import { delegationStorage } from '../../storage/delegationStorage'
-import { mvkStorage } from '../../storage/mvkTokenStorage'
+import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { governanceStorage } from '../../storage/governanceStorage'
 import { breakGlassStorage } from '../../storage/breakGlassStorage'
 import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceStorage'
@@ -237,7 +238,11 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
     await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
     await saveContractAddress('vestingAddress', vesting.contract.address)
-    await saveContractAddress('councilAddress', council.contract.address)
+    
+    //----------------------------
+    // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
+    //----------------------------
+    await saveMVKDecimals(mvkTokenDecimals)
 
     // deployedDoormanStorage    = await doorman.contract.storage();
     // deployedDelegationStorage = await delegation.contract.storage();

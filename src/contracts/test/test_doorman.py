@@ -25,6 +25,12 @@ print('root dir: '+rootDir)
 print('file dlr: '+fileDir)
 print('two up: '+ twoUp)
 
+helpersDir          = os.path.join(fileDir, 'helpers')
+mvkTokenDecimals = os.path.join(helpersDir, 'mvkTokenDecimals.json')
+mvkTokenDecimals = open(mvkTokenDecimals)
+mvkTokenDecimals = json.load(mvkTokenDecimals)
+mvkTokenDecimals = mvkTokenDecimals['decimals']
+
 deploymentsDir          = os.path.join(fileDir, 'deployments')
 deployedDoormanContract = os.path.join(deploymentsDir, 'doormanAddress.json')
 deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
@@ -60,6 +66,8 @@ error_stake_paused = 'Stake entrypoint is paused.'
 error_unstake_paused = 'Unstake entrypoint is paused.'
 error_compound_paused = 'Compound entrypoint is paused.'
 error_only_delegation = 'Error. Only the Delegation Contract can call this entrypoint.'
+error_mvk_contract_not_found = 'Error. MVK Token Contract is not found.'
+error_delegation_contract_not_found = 'Error. Delegation Contract is not found.'
 
 class DoormanContract(TestCase):
     
@@ -80,6 +88,10 @@ class DoormanContract(TestCase):
             self.assertEqual(f"FAILWITH: '{error_message}'", r.exception.format_stdout())
         else:
             self.assertEqual(f"'{error_message}': ", r.exception.format_stdout())
+
+    # MVK Formatter
+    def MVK(self, value = 1):
+        return value * 10**int(mvkTokenDecimals)
 
 #     ######################
 #     # Tests for doorman contract #
@@ -140,9 +152,9 @@ class DoormanContract(TestCase):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        initialTotalSupply = 10**11
+        initialTotalSupply = self.MVK(100)
         previousTotalSupply = init_doorman_storage['tempMvkTotalSupply']
-        testTotalSupply = 9*10**15
+        testTotalSupply = self.MVK(9000000)
 
         # Operation
         res = self.doormanContract.setTempMvkTotalSupply(testTotalSupply).interpret(storage=init_doorman_storage, sender=mvkTokenAddress)
@@ -164,10 +176,10 @@ class DoormanContract(TestCase):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        initialTotalSupply = 10**11
+        initialTotalSupply = self.MVK(100)
         previousTotalSupply = init_doorman_storage['tempMvkTotalSupply']
-        testTotalSupply = 9*10**15
-        newTotalSupply = 10**11
+        testTotalSupply = self.MVK(900000)
+        newTotalSupply = self.MVK(100)
 
         # Operation
         with self.raisesMichelsonError(error_only_mvk_can_call):
@@ -196,8 +208,8 @@ class DoormanContract(TestCase):
         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
-        stakeAmount = 2*10**9
-        unstakeAmount = 10**9
+        stakeAmount = self.MVK(2)
+        unstakeAmount = self.MVK()
 
         # Operation
         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=alice)
@@ -274,8 +286,8 @@ class DoormanContract(TestCase):
         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
-        stakeAmount = 2*10**9
-        unstakeAmount = 10**9
+        stakeAmount = self.MVK(2)
+        unstakeAmount = self.MVK()
         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=alice)
 
         # Paused values
@@ -320,8 +332,8 @@ class DoormanContract(TestCase):
         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
-        stakeAmount = 2*10**9
-        unstakeAmount = 10**9
+        stakeAmount = self.MVK(2)
+        unstakeAmount = self.MVK()
         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=alice)
 
         # Paused values
@@ -373,7 +385,7 @@ class DoormanContract(TestCase):
 
         # Initial values
         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-        stakeAmount = 2*10**9
+        stakeAmount = self.MVK(2)
 
         # Operation
         res = self.doormanContract.togglePauseStake().interpret(storage=init_doorman_storage, sender=alice)
@@ -399,7 +411,7 @@ class DoormanContract(TestCase):
 
         # Initial values
         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-        stakeAmount = 2*10**9
+        stakeAmount = self.MVK(2)
         finalStakeIsPaused = stakeIsPaused;
 
         # Operation
@@ -428,8 +440,8 @@ class DoormanContract(TestCase):
 
         # Initial values
         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
-        stakeAmount = 2*10**9
-        unstakeAmount = 10**9
+        stakeAmount = self.MVK(2)
+        unstakeAmount = self.MVK()
 
         # Operation
         res = self.doormanContract.togglePauseUnstake().interpret(storage=init_doorman_storage, sender=alice)
@@ -455,8 +467,8 @@ class DoormanContract(TestCase):
 
         # Initial values
         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
-        stakeAmount = 2*10**9
-        unstakeAmount = 10**9
+        stakeAmount = self.MVK(2)
+        unstakeAmount = self.MVK()
         finalUnstakeIsPaused = unstakeIsPaused;
 
         # Operation
@@ -537,7 +549,7 @@ class DoormanContract(TestCase):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        stakeAmount = 2*10**9
+        stakeAmount = self.MVK(2)
 
         # Tests operations
         res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=bob)
@@ -578,7 +590,7 @@ class DoormanContract(TestCase):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        stakeAmount = 2*10**9
+        stakeAmount = self.MVK(2)
         satelliteName = "test_name"
         satelliteDescription = "test_description"
         satelliteImage = "test_image"
@@ -690,3 +702,117 @@ class DoormanContract(TestCase):
 
         print('----')
         print('✅ Another contract tries to get balance of a satellite')
+    
+    ###
+    # %stake
+    ##
+    def test_40_stake_mvk_token_contract_unknown_to_doorman(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(2)
+
+        # Operations
+        res = self.doormanContract.updateGeneralContracts("mvkToken",mvkTokenAddress).interpret(storage=init_doorman_storage, sender=alice);
+        with self.raisesMichelsonError(error_mvk_contract_not_found):
+            self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=alice);
+
+        print('----')
+        print('✅ User tries to stake while doorman does not have mvkToken contract in generalContracts')
+
+    def test_4_stake_delegation_contract_unknown_to_doorman(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(2)
+
+        # Operations
+        res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=init_doorman_storage, sender=alice);
+        with self.raisesMichelsonError(error_delegation_contract_not_found):
+            self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=alice);
+
+        print('----')
+        print('✅ User tries to stake while doorman does not have delegation contract in generalContracts')
+
+    ###
+    # %unstake
+    ##
+    def test_50_unstake_mvk_token_contract_unknown_to_doorman(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        unstakeAmount = self.MVK(2)
+
+        # Operations
+        res = self.doormanContract.updateGeneralContracts("mvkToken",mvkTokenAddress).interpret(storage=init_doorman_storage, sender=alice);
+        with self.raisesMichelsonError(error_mvk_contract_not_found):
+            self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=alice);
+
+        print('----')
+        print('✅ User tries to unstake while doorman does not have mvkToken contract in generalContracts')
+
+    ###
+    # %unstakeComplete
+    ##
+    def test_51_mvk_contract_call_unstake_complete(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(2)
+        unstakeAmount = self.MVK(2)
+
+        # Operations
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=alice);
+        res = self.doormanContract.unstakeComplete(unstakeAmount).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+
+        print('----')
+        print('✅ MVK Token contract tries to call unstakeComplete')
+
+    def test_52_unstake_complete_delegation_contract_unknown_to_doorman(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(2)
+        unstakeAmount = self.MVK(2)
+
+        # Operations
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=alice);
+        res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=res.storage, sender=alice);
+        with self.raisesMichelsonError(error_delegation_contract_not_found):
+            self.doormanContract.unstakeComplete(unstakeAmount).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+
+        print('----')
+        print('✅ MVK Token contract tries to call unstakeComplete while doorman does not have delegation contract in generalContracts')
+
+    def test_53_non_mvk_contract_call_unstake_complete(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(2)
+        unstakeAmount = self.MVK(2)
+
+        # Operations
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=alice);
+        with self.raisesMichelsonError(error_only_mvk_can_call):
+            self.doormanContract.unstakeComplete(unstakeAmount).interpret(storage=res.storage, sender=alice, source=alice);
+
+        print('----')
+        print('✅ Non-MVK Token contract tries to call unstakeComplete')
+
+    ###
+    # %compound
+    ##
+    def test_60_compound_delegation_contract_unknown_to_doorman(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(2)
+
+        # Operations
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=alice);
+        res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=res.storage, sender=alice);
+        with self.raisesMichelsonError(error_delegation_contract_not_found):
+            self.doormanContract.compound().interpret(storage=res.storage, sender=alice, source=alice);
+
+        print('----')
+        print('✅ User tries to compound while doorman does not have delegation contract in generalContracts')

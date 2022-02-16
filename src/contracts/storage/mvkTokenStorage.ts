@@ -10,7 +10,9 @@ import { zeroAddress } from '../test/helpers/Utils'
 
 import { mvkStorageType } from '../test/types/mvkTokenStorageType'
 
-const totalSupply = 100 * 10**9
+export const mvkTokenDecimals = 9
+
+const totalSupply = 100 * 10**mvkTokenDecimals
 const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4)
 
@@ -32,7 +34,7 @@ const metadata = MichelsonMap.fromLiteral({
         {
           symbol: Buffer.from('MVK').toString('hex'),
           name: Buffer.from('MAVRYK').toString('hex'),
-          decimals: Buffer.from('9').toString('hex'),
+          decimals: Buffer.from(mvkTokenDecimals.toString()).toString('hex'),
           icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
           shouldPreferSymbol: true,
           thumbnailUri: 'https://mavryk.finance/logo192.png',
@@ -56,7 +58,7 @@ const token_metadata = MichelsonMap.fromLiteral({
     token_info: MichelsonMap.fromLiteral({
       symbol: Buffer.from('MVK').toString('hex'),
       name: Buffer.from('MAVRYK').toString('hex'),
-      decimals: Buffer.from('9').toString('hex'),
+      decimals: Buffer.from(mvkTokenDecimals.toString()).toString('hex'),
       icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
       shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
       thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
