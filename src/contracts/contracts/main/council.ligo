@@ -124,8 +124,9 @@ type councilAction is
     | CouncilActionUpdateVestee of councilActionUpdateVesteeType
     | CouncilActionToggleVesteeLock of address
     
-    | CouncilActionAddCouncilMember of address
+    | CouncilActionAddMember of address
     | CouncilActionRemoveMember of address
+    | CouncilActionChangeMember of (address * address)
 
     | CouncilActionRequestTokens of councilActionRequestTokensType
     | CouncilActionRequestMint of councilActionRequestMintType
@@ -229,7 +230,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionAddCouncilMember(const newCouncilMemberAddress : address ; var s : storage) : return is 
+function councilActionAddMember(const newCouncilMemberAddress : address ; var s : storage) : return is 
 block {
 
     // Overall steps:
@@ -301,6 +302,53 @@ block {
         address_param_1       = councilMemberAddress;
         address_param_2       = zeroAddress;            // extra slot for address if needed
         address_param_3       = zeroAddress;            // extra slot for address if needed
+        nat_param_1           = 0n;
+        nat_param_2           = 0n;
+        nat_param_3           = 0n;
+        string_param_1        = "EMPTY";                // extra slot for string if needed
+        string_param_2        = "EMPTY";                // extra slot for string if needed
+        string_param_3        = "EMPTY";         // extra slot for string if needed
+        // token_type_param      = noToken;
+
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
+    ];
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
+
+function councilActionChangeMember(const oldCouncilMemberAddress : address ; const newCouncilMemberAddress : address ; var s : storage) : return is 
+block {
+
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
+
+    checkSenderIsCouncilMember(s);
+
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    // const noToken : requestTokenType = NoToken;
+
+    var councilActionRecord : councilActionRecordType := record[
+        initiator             = Tezos.sender;
+        actionType            = "changeCouncilMember";
+        signers               = set[Tezos.sender];
+
+        status                = "PENDING";
+        signersCount          = 1n;
+        executed              = False;
+
+        address_param_1       = oldCouncilMemberAddress;
+        address_param_2       = newCouncilMemberAddress; 
+        address_param_3       = zeroAddress;              // extra slot for address if needed
         nat_param_1           = 0n;
         nat_param_2           = 0n;
         nat_param_3           = 0n;
@@ -740,6 +788,12 @@ block {
             s.councilMembers := Set.remove(_councilActionRecord.address_param_1, s.councilMembers);
         } else skip;
 
+        // changeCouncilMember action type
+        if actionType = "changeCouncilMember" then block {
+            s.councilMembers := Set.add(_councilActionRecord.address_param_2, s.councilMembers);
+            s.councilMembers := Set.remove(_councilActionRecord.address_param_1, s.councilMembers);
+        } else skip;
+
         // requestTokens action type
         if actionType = "requestTokens" then block {
             
@@ -753,7 +807,7 @@ block {
                 tokenContractAddress  = _councilActionRecord.address_param_2;
                 tokenName             = _councilActionRecord.string_param_1;
                 tokenAmount           = _councilActionRecord.nat_param_1;
-                tokenType             = _councilActionRecord.string_param_2;
+                tokenType             = _councilActionRecord.string_param_3;
                 // tokenType             = _councilActionRecord.token_type_param;
                 tokenId               = _councilActionRecord.nat_param_2;
                 purpose               = _councilActionRecord.string_param_2;
@@ -817,8 +871,11 @@ function main (const action : councilAction; const s : storage) : return is
         | CouncilActionRemoveVestee(parameters) -> councilActionRemoveVestee(parameters, s)
         | CouncilActionUpdateVestee(parameters) -> councilActionUpdateVestee(parameters, s)
         | CouncilActionToggleVesteeLock(parameters) -> councilActionToggleVesteeLock(parameters, s)
-        | CouncilActionAddCouncilMember(parameters) -> councilActionAddCouncilMember(parameters, s)
+        
+        | CouncilActionAddMember(parameters) -> councilActionAddMember(parameters, s)
         | CouncilActionRemoveMember(parameters) -> councilActionRemoveMember(parameters, s)
+        | CouncilActionChangeMember(parameters) -> councilActionChangeMember(parameters.0, parameters.1, s)
+        
         | CouncilActionRequestTokens(parameters) -> councilActionRequestTokens(parameters, s)
         | CouncilActionRequestMint(parameters) -> councilActionRequestMint(parameters, s)
 
