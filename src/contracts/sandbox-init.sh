@@ -1,5 +1,22 @@
 #!/bin/bash
+MAIN_SANDBOX_V="901d451a"
+APPLE_SANDBOX_V="cc4f24db"
+TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox tezos-node --version)
+NODE_BOOTSTRAPPED=$(docker exec -it mavryk-sandbox tezos-client bootstrapped)
+until [[ "$TZ_NODE_VERSION" == *"$MAIN_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]] || [[ "$TZ_NODE_VERSION" == *"$APPLE_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]];
+do
+  echo "Waiting for Tezos Node to finish starting up......"
+  sleep 10
+  TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox tezos-node --version)
+  NODE_BOOTSTRAPPED=$(docker exec -it mavryk-sandbox tezos-client bootstrapped)
 
+  if [[ "$TZ_NODE_VERSION" == *"$MAIN_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]] || [[ "$TZ_NODE_VERSION" == *"$APPLE_SANDBOX_V"* && "$NODE_BOOTSTRAPPED" == *"Node is bootstrapped."* ]]; then
+    echo "Tezos Node is ready"
+    TZ_NODE_VERSION=$(docker exec -it mavryk-sandbox tezos-node --version)
+    echo "Flextesa Tezos Node version $TZ_NODE_VERSION"
+    break
+  fi
+done
 docker exec -it mavryk-sandbox tezos-client import secret key eve unencrypted:edsk3QbYXUV92sMoLyMtUSHr4ymkVBWMWUsiG9Z2DuPhvFNPHrKM5B
 docker exec -it mavryk-sandbox tezos-client import secret key mallory unencrypted:edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB
 docker exec -it mavryk-sandbox tezos-client import secret key oscar unencrypted:edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs
@@ -9,13 +26,13 @@ docker exec -it mavryk-sandbox tezos-client import secret key david unencrypted:
 docker exec -it mavryk-sandbox tezos-client import secret key susie unencrypted:edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP
 docker exec -it mavryk-sandbox tezos-client import secret key ivan unencrypted:edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf
 
-docker exec -it mavryk-sandbox tezos-client transfer 200 from alice to eve --burn-cap 0.06425
-docker exec -it mavryk-sandbox tezos-client transfer 200 from alice to mallory --burn-cap 0.06425
-docker exec -it mavryk-sandbox tezos-client transfer 200 from alice to oscar --burn-cap 0.06425
-docker exec -it mavryk-sandbox tezos-client transfer 200 from alice to trudy --burn-cap 0.06425
-docker exec -it mavryk-sandbox tezos-client transfer 200 from alice to isaac --burn-cap 0.06425
-docker exec -it mavryk-sandbox tezos-client transfer 200 from alice to david --burn-cap 0.06425
-docker exec -it mavryk-sandbox tezos-client transfer 200 from alice to susie --burn-cap 0.06425
-docker exec -it mavryk-sandbox tezos-client transfer 200 from alice to ivan --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to eve --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to mallory --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to oscar --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to trudy --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to isaac --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to david --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to susie --burn-cap 0.06425
+docker exec -it mavryk-sandbox tezos-client transfer 2000 from alice to ivan --burn-cap 0.06425
 
 docker exec -it mavryk-sandbox tezos-client list known addresses

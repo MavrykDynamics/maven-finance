@@ -1709,44 +1709,29 @@ block {
           if _financialRequest.requestType = "TRANSFER" then block {
 
             // ---- set token type ----
-            // var _tokenType : tokenType := Tez;
+            var _tokenTransferType : tokenType := Tez;
 
-            // if  _financialRequest.tokenType = "XTZ" then block {
-            //   var _tokenType : tokenType := Tez; 
-            // } else skip;
+            if  _financialRequest.tokenType = "XTZ" then block {
+              _tokenTransferType := Tez; 
+            } else skip;
 
-            // if  _financialRequest.tokenType = "FA12" then block {
-            //   var _tokenType : tokenType := Fa12(_financialRequest.tokenContractAddress); 
-            // } else skip;
+            if  _financialRequest.tokenType = "FA12" then block {
+              _tokenTransferType := Fa12(_financialRequest.tokenContractAddress); 
+            } else skip;
 
-            // if  _financialRequest.tokenType = "FA2" then block {
-            //   var _tokenType : tokenType := Fa2(record [
-            //     token = _financialRequest.tokenContractAddress;
-            //     id    = _financialRequest.tokenId;
-            //   ]); 
-            // } else skip;
-            // --- --- ---
-
-            // const _tokenType : requestTokenType = case _financialRequest.token_type_param of 
-            //    Tez(_v)  -> unit
-            //   | FA12(_v) -> _financialRequest.tokenContractAddress
-            //   | FA2(_v)  -> record [
-            //       token = _financialRequest.tokenContractAddress;
-            //       id    = _financialRequest.tokenId;
-            //     ]
-            //   | NoToken(_v) -> failwith("Error. Not a token")
-            // end;
-
-             var _tokenType : tokenType := Fa2(record [
+            if  _financialRequest.tokenType = "FA2" then block {
+              _tokenTransferType := Fa2(record [
                 token = _financialRequest.tokenContractAddress;
                 id    = _financialRequest.tokenId;
               ]); 
+            } else skip;
+            // --- --- ---
 
             const transferTokenParams : transferTokenType = record [
               from_      = treasuryAddress;
               to_        = councilAddress;
               amt        = _financialRequest.tokenAmount;
-              token      = _tokenType;
+              token      = _tokenTransferType;
             ];
 
             const treasuryTransferOperation : operation = Tezos.transaction(
