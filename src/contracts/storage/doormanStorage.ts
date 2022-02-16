@@ -19,7 +19,6 @@ export const doormanStorage: doormanStorageType = {
     unstakeIsPaused         : false,
     compoundIsPaused        : false
   },
-  userStakeRecordsLedger: MichelsonMap.fromLiteral({}),
   userStakeBalanceLedger: MichelsonMap.fromLiteral({}),
 
   tempMvkTotalSupply: new BigNumber(100000000000),
