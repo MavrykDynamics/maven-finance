@@ -10,10 +10,17 @@ type councilMembersType is set(address)
 
 type signersType is set(address)
 
+
+// type requestTokenType is 
+//   Tez of unit
+// | FA12 of unit
+// | FA2 of unit
+// | NoToken of unit
+
 type councilActionRecordType is record [
 
     initiator                  : address;          // address of action initiator
-    actionType                 : string;           // addVestee / updateVestee / toggleVesteeLock / addCouncilMember / removeCouncilMember / requestFunds / requestMint
+    actionType                 : string;           // addVestee / updateVestee / toggleVesteeLock / addCouncilMember / removeCouncilMember / requestTokens / requestMint
     signers                    : signersType;      // set of signers
 
     status                     : string;           // PENDING / FLUSHED / EXECUTED / EXPIRED
@@ -33,6 +40,7 @@ type councilActionRecordType is record [
     string_param_1             : string;
     string_param_2             : string;
     string_param_3             : string;
+    // token_type_param           : requestTokenType;
     // ----------------------------------
 
     startDateTime              : timestamp;       // timestamp of when action was initiated
@@ -84,20 +92,23 @@ type updateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : updateConfigActionType;
 ]
 
+
 type councilActionRequestTokensType is [@layout:comb] record [
-    treasuryAddress  : address;       // treasury address
-    // tokenContractAddress : address;   // token contract address
-    tokenName        : string;        // token name should be in whitelist token contracts map in governance contract
-    tokenAmount      : nat;           // token amount requested
-    tokenType        : string;        // "XTZ", "FA12", "FA2"
-    tokenId          : nat;        
-    purpose          : string;        // financial request purpose
+    treasuryAddress       : address;       // treasury address
+    tokenContractAddress  : address;       // token contract address
+    tokenName             : string;        // token name should be in whitelist token contracts map in governance contract
+    tokenAmount           : nat;           // token amount requested
+    tokenType             : string;        // "XTZ", "FA12", "FA2"
+    // tokenType             : requestTokenType; 
+    tokenId               : nat;        
+    purpose               : string;        // financial request purpose
 ]
 
 type councilActionRequestMintType is [@layout:comb] record [
     treasuryAddress  : address;  // treasury address
     tokenAmount      : nat;      // MVK token amount requested
     tokenType        : string;   // "XTZ", "FA12", "FA2"
+    // tokenType             : requestTokenType; 
     tokenId          : nat;        
     purpose          : string;   // financial request purpose
 ]
@@ -229,6 +240,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    // const noToken : requestTokenType = NoToken;
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
@@ -248,6 +260,7 @@ block {
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
         string_param_3        = "EMPTY";         // extra slot for string if needed
+        // token_type_param      = noToken;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -274,6 +287,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    // const noToken : requestTokenType = NoToken;
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
@@ -293,6 +307,7 @@ block {
         string_param_1        = "EMPTY";                // extra slot for string if needed
         string_param_2        = "EMPTY";                // extra slot for string if needed
         string_param_3        = "EMPTY";         // extra slot for string if needed
+        // token_type_param      = noToken;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -320,6 +335,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    // const noToken : requestTokenType = NoToken;
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
@@ -339,6 +355,7 @@ block {
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
         string_param_3        = "EMPTY";         // extra slot for string if needed
+        // token_type_param      = noToken;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -365,6 +382,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    // const noToken : requestTokenType = NoToken;
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
@@ -384,6 +402,7 @@ block {
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
         string_param_3        = "EMPTY";         // extra slot for string if needed
+        // token_type_param      = noToken;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -410,6 +429,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    // const noToken : requestTokenType = NoToken;
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
@@ -429,6 +449,7 @@ block {
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
         string_param_3        = "EMPTY";         // extra slot for string if needed
+        // token_type_param      = noToken;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -455,6 +476,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    // const noToken : requestTokenType = NoToken;
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
@@ -474,6 +496,7 @@ block {
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
         string_param_3        = "EMPTY";         // extra slot for string if needed
+        // token_type_param      = noToken;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -511,14 +534,15 @@ block {
         executed              = False;
 
         address_param_1       = councilActionRequestTokensParams.treasuryAddress;
-        address_param_2       = zeroAddress;    
+        address_param_2       = councilActionRequestTokensParams.tokenContractAddress;    
         address_param_3       = zeroAddress;    
         nat_param_1           = councilActionRequestTokensParams.tokenAmount;
         nat_param_2           = councilActionRequestTokensParams.tokenId;
         nat_param_3           = 0n;
         string_param_1        = councilActionRequestTokensParams.tokenName; 
         string_param_2        = councilActionRequestTokensParams.purpose;        
-        string_param_3        = councilActionRequestTokensParams.tokenType;        
+        string_param_3        = councilActionRequestTokensParams.tokenType;  
+        // token_type_param      = councilActionRequestTokensParams.tokenType;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -562,8 +586,9 @@ block {
         nat_param_2           = councilActionRequestMintParams.tokenId;
         nat_param_3           = 0n;
         string_param_1        = councilActionRequestMintParams.purpose; 
-        string_param_2        = councilActionRequestMintParams.tokenType;        
+        string_param_2        = "FA2";
         string_param_3        = "EMPTY";        
+        // token_type_param      = councilActionRequestMintParams.tokenType;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -724,12 +749,14 @@ block {
             end;
 
             const requestTokensParams : councilActionRequestTokensType = record[
-                tokenName       = _councilActionRecord.string_param_1;
-                tokenAmount     = _councilActionRecord.nat_param_1;
-                tokenType       = _councilActionRecord.string_param_3;
-                tokenId         = _councilActionRecord.nat_param_2;
-                treasuryAddress = _councilActionRecord.address_param_1;
-                purpose         = _councilActionRecord.string_param_2;
+                treasuryAddress       = _councilActionRecord.address_param_1;
+                tokenContractAddress  = _councilActionRecord.address_param_2;
+                tokenName             = _councilActionRecord.string_param_1;
+                tokenAmount           = _councilActionRecord.nat_param_1;
+                tokenType             = _councilActionRecord.string_param_2;
+                // tokenType             = _councilActionRecord.token_type_param;
+                tokenId               = _councilActionRecord.nat_param_2;
+                purpose               = _councilActionRecord.string_param_2;
             ];
 
             const requestTokensOperation : operation = Tezos.transaction(
@@ -752,6 +779,7 @@ block {
             const requestMintParams : councilActionRequestMintType = record[
                 tokenAmount      = _councilActionRecord.nat_param_1;
                 tokenType        = _councilActionRecord.string_param_2;
+                // tokenType        = _councilActionRecord.token_type_param;
                 tokenId          = _councilActionRecord.nat_param_2;
                 treasuryAddress  = _councilActionRecord.address_param_1;
                 purpose          = _councilActionRecord.string_param_1;

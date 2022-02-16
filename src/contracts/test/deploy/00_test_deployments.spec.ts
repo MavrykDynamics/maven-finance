@@ -91,6 +91,9 @@ describe("Contracts Deployment for Tests", async () => {
     delegationStorage.generalContracts = MichelsonMap.fromLiteral({
       "doorman" : doorman.contract.address
     });
+    delegationStorage.whitelistContracts = MichelsonMap.fromLiteral({
+      "doorman" : doorman.contract.address
+    });
     delegation = await Delegation.originate(
       utils.tezos,
       delegationStorage
@@ -180,7 +183,11 @@ describe("Contracts Deployment for Tests", async () => {
       "delegation"   : delegation.contract.address,
     });
     treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
-      "governance"   : governance.contract.address
+      "governance"   : governance.contract.address,
+      "council"      : council.contract.address
+    });
+    treasuryStorage.whitelistTokenContracts = MichelsonMap.fromLiteral({
+      "mvk"   : mvkToken.contract.address,
     });
     treasury = await Treasury.originate(
       utils.tezos,
@@ -222,6 +229,8 @@ describe("Contracts Deployment for Tests", async () => {
     // Delegation Contract - set contract addresses [governance]
     const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts("governance", governance.contract.address).send();  
     await setGovernanceContractAddressInDelegationOperation.confirmation();
+    const setWhitelistTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts("treasury", treasury.contract.address).send();  
+    await setWhitelistTreasuryContractAddressInDelegationOperation.confirmation();
     console.log("delegation contract address set")
 
     // MVK Token Contract - set whitelist contract addresses [vesting, treasury]
