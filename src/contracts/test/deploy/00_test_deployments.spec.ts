@@ -286,21 +286,6 @@ describe("Contracts Deployment for Tests", async () => {
     await saveContractAddress("mockFa12TokenAddress", mockFa12Token.contract.address)
     await saveContractAddress("mockFa2TokenAddress", mockFa2Token.contract.address)
 
-    // deployedDoormanStorage    = await doorman.contract.storage();
-    // deployedDelegationStorage = await delegation.contract.storage();
-    // deployedMvkTokenStorage   = await mvkToken.contract.storage();
-    // const afterMvkTokenStorage = await mvkToken.contract.storage();
-    // const afterDelegationStorage = await delegation.contract.storage();
-    // const afterGovernanceStorage = await governance.contract.storage();
-    // const afterBreakGlassStorage = await breakGlass.contract.storage();
-    // const afterEmergencyGovernanceStorage = await emergencyGovernance.contract.storage();
-
-    // console.log(afterMvkTokenStorage);
-    // console.log(afterDelegationStorage);
-    // console.log(afterGovernanceStorage);
-    // console.log(afterBreakGlassStorage);
-    // console.log(afterEmergencyGovernanceStorage);
-
   });
 
 
