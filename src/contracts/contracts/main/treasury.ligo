@@ -61,7 +61,7 @@ type tokenType       is
 | Fa12                    of fa12TokenType   // address
 | Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
 
-type transferTokenType is record [
+type transferTokenType is [@layout:comb] record [
     from_           : address;
     to_             : address;
     amt             : nat;
@@ -70,7 +70,7 @@ type transferTokenType is record [
 // type transferType is list(transferTokenType)
 
 type mintTokenType is (address * nat)
-type mintMvkAndTransferType is record [
+type mintMvkAndTransferType is [@layout:comb] record [
     to_             : address;
     amt             : nat;
 ]
@@ -226,7 +226,7 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
       "%onStakeChange",
       delegationAddress) : option(contract(updateSatelliteBalanceParams))) of
     Some(contr) -> contr
-  | None -> (failwith("onStakeChange entrypoint in Satellite Contract not found") : contract(updateSatelliteBalanceParams))
+  | None -> (failwith("onStakeChange entrypoint in Delegation Contract not found") : contract(updateSatelliteBalanceParams))
   end;
 
 
@@ -319,11 +319,11 @@ block {
     const transferTokenOperation : operation = case token of 
         | Tez         -> transfer_tez((get_contract(to_) : contract(unit)), amt)
         | Fa12(token) -> block{
-                if checkInWhitelistTokenContracts(token, s) then skip else failwith("Error. Token Contract is not whitelisted.");
+                // if checkInWhitelistTokenContracts(token, s) then skip else failwith("Error. Token Contract is not whitelisted.");
                 const transferOperation : operation = transfer_fa12(from_, to_, amt, token);
             } with transferOperation
         | Fa2(token)  -> block {
-                if checkInWhitelistTokenContracts(token.token, s) then skip else failwith("Error. Token Contract is not whitelisted.");
+                // if checkInWhitelistTokenContracts(token.token, s) then skip else failwith("Error. Token Contract is not whitelisted.");
                 const transferOperation : operation = transfer_fa2(from_, to_, amt, token.token, token.id);
             } with transferOperation
     end;
