@@ -823,8 +823,9 @@ block {
     // entrypoint should not receive any tez amount
     checkNoAmount(Unit);
 
-    // check sender is Doorman Contract
-    checkSenderIsDoormanContract(s);
+    // check sender is Doorman Contract or Treasury Contract
+    // checkSenderIsDoormanContract(s);
+    if checkInWhitelistContracts(Tezos.sender, s) then skip else failwith("Error. Sender is not in whitelisted contracts.");
 
     const userIsSatelliteFlag : bool = Big_map.mem(userAddress, s.satelliteLedger);
 
