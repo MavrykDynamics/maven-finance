@@ -4,8 +4,17 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { Loader } from 'app/App.components/Loader/Loader.view'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
-import { SatelliteCard, SatelliteCardRow, SatelliteCardTopRow, SatelliteMainText, SatelliteProfileImage, SatelliteProfileImageContainer, SatelliteSubText, SatelliteTextGroup, SideBySideImageAndText } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
-import { SatellitesHeader } from 'pages/Satellites/SatellitesHeader/SatellitesHeader.controller'
+import {
+  SatelliteCard,
+  SatelliteCardRow,
+  SatelliteCardTopRow,
+  SatelliteMainText,
+  SatelliteProfileImage,
+  SatelliteProfileImageContainer,
+  SatelliteSubText,
+  SatelliteTextGroup,
+  SideBySideImageAndText,
+} from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.style'
 import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
@@ -13,6 +22,8 @@ import { SatelliteRecord } from 'reducers/delegation'
 import { Page, PageContent } from 'styles'
 
 import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord | undefined
@@ -59,8 +70,7 @@ export const SatelliteDetailsView = ({
   }
   return (
     <Page>
-      <SatellitesHeader />
-      <br />
+      <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
       <PageContent>
         {!satellite && <Loader />}
         {satellite && satellite.address === 'None' && (
