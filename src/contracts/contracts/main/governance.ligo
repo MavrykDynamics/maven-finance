@@ -213,8 +213,8 @@ type activeSatellitesMapType is map(address, timestamp) // satellite address, ti
 type tezType             is unit
 type fa12TokenType       is address
 type fa2TokenType        is [@layout:comb] record [
-  token                   : address;
-  id                      : nat;
+  tokenContractAddress    : address;
+  tokenId                 : nat;
 ]
 type tokenType       is
 | Tez                     of tezType         // unit
@@ -1709,8 +1709,8 @@ block {
 
             if  _financialRequest.tokenType = "FA2" then block {
               _tokenTransferType := Fa2(record [
-                token = _financialRequest.tokenContractAddress;
-                id    = _financialRequest.tokenId;
+                tokenContractAddress  = _financialRequest.tokenContractAddress;
+                tokenId               = _financialRequest.tokenId;
               ]); 
             } else skip;
             // --- --- ---

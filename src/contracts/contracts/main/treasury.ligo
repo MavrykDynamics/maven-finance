@@ -7,8 +7,18 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
-#include "../partials/fa12/fa12_types.ligo"
-#include "../partials/fa2/fa2_types.ligo"
+type tokenBalance is nat
+type transferDestination is [@layout:comb] record[
+  to_: address;
+  token_id: nat;
+  amount: tokenBalance;
+]
+type transfer is [@layout:comb] record[
+  from_: address;
+  txs: list(transferDestination);
+]
+type fa2TransferType is list(transfer)
+type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
 
 type operator is address
 type owner is address
@@ -52,14 +62,14 @@ type updateOperatorsParamsType is list(updateOperator)
 type tezType             is unit
 type fa12TokenType       is address
 type fa2TokenType        is [@layout:comb] record [
-  token                   : address;
-  id                      : nat;
+  tokenContractAddress    : address;
+  tokenId                 : nat;
 ]
 
 type tokenType       is
 | Tez                     of tezType         // unit
 | Fa12                    of fa12TokenType   // address
-| Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
+| Fa2                     of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
 
 type transferTokenType is [@layout:comb] record [
     from_           : address;
@@ -67,13 +77,13 @@ type transferTokenType is [@layout:comb] record [
     amt             : nat;
     token           : tokenType;
 ]
-// type transferType is list(transferTokenType)
 
 type mintTokenType is (address * nat)
 type mintMvkAndTransferType is [@layout:comb] record [
     to_             : address;
     amt             : nat;
 ]
+
 
 type updateSatelliteBalanceParams is (address * nat * nat)
 
@@ -96,7 +106,7 @@ type treasuryAction is
 
     | Transfer of transferTokenType
     | MintMvkAndTransfer of mintMvkAndTransferType
-    | Update_operators of (address * updateOperatorsParamsType)
+    | UpdateOperators of (address * updateOperatorsParamsType)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -120,86 +130,6 @@ function checkNoAmount(const _p : unit) : unit is
 #include "../partials/whitelistTokenContractsMethod.ligo"
 
 // admin helper functions end ---------------------------------------------------------
-
-function get_fa12_token_transfer_entrypoint(
-  const token           : address)
-                        : contract(fa12_transfer_type) is
-  case (Tezos.get_entrypoint_opt("%transfer", token) : option(contract(fa12_transfer_type))) of
-  | Some(contr) -> contr
-  | None        -> (failwith("Error. FA12 Token transfer entrypoint is not found.") : contract(fa12_transfer_type))
-  end
-
-function get_fa2_token_transfer_entrypoint(const token : address) : contract(fa2_transfer_type) is
-  case (Tezos.get_entrypoint_opt("%transfer", token) : option(contract(fa2_transfer_type))) of
-  | Some(contr) -> contr
-  | None        -> (failwith("Error. FA2 Token transfer entrypoint is not found.") : contract(fa2_transfer_type))
-  end
-
-[@inline] function wrap_fa12_transfer_trx(const from_ : address; const to_ : address; const amt : nat) : fa12_transfer_type is FA12_transfer(from_, (to_, amt))
-
-[@inline] function wrap_fa2_transfer_trx(
-  const from_           : address;
-  const to_             : address;
-  const amt             : nat;
-  const id              : fa2_token_id_type)
-                        : fa2_transfer_type is
-  FA2_transfer(
-    list [
-      record [
-        from_ = from_;
-        txs   = list [
-          record [
-            to_      = to_;
-            token_id = id;
-            amount   = amt;
-          ]
-        ];
-      ]
-    ]
-  )
-
-function transfer_tez(
-  const to_             : contract(unit);
-  const amt             : nat)
-                        : operation is
-  Tezos.transaction(unit, amt * 1mutez, to_)
-
-function transfer_fa12(
-  const from_           : address;
-  const to_             : address;
-  const amt             : nat;
-  const token           : address)
-                        : operation is
-  Tezos.transaction(
-    wrap_fa12_transfer_trx(from_, to_, amt),
-    0mutez,
-    get_fa12_token_transfer_entrypoint(token)
-  )
-
-function transfer_fa2(
-  const from_           : address;
-  const to_             : address;
-  const amt             : nat;
-  const token           : address;
-  const id              : fa2_token_id_type)
-                        : operation is
-  Tezos.transaction(
-    wrap_fa2_transfer_trx(from_, to_, amt, id),
-    0mutez,
-    get_fa2_token_transfer_entrypoint(token)
-  )
-
-function transfer_token(
-  const from_           : address;
-  const to_             : address;
-  const amt             : nat;
-  const token           : tokenType)
-                        : operation is
-  case token of
-  | Tez         -> transfer_tez((get_contract(to_) : contract(unit)), amt)
-  | Fa12(token) -> transfer_fa12(from_, to_, amt, token)
-  | Fa2(token)  -> transfer_fa2(from_, to_, amt, token.token, token.id)
-  end
 
 // helper function to get mint entrypoint from token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
@@ -259,11 +189,47 @@ block {
 
 } with (noOperations, s)
 
+////
+// TRANSFER FUNCTIONS
+///
+function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
 
+function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenContractAddress: address): operation is
+    block{
+        const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
+
+        const tokenContract: contract(fa12TransferType) =
+            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of
+                Some (c) -> c
+            |   None -> (failwith("Error. Transfer entrypoint not found in FA12 Token contract"): contract(fa12TransferType))
+            end;
+    } with (Tezos.transaction(transferParams, 0tez, tokenContract))
+
+function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
+block{
+    const transferParams: fa2TransferType = list[
+            record[
+                from_ = from_;
+                txs = list[
+                    record[
+                        to_      = to_;
+                        token_id = tokenId;
+                        amount   = tokenAmount;
+                    ]
+                ]
+            ]
+        ];
+
+    const tokenContract: contract(fa2TransferType) =
+        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of
+            Some (c) -> c
+        |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
+        end;
+} with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 (* update_operators entrypoint *)
 // type updateOperatorsParamsType is list(updateOperator)
-function update_operators(const tokenAddress : address; const updateOperatorsParams: updateOperatorsParamsType; var s : storage) : return is
+function updateOperators(const tokenAddress : address; const updateOperatorsParams: updateOperatorsParamsType; var s : storage) : return is
 block {
 
     // Steps Overview:
@@ -281,7 +247,7 @@ block {
         "%update_operators",
         tokenAddress) : option(contract(updateOperatorsParamsType))) of
         Some(contr) -> contr
-        | None -> (failwith("update_operators entrypoint in Token Contract not found") : contract(updateOperatorsParamsType))
+        | None -> (failwith("Error. update_operators entrypoint in Token Contract not found") : contract(updateOperatorsParamsType))
     end;
 
     // update operators operation
@@ -301,7 +267,7 @@ function transfer(const transferToken : transferTokenType ; var s : storage) : r
 block {
     
     // Steps Overview:
-    // 1. Check that sender is in whitelist (governance, council)
+    // 1. Check that sender is in whitelist (governance)
     // 2. Send transfer operation from Treasury account to user account
     // 3. Update user's satellite details in Delegation contract
 
@@ -312,21 +278,15 @@ block {
 
     var operations : list(operation) := nil;
 
-    const from_  : address   = transferToken.from_;
-    const to_    : address   = transferToken.to_;
-    const amt    : nat       = transferToken.amt;
-    const token  : tokenType = transferToken.token;
+    const from_  : address    = transferToken.from_;
+    const to_    : address    = transferToken.to_;
+    const amt    : nat        = transferToken.amt;
+    const token  : tokenType  = transferToken.token;
 
     const transferTokenOperation : operation = case token of 
-        | Tez         -> transfer_tez((get_contract(to_) : contract(unit)), amt)
-        | Fa12(token) -> block{
-                // if checkInWhitelistTokenContracts(token, s) then skip else failwith("Error. Token Contract is not whitelisted.");
-                const transferOperation : operation = transfer_fa12(from_, to_, amt, token);
-            } with transferOperation
-        | Fa2(token)  -> block {
-                // if checkInWhitelistTokenContracts(token.token, s) then skip else failwith("Error. Token Contract is not whitelisted.");
-                const transferOperation : operation = transfer_fa2(from_, to_, amt, token.token, token.id);
-            } with transferOperation
+        | Tez         -> transferTez((get_contract(to_) : contract(unit)), amt)
+        | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
+        | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
     end;
 
     operations := transferTokenOperation # operations;
@@ -339,7 +299,7 @@ block {
         | Fa12(_token) -> False
         | Fa2(token) -> block {
                 var mvkBool : bool := False;
-                if token.token = mvkTokenAddress then mvkBool := True else mvkBool := False;                
+                if token.tokenContractAddress = mvkTokenAddress then mvkBool := True else mvkBool := False;                
             } with mvkBool        
     end;
 
@@ -366,7 +326,7 @@ function mintMvkAndTransfer(const mintMvkAndTransfer : mintMvkAndTransferType ; 
 block {
     
     // Steps Overview:
-    // 1. Check that sender is in whitelist (governance, council)
+    // 1. Check that sender is in whitelist (governance)
     // 2. Send mint operation to MVK Token Contract
     // 3. Update user's satellite details in Delegation contract
 
@@ -417,5 +377,5 @@ function main (const action : treasuryAction; const s : storage) : return is
   
         | Transfer(parameters) -> transfer(parameters, s)
         | MintMvkAndTransfer(parameters) -> mintMvkAndTransfer(parameters, s)
-        | Update_operators(parameters) -> update_operators(parameters.0, parameters.1, s)
+        | UpdateOperators(parameters) -> updateOperators(parameters.0, parameters.1, s)
     end
