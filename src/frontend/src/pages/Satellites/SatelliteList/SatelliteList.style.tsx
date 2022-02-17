@@ -1,31 +1,31 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, containerColor, primaryColor, subTextColor } from 'styles'
+import { MavrykTheme } from '../../../styles/interfaces'
 
-export const SatelliteListStyled = styled.div`
-  background-color: ${containerColor};
+export const SatelliteListStyled = styled.div<{ theme: MavrykTheme }>`
+  background-color: ${({ theme }) => theme.containerColor};
 `
 
-export const SatelliteListEmptyContainer = styled.div`
-  background-color: ${backgroundColor};
+export const SatelliteListEmptyContainer = styled.div<{ theme: MavrykTheme }>`
+  background-color: ${({ theme }) => theme.backgroundColor};
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 10px;
   margin-top: 30px;
   border-radius: 10px;
-  color: ${primaryColor};
+  color: ${({ theme }) => theme.primaryColor};
   font-size: 18px;
   font-weight: 800;
   max-height: 100px;
 `
-export const SatelliteSearchFilter = styled.div`
-  background-color: ${backgroundColor};
+export const SatelliteSearchFilter = styled.div<{ theme: MavrykTheme }>`
+  background-color: ${({ theme }) => theme.backgroundColor};
   display: flex;
   align-items: baseline;
   padding: 10px;
   margin-top: 30px;
   border-radius: 10px;
-  color: ${subTextColor};
+  color: ${({ theme }) => theme.subTextColor};
 
   > * {
     flex: 1;
