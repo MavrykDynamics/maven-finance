@@ -4,6 +4,9 @@ import { State } from '../../reducers'
 import { useEffect } from 'react'
 import { getTreasuryStorage } from '../Treasury/Treasury.actions'
 import { VaultsStyled } from './Vaults.style'
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { Page } from 'styles'
 
 export const Vaults = () => {
   const dispatch = useDispatch()
@@ -18,8 +21,11 @@ export const Vaults = () => {
   }, [dispatch])
 
   return (
-    <VaultsStyled>
-      <div>Here on the Vaults Page</div>
-    </VaultsStyled>
+    <Page>
+      <PageHeader page={'vaults'} kind={PRIMARY} loading={loading} />
+      <VaultsStyled>
+        <div>Here on the Vaults Page</div>
+      </VaultsStyled>
+    </Page>
   )
 }
