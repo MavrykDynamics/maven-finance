@@ -72,65 +72,65 @@
 
 //     });
 
-//     it('test pack data', async () => {
-//         try{        
+//     // it('test pack data', async () => {
+//     //     try{        
 
-//             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//             console.log("Test: test pack data") 
-//             console.log("---") // break
+//     //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+//     //         console.log("Test: test pack data") 
+//     //         console.log("---") // break
 
-//             // const configParams = ["configSuccessReward", 1000];
+//     //         // const configParams = ["configSuccessReward", 1000];
             
-//             // const config_wrapped_param = await governanceInstance.methods.updateConfig(
-//             //     1000, "configSuccessReward"
-//             // ).toTransferParams();
+//     //         // const config_wrapped_param = await governanceInstance.methods.updateConfig(
+//     //         //     1000, "configSuccessReward"
+//     //         // ).toTransferParams();
 
-//             // const config_wrapped_param = await governanceInstance.methods.updateConfig("configSuccessReward", 1000).send();
-//             // await config_wrapped_param.confirmation();
-//             // console.log(config_wrapped_param);
+//     //         // const config_wrapped_param = await governanceInstance.methods.updateConfig("configSuccessReward", 1000).send();
+//     //         // await config_wrapped_param.confirmation();
+//     //         // console.log(config_wrapped_param);
 
-//             // const config_wrapped_param_type = await governanceInstance.entrypoints.entrypoints.updateConfig;
-//             // console.log(config_wrapped_param_type);
+//     //         // const config_wrapped_param_type = await governanceInstance.entrypoints.entrypoints.updateConfig;
+//     //         // console.log(config_wrapped_param_type);
 
-//             // const governance_lambda_wrapped_param = governanceInstance.methods.callGovernanceLambda(
-//             //     {updateGovernanceConfig: [1000, "configSuccessReward"]}
-//             // ).toTransferParams();
+//     //         // const governance_lambda_wrapped_param = governanceInstance.methods.callGovernanceLambda(
+//     //         //     {updateGovernanceConfig: [1000, "configSuccessReward"]}
+//     //         // ).toTransferParams();
 
-//             // const parameterSchema = governanceInstance.parameterSchema.ExtractSignatures();
-//             // const parameterSchema = governanceInstance.parameterSchema.ExtractSchema();
-//             // console.log(JSON.stringify(parameterSchema,null,2));
+//     //         // const parameterSchema = governanceInstance.parameterSchema.ExtractSignatures();
+//     //         // const parameterSchema = governanceInstance.parameterSchema.ExtractSchema();
+//     //         // console.log(JSON.stringify(parameterSchema,null,2));
             
-//             const governance_lambda_wrapped_param = governanceInstance.methods.callGovernanceLambda(
-//                 'updateGovernanceConfig', 1000, 'configSuccessReward'
-//             ).toTransferParams();
-//             console.log(governance_lambda_wrapped_param);
+//     //         const governance_lambda_wrapped_param = governanceInstance.methods.callGovernanceLambda(
+//     //             'updateGovernanceConfig', 1000, 'configSuccessReward'
+//     //         ).toTransferParams();
+//     //         console.log(governance_lambda_wrapped_param);
 
-//             const governance_lambda_wrapped_param_value = governance_lambda_wrapped_param.parameter.value;
-//             console.log(governance_lambda_wrapped_param_value);
+//     //         const governance_lambda_wrapped_param_value = governance_lambda_wrapped_param.parameter.value;
+//     //         console.log(governance_lambda_wrapped_param_value);
 
-//             const config_wrapped_param_type = await governanceInstance.entrypoints.entrypoints.updateConfig;
-//             console.log(config_wrapped_param_type);
+//     //         const config_wrapped_param_type = await governanceInstance.entrypoints.entrypoints.updateConfig;
+//     //         console.log(config_wrapped_param_type);
 
-//             const call_governance_wrapped_param_type = await governanceInstance.entrypoints.entrypoints.callGovernanceLambda;
-//             console.log(call_governance_wrapped_param_type);
+//     //         const call_governance_wrapped_param_type = await governanceInstance.entrypoints.entrypoints.callGovernanceLambda;
+//     //         console.log(call_governance_wrapped_param_type);
 
-//             const raw_packed = await utils.tezos.rpc.packData({
-//                 data: governance_lambda_wrapped_param_value,
-//                 type: call_governance_wrapped_param_type
-//             }).catch(e => console.error('error:', e));
+//     //         const raw_packed = await utils.tezos.rpc.packData({
+//     //             data: governance_lambda_wrapped_param_value,
+//     //             type: call_governance_wrapped_param_type
+//     //         }).catch(e => console.error('error:', e));
 
-//             var packed_param;
-//             if (raw_packed) {
-//               packed_param = raw_packed.packed
-//               console.log('packed param: ' + packed_param);
-//             } else {
-//               throw `packing failed`
-//             };
+//     //         var packed_param;
+//     //         if (raw_packed) {
+//     //           packed_param = raw_packed.packed
+//     //           console.log('packed param: ' + packed_param);
+//     //         } else {
+//     //           throw `packing failed`
+//     //         };
 
-//         } catch(e){
-//             console.log(e);
-//         } 
-//     });
+//     //     } catch(e){
+//     //         console.log(e);
+//     //     } 
+//     // });
 
 //     it('admin can start a new proposal round', async () => {
 //         try{        
@@ -141,8 +141,8 @@
 
 //             // console.log('storage: console log checks  ----');
 //             // console.log(governanceStorage);
-//             const beforeGovernanceStorage = await governanceInstance.storage();
-//             console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
+//             // const beforeGovernanceStorage = await governanceInstance.storage();
+//             // console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
 
 //             await signerFactory(bob.sk);
 //             // Bob stakes 100 MVK tokens and registers as a satellite before the proposal round starts
@@ -171,8 +171,8 @@
 
 
 //             // await governanceStorage;
-//             const newGovernanceStorage = await governanceInstance.storage();
-//             console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
+//             // const newGovernanceStorage = await governanceInstance.storage();
+//             // console.log("After Test Block Level: " + newGovernanceStorage.tempFlag);
 
 //             // check active satellites in console
 //             // const activeSatellitesMap = await newGovernanceStorage.activeSatellitesMap;
@@ -184,12 +184,12 @@
 
 //             // console.log(" --- --- --- ")
 
-//             console.log("after: alice active satellite snapshot: ----")
-//             const activeSatellitesMap    = await newGovernanceStorage.snapshotLedger;
-//             const aliceSatelliteSnapshot = await newGovernanceStorage.snapshotLedger.get(alice.pkh);
+//             // console.log("after: alice active satellite snapshot: ----")
+//             // const activeSatellitesMap    = await newGovernanceStorage.snapshotLedger;
+//             // const aliceSatelliteSnapshot = await newGovernanceStorage.snapshotLedger.get(alice.pkh);
             
-//             console.log(activeSatellitesMap);
-//             console.log(aliceSatelliteSnapshot);
+//             // console.log(activeSatellitesMap);
+//             // console.log(aliceSatelliteSnapshot);
             
 //             // console.log(newGovernanceStorage);
 
