@@ -3,7 +3,7 @@ import { BigNumber } from "bignumber.js";
 
 const { alice } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from "../test/helpers/Utils";
+import { MVK } from "../test/helpers/Utils";
 
 import { doormanStorageType } from "../test/types/doormanStorageType";
 
@@ -21,7 +21,7 @@ export const doormanStorage: doormanStorageType = {
   },
   userStakeBalanceLedger: MichelsonMap.fromLiteral({}),
 
-  tempMvkTotalSupply: new BigNumber(100000000000),
+  tempMvkTotalSupply: new BigNumber(MVK(100)),
   stakedMvkTotalSupply: new BigNumber(0),
   
   logExitFee: new BigNumber(1),
