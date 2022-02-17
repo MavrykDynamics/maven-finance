@@ -36,9 +36,12 @@ export const NavigationLink = ({
   handleToggle,
   isExpanded,
 }: NavigationLinkProps) => {
-  let navigationLinkClasses = kind
+  let navigationLinkClasses = `collapsible .${kind}`
   const iconHref = `/icons/sprites.svg#${icon}`
-  const selected = location.pathname === path
+  const subPagesPaths = [path]
+  subPages?.forEach((subPage: SubNavigationLink, index) => subPagesPaths.push(subPage.subPath))
+  let mainLinkSelected = location.pathname === path
+  if (subPages) mainLinkSelected = subPagesPaths.includes(location.pathname)
 
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded })
 
@@ -48,10 +51,14 @@ export const NavigationLink = ({
   return (
     <>
       {subPages ? (
-        <NavigationLinkContainer className="collapsible" key={id}>
-          <NavigationLinkItem selected={selected} className="header" {...getToggleProps({ onClick: handleClick })}>
+        <NavigationLinkContainer className={'collapsible'} key={id} selected={mainLinkSelected}>
+          <NavigationLinkItem
+            selected={mainLinkSelected}
+            className="header"
+            {...getToggleProps({ onClick: handleClick })}
+          >
             <Link to={path}>
-              <NavigationLinkIcon selected={selected} id="navLinkIcon">
+              <NavigationLinkIcon selected={mainLinkSelected} id="navLinkIcon">
                 <svg>
                   <use xlinkHref={iconHref} />
                 </svg>
@@ -63,28 +70,32 @@ export const NavigationLink = ({
             <NavigationSubLinks className="content">
               {subPages.map((subNavLink: SubNavigationLink, index: number) => {
                 return (
-                  <Link to={subNavLink.subPath}>
-                    <SubNavLink selected={location.pathname === subNavLink.subPath}>
+                  <SubNavLink>
+                    <Link to={subNavLink.subPath}>
                       <div />
-                      <SubLinkText>{subNavLink.subTitle}</SubLinkText>
-                    </SubNavLink>
-                  </Link>
+                      <SubLinkText selected={location.pathname === subNavLink.subPath}>
+                        {subNavLink.subTitle}
+                      </SubLinkText>
+                    </Link>
+                  </SubNavLink>
                 )
               })}
             </NavigationSubLinks>
           </div>
         </NavigationLinkContainer>
       ) : (
-        <NavigationLinkItem selected={selected}>
-          <Link to={path}>
-            <NavigationLinkIcon selected={selected} id="navLinkIcon">
-              <svg>
-                <use xlinkHref={iconHref} />
-              </svg>
-            </NavigationLinkIcon>
-            <div id="navLinkTitle">{title}</div>
-          </Link>
-        </NavigationLinkItem>
+        <NavigationLinkContainer key={id} selected={mainLinkSelected}>
+          <NavigationLinkItem selected={mainLinkSelected}>
+            <Link to={path}>
+              <NavigationLinkIcon selected={mainLinkSelected} id="navLinkIcon">
+                <svg>
+                  <use xlinkHref={iconHref} />
+                </svg>
+              </NavigationLinkIcon>
+              <div id="navLinkTitle">{title}</div>
+            </Link>
+          </NavigationLinkItem>
+        </NavigationLinkContainer>
       )}
     </>
   )

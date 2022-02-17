@@ -2,6 +2,7 @@ import styled, { keyframes } from 'styled-components/macro'
 
 import { primaryColor, textColor, backgroundColor } from '../../../styles'
 import { MavrykTheme } from '../../../styles/interfaces'
+import { BUTTON_RADIUS } from '../../../styles/constants'
 
 export const clickWave = keyframes`
   from {
@@ -19,7 +20,7 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   font-weight: bold;
   font-size: 14px;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: ${BUTTON_RADIUS};
   will-change: box-shadow;
   width: 100%;
   user-select: none;
