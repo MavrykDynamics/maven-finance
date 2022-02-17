@@ -2,14 +2,15 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { Message, Page } from 'styles'
+import { Page } from 'styles'
 
 import { getDoormanStorage, getMvkTokenStorage, stake, unstake } from './Doorman.actions'
-import { DoormanHeader } from './DoormanHeader/DoormanHeader.controller'
 import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
 import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 
 export const Doorman = () => {
   const dispatch = useDispatch()
@@ -40,7 +41,7 @@ export const Doorman = () => {
   return (
     <Page>
       <ExitFeeModal />
-      <DoormanHeader />
+      <PageHeader page={'doorman'} kind={PRIMARY} loading={loading} />
       <StakeUnstakeView
         myMvkTokenBalance={myMvkTokenBalance}
         userStakeBalance={myMvkStakeBalance}
