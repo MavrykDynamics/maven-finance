@@ -1,9 +1,10 @@
 import styled from 'styled-components/macro'
 import { backgroundColor, subTextColor, textColor } from 'styles'
+import { MavrykTheme } from '../../../../styles/interfaces'
 
-export const SatelliteCard = styled.div`
+export const SatelliteCard = styled.div<{ theme: MavrykTheme }>`
+  background-color: ${({ theme }) => theme.backgroundColor};
   margin-top: 30px;
-  background-color: ${backgroundColor};
   border-radius: 10px;
 `
 export const SatelliteCardTopRow = styled.div`
@@ -49,15 +50,15 @@ export const SatelliteTextGroup = styled.div`
   align-items: flex-start;
   margin-left: 20px;
 `
-export const SatelliteMainText = styled.div`
-  color: ${textColor};
+export const SatelliteMainText = styled.div<{ theme: MavrykTheme }>`
+  color: ${({ theme }) => theme.textColor};
   font-size: 14px;
   font-weight: 600;
   display: inline-block;
   margin: 8px 0;
 `
-export const SatelliteSubText = styled.div`
-  color: ${subTextColor};
+export const SatelliteSubText = styled.div<{ theme: MavrykTheme }>`
+  color: ${({ theme }) => theme.subTextColor};
   font-size: 14px;
   font-weight: 600;
   display: inline-block;
