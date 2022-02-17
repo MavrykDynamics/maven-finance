@@ -6,13 +6,13 @@ import { array } from 'yargs'
 
 const { alice, bob, eve, mallory } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from '../test/helpers/Utils'
+import { MVK } from '../test/helpers/Utils'
 
 import { mvkStorageType } from '../test/types/mvkTokenStorageType'
 
 export const mvkTokenDecimals = 9
 
-const totalSupply = 100 * 10**mvkTokenDecimals
+const totalSupply = MVK(100)
 const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4)
 
