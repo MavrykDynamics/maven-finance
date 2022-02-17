@@ -87,6 +87,7 @@ type updateConfigParamsType is [@layout:comb] record [
 ]
 
 type treasuryAction is 
+    | Default of unit
     | SetAdmin of (address)
     | UpdateConfig of updateConfigParamsType    
     | UpdateWhitelistContracts of updateWhitelistContractsParams
@@ -406,6 +407,7 @@ block {
 
 function main (const action : treasuryAction; const s : storage) : return is 
     case action of
+        | Default(_params) -> ((nil : list(operation)), s)
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
         
