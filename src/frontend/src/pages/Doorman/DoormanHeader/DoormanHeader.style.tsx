@@ -61,7 +61,6 @@ export const DoormanHeaderStyled = styled.div`
   background-position: top right;
   background-repeat: no-repeat;
   border-radius: 10px;
-  border-radius: 10px;
   width: 100%;
   height: 150px;
   position: relative;
@@ -99,7 +98,7 @@ export const DoormanHeaderAnimation = styled.div`
 
 export const DoormanHeaderShipGoing = styled.div`
   position: absolute;
-  right: 350px;
+  right: 375px;
 `
 
 export const DoormanHeaderShipComing = styled.div`
@@ -122,6 +121,6 @@ export const DoormanHeaderShipFlamePart = styled.img`
 
 export const DoormanHeaderShipMainPart = styled.img`
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 23px;
+  left: 20px;
 `

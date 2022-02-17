@@ -1,6 +1,6 @@
 import { createGlobalStyle } from 'styled-components/macro'
 
-import { placeholderColor, subTextColor, textColor } from './colors'
+import { placeholderColor, primaryColor, subTextColor, textColor } from './colors'
 
 export const GlobalStyle = createGlobalStyle`
 * {
@@ -55,9 +55,41 @@ h3 {
   margin: 0;
 }
 
+h4 {
+  font-size: 14px;
+  font-weight: normal;
+  margin: 0;
+  
+  &.primary {
+    color: ${primaryColor};
+  }
+
+  &.secondary {
+    color: ${subTextColor};
+  }
+
+  &.transparent {
+    color: ${textColor};
+    background-color: initial;
+  }
+  
+  &.bold {
+    font-weight: bold;
+  }
+}
+
 input {
   color: ${textColor};
   font-size: 14px;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
 }
 
 ::placeholder {

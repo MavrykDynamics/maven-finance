@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { getMvkTokenStorage, unstake } from '../Doorman.actions'
+import { getDoormanStorage, getMvkTokenStorage, unstake } from '../Doorman.actions'
 
 import { hideExitFeeModal } from './ExitFeeModal.actions'
 import { ExitFeeModalView } from './ExitFeeModal.view'
@@ -18,6 +18,7 @@ export const ExitFeeModal = () => {
     if (accountPkh && showing) {
       dispatch(getMvkTokenStorage(accountPkh))
     }
+    dispatch(getDoormanStorage())
   }, [dispatch, accountPkh, showing])
 
   const cancelCallback = () => {
