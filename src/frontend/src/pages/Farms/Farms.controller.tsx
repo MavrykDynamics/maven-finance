@@ -4,6 +4,8 @@ import { State } from '../../reducers'
 import { useEffect } from 'react'
 import { getFarmFactoryStorage, getFarmStorage } from './Farms.actions'
 import { FarmsStyled } from './Farms.style'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { Page } from 'styles'
 
 export const Farms = () => {
   const dispatch = useDispatch()
@@ -18,8 +20,11 @@ export const Farms = () => {
   }, [dispatch])
 
   return (
-    <FarmsStyled>
-      <div>Here on the Farms Page</div>
-    </FarmsStyled>
+    <Page>
+      <FarmsStyled>
+        <PageHeader page={'farms'} kind={'primary'} loading={loading} />
+        <div>Here on the Farms Page</div>
+      </FarmsStyled>
+    </Page>
   )
 }
