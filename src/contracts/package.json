@@ -34,7 +34,7 @@
     "test-only": "ts-mocha --paths test/*.spec.ts --bail --timeout 300000",
     "pytest": "yarn migrate && pytest -s",
     "pytest-only": "pytest -s",
-    "clean": "rm -rf ./build"
+    "clean": "rm -rf ./build && rm -rf contracts/compiled && rm -rf ./deployments"
   },
   "author": "matej.sima@stove-labs.com",
   "license": "MIT",
