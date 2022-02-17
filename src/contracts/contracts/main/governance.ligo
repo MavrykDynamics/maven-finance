@@ -325,22 +325,22 @@ type governanceAction is
     | AddUpdateProposalData of addUpdateProposalDataType
     | LockProposal of proposalIdType  
     
-    // | StartVotingRound of (unit)
-    // | VotingRoundVote of (nat * nat)
+    | StartVotingRound of (unit)
+    | VotingRoundVote of (nat * nat)
     
-    // | StartTimelockRound of (unit)
-    // | ExecuteProposal of (nat)
-    // | DropProposal of (nat)
+    | StartTimelockRound of (unit)
+    | ExecuteProposal of (nat)
+    | DropProposal of (nat)
 
     | CallGovernanceLambdaProxy of executeActionType
     | SetupLambdaFunction of setupLambdaFunctionType
 
-    | RequestTokens of requestTokensType
-    | RequestMint of requestMintType
-    | DropFinancialRequest of (nat)
-    | RequestStakedMvkSnapshot of (nat)
-    | RequestSatelliteSnapshot of requestSatelliteSnapshotType
-    | VoteForRequest of voteForRequestType
+    // | RequestTokens of requestTokensType
+    // | RequestMint of requestMintType
+    // | DropFinancialRequest of (nat)
+    // | RequestStakedMvkSnapshot of (nat)
+    // | RequestSatelliteSnapshot of requestSatelliteSnapshotType
+    // | VoteForRequest of voteForRequestType
 
 // admin helper functions begin --
 function checkSenderIsAdmin(var s : storage) : unit is
@@ -1080,689 +1080,690 @@ block {
 } with (noOperations, s)
 
 (* StartVotingRound Entrypoint *)
-// function startVotingRound(var s : storage) : return is
-// block {
-    
-//     // Steps Overview:
-//     // 1. verify sender is admin
-//     // 2. set current round from "proposal" to "voting", and reset current round start level and end level - current round duration should be equal to current cycle end level minus timelock duration
-//     // 3a. get ids of current proposals, and select the proposal with highest vote
-//     // 3b. if there is no proposal, restart proposal round
-    
-//     checkSenderIsAdmin(s);
-
-//     s.tempFlag := Tezos.level;
-
-//     // voting round can be triggered at any time by admin,  but boundaries will still remain fixed to the start and end of the cycle (calculated at start of proposal round)
-//     s.currentRound               := "voting";
-//     s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
-//     s.currentRoundEndLevel       := s.currentRoundEndLevel + s.config.blocksPerVotingRound;
-
-//     s.timelockProposalId         := 0n;                  // flush proposal id in timelock - reset to 0
-
-//     // simple loop to get the proposal with the highest vote count in MVK 
-//     var _highestVoteCounter : nat := 0n;
-//     var highestVotedProposalId : nat := 0n;
-//     for proposalId -> voteCount in map s.currentRoundProposals block {
-//         if voteCount > _highestVoteCounter then block {
-//              _highestVoteCounter := voteCount;
-//              highestVotedProposalId := proposalId;
-//         } else skip;
-//     };
-
-//     var operations : list(operation) := nil;
-
-//     if highestVotedProposalId =/= 0n then block {
-
-//         // set the current round highest voted proposal id
-//         s.currentRoundHighestVotedProposalId := highestVotedProposalId;
-
-//         // flush current round votes - to prepare for voting round
-//         var emptyCurrentRoundVotes : map(address, nat) := map[];
-//         s.currentRoundVotes := emptyCurrentRoundVotes;
-
-//     } else block {
-//         // restart - another proposal round
-//         const restartProposalRoundEntrypoint : contract(unit) = Tezos.self("%startProposalRound");
-//         const restartProposalRoundOperation : operation = Tezos.transaction(
-//             unit, 
-//             0tez, 
-//             restartProposalRoundEntrypoint
-//         );
-//         operations := restartProposalRoundOperation # operations;
-//     }
-
-// } with (operations, s)
-
-// (* VotingRoundVote Entrypoint *)
-// function votingRoundVote(const proposalId : nat; const voteType : nat; var s : storage) : return is 
-// block {
-//     // Steps Overview:
-//     // 1. verify that round is a voting round
-//     // 2. verify that user is a satellite, and is allowed to vote for the current voting round with his snapshot taken
-//     // 3. verify that proposal exists, proposal is active and has not been dropped
-//     // 4. verify that vote type is a valid type - i.e. set of 1n, 0n, 2n - Yay, Nay, Abstain 
-//     // 5. submit satellite's vote for proposal and update vote counts
-    
-//     s.tempFlag := Tezos.level;
-
-//     if s.currentRound = "voting" then skip
-//         else failwith("Error. You can only vote during the voting round.");
-
-//     if s.currentRoundHighestVotedProposalId = 0n then failwith("Error: No proposal to vote for. Please wait for the next proposal round to begin.")
-//       else skip; 
-
-//     // if Tezos.level > s.currentRoundEndLevel then failwith("Current voting round has ended.")
-//     //   else skip;
-
-//     // check if satellite exists in the active satellites map
-//     const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
-//     if activeSatelliteExistsFlag = False then failwith("You need to be a satellite to vote for a governance proposal.")
-//       else skip;
-
-//     const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of
-//         None -> failwith("Error. Snapshot of your holdings not taken. Please wait for the next governance round.")
-//         | Some(snapshot) -> snapshot
-//     end;
-
-//     // check if proposal exists in the current round's proposals
-//     const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentRoundProposals);
-//     if checkProposalExistsFlag = False then failwith("Error: Proposal not found in the current round.")
-//       else skip;
-
-//     var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of
-//         None -> failwith("Error: Proposal not found in the proposal ledger.")
-//         | Some(_proposal) -> _proposal        
-//     end;
-
-//     // verify that proposal is active and has not been dropped
-//     if _proposal.status = "DROPPED" then failwith("Error: Proposal has been dropped.")
-//       else skip;
-
-//     // verify that vote type is valid
-//     const voteTypeSet : set (nat) = set [1n; 0n; 2n];
-//     const validVoteType : bool = voteTypeSet contains voteType;
-//     if validVoteType = False then failwith("Error: Vote type is not valid.")
-//       else skip;
-
-//     // note: currentRoundVotes change in the use of nat from proposal round (from proposal id to vote type)
-//     //  i.e. (satelliteAddress, voteType - 1n/0n/2n) - 1n: Yay | 0n: Nay | 2n: Abstain
-//     const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.sender, s.currentRoundVotes);
-//     if checkIfSatelliteHasVotedFlag = False then block {
-//         // satellite has not voted - add new vote
-        
-//         _proposal.voters[Tezos.sender] := (voteType, satelliteSnapshot.totalVotingPower, Tezos.now);
-
-//         // set proposal record based on vote type 
-//         var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
-        
-//         // update proposal with new vote changes
-//         s.proposalLedger[proposalId] := _proposal;
-
-//     } else block {
-//         // satellite has already voted - change of vote
-        
-//         // get previous vote
-//         var previousVote : (nat * nat * timestamp) := case _proposal.voters[Tezos.sender] of 
-//             | None -> failwith("Error: Previous vote not found.")
-//             | Some(_previousVote) -> _previousVote
-//         end;
-
-//         const previousVoteType = previousVote.0;
-
-//         // check if new vote is the same as old vote
-//         if previousVoteType = voteType then failwith ("Error: Your vote has already been recorded.")
-//           else skip;
-
-//         // save new vote
-//         _proposal.voters[Tezos.sender] := (voteType, satelliteSnapshot.totalVotingPower, Tezos.now);
-
-//         // set proposal record based on vote type 
-//         var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
-
-//         // unset previous vote in proposal record
-//         var _proposal : proposalRecordType := unsetProposalRecordVote(previousVoteType, satelliteSnapshot.totalVotingPower, _proposal);
-        
-//         // update proposal with new vote changes
-//         s.proposalLedger[proposalId] := _proposal;
-        
-//     }
-
-// } with (noOperations, s)
-
-(* StartTimelockRound Entrypoint *)
-// function startTimelockRound(var s : storage) : return is
-// block {
-    
-//     // Steps Overview:
-//     // 1. verify sender is admin
-//     // 2. set current round from "voting" to "timelock", and set current round start level and end level 
-//     // 3. set timelockProposalId to currentRoundHighestVotedProposalId
-    
-//     checkSenderIsAdmin(s);
-
-//     // timelock round can be triggered at any time by admin, but boundaries will still remain fixed to the start and end of the cycle (calculated at start of proposal round)
-//     s.currentRound               := "timelock";
-//     s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
-//     s.currentRoundEndLevel       := s.currentCycleEndLevel;
-
-//     // set timelockProposalId to currentRoundHighestVotedProposalId
-//     s.timelockProposalId         := s.currentRoundHighestVotedProposalId; 
-
-// } with (noOperations, s)
-
-(* ExecuteProposal Entrypoint *)
-// function executeProposal(const proposalId : nat; var s : storage) : return is 
-// block {
-//     // Steps Overview: 
-//     // 1. verify that user is a satellite and can execute proposal
-//     // 2. verify that proposal can be executed
-//     // 3. execute proposal - list of operations to run
-
-//     // to be confirmed: who should execute the proposal? originator/admin/anyone? 
-//     // checkSenderIsSelf(Unit);
-//     checkSenderIsAdminOrSelf(s);
-
-//     // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-//     if s.currentRound = "timelock" or s.currentRound = "voting" then failwith("Error. Proposal can only be executed after timelock period ends.");
-//         else skip;
-
-//     // check that there is a highest voted proposal in the current round
-//     if s.timelockProposalId = 0n then failwith("Error: No proposal to execute. Please wait for the next proposal round to begin.")
-//       else skip; 
-
-//     // check that proposal to be executed is the timelock proposal
-//     if s.timelockProposalId =/= proposalId then failwith("Error: This proposal is not the highest voted proposal and cannot be executed.")
-//       else skip; 
-
-//     var proposal : proposalRecordType := case s.proposalLedger[proposalId] of
-//         Some(_record) -> _record
-//       | None -> failwith("Error. Proposal not found.")
-//     end;
-
-//     if proposal.executed = True then failwith("Error. Proposal has already been executed")
-//       else skip;
-
-//     // check that there is at least one proposal metadata to execute
-//     if Map.size(proposal.proposalMetadata) = 0n then failwith("Error. No data to execute.")
-//       else skip;
-
-//     var operations : list(operation) := nil;
-
-//     // update proposal executed boolean to True
-//     proposal.executed            := True;
-//     s.proposalLedger[proposalId] := proposal;    
-
-//     // loop metadata for execution
-//     for _title -> metadataBytes in map proposal.proposalMetadata block {
-
-//       const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of
-//         | Some(_action) -> _action
-//         | None    -> failwith("Error. Unable to unpack proposal metadata.")
-//       end;
-
-//       const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
-//         executeAction,
-//         0tez,
-//         sendOperationToGovernanceLambda(unit)
-//       );
-
-//       operations := sendActionToGovernanceLambdaOperation # operations;
-    
-//     }     
-
-// } with (operations, s)
-
-// function dropProposal(const proposalId : nat; var s : storage) : return is 
-// block {
-//     // Steps Overview: 
-//     // 1. verify that proposal is in the current round / cycle
-//     // 2. verify that satellite made the proposal
-//     // 3. change status of proposal to inactive
-
-//     // check if satellite exists in the active satellites map
-//     const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
-//     if activeSatelliteExistsFlag = False then failwith("You need to be a satellite to make a governance action.")
-//       else skip;
-
-//     // check if proposal exists in the current round's proposals
-//     const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentRoundProposals);
-//     if checkProposalExistsFlag = False then failwith("Error: Proposal not found in the current round.")
-//       else skip;
-
-//     var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of
-//         None -> failwith("Error: Proposal not found in the proposal ledger.")
-//         | Some(_proposal) -> _proposal        
-//     end;
-
-//     // verify that proposal has not been dropped already
-//     if _proposal.status = "DROPPED" then failwith("Error: Proposal has already been dropped.")
-//       else skip;
-
-//     if _proposal.proposerAddress = Tezos.sender then block {
-//         _proposal.status               := "DROPPED";
-//         s.proposalLedger[proposalId]   := _proposal;
-//     } else failwith("Error: You are not allowed to drop this proposal.")
-    
-// } with (noOperations, s)
-
-
-function requestTokens(const requestTokensParams : requestTokensType; var s : storage) : return is 
+function startVotingRound(var s : storage) : return is
 block {
-  
-  checkSenderIsCouncilContract(s);
+    
+    // Steps Overview:
+    // 1. verify sender is admin
+    // 2. set current round from "proposal" to "voting", and reset current round start level and end level - current round duration should be equal to current cycle end level minus timelock duration
+    // 3a. get ids of current proposals, and select the proposal with highest vote
+    // 3b. if there is no proposal, restart proposal round
+    
+    checkSenderIsAdmin(s);
 
-  const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
+    s.tempFlag := Tezos.level;
 
-  var newFinancialRequest : financialRequestRecordType := record [
+    // voting round can be triggered at any time by admin,  but boundaries will still remain fixed to the start and end of the cycle (calculated at start of proposal round)
+    s.currentRound               := "voting";
+    s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
+    s.currentRoundEndLevel       := s.currentRoundEndLevel + s.config.blocksPerVotingRound;
 
-        requesterAddress     = Tezos.sender;
-        requestType          = "TRANSFER";
-        status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-        ready                = False;
-        executed             = False;
-        expired              = False;      
+    s.timelockProposalId         := 0n;                  // flush proposal id in timelock - reset to 0
 
-        treasuryAddress      = requestTokensParams.treasuryAddress;
-        tokenContractAddress = requestTokensParams.tokenContractAddress;
-        tokenAmount          = requestTokensParams.tokenAmount;
-        tokenName            = requestTokensParams.tokenName; 
-        tokenType            = requestTokensParams.tokenType;
-        tokenId              = requestTokensParams.tokenId;
-        requestPurpose       = requestTokensParams.purpose; 
-        voters               = emptyFinancialRequestVotersMap;
-
-        approveVoteTotal     = 0n;
-        disapproveVoteTotal  = 0n;
-
-        snapshotStakedMvkTotalSupply       = 0n;
-        stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
-        stakedMvkRequiredForApproval       = 0n; 
-
-        requestedDateTime    = Tezos.now;               // log of when the request was submitted
-        expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
-    ];
-
-    const financialRequestId : nat = s.financialRequestCounter;
-
-    // save request to financial request ledger
-    s.financialRequestLedger[financialRequestId] := newFinancialRequest;
-
-    // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
-    const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
-    s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
-
-    // increment financial request counter
-    s.financialRequestCounter := financialRequestId + 1n;
-
-    var operations : list(operation) := nil;
-
-    const doormanAddress : address = case s.generalContracts["doorman"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. Doorman Contract is not found")
-    end;
-
-    // --- update snapshot staked MVK total supply begin ----
-    const requestSnapshotCompleteEntrypoint: contract(nat) =
-      case (Tezos.get_entrypoint_opt("%requestStakedMvkSnapshot", Tezos.self_address) : option(contract(nat))) of
-        Some(contr) -> contr
-      | None -> (failwith("Error. RequestStakedMvkSnapshot entrypoint not found in Governance contract."): contract(nat))
-      end;
-    const requestSnapshotCompleteOperation: operation = Tezos.transaction(financialRequestId, 0tez, requestSnapshotCompleteEntrypoint);
-    operations := requestSnapshotCompleteOperation # operations;
-
-    const setSnapshotStakedMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setSnapshotStakedMvkTotalSupply");    
-    const updateSnapshotStakedMvkTotalSupplyOperation : operation = Tezos.transaction(
-         (setSnapshotStakedMvkTotalSupplyCallback),
-         0tez, 
-         getStakedMvkTotalSupply(doormanAddress)
-         );
-    operations := updateSnapshotStakedMvkTotalSupplyOperation # operations;
-    // --- update snapshot staked MVK total supply end ----
-
-    // set snapshot of satellites for financial request
-    const delegationAddress : address = case s.generalContracts["delegation"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found")
-    end;
-
-    // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-    for satellite -> _timestamp in map s.activeSatellitesMap block {
-        const setSatelliteVotingPowerSnapshotCallback : contract(requestSatelliteSnapshotType) = Tezos.self("%requestSatelliteSnapshot");
-        const operationParams : getSatelliteRequestSnapshotType = record [
-          satelliteAddress = satellite;
-          requestId        = financialRequestId;
-          callbackContract = setSatelliteVotingPowerSnapshotCallback;
-        ];
-
-        const financialRequestFetchSatelliteTotalVotingPowerOperation : operation = Tezos.transaction(
-            operationParams, 
-            0tez, 
-            financialRequestFetchSatelliteTotalVotingPower(delegationAddress)
-        );
-
-        operations := financialRequestFetchSatelliteTotalVotingPowerOperation # operations;
+    // simple loop to get the proposal with the highest vote count in MVK 
+    var _highestVoteCounter : nat := 0n;
+    var highestVotedProposalId : nat := 0n;
+    for proposalId -> voteCount in map s.currentRoundProposals block {
+        if voteCount > _highestVoteCounter then block {
+             _highestVoteCounter := voteCount;
+             highestVotedProposalId := proposalId;
+        } else skip;
     };
 
+    var operations : list(operation) := nil;
+
+    if highestVotedProposalId =/= 0n then block {
+
+        // set the current round highest voted proposal id
+        s.currentRoundHighestVotedProposalId := highestVotedProposalId;
+
+        // flush current round votes - to prepare for voting round
+        var emptyCurrentRoundVotes : map(address, nat) := map[];
+        s.currentRoundVotes := emptyCurrentRoundVotes;
+
+    } else block {
+        // restart - another proposal round
+        const restartProposalRoundEntrypoint : contract(unit) = Tezos.self("%startProposalRound");
+        const restartProposalRoundOperation : operation = Tezos.transaction(
+            unit, 
+            0tez, 
+            restartProposalRoundEntrypoint
+        );
+        operations := restartProposalRoundOperation # operations;
+    }
+
 } with (operations, s)
 
-function requestMint(const requestMintParams : requestMintType; var s : storage) : return is 
+// (* VotingRoundVote Entrypoint *)
+function votingRoundVote(const proposalId : nat; const voteType : nat; var s : storage) : return is 
 block {
-  
-  checkSenderIsCouncilContract(s);
+    // Steps Overview:
+    // 1. verify that round is a voting round
+    // 2. verify that user is a satellite, and is allowed to vote for the current voting round with his snapshot taken
+    // 3. verify that proposal exists, proposal is active and has not been dropped
+    // 4. verify that vote type is a valid type - i.e. set of 1n, 0n, 2n - Yay, Nay, Abstain 
+    // 5. submit satellite's vote for proposal and update vote counts
+    
+    s.tempFlag := Tezos.level;
 
-  const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
-  
-  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-    Some(_address) -> _address
-    | None -> failwith("Error. MVK Token Contract is not found")
-  end;
+    if s.currentRound = "voting" then skip
+        else failwith("Error. You can only vote during the voting round.");
 
-  var newFinancialRequest : financialRequestRecordType := record [
+    if s.currentRoundHighestVotedProposalId = 0n then failwith("Error: No proposal to vote for. Please wait for the next proposal round to begin.")
+      else skip; 
 
-        requesterAddress     = Tezos.sender;
-        requestType          = "MINT";
-        status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-        ready                = False;
-        executed             = False;
-        expired              = False;      
+    // if Tezos.level > s.currentRoundEndLevel then failwith("Current voting round has ended.")
+    //   else skip;
 
-        treasuryAddress      = requestMintParams.treasuryAddress;
-        tokenContractAddress = mvkTokenAddress;
-        tokenAmount          = requestMintParams.tokenAmount;
-        tokenName            = "MVK"; 
-        tokenType            = requestMintParams.tokenType;
-        tokenId              = requestMintParams.tokenId;
-        requestPurpose       = requestMintParams.purpose;
-        voters               = emptyFinancialRequestVotersMap;
+    // check if satellite exists in the active satellites map
+    const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
+    if activeSatelliteExistsFlag = False then failwith("You need to be a satellite to vote for a governance proposal.")
+      else skip;
 
-        approveVoteTotal     = 0n;
-        disapproveVoteTotal  = 0n;
+    const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of
+        None -> failwith("Error. Snapshot of your holdings not taken. Please wait for the next governance round.")
+        | Some(snapshot) -> snapshot
+    end;
 
-        snapshotStakedMvkTotalSupply       = 0n;
-        stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
-        stakedMvkRequiredForApproval       = 0n; 
+    // check if proposal exists in the current round's proposals
+    const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentRoundProposals);
+    if checkProposalExistsFlag = False then failwith("Error: Proposal not found in the current round.")
+      else skip;
 
-        requestedDateTime    = Tezos.now;               // log of when the request was submitted
-        expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
-    ];
+    var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of
+        None -> failwith("Error: Proposal not found in the proposal ledger.")
+        | Some(_proposal) -> _proposal        
+    end;
 
-    const financialRequestId : nat = s.financialRequestCounter;
+    // verify that proposal is active and has not been dropped
+    if _proposal.status = "DROPPED" then failwith("Error: Proposal has been dropped.")
+      else skip;
 
-    // save request to financial request ledger
-    s.financialRequestLedger[financialRequestId] := newFinancialRequest;
+    // verify that vote type is valid
+    const voteTypeSet : set (nat) = set [1n; 0n; 2n];
+    const validVoteType : bool = voteTypeSet contains voteType;
+    if validVoteType = False then failwith("Error: Vote type is not valid.")
+      else skip;
 
-    // increment financial request counter
-    s.financialRequestCounter := financialRequestId + 1n;
+    // note: currentRoundVotes change in the use of nat from proposal round (from proposal id to vote type)
+    //  i.e. (satelliteAddress, voteType - 1n/0n/2n) - 1n: Yay | 0n: Nay | 2n: Abstain
+    const checkIfSatelliteHasVotedFlag : bool = Map.mem(Tezos.sender, s.currentRoundVotes);
+    if checkIfSatelliteHasVotedFlag = False then block {
+        // satellite has not voted - add new vote
+        
+        _proposal.voters[Tezos.sender] := (voteType, satelliteSnapshot.totalVotingPower, Tezos.now);
+
+        // set proposal record based on vote type 
+        var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
+        
+        // update proposal with new vote changes
+        s.proposalLedger[proposalId] := _proposal;
+
+    } else block {
+        // satellite has already voted - change of vote
+        
+        // get previous vote
+        var previousVote : (nat * nat * timestamp) := case _proposal.voters[Tezos.sender] of 
+            | None -> failwith("Error: Previous vote not found.")
+            | Some(_previousVote) -> _previousVote
+        end;
+
+        const previousVoteType = previousVote.0;
+
+        // check if new vote is the same as old vote
+        if previousVoteType = voteType then failwith ("Error: Your vote has already been recorded.")
+          else skip;
+
+        // save new vote
+        _proposal.voters[Tezos.sender] := (voteType, satelliteSnapshot.totalVotingPower, Tezos.now);
+
+        // set proposal record based on vote type 
+        var _proposal : proposalRecordType := setProposalRecordVote(voteType, satelliteSnapshot.totalVotingPower, _proposal);
+
+        // unset previous vote in proposal record
+        var _proposal : proposalRecordType := unsetProposalRecordVote(previousVoteType, satelliteSnapshot.totalVotingPower, _proposal);
+        
+        // update proposal with new vote changes
+        s.proposalLedger[proposalId] := _proposal;
+        
+    }
+
+} with (noOperations, s)
+
+(* StartTimelockRound Entrypoint *)
+function startTimelockRound(var s : storage) : return is
+block {
+    
+    // Steps Overview:
+    // 1. verify sender is admin
+    // 2. set current round from "voting" to "timelock", and set current round start level and end level 
+    // 3. set timelockProposalId to currentRoundHighestVotedProposalId
+    
+    checkSenderIsAdmin(s);
+
+    // timelock round can be triggered at any time by admin, but boundaries will still remain fixed to the start and end of the cycle (calculated at start of proposal round)
+    s.currentRound               := "timelock";
+    s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
+    s.currentRoundEndLevel       := s.currentCycleEndLevel;
+
+    // set timelockProposalId to currentRoundHighestVotedProposalId
+    s.timelockProposalId         := s.currentRoundHighestVotedProposalId; 
+
+} with (noOperations, s)
+
+(* ExecuteProposal Entrypoint *)
+function executeProposal(const proposalId : nat; var s : storage) : return is 
+block {
+    // Steps Overview: 
+    // 1. verify that user is a satellite and can execute proposal
+    // 2. verify that proposal can be executed
+    // 3. execute proposal - list of operations to run
+
+    // to be confirmed: who should execute the proposal? originator/admin/anyone? 
+    // checkSenderIsSelf(Unit);
+    checkSenderIsAdminOrSelf(s);
+
+    // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+    if s.currentRound = "timelock" or s.currentRound = "voting" then failwith("Error. Proposal can only be executed after timelock period ends.");
+        else skip;
+
+    // check that there is a highest voted proposal in the current round
+    if s.timelockProposalId = 0n then failwith("Error: No proposal to execute. Please wait for the next proposal round to begin.")
+      else skip; 
+
+    // check that proposal to be executed is the timelock proposal
+    if s.timelockProposalId =/= proposalId then failwith("Error: This proposal is not the highest voted proposal and cannot be executed.")
+      else skip; 
+
+    var proposal : proposalRecordType := case s.proposalLedger[proposalId] of
+        Some(_record) -> _record
+      | None -> failwith("Error. Proposal not found.")
+    end;
+
+    if proposal.executed = True then failwith("Error. Proposal has already been executed")
+      else skip;
+
+    // check that there is at least one proposal metadata to execute
+    if Map.size(proposal.proposalMetadata) = 0n then failwith("Error. No data to execute.")
+      else skip;
 
     var operations : list(operation) := nil;
 
-    const doormanAddress : address = case s.generalContracts["doorman"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. Doorman Contract is not found")
-    end;
+    // update proposal executed boolean to True
+    proposal.executed            := True;
+    s.proposalLedger[proposalId] := proposal;    
 
-    // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
-    const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
-    s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
+    // loop metadata for execution
+    for _title -> metadataBytes in map proposal.proposalMetadata block {
 
-    // --- update snapshot staked MVK total supply begin ----
-    const requestSnapshotCompleteEntrypoint: contract(nat) =
-      case (Tezos.get_entrypoint_opt("%requestStakedMvkSnapshot", Tezos.self_address) : option(contract(nat))) of
-        Some(contr) -> contr
-      | None -> (failwith("Error. RequestStakedMvkSnapshot entrypoint not found in Governance contract."): contract(nat))
+      const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of
+        | Some(_action) -> _action
+        | None    -> failwith("Error. Unable to unpack proposal metadata.")
       end;
-    const requestSnapshotCompleteOperation: operation = Tezos.transaction(financialRequestId, 0tez, requestSnapshotCompleteEntrypoint);
-    operations := requestSnapshotCompleteOperation # operations;
 
-    const setSnapshotStakedMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setSnapshotStakedMvkTotalSupply");    
-    const updateSnapshotStakedMvkTotalSupplyOperation : operation = Tezos.transaction(
-         (setSnapshotStakedMvkTotalSupplyCallback),
-         0tez, 
-         getStakedMvkTotalSupply(doormanAddress)
-         );
-    operations := updateSnapshotStakedMvkTotalSupplyOperation # operations;
-    // --- update snapshot staked MVK total supply end ----
+      const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
+        executeAction,
+        0tez,
+        sendOperationToGovernanceLambda(unit)
+      );
 
-    // set snapshot of satellites for financial request
-    const delegationAddress : address = case s.generalContracts["delegation"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found")
-    end;
-
-    // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-    for satellite -> _timestamp in map s.activeSatellitesMap block {
-        const setSatelliteVotingPowerSnapshotCallback : contract(requestSatelliteSnapshotType) = Tezos.self("%requestSatelliteSnapshot");
-        const operationParams : getSatelliteRequestSnapshotType = record [
-          satelliteAddress = satellite;
-          requestId        = financialRequestId;
-          callbackContract = setSatelliteVotingPowerSnapshotCallback;
-        ];
-
-        const financialRequestFetchSatelliteTotalVotingPowerOperation : operation = Tezos.transaction(
-            operationParams, 
-            0tez, 
-            financialRequestFetchSatelliteTotalVotingPower(delegationAddress)
-        );
-
-        operations := financialRequestFetchSatelliteTotalVotingPowerOperation # operations;
-    }; 
-
-} with (operations, s)
-
-function requestStakedMvkSnapshot(const requestId : nat; var s : storage) : return is 
-block {
-  
-  checkSenderIsAdminOrSelf(s);
-
-  var financialRequest : financialRequestRecordType := case s.financialRequestLedger[requestId] of
-    Some(_request) -> _request
-    | None -> failwith("Error. Financial request not found. ")
-  end;
-
-  const snapshotStakedMvkTotalSupply    : nat = s.snapshotStakedMvkTotalSupply;
-  const stakedMvkPercentageForApproval  : nat = financialRequest.stakedMvkPercentageForApproval; // 2 decimals - 51% to 5100
-
-  // update financial request staked mvk required for approved based on latest snapshot, and set ready to True
-  financialRequest.snapshotStakedMvkTotalSupply     := snapshotStakedMvkTotalSupply;
-  financialRequest.stakedMvkRequiredForApproval     := abs((snapshotStakedMvkTotalSupply * stakedMvkPercentageForApproval) / 10000);
-  financialRequest.ready                            := True;
-
-  // save financial request
-  s.financialRequestLedger[requestId] := financialRequest;
-
-} with (noOperations, s)
-
-function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; var s : storage) : return is 
-block {
-
-    checkNoAmount(Unit);                // should not receive any tez amount      
-    checkSenderIsDelegationContract(s); // check sender is Delegation Contract
-
-    // init variables
-    const financialRequestId    : nat     = satelliteSnapshot.requestId;
-    const satelliteAddress      : address = satelliteSnapshot.satelliteAddress;
-    const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
-    const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
-
-    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / s.config.votingPowerRatio);
-    const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
-    var totalVotingPower : nat := 0n;
-    if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-      else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
-
-    var satelliteSnapshotRecord : financialRequestSnapshotRecordType := record [
-        totalMvkBalance         = stakedMvkBalance; 
-        totalDelegatedAmount    = totalDelegatedAmount; 
-        totalVotingPower        = totalVotingPower;
-      ];
+      operations := sendActionToGovernanceLambdaOperation # operations;
     
-    var financialRequestSnapshot : financialRequestSnapshotMapType := case s.financialRequestSnapshotLedger[financialRequestId] of 
-        None -> failwith("Error. Financial request snapshot not found.")
-      | Some(snapshot) -> snapshot
+    }     
+
+} with (operations, s)
+
+(* DropProposal Entrypoint *)
+function dropProposal(const proposalId : nat; var s : storage) : return is 
+block {
+    // Steps Overview: 
+    // 1. verify that proposal is in the current round / cycle
+    // 2. verify that satellite made the proposal
+    // 3. change status of proposal to inactive
+
+    // check if satellite exists in the active satellites map
+    const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
+    if activeSatelliteExistsFlag = False then failwith("You need to be a satellite to make a governance action.")
+      else skip;
+
+    // check if proposal exists in the current round's proposals
+    const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentRoundProposals);
+    if checkProposalExistsFlag = False then failwith("Error: Proposal not found in the current round.")
+      else skip;
+
+    var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of
+        None -> failwith("Error: Proposal not found in the proposal ledger.")
+        | Some(_proposal) -> _proposal        
     end;
 
-    // update financal request snapshot map with record of satellite's total voting power
-    financialRequestSnapshot[satelliteAddress]           := satelliteSnapshotRecord;
+    // verify that proposal has not been dropped already
+    if _proposal.status = "DROPPED" then failwith("Error: Proposal has already been dropped.")
+      else skip;
 
-    // update financial request snapshot ledger bigmap with updated satellite's details
-    s.financialRequestSnapshotLedger[financialRequestId] := financialRequestSnapshot;
-
+    if _proposal.proposerAddress = Tezos.sender then block {
+        _proposal.status               := "DROPPED";
+        s.proposalLedger[proposalId]   := _proposal;
+    } else failwith("Error: You are not allowed to drop this proposal.")
+    
 } with (noOperations, s)
 
-function dropFinancialRequest(const requestId : nat; var s : storage) : return is 
-block {
 
-  checkSenderIsCouncilContract(s);
-
-  var financialRequest : financialRequestRecordType := case s.financialRequestLedger[requestId] of
-    Some(_request) -> _request
-    | None -> failwith("Error. Financial request not found. ")
-  end;
-
-  financialRequest.status := False;
-  s.financialRequestLedger[requestId] := financialRequest;
-
-} with (noOperations, s);
-
-function voteForRequest(const voteForRequest : voteForRequestType; var s : storage) : return is 
-block {
+// function requestTokens(const requestTokensParams : requestTokensType; var s : storage) : return is 
+// block {
   
-  // check if satellite exists in the active satellites map
-  const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
-  if activeSatelliteExistsFlag = False then failwith("Error. You need to be a satellite to vote for a financial request.")
-    else skip;
+//   checkSenderIsCouncilContract(s);
 
-  const financialRequestId : nat = voteForRequest.requestId;
+//   const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
 
-  var _financialRequest : financialRequestRecordType := case s.financialRequestLedger[financialRequestId] of
-    Some(_request) -> _request
-    | None -> failwith("Error. Financial request not found. ")
-  end;
+//   var newFinancialRequest : financialRequestRecordType := record [
 
-  if _financialRequest.status    = False then failwith("Error. Financial request has been dropped.")          else skip;
-  if _financialRequest.ready     = False then failwith("Error. Financial request is not ready yet.")          else skip;
-  if _financialRequest.executed  = True  then failwith("Error. Financial request has already been executed.") else skip;
+//         requesterAddress     = Tezos.sender;
+//         requestType          = "TRANSFER";
+//         status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
+//         ready                = False;
+//         executed             = False;
+//         expired              = False;      
 
-  if Tezos.now > _financialRequest.expiryDateTime then block {
-    _financialRequest.expired := True;
-    s.financialRequestLedger[financialRequestId] := _financialRequest;
-    failwith("Error. Financial request has expired");
-  } else skip;
+//         treasuryAddress      = requestTokensParams.treasuryAddress;
+//         tokenContractAddress = requestTokensParams.tokenContractAddress;
+//         tokenAmount          = requestTokensParams.tokenAmount;
+//         tokenName            = requestTokensParams.tokenName; 
+//         tokenType            = requestTokensParams.tokenType;
+//         tokenId              = requestTokensParams.tokenId;
+//         requestPurpose       = requestTokensParams.purpose; 
+//         voters               = emptyFinancialRequestVotersMap;
 
-  var operations : list(operation) := nil;
+//         approveVoteTotal     = 0n;
+//         disapproveVoteTotal  = 0n;
 
-  const financialRequestSnapshot : financialRequestSnapshotMapType = case s.financialRequestSnapshotLedger[financialRequestId] of
-    Some(_snapshot) -> _snapshot
-    | None -> failwith("Error. Financial request snapshot not found.")
-  end; 
+//         snapshotStakedMvkTotalSupply       = 0n;
+//         stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
+//         stakedMvkRequiredForApproval       = 0n; 
 
-  const satelliteSnapshotRecord : financialRequestSnapshotRecordType = case financialRequestSnapshot[Tezos.sender] of 
-    Some(_record) -> _record
-    | None -> failwith("Error. Satellite not found in financial request snapshot.")
-  end;
+//         requestedDateTime    = Tezos.now;               // log of when the request was submitted
+//         expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
+//     ];
 
-  // Save and update satellite's vote record
-  const voteType         : voteForRequestChoiceType  = voteForRequest.vote;
-  const totalVotingPower : nat                       = satelliteSnapshotRecord.totalVotingPower;
+//     const financialRequestId : nat = s.financialRequestCounter;
 
-  const newVoteRecord : financialRequestVoteType     = record [
-      vote             = voteType;
-      totalVotingPower = totalVotingPower;
-      timeVoted        = Tezos.now;
-  ];
+//     // save request to financial request ledger
+//     s.financialRequestLedger[financialRequestId] := newFinancialRequest;
 
-  _financialRequest.voters[Tezos.sender] := newVoteRecord;
-  s.financialRequestLedger[financialRequestId] := _financialRequest;
+//     // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
+//     const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
+//     s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
 
-  // Satellite cast vote and send request to Treasury if enough votes have been gathered
-  case voteType of
-    Approve(_v) -> block {
+//     // increment financial request counter
+//     s.financialRequestCounter := financialRequestId + 1n;
 
-        const newApproveVoteTotal : nat = _financialRequest.approveVoteTotal + totalVotingPower;
+//     var operations : list(operation) := nil;
 
-        _financialRequest.approveVoteTotal           := newApproveVoteTotal;
-        s.financialRequestLedger[financialRequestId] := _financialRequest;
+//     const doormanAddress : address = case s.generalContracts["doorman"] of
+//       Some(_address) -> _address
+//       | None -> failwith("Error. Doorman Contract is not found")
+//     end;
 
-        // send request to treasury if total approved votes exceed staked MVK required for approval
-        if newApproveVoteTotal > _financialRequest.stakedMvkRequiredForApproval then block {
+//     // --- update snapshot staked MVK total supply begin ----
+//     const requestSnapshotCompleteEntrypoint: contract(nat) =
+//       case (Tezos.get_entrypoint_opt("%requestStakedMvkSnapshot", Tezos.self_address) : option(contract(nat))) of
+//         Some(contr) -> contr
+//       | None -> (failwith("Error. RequestStakedMvkSnapshot entrypoint not found in Governance contract."): contract(nat))
+//       end;
+//     const requestSnapshotCompleteOperation: operation = Tezos.transaction(financialRequestId, 0tez, requestSnapshotCompleteEntrypoint);
+//     operations := requestSnapshotCompleteOperation # operations;
 
-          const treasuryAddress : address = _financialRequest.treasuryAddress;
+//     const setSnapshotStakedMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setSnapshotStakedMvkTotalSupply");    
+//     const updateSnapshotStakedMvkTotalSupplyOperation : operation = Tezos.transaction(
+//          (setSnapshotStakedMvkTotalSupplyCallback),
+//          0tez, 
+//          getStakedMvkTotalSupply(doormanAddress)
+//          );
+//     operations := updateSnapshotStakedMvkTotalSupplyOperation # operations;
+//     // --- update snapshot staked MVK total supply end ----
 
-          const councilAddress : address = case s.generalContracts["council"] of
-            Some(_address) -> _address
-            | None -> failwith("Error. Council Contract is not found")
-          end;
+//     // set snapshot of satellites for financial request
+//     const delegationAddress : address = case s.generalContracts["delegation"] of
+//       Some(_address) -> _address
+//       | None -> failwith("Error. Delegation Contract is not found")
+//     end;
 
-          if _financialRequest.requestType = "TRANSFER" then block {
+//     // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
+//     for satellite -> _timestamp in map s.activeSatellitesMap block {
+//         const setSatelliteVotingPowerSnapshotCallback : contract(requestSatelliteSnapshotType) = Tezos.self("%requestSatelliteSnapshot");
+//         const operationParams : getSatelliteRequestSnapshotType = record [
+//           satelliteAddress = satellite;
+//           requestId        = financialRequestId;
+//           callbackContract = setSatelliteVotingPowerSnapshotCallback;
+//         ];
 
-            // ---- set token type ----
-            var _tokenTransferType : tokenType := Tez;
+//         const financialRequestFetchSatelliteTotalVotingPowerOperation : operation = Tezos.transaction(
+//             operationParams, 
+//             0tez, 
+//             financialRequestFetchSatelliteTotalVotingPower(delegationAddress)
+//         );
 
-            if  _financialRequest.tokenType = "XTZ" then block {
-              _tokenTransferType := Tez; 
-            } else skip;
+//         operations := financialRequestFetchSatelliteTotalVotingPowerOperation # operations;
+//     };
 
-            if  _financialRequest.tokenType = "FA12" then block {
-              _tokenTransferType := Fa12(_financialRequest.tokenContractAddress); 
-            } else skip;
+// } with (operations, s)
 
-            if  _financialRequest.tokenType = "FA2" then block {
-              _tokenTransferType := Fa2(record [
-                tokenContractAddress  = _financialRequest.tokenContractAddress;
-                tokenId               = _financialRequest.tokenId;
-              ]); 
-            } else skip;
-            // --- --- ---
+// function requestMint(const requestMintParams : requestMintType; var s : storage) : return is 
+// block {
+  
+//   checkSenderIsCouncilContract(s);
 
-            const transferTokenParams : transferTokenType = record [
-              from_      = treasuryAddress;
-              to_        = councilAddress;
-              amt        = _financialRequest.tokenAmount;
-              token      = _tokenTransferType;
-            ];
+//   const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
+  
+//   const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
+//     Some(_address) -> _address
+//     | None -> failwith("Error. MVK Token Contract is not found")
+//   end;
 
-            const treasuryTransferOperation : operation = Tezos.transaction(
-              transferTokenParams, 
-              0tez, 
-              sendTransferOperationToTreasury(treasuryAddress)
-            );
+//   var newFinancialRequest : financialRequestRecordType := record [
 
-            operations := treasuryTransferOperation # operations;
+//         requesterAddress     = Tezos.sender;
+//         requestType          = "MINT";
+//         status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
+//         ready                = False;
+//         executed             = False;
+//         expired              = False;      
 
-          } else skip;
+//         treasuryAddress      = requestMintParams.treasuryAddress;
+//         tokenContractAddress = mvkTokenAddress;
+//         tokenAmount          = requestMintParams.tokenAmount;
+//         tokenName            = "MVK"; 
+//         tokenType            = requestMintParams.tokenType;
+//         tokenId              = requestMintParams.tokenId;
+//         requestPurpose       = requestMintParams.purpose;
+//         voters               = emptyFinancialRequestVotersMap;
 
-          if _financialRequest.requestType = "MINT" then block {
+//         approveVoteTotal     = 0n;
+//         disapproveVoteTotal  = 0n;
+
+//         snapshotStakedMvkTotalSupply       = 0n;
+//         stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
+//         stakedMvkRequiredForApproval       = 0n; 
+
+//         requestedDateTime    = Tezos.now;               // log of when the request was submitted
+//         expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
+//     ];
+
+//     const financialRequestId : nat = s.financialRequestCounter;
+
+//     // save request to financial request ledger
+//     s.financialRequestLedger[financialRequestId] := newFinancialRequest;
+
+//     // increment financial request counter
+//     s.financialRequestCounter := financialRequestId + 1n;
+
+//     var operations : list(operation) := nil;
+
+//     const doormanAddress : address = case s.generalContracts["doorman"] of
+//       Some(_address) -> _address
+//       | None -> failwith("Error. Doorman Contract is not found")
+//     end;
+
+//     // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
+//     const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
+//     s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
+
+//     // --- update snapshot staked MVK total supply begin ----
+//     const requestSnapshotCompleteEntrypoint: contract(nat) =
+//       case (Tezos.get_entrypoint_opt("%requestStakedMvkSnapshot", Tezos.self_address) : option(contract(nat))) of
+//         Some(contr) -> contr
+//       | None -> (failwith("Error. RequestStakedMvkSnapshot entrypoint not found in Governance contract."): contract(nat))
+//       end;
+//     const requestSnapshotCompleteOperation: operation = Tezos.transaction(financialRequestId, 0tez, requestSnapshotCompleteEntrypoint);
+//     operations := requestSnapshotCompleteOperation # operations;
+
+//     const setSnapshotStakedMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setSnapshotStakedMvkTotalSupply");    
+//     const updateSnapshotStakedMvkTotalSupplyOperation : operation = Tezos.transaction(
+//          (setSnapshotStakedMvkTotalSupplyCallback),
+//          0tez, 
+//          getStakedMvkTotalSupply(doormanAddress)
+//          );
+//     operations := updateSnapshotStakedMvkTotalSupplyOperation # operations;
+//     // --- update snapshot staked MVK total supply end ----
+
+//     // set snapshot of satellites for financial request
+//     const delegationAddress : address = case s.generalContracts["delegation"] of
+//       Some(_address) -> _address
+//       | None -> failwith("Error. Delegation Contract is not found")
+//     end;
+
+//     // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
+//     for satellite -> _timestamp in map s.activeSatellitesMap block {
+//         const setSatelliteVotingPowerSnapshotCallback : contract(requestSatelliteSnapshotType) = Tezos.self("%requestSatelliteSnapshot");
+//         const operationParams : getSatelliteRequestSnapshotType = record [
+//           satelliteAddress = satellite;
+//           requestId        = financialRequestId;
+//           callbackContract = setSatelliteVotingPowerSnapshotCallback;
+//         ];
+
+//         const financialRequestFetchSatelliteTotalVotingPowerOperation : operation = Tezos.transaction(
+//             operationParams, 
+//             0tez, 
+//             financialRequestFetchSatelliteTotalVotingPower(delegationAddress)
+//         );
+
+//         operations := financialRequestFetchSatelliteTotalVotingPowerOperation # operations;
+//     }; 
+
+// } with (operations, s)
+
+// function requestStakedMvkSnapshot(const requestId : nat; var s : storage) : return is 
+// block {
+  
+//   checkSenderIsAdminOrSelf(s);
+
+//   var financialRequest : financialRequestRecordType := case s.financialRequestLedger[requestId] of
+//     Some(_request) -> _request
+//     | None -> failwith("Error. Financial request not found. ")
+//   end;
+
+//   const snapshotStakedMvkTotalSupply    : nat = s.snapshotStakedMvkTotalSupply;
+//   const stakedMvkPercentageForApproval  : nat = financialRequest.stakedMvkPercentageForApproval; // 2 decimals - 51% to 5100
+
+//   // update financial request staked mvk required for approved based on latest snapshot, and set ready to True
+//   financialRequest.snapshotStakedMvkTotalSupply     := snapshotStakedMvkTotalSupply;
+//   financialRequest.stakedMvkRequiredForApproval     := abs((snapshotStakedMvkTotalSupply * stakedMvkPercentageForApproval) / 10000);
+//   financialRequest.ready                            := True;
+
+//   // save financial request
+//   s.financialRequestLedger[requestId] := financialRequest;
+
+// } with (noOperations, s)
+
+// function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; var s : storage) : return is 
+// block {
+
+//     checkNoAmount(Unit);                // should not receive any tez amount      
+//     checkSenderIsDelegationContract(s); // check sender is Delegation Contract
+
+//     // init variables
+//     const financialRequestId    : nat     = satelliteSnapshot.requestId;
+//     const satelliteAddress      : address = satelliteSnapshot.satelliteAddress;
+//     const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
+//     const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
+
+//     const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / s.config.votingPowerRatio);
+//     const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
+//     var totalVotingPower : nat := 0n;
+//     if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
+//       else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+
+//     var satelliteSnapshotRecord : financialRequestSnapshotRecordType := record [
+//         totalMvkBalance         = stakedMvkBalance; 
+//         totalDelegatedAmount    = totalDelegatedAmount; 
+//         totalVotingPower        = totalVotingPower;
+//       ];
+    
+//     var financialRequestSnapshot : financialRequestSnapshotMapType := case s.financialRequestSnapshotLedger[financialRequestId] of 
+//         None -> failwith("Error. Financial request snapshot not found.")
+//       | Some(snapshot) -> snapshot
+//     end;
+
+//     // update financal request snapshot map with record of satellite's total voting power
+//     financialRequestSnapshot[satelliteAddress]           := satelliteSnapshotRecord;
+
+//     // update financial request snapshot ledger bigmap with updated satellite's details
+//     s.financialRequestSnapshotLedger[financialRequestId] := financialRequestSnapshot;
+
+// } with (noOperations, s)
+
+// function dropFinancialRequest(const requestId : nat; var s : storage) : return is 
+// block {
+
+//   checkSenderIsCouncilContract(s);
+
+//   var financialRequest : financialRequestRecordType := case s.financialRequestLedger[requestId] of
+//     Some(_request) -> _request
+//     | None -> failwith("Error. Financial request not found. ")
+//   end;
+
+//   financialRequest.status := False;
+//   s.financialRequestLedger[requestId] := financialRequest;
+
+// } with (noOperations, s);
+
+// function voteForRequest(const voteForRequest : voteForRequestType; var s : storage) : return is 
+// block {
+  
+//   // check if satellite exists in the active satellites map
+//   const activeSatelliteExistsFlag : bool = Map.mem(Tezos.sender, s.activeSatellitesMap);
+//   if activeSatelliteExistsFlag = False then failwith("Error. You need to be a satellite to vote for a financial request.")
+//     else skip;
+
+//   const financialRequestId : nat = voteForRequest.requestId;
+
+//   var _financialRequest : financialRequestRecordType := case s.financialRequestLedger[financialRequestId] of
+//     Some(_request) -> _request
+//     | None -> failwith("Error. Financial request not found. ")
+//   end;
+
+//   if _financialRequest.status    = False then failwith("Error. Financial request has been dropped.")          else skip;
+//   if _financialRequest.ready     = False then failwith("Error. Financial request is not ready yet.")          else skip;
+//   if _financialRequest.executed  = True  then failwith("Error. Financial request has already been executed.") else skip;
+
+//   if Tezos.now > _financialRequest.expiryDateTime then block {
+//     _financialRequest.expired := True;
+//     s.financialRequestLedger[financialRequestId] := _financialRequest;
+//     failwith("Error. Financial request has expired");
+//   } else skip;
+
+//   var operations : list(operation) := nil;
+
+//   const financialRequestSnapshot : financialRequestSnapshotMapType = case s.financialRequestSnapshotLedger[financialRequestId] of
+//     Some(_snapshot) -> _snapshot
+//     | None -> failwith("Error. Financial request snapshot not found.")
+//   end; 
+
+//   const satelliteSnapshotRecord : financialRequestSnapshotRecordType = case financialRequestSnapshot[Tezos.sender] of 
+//     Some(_record) -> _record
+//     | None -> failwith("Error. Satellite not found in financial request snapshot.")
+//   end;
+
+//   // Save and update satellite's vote record
+//   const voteType         : voteForRequestChoiceType  = voteForRequest.vote;
+//   const totalVotingPower : nat                       = satelliteSnapshotRecord.totalVotingPower;
+
+//   const newVoteRecord : financialRequestVoteType     = record [
+//       vote             = voteType;
+//       totalVotingPower = totalVotingPower;
+//       timeVoted        = Tezos.now;
+//   ];
+
+//   _financialRequest.voters[Tezos.sender] := newVoteRecord;
+//   s.financialRequestLedger[financialRequestId] := _financialRequest;
+
+//   // Satellite cast vote and send request to Treasury if enough votes have been gathered
+//   case voteType of
+//     Approve(_v) -> block {
+
+//         const newApproveVoteTotal : nat = _financialRequest.approveVoteTotal + totalVotingPower;
+
+//         _financialRequest.approveVoteTotal           := newApproveVoteTotal;
+//         s.financialRequestLedger[financialRequestId] := _financialRequest;
+
+//         // send request to treasury if total approved votes exceed staked MVK required for approval
+//         if newApproveVoteTotal > _financialRequest.stakedMvkRequiredForApproval then block {
+
+//           const treasuryAddress : address = _financialRequest.treasuryAddress;
+
+//           const councilAddress : address = case s.generalContracts["council"] of
+//             Some(_address) -> _address
+//             | None -> failwith("Error. Council Contract is not found")
+//           end;
+
+//           if _financialRequest.requestType = "TRANSFER" then block {
+
+//             // ---- set token type ----
+//             var _tokenTransferType : tokenType := Tez;
+
+//             if  _financialRequest.tokenType = "XTZ" then block {
+//               _tokenTransferType := Tez; 
+//             } else skip;
+
+//             if  _financialRequest.tokenType = "FA12" then block {
+//               _tokenTransferType := Fa12(_financialRequest.tokenContractAddress); 
+//             } else skip;
+
+//             if  _financialRequest.tokenType = "FA2" then block {
+//               _tokenTransferType := Fa2(record [
+//                 tokenContractAddress  = _financialRequest.tokenContractAddress;
+//                 tokenId               = _financialRequest.tokenId;
+//               ]); 
+//             } else skip;
+//             // --- --- ---
+
+//             const transferTokenParams : transferTokenType = record [
+//               from_      = treasuryAddress;
+//               to_        = councilAddress;
+//               amt        = _financialRequest.tokenAmount;
+//               token      = _tokenTransferType;
+//             ];
+
+//             const treasuryTransferOperation : operation = Tezos.transaction(
+//               transferTokenParams, 
+//               0tez, 
+//               sendTransferOperationToTreasury(treasuryAddress)
+//             );
+
+//             operations := treasuryTransferOperation # operations;
+
+//           } else skip;
+
+//           if _financialRequest.requestType = "MINT" then block {
               
-            const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
-              to_  = councilAddress;
-              amt  = _financialRequest.tokenAmount;
-            ];
+//             const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
+//               to_  = councilAddress;
+//               amt  = _financialRequest.tokenAmount;
+//             ];
 
-            const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
-              mintMvkAndTransferTokenParams, 
-              0tez, 
-              sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
-            );
+//             const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
+//               mintMvkAndTransferTokenParams, 
+//               0tez, 
+//               sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
+//             );
 
-            operations := treasuryMintMvkAndTransferOperation # operations;
+//             operations := treasuryMintMvkAndTransferOperation # operations;
 
-          } else skip;
+//           } else skip;
 
-          _financialRequest.executed := True;
-          s.financialRequestLedger[financialRequestId] := _financialRequest;
+//           _financialRequest.executed := True;
+//           s.financialRequestLedger[financialRequestId] := _financialRequest;
 
-        } else skip;
+//         } else skip;
 
-    }
-  | Disapprove(_v) -> block {
-      const newDisapproveVoteTotal : nat            = _financialRequest.disapproveVoteTotal + totalVotingPower;
-      _financialRequest.disapproveVoteTotal        := newDisapproveVoteTotal;
-      s.financialRequestLedger[financialRequestId] := _financialRequest;
-    }
-  end;
+//     }
+//   | Disapprove(_v) -> block {
+//       const newDisapproveVoteTotal : nat            = _financialRequest.disapproveVoteTotal + totalVotingPower;
+//       _financialRequest.disapproveVoteTotal        := newDisapproveVoteTotal;
+//       s.financialRequestLedger[financialRequestId] := _financialRequest;
+//     }
+//   end;
   
-} with (operations, s)
+// } with (operations, s)
 
 
 function main (const action : governanceAction; const s : storage) : return is 
@@ -1785,21 +1786,21 @@ function main (const action : governanceAction; const s : storage) : return is
         | AddUpdateProposalData(parameters) -> addUpdateProposalData(parameters, s)
         | LockProposal(parameters) -> lockProposal(parameters, s)
 
-        // | StartVotingRound(_parameters) -> startVotingRound(s)        
-        // | VotingRoundVote(parameters) -> votingRoundVote(parameters.0, parameters.1, s)
+        | StartVotingRound(_parameters) -> startVotingRound(s)        
+        | VotingRoundVote(parameters) -> votingRoundVote(parameters.0, parameters.1, s)
         
-        // | StartTimelockRound(_parameters) -> startTimelockRound(s)        
-        // | ExecuteProposal(parameters) -> executeProposal(parameters, s)
-        // | DropProposal(parameters) -> dropProposal(parameters, s)
+        | StartTimelockRound(_parameters) -> startTimelockRound(s)        
+        | ExecuteProposal(parameters) -> executeProposal(parameters, s)
+        | DropProposal(parameters) -> dropProposal(parameters, s)
 
         | CallGovernanceLambdaProxy(parameters) -> callGovernanceLambdaProxy(parameters, s)
         | SetupLambdaFunction(parameters) -> setupLambdaFunction(parameters, s)
 
-        | RequestTokens(parameters) -> requestTokens(parameters, s)
-        | RequestMint(parameters) -> requestMint(parameters, s)
-        | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
-        | RequestStakedMvkSnapshot(parameters) -> requestStakedMvkSnapshot(parameters, s)
-        | RequestSatelliteSnapshot(parameters) -> requestSatelliteSnapshot(parameters, s)
-        | VoteForRequest(parameters) -> voteForRequest(parameters, s)
+        // | RequestTokens(parameters) -> requestTokens(parameters, s)
+        // | RequestMint(parameters) -> requestMint(parameters, s)
+        // | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
+        // | RequestStakedMvkSnapshot(parameters) -> requestStakedMvkSnapshot(parameters, s)
+        // | RequestSatelliteSnapshot(parameters) -> requestSatelliteSnapshot(parameters, s)
+        // | VoteForRequest(parameters) -> voteForRequest(parameters, s)
 
     end
