@@ -118,7 +118,7 @@ type entryAction is
 ////
 // EXTRA VARIABLES
 ////
-const fixedPointAccuracy: nat = 1_000_000_000_000n; // 10^12
+const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 
 ////
 // HELPER FUNCTIONS

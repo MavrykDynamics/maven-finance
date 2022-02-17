@@ -97,35 +97,41 @@ export const MenuView = ({
           </MenuIcon>
         </Link>
 
-        <Link to="/exchange">
-          <MenuIcon selected={location.pathname === '/exchange'}>
+        <Link to="/treasury">
+          <MenuIcon selected={location.pathname === '/treasury'}>
             <svg>
-              <use xlinkHref="/icons/sprites.svg#swap" />
+              <use xlinkHref="/icons/sprites.svg#treasury" />
             </svg>
-            <div>Exchange</div>
+            <div>Treasury</div>
           </MenuIcon>
         </Link>
 
-        <Link to="/loan">
-          <MenuIcon selected={location.pathname === '/loan'}>
+        <Link to="/loans">
+          <MenuIcon selected={location.pathname === '/loans'}>
             <svg>
               <use xlinkHref="/icons/sprites.svg#bank" />
             </svg>
-            <div>Loan</div>
+            <div>Loans</div>
           </MenuIcon>
         </Link>
 
-        <Link to="/auctions">
-          <MenuIcon selected={location.pathname === '/auctions'}>
+        <Link to="/vaults">
+          <MenuIcon selected={location.pathname === '/vaults'}>
             <svg>
               <use xlinkHref="/icons/sprites.svg#shop" />
             </svg>
-            <div>Auctions</div>
+            <div>Vaults</div>
           </MenuIcon>
         </Link>
 
         <Link to="/satellites">
-          <MenuIcon selected={location.pathname === '/satellites'}>
+          <MenuIcon
+            selected={
+              location.pathname === '/satellites' ||
+              location.pathname.startsWith('/satellite-details') ||
+              location.pathname === '/become-satellite'
+            }
+          >
             <svg>
               <use xlinkHref="/icons/sprites.svg#satellite" />
             </svg>

@@ -16,7 +16,6 @@ import { getContractBigmapKeys, getContractStorage } from 'utils/api'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { MvkTokenStorage } from '../../reducers/mvkToken'
-import delegationAddress from '../../deployments/delegationAddress.json'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {

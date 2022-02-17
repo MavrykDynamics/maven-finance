@@ -1,4 +1,4 @@
-import fs from 'fs'
+import * as fs from 'fs'
 
 import { execSync } from 'child_process'
 
@@ -19,7 +19,7 @@ export const getLigo = (
 
   if (isDockerizedLigo) {
     if (isAppleM1) {
-      path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:next`
+      path = `docker run --platform=linux/amd64 -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
     } else {
       path = `docker run -v $PWD:$PWD --rm -i ligolang/ligo:${ligoVersion}`
     }
@@ -69,11 +69,10 @@ export const compile = async (
   ligoVersion: string = env.ligoVersion,
   isAppleSilicon: string = 'false',
 ) => {
-  const ligo: string = getLigo(true, ligoVersion)
+  const ligo: string = getLigo(true, ligoVersion, isAppleSilicon)
   const contracts: string[] = !contract ? getContractsList() : [contract]
 
   contracts.forEach((contract) => {
-    console.log(`Printing out ligo value in compile function: ${ligo}`)
     const michelson: string = execSync(
       `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo ${
         format === 'json' ? '--michelson-format json' : ''
@@ -120,7 +119,6 @@ export const compileLambdas = async (json: string, contract: string, ligoVersion
 
   try {
     for (const lambda of lambdas) {
-      console.log(`Printing out ligo value in compileLambdas function: ${ligo}`)
       const michelson = execSync(
         `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/${contract} --protocol hangzhou`,
         { maxBuffer: 1024 * 500 },
