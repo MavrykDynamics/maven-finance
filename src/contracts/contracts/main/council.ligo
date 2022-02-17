@@ -10,13 +10,6 @@ type councilMembersType is set(address)
 
 type signersType is set(address)
 
-
-// type requestTokenType is 
-//   Tez of unit
-// | FA12 of unit
-// | FA2 of unit
-// | NoToken of unit
-
 type councilActionRecordType is record [
 
     initiator                  : address;          // address of action initiator
@@ -40,7 +33,6 @@ type councilActionRecordType is record [
     string_param_1             : string;
     string_param_2             : string;
     string_param_3             : string;
-    // token_type_param           : requestTokenType;
     // ----------------------------------
 
     startDateTime              : timestamp;       // timestamp of when action was initiated
@@ -96,10 +88,9 @@ type updateConfigParamsType is [@layout:comb] record [
 type councilActionRequestTokensType is [@layout:comb] record [
     treasuryAddress       : address;       // treasury address
     tokenContractAddress  : address;       // token contract address
-    tokenName             : string;        // token name should be in whitelist token contracts map in governance contract
+    tokenName             : string;        // token name 
     tokenAmount           : nat;           // token amount requested
     tokenType             : string;        // "XTZ", "FA12", "FA2"
-    // tokenType             : requestTokenType; 
     tokenId               : nat;        
     purpose               : string;        // financial request purpose
 ]
@@ -108,26 +99,57 @@ type councilActionRequestMintType is [@layout:comb] record [
     treasuryAddress  : address;  // treasury address
     tokenAmount      : nat;      // MVK token amount requested
     tokenType        : string;   // "XTZ", "FA12", "FA2"
-    // tokenType             : requestTokenType; 
     tokenId          : nat;        
     purpose          : string;   // financial request purpose
 ]
 
+type tezType             is unit
+type fa12TokenType       is address
+type fa2TokenType        is [@layout:comb] record [
+  token                   : address;
+  id                      : nat;
+]
+type tokenType       is
+| Tez                     of tezType         // unit
+| Fa12                    of fa12TokenType   // address
+| Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
+
+type transferTokenType is [@layout:comb] record [
+    from_           : address;
+    to_             : address;
+    amt             : nat;
+    token           : tokenType;
+]
+
+type councilActionTransferType is [@layout:comb] record [
+    receiverAddress       : address;       // receiver address
+    tokenContractAddress  : address;       // token contract address
+    tokenAmount           : nat;           // token amount requested
+    tokenType             : string;        // "XTZ", "FA12", "FA2"
+    tokenId               : nat;        
+]
+
+
 type councilAction is 
+    | Default of unit
     | UpdateConfig of updateConfigParamsType    
 
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
 
+    // Council actions for vesting
     | CouncilActionAddVestee of councilActionAddVesteeType
     | CouncilActionRemoveVestee of address
     | CouncilActionUpdateVestee of councilActionUpdateVesteeType
     | CouncilActionToggleVesteeLock of address
     
+    // Council actions for internal control
     | CouncilActionAddMember of address
     | CouncilActionRemoveMember of address
     | CouncilActionChangeMember of (address * address)
+    | CouncilActionTransfer of councilActionTransferType
 
+    // Council actions to Governance DAO and Treasury
     | CouncilActionRequestTokens of councilActionRequestTokensType
     | CouncilActionRequestMint of councilActionRequestMintType
 
@@ -241,7 +263,6 @@ block {
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
-    // const noToken : requestTokenType = NoToken;
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
@@ -261,7 +282,6 @@ block {
         string_param_1        = "EMPTY";         // extra slot for string if needed
         string_param_2        = "EMPTY";         // extra slot for string if needed
         string_param_3        = "EMPTY";         // extra slot for string if needed
-        // token_type_param      = noToken;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -308,7 +328,6 @@ block {
         string_param_1        = "EMPTY";                // extra slot for string if needed
         string_param_2        = "EMPTY";                // extra slot for string if needed
         string_param_3        = "EMPTY";         // extra slot for string if needed
-        // token_type_param      = noToken;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -335,7 +354,6 @@ block {
     checkSenderIsCouncilMember(s);
 
     const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
-    // const noToken : requestTokenType = NoToken;
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
@@ -355,7 +373,51 @@ block {
         string_param_1        = "EMPTY";                // extra slot for string if needed
         string_param_2        = "EMPTY";                // extra slot for string if needed
         string_param_3        = "EMPTY";         // extra slot for string if needed
-        // token_type_param      = noToken;
+
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
+    ];
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
+
+function councilActionTransfer(const councilActionTransferParams : councilActionTransferType; var s : storage) : return is 
+block {
+
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
+
+    checkSenderIsCouncilMember(s);
+
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+
+    var councilActionRecord : councilActionRecordType := record[
+        initiator             = Tezos.sender;
+        actionType            = "transfer";
+        signers               = set[Tezos.sender];
+
+        status                = "PENDING";
+        signersCount          = 1n;
+        executed              = False;
+
+        address_param_1       = councilActionTransferParams.receiverAddress;
+        address_param_2       = councilActionTransferParams.tokenContractAddress; 
+        address_param_3       = zeroAddress;             // extra slot for address if needed
+        nat_param_1           = councilActionTransferParams.tokenAmount;
+        nat_param_2           = councilActionTransferParams.tokenId;
+        nat_param_3           = 0n;
+        string_param_1        = councilActionTransferParams.tokenType; 
+        string_param_2        = "EMPTY";                // extra slot for string if needed
+        string_param_3        = "EMPTY";                // extra slot for string if needed
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -794,6 +856,52 @@ block {
             s.councilMembers := Set.remove(_councilActionRecord.address_param_1, s.councilMembers);
         } else skip;
 
+        // type councilActionTransferType is [@layout:comb] record [
+        //     receiverAddress       : address;       // receiver address
+        //     tokenContractAddress  : address;       // token contract address
+        //     tokenAmount           : nat;           // token amount requested
+        //     tokenType             : string;        // "XTZ", "FA12", "FA2"
+        //     tokenId               : nat;        
+        // ]
+        if actionType = "transfer" then block {
+
+            const from_  : address   = Tezos.self_address;
+            const to_    : address   = _councilActionRecord.address_param_1;
+            const amt    : nat       = _councilActionRecord.nat_param_1;
+            
+            // ---- set token type ----
+            var _tokenTransferType : tokenType := Tez;
+
+            if  _councilActionRecord.string_param_1 = "XTZ" then block {
+              _tokenTransferType := Tez; 
+            } else skip;
+
+            if  _councilActionRecord.string_param_1 = "FA12" then block {
+              _tokenTransferType := Fa12(_councilActionRecord.address_param_2); 
+            } else skip;
+
+            if  _councilActionRecord.string_param_1 = "FA2" then block {
+              _tokenTransferType := Fa2(record [
+                token = _councilActionRecord.address_param_2;
+                id    = _councilActionRecord.nat_param_2;
+              ]); 
+            } else skip;
+            // --- --- ---
+
+            // const councilTransferOperation : operation = case _tokenTransferType of 
+            //     | Tez         -> transfer_tez((get_contract(to_) : contract(unit)), amt)
+            //     | Fa12(token) -> block{
+            //             const transferOperation : operation = transfer_fa12(from_, to_, amt, token);
+            //         } with transferOperation
+            //     | Fa2(token)  -> block {
+            //             const transferOperation : operation = transfer_fa2(from_, to_, amt, token.token, token.id);
+            //         } with transferOperation
+            // end;
+
+            // operations := councilTransferOperation # operations;
+
+        } else skip;
+
         // requestTokens action type
         if actionType = "requestTokens" then block {
             
@@ -808,7 +916,6 @@ block {
                 tokenName             = _councilActionRecord.string_param_1;
                 tokenAmount           = _councilActionRecord.nat_param_1;
                 tokenType             = _councilActionRecord.string_param_3;
-                // tokenType             = _councilActionRecord.token_type_param;
                 tokenId               = _councilActionRecord.nat_param_2;
                 purpose               = _councilActionRecord.string_param_2;
             ];
@@ -833,7 +940,6 @@ block {
             const requestMintParams : councilActionRequestMintType = record[
                 tokenAmount      = _councilActionRecord.nat_param_1;
                 tokenType        = _councilActionRecord.string_param_2;
-                // tokenType        = _councilActionRecord.token_type_param;
                 tokenId          = _councilActionRecord.nat_param_2;
                 treasuryAddress  = _councilActionRecord.address_param_1;
                 purpose          = _councilActionRecord.string_param_1;
@@ -863,6 +969,7 @@ block {
 
 function main (const action : councilAction; const s : storage) : return is 
     case action of
+        | Default(_params) -> ((nil : list(operation)), s)
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
@@ -875,6 +982,7 @@ function main (const action : councilAction; const s : storage) : return is
         | CouncilActionAddMember(parameters) -> councilActionAddMember(parameters, s)
         | CouncilActionRemoveMember(parameters) -> councilActionRemoveMember(parameters, s)
         | CouncilActionChangeMember(parameters) -> councilActionChangeMember(parameters.0, parameters.1, s)
+        | CouncilActionTransfer(parameters) -> councilActionTransfer(parameters, s)
         
         | CouncilActionRequestTokens(parameters) -> councilActionRequestTokens(parameters, s)
         | CouncilActionRequestMint(parameters) -> councilActionRequestMint(parameters, s)
