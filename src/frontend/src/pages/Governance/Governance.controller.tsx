@@ -4,6 +4,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect } from 'react'
 import { getBreakGlassStorage, getEmergencyGovernanceStorage, getGovernanceStorage } from './Governance.actions'
+import { Page } from 'styles'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 
 export const Governance = () => {
   const dispatch = useDispatch()
@@ -20,8 +23,11 @@ export const Governance = () => {
   }, [dispatch])
 
   return (
-    <GovernanceStyled>
-      <div>Here on the Governance Page</div>
-    </GovernanceStyled>
+    <Page>
+      <GovernanceStyled>
+        <PageHeader page={'governance'} kind={PRIMARY} loading={loading} />
+        <div>Here on the Governance Page</div>
+      </GovernanceStyled>
+    </Page>
   )
 }
