@@ -184,10 +184,9 @@ describe("Contracts Deployment for Tests", async () => {
     });
     treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
       "governance"   : governance.contract.address,
-      "council"      : council.contract.address
     });
     treasuryStorage.whitelistTokenContracts = MichelsonMap.fromLiteral({
-      "mvk"   : mvkToken.contract.address,
+      "mvk"          : mvkToken.contract.address,
     });
     treasury = await Treasury.originate(
       utils.tezos,
@@ -268,8 +267,6 @@ describe("Contracts Deployment for Tests", async () => {
     const setupGovernanceLambdasOperation = await governanceLambdaBatch.send();
     await setupGovernanceLambdasOperation.confirmation();
 
-
-
     //----------------------------
     // Save Contract Addresses to JSON (for reuse in JS / PyTezos Tests)
     //----------------------------
@@ -282,7 +279,7 @@ describe("Contracts Deployment for Tests", async () => {
     await saveContractAddress("vestingAddress", vesting.contract.address)
     await saveContractAddress("councilAddress", council.contract.address)
     await saveContractAddress("treasuryAddress", treasury.contract.address)
-
+    
     await saveContractAddress("mockFa12TokenAddress", mockFa12Token.contract.address)
     await saveContractAddress("mockFa2TokenAddress", mockFa2Token.contract.address)
 
