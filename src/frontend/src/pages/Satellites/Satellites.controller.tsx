@@ -3,13 +3,13 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { SatelliteRecord } from 'reducers/delegation'
-import { Message, Page, PageContent } from 'styles'
+import { Page, PageContent } from 'styles'
 
 import { SatelliteList } from './SatelliteList/SatelliteList.controller'
 import { delegate, getDelegationStorage, undelegate } from './Satellites.actions'
-import { SatellitesHeader } from './SatellitesHeader/SatellitesHeader.controller'
 import { SatelliteSideBar } from './SatelliteSideBar/SatelliteSideBar.controller'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 
 export const Satellites = () => {
   const dispatch = useDispatch()
@@ -42,8 +42,7 @@ export const Satellites = () => {
   }
   return (
     <Page>
-      <SatellitesHeader />
-      <br />
+      <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
       <PageContent>
         <SatelliteList
           satellitesList={satelliteLedger}

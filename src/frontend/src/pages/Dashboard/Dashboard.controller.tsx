@@ -4,6 +4,8 @@ import { State } from '../../reducers'
 import { useEffect } from 'react'
 import { DashboardStyled } from './Dashboard.style'
 import { getCouncilStorage, getTreasuryStorage, getVestingStorage } from '../Treasury/Treasury.actions'
+import { Page } from 'styles'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 
 export const Dashboard = () => {
   const dispatch = useDispatch()
@@ -20,8 +22,11 @@ export const Dashboard = () => {
   }, [dispatch])
 
   return (
-    <DashboardStyled>
-      <div>Here on the Dashboard Page</div>
-    </DashboardStyled>
+    <Page>
+      <DashboardStyled>
+        <PageHeader page={'dashboard'} kind={'primary'} loading={loading} />
+        <div>Here on the Dashboard Page</div>
+      </DashboardStyled>
+    </Page>
   )
 }
