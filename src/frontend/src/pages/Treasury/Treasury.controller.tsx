@@ -4,6 +4,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect } from 'react'
 import { getCouncilStorage, getTreasuryStorage, getVestingStorage } from './Treasury.actions'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { Page } from 'styles'
 
 export const Treasury = () => {
   const dispatch = useDispatch()
@@ -20,8 +23,11 @@ export const Treasury = () => {
   }, [dispatch])
 
   return (
-    <TreasuryStyled>
-      <div>Here on the Treasury Page</div>
-    </TreasuryStyled>
+    <Page>
+      <PageHeader page={'treasury'} kind={PRIMARY} loading={loading} />
+      <TreasuryStyled>
+        <div>Here on the Treasury Page</div>
+      </TreasuryStyled>
+    </Page>
   )
 }

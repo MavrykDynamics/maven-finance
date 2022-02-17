@@ -4,7 +4,6 @@ import { Input } from 'app/App.components/Input/Input.controller'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
 import { create } from 'ipfs-http-client'
-import { SatellitesHeader } from 'pages/Satellites/SatellitesHeader/SatellitesHeader.controller'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { SatelliteRecord } from 'reducers/delegation'
@@ -14,6 +13,9 @@ import { TextEditor } from '../../app/App.components/TextEditor/TextEditor.contr
 import { RegisterAsSatelliteForm, unregisterAsSatellite } from './BecomeSatellite.actions'
 // prettier-ignore
 import { BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteFormFeeCheck, BecomeSatelliteProfilePic, UploaderFileSelector, UploadIcon, UploadIconContainer } from './BecomeSatellite.style'
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import * as React from 'react'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
@@ -134,7 +136,7 @@ export const BecomeSatelliteView = ({
 
   return (
     <Page>
-      <SatellitesHeader />
+      <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
       <BecomeSatelliteForm>
         {updateSatellite ? <h3>Update Satellite Profile</h3> : <h3>Become a Satellite</h3>}
         <CommaNumber value={Number(minimumStakedMvkBalance)} beginningText={'1- Stake at least'} endingText={'MVK'} />
