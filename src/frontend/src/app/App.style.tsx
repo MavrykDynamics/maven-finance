@@ -5,7 +5,6 @@ export const AppStyled = styled.div`
   min-height: 100vh;
   display: grid;
   grid-template-columns: 270px auto;
-  grid-gap: 10px;
 `
 
 export const AppBg = styled.div`
