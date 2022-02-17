@@ -22,7 +22,10 @@ export const mainNavigationLinks: MainNavigationLink[] = [
     id: 3,
     path: '/satellites',
     icon: 'satellite',
-    subPages: [{ subTitle: 'Become A Satellite', subPath: '/become-satellite' }],
+    subPages: [
+      { subTitle: 'Overview', subPath: '/satellites' },
+      { subTitle: 'Become A Satellite', subPath: '/become-satellite' },
+    ],
   },
   {
     title: 'Governance',

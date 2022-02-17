@@ -28,6 +28,9 @@ export const darkMode = {
   warningColor: '#FF7A00',
   infoColor: '#00C2FF',
   selectedColor: '#aea3ff3d',
+  connectWalletBackgroundColor: '#50508E',
+  navLinkBackgroundActive: 'linear-gradient(90deg, #50508E 0%, rgba(80, 80, 142, 0) 100%)',
+  navLinkTextActive: '#88D1C3',
 }
 
 export const lightMode = {
@@ -45,4 +48,7 @@ export const lightMode = {
   warningColor: '#FF7A00',
   infoColor: '#00C2FF',
   selectedColor: '#aea3ff3d',
+  connectWalletBackgroundColor: '#EEEAF4',
+  navLinkBackgroundActive: 'linear-gradient(90deg, #D1C4E3 0%, rgba(238, 234, 244, 0) 100%)',
+  navLinkTextActive: '#171735',
 }
