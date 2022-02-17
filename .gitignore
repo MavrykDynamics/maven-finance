@@ -9,7 +9,7 @@
 **/yarn-error.log
 **/error.log
 **/compiled/*.tz
-**/deployments/*.json
+
 
 # Python
 __pycache__/

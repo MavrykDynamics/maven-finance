@@ -1,7 +1,7 @@
-const { 
-  TezosToolkit, 
-  ContractAbstraction, 
-  ContractProvider, 
+const {
+  TezosToolkit,
+  ContractAbstraction,
+  ContractProvider,
   TezosOperationError,
   WalletParamsWithKind,
   OpKind, 
@@ -68,25 +68,21 @@ describe("Contracts Deployment for Tests", async () => {
   let deployedMvkTokenStorage;
 
   const signerFactory = async (pk) => {
-    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-    return tezos;
-  };
+    await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
+    return tezos
+  }
 
-  before("setup", async () => {
-    
-    utils = new Utils();
-    await utils.init(alice.sk);
+  before('setup', async () => {
+    utils = new Utils()
+    await utils.init(alice.sk)
 
     //----------------------------
-    // Originate and deploy contracts 
+    // Originate and deploy contracts
     //----------------------------
 
-    doorman = await Doorman.originate(
-      utils.tezos,
-      doormanStorage
-    );
+    doorman = await Doorman.originate(utils.tezos, doormanStorage)
 
-    console.log("doorman contract originated")
+    console.log('doorman contract originated')
 
     delegationStorage.generalContracts = MichelsonMap.fromLiteral({
       "doorman" : doorman.contract.address
@@ -94,48 +90,36 @@ describe("Contracts Deployment for Tests", async () => {
     delegationStorage.whitelistContracts = MichelsonMap.fromLiteral({
       "doorman" : doorman.contract.address
     });
-    delegation = await Delegation.originate(
-      utils.tezos,
-      delegationStorage
-    );
+    delegation = await Delegation.originate(utils.tezos,delegationStorage);
 
-    console.log("delegation contract originated")
+    console.log('delegation contract originated')
 
     mvkStorage.generalContracts = MichelsonMap.fromLiteral({
-      "doorman" : doorman.contract.address
-    });
+      doorman: doorman.contract.address,
+    })
     mvkStorage.whitelistContracts = MichelsonMap.fromLiteral({
-      "doorman" : doorman.contract.address
-    });
-    mvkToken = await MvkToken.originate(
-      utils.tezos,
-      mvkStorage
-    );
+      doorman: doorman.contract.address,
+    })
+    mvkToken = await MvkToken.originate(utils.tezos, mvkStorage)
 
-    console.log("MVK token contract originated")
+    console.log('MVK token contract originated')
 
     governanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation" : delegation.contract.address,
       "mvkToken"   : mvkToken.contract.address,
       "doorman"    : doorman.contract.address
     });
-    governance = await Governance.originate(
-      utils.tezos,
-      governanceStorage
-    );
+    governance = await Governance.originate(utils.tezos,governanceStorage);
 
-    console.log("governance contract originated")
+    console.log('governance contract originated')
 
     emergencyGovernanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"   : mvkToken.contract.address,
       "governance" : governance.contract.address,
     });
-    emergencyGovernance = await EmergencyGovernance.originate(
-      utils.tezos,
-      emergencyGovernanceStorage
-    );
+    emergencyGovernance = await EmergencyGovernance.originate(utils.tezos,emergencyGovernanceStorage);
 
-    console.log("emergency governance contract originated")
+    console.log('emergency governance contract originated')
 
     vestingStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"   : mvkToken.contract.address,
@@ -143,24 +127,18 @@ describe("Contracts Deployment for Tests", async () => {
       "delegation" : delegation.contract.address,
       "governance" : governance.contract.address,
     });
-    vesting = await Vesting.originate(
-      utils.tezos,
-      vestingStorage
-    );
+    vesting = await Vesting.originate(utils.tezos,vestingStorage);
 
     console.log("vesting contract originated")
 
     councilStorage.generalContracts = MichelsonMap.fromLiteral({
-      "vesting"    : vesting.contract.address,
-      "governance" : governance.contract.address
-    });
-    councilStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh];
-    council = await Council.originate(
-      utils.tezos,
-      councilStorage
-    );
+      vesting: vesting.contract.address,
+      governance: governance.contract.address,
+    })
+    councilStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh]
+    council = await Council.originate(utils.tezos, councilStorage)
 
-    console.log("council contract originated")
+    console.log('council contract originated')
 
     breakGlassStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"            : mvkToken.contract.address,
@@ -193,7 +171,7 @@ describe("Contracts Deployment for Tests", async () => {
       treasuryStorage
     );
 
-    console.log("treasury contract originated")
+    console.log('treasury contract originated')
 
     mockFa12Token = await MockFa12Token.originate(
       utils.tezos,
@@ -211,61 +189,84 @@ describe("Contracts Deployment for Tests", async () => {
 
     /* ---- ---- ---- ---- ---- */
 
-    tezos = doorman.tezos;
-    console.log("====== break ======")
+    tezos = doorman.tezos
+    console.log('====== break ======')
 
     //----------------------------
     // Set remaining contract addresses - post-deployment
     //----------------------------
 
     // Doorman Contract - set contract addresses [delegation, mvkToken]
-    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("delegation", delegation.contract.address).send();  
-    await setDelegationContractAddressInDoormanOperation.confirmation();
-    const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("mvkToken", mvkToken.contract.address).send();
-    await setMvkTokenAddressInDoormanOperation.confirmation();
-    console.log("doorman contract address set")
+    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods
+      .updateGeneralContracts('delegation', delegation.contract.address)
+      .send()
+    await setDelegationContractAddressInDoormanOperation.confirmation()
+    const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods
+      .updateGeneralContracts('mvkToken', mvkToken.contract.address)
+      .send()
+    await setMvkTokenAddressInDoormanOperation.confirmation()
+    console.log('doorman contract address set')
 
     // Delegation Contract - set contract addresses [governance]
-    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts("governance", governance.contract.address).send();  
+    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods
+      .updateGeneralContracts("governance", governance.contract.address)
+      .send();  
     await setGovernanceContractAddressInDelegationOperation.confirmation();
-    const setWhitelistTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts("treasury", treasury.contract.address).send();  
+    const setWhitelistTreasuryContractAddressInDelegationOperation = await delegation.contract.methods
+      .updateWhitelistContracts("treasury", treasury.contract.address)
+      .send();  
     await setWhitelistTreasuryContractAddressInDelegationOperation.confirmation();
     console.log("delegation contract address set")
 
     // MVK Token Contract - set whitelist contract addresses [vesting, treasury]
-    const setWhitelistVestingContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts("vesting", vesting.contract.address).send();
-    await setWhitelistVestingContractInMvkTokenOperation.confirmation();
-    const setWhitelistTreasuryContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts("treasury", treasury.contract.address).send();
-    await setWhitelistTreasuryContractInMvkTokenOperation.confirmation();
-    console.log("vesting contract address put in whitelist")
+    const setWhitelistVestingContractInMvkTokenOperation = await mvkToken.contract.methods
+      .updateWhitelistContracts('vesting', vesting.contract.address)
+      .send()
+    await setWhitelistVestingContractInMvkTokenOperation.confirmation()
+    const setWhitelistTreasuryContractInMvkTokenOperation = await mvkToken.contract.methods
+      .updateWhitelistContracts('treasury', treasury.contract.address)
+      .send()
+    await setWhitelistTreasuryContractInMvkTokenOperation.confirmation()
+    console.log('vesting contract address put in whitelist')
 
     // Governance Contract - set contract addresses [emergencyGovernance, breakGlass]
-    const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts("emergencyGovernance", emergencyGovernance.contract.address).send();
-    await setEmergencyGovernanceContractInGovernanceOperation.confirmation();
-    const setBreakGlassContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts("breakGlass", breakGlass.contract.address).send();
-    await setBreakGlassContractInGovernanceOperation.confirmation();
-    const setCouncilContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts("council", council.contract.address).send();
+    const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods
+      .updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address)
+      .send()
+    await setEmergencyGovernanceContractInGovernanceOperation.confirmation()
+    const setBreakGlassContractInGovernanceOperation = await governance.contract.methods
+      .updateGeneralContracts('breakGlass', breakGlass.contract.address)
+      .send()
+    await setBreakGlassContractInGovernanceOperation.confirmation()
+    const setCouncilContractInGovernanceOperation = await governance.contract.methods
+      .updateGeneralContracts("council", council.contract.address)
+      .send();
     await setCouncilContractInGovernanceOperation.confirmation();
-    console.log("governance contract address set")
+    console.log('governance contract address set')
 
     // Emergency Governance Contract - set contract addresses map [breakGlass]
-    const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateGeneralContracts("breakGlass", breakGlass.contract.address).send();
-    await setBreakGlassContractAddressInEmergencyGovernance.confirmation();
+    const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods
+      .updateGeneralContracts('breakGlass', breakGlass.contract.address)
+      .send()
+    await setBreakGlassContractAddressInEmergencyGovernance.confirmation()
 
     // Vesting Contract - set whitelist contract addresses map [council]
-    const setCouncilContractAddressInVesting = await vesting.contract.methods.updateWhitelistContracts("council", council.contract.address).send();
-    await setCouncilContractAddressInVesting.confirmation();
-    console.log("vesting contract address put in whitelist")
+    const setCouncilContractAddressInVesting = await vesting.contract.methods
+      .updateWhitelistContracts('council', council.contract.address)
+      .send()
+    await setCouncilContractAddressInVesting.confirmation()
+    console.log('vesting contract address put in whitelist')
 
     // Governance Setup Lambdas
-    const governanceLambdaBatch = await tezos.wallet.batch()
-    .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0]) )   // callGovernanceLambda
-    .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1]) )   // updateLambdaFunction
-    .withContractCall(governance.contract.methods.setupLambdaFunction(2, governanceLambdas[2]) )   // updateGovernanceConfig
-    .withContractCall(governance.contract.methods.setupLambdaFunction(3, governanceLambdas[3]) );  // updateDelegationConfig
+    const governanceLambdaBatch = await tezos.wallet
+      .batch()
+      .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0])) // callGovernanceLambda
+      .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1])) // updateLambdaFunction
+      .withContractCall(governance.contract.methods.setupLambdaFunction(2, governanceLambdas[2])) // updateGovernanceConfig
+      .withContractCall(governance.contract.methods.setupLambdaFunction(3, governanceLambdas[3])) // updateDelegationConfig
 
-    const setupGovernanceLambdasOperation = await governanceLambdaBatch.send();
-    await setupGovernanceLambdasOperation.confirmation();
+    const setupGovernanceLambdasOperation = await governanceLambdaBatch.send()
+    await setupGovernanceLambdasOperation.confirmation()
 
     //----------------------------
     // Save Contract Addresses to JSON (for reuse in JS / PyTezos Tests)
@@ -307,6 +308,5 @@ describe("Contracts Deployment for Tests", async () => {
     } catch (e){
         console.log(e);
     }
-  }); 
-
-});
+  })
+})

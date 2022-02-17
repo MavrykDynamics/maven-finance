@@ -16,7 +16,6 @@ import { getContractBigmapKeys, getContractStorage } from 'utils/api'
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { MvkTokenStorage } from '../../reducers/mvkToken'
-import delegationAddress from '../../deployments/delegationAddress.json'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -33,7 +32,7 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
       ).contract.at(mvkTokenAddress.address)
   const storage = await (contract as any).storage()
   const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
-  const myBalanceMu = myLedgerEntry?.balance.toNumber()
+  const myBalanceMu = myLedgerEntry?.toNumber()
   const myBalance = myBalanceMu > 0 ? myBalanceMu / PRECISION_NUMBER : 0
 
   const totalMvkSupplyMu = parseFloat(storage?.totalSupply) || 0

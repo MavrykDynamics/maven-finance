@@ -1,12 +1,12 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
+import { MichelsonMap } from '@taquito/michelson-encoder'
 
-import { BigNumber } from "bignumber.js";
+import { BigNumber } from 'bignumber.js'
 
 const { alice, bob } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from "../test/helpers/Utils";
+import { zeroAddress } from '../test/helpers/Utils'
 
-import { governanceStorageType } from "../test/types/governanceStorageType";
+import { governanceStorageType } from '../test/types/governanceStorageType'
 
 const config = {
     successReward             : 10000,
@@ -29,7 +29,6 @@ const config = {
     financialRequestApprovalPercentage : 6700,
     financialRequestDurationInDays     : 3
 }
-
 
 export const governanceStorage: governanceStorageType = {
   
@@ -66,6 +65,6 @@ export const governanceStorage: governanceStorageType = {
   financialRequestSnapshotLedger     : MichelsonMap.fromLiteral({}),
   financialRequestCounter            : new BigNumber(1),
 
-  tempFlag : new BigNumber(0),
+  tempFlag: new BigNumber(0),
 
 };
