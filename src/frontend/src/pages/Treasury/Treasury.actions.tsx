@@ -1,4 +1,5 @@
 import { State } from '../../reducers'
+import treasuryAddress from '../../deployments/councilAddress.json'
 import councilAddress from '../../deployments/councilAddress.json'
 import vestingAddress from '../../deployments/vestingAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
@@ -13,10 +14,10 @@ export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: any,
   // }
   // TODO: Change address used to that of the Treasury when possible
   const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(councilAddress.address)
+    ? await state.wallet.tezos?.wallet.at(treasuryAddress.address)
     : await new TezosToolkit(
         (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(councilAddress.address)
+      ).contract.at(treasuryAddress.address)
 
   const storage = await (contract as any).storage()
   console.log('Printing out Treasury storage:\n', storage)
