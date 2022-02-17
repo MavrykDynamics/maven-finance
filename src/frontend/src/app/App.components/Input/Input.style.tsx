@@ -12,16 +12,13 @@ export const InputStyled = styled.div`
 export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   width: 100%;
   height: 50px;
-  background-color: #7068aa;
-  border-radius: 10px;
+  background-color: ${({ theme }) => theme.placeholderColor};
   font-weight: 600;
   border: none;
   margin: 10px 0;
-  padding: 0 20px;
   color: ${({ theme }) => theme.subTextColor};
   -webkit-appearance: none;
   appearance: none;
-  width: 100%;
   display: block;
   position: relative;
   padding: 12px 16px 12px 16px;
