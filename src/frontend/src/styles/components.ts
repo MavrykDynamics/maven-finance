@@ -6,6 +6,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   margin: auto;
   padding: 40px;
   width: 100%;
+  height: 100%;
   position: relative;
   background-color: ${({ theme }) => theme.containerColor};
   height: 100%;
