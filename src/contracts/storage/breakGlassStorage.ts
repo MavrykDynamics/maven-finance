@@ -1,12 +1,12 @@
-import { MichelsonMap } from "@taquito/michelson-encoder";
+import { MichelsonMap } from '@taquito/michelson-encoder'
 
-import { BigNumber } from "bignumber.js";
+import { BigNumber } from 'bignumber.js'
 
 const { alice } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from "../test/helpers/Utils";
+import { zeroAddress } from '../test/helpers/Utils'
 
-import { breakGlassStorageType } from "../test/types/breakGlassStorageType";
+import { breakGlassStorageType } from '../test/types/breakGlassStorageType'
 
 const config = {
     threshold                  : 3,
@@ -22,13 +22,11 @@ export const breakGlassStorage: breakGlassStorageType = {
   generalContracts: MichelsonMap.fromLiteral({}),
   glassBroken: false,
 
-  councilMembers : [],
+  councilMembers: [],
 
   currentActionId: new BigNumber(0),
   nextActionId: new BigNumber(1),
 
   actionLedger: MichelsonMap.fromLiteral({}),
   flushLedger: MichelsonMap.fromLiteral({}),
-
-
-};
+}
