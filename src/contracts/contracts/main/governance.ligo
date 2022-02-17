@@ -277,19 +277,12 @@ type governanceLambdaFunctionType is (executeActionType * storage) -> return
 
 type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
 
-// type requestTokenType is 
-//   Tez of unit
-// | FA12 of unit
-// | FA2 of unit
-// | NoToken of unit
-
 type requestTokensType is [@layout:comb] record [
     treasuryAddress       : address;  // treasury address
     tokenContractAddress  : address;  // token contract address
     tokenName             : string;   // token name should be in whitelist token contracts map in governance contract
     tokenAmount           : nat;      // token amount requested
     tokenType             : string;   
-    // tokenType             : requestTokenType; 
     tokenId               : nat;      // token amount requested
     purpose               : string;   // financial request purpose
 ]
@@ -298,7 +291,6 @@ type requestMintType is [@layout:comb] record [
     treasuryAddress       : address;  // treasury address
     tokenAmount           : nat;      // MVK token amount requested
     tokenType             : string;
-    // tokenType             : requestTokenType; 
     tokenId               : nat;      // token amount requested
     purpose               : string;   // financial request purpose
 ]
