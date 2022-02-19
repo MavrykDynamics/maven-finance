@@ -32,7 +32,6 @@ type configType is record [
 type breakGlassConfigType is record [
     transferIsPaused         : bool; 
     mintAndTransferIsPaused  : bool;
-    updateOperatorsIsPaused  : bool;
 ]
 
 type storage is record [
@@ -47,17 +46,6 @@ type storage is record [
 
     breakGlassConfig           : breakGlassConfigType;
 ]
-
-(* Update_operators entrypoint inputs *)
-type operatorParameter is [@layout:comb] record[
-  owner: owner;
-  operator: operator;
-  token_id: tokenId;
-]
-type updateOperator is 
-  Add_operator of operatorParameter
-| Remove_operator of operatorParameter
-type updateOperatorsParamsType is list(updateOperator)
 
 type tezType             is unit
 type fa12TokenType       is address
@@ -106,7 +94,6 @@ type treasuryAction is
 
     | Transfer of transferTokenType
     | MintMvkAndTransfer of mintMvkAndTransferType
-    | UpdateOperators of (address * updateOperatorsParamsType)
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -227,40 +214,6 @@ block{
         end;
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
-(* update_operators entrypoint *)
-// type updateOperatorsParamsType is list(updateOperator)
-function updateOperators(const tokenAddress : address; const updateOperatorsParams: updateOperatorsParamsType; var s : storage) : return is
-block {
-
-    // Steps Overview:
-    // 1. Check that sender is in whitelist (governance, council)
-    // 2. Update operators for Treasury account in specified token contract
-
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
-
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
-      else skip;
-
-    var operations : list(operation) := nil;
-
-    const updateOperatorsEntrypoint = case (Tezos.get_entrypoint_opt(
-        "%update_operators",
-        tokenAddress) : option(contract(updateOperatorsParamsType))) of
-        Some(contr) -> contr
-        | None -> (failwith("Error. update_operators entrypoint in Token Contract not found") : contract(updateOperatorsParamsType))
-    end;
-
-    // update operators operation
-    const updateOperatorsOperation : operation = Tezos.transaction(
-        updateOperatorsParams,
-        0tez, 
-        updateOperatorsEntrypoint
-    );
-
-    operations := updateOperatorsOperation # operations;
-
-} with (operations, s)
-
 (* transfer entrypoint *)
 // type transferTokenType is record [from_ : address; to_ : address; amt : nat; token : tokenType]
 function transfer(const transferToken : transferTokenType ; var s : storage) : return is 
@@ -377,5 +330,4 @@ function main (const action : treasuryAction; const s : storage) : return is
   
         | Transfer(parameters) -> transfer(parameters, s)
         | MintMvkAndTransfer(parameters) -> mintMvkAndTransfer(parameters, s)
-        | UpdateOperators(parameters) -> updateOperators(parameters.0, parameters.1, s)
     end
