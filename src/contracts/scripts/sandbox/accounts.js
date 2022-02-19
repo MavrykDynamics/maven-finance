@@ -12,21 +12,41 @@ module.exports = {
     eve: {
         pkh: "tz1PrFSuTikuSWfZkACrXpmaS4RuKmEcZMSP",
         sk: "edsk3QbYXUV92sMoLyMtUSHr4ymkVBWMWUsiG9Z2DuPhvFNPHrKM5B",
-        pk: "edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4"
+        pk: "edpktfEyF8ivHSWSLaEmgnxaUqjDuCZ4HVqjHvgWiVvw8Xs82DLJyB"
     },
     mallory: {
         pkh: "tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n",
         sk: "edsk3bVbowf9hFpdk8mAjZ8qSKzRTcFTgfqdoY4txdQrUhGHJGruXB",
-        pk: "edpkujwsG5JMrWVXQwmRMBoR9yJkokRbn6wy3monpQKBpnZTs1ogRR"
+        pk: "edpkv6mD1SBoUB45g6Ss3LYfYzqZGxRfA3dehYBxEvGidFzsCg6yXQ"
+    },
+    oscar: {
+        pkh: "tz1Zgg2vLeyYLwQCtChXKjYDAXCRowQTzEGw",
+        sk: "edsk32TqRuUFWHE6jwrPgbk5M9A3Sbs4shY4dh1WJCMR1fJjoV6iNs",
+        pk: "edpkuTgScYTtrvAtTU6UMF44NvNd51ah1aqNeerNFC38bGZrKVXwFP"
+    },
+    trudy: {
+        pkh: "tz1dQNGEDPoapnJaK1nX5boVHYKcdtoMjKSq",
+        sk: "edsk3AbmsisVnZtkyVvY1jkyNpSTcRhW3hepihBLTu6e5sUaTS2x1c",
+        pk: "edpkubMsp1wdfpARu3ZsHKwrtkR9PQiAN8nsACP2hiksb7oM5aUhpu"
+    },
+    isaac: {
+        pkh: "tz1SDg2Wah3wBHFwCK5gYV591BhpLWZTWX42",
+        sk: "edsk3ahGaSWjzjHuS7mK5Bsy7LxH8iTRXpGcMvzjgSypKHKw2wrq1u",
+        pk: "edpktpYJesCTU55qxTy2RjdBUupRzVUM3Ek4VzVFxZjypLXPJSaTdn"
+    },
+    david: {
+        pkh: "tz1PPLFcQyechtAm9XRZWRnMEXJ8NsXUNGdS",
+        sk: "edsk3hwth6tL9hppsUT6sZQ5687DDY9GPgKiZgjg9DDcMjJxoRUsGc",
+        pk: "edpkvK4zfvkuzHmbh2CofrBmQ52jrk3b23puVdJkTJCFmHZTLapSWB"
+    },
+    susie: {
+        pkh: "tz1TQ4fpSFNZ6D9vrcwBz9yzM2SNjDj5YoU7",
+        sk: "edsk2vtJ2rVoHoA3GbgDjyT5zbeVMDXZ6R4YjDskKaapgsRtiEWpaP",
+        pk: "edpkv6xHMqShSMr4CK3Vzg7mD1hina7eBkokrMoKpuYj55BVd18rjN"
+    },
+    ivan: {
+        pkh: "tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ",
+        sk: "edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf",
+        pk: "edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL"
     }
-    // eve: {
-    //     pkh: "tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6",
-    //     sk: "edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e",
-    //     pk: "edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4"
-    // },
-    // mallory: {
-    //     pkh: "tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L",
-    //     sk: "edsk3W5Fz1yWK39sLY6vidmgkfmGAXh6V2JqUiri9W1pFeeYWbFbJL",
-    //     pk: "edpkujwsG5JMrWVXQwmRMBoR9yJkokRbn6wy3monpQKBpnZTs1ogRR"
-    // }
 };

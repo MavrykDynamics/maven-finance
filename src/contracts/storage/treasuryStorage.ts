@@ -15,8 +15,7 @@ const config = {
 
 const breakGlassConfig = {
     transferIsPaused         : false,
-    mintAndTransferIsPaused  : false,
-    updateOperatorsIsPaused  : false
+    mintAndTransferIsPaused  : false
 }
 
 export const treasuryStorage: treasuryStorageType = {
