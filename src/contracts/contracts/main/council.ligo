@@ -40,7 +40,6 @@ type councilActionRecordType is record [
     executedDateTime           : timestamp;       // will follow startDateTime and be updated when executed
     executedLevel              : nat;             // will follow startLevel and be updated when executed
     expirationDateTime         : timestamp;       // timestamp of when action will expire
-    expirationBlockLevel       : nat;             // block level of when action will expire
 ]
 
 
@@ -48,8 +47,7 @@ type councilActionsLedgerType is big_map(nat, councilActionRecordType)
 
 type configType is record [
     threshold                   : nat;                 // min number of council members who need to agree on action
-    actionExpiryBlockLevels     : nat;                 // action expiry in block levels
-    actionExpiryDays            : nat;                 // action expirt in number of days 
+    actionExpiryDays            : nat;                 // action expiry in number of days 
 ]
 
 type storage is record [
@@ -71,13 +69,11 @@ type storage is record [
 type councilActionAddVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
 type councilActionUpdateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
 
-type signActionType is (nat * nat) // councilActionId, voteType to be decided and confirmed: on frontend, set 1 as APPROVE, 0 as REJECT 
 type flushActionType is (nat)
 
 type updateConfigNewValueType is nat
 type updateConfigActionType is 
   ConfigThreshold of unit
-| ConfigActionExpiryBlockLevels of unit
 | ConfigActionExpiryDays of unit
 type updateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : updateConfigNewValueType; 
@@ -285,6 +281,17 @@ block{
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 
+////
+// Housekeeping Entrypoints
+///
+
+(*  set contract admin address *)
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
+block {
+    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    checkSenderIsAdmin(s); // check that sender is admin
+    s.admin := newAdminAddress;
+} with (noOperations, s)
 
 (*  updateConfig entrypoint  *)
 function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
@@ -298,11 +305,14 @@ block {
 
   case updateConfigAction of
     ConfigThreshold (_v)                  -> s.config.threshold                 := updateConfigNewValue
-  | ConfigActionExpiryBlockLevels (_v)    -> s.config.actionExpiryBlockLevels   := updateConfigNewValue
   | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
   end;
 
 } with (noOperations, s)
+
+////
+// Council Action Entrypoints
+///
 
 function councilActionAddMember(const newCouncilMemberAddress : address ; var s : storage) : return is 
 block {
@@ -314,7 +324,7 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address);
 
     var councilActionRecord : councilActionRecordType := record[
         initiator             = Tezos.sender;
@@ -340,7 +350,6 @@ block {
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -386,7 +395,6 @@ block {
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -431,7 +439,6 @@ block {
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -476,7 +483,6 @@ block {
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -522,7 +528,6 @@ block {
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -567,7 +572,6 @@ block {
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -612,7 +616,6 @@ block {
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -657,7 +660,6 @@ block {
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -696,14 +698,12 @@ block {
         string_param_1        = councilActionRequestTokensParams.tokenName; 
         string_param_2        = councilActionRequestTokensParams.purpose;        
         string_param_3        = councilActionRequestTokensParams.tokenType;  
-        // token_type_param      = councilActionRequestTokensParams.tokenType;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -742,14 +742,12 @@ block {
         string_param_1        = councilActionRequestMintParams.purpose; 
         string_param_2        = "FA2";
         string_param_3        = "EMPTY";        
-        // token_type_param      = councilActionRequestMintParams.tokenType;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -761,6 +759,11 @@ block {
 
 function flushAction(const actionId: flushActionType; var s : storage) : return is 
 block {
+
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
     
     checkSenderIsCouncilMember(s);
 
@@ -790,7 +793,6 @@ block {
         executedDateTime      = Tezos.now;
         executedLevel         = Tezos.level;
         expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-        expirationBlockLevel  = Tezos.level + s.config.actionExpiryBlockLevels;
     ];
     s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
 
@@ -816,12 +818,10 @@ block {
     // check if council action has expired (status check, and block level + timestamp check)
     if _councilActionRecord.status = "Expired" then failwith("Error. Council action has expired") else skip;
 
-    const blockLevelExpiryCheck  : bool = Tezos.level > _councilActionRecord.expirationBlockLevel;
-    const timestampExpiryCheck   : bool = Tezos.now > _councilActionRecord.expirationDateTime;
+    var isExpired : bool := False;
+    if Tezos.now > _councilActionRecord.expirationDateTime then isExpired := True else isExpired := False;
 
-    const expiryCheck : bool = timestampExpiryCheck and blockLevelExpiryCheck = True;
-
-    if expiryCheck = False then block {
+    if isExpired = True then block {
         _councilActionRecord.status       := "EXPIRED";
          s.councilActionsLedger[actionId] := _councilActionRecord;
         failwith("Error. Council action has expired.");
@@ -1068,6 +1068,7 @@ block {
 function main (const action : councilAction; const s : storage) : return is 
     case action of
         | Default(_params) -> ((nil : list(operation)), s)
+        | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
