@@ -4,8 +4,8 @@ import { Doorman } from 'pages/Doorman/Doorman.controller'
 import { SatelliteDetails } from 'pages/SatelliteDetails/SatelliteDetails.controller'
 import { Satellites } from 'pages/Satellites/Satellites.controller'
 import { useEffect } from 'react'
-import { Provider, useDispatch } from 'react-redux'
-import { Route, BrowserRouter as Router, Switch } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { Route, BrowserRouter as Router, Switch, Redirect } from 'react-router-dom'
 
 import { setWallet } from './App.components/Menu/Menu.actions'
 import { Menu } from './App.components/Menu/Menu.controller'
@@ -19,11 +19,17 @@ import { Loans } from '../pages/Loans/Loans.controller'
 import { Farms } from '../pages/Farms/Farms.controller'
 import { Vaults } from '../pages/Vaults/Vaults.controller'
 import { Dashboard } from '../pages/Dashboard/Dashboard.controller'
+import { State } from '../reducers'
+import ProtectedRoute from './App.components/ProtectedRoute'
+import { BreakGlass } from '../pages/BreakGlass/BreakGlass.controller'
 
 export const store = configureStore({})
 
 const AppContainer = () => {
   const dispatch = useDispatch()
+  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { satelliteLedger } = delegationStorage
 
   useEffect(() => {
     // For using Beacon wallet, replace following lines with dispatch(setWallet())
@@ -47,6 +53,12 @@ const AppContainer = () => {
           <Route exact path="/dashboard-personal">
             <Dashboard />
           </Route>
+          <Route exact path="/your-vesting">
+            <Dashboard />
+          </Route>
+          <Route exact path="/dashboard-personal">
+            <Dashboard />
+          </Route>
           <Route exact path="/stake">
             <Doorman />
           </Route>
@@ -63,8 +75,16 @@ const AppContainer = () => {
             <Governance />
           </Route>
           <Route exact path="/break-glass">
-            <Governance />
+            <BreakGlass />
           </Route>
+          <ProtectedRoute
+            path="/submit-proposal"
+            component={Governance}
+            accountPkh={accountPkh}
+            arrayToFilterThrough={satelliteLedger}
+            authenticationPath={'/'}
+            redirectPath={'/submit-proposal'}
+          />
           <Route exact path="/treasury">
             <Treasury />
           </Route>
@@ -77,6 +97,11 @@ const AppContainer = () => {
           <Route exact path="/vaults">
             <Vaults />
           </Route>
+          <Route exact path="/404">
+            {/*TODO: Replace later on with actual 404 page*/}
+            <Doorman />
+          </Route>
+          <Redirect to="/404" />
         </Switch>
       </AppStyled>
       <Toaster />

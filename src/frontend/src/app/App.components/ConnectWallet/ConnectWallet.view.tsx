@@ -40,14 +40,7 @@ export const ConnectWalletView = ({
               <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
             </WalletConnectedButton>
           )}
-          {!ready && (
-            <WalletNotConnectedButton onClick={handleConnect}>
-              <svg>
-                <use xlinkHref="/icons/sprites.svg#wallet" />
-              </svg>
-              <div>Connect wallet</div>
-            </WalletNotConnectedButton>
-          )}
+          {!ready && <NoWalletConnectedButton handleConnect={handleConnect} />}
         </>
       ) : (
         <WalletNotConnectedButton onClick={() => window.open('https://templewallet.com/', '_blank')!.focus()}>
@@ -55,5 +48,16 @@ export const ConnectWalletView = ({
         </WalletNotConnectedButton>
       )}
     </ConnectWalletStyled>
+  )
+}
+
+export const NoWalletConnectedButton = ({ handleConnect }: { handleConnect: () => void }) => {
+  return (
+    <WalletNotConnectedButton onClick={handleConnect}>
+      <svg>
+        <use xlinkHref="/icons/sprites.svg#wallet" />
+      </svg>
+      <div>Connect wallet</div>
+    </WalletNotConnectedButton>
   )
 }
