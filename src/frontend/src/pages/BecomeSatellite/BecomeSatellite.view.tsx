@@ -138,7 +138,7 @@ export const BecomeSatelliteView = ({
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
       <BecomeSatelliteForm>
-        {updateSatellite ? <h3>Update Satellite Profile</h3> : <h3>Become a Satellite</h3>}
+        {updateSatellite ? <h1>Update Satellite Profile</h1> : <h1>Become a Satellite</h1>}
         <CommaNumber value={Number(minimumStakedMvkBalance)} beginningText={'1- Stake at least'} endingText={'MVK'} />
         <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
           {accountPkh ? (

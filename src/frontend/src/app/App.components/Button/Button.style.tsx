@@ -50,6 +50,19 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     pointer-events: none;
     opacity: 0.8;
   }
+
+  &.votingFor {
+    color: ${({ theme }) => theme.upColor};
+    background-color: ${({ theme }) => theme.containerColor};
+  }
+  &.votingAgainst {
+    color: ${({ theme }) => theme.downColor};
+    background-color: ${({ theme }) => theme.containerColor};
+  }
+  &.votingAbstain {
+    color: ${({ theme }) => theme.subTextColor};
+    background-color: ${({ theme }) => theme.containerColor};
+  }
 `
 
 export const ButtonText = styled.div<{ theme: MavrykTheme }>`
@@ -70,6 +83,15 @@ export const ButtonText = styled.div<{ theme: MavrykTheme }>`
 
   &.transparent {
     color: ${({ theme }) => theme.primaryColor};
+  }
+  &.votingFor {
+    color: ${({ theme }) => theme.upColor};
+  }
+  &.votingAgainst {
+    color: ${({ theme }) => theme.downColor};
+  }
+  &.votingAbstain {
+    color: ${({ theme }) => theme.subTextColor};
   }
 `
 

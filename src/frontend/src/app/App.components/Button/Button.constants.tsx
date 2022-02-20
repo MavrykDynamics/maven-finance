@@ -6,4 +6,11 @@ export type ButtonTypes = 'button' | 'submit' | 'reset' | undefined
 export const PRIMARY = 'primary'
 export const SECONDARY = 'secondary'
 export const TRANSPARENT = 'transparent'
-export type ButtonStyle = 'primary' | 'secondary' | 'transparent' | undefined
+export type ButtonStyle =
+  | 'primary'
+  | 'secondary'
+  | 'transparent'
+  | 'votingFor'
+  | 'votingAgainst'
+  | 'votingAbstain'
+  | undefined
