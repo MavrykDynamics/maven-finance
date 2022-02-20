@@ -18,6 +18,10 @@ export interface MavrykTheme {
 export interface SubNavigationLink {
   subTitle: string
   subPath: string
+  requires?: {
+    isSatellite?: boolean
+    isVestee?: boolean
+  }
 }
 export interface MainNavigationLink {
   title: string
@@ -25,4 +29,8 @@ export interface MainNavigationLink {
   path: string
   icon: string
   subPages?: SubNavigationLink[]
+  requires?: {
+    isSatellite?: boolean
+    isVestee?: boolean
+  }
 }
