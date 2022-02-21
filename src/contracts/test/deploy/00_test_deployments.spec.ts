@@ -13,6 +13,7 @@ import { Utils, zeroAddress } from "../helpers/Utils";
 import fs from "fs";
 import { confirmOperation } from "../../scripts/confirmation";
 const saveContractAddress = require("../../helpers/saveContractAddress")
+const saveMVKDecimals = require('../../helpers/saveMVKDecimals')
 import { MichelsonMap } from "@taquito/michelson-encoder";
 
 const chai = require("chai");
@@ -39,7 +40,7 @@ import { MockFa2Token } from "../helpers/mockFa2TokenHelper";
 
 import { doormanStorage } from "../../storage/doormanStorage";
 import { delegationStorage } from "../../storage/delegationStorage";
-import { mvkStorage } from "../../storage/mvkTokenStorage";
+import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { governanceStorage } from "../../storage/governanceStorage";
 import { breakGlassStorage } from "../../storage/breakGlassStorage";
 import { emergencyGovernanceStorage } from "../../storage/emergencyGovernanceStorage";
@@ -49,23 +50,23 @@ import { treasuryStorage } from "../../storage/treasuryStorage";
 import { mockFa12TokenStorage } from "../../storage/mockFa12TokenStorage";
 import { mockFa2TokenStorage } from "../../storage/mockFa2TokenStorage";
 
-describe("Contracts Deployment for Tests", async () => {
-  var utils: Utils;
-  var doorman: Doorman;
-  var mvkToken : MvkToken;
-  var delegation : Delegation;
-  var governance : Governance;
-  var breakGlass : BreakGlass;
-  var emergencyGovernance : EmergencyGovernance;
-  var vesting : Vesting;
-  var council : Council;
-  var treasury : Treasury;
-  var mockFa12Token : MockFa12Token;
-  var mockFa2Token : MockFa2Token;
-  var tezos;
-  let deployedDoormanStorage;
-  let deployedDelegationStorage;
-  let deployedMvkTokenStorage;
+describe('Contracts Deployment for Tests', async () => {
+  var utils: Utils
+  var doorman: Doorman
+  var mvkToken: MvkToken
+  var delegation: Delegation
+  var governance: Governance
+  var breakGlass: BreakGlass
+  var emergencyGovernance: EmergencyGovernance
+  var vesting: Vesting
+  var council: Council
+  var treasury: Treasury
+  var mockFa12Token : MockFa12Token
+  var mockFa2Token : MockFa2Token
+  var tezos
+  let deployedDoormanStorage
+  let deployedDelegationStorage
+  let deployedMvkTokenStorage
 
   const signerFactory = async (pk) => {
     await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -287,6 +288,11 @@ describe("Contracts Deployment for Tests", async () => {
     
     await saveContractAddress("mockFa12TokenAddress", mockFa12Token.contract.address)
     await saveContractAddress("mockFa2TokenAddress", mockFa2Token.contract.address)
+
+    //----------------------------
+    // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
+    //----------------------------
+    await saveMVKDecimals(mvkTokenDecimals)
 
   });
 

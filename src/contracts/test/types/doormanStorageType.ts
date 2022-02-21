@@ -9,7 +9,6 @@ export type doormanStorageType = {
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
   breakGlassConfig: {};
-  userStakeRecordsLedger: MichelsonMap<MichelsonMapKey, unknown>;
   userStakeBalanceLedger: MichelsonMap<MichelsonMapKey, unknown>;
 
   tempMvkTotalSupply: BigNumber;
@@ -17,4 +16,6 @@ export type doormanStorageType = {
   
   logExitFee: BigNumber;
   logFinalAmount: BigNumber;
+
+  accumulatedFeesPerShare: BigNumber;
 };
