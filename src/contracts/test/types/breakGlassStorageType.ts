@@ -3,18 +3,15 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type breakGlassStorageType = {
-  admin: string;
-  config: {};
+  admin               : string;
+  config              : {};
+  glassBroken         : boolean;
+  councilMembers      : [];
+  developerAddress    : string;
 
-  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
-  glassBroken: boolean;
+  whitelistContracts  : MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts    : MichelsonMap<MichelsonMapKey, unknown>;
 
-  councilMembers: [];
-
-  currentActionId: BigNumber;
-  nextActionId: BigNumber;
-
-  actionLedger: MichelsonMap<MichelsonMapKey, unknown>;
-  flushLedger: MichelsonMap<MichelsonMapKey, unknown>;
-  
+  actionsLedger       : MichelsonMap<MichelsonMapKey, unknown>;
+  actionCounter       : BigNumber;
 };
