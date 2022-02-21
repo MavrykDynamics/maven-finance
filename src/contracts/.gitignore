@@ -5,7 +5,7 @@ scripts/tools/**
 __pycache__/
 venv/
 deployments/*.json
-contracts/compiled/*.tz
+compiled/*.tz
 # Webstorm IDE
 ./.idea
-**/.idea/**
+**/.idea/** 
