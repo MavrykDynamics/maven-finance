@@ -20,7 +20,8 @@ export type farmStorageType = {
   }
   plannedRewards: {
     totalBlocks: BigNumber;
-    rewardPerBlock: BigNumber;
+    currentRewardPerBlock: BigNumber;
+    totalRewards: BigNumber;
   }
   delegators: MichelsonMap<MichelsonMapKey, unknown>;
   lpToken: {
@@ -30,5 +31,6 @@ export type farmStorageType = {
     tokenBalance: BigNumber;
   }
   open: Boolean;
-  initBlock: BigNumber
+  initBlock: BigNumber;
+  blocksPerMinute: BigNumber;
 };

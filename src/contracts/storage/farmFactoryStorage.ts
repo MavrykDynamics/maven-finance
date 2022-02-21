@@ -1,5 +1,6 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
 import { alice } from '../scripts/sandbox/accounts'
+import { BigNumber } from "bignumber.js";
 import { farmFactoryStorageType } from "../test/types/farmFactoryStorageType";
 
 export const farmFactoryStorage: farmFactoryStorageType = {
@@ -13,4 +14,5 @@ export const farmFactoryStorage: farmFactoryStorageType = {
   },
 
   createdFarms: [],
+  blocksPerMinute: new BigNumber(2)
 };
