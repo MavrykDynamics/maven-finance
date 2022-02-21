@@ -11,22 +11,19 @@ import { breakGlassStorageType } from '../test/types/breakGlassStorageType'
 const config = {
     threshold                  : 3,
     actionExpiryDuration       : 5760,
-    developerAddress           : zeroAddress,
-    emergencyGovernanceAddress : zeroAddress,
 }
 
 export const breakGlassStorage: breakGlassStorageType = {
-  admin: alice.pkh,
-  config: config,
+  admin               : alice.pkh,
+  config              : config,
+  glassBroken         : false,
+  councilMembers      : [],
+  developerAddress    : zeroAddress,
 
-  generalContracts: MichelsonMap.fromLiteral({}),
-  glassBroken: false,
+  whitelistContracts  : MichelsonMap.fromLiteral({}),
+  generalContracts    : MichelsonMap.fromLiteral({}),
+  
+  actionsLedger       : MichelsonMap.fromLiteral({}),
+  actionCounter       : new BigNumber(1)
 
-  councilMembers: [],
-
-  currentActionId: new BigNumber(0),
-  nextActionId: new BigNumber(1),
-
-  actionLedger: MichelsonMap.fromLiteral({}),
-  flushLedger: MichelsonMap.fromLiteral({}),
 }

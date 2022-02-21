@@ -149,6 +149,9 @@ describe("Contracts Deployment for Tests", async () => {
       "council"             : council.contract.address,
       "emergencyGovernance" : emergencyGovernance.contract.address
     });
+    breakGlassStorage.whitelistContracts = MichelsonMap.fromLiteral({
+      "emergencyGovernance" : emergencyGovernance.contract.address
+    });
     breakGlass = await BreakGlass.originate(
       utils.tezos,
       breakGlassStorage
