@@ -16,7 +16,7 @@ type tokenBalance is nat
 ////
 // MICHELSON FARM TYPES
 ////
-type delegatorRecord is record[
+type delegatorRecord is [@layout:comb] record[
     balance: tokenBalance;
     participationMVKPerShare: tokenBalance;
     unclaimedRewards: tokenBalance;
@@ -27,19 +27,20 @@ type claimedRewards is [@layout:comb] record[
 ]
 type plannedRewards is [@layout:comb] record[
     totalBlocks: nat;
-    rewardPerBlock: tokenBalance;
+    currentRewardPerBlock: tokenBalance;
+    totalRewards: tokenBalance;
 ]
 type lpStandard is
     Fa12 of unit
 |   Fa2 of unit
-type lpToken is record[
+type lpToken is [@layout:comb] record[
     tokenAddress: address;
     tokenId: nat;
     tokenStandard: lpStandard;
     tokenBalance: tokenBalance;
 ]
 
-type farmBreakGlassConfigType is record [
+type farmBreakGlassConfigType is [@layout:comb] record [
     depositIsPaused        : bool;
     withdrawIsPaused       : bool;
     claimIsPaused          : bool;
@@ -60,15 +61,23 @@ type farmStorage is record[
     lpToken                : lpToken;
     open                   : bool;
     initBlock              : nat;
+    blocksPerMinute        : nat;
+]
+
+type farmLpToken is [@layout:comb] record [
+    tokenAddress   : address;
+    tokenId        : nat;
+    tokenStandard  : lpStandard;
+]
+
+type farmPlannedRewards is [@layout:comb] record [
+    totalBlocks: nat;
+    currentRewardPerBlock: tokenBalance;
 ]
 
 type farmStorageType is [@layout:comb] record[
-    plannedRewards         : plannedRewards;
-    lpToken                : record[
-        tokenAddress   : address;
-        tokenId        : nat;
-        tokenStandard  : lpStandard;
-    ]
+    plannedRewards         : farmPlannedRewards;
+    lpToken                : farmLpToken;
 ]
 
 type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
@@ -82,7 +91,7 @@ const createFarmFunc: createFarmFuncType =
 
 type initFarmParamsType is record[
     totalBlocks: nat;
-    rewardPerBlock: nat;
+    currentRewardPerBlock: nat;
 ]
 
 ////
@@ -101,6 +110,7 @@ type storage is record[
     breakGlassConfig       : breakGlassConfigType;
 
     createdFarms           : set(address);
+    blocksPerMinute        : nat;
 ]
 
 ////
@@ -122,6 +132,7 @@ type action is
     SetAdmin of (address)
 |   UpdateWhitelistContracts of updateWhitelistContractsParams
 |   UpdateGeneralContracts of updateGeneralContractsParams
+|   UpdateAllBlocksPerMinute of (nat)
 
 |   PauseAll of (unit)
 |   UnpauseAll of (unit)
@@ -163,6 +174,15 @@ function getUnpauseAllEntrypointFromFarmAddress(const farmAddress: address): con
       farmAddress): option(contract(unit))) of
     Some(contr) -> contr
   | None -> (failwith("UnpauseAll entrypoint not found in farm contract"): contract(unit))
+  end;
+
+// helper function to get updateBlocksPerMinute entrypoint from farm address
+function getUpdateBlocksPerMinuteEntrypointFromFarmAddress(const farmAddress: address): contract(nat) is
+  case (Tezos.get_entrypoint_opt(
+      "%updateBlocksPerMinute",
+      farmAddress): option(contract(nat))) of
+    Some(contr) -> contr
+  | None -> (failwith("UpdateBlocksPerMinute entrypoint not found in farm contract"): contract(nat))
   end;
 
 ////
@@ -245,12 +265,11 @@ function pauseAllFarms(var s: storage): return is
 
         var operations: list(operation) := nil;
 
-        function iteratePauseAll (const farmAddress: address): unit is
-            block{
-                const _operation: operation = Tezos.transaction(Unit, 0tez, getPauseAllEntrypointFromFarmAddress(farmAddress));
-            } with (unit);
-
-        Set.iter(iteratePauseAll, s.createdFarms);
+        for farmAddress in set s.createdFarms 
+        block {
+            var operation: operation := Tezos.transaction(Unit, 0tez, getPauseAllEntrypointFromFarmAddress(farmAddress));
+            operations := operation # operations;
+        };
 
     } with (operations, s)
 
@@ -261,17 +280,34 @@ function unpauseAllFarms(var s: storage): return is
 
         var operations: list(operation) := nil;
 
-        function iterateUnpauseAll (const farmAddress: address): unit is
-            block{
-                const _operation: operation = Tezos.transaction(Unit, 0tez, getUnpauseAllEntrypointFromFarmAddress(farmAddress));
-            } with (unit);
-
-        Set.iter(iterateUnpauseAll, s.createdFarms);
+        for farmAddress in set s.createdFarms 
+        block {
+            var operation: operation := Tezos.transaction(Unit, 0tez, getUnpauseAllEntrypointFromFarmAddress(farmAddress));
+            operations := operation # operations;
+        };
 
     } with (operations, s)
 ////
 // ENTRYPOINTS FUNCTIONS
 ///
+(*  UpdateAllBlocksPerMinute entrypoint *)
+function updateAllBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage): return is
+    block {
+        // check that sender is admin
+        checkSenderIsAdmin(s);
+
+        var operations: list(operation) := nil;
+
+        for farmAddress in set s.createdFarms 
+        block {
+            var operation: operation := Tezos.transaction(newBlocksPerMinutes, 0tez, getUpdateBlocksPerMinuteEntrypointFromFarmAddress(farmAddress));
+            operations := operation # operations;
+        };
+
+        s.blocksPerMinute := newBlocksPerMinutes;
+
+    } with (operations, s)
+
 (*  set contract admin address *)
 function setAdmin(const newAdminAddress: address; var s: storage): return is
 block {
@@ -297,9 +333,11 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             paid=0n;
             unpaid=0n;
         ];
+        const farmTotalRewards: nat = farmStorage.plannedRewards.totalBlocks*farmStorage.plannedRewards.currentRewardPerBlock;
         const farmPlannedRewards: plannedRewards = record[
             totalBlocks=farmStorage.plannedRewards.totalBlocks;
-            rewardPerBlock=farmStorage.plannedRewards.rewardPerBlock;
+            currentRewardPerBlock=farmStorage.plannedRewards.currentRewardPerBlock;
+            totalRewards=farmTotalRewards;
         ];
         const farmLPToken: lpToken = record[
             tokenAddress=farmStorage.lpToken.tokenAddress;
@@ -329,6 +367,7 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             lpToken                 = farmLPToken;
             open                    = True ;
             initBlock               = Tezos.level;
+            blocksPerMinute         = s.blocksPerMinute;
         ];
 
         // Do we want to send tez to the farm contract?
@@ -375,6 +414,7 @@ function main (const action: action; var s: storage): return is
         SetAdmin (parameters) -> setAdmin(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
+    |   UpdateAllBlocksPerMinute (parameters) -> updateAllBlocksPerMinute(parameters, s)
 
     |   PauseAll (_parameters) -> pauseAll(s)
     |   UnpauseAll (_parameters) -> unpauseAll(s)

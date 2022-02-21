@@ -4,10 +4,12 @@ import { alice } from '../scripts/sandbox/accounts'
 import { farmStorageType } from "../test/types/farmStorageType";
 
 const totalBlocks = new BigNumber(0);
-const rewardPerBlock = new BigNumber(0);
+const currentRewardPerBlock = new BigNumber(0);
+const totalRewards = new BigNumber(0);
 const plannedRewards = {
   totalBlocks: totalBlocks, // 1hour with a block_time of 5seconds
-  rewardPerBlock: rewardPerBlock
+  currentRewardPerBlock: currentRewardPerBlock,
+  totalRewards: totalRewards
 }
 
 const paid = new BigNumber(0);
@@ -46,5 +48,6 @@ export const farmStorage: farmStorageType = {
   delegators: MichelsonMap.fromLiteral({}),
   lpToken: lpToken,
   open: false,
-  initBlock: new BigNumber(0)
+  initBlock: new BigNumber(0),
+  blocksPerMinute: new BigNumber(2)
 };

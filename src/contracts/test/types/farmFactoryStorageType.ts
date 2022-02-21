@@ -1,4 +1,5 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
+import { BigNumber } from "bignumber.js";
 
 export type farmFactoryStorageType = {
   admin: string;
@@ -12,4 +13,5 @@ export type farmFactoryStorageType = {
   }
   
   createdFarms: Array<unknown>;
+  blocksPerMinute: BigNumber
 };

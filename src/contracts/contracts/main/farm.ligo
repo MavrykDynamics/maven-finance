@@ -16,30 +16,31 @@ type tokenBalance is nat
 ////
 // STORAGE
 ////
-type delegatorRecord is record[
+type delegatorRecord is [@layout:comb] record[
     balance: tokenBalance;
     participationMVKPerShare: tokenBalance;
     unclaimedRewards: tokenBalance;
 ]
-type claimedRewards is record[
+type claimedRewards is [@layout:comb] record[
     unpaid: tokenBalance;
     paid: tokenBalance;
 ]
-type plannedRewards is record[
+type plannedRewards is [@layout:comb] record[
     totalBlocks: nat;
-    rewardPerBlock: tokenBalance;
+    currentRewardPerBlock: tokenBalance;
+    totalRewards: tokenBalance;
 ]
 type lpStandard is
     Fa12 of unit
 |   Fa2 of unit
-type lpToken is record[
+type lpToken is [@layout:comb] record[
     tokenAddress: address;
     tokenId: nat;
     tokenStandard: lpStandard;
     tokenBalance: tokenBalance;
 ]
 
-type breakGlassConfigType is record [
+type breakGlassConfigType is [@layout:comb] record [
     depositIsPaused         : bool;
     withdrawIsPaused        : bool;
     claimIsPaused           : bool;
@@ -60,6 +61,7 @@ type storage is record[
     lpToken                 : lpToken;
     open                    : bool;
     initBlock               : nat;
+    blocksPerMinute         : nat; // Needs to match the current Tezos block per minute
 ]
 
 ////
@@ -89,7 +91,8 @@ type oldTransferType is michelson_pair(address, "from", michelson_pair(address, 
 (* initFarm entrypoint inputs *)
 type initFarmParamsType is record[
     totalBlocks: nat;
-    rewardPerBlock: nat;
+    currentRewardPerBlock: nat;
+    blocksPerMinute: nat;
 ]
 
 (* doorman's farmClaim entrypoint inputs *)
@@ -102,6 +105,7 @@ type entryAction is
     SetAdmin of (address)
 |   UpdateWhitelistContracts of updateWhitelistContractsParams
 |   UpdateGeneralContracts of updateGeneralContractsParams
+|   UpdateBlocksPerMinute of (nat)
 
 |   PauseAll of (unit)
 |   UnpauseAll of (unit)
@@ -136,8 +140,12 @@ function checkSenderIsAdmin(const s: storage): unit is
   if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
+function checkSourceIsAdmin(const s: storage): unit is
+  if Tezos.source =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
+  else unit
+
 function checkFarmIsInit(const s: storage): unit is 
-  if s.plannedRewards.rewardPerBlock = 0n or s.plannedRewards.totalBlocks = 0n then failwith("This farm has not yet been initiated")
+  if s.plannedRewards.currentRewardPerBlock = 0n or s.plannedRewards.totalBlocks = 0n then failwith("This farm has not yet been initiated")
   else unit
 
 ////
@@ -239,7 +247,7 @@ function updateFarmParameters(var s: storage): storage is
     block{
         // Compute the potential reward of this block
         const multiplier: nat = abs(Tezos.level - s.lastBlockUpdate);
-        const suspectedReward: tokenBalance = multiplier * s.plannedRewards.rewardPerBlock;
+        const suspectedReward: tokenBalance = multiplier * s.plannedRewards.currentRewardPerBlock;
 
         // This check is necessary in case the farm unpaid reward was not updated for a long time
         // and the outstandingReward grew to such a big number that it exceeds the planned rewards.
@@ -247,7 +255,7 @@ function updateFarmParameters(var s: storage): storage is
         // the account.
         const totalClaimedRewards: tokenBalance = s.claimedRewards.paid + s.claimedRewards.unpaid;
         const totalFarmRewards: tokenBalance = suspectedReward + totalClaimedRewards;
-        const totalPlannedRewards: tokenBalance = s.plannedRewards.rewardPerBlock * s.plannedRewards.totalBlocks;
+        const totalPlannedRewards: tokenBalance = s.plannedRewards.totalRewards;
         const reward: tokenBalance =
             case totalFarmRewards > totalPlannedRewards of
                 True -> abs(totalPlannedRewards - totalClaimedRewards)
@@ -310,8 +318,8 @@ function updateUnclaimedRewards(var s: storage): storage is
 ///
 function pauseAll(var s: storage) : return is
     block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+        // check that source is admin
+        checkSourceIsAdmin(s);
 
         // set all pause configs to True
         if s.breakGlassConfig.depositIsPaused then skip
@@ -327,8 +335,8 @@ function pauseAll(var s: storage) : return is
 
 function unpauseAll(var s : storage) : return is
     block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+        // check that source is admin
+        checkSourceIsAdmin(s);
 
         // set all pause configs to False
         if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
@@ -344,8 +352,8 @@ function unpauseAll(var s : storage) : return is
 
 function togglePauseDeposit(var s : storage) : return is
     block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+        // check that source is admin
+        checkSourceIsAdmin(s);
 
         if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
         else s.breakGlassConfig.depositIsPaused := True;
@@ -354,8 +362,8 @@ function togglePauseDeposit(var s : storage) : return is
 
 function togglePauseWithdraw(var s : storage) : return is
     block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+        // check that source is admin
+        checkSourceIsAdmin(s);
 
         if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
         else s.breakGlassConfig.withdrawIsPaused := True;
@@ -364,8 +372,8 @@ function togglePauseWithdraw(var s : storage) : return is
 
 function togglePauseClaim(var s : storage) : return is
     block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+        // check that source is admin
+        checkSourceIsAdmin(s);
 
         if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
         else s.breakGlassConfig.claimIsPaused := True;
@@ -380,6 +388,40 @@ function setAdmin(const newAdminAddress : address; var s : storage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
+} with (noOperations, s)
+
+(*  UpdateBlocksPerMinute entrypoint *)
+function updateBlocksPerMinute(const blocksPerMinute: nat; var s: storage) : return is
+block {
+    // check that source is admin
+    checkSourceIsAdmin(s);
+
+    // check if farm has been initiated
+    checkFarmIsInit(s);
+
+    // update storage
+    s := updateFarm(s);
+
+    // Check new blocksPerMinute
+    if blocksPerMinute > 0n then skip else failwith("The new block per minute should be greater than zero");
+
+    // Remaining unpaid rewards
+    const totalUnclaimedRewards: nat = abs(s.plannedRewards.totalRewards - (s.claimedRewards.unpaid+s.claimedRewards.paid));
+
+    // Updates rewards and total blocks accordingly
+    const blocksPerMinuteRatio: nat = s.blocksPerMinute * fixedPointAccuracy / blocksPerMinute;
+    const newTotalBlocks: nat = (s.plannedRewards.totalBlocks * fixedPointAccuracy) / blocksPerMinuteRatio;
+    const remainingBlocks: nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
+    const newcurrentRewardPerBlock: nat = (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
+    
+    // Update storage
+    s.blocksPerMinute := blocksPerMinute;
+    s.plannedRewards.totalBlocks := newTotalBlocks;
+    s.plannedRewards.currentRewardPerBlock := (newcurrentRewardPerBlock/fixedPointAccuracy);
+
+    // update storage
+    s := updateFarm(s);
+
 } with (noOperations, s)
 
 (* Claim Entrypoint *)
@@ -522,8 +564,10 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: storage): re
         s := updateFarm(s);
     
         s.initBlock := Tezos.level;
-        s.plannedRewards.rewardPerBlock := initFarmParams.rewardPerBlock;
+        s.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
         s.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
+        s.plannedRewards.totalRewards := s.plannedRewards.currentRewardPerBlock * s.plannedRewards.totalBlocks;
+        s.blocksPerMinute := initFarmParams.blocksPerMinute;
         s.open := True ;
 
     } with (noOperations, s)
@@ -538,6 +582,7 @@ function main (const action: entryAction; var s: storage): return is
         SetAdmin (parameters) -> setAdmin(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
+    |   UpdateBlocksPerMinute (parameters) -> updateBlocksPerMinute(parameters, s)
 
     |   PauseAll (_parameters) -> pauseAll(s)
     |   UnpauseAll (_parameters) -> unpauseAll(s)
