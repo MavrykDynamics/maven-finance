@@ -140,6 +140,7 @@ type councilActionTransferType is [@layout:comb] record [
 
 type councilAction is 
     | Default of unit
+    | SetAdmin of address
     | UpdateConfig of updateConfigParamsType    
 
     | UpdateWhitelistContracts of updateWhitelistContractsParams
@@ -298,7 +299,7 @@ function updateConfig(const updateConfigParams : updateConfigParamsType; var s :
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin
+  checkSenderIsAdmin(s); // check that sender is admin
 
   const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
