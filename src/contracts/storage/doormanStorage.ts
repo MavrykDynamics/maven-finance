@@ -1,10 +1,9 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-
 import { BigNumber } from "bignumber.js";
 
 const { alice } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from "../test/helpers/Utils";
+import { MVK } from "../test/helpers/Utils";
 
 import { doormanStorageType } from "../test/types/doormanStorageType";
 
@@ -17,14 +16,16 @@ export const doormanStorage: doormanStorageType = {
   
   breakGlassConfig: {
     stakeIsPaused           : false,
-    unstakeIsPaused         : false
+    unstakeIsPaused         : false,
+    compoundIsPaused        : false
   },
-  userStakeRecordsLedger: MichelsonMap.fromLiteral({}),
   userStakeBalanceLedger: MichelsonMap.fromLiteral({}),
 
-  tempMvkTotalSupply: new BigNumber(1000000000),
+  tempMvkTotalSupply: new BigNumber(MVK(100)),
   stakedMvkTotalSupply: new BigNumber(0),
   
   logExitFee: new BigNumber(1),
   logFinalAmount: new BigNumber(1),
+
+  accumulatedFeesPerShare: new BigNumber(0)
 };
