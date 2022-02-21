@@ -91,9 +91,6 @@ type updateConfigParamsType is [@layout:comb] record [
   updateConfigAction: updateConfigActionType;
 ]
 
-// satelliteAddress, requestId, voteType, contract(totalVotingPower, requestId, voteType)
-// type governanceVoteRequestCompleteType is (address * nat * unit * contract(nat * nat * unit))
-
 type delegationAction is 
     | SetAdmin of (address)
     | UpdateConfig of updateConfigParamsType
@@ -125,7 +122,6 @@ type delegationAction is
 
     | UpdateSatelliteRecord of (updateSatelliteRecordParams)
     | OnStakeChange of onStakeChangeParams
-    // | GovernanceVoteRequestComplete of governanceVoteRequestCompleteType
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -905,25 +901,6 @@ block {
 
 } with (noOperations, s)
 
-(* View function that forwards the total voting power of satellite back to the governance contract *)
-// function governanceVoteRequestComplete (const governanceVoteRequestComplete : governanceVoteRequestCompleteType; var s : storage) : return is
-//   block {
-//     checkSenderIsGovernanceContract(s);
-
-//     const satelliteAddress : address = governanceVoteRequestComplete.0;
-//     const proposalId : nat = governanceVoteRequestComplete.1;
-//     const voteType : unit  = governanceVoteRequestComplete.2;
-//     const callbackContract : contract(nat * nat * unit) = governanceVoteRequestComplete.3;
-
-//     var satelliteRecord : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of
-//           Some(_val) -> _val
-//           | None -> 0n
-//       end;
-//     const totalVotingPower : nat = satelliteRecord.mvkBalance + satelliteRecord.totalDelegatedAmount;
-//   } with (list [transaction((totalVotingPower, proposalId, voteType ), 0tz, callbackContract)], s)
-
-
-
 function main (const action : delegationAction; const s : storage) : return is 
     case action of    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
@@ -955,5 +932,4 @@ function main (const action : delegationAction; const s : storage) : return is
         | GetSatelliteVotingPower(parameters) -> getSatelliteVotingPower(parameters.0, parameters.1, s)
         | GetSatelliteRequestSnapshot(parameters) -> getSatelliteRequestSnapshot(parameters, s)
         | OnStakeChange(parameters) -> onStakeChange(parameters.0, parameters.1, parameters.2, s)    
-        // | GovernanceVoteRequestComplete(parameters) -> governanceVoteRequestComplete(parameters.0, parameters.1, parameters.2, s)    
     end

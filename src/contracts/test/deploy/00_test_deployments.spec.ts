@@ -115,6 +115,7 @@ describe("Contracts Deployment for Tests", async () => {
 
     emergencyGovernanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"   : mvkToken.contract.address,
+      "doorman"    : doorman.contract.address,
       "governance" : governance.contract.address,
     });
     emergencyGovernance = await EmergencyGovernance.originate(utils.tezos,emergencyGovernanceStorage);
