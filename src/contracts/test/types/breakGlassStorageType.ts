@@ -7,16 +7,13 @@ export type breakGlassStorageType = {
   mvkTokenAddress: string;
   
   config: {};
+  glassBroken         : boolean;
+  councilMembers      : [];
+  developerAddress    : string;
 
-  generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
-  glassBroken: boolean;
+  whitelistContracts  : MichelsonMap<MichelsonMapKey, unknown>;
+  generalContracts    : MichelsonMap<MichelsonMapKey, unknown>;
 
-  councilMembers: [];
-
-  currentActionId: BigNumber;
-  nextActionId: BigNumber;
-
-  actionLedger: MichelsonMap<MichelsonMapKey, unknown>;
-  flushLedger: MichelsonMap<MichelsonMapKey, unknown>;
-  
+  actionsLedger       : MichelsonMap<MichelsonMapKey, unknown>;
+  actionCounter       : BigNumber;
 };

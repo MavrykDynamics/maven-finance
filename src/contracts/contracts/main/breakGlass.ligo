@@ -1,15 +1,25 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
 type configType is record [
     threshold                   : nat;                 // min number of council members who need to agree on action
-    actionExpiryDuration        : nat;                 // action expiry duration in block levels
-    developerAddress            : address;             // developer address
-    emergencyGovernanceAddress  : address;             // emergency governance address
+    actionExpiryDays            : nat;                 // action expiry in number of days
 ]
 
 type councilMembersType is set(address)
 type signersType is set(address)
+
+type updateConfigNewValueType is nat
+type updateConfigActionType is 
+  ConfigThreshold of unit
+| ConfigActionExpiryDays of unit
+type updateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue  : updateConfigNewValueType; 
+  updateConfigAction    : updateConfigActionType;
+]
 
 type actionRecordType is record [
     
@@ -23,8 +33,10 @@ type actionRecordType is record [
 
     address_param_1            : address;
     address_param_2            : address;
+    address_param_3            : address;
     nat_param_1                : nat;
     nat_param_2                : nat;
+    nat_param_3                : nat;
 
     startDateTime              : timestamp;       // timestamp of when action was initiated
     startLevel                 : nat;             // block level of when action was initiated           
@@ -35,31 +47,19 @@ type actionRecordType is record [
 ]
 type actionsLedgerType is big_map(nat, actionRecordType)
 
-type flushRecordType is record [
-    action      : string;              // record action type - e.g. pauseAll, unpauseAll, updateMultiSig, removeBreakGlassControl
-    expired     : nat;                 // action expiry level in block levels
-    threshold   : nat;                 // capture threshold at this point in time
-    flushedBy   : councilMembersType; 
-]
-type flushLedgerType is big_map(nat, flushRecordType)
-
 type storage is record [
     admin                       : address;               // for init of contract - needed?
     mvkTokenAddress             : address;
     
     config                      : configType;
-    
-    generalContracts            : generalContractsType; // map of all contract addresses (e.g. doorman, delegation, vesting)
-    
     glassBroken                 : bool;
-    councilMembers              : councilMembersType;  // set of council member addresses
-    
-    actionsLedger               : actionsLedgerType;    // record of past actions taken by council members
-    flushLedger                 : flushLedgerType;     // for council members to flush current action if required
+    councilMembers              : councilMembersType;        // set of council member addresses
+    developerAddress            : address;                   // developer address
 
-    currentActionId             : nat;                 // current action id -> set to 0 if there is no action currently
-    nextActionId                : nat;                 // index of next action id   
+    whitelistContracts          : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
+    generalContracts            : generalContractsType;      // map of all contract addresses (e.g. doorman, delegation, vesting)
     
+    actionsLedger               : actionsLedgerType;         // record of past actions taken by council members
     actionCounter               : nat;
 ]
 
@@ -68,9 +68,10 @@ type flushActionType is (nat)
 
 type breakGlassAction is 
     | BreakGlass of (unit)
+    | UpdateConfig of updateConfigParamsType    
 
-    // glass broken not required
-    | SetEmergencyGovernanceAddress of (address)      // set emergency governance contract address
+    // glass broken not required (updates through Governance DAO)
+    | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
     
     // Internal control of council members
@@ -101,16 +102,25 @@ function checkSenderIsCouncilMember(var s : storage) : unit is
         else failwith("Only council members can call this entrypoint.");
 
 function checkSenderIsEmergencyGovernanceContract(var s : storage) : unit is
-    if (Tezos.sender = s.config.emergencyGovernanceAddress) then unit
-        else failwith("Only the Emergency Governance Contract can call this entrypoint.");
+block{
+  const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of
+      Some(_address) -> _address
+      | None -> failwith("Error. Emergency Governance Contract is not found.")
+  end;
+  if (Tezos.sender = emergencyGovernanceAddress) then skip
+    else failwith("Error. Only the Emergency Governance Contract can call this entrypoint.");
+} with unit
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
-        else failwith("This entrypoint should not receive any tez.");
+      else failwith("This entrypoint should not receive any tez.");
 
 function checkGlassIsBroken(var s : storage) : unit is
     if s.glassBroken = True then unit
-        else failwith("Error. Glass has not been broken");
+      else failwith("Error. Glass has not been broken");
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
@@ -144,7 +154,6 @@ function setAdminInContract(const contractAddress : address) : contract(address)
   | None -> (failwith("setAdmin entrypoint in Contract Address not found") : contract(address))
   end;
 
-
 function breakGlass(var s : storage) : return is 
 block {
     // Steps Overview:
@@ -157,53 +166,22 @@ block {
 
 } with (noOperations, s)
 
-function setEmergencyGovernanceAddress(const newEmergencyGovernanceAddress : address; var s : storage) : return is 
+(*  updateConfig entrypoint  *)
+function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
 block {
 
-//     Steps Overview:
-//     1. check that sender is a council member
-//     2. check if there is a current action already, if not add a new "setEmergencyGovernanceAddress" action record 
-//     3. add sender to action record's approvedBy set
-//     4. once threshold has been reached, immediately execute action and flush current action id to 0
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  // checkSenderIsAdmin(s); // check that sender is admin
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount 
-    checkSenderIsCouncilMember(s);  // check that sender is council member
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
-    var currentActionId : nat := s.currentActionId; 
-    if currentActionId = 0n then block {
-        // add new action record for updating multisig
-        var newActionRecord : actionRecordType := record [
-            action     = "setEmergencyGovernanceAddress";
-            // expired    = Tezos.level + s.config.actionExpiryDuration; // when tezos.level is fixed
-            expired    = 1n;                        // temp placeholder until tezos.level is fixed
-            threshold  = s.config.threshold;
-            approvedBy = set[Tezos.sender];
-        ];
-        s.actionsLedger[s.nextActionId] := newActionRecord;
-        s.nextActionId := s.nextActionId + 1n;
-    } else block {
-        // check that current action is of addCouncilMember type, if not fail
-        var actionRecord : actionRecordType := case s.actionsLedger[s.currentActionId] of
-            | Some(_record) -> _record
-            | None -> failwith("Error. Action record is not found.")
-        end;
-
-        if actionRecord.action =/= "setEmergencyGovernanceAddress" then failwith("Error. Another action is currently underway.")
-          else skip;
-
-        actionRecord.approvedBy := Set.add(Tezos.sender, actionRecord.approvedBy);
-        s.actionsLedger[s.currentActionId] := actionRecord; 
-
-        // threshold has been reached, so add new council member address to the set of council members in storage
-        if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {
-            s.config.emergencyGovernanceAddress := newEmergencyGovernanceAddress;
-            s.currentActionId := 0n; // reset current action id to 0n since action has been completed
-        } else skip;
-
-    }
+  case updateConfigAction of
+    ConfigThreshold (_v)                  -> s.config.threshold                 := updateConfigNewValue
+  | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
+  end;
 
 } with (noOperations, s)
-
 
 function addCouncilMember(const newCouncilMemberAddress : address; var s : storage) : return is 
 block {
@@ -229,8 +207,10 @@ block {
 
         address_param_1       = newCouncilMemberAddress;  
         address_param_2       = zeroAddress;                 // extra slot for address if needed
+        address_param_3       = zeroAddress;                 // extra slot for address if needed
         nat_param_1           = 0n;
         nat_param_2           = 0n;
+        nat_param_3           = 0n;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -269,8 +249,10 @@ block {
 
         address_param_1       = councilMemberAddress;  
         address_param_2       = zeroAddress;                 // extra slot for address if needed
+        address_param_3       = zeroAddress;                 // extra slot for address if needed
         nat_param_1           = 0n;
         nat_param_2           = 0n;
+        nat_param_3           = 0n;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -309,8 +291,10 @@ block {
 
         address_param_1       = oldCouncilMemberAddress;  
         address_param_2       = newCouncilMemberAddress;           
+        address_param_3       = zeroAddress;           
         nat_param_1           = 0n;
         nat_param_2           = 0n;
+        nat_param_3           = 0n;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -349,8 +333,10 @@ block {
 
         address_param_1       = zeroAddress;     // extra slot for address if needed
         address_param_2       = zeroAddress;     // extra slot for address if needed
+        address_param_3       = zeroAddress;     // extra slot for address if needed
         nat_param_1           = actionId;
         nat_param_2           = 0n;
+        nat_param_3           = 0n;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -368,275 +354,224 @@ block {
 function pauseAllEntrypoints(var s : storage) : return is
 block {
 
-    // Steps Overview:
-    // 1. check that glass has been broken
-    // 2. check if there is a current action already, if not add a new "setAllContractsAdmin" action 
-    // 3. add sender to action record's approvedBy set
-    // 4. once threshold has been reached, immediately execute action and flush current action id to 0
-    //     - send operations to pause all entrypoints (loop over contract addresses in map)
-    
-    checkNoAmount(Unit);            // entrypoint should not receive any tez amount 
+    // Overall steps:
+    // 1. Check that glass has been broken
+    // 2. Check that sender is a council member
+    // 3. Create and save new action record, set the sender as a signer of the action
+    // 4. Increment action counter
+
     checkGlassIsBroken(s);          // check that glass is broken
-    checkSenderIsCouncilMember(s);  // check that sender is council member
+    checkSenderIsCouncilMember(s);
 
-    var operations : list(operation) := nil; // init empty operations
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 
-    var currentActionId : nat := s.currentActionId; 
-    if currentActionId = 0n then block {
-        // add new action record for pausing all entrypoints
-        var newActionRecord : actionRecordType := record [
-            action     = "pauseAllEntrypoints";
-            // expired    = Tezos.level + s.config.actionExpiryDuration; // when tezos.level is fixed
-            expired    = 1n;                        // temp placeholder until tezos.level is fixed
-            threshold  = s.config.threshold;
-            approvedBy = set[Tezos.sender];
-        ];
-        s.actionsLedger[s.nextActionId] := newActionRecord;
-        s.nextActionId := s.nextActionId + 1n;
-    } else block {
-        // check that current action is of pauseAllEntrypoints type, if not fail
-        var actionRecord : actionRecordType := case s.actionsLedger[s.currentActionId] of
-            | Some(_record) -> _record
-            | None -> failwith("Error. Action record is not found.")
-        end;
+    var actionRecord : actionRecordType := record[
 
-        if actionRecord.action =/= "pauseAllEntrypoints" then failwith("Error. Another action is currently underway.")
-          else skip;
+        initiator             = Tezos.sender;
+        status                = "PENDING";
+        actionType            = "pauseAllEntrypoints";
+        executed              = False;
 
-        // add council member to action record's approvedBy set
-        actionRecord.approvedBy := Set.add(Tezos.sender, actionRecord.approvedBy);
-        s.actionsLedger[s.currentActionId] := actionRecord; 
+        signers               = set[Tezos.sender];
+        signersCount          = 1n;
 
-        // threshold has been reached, so release operations to pause all entrypoints in other contracts
-        if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {
-            
-            s.currentActionId := 0n; // reset current action id to 0n since action has been completed
-            for _contractName -> contractAddress in map s.generalContracts block {
-                const pauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
-                    unit, 
-                    0tez, 
-                    pauseAllEntrypointsInContract(contractAddress)
-                );
-                operations := pauseAllEntrypointsInContractOperation # operations;
-            } 
-        } else skip;
+        address_param_1       = zeroAddress;     // extra slot for address if needed
+        address_param_2       = zeroAddress;     // extra slot for address if needed
+        address_param_3       = zeroAddress;     // extra slot for address if needed
+        nat_param_1           = 0n;
+        nat_param_2           = 0n;
+        nat_param_3           = 0n;
 
-    }
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.actionsLedger[s.actionCounter] := actionRecord; 
 
-} with (operations, s)
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
 
 function unpauseAllEntrypoints(var s : storage) : return is
 block {
 
-    // Steps Overview:
-    // 1. check that glass has been broken
-    // 2. send operations to unpause all entrypoints
-    
+    // Overall steps:
+    // 1. Check that glass has been broken
+    // 2. Check that sender is a council member
+    // 3. Create and save new action record, set the sender as a signer of the action
+    // 4. Increment action counter
+
     checkGlassIsBroken(s);          // check that glass is broken
-    checkSenderIsCouncilMember(s);  // check that sender is council member
+    checkSenderIsCouncilMember(s);
 
-    var operations : list(operation) := nil; // init empty operations
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 
-    var currentActionId : nat := s.currentActionId; 
-    if currentActionId = 0n then block {
-        // add new action record for pausing all entrypoints
-        var newActionRecord : actionRecordType := record [
-            action     = "unpauseAllEntrypoints";
-            // expired    = Tezos.level + s.config.actionExpiryDuration; // when tezos.level is fixed
-            expired    = 1n;                        // temp placeholder until tezos.level is fixed
-            threshold  = s.config.threshold;
-            approvedBy = set[Tezos.sender];
-        ];
-        s.actionsLedger[s.nextActionId] := newActionRecord;
-        s.nextActionId := s.nextActionId + 1n;
-    } else block {
-        // check that current action is of pauseAllEntrypoints type, if not fail
-        var actionRecord : actionRecordType := case s.actionsLedger[s.currentActionId] of
-            | Some(_record) -> _record
-            | None -> failwith("Error. Action record is not found.")
-        end;
+    var actionRecord : actionRecordType := record[
 
-        if actionRecord.action =/= "unpauseAllEntrypoints" then failwith("Error. Another action is currently underway.")
-          else skip;
+        initiator             = Tezos.sender;
+        status                = "PENDING";
+        actionType            = "unpauseAllEntrypoints";
+        executed              = False;
 
-        // add council member to action record's approvedBy set
-        actionRecord.approvedBy := Set.add(Tezos.sender, actionRecord.approvedBy);
-        s.actionsLedger[s.currentActionId] := actionRecord; 
+        signers               = set[Tezos.sender];
+        signersCount          = 1n;
 
-        // threshold has been reached, so release operations to pause all entrypoints in other contracts
-        if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {        
-            s.currentActionId := 0n; // reset current action id to 0n since action has been completed
-            for _contractName -> contractAddress in map s.generalContracts block {
-                const unpauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
-                    unit, 
-                    0tez, 
-                    unpauseAllEntrypointsInContract(contractAddress)
-                );
-                operations := unpauseAllEntrypointsInContractOperation # operations;
-            }       
-        } else skip;
+        address_param_1       = zeroAddress;     // extra slot for address if needed
+        address_param_2       = zeroAddress;     // extra slot for address if needed
+        address_param_3       = zeroAddress;     // extra slot for address if needed
+        nat_param_1           = 0n;
+        nat_param_2           = 0n;
+        nat_param_3           = 0n;
 
-    }
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.actionsLedger[s.actionCounter] := actionRecord; 
 
-} with (operations, s)
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
 
 function setSingleContractAdmin(const newAdminAddress : address; const targetContractAddress : address; var s : storage) : return is 
 block {
-    // Steps Overview:
-    // 1. check that glass has been broken
-    // 2. set new admin address of target contract 
-    
+
+    // Overall steps:
+    // 1. Check that glass has been broken
+    // 2. Check that sender is a council member
+    // 3. Create and save new action record, set the sender as a signer of the action
+    // 4. Increment action counter
+
     checkGlassIsBroken(s);          // check that glass is broken
-    checkSenderIsCouncilMember(s);  // check that sender is council member
+    checkSenderIsCouncilMember(s);
 
-    var operations : list(operation) := nil; // init empty operations
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 
-    var currentActionId : nat := s.currentActionId; 
-    if currentActionId = 0n then block {
-        // add new action record for pausing all entrypoints
-        var newActionRecord : actionRecordType := record [
-            action     = "setSingleContractAdmin";
-            // expired    = Tezos.level + s.config.actionExpiryDuration; // when tezos.level is fixed
-            expired    = 1n;                        // temp placeholder until tezos.level is fixed
-            threshold  = s.config.threshold;
-            approvedBy = set[Tezos.sender];
-        ];
-        s.actionsLedger[s.nextActionId] := newActionRecord;
-        s.nextActionId := s.nextActionId + 1n;
+    var actionRecord : actionRecordType := record[
 
-    } else block {
-        // check that current action is of pauseAllEntrypoints type, if not fail
-        var actionRecord : actionRecordType := case s.actionsLedger[s.currentActionId] of
-            | Some(_record) -> _record
-            | None -> failwith("Error. Action record is not found.")
-        end;
+        initiator             = Tezos.sender;
+        status                = "PENDING";
+        actionType            = "setSingleContractAdmin";
+        executed              = False;
 
-        if actionRecord.action =/= "setSingleContractAdmin" then failwith("Error. Another action is currently underway.")
-          else skip;
+        signers               = set[Tezos.sender];
+        signersCount          = 1n;
 
-        // add council member to action record's approvedBy set
-        actionRecord.approvedBy := Set.add(Tezos.sender, actionRecord.approvedBy);
-        s.actionsLedger[s.currentActionId] := actionRecord; 
+        address_param_1       = newAdminAddress;     
+        address_param_2       = targetContractAddress;
+        address_param_3       = zeroAddress;
+        nat_param_1           = 0n;
+        nat_param_2           = 0n;
+        nat_param_3           = 0n;
 
-        // threshold has been reached, so release operations to pause all entrypoints in other contracts
-        if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {            
-            const setSingleContractAdminOperation : operation = Tezos.transaction(
-                newAdminAddress, 
-                0tez, 
-                setAdminInContract(targetContractAddress)
-            );
-            operations := setSingleContractAdminOperation # operations;
-            s.currentActionId := 0n; // reset current action id to 0n since action has been completed
-        } else skip;
-    }
-} with (operations, s)
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.actionsLedger[s.actionCounter] := actionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
 
 function setAllContractsAdmin(const newAdminAddress : address; var s : storage) : return is 
 block {
-    // Steps Overview:
-    // 1. check that glass has been broken
-    // 2. set new admin address of all contracts
-    
-    // check that glass has been broken
-    // checkGlassIsBroken(s)
-    
+
+    // Overall steps:
+    // 1. Check that glass has been broken
+    // 2. Check that sender is a council member
+    // 3. Create and save new action record, set the sender as a signer of the action
+    // 4. Increment action counter
+
     checkGlassIsBroken(s);          // check that glass is broken
-    checkSenderIsCouncilMember(s);  // check that sender is council member
+    checkSenderIsCouncilMember(s);
 
-    var operations : list(operation) := nil; // init empty operations
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 
-    var currentActionId : nat := s.currentActionId; 
-    if currentActionId = 0n then block {
-        // add new action record for pausing all entrypoints
-        var newActionRecord : actionRecordType := record [
-            action     = "setAllContractsAdmin";
-            // expired    = Tezos.level + s.config.actionExpiryDuration; // when tezos.level is fixed
-            expired    = 1n;                        // temp placeholder until tezos.level is fixed
-            threshold  = s.config.threshold;
-            approvedBy = set[Tezos.sender];
-        ];
-        s.actionsLedger[s.nextActionId] := newActionRecord;
-        s.nextActionId := s.nextActionId + 1n;
+    var actionRecord : actionRecordType := record[
 
-    } else block {
-        // check that current action is of pauseAllEntrypoints type, if not fail
-        var actionRecord : actionRecordType := case s.actionsLedger[s.currentActionId] of
-            | Some(_record) -> _record
-            | None -> failwith("Error. Action record is not found.")
-        end;
+        initiator             = Tezos.sender;
+        status                = "PENDING";
+        actionType            = "setAllContractsAdmin";
+        executed              = False;
 
-        if actionRecord.action =/= "setAllContractsAdmin" then failwith("Error. Another action is currently underway.")
-          else skip;
+        signers               = set[Tezos.sender];
+        signersCount          = 1n;
 
-        // add council member to action record's approvedBy set
-        actionRecord.approvedBy := Set.add(Tezos.sender, actionRecord.approvedBy);
-        s.actionsLedger[s.currentActionId] := actionRecord; 
+        address_param_1       = newAdminAddress;     
+        address_param_2       = zeroAddress;
+        address_param_3       = zeroAddress;
+        nat_param_1           = 0n;
+        nat_param_2           = 0n;
+        nat_param_3           = 0n;
 
-        // threshold has been reached, so release operations to set admin in all contracts
-        if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {
-            s.currentActionId := 0n; // reset current action id to 0n since action has been completed
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.actionsLedger[s.actionCounter] := actionRecord; 
 
-            for _contractName -> contractAddress in map s.generalContracts block {
-                const setContractAdminOperation : operation = Tezos.transaction(
-                    newAdminAddress, 
-                    0tez, 
-                    setAdminInContract(contractAddress)
-                );
-                operations := setContractAdminOperation # operations;
-            } 
-            
-        } else skip;
-    }
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
 
-} with (operations, s)
+} with (noOperations, s)
 
 
 function removeBreakGlassControl(var s : storage) : return is 
 block {
-    // Steps Overview:
-    // 1. check that glass has been broken
-    // 2. check sender is council member
-    // 3. remove break glass control - auto call unpauseAll entrypoints just in case? or with a bool to trigger
+
+
+    // Overall steps:
+    // 1. Check that glass has been broken
+    // 2. Check that sender is a council member
+    // 3. Create and save new action record, set the sender as a signer of the action
+    // 4. Increment action counter
 
     checkGlassIsBroken(s);          // check that glass is broken
-    checkSenderIsCouncilMember(s);  // check that sender is council member
+    checkSenderIsCouncilMember(s);
 
-    var currentActionId : nat := s.currentActionId; 
-    if currentActionId = 0n then block {
-        // add new action record for removing break glass control
-        var newActionRecord : actionRecordType := record [
-            action     = "removeBreakGlassControl";
-            // expired    = Tezos.level + s.config.actionExpiryDuration; // when tezos.level is fixed
-            expired    = 1n;                        // temp placeholder until tezos.level is fixed
-            threshold  = s.config.threshold;
-            approvedBy = set[Tezos.sender];
-        ];
-        s.actionsLedger[s.nextActionId] := newActionRecord;
-        s.nextActionId := s.nextActionId + 1n;
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 
-    } else block {
-        // check that current action is of removeBreakGlassControl type, if not fail
-        var actionRecord : actionRecordType := case s.actionsLedger[s.currentActionId] of
-            | Some(_record) -> _record
-            | None -> failwith("Error. Action record is not found.")
-        end;
+    var actionRecord : actionRecordType := record[
 
-        if actionRecord.action =/= "removeBreakGlassControl" then failwith("Error. Another action is currently underway.")
-          else skip;
+        initiator             = Tezos.sender;
+        status                = "PENDING";
+        actionType            = "removeBreakGlassControl";
+        executed              = False;
 
-        // add council member to action record's approvedBy set
-        actionRecord.approvedBy := Set.add(Tezos.sender, actionRecord.approvedBy);
-        s.actionsLedger[s.currentActionId] := actionRecord; 
+        signers               = set[Tezos.sender];
+        signersCount          = 1n;
 
-        // threshold has been reached, so remove break glass control
-        if Set.size(actionRecord.approvedBy) >= actionRecord.threshold then block {
-            s.glassBroken := False;  // remove break glass control - auto call unpauseAll entrypoints just in case? or with a bool to trigger
-            s.currentActionId := 0n; // reset current action id to 0n since action has been completed
-        } else skip;
-    }
+        address_param_1       = zeroAddress;     
+        address_param_2       = zeroAddress;
+        address_param_3       = zeroAddress;
+        nat_param_1           = 0n;
+        nat_param_2           = 0n;
+        nat_param_3           = 0n;
+
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.actionsLedger[s.actionCounter] := actionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
-
 
 
 // function signAction(const actionId: nat; const voteType: nat; var s : storage) : return is 
@@ -651,13 +586,13 @@ block {
     end;
 
     // check if break glass action has been flushed
-    if _actionRecord.status = "FLUSHED" then failwith("Error. Break Glass  action has been flushed") else skip;
+    if _actionRecord.status = "FLUSHED" then failwith("Error. Break Glass action has been flushed") else skip;
 
     // check if break glass action has expired (status check, and block level + timestamp check)
     if _actionRecord.status = "Expired" then failwith("Error. Break Glass action has expired") else skip;
 
     var isExpired : bool := False;
-    if Tezos.now > _councilActionRecord.expirationDateTime then isExpired := True else isExpired := False;
+    if Tezos.now > _actionRecord.expirationDateTime then isExpired := True else isExpired := False;
 
     if isExpired = True then block {
         _actionRecord.status       := "EXPIRED";
@@ -685,15 +620,15 @@ block {
         // flush action type
         if actionType = "flushAction" then block {
 
-            const flushedCouncilActionId : nat = _actionRecord.nat_param_1;
+            const flushedActionId : nat = _actionRecord.nat_param_1;
 
-            var flushedCouncilActionRecord : actionRecordType := case s.actionsLedger[flushedCouncilActionId] of        
+            var flushedActionRecord : actionRecordType := case s.actionsLedger[flushedActionId] of        
                 Some(_record) -> _record
-                | None -> failwith("Error. Council Action not found")
+                | None -> failwith("Error. Action not found")
             end;
 
-            flushedCouncilActionRecord.status := "FLUSHED";
-            s.actionsLedger[flushedCouncilActionId] := flushedCouncilActionRecord;
+            flushedActionRecord.status := "FLUSHED";
+            s.actionsLedger[flushedActionId] := flushedActionRecord;
 
         } else skip;
 
@@ -713,6 +648,60 @@ block {
             s.councilMembers := Set.remove(_actionRecord.address_param_1, s.councilMembers);
         } else skip;
 
+        // pauseAllEntrypoints action type
+        if actionType = "pauseAllEntrypoints" then block {
+            for _contractName -> contractAddress in map s.generalContracts block {
+                const unpauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
+                    unit, 
+                    0tez, 
+                    unpauseAllEntrypointsInContract(contractAddress)
+                );
+                operations := unpauseAllEntrypointsInContractOperation # operations;
+            };      
+        } else skip;
+
+        // unpauseAllEntrypoints action type
+        if actionType = "unpauseAllEntrypoints" then block {
+            for _contractName -> contractAddress in map s.generalContracts block {
+                const unpauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
+                    unit, 
+                    0tez, 
+                    unpauseAllEntrypointsInContract(contractAddress)
+                );
+                operations := unpauseAllEntrypointsInContractOperation # operations;
+            };            
+        } else skip;
+
+        // setSingleContractAdmin action type
+        if actionType = "setSingleContractAdmin" then block {
+            const setSingleContractAdminOperation : operation = Tezos.transaction(
+                _actionRecord.address_param_1, 
+                0tez, 
+                setAdminInContract(_actionRecord.address_param_2)
+            );
+            operations := setSingleContractAdminOperation # operations;
+        } else skip;
+
+        // setAllContractsAdmin action type
+        if actionType = "setAllContractsAdmin" then block {
+            for _contractName -> contractAddress in map s.generalContracts block {
+                const setContractAdminOperation : operation = Tezos.transaction(
+                    _actionRecord.address_param_1, 
+                    0tez, 
+                    setAdminInContract(contractAddress)
+                );
+                operations := setContractAdminOperation # operations;
+            } 
+        } else skip;
+
+        // removeBreakGlassControl action type
+        if actionType = "removeBreakGlassControl" then block {
+            // remove break glass control on contract
+            // ensure settings (entrypoints unpaused, admin reset to governance dao) has been done
+            s.glassBroken := False;  
+        } else skip;
+
+            
         // update break glass action record status
         _actionRecord.status              := "EXECUTED";
         _actionRecord.executed            := True;
@@ -729,14 +718,17 @@ block {
 function main (const action : breakGlassAction; const s : storage) : return is 
     case action of
         | BreakGlass(_parameters) -> breakGlass(s)
+        | UpdateConfig(parameters) -> updateConfig(parameters, s)
 
         // glass broken not required
-        | SetEmergencyGovernanceAddress(parameters) -> setEmergencyGovernanceAddress(parameters, s)
+        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
+
+        // Internal control of council members
         | AddCouncilMember(parameters) -> addCouncilMember(parameters, s)
         | RemoveCouncilMember(parameters) -> removeCouncilMember(parameters, s)
-        | FlushAction(parameters) -> flushAction(parameters, s)
-
+        | ChangeCouncilMember(parameters) -> changeCouncilMember(parameters.0, parameters.1, s)
+        
         // glass broken required
         | SetSingleContractAdmin(parameters) -> setSingleContractAdmin(parameters.0, parameters.1, s)
         | SetAllContractsAdmin(parameters) -> setAllContractsAdmin(parameters, s)
@@ -745,4 +737,5 @@ function main (const action : breakGlassAction; const s : storage) : return is
         | RemoveBreakGlassControl(_parameters) -> removeBreakGlassControl(s)
 
         | SignAction(parameters) -> signAction(parameters, s)
+        | FlushAction(parameters) -> flushAction(parameters, s)
     end
