@@ -4,18 +4,12 @@ import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constan
 import doormanAddress from 'deployments/doormanAddress.json'
 import mvkTokenAddress from 'deployments/mvkTokenAddress.json'
 import { State } from 'reducers'
-import {
-  DoormanBreakGlassConfigType,
-  DoormanStorage,
-  UserStakeBalanceLedger,
-  UserStakeRecord,
-  UserStakeRecordsLedger,
-} from 'reducers/doorman'
+import { DoormanBreakGlassConfigType, DoormanStorage, UserStakeBalanceLedger, UserStakeRecord, UserStakeRecordsLedger } from 'reducers/doorman'
 import { getContractBigmapKeys, getContractStorage } from 'utils/api'
 
-import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
-import { PRECISION_NUMBER } from '../../utils/constants'
 import { MvkTokenStorage } from '../../reducers/mvkToken'
+import { PRECISION_NUMBER } from '../../utils/constants'
+import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {

@@ -14,54 +14,34 @@ export const BecomeSatellite = (props: any) => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { satelliteLedger } = delegationStorage
   const { doormanStorage } = useSelector((state: State) => state.doorman)
-  const userStakeBalanceLedgerInit = doormanStorage?.userStakeBalanceLedger
+  const userStakeBalanceLedger = accountPkh && doormanStorage ? doormanStorage.userStakeBalanceLedger.get(accountPkh) : "0.00"
+
   const minStakedMVKBalance = String(delegationStorage.config?.minimumStakedMvkBalance)
-  const [myTotalStakeBalance, setMyTotalStakeBalance] = useState<string>('0.00')
-  const [usersSatellite, setUsersSatellite] = useState<SatelliteRecord>({
-    address: '',
-    name: '',
-    image: '',
-    description: '',
-    satelliteFee: '',
-    status: false,
-    mvkBalance: '',
-    totalDelegatedAmount: '',
-    registeredDateTime: new Date(),
-    unregisteredDateTime: null,
-  })
-  const userIsSatellite = accountPkh && satelliteLedger ? checkIfUserIsSatellite(accountPkh, satelliteLedger) : false
+  const userSatellite = accountPkh && satelliteLedger ? 
+    getUsersSatelliteIfExists(accountPkh, satelliteLedger) : 
+    {
+      address: '',
+      name: '',
+      image: '',
+      description: '',
+      satelliteFee: '',
+      status: false,
+      mvkBalance: '',
+      totalDelegatedAmount: '',
+      registeredDateTime: new Date(),
+      unregisteredDateTime: null,
+    }
 
   useEffect(() => {
     if (accountPkh) {
       dispatch(getMvkTokenStorage(accountPkh))
       dispatch(getDoormanStorage())
     }
-
     dispatch(getDelegationStorage())
   }, [dispatch, accountPkh])
-
-  useEffect(() => {
-    if (accountPkh) {
-      if (satelliteLedger && userIsSatellite) {
-        setUsersSatellite(getUsersSatelliteIfExists(accountPkh, satelliteLedger))
-      }
-      if (userStakeBalanceLedgerInit) {
-        const userStakeBalanceLedger = userStakeBalanceLedgerInit
-        const stakeBalance = userStakeBalanceLedger.get(accountPkh) || '0.00'
-        setMyTotalStakeBalance(stakeBalance)
-      }
-    }
-  }, [
-    accountPkh,
-    satelliteLedger,
-    userStakeBalanceLedgerInit,
-    delegationStorage.config.minimumStakedMvkBalance,
-    userIsSatellite,
-  ])
 
   const registerCallback = (form: RegisterAsSatelliteForm) => {
     dispatch(registerAsSatellite(form, accountPkh as any))
@@ -76,9 +56,9 @@ export const BecomeSatellite = (props: any) => {
       registerCallback={registerCallback}
       updateSatelliteCallback={updateSatelliteCallback}
       accountPkh={accountPkh}
-      myTotalStakeBalance={myTotalStakeBalance}
+      myTotalStakeBalance={userStakeBalanceLedger}
       minimumStakedMvkBalance={minStakedMVKBalance}
-      usersSatellite={usersSatellite}
+      usersSatellite={userSatellite}
     />
   )
 }
