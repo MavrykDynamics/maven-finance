@@ -245,4 +245,12 @@
     <symbol id="sun" viewBox="0 0 24 24" >
         <path d="M6.76 4.83999L4.96 3.04999L3.55 4.45999L5.34 6.24999L6.76 4.83999ZM1 10.5H4V12.5H1V10.5ZM11 0.549988H13V3.49999H11V0.549988ZM19.04 3.04499L20.448 4.45199L18.658 6.24199L17.251 4.83399L19.04 3.04499ZM17.24 18.16L19.03 19.96L20.44 18.55L18.64 16.76L17.24 18.16ZM20 10.5H23V12.5H20V10.5ZM12 5.49999C8.69 5.49999 6 8.18999 6 11.5C6 14.81 8.69 17.5 12 17.5C15.31 17.5 18 14.81 18 11.5C18 8.18999 15.31 5.49999 12 5.49999ZM12 15.5C9.79 15.5 8 13.71 8 11.5C8 9.28999 9.79 7.49999 12 7.49999C14.21 7.49999 16 9.28999 16 11.5C16 13.71 14.21 15.5 12 15.5ZM11 19.5H13V22.45H11V19.5ZM3.55 18.54L4.96 19.95L6.75 18.15L5.34 16.74L3.55 18.54Z" fill="#171933"/>
     </symbol>
+    <symbol id="arrow" viewBox="0 0 24 24">
+        <g fill="none" fill-rule="evenodd" stroke="#FFF" stroke-width="2"><path stroke-linejoin="round" d="M2 9h16"></path><path d="M10 17L2 9l8-8"></path></g>
+    </symbol>
+    <symbol id="greater-than" viewBox="0 0 24 24">
+            <g fill="none"  clip-path="url(#clip0_2010_4141)">
+                <path d="M1.5 21.7222L10.5 11.5L1.5 1.27779" stroke="#4F457C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+    </symbol>
 </svg>

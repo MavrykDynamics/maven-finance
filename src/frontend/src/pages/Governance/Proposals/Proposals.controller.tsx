@@ -1,28 +1,43 @@
 import { GovernancePhase } from '../../../reducers/governance'
 import { ProposalData } from '../mockProposals'
 import { ProposalsView } from './Proposals.view'
+import { useSelector } from 'react-redux'
+import { State } from '../../../reducers'
 
 type ProposalsProps = {
-  governancePhase: GovernancePhase | 'PROPOSAL_HISTORY'
   proposalsList: Map<string, ProposalData>
   handleItemSelect: (proposalListItem: ProposalData) => void
   selectedProposal: ProposalData
+  isProposalHistory?: boolean
 }
-export const Proposals = ({ governancePhase, proposalsList, handleItemSelect, selectedProposal }: ProposalsProps) => {
+export const Proposals = ({
+  proposalsList,
+  handleItemSelect,
+  selectedProposal,
+  isProposalHistory = false,
+}: ProposalsProps) => {
+  const { governancePhase } = useSelector((state: State) => state.governance)
   let proposalListTitle = '',
-    isProposalPhase = true
+    isProposalPhase = false
   switch (governancePhase) {
     case 'VOTING':
-    case 'TIME_LOCK':
       proposalListTitle = 'Ongoing Proposal'
-      isProposalPhase = false
+      break
+    case 'TIME_LOCK':
+      proposalListTitle = 'Proposal on Timelock'
       break
     case 'PROPOSAL':
       proposalListTitle = 'Poll for next proposal'
+      isProposalPhase = true
       break
     default:
       proposalListTitle = 'Past Proposals'
-      isProposalPhase = false
+      break
+  }
+
+  if (isProposalHistory) {
+    proposalListTitle = 'Past Proposals'
+    isProposalPhase = false
   }
   return (
     <ProposalsView

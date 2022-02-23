@@ -26,12 +26,15 @@ export const MenuStyled = styled.div`
 
 export const MenuTopSection = styled.div`
   position: fixed;
+  display: flex;
+  flex-direction: column;
   top: 0;
   left: 0;
   z-index: 1;
   background-image: url('/images/menu-bg.svg');
   background-position: top left;
   background-repeat: no-repeat;
+  justify-content: space-between;
 `
 export const MenuLogo = styled.img`
   margin: 17px auto 25px auto;
@@ -40,9 +43,6 @@ export const MenuLogo = styled.img`
 `
 
 export const MenuGrid = styled.div`
-  //display: grid;
-  //grid-template-columns: 50px 50px;
-  //grid-gap: 20px 60px;
   display: flex;
   align-items: start;
   flex-direction: column;
@@ -55,10 +55,7 @@ export const MenuBottomSection = styled.div`
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  z-index: 1;
+  margin-top: 50px;
 `
 
 export const MenuBanner = styled.img`

@@ -88,6 +88,7 @@ export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
   font-size: 14px;
   line-height: 31px;
   font-weight: 500;
+  text-align: left;
   color: ${({ theme }) => theme.subTextColor};
 
   ${(props) =>
