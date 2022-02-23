@@ -51,6 +51,13 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     opacity: 0.8;
   }
 
+  &.glassBroken,
+  button:disabled,
+  button[disabled] {
+    border: 1px solid ${({ theme }) => theme.downColor};
+    background-color: ${({ theme }) => theme.containerColor};
+    color: ${({ theme }) => theme.downColor};
+  }
   &.votingFor {
     color: ${({ theme }) => theme.upColor};
     background-color: ${({ theme }) => theme.containerColor};
@@ -112,6 +119,9 @@ export const ButtonIcon = styled.svg<{ theme: MavrykTheme }>`
 
   &.transparent {
     stroke: ${({ theme }) => theme.textColor};
+  }
+  &.glassBroken {
+    stroke: ${({ theme }) => theme.downColor};
   }
 `
 

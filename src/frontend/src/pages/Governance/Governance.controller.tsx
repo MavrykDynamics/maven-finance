@@ -2,20 +2,15 @@ import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect, useState } from 'react'
-import {
-  getBreakGlassStorage,
-  getEmergencyGovernanceStorage,
-  getGovernanceStorage,
-  VoteOnProposal,
-} from './Governance.actions'
+import { getEmergencyGovernanceStorage, getGovernanceStorage, VoteOnProposal } from './Governance.actions'
+import { getDelegationStorage } from '../Satellites/Satellites.actions'
+import { getBreakGlassStorage } from '../BreakGlass/BreakGlass.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-import { CommaNumber } from '../../app/App.components/CommaNumber/CommaNumber.controller'
 import { MOCK_ONGOING_PROPOSAL_LIST, MOCK_PAST_PROPOSAL_LIST, MOCK_PROPOSAL_LIST, ProposalData } from './mockProposals'
-import { Button } from '../../app/App.components/Button/Button.controller'
-import { SUBMIT, TRANSPARENT } from '../../app/App.components/Button/Button.constants'
 import { GovernanceView } from './Governance.view'
+import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
 
 export const Governance = () => {
   const dispatch = useDispatch()
@@ -34,6 +29,8 @@ export const Governance = () => {
     description:
       'Mavryk Governance is at a major crossroads, struggling with how to deploy larger tranches of capital from its treasury with effective oversight.',
     invoiceHash: 'https://ipfs.infura.io/ipfs/bafybeigce6thkldylhsj6iqhfyl6a3mjef6cv2atf25e2nnuof6qdhtfl4',
+    invoiceTable:
+      '{"myrows":[{"Satellite Name":"Satellite A","Satellite Address":"tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb","Purpose":"Code Audit","Amount":"1000","Token":"MVK"},{"Satellite Name":"Satellite B","Satellite Address":"tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6","Purpose":"Implement Code","Amount":"500","Token":"XTZ"}]}',
   })
   const [voteStatistics, setVoteStatistics] = useState({
     forVotes: 51254,
@@ -41,10 +38,14 @@ export const Governance = () => {
     abstainingVotes: 60,
     unusedVotes: 12345,
   })
+
+  let CURRENT_TIME = new Date()
+
   useEffect(() => {
     dispatch(getGovernanceStorage())
     dispatch(getEmergencyGovernanceStorage())
     dispatch(getBreakGlassStorage())
+    dispatch(getDelegationStorage())
   }, [dispatch])
 
   const handleItemSelect = (chosenProposal: ProposalData) => {
@@ -77,6 +78,11 @@ export const Governance = () => {
   return (
     <Page>
       <PageHeader page={'governance'} kind={PRIMARY} loading={loading} />
+      <GovernanceTopBar
+        governancePhase={governancePhase}
+        timeLeftInPhase={CURRENT_TIME}
+        isInEmergencyGovernance={false}
+      />
       <GovernanceView
         ready={ready}
         loading={loading}

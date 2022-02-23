@@ -21,4 +21,10 @@ export const VotingButtonsContainer = styled.div`
   > button {
     width: 30%;
   }
+
+  &.PROPOSAL {
+    > button {
+      width: 40%;
+    }
+  }
 `
