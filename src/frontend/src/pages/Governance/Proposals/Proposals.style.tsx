@@ -1,7 +1,6 @@
 import styled, { css } from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 import { ProposalStatus } from '../mockProposals'
-import { ProgressBarStatus } from '../../../app/App.components/ProgressBar/ProgressBar.constants'
 
 export const ProposalListContainer = styled.div`
   > h1 {

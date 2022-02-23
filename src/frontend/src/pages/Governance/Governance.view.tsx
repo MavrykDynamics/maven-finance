@@ -2,15 +2,19 @@ import {
   GovernanceLeftContainer,
   GovernanceRightContainer,
   GovernanceStyled,
+  GovRightContainerTitleArea,
   RightSideSubContent,
   RightSideSubHeader,
-  RightSideVotingArea,
 } from './Governance.style'
 import { ProposalData } from './mockProposals'
 import * as React from 'react'
 import { GovernancePhase } from '../../reducers/governance'
 import { Proposals } from './Proposals/Proposals.controller'
 import { VotingArea } from './VotingArea/VotingArea.controller'
+import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
+import { useLocation } from 'react-router-dom'
+import { useState } from 'react'
+import { Table } from '../../app/App.components/Table/Table.controller'
 
 type GovernanceViewProps = {
   ready: boolean
@@ -39,34 +43,47 @@ export const GovernanceView = ({
   selectedProposal,
   voteStatistics,
 }: GovernanceViewProps) => {
+  const location = useLocation()
+  const onProposalHistoryPage = location.pathname === '/proposal-history'
   return (
     <GovernanceStyled>
       <GovernanceLeftContainer>
-        {governancePhase === 'VOTING' && (
+        {!onProposalHistoryPage && governancePhase === 'VOTING' && (
           <Proposals
-            governancePhase={'VOTING'}
             proposalsList={ongoingProposals}
             handleItemSelect={handleItemSelect}
             selectedProposal={selectedProposal}
           />
         )}
-        {governancePhase === 'PROPOSAL' && (
+        {!onProposalHistoryPage && governancePhase === 'TIME_LOCK' && (
           <Proposals
-            governancePhase={'PROPOSAL'}
+            proposalsList={ongoingProposals}
+            handleItemSelect={handleItemSelect}
+            selectedProposal={selectedProposal}
+          />
+        )}
+        {!onProposalHistoryPage && governancePhase === 'PROPOSAL' && (
+          <Proposals
             proposalsList={nextProposals}
             handleItemSelect={handleItemSelect}
             selectedProposal={selectedProposal}
           />
         )}
-        <Proposals
-          governancePhase={'PROPOSAL_HISTORY'}
-          proposalsList={pastProposals}
-          handleItemSelect={handleItemSelect}
-          selectedProposal={selectedProposal}
-        />
+        {onProposalHistoryPage && (
+          <Proposals
+            proposalsList={pastProposals}
+            handleItemSelect={handleItemSelect}
+            selectedProposal={selectedProposal}
+            isProposalHistory={true}
+          />
+        )}
       </GovernanceLeftContainer>
       <GovernanceRightContainer>
-        <h1>{selectedProposal.title}</h1>
+        <GovRightContainerTitleArea>
+          <h1>{selectedProposal.title}</h1>
+          <StatusFlag text={selectedProposal.status} status={selectedProposal.status} />
+        </GovRightContainerTitleArea>
+
         <RightSideSubContent id="votingDeadline">Voting ending on September 12th, 05:16 CEST</RightSideSubContent>
         <VotingArea
           ready={ready}
@@ -93,6 +110,7 @@ export const GovernanceView = ({
             <p>Invoice</p>
           </a>
         </div>
+        <Table tableData={selectedProposal.invoiceTable} />
       </GovernanceRightContainer>
     </GovernanceStyled>
   )

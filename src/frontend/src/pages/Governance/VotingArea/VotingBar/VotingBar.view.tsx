@@ -41,12 +41,13 @@ export const VotingBarView = ({
         <Tooltip title={`${forVotes} Yay votes`}>
           <VotingFor width={forVotesWidth} />
         </Tooltip>
-        <Tooltip title={`${abstainingVotes} Abstention votes`}>
-          <VotingAbstention width={abstainingVotesWidth} />
-        </Tooltip>
         <Tooltip title={`${unusedVotes} Unused votes`}>
           <NotYetVoted width={unusedVotesWidth} />
         </Tooltip>
+        <Tooltip title={`${abstainingVotes} Abstention votes`}>
+          <VotingAbstention width={abstainingVotesWidth} />
+        </Tooltip>
+
         <Tooltip title={`${againstVotes} Nay votes`}>
           <VotingAgainst width={againstVotesWidth} />
         </Tooltip>
