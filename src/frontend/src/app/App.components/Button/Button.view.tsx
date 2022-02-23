@@ -13,12 +13,27 @@ type ButtonViewProps = {
   clicked: boolean
   type?: ButtonTypes
   loading: boolean
+  glassBroken?: boolean
 }
 
-export const ButtonView = ({ text, icon, kind, onClick, clickCallback, clicked, type, loading }: ButtonViewProps) => {
+export const ButtonView = ({
+  text,
+  icon,
+  kind,
+  onClick,
+  clickCallback,
+  clicked,
+  type,
+  loading,
+  glassBroken,
+}: ButtonViewProps) => {
   let buttonClasses = kind
   if (clicked) buttonClasses += ' clicked'
   if (loading) buttonClasses += ' loading'
+  if (glassBroken) {
+    buttonClasses += ' glassBroken'
+    kind += ' glassBroken'
+  }
   return (
     <ButtonStyled
       className={buttonClasses}
@@ -27,6 +42,7 @@ export const ButtonView = ({ text, icon, kind, onClick, clickCallback, clicked, 
         onClick && onClick()
       }}
       type={type}
+      disabled={glassBroken}
     >
       <ButtonText>
         {loading ? (
@@ -60,6 +76,7 @@ ButtonView.propTypes = {
   clicked: PropTypes.bool.isRequired,
   type: PropTypes.string,
   loading: PropTypes.bool,
+  glassBroken: PropTypes.bool,
 }
 
 ButtonView.defaultProps = {
@@ -67,4 +84,5 @@ ButtonView.defaultProps = {
   kind: PRIMARY,
   type: BUTTON,
   loading: false,
+  glassBroken: false,
 }

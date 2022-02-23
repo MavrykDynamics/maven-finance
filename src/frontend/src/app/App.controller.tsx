@@ -56,9 +56,6 @@ const AppContainer = () => {
           <Route exact path="/your-vesting">
             <Dashboard />
           </Route>
-          <Route exact path="/dashboard-personal">
-            <Dashboard />
-          </Route>
           <Route exact path="/stake">
             <Doorman />
           </Route>
@@ -74,8 +71,17 @@ const AppContainer = () => {
           <Route exact path="/governance">
             <Governance />
           </Route>
+          <Route exact path="/proposal-history">
+            <Governance />
+          </Route>
           <Route exact path="/break-glass">
             <BreakGlass />
+          </Route>
+          <Route exact path="/emergency-governance">
+            <BreakGlass />
+          </Route>
+          <Route exact path="/mavryk-council">
+            <Governance />
           </Route>
           <ProtectedRoute
             path="/submit-proposal"

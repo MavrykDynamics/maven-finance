@@ -3,11 +3,11 @@ import { MavrykTheme } from '../../styles/interfaces'
 
 export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  margin-top: 15px;
   display: flex;
   width: 100%;
   flex-direction: row;
 `
+
 export const GovernanceRightContainer = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.backgroundColor};
   width: 50%;
@@ -16,21 +16,31 @@ export const GovernanceRightContainer = styled.div<{ theme: MavrykTheme }>`
   border-radius: 10px;
   height: min-content;
 
-  > h1 {
-    color: ${({ theme }) => theme.textColor};
-    font-size: 25px;
-    margin: 0;
-  }
-
   #votingDeadline {
     font-size: 12px;
     font-weight: 600;
     color: ${({ theme }) => theme.subTextColor};
   }
 `
+
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`
   width: 50%;
   margin-right: 10px;
+`
+
+export const GovRightContainerTitleArea = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+  flex-direction: inherit;
+  justify-content: space-between;
+  align-items: center;
+
+  > h1 {
+    color: ${({ theme }) => theme.textColor};
+    font-size: 25px;
+    margin: 0;
+  }
+  > div {
+  }
 `
 
 export const RightSideVotingArea = styled.div<{ theme: MavrykTheme }>`

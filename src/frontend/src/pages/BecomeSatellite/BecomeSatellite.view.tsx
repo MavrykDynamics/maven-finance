@@ -108,7 +108,6 @@ export const BecomeSatelliteView = ({
     dispatch(unregisterAsSatellite())
   }
   const validateForm = () => {
-    console.log(form.fee % 1 === 0)
     const validForm = {
       staked: balanceOk,
       name: form.name.length !== 0 && !/\s/g.test(form.name),
