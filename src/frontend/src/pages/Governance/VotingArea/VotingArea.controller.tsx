@@ -30,11 +30,12 @@ export const VotingArea = ({
   voteStatistics,
 }: VotingAreaProps) => {
   const dispatch = useDispatch()
+  const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { satelliteLedger } = delegationStorage
   const accountPkhIsSatellite =
     satelliteLedger?.filter((satellite: SatelliteRecord) => satellite.address === accountPkh)[0] !== undefined
-  console.log(accountPkhIsSatellite)
+
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
   }
@@ -49,7 +50,7 @@ export const VotingArea = ({
         loading
       />
       <VotingAreaStyled>
-        {!ready && (
+        {!ready && ready && governancePhase !== 'TIME_LOCK' && (
           <>
             <ConnectWalletStyled>
               <NoWalletConnectedButton handleConnect={handleConnect} />
@@ -57,24 +58,44 @@ export const VotingArea = ({
             <CommaNumber value={selectedProposal.votedMVK} endingText={'voted MVK'} />
           </>
         )}
-        {ready && accountPkhIsSatellite && (
+        {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && (
           <VotingButtonsContainer>
-            <Button text={'Vote Yay'} onClick={() => handleVoteForProposal('FOR')} type={SUBMIT} kind={'votingFor'} />
+            <Button
+              text={'Vote Yay'}
+              onClick={() => handleVoteForProposal('FOR')}
+              type={SUBMIT}
+              kind={'votingFor'}
+              loading={loading}
+            />
             <Button
               text={'Vote Abstain'}
               onClick={() => handleVoteForProposal('ABSTAIN')}
               type={SUBMIT}
               kind={'votingAbstain'}
+              loading={loading}
             />
             <Button
               text={'Vote NO'}
               onClick={() => handleVoteForProposal('AGAINST')}
               type={SUBMIT}
               kind={'votingAgainst'}
+              loading={loading}
             />
           </VotingButtonsContainer>
         )}
-        {ready && !accountPkhIsSatellite && (
+        {ready && governancePhase === 'PROPOSAL' && accountPkhIsSatellite && (
+          <VotingButtonsContainer className={governancePhase}>
+            <Button
+              text={'Vote for this Proposal'}
+              onClick={() => handleVoteForProposal('UPVOTE')}
+              type={SUBMIT}
+              kind={'transparent'}
+              loading={loading}
+            />
+            <CommaNumber value={selectedProposal.votedMVK} endingText={'voted MVK'} />
+          </VotingButtonsContainer>
+        )}
+        {ready && (!accountPkhIsSatellite || governancePhase === 'TIME_LOCK') && (
           <VotingButtonsContainer>
             <CommaNumber value={selectedProposal.votedMVK} endingText={'voted MVK'} />
           </VotingButtonsContainer>

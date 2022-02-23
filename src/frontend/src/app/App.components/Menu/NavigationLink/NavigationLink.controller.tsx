@@ -9,7 +9,7 @@ import {
   SubLinkText,
   SubNavLink,
 } from './NavigationLink.style'
-import { SubNavigationLink } from '../../../../styles/interfaces'
+import { SubNavigationRoute } from '../../../../styles/interfaces'
 import useCollapse from 'react-collapsed'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -21,7 +21,7 @@ type NavigationLinkProps = {
   id: number
   path: string
   icon?: string
-  subPages?: SubNavigationLink[]
+  subPages?: SubNavigationRoute[]
   kind?: NavigationLinkStyle
   location: any
   handleToggle: (id: number) => void
@@ -48,7 +48,7 @@ export const NavigationLink = ({
   let navigationLinkClasses = `collapsible .${kind}`
   const iconHref = `/icons/sprites.svg#${icon}`
   const subPagesPaths = [path]
-  subPages?.forEach((subPage: SubNavigationLink, index) => subPagesPaths.push(subPage.subPath))
+  subPages?.forEach((subPage: SubNavigationRoute, index) => subPagesPaths.push(subPage.subPath))
   let mainLinkSelected = location.pathname === path
   if (subPages) mainLinkSelected = subPagesPaths.includes(location.pathname)
 
@@ -77,7 +77,7 @@ export const NavigationLink = ({
           </NavigationLinkItem>
           <div {...getCollapseProps()}>
             <NavigationSubLinks className="content">
-              {subPages.map((subNavLink: SubNavigationLink, index: number) => {
+              {subPages.map((subNavLink: SubNavigationRoute, index: number) => {
                 if (subNavLink.requires) {
                   const { isSatellite, isVestee } = subNavLink.requires
                   let accountIsAuthorized = false
@@ -98,7 +98,7 @@ export const NavigationLink = ({
                       <SubNavLink>
                         <Link to={subNavLink.subPath}>
                           <div />
-                          <SubLinkText selected={location.pathname === subNavLink.subPath}>
+                          <SubLinkText id="navLinkSubTitle" selected={location.pathname === subNavLink.subPath}>
                             {subNavLink.subTitle}
                           </SubLinkText>
                         </Link>
@@ -124,7 +124,7 @@ export const NavigationLink = ({
           </div>
         </NavigationLinkContainer>
       ) : (
-        <NavigationLinkContainer key={id} selected={mainLinkSelected}>
+        <NavigationLinkContainer key={id} selected={mainLinkSelected} onClick={handleClick}>
           <NavigationLinkItem selected={mainLinkSelected}>
             <Link to={path}>
               <NavigationLinkIcon selected={mainLinkSelected} id="navLinkIcon">

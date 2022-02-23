@@ -11,7 +11,7 @@ import {
 } from './Menu.style'
 import * as React from 'react'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
-import { MainNavigationLink } from '../../../styles/interfaces'
+import { MainNavigationRoute } from '../../../styles/interfaces'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
 import { useState } from 'react'
 import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
@@ -62,7 +62,7 @@ export const MenuView = ({
           handleNewConnect={handleNewConnect}
         />
         <MenuGrid>
-          {mainNavigationLinks.map((navigationLink: MainNavigationLink, index: number) => {
+          {mainNavigationLinks.map((navigationLink: MainNavigationRoute, index: number) => {
             return (
               <NavigationLink
                 key={index}
@@ -76,33 +76,32 @@ export const MenuView = ({
             )
           })}
         </MenuGrid>
+        <MenuBottomSection>
+          <MenuBanner src="/images/buy-mvk.svg" alt="buy" />
+          <label>
+            <Toggle
+              defaultChecked={darkThemeEnabled}
+              icons={{
+                checked: (
+                  <ThemeToggleIcon>
+                    <use xlinkHref="/icons/sprites.svg#moon" />
+                  </ThemeToggleIcon>
+                ),
+                unchecked: (
+                  <ThemeToggleIcon>
+                    <use xlinkHref="/icons/sprites.svg#sun" />
+                  </ThemeToggleIcon>
+                ),
+              }}
+              aria-label="Dark mode toggle"
+              onChange={handleToggleTheme}
+            />
+          </label>
+          <MenuFooter>
+            MAVRYK App <p>v1.0</p>
+          </MenuFooter>
+        </MenuBottomSection>
       </MenuTopSection>
-
-      <MenuBottomSection>
-        <MenuBanner src="/images/buy-mvk.svg" alt="buy" />
-        <label>
-          <Toggle
-            defaultChecked={darkThemeEnabled}
-            icons={{
-              checked: (
-                <ThemeToggleIcon>
-                  <use xlinkHref="/icons/sprites.svg#moon" />
-                </ThemeToggleIcon>
-              ),
-              unchecked: (
-                <ThemeToggleIcon>
-                  <use xlinkHref="/icons/sprites.svg#sun" />
-                </ThemeToggleIcon>
-              ),
-            }}
-            aria-label="Dark mode toggle"
-            onChange={handleToggleTheme}
-          />
-        </label>
-        <MenuFooter>
-          MAVRYK App <p>v1.0</p>
-        </MenuFooter>
-      </MenuBottomSection>
     </MenuStyled>
   )
 }
