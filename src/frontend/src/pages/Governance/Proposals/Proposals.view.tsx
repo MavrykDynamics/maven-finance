@@ -2,6 +2,7 @@ import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem, Proposal
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import * as React from 'react'
 import { ProposalData, ProposalStatus } from '../mockProposals'
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -32,13 +33,8 @@ export const ProposalsView = ({
               <h4>{value.title}</h4>
             </ProposalItemLeftSide>
             <div>
-              {isProposalPhase ? (
-                <CommaNumber value={value.votedMVK} endingText={'voted MVK'} />
-              ) : (
-                <ProposalStatusFlag status={value.status || ProposalStatus.DISCOVERY}>
-                  {value.status}
-                </ProposalStatusFlag>
-              )}
+              {isProposalPhase && <CommaNumber value={value.votedMVK} endingText={'voted MVK'} />}
+              {!isProposalPhase && <StatusFlag text={value.status} status={value.status} />}
             </div>
           </ProposalListItem>
         )

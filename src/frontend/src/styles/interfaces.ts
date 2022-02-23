@@ -15,20 +15,22 @@ export interface MavrykTheme {
   selectedColor: string
 }
 
-export interface SubNavigationLink {
+export interface SubNavigationRoute {
   subTitle: string
   subPath: string
+  protectedRoute: boolean
   requires?: {
     isSatellite?: boolean
     isVestee?: boolean
   }
 }
-export interface MainNavigationLink {
+export interface MainNavigationRoute {
   title: string
   id: number
   path: string
   icon: string
-  subPages?: SubNavigationLink[]
+  subPages?: SubNavigationRoute[]
+  protectedRoute: boolean
   requires?: {
     isSatellite?: boolean
     isVestee?: boolean

@@ -28,6 +28,7 @@ export const getEmergencyGovernanceStorage = (accountPkh?: string) => async (dis
 }
 
 export const GET_BREAK_GLASS_STORAGE = 'GET_BREAK_GLASS_STORAGE'
+export const SET_GLASS_BROKEN = 'SET_GLASS_BROKEN'
 export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
@@ -44,6 +45,9 @@ export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: an
   const storage = await (contract as any).storage()
   console.log('Printing out Break Glass storage:\n', storage)
 
+  const glassBroken = await storage.glassBroken
+  dispatch({ type: SET_GLASS_BROKEN, glassBroken: true })
+  console.log(glassBroken)
   dispatch({
     type: GET_BREAK_GLASS_STORAGE,
     breakGlassStorage: storage,
