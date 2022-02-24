@@ -80,7 +80,7 @@ type breakGlassAction is
     // glass broken required
     | SetSingleContractAdmin of (address * address)   // set admin for single contract
     | SetAllContractsAdmin of (address)               // set admin for single contract
-    | PauseAllEntrypoints of (unit)            
+    | PauseAllEntrypoints of (unit)             
     | UnpauseAllEntrypoints of (unit)
     | RemoveBreakGlassControl of (unit)
 
