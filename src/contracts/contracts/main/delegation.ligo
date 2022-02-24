@@ -23,7 +23,7 @@ type registerAsSatelliteCompleteParamsType  is (string * string * string * nat *
 // record for satellites
 type satelliteRecordType is record [
     status                : nat;        // active: 1; inactive: 0; 
-    mvkBalance            : nat;        // bondAmount -> MVK Balance
+    stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
     totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
     
@@ -32,10 +32,8 @@ type satelliteRecordType is record [
     image                 : string;     // ipfs hash
     
     registeredDateTime    : timestamp;  
-    unregisteredDateTime  : timestamp; 
 
     // bondSufficiency       : nat;        // bond sufficiency flag - set to 1 if satellite has enough bond; set to 0 if satellite has not enough bond (over-delegated) when checked on governance action    
-    // map of delegate history - all / past delegates
 ]
 type satelliteLedgerType is big_map (address, satelliteRecordType)
 type getSatelliteVotingPowerParamsType is (address * contract(address * nat * nat))
@@ -177,7 +175,7 @@ function getSatelliteVotingPower(const satelliteAddress : address; const contr :
       None -> failwith("Satellite not found")
     | Some(instance) -> instance
     end;
-  } with (list [transaction((satelliteAddress, satelliteRecord.mvkBalance, satelliteRecord.totalDelegatedAmount), 0tz, contr)], s)
+  } with (list [transaction((satelliteAddress, satelliteRecord.stakedMvkBalance, satelliteRecord.totalDelegatedAmount), 0tz, contr)], s)
 
 (* View function that forwards the satellite voting power and financial request id to the Governance contract *)
 function getSatelliteRequestSnapshot(const satelliteRequestSnapshot : getSatelliteRequestSnapshotType; var s : storage) : return is
@@ -190,7 +188,7 @@ function getSatelliteRequestSnapshot(const satelliteRequestSnapshot : getSatelli
     const requestSatelliteSnapshotParams : requestSatelliteSnapshotType = record [
       satelliteAddress      = satelliteRequestSnapshot.satelliteAddress;
       requestId             = satelliteRequestSnapshot.requestId;
-      stakedMvkBalance      = satelliteRecord.mvkBalance;
+      stakedMvkBalance      = satelliteRecord.stakedMvkBalance;
       totalDelegatedAmount  = satelliteRecord.totalDelegatedAmount;
     ]
 
@@ -260,15 +258,15 @@ function getSatelliteRecord (const satelliteAddress : address; const s : storage
     var satelliteRecord : satelliteRecordType :=
       record [
         status                = 0n;        
-        mvkBalance            = 0n;        
-        // bondSufficiency       = 0n;        
-        registeredDateTime    = Tezos.now;
-        unregisteredDateTime  = Tezos.now;        // no null value available for date time - use current date time as placeholder
+        stakedMvkBalance      = 0n;        
         satelliteFee          = 0n;    
         totalDelegatedAmount  = 0n;
+
         name                  = "Mavryk Satellite";
         description           = "Mavryk Satellite";
         image                 = "";
+
+        registeredDateTime    = Tezos.now;
       ];
 
     case s.satelliteLedger[satelliteAddress] of
@@ -543,7 +541,19 @@ block {
     // check sender is self
     checkSenderIsSelf(Unit);
 
-    var delegateRecord : delegateRecordType := getOrCreateDelegateRecord(Tezos.source, s);
+    // var delegateRecord : delegateRecordType := getOrCreateDelegateRecord(Tezos.source, s);
+    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+
+    var emptyDelegateRecord : delegateRecordType :=
+      record [
+        satelliteAddress  = zeroAddress;
+        delegatedDateTime = Tezos.now; 
+      ];
+
+    var delegateRecord : delegateRecordType := case s.delegateLedger[Tezos.source] of
+      None -> emptyDelegateRecord
+    | Some(_record) -> _record
+    end;
 
     delegateRecord.satelliteAddress := newSatelliteAddress;
 
@@ -551,7 +561,7 @@ block {
 
 } with (noOperations, s)
 
-function delegateToSatelliteComplete(const vMvkBalance : nat; var s : storage) : return is 
+function delegateToSatelliteComplete(const stakedMvkBalance : nat; var s : storage) : return is 
 block {
 
     // check sender is Doorman Contract
@@ -565,7 +575,7 @@ block {
     var satelliteRecord : satelliteRecordType := getSatelliteRecord(delegateRecord.satelliteAddress, s);
 
     // update satellite totalDelegatedAmount balance
-    satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + vMvkBalance; 
+    satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
     
     // update satellite ledger storage with new balance
     s.satelliteLedger[delegateRecord.satelliteAddress] := satelliteRecord;
@@ -589,7 +599,7 @@ block {
 
     var _delegateRecord : delegateRecordType := case s.delegateLedger[Tezos.sender] of
          Some(_val) -> _val
-        | None -> failwith("User address not found in delegateLedger.")
+        | None -> failwith("Error. User address not found in delegateLedger.")
     end;
 
     const doormanAddress : address = case s.generalContracts["doorman"] of
@@ -610,40 +620,52 @@ block {
 } with (operations, s)
 
 
-function undelegateFromSatelliteComplete(const vMvkBalance : nat; var s : storage) : return is 
+function undelegateFromSatelliteComplete(const stakedMvkBalance : nat; var s : storage) : return is 
 block {
 
     // check sender is Doorman Contract
     checkSenderIsDoormanContract(s);
 
     // Retrieve delegate record from storage 
-    var delegateRecord : delegateRecordType := getDelegateRecord(Tezos.source, s);
+    var delegateRecord : delegateRecordType := getDelegateRecord(Tezos.source, s);    
 
-    // Retrieve satellite account from storage
-    var _satelliteRecord : satelliteRecordType := getSatelliteRecord(delegateRecord.satelliteAddress, s);
+    var emptySatelliteRecord : satelliteRecordType :=
+      record [
+        status                = 0n;        
+        stakedMvkBalance      = 0n;       
+        satelliteFee          = 0n;    
+        totalDelegatedAmount  = 0n;
+        
+        name                  = "Empty Satellite";
+        description           = "Empty Satellite";
+        image                 = ""; 
 
-    // check state of satellite (1 or 0) instead of removing satellite completely from ledger
+        registeredDateTime    = Tezos.now;
+      ];
 
-    // check that satellite record exists - e.g. in the edge case that satellite has unregistered
-    if Big_map.mem(delegateRecord.satelliteAddress, s.satelliteLedger) then block{
+    var _satelliteRecord : satelliteRecordType := case s.satelliteLedger[delegateRecord.satelliteAddress] of
+      None -> emptySatelliteRecord
+    | Some(_record) -> _record
+    end;
 
-        // satellite exists
+    if _satelliteRecord.status = 1n then block {
+      // satellite exists
 
-        // check that vMVK balance does not exceed satellite's total delegated amount
-        if vMvkBalance > _satelliteRecord.totalDelegatedAmount then failwith("Error: vMVK balance exceeds satellite's total delegated amount.")
+      // check that vMVK balance does not exceed satellite's total delegated amount
+        if stakedMvkBalance > _satelliteRecord.totalDelegatedAmount then failwith("Error. User's staked MVK balance exceeds satellite's total delegated amount.")
           else skip;
         
         // update satellite totalDelegatedAmount balance
-        _satelliteRecord.totalDelegatedAmount := abs(_satelliteRecord.totalDelegatedAmount - vMvkBalance); 
+        _satelliteRecord.totalDelegatedAmount := abs(_satelliteRecord.totalDelegatedAmount - stakedMvkBalance); 
         
         // update satellite ledger storage with new balance
         s.satelliteLedger[delegateRecord.satelliteAddress] := _satelliteRecord;
 
-        // remove user's address from delegateLedger
-        remove (Tezos.source : address) from map s.delegateLedger
+    } else skip;
 
-    } else failwith("Error: Satellite does not exist.")
-
+    // remove user's address from delegateLedger
+    remove (Tezos.source : address) from map s.delegateLedger;
+    
 } with (noOperations, s)
 
 function updateSatelliteRecord(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : storage) : return is
@@ -742,14 +764,15 @@ block {
     // // add new satellite record
     var newSatelliteRecord : satelliteRecordType := record[            
             status                = 1n;
-            mvkBalance            = satelliteParams.4;
-            registeredDateTime    = Tezos.now;
-            unregisteredDateTime  = Tezos.now;
+            stakedMvkBalance      = satelliteParams.4;
             satelliteFee          = satelliteParams.3;
             totalDelegatedAmount  = 0n;
+
             name                  = satelliteParams.0;
             description           = satelliteParams.1;
             image                 = satelliteParams.2;
+            
+            registeredDateTime    = Tezos.now;
         ];
 
     s.satelliteLedger[Tezos.source] := newSatelliteRecord;
@@ -789,9 +812,10 @@ block {
     end;
 
     // changing of status - to inactive instead of removing
-
-    _checkSatelliteExists.status := 0n;
-    s.satelliteLedger[Tezos.sender] := _checkSatelliteExists;
+    remove (Tezos.sender : address) from map s.satelliteLedger;
+    
+    // _checkSatelliteExists.status := 0n;
+    // s.satelliteLedger[Tezos.sender] := _checkSatelliteExists;
 
     const governanceAddress : address = case s.generalContracts["governance"] of
       Some(_address) -> _address
@@ -836,7 +860,7 @@ block {
             | None -> failwith("Satellite does not exist")
         end;
 
-        var totalMvkBalance : nat := satelliteRecord.mvkBalance;
+        var totalMvkBalance : nat := satelliteRecord.stakedMvkBalance;
 
         if stakeType = 1n then totalMvkBalance := totalMvkBalance + stakeAmount
           else skip;
@@ -855,7 +879,7 @@ block {
         } else skip;
 
         // // save satellite record
-        satelliteRecord.mvkBalance := totalMvkBalance; 
+        satelliteRecord.stakedMvkBalance := totalMvkBalance; 
         s.satelliteLedger[userAddress] := satelliteRecord; 
 
     } else block {
