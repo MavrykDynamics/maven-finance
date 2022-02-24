@@ -18,7 +18,7 @@ type userStakeRecordsType is big_map(address, map(nat, stakeRecordType))
 type userStakeBalanceType is big_map(address, nat)
 
 type burnTokenType is (address * nat)
-type mintTokenType is (address * nat)
+type mintTokenType is (address * nat * string * bool)
 type updateSatelliteBalanceParams is (address * nat * nat)
 
 type breakGlassConfigType is record [
@@ -63,7 +63,7 @@ type return is list (operation) * storage
 type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
 type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
 
-type farmClaimType is (address * nat)
+type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
 type stakeType is 
   StakeAction of unit
@@ -89,7 +89,7 @@ type stakeAction is
     | UnstakeComplete of (nat)
     | DistributeExitFeeReward of (address * nat)
 
-    | FarmClaim of (address * nat)
+    | FarmClaim of farmClaimType
 
 (* ---- Helper functions begin ---- *)
 
@@ -161,10 +161,10 @@ function checkUnstakeIsNotPaused(var s : storage) : unit is
 // helper function to get mint entrypoint from token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
   case (Tezos.get_entrypoint_opt(
-      "%mint",
+      "%mintOrTransferFromTreasury",
       token_address) : option(contract(mintTokenType))) of
     Some(contr) -> contr
-  | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
+  | None -> (failwith("MintOrTransferFromTreasury entrypoint not found") : contract(mintTokenType))
   end;
 
 // helper function to update satellite's balance
@@ -554,7 +554,7 @@ block {
     // var exitFeePoolBalanceInStakeBalanceLedger : nat := exitFeePoolBalanceInStakeBalanceLedger + exitFeeRecord; 
     // s.userStakeBalanceLedger[exitFeePoolAddress] := exitFeePoolBalanceInStakeBalanceLedger;
     
-} with (noOperations, s);
+} with (operations, s);
 
 // ********
 // Pending Alex confirmation of how exit fee distribution will work
@@ -689,6 +689,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     // Get values from parameter
     const delegator: address = farmClaim.0;
     const claimAmount: nat  = farmClaim.1;
+    const forceTransfer: bool = farmClaim.2;
 
     // Get farm address
     const farmAddress: address = Tezos.sender;
@@ -721,10 +722,10 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
         Some(_address) -> _address
         | None -> failwith("Error. MVK Token Contract is not found.")
     end;
-    const mintOperation: operation = Tezos.transaction((Tezos.self_address, claimAmount), 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
+    const mintOrTransferOperation: operation = Tezos.transaction((Tezos.self_address, claimAmount, "farmTreasury", forceTransfer), 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
 
     // List of operation, first check the farm exists, then update the Satellite balance
-    const operations: list(operation) = list[checkFarmOperation;updateSatelliteBalanceOperation;mintOperation];
+    const operations: list(operation) = list[checkFarmOperation;updateSatelliteBalanceOperation;mintOrTransferOperation];
 
     // update user's staked balance in staked balance ledger
     var userBalanceInStakeBalanceLedger : nat := 

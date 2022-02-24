@@ -47,21 +47,23 @@ type farmBreakGlassConfigType is [@layout:comb] record [
 ]
 
 type farmStorage is record[
-    admin                  : address;
-    whitelistContracts     : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    generalContracts       : generalContractsType;
+    admin                   : address;
+    whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
+    generalContracts        : generalContractsType;
 
-    breakGlassConfig       : farmBreakGlassConfigType;
+    breakGlassConfig        : farmBreakGlassConfigType;
 
-    lastBlockUpdate        : nat;
-    accumulatedMVKPerShare : tokenBalance;
-    claimedRewards         : claimedRewards;
-    plannedRewards         : plannedRewards;
-    delegators             : big_map(delegator, delegatorRecord);
-    lpToken                : lpToken;
-    open                   : bool;
-    initBlock              : nat;
-    blocksPerMinute        : nat;
+    lastBlockUpdate         : nat;
+    accumulatedMVKPerShare  : tokenBalance;
+    claimedRewards          : claimedRewards;
+    plannedRewards          : plannedRewards;
+    delegators              : big_map(delegator, delegatorRecord);
+    lpToken                 : lpToken;
+    open                    : bool;
+    infinite                : bool;
+    forceRewardFromTransfer : bool;
+    initBlock               : nat;
+    blocksPerMinute         : nat;
 ]
 
 type farmLpToken is [@layout:comb] record [
@@ -76,8 +78,10 @@ type farmPlannedRewards is [@layout:comb] record [
 ]
 
 type farmStorageType is [@layout:comb] record[
-    plannedRewards         : farmPlannedRewards;
-    lpToken                : farmLpToken;
+    forceRewardFromTransfer : bool;
+    infinite                : bool;
+    plannedRewards          : farmPlannedRewards;
+    lpToken                 : farmLpToken;
 ]
 
 type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
@@ -99,6 +103,7 @@ type initFarmParamsType is record[
 ////
 type breakGlassConfigType is record [
     createFarmIsPaused     : bool;
+    trackFarmIsPaused      : bool;
     untrackFarmIsPaused    : bool;
 ]
 
@@ -137,12 +142,14 @@ type action is
 |   PauseAll of (unit)
 |   UnpauseAll of (unit)
 |   TogglePauseCreateFarm of (unit)
+|   TogglePauseTrackFarm of (unit)
 |   TogglePauseUntrackFarm of (unit)
 
 |   PauseAllFarms of (unit)
 |   UnpauseAllFarms of (unit)
 
 |   CreateFarm of farmStorageType
+|   TrackFarm of address
 |   UntrackFarm of address
 |   CheckFarm of address
 
@@ -194,6 +201,10 @@ function checkCreateFarmIsNotPaused(var s : storage) : unit is
     if s.breakGlassConfig.createFarmIsPaused then failwith("CreateFarm entrypoint is paused.")
     else unit;
 
+function checkTrackFarmIsNotPaused(var s : storage) : unit is
+    if s.breakGlassConfig.trackFarmIsPaused then failwith("TrackFarm entrypoint is paused.")
+    else unit;
+
 function checkUntrackFarmIsNotPaused(var s : storage) : unit is
     if s.breakGlassConfig.untrackFarmIsPaused then failwith("UntrackFarm entrypoint is paused.")
     else unit;
@@ -219,6 +230,9 @@ function pauseAll(var s: storage): return is
         if s.breakGlassConfig.createFarmIsPaused then skip
         else s.breakGlassConfig.createFarmIsPaused := True;
 
+        if s.breakGlassConfig.trackFarmIsPaused then skip
+        else s.breakGlassConfig.trackFarmIsPaused := True;
+
         if s.breakGlassConfig.untrackFarmIsPaused then skip
         else s.breakGlassConfig.untrackFarmIsPaused := True;
 
@@ -231,6 +245,9 @@ function unpauseAll(var s: storage): return is
 
         // set all pause configs to False
         if s.breakGlassConfig.createFarmIsPaused then s.breakGlassConfig.createFarmIsPaused := False
+        else skip;
+
+        if s.breakGlassConfig.trackFarmIsPaused then s.breakGlassConfig.trackFarmIsPaused := False
         else skip;
 
         if s.breakGlassConfig.untrackFarmIsPaused then s.breakGlassConfig.untrackFarmIsPaused := False
@@ -255,6 +272,16 @@ function togglePauseUntrackFarm(var s: storage): return is
 
         if s.breakGlassConfig.untrackFarmIsPaused then s.breakGlassConfig.untrackFarmIsPaused := False
         else s.breakGlassConfig.untrackFarmIsPaused := True;
+
+    } with (noOperations, s)
+
+function togglePauseTrackFarm(var s: storage): return is
+    block {
+        // check that sender is admin
+        checkSenderIsAdmin(s);
+
+        if s.breakGlassConfig.trackFarmIsPaused then s.breakGlassConfig.trackFarmIsPaused := False
+        else s.breakGlassConfig.trackFarmIsPaused := True;
 
     } with (noOperations, s)
 
@@ -333,6 +360,8 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             paid=0n;
             unpaid=0n;
         ];
+        const farmForceRewardFromTransfer: bool = farmStorage.forceRewardFromTransfer;
+        const farmInfinite: bool = farmStorage.infinite;
         const farmTotalRewards: nat = farmStorage.plannedRewards.totalBlocks*farmStorage.plannedRewards.currentRewardPerBlock;
         const farmPlannedRewards: plannedRewards = record[
             totalBlocks=farmStorage.plannedRewards.totalBlocks;
@@ -366,6 +395,8 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             delegators              = farmDelegators;
             lpToken                 = farmLPToken;
             open                    = True ;
+            infinite                = farmInfinite;
+            forceRewardFromTransfer = farmForceRewardFromTransfer;
             initBlock               = Tezos.level;
             blocksPerMinute         = s.blocksPerMinute;
         ];
@@ -387,6 +418,22 @@ function checkFarm (const farmContract: address; const s: storage): return is
         True -> (noOperations, s)
     |   False -> failwith("The provided farm contract does not exist in the createdFarms big_map")
     end
+
+(* TrackFarm entrypoint *)
+function trackFarm (const farmContract: address; var s: storage): return is 
+    block{
+        // Check if Sender is admin
+        checkSenderIsAdmin(s);
+
+        // Break glass check
+        checkTrackFarmIsNotPaused(s);
+
+        s.createdFarms :=
+            case Set.mem(farmContract, s.createdFarms) of
+                True -> (failwith("The provided farm contract already exists in the createdFarms big_map"): set(address))
+            |   False -> Set.add(farmContract, s.createdFarms)
+            end;
+    } with(noOperations, s)
 
 (* UntrackFarm entrypoint *)
 function untrackFarm (const farmContract: address; var s: storage): return is 
@@ -419,12 +466,14 @@ function main (const action: action; var s: storage): return is
     |   PauseAll (_parameters) -> pauseAll(s)
     |   UnpauseAll (_parameters) -> unpauseAll(s)
     |   TogglePauseCreateFarm (_parameters) -> togglePauseCreateFarm(s)
+    |   TogglePauseTrackFarm (_parameters) -> togglePauseTrackFarm(s)
     |   TogglePauseUntrackFarm (_parameters) -> togglePauseUntrackFarm(s)
 
     |   PauseAllFarms (_parameters) -> pauseAllFarms(s)
     |   UnpauseAllFarms (_parameters) -> unpauseAllFarms(s)
 
     |   CreateFarm (params) -> createFarm(params, s)
+    |   TrackFarm (params) -> trackFarm(params, s)
     |   UntrackFarm (params) -> untrackFarm(params, s)
 
     |   CheckFarm (params) -> checkFarm(params, s)

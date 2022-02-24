@@ -60,6 +60,8 @@ type storage is record[
     delegators              : big_map(delegator, delegatorRecord);
     lpToken                 : lpToken;
     open                    : bool;
+    infinite                : bool;
+    forceRewardFromTransfer : bool; // If True, the claimed rewards will be transfered from the farmTreasury account
     initBlock               : nat;
     blocksPerMinute         : nat; // Needs to match the current Tezos block per minute
 ]
@@ -89,14 +91,16 @@ type newTransferType is list(transfer)
 type oldTransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
 
 (* initFarm entrypoint inputs *)
-type initFarmParamsType is record[
+type initFarmParamsType is [@layout:comb] record[
     totalBlocks: nat;
     currentRewardPerBlock: nat;
     blocksPerMinute: nat;
+    forceRewardFromTransfer: bool;
+    infinite: bool;
 ]
 
 (* doorman's farmClaim entrypoint inputs *)
-type farmClaimType is (address * nat)
+type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
 ////
 // ENTRYPOINTS
@@ -105,7 +109,11 @@ type entryAction is
     SetAdmin of (address)
 |   UpdateWhitelistContracts of updateWhitelistContractsParams
 |   UpdateGeneralContracts of updateGeneralContractsParams
+
 |   UpdateBlocksPerMinute of (nat)
+|   IncreaseRewardPerBlock of (nat)
+|   ToggleForceRewardFromTransfer of (bool)
+|   CloseFarm of (unit)
 
 |   PauseAll of (unit)
 |   UnpauseAll of (unit)
@@ -145,7 +153,7 @@ function checkSourceIsAdmin(const s: storage): unit is
   else unit
 
 function checkFarmIsInit(const s: storage): unit is 
-  if s.plannedRewards.currentRewardPerBlock = 0n or s.plannedRewards.totalBlocks = 0n then failwith("This farm has not yet been initiated")
+  if s.plannedRewards.currentRewardPerBlock = 0n or s.plannedRewards.totalRewards = 0n then failwith("This farm has not yet been initiated")
   else unit
 
 ////
@@ -218,6 +226,7 @@ function transferLP(const from_: address; const to_: address; const tokenAmount:
 
 function transferReward(const delegator: delegator; const tokenAmount: tokenBalance; const s: storage): operation is
     block{
+        // Call farmClaim from the doorman contract
         const doormanContractAddress: address = getGeneralContract("doorman",s);
         
         const doormanContract: contract(farmClaimType) =
@@ -226,7 +235,7 @@ function transferReward(const delegator: delegator; const tokenAmount: tokenBala
         |   None -> (failwith("FarmClaim entrypoint not found in Doorman contract"): contract(farmClaimType))
         end;
 
-        const farmClaimParams: farmClaimType = (delegator, tokenAmount);
+        const farmClaimParams: farmClaimType = (delegator, tokenAmount, s.forceRewardFromTransfer);
     } with (Tezos.transaction(farmClaimParams, 0tez, doormanContract))
 
 ////
@@ -236,7 +245,7 @@ function updateBlock(var s: storage): storage is
     block{
         // Close farm is totalBlocks duration has been exceeded
         const lastBlock: nat = s.plannedRewards.totalBlocks + s.initBlock;
-        s.open := Tezos.level <= lastBlock;
+        s.open := Tezos.level <= lastBlock or s.infinite;
 
         // Update lastBlockUpdate in storage
         s.lastBlockUpdate := Tezos.level;
@@ -257,7 +266,7 @@ function updateFarmParameters(var s: storage): storage is
         const totalFarmRewards: tokenBalance = suspectedReward + totalClaimedRewards;
         const totalPlannedRewards: tokenBalance = s.plannedRewards.totalRewards;
         const reward: tokenBalance =
-            case totalFarmRewards > totalPlannedRewards of
+            case totalFarmRewards > totalPlannedRewards and not s.infinite of
                 True -> abs(totalPlannedRewards - totalClaimedRewards)
             |   False -> suspectedReward
             end;
@@ -274,7 +283,7 @@ function updateFarm(var s: storage): storage is
             case s.lpToken.tokenBalance = 0n of
                 True -> updateBlock(s)
             |   False ->
-                    case s.lastBlockUpdate = Tezos.level of
+                    case s.lastBlockUpdate = Tezos.level or not s.open of
                         True -> s
                     |   False -> updateFarmParameters(s)
                     end
@@ -390,6 +399,36 @@ block {
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
+(*  IncreaseRewards entrypoint *)
+function increaseRewardPerBlock(const newRewardPerBlock: nat; var s: storage) : return is
+block {
+    // check that source is admin
+    checkSourceIsAdmin(s);
+
+    // check if farm has been initiated
+    checkFarmIsInit(s);
+
+    // update storage
+    s := updateFarm(s);
+
+    // Check new reward per block
+    const currentRewardPerBlock: nat = s.plannedRewards.currentRewardPerBlock;
+    if currentRewardPerBlock > newRewardPerBlock then failwith("The new reward per block must be higher than the previous one.") else skip;
+
+    // Calculate new total rewards
+    const totalClaimedRewards: nat = s.claimedRewards.unpaid+s.claimedRewards.paid;
+    const remainingBlocks: nat = abs((s.initBlock + s.plannedRewards.totalBlocks) - s.lastBlockUpdate);
+    const newTotalRewards: nat = totalClaimedRewards + remainingBlocks * newRewardPerBlock;
+
+    // Update storage
+    s.plannedRewards.currentRewardPerBlock := newRewardPerBlock;
+    s.plannedRewards.totalRewards := newTotalRewards;
+
+    // update storage
+    s := updateFarm(s);
+
+} with (noOperations, s)
+
 (*  UpdateBlocksPerMinute entrypoint *)
 function updateBlocksPerMinute(const blocksPerMinute: nat; var s: storage) : return is
 block {
@@ -405,7 +444,7 @@ block {
     // Check new blocksPerMinute
     if blocksPerMinute > 0n then skip else failwith("The new block per minute should be greater than zero");
 
-    // Remaining unpaid rewards
+    // Unclaimed rewards
     const totalUnclaimedRewards: nat = abs(s.plannedRewards.totalRewards - (s.claimedRewards.unpaid+s.claimedRewards.paid));
 
     // Updates rewards and total blocks accordingly
@@ -423,6 +462,17 @@ block {
     s := updateFarm(s);
 
 } with (noOperations, s)
+
+(* ToggleForceRewardFromTransfer Entrypoint *)
+function toggleForceRewardFromTransfer(var s: storage): return is
+    block {
+        // check that source is admin
+        checkSourceIsAdmin(s);
+
+        if s.forceRewardFromTransfer then s.forceRewardFromTransfer := False
+        else s.forceRewardFromTransfer := True;
+
+    } with (noOperations, s)
 
 (* Claim Entrypoint *)
 function claim(var s: storage): return is
@@ -554,22 +604,40 @@ function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
         );
     } with(list[operation], s)
 
-(* InitFarm Entrypoint *)
-function initFarm (const initFarmParams: initFarmParamsType; var s: storage): return is
+(* CloseFarm Entrypoint *)
+function closeFarm (var s: storage): return is
     block{
+        // Check sender is admin
         checkSenderIsAdmin(s);
 
-        if s.open then failwith("This farm is already opened you cannot initialize it again") else skip;
+        // Check if farm is open
+        if not s.open then failwith("This farm is not opened so you cannot close it") else skip;
         
         s := updateFarm(s);
     
+        s.open := False ;
+
+    } with (noOperations, s)
+
+(* InitFarm Entrypoint *)
+function initFarm (const initFarmParams: initFarmParamsType; var s: storage): return is
+    block{
+        // Check if sender is admin
+        checkSenderIsAdmin(s);
+
+        // Check if farm is already open
+        if s.open or s.plannedRewards.currentRewardPerBlock =/= 0n or s.plannedRewards.totalRewards =/= 0n then failwith("This farm is already opened you cannot initialize it again") else skip;
+        
+        // Update storage
+        s := updateFarm(s);
         s.initBlock := Tezos.level;
+        s.infinite := initFarmParams.infinite;
+        s.forceRewardFromTransfer := initFarmParams.forceRewardFromTransfer;
         s.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
         s.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
         s.plannedRewards.totalRewards := s.plannedRewards.currentRewardPerBlock * s.plannedRewards.totalBlocks;
         s.blocksPerMinute := initFarmParams.blocksPerMinute;
         s.open := True ;
-
     } with (noOperations, s)
 
 (* Main entrypoint *)
@@ -582,7 +650,11 @@ function main (const action: entryAction; var s: storage): return is
         SetAdmin (parameters) -> setAdmin(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
+
     |   UpdateBlocksPerMinute (parameters) -> updateBlocksPerMinute(parameters, s)
+    |   IncreaseRewardPerBlock (parameters) -> increaseRewardPerBlock(parameters, s)
+    |   ToggleForceRewardFromTransfer (_parameters) -> toggleForceRewardFromTransfer(s)
+    |   CloseFarm (_parameters) -> closeFarm(s)
 
     |   PauseAll (_parameters) -> pauseAll(s)
     |   UnpauseAll (_parameters) -> unpauseAll(s)
@@ -590,9 +662,9 @@ function main (const action: entryAction; var s: storage): return is
     |   TogglePauseWithdraw (_parameters) -> togglePauseWithdraw(s)
     |   TogglePauseClaim (_parameters) -> togglePauseClaim(s)
 
-    |   Deposit (params) -> deposit(params, s)
-    |   Withdraw (params) -> withdraw(params, s)
-    |   Claim (_params) -> claim(s)
-    |   InitFarm (params) -> initFarm(params, s)
+    |   Deposit (parameters) -> deposit(parameters, s)
+    |   Withdraw (parameters) -> withdraw(parameters, s)
+    |   Claim (_parameters) -> claim(s)
+    |   InitFarm (parameters) -> initFarm(parameters, s)
     end
   )

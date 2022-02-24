@@ -10,6 +10,7 @@ export const farmFactoryStorage: farmFactoryStorageType = {
 
   breakGlassConfig: {
     createFarmIsPaused: false,
+    trackFarmIsPaused: false,
     untrackFarmIsPaused: false,
   },
 

@@ -31,6 +31,8 @@ export type farmStorageType = {
     tokenBalance: BigNumber;
   }
   open: Boolean;
+  infinite: Boolean;
+  forceRewardFromTransfer: Boolean;
   initBlock: BigNumber;
   blocksPerMinute: BigNumber;
 };
