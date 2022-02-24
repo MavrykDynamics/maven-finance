@@ -12,8 +12,8 @@ import { mvkStorageType } from '../test/types/mvkTokenStorageType'
 
 export const mvkTokenDecimals = 9
 
-const totalSupply = MVK(100)
-const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
+const totalSupply      = MVK(10000)
+const initialSupply    = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4)
 
 const metadata = MichelsonMap.fromLiteral({

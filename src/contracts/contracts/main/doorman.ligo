@@ -281,6 +281,10 @@ block {
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
+(* getTotalStakedSupply Entrypoint *)
+function getTotalStakedSupply(const getTotalStakedSupplyParams: getTotalStakedSupplyParamsType; const s : storage) : return is
+  (list[Tezos.transaction(s.stakedMvkTotalSupply, 0tez, getTotalStakedSupplyParams)], s)
+
 (* View function that forwards the staked balance of source to a contract *)
 function getStakedBalance (const userAddress : address; const contr : contract(nat); var s : storage) : return is
   block {
@@ -679,6 +683,7 @@ function main (const action : stakeAction; const s : storage) : return is
     | TogglePauseUnstake(_parameters) -> togglePauseUnstake(s)
     | TogglePauseCompound(_parameters) -> togglePauseCompound(s)
 
+    | GetTotalStakedSupply(params) -> getTotalStakedSupply(params, s)
     | GetStakedBalance(params) -> getStakedBalance(params.0, params.1, s)
     | GetSatelliteBalance(params) -> getSatelliteBalance(params.0, params.1, params.2, params.3, params.4, params.5, s)
     
