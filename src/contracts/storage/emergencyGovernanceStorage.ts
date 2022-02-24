@@ -9,8 +9,8 @@ import { zeroAddress } from '../test/helpers/Utils'
 import { emergencyGovernanceStorageType } from '../test/types/emergencyGovernanceStorageType'
 
 const config = {
-  voteDuration: 5760,
-  minStakedMvkPercentageForTrigger: 10000,
+  voteExpiryDays: 3,
+  stakedMvkPercentageRequired: 10000,
   requiredFee: 10000000,
 }
 

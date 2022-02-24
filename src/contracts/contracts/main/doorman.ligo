@@ -769,6 +769,7 @@ function main (const action : doormanAction; const s : storage) : return is
     | TogglePauseUnstake(_parameters) -> togglePauseUnstake(s)
     | TogglePauseCompound(_parameters) -> togglePauseCompound(s)
 
+    | GetTotalStakedSupply(params) -> getTotalStakedSupply(params, s)
     | GetStakedBalance(params) -> getStakedBalance(params.0, params.1, s)
     | GetSatelliteBalance(params) -> getSatelliteBalance(params.0, params.1, params.2, params.3, params.4, params.5, s)
     

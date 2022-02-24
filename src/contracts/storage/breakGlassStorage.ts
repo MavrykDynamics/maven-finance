@@ -10,7 +10,7 @@ import { breakGlassStorageType } from '../test/types/breakGlassStorageType'
 
 const config = {
     threshold                  : 3,
-    actionExpiryDuration       : 5760,
+    actionExpiryDays           : 3,
 }
 
 export const breakGlassStorage: breakGlassStorageType = {
