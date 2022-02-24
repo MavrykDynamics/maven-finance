@@ -10,8 +10,9 @@ import { zeroAddress } from '../test/helpers/Utils'
 
 import { mvkStorageType } from '../test/types/mvkTokenStorageType'
 
-const totalSupply = 1000000000
-const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
+const totalSupply = 1000000000*10**9
+const maximumTotalSupply = new BigNumber(totalSupply)
+const initialSupply = new BigNumber(totalSupply / 10**9) // 1,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4)
 
 const metadata = MichelsonMap.fromLiteral({
@@ -74,6 +75,7 @@ export const mvkStorage: mvkStorageType = {
   token_metadata: token_metadata,
 
   totalSupply: initialSupply,
+  maximumTotalSupply: maximumTotalSupply,
 
   ledger: ledger,
   operators: MichelsonMap.fromLiteral({}),

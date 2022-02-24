@@ -9,6 +9,7 @@ export type farmFactoryStorageType = {
 
   breakGlassConfig: {
     createFarmIsPaused: boolean;
+    trackFarmIsPaused: boolean;
     untrackFarmIsPaused: boolean;
   }
   

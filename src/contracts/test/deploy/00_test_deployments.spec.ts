@@ -184,13 +184,19 @@ describe("Contracts Deployment for Tests", async () => {
     farmStorage.lpToken.tokenStandard = {
       fa2: ""
     };
-      
+    
     farmFA2 = await Farm.originate(
       utils.tezos,
       farmStorage
     );
 
     console.log("fa2 farm contract originated")
+
+    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+    farmStorage.infinite = true
+    farmStorage.lpToken.tokenStandard = {
+      fa12: ""
+    };
     
     farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
       "doorman"  : doorman.contract.address
@@ -210,6 +216,25 @@ describe("Contracts Deployment for Tests", async () => {
     //----------------------------
     // Set remaining contract addresses - post-deployment
     //----------------------------
+
+    // MVK Token Contract - set treasury address
+    const updateGeneralContractsOperation = await mvkToken.contract.methods
+    .updateGeneralContracts("farmTreasury", eve.pkh)
+    .send();
+    await updateGeneralContractsOperation.confirmation();
+    // Give operator access to treasury for MVK Token Contract
+    await signerFactory(eve.sk); //TODO: Treasury should be able to update their operators directly from their contracts
+    const updateOperatorsOperation = await mvkToken.contract.methods.update_operators([
+        {
+            add_operator: {
+                owner: eve.pkh,
+                operator: mvkToken.contract.address,
+                token_id: 0
+            }
+        }
+    ]).send()
+    await updateOperatorsOperation.confirmation();
+    await signerFactory(alice.sk);
 
     // Doorman Contract - set contract addresses [delegation, mvkToken]
     const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods
@@ -339,10 +364,10 @@ describe("Contracts Deployment for Tests", async () => {
       console.log('Vesting Contract deployed at:', vesting.contract.address)
       console.log('Council Contract deployed at:', council.contract.address)
       console.log('Treasury Contract deployed at:', treasury.contract.address)
-        console.log("LP Token Contract deployed at:", lpToken.contract.address);
-        console.log("FA12 Farm Contract deployed at:", farm.contract.address);
-        console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
-        console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
+      console.log("LP Token Contract deployed at:", lpToken.contract.address);
+      console.log("FA12 Farm Contract deployed at:", farm.contract.address);
+      console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
+      console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
     } catch (e) {
       console.log(e)
     }
