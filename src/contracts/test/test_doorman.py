@@ -156,18 +156,22 @@ class DoormanContract(TestCase):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        initialTotalSupply = self.MVK(100)
         previousTotalSupply = init_doorman_storage['tempMvkTotalSupply']
+        previousMaximumTotalSupply = init_doorman_storage['tempMvkMaximumTotalSupply']
         testTotalSupply = self.MVK(9000000)
+        testMaximumTotalSupply = self.MVK(100*10**12)
 
         # Operation
-        res = self.doormanContract.setTempMvkTotalSupply(testTotalSupply).interpret(storage=init_doorman_storage, sender=mvkTokenAddress)
+        res = self.doormanContract.setTempMvkTotalSupply(testTotalSupply,testMaximumTotalSupply).interpret(storage=init_doorman_storage, sender=mvkTokenAddress)
 
         # Check new totak supply
         newTotalSupply = res.storage['tempMvkTotalSupply']
+        newMaximumTotalSupply = res.storage['tempMvkMaximumTotalSupply']
 
-        self.assertEqual(initialTotalSupply, previousTotalSupply)
+        self.assertNotEqual(previousTotalSupply, newTotalSupply)
+        self.assertNotEqual(previousMaximumTotalSupply, newMaximumTotalSupply)
         self.assertEqual(testTotalSupply, newTotalSupply)
+        self.assertEqual(testMaximumTotalSupply, newMaximumTotalSupply)
 
         print('----')
         print('✅ MVK Token contract tries to set doorman new mvk total supply')
@@ -175,25 +179,29 @@ class DoormanContract(TestCase):
         print(previousTotalSupply)
         print('new total supply:')
         print(newTotalSupply)
+        print('previous maximum total supply:')
+        print(previousMaximumTotalSupply)
+        print('new maximum total supply:')
+        print(newMaximumTotalSupply)
 
     def test_11_other_contract_set_total_supply(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
-        initialTotalSupply = self.MVK(100)
         previousTotalSupply = init_doorman_storage['tempMvkTotalSupply']
+        previousMaximumTotalSupply = init_doorman_storage['tempMvkMaximumTotalSupply']
         testTotalSupply = self.MVK(900000)
-        newTotalSupply = self.MVK(100)
+        testMaximumTotalSupply = self.MVK(100*10**12)
+        newTotalSupply = 0
+        newMaximumTotalSupply = 0
 
         # Operation
         with self.raisesMichelsonError(error_only_mvk_can_call):
-            res = self.doormanContract.setTempMvkTotalSupply(testTotalSupply).interpret(storage=init_doorman_storage, sender=alice)
+            res = self.doormanContract.setTempMvkTotalSupply(testTotalSupply,testMaximumTotalSupply).interpret(storage=init_doorman_storage, sender=alice)
 
             # Check new totak supply
             newTotalSupply = res.storage['tempMvkTotalSupply']
-
-        self.assertEqual(initialTotalSupply, previousTotalSupply)
-        self.assertEqual(initialTotalSupply, newTotalSupply)
+            newMaximumTotalSupply = res.storage['tempMvkMaximumTotalSupply']
 
         print('----')
         print('✅ Another contract tries to set doorman new mvk total supply')
@@ -201,6 +209,10 @@ class DoormanContract(TestCase):
         print(previousTotalSupply)
         print('new total supply:')
         print(newTotalSupply)
+        print('previous maximum total supply:')
+        print(previousMaximumTotalSupply)
+        print('new maximum total supply:')
+        print(newMaximumTotalSupply)
 
     ###
     # %pauseAll

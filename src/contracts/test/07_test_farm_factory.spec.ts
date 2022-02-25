@@ -1,5 +1,5 @@
 const { InMemorySigner } = require("@taquito/signer");
-import { Utils } from "./helpers/Utils";
+import { MVK, Utils } from "./helpers/Utils";
 
 const chai = require("chai");
 const assert = require("chai").assert;
@@ -595,8 +595,8 @@ describe("FarmFactory", async () => {
                     const claimIsPausedEnd = farmStorage.breakGlassConfig.claimIsPaused;
                     
                     // Test calls
-                    await chai.expect(farmInstance.methods.deposit(2*10**9).send()).to.be.rejected;
-                    await chai.expect(farmInstance.methods.withdraw(1*10**9).send()).to.be.rejected;
+                    await chai.expect(farmInstance.methods.deposit(MVK(2)).send()).to.be.rejected;
+                    await chai.expect(farmInstance.methods.withdraw(MVK()).send()).to.be.rejected;
                     await chai.expect(farmInstance.methods.claim().send()).to.be.rejected;
 
                     // Assertion

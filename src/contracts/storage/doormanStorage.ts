@@ -22,8 +22,8 @@ export const doormanStorage: doormanStorageType = {
   },
   userStakeBalanceLedger: MichelsonMap.fromLiteral({}),
 
-  tempMvkTotalSupply: new BigNumber(0),
-  tempMvkMaximumTotalSupply: new BigNumber(0),
+  tempMvkTotalSupply: new BigNumber(100),
+  tempMvkMaximumTotalSupply: new BigNumber(10**9),
   stakedMvkTotalSupply: new BigNumber(0),
   unclaimedRewards: new BigNumber(0),
   
