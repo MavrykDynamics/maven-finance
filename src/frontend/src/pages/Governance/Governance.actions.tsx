@@ -1,21 +1,12 @@
 import { State } from '../../reducers'
 import governanceAddress from '../../deployments/governanceAddress.json'
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json'
-import breakGlassAddress from '../../deployments/breakGlassAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
 import { getContractBigmapKeys } from '../../utils/api'
-import { PRECISION_NUMBER } from '../../utils/constants'
-import doormanAddress from '../../deployments/doormanAddress.json'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { HIDE_EXIT_FEE_MODAL } from '../Doorman/ExitFeeModal/ExitFeeModal.actions'
-import {
-  getDoormanStorage,
-  getMvkTokenStorage,
-  UNSTAKE_ERROR,
-  UNSTAKE_REQUEST,
-  UNSTAKE_RESULT,
-} from '../Doorman/Doorman.actions'
+import { GovernanceStorage } from '../../utils/TypesAndInterfaces/Governance'
 
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
 export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -40,17 +31,52 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     governanceAddress.address,
     'financialRequestSnapshotLedger',
   )
-  console.log(
-    storage.activeSatellitesMap,
-    proposalLedgerBigMap,
-    snapshotLedgerBigMap,
-    financialRequestLedgerBigMap,
-    financialRequestSnapshotLedgerBigMap,
-  )
+  const governanceLambdaLedgerBigMap = await getContractBigmapKeys(governanceAddress.address, 'governanceLambdaLedger')
 
+  const governanceStorage: GovernanceStorage = {
+    admin: storage.admin,
+    config: {
+      successReward: storage.config.successReward.toNumber(),
+      minQuorumPercentage: storage.config.minQuorumPercentage,
+      minQuorumMvkTotal: storage.config.minQuorumPercentage,
+      votingPowerRatio: storage.config.votingPowerRatio,
+      proposalSubmissionFee: storage.config.proposalSubmissionFee, // 10 tez
+      minimumStakeReqPercentage: storage.config.minimumStakeReqPercentage, // 0.01% for testing: change to 10,000 later -> 10%
+      maxProposalsPerDelegate: storage.config.maxProposalsPerDelegate,
+      newBlockTimeLevel: storage.config.newBlockTimeLevel,
+      newBlocksPerMinute: storage.config.newBlocksPerMinute,
+      blocksPerMinute: storage.config.blocksPerMinute,
+      blocksPerProposalRound: storage.config.blocksPerProposalRound,
+      blocksPerVotingRound: storage.config.blocksPerVotingRound,
+      blocksPerTimelockRound: storage.config.blocksPerTimelockRound,
+    },
+    whitelistContracts: storage.whitelistContracts,
+    whitelistTokenContracts: storage.whitelistTokenContracts,
+    generalContracts: storage.generalContracts,
+    proposalLedger: proposalLedgerBigMap,
+    snapshotLedger: snapshotLedgerBigMap,
+    activeSatellitesMap: storage.activeSatellitesMap,
+    startLevel: storage.startLevel.toNumber(),
+    nextProposalId: storage.nextProposalId.toNumber(),
+    currentRound: storage.currentRound,
+    currentRoundStartLevel: storage.currentRoundStartLevel.toNumber(),
+    currentRoundEndLevel: storage.currentRoundEndLevel.toNumber(),
+    currentCycleEndLevel: storage.currentCycleEndLevel.toNumber(),
+    currentRoundProposals: storage.currentRoundProposals,
+    currentRoundVotes: storage.currentRoundVotes,
+    currentRoundHighestVotedProposalId: storage.currentRoundHighestVotedProposalId.toNumber(),
+    timelockProposalId: storage.timelockProposalId.toNumber(),
+    snapshotMvkTotalSupply: storage.snapshotMvkTotalSupply.toNumber(),
+    governanceLambdaLedger: governanceLambdaLedgerBigMap,
+    financialRequestLedger: financialRequestLedgerBigMap,
+    financialRequestSnapshotLedger: financialRequestSnapshotLedgerBigMap,
+    financialRequestCounter: storage.financialRequestCounter.toNumber(),
+    tempFlag: storage.tempFlag.toNumber(),
+  }
+  console.log(governanceStorage.currentRound)
   dispatch({
     type: GET_GOVERNANCE_STORAGE,
-    governanceStorage: storage,
+    governanceStorage: governanceStorage,
   })
 }
 
@@ -74,10 +100,6 @@ export const getEmergencyGovernanceStorage = (accountPkh?: string) => async (dis
   console.log('Printing out Emergency Governance storage:\n', storage)
   const currentEmergencyGovernanceId = storage.currentEmergencyGovernanceId
 
-  dispatch({
-    type: SET_EMERGENCY_GOVERNANCE_ACTIVE,
-    emergencyGovActive: currentEmergencyGovernanceId.toNumber() !== 0,
-  })
   dispatch({
     type: SET_EMERGENCY_GOVERNANCE_ACTIVE,
     emergencyGovActive: currentEmergencyGovernanceId.toNumber() !== 0,
