@@ -11,7 +11,7 @@ type userStakeBalanceRecordType is record[
 type userStakeBalanceType is big_map(address, userStakeBalanceRecordType)
 
 type burnTokenType is (address * nat)
-type mintTokenType is (address * nat)
+type mintTokenType is (address * nat * string * bool)
 type updateSatelliteBalanceParams is (address * nat * nat)
 
 type breakGlassConfigType is record [
@@ -62,7 +62,7 @@ type return is list (operation) * storage
 type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
 type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
 
-type farmClaimType is (address * nat)
+type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
 type stakeType is 
   StakeAction of unit
@@ -147,10 +147,10 @@ function checkCompoundIsNotPaused(var s : storage) : unit is
 // helper function to get mint entrypoint from token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
   case (Tezos.get_entrypoint_opt(
-      "%mint",
+      "%mintOrTransferFromTreasury",
       token_address) : option(contract(mintTokenType))) of
     Some(contr) -> contr
-  | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
+  | None -> (failwith("MintOrTransferFromTreasury entrypoint not found") : contract(mintTokenType))
   end;
 
 // helper function to update satellite's balance
@@ -599,6 +599,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     // Get values from parameter
     const delegator: address = farmClaim.0;
     const claimAmount: nat  = farmClaim.1;
+    const forceTransfer: bool = farmClaim.2;
 
     // Get farm address
     const farmAddress: address = Tezos.sender;
@@ -635,29 +636,22 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
         Some(_address) -> _address
         | None -> failwith("Error. MVK Token Contract is not found.")
     end;
-    const mintOperation: operation = Tezos.transaction((Tezos.self_address, claimAmount), 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
+    const mintOrTransferOperation: operation = Tezos.transaction((Tezos.self_address, claimAmount, "farmTreasury", forceTransfer), 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
 
     // List of operation, first check the farm exists, then update the Satellite balance
-    const operations: list(operation) = case userCompound.0 of
-      Some (compoundOperation) -> list[checkFarmOperation;updateSatelliteBalanceOperation;mintOperation;compoundOperation]
-    | None -> list[checkFarmOperation;updateSatelliteBalanceOperation;mintOperation]
-    end;
+    const operations: list(operation) = list[checkFarmOperation;updateSatelliteBalanceOperation;mintOrTransferOperation];
 
     // update user's staked balance in staked balance ledger
-    var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[delegator] of
-      Some (_val) -> _val
-    | None -> record[
-        balance=0n;
-        participationFeesPerShare=s.accumulatedFeesPerShare;
-      ]
-    end;
-
-    userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + claimAmount; 
+    var userBalanceInStakeBalanceLedger : nat := 
+      case s.userStakeBalanceLedger[delegator] of
+          Some(_val) -> _val
+          | None -> 0n
+      end;
+    var userBalanceInStakeBalanceLedger : nat := userBalanceInStakeBalanceLedger + claimAmount; 
     s.userStakeBalanceLedger[delegator] := userBalanceInStakeBalanceLedger;
 
     // update staked MVK total supply
     s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + claimAmount;
-
   } with(operations, s)
 
 (* Main entrypoint *)

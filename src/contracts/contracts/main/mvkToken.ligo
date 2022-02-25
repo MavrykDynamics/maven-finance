@@ -11,6 +11,8 @@ type tokenId is nat;
 type tokenBalance is nat;
 type operator is address
 type owner is address
+type treasury is string
+type forceTransfer is bool
 
 ////
 // STORAGE
@@ -26,15 +28,16 @@ type tokenMetadata is big_map(tokenId, tokenMetadataInfo);
 type metadata is big_map (string, bytes);
 
 type storage is record [
-    admin                 : address;
-    generalContracts      : generalContractsType;    // map of contract addresses
-    whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
-    metadata              : metadata;
-    token_metadata        : tokenMetadata;
-    totalSupply           : tokenBalance;
-    ledger                : ledger;
-    operators             : operators
-  ]
+  admin                 : address;
+  generalContracts      : generalContractsType;    // map of contract addresses
+  whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
+  metadata              : metadata;
+  token_metadata        : tokenMetadata;
+  totalSupply           : tokenBalance;
+  maximumTotalSupply    : tokenBalance;
+  ledger                : ledger;
+  operators             : operators
+]
 
 ////
 // RETURN TYPES
@@ -96,8 +99,8 @@ type getTotalSupplyParams is contract(tokenBalance)
 (* Mint entrypoint inputs *)
 type mintParams is (owner * tokenBalance)
 
-(* Burn entrypoint inputs *)
-type burnParams is (owner * tokenBalance)
+(* MintOrTransferFromTreasury entrypoint inputs *)
+type mintOrTransferFromTreasuryParams is (owner * tokenBalance * treasury * forceTransfer)
 
 (* OnStakeChange entrypoint inputs *)
 type stakeType is 
@@ -118,7 +121,7 @@ type action is
 | AssertMetadata of assertMetadataParams
 | GetTotalSupply of getTotalSupplyParams
 | Mint of mintParams
-| Burn of burnParams
+| MintOrTransferFromTreasury of mintOrTransferFromTreasuryParams
 | OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
 | UpdateGeneralContracts of updateGeneralContractsParams
@@ -298,41 +301,99 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
 (* Mint Entrypoint *)
 function mint(const mintParams: mintParams; const store : storage) : return is
   block {
-    const senderAddress: owner = mintParams.0;
+    const recipientAddress: owner = mintParams.0;
     const mintedTokens: tokenBalance = mintParams.1;
 
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Tezos.sender, store) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+
+    // Check if the minted token exceed the maximumTotalSupply defined in the storage
+    const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
+    if tempTotalSupply > store.maximumTotalSupply then failwith("Maximum total supply of MVK exceeded") else skip;
 
     // Update sender's balance
-    const senderNewBalance: tokenBalance = getBalance(senderAddress, store) + mintedTokens;
+    const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
     const newTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
 
     // Update storage
-    const updatedLedger: ledger = Big_map.update(senderAddress, Some(senderNewBalance), store.ledger);
+    const updatedLedger: ledger = Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
 
-(* Burn Entrypoint *)
-function burn(const burnParams: burnParams; const store: storage) : return is
+(* MintOrTransferFromTreasury Entrypoint *)
+function mintOrTransferFromTreasury(const mintParams: mintOrTransferFromTreasuryParams; var s: storage) : return is
   block {
-    const targetAddress: owner = burnParams.0;
-    const burnedTokens: tokenBalance = burnParams.1;
-    var targetBalance: tokenBalance := getBalance(targetAddress, store);
+    const recipientAddress: owner = mintParams.0;
+    var mintedTokens: tokenBalance := mintParams.1;
+    var transferedToken: tokenBalance := 0n;
+    const treasuryName: string = mintParams.2;
+    const forceTransfer: bool = mintParams.3;
 
-    (* Check this call is comming from the doorman contract *)
-    checkSenderIsDoormanContract(store);
+    // Check sender is from doorman contract or vesting contract - may add treasury contract in future
+    if checkInWhitelistContracts(Tezos.sender, s) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
-    (* Balance check *)
-    checkBalance(targetBalance, burnedTokens);
+    // Get treasury address from name
+    const treasuryAddress: address = 
+      case Map.find_opt(treasuryName, s.generalContracts) of
+        Some (v) -> v
+      | None -> failwith("Treasury contract not found")
+      end;
 
-    (* Update sender balance *)
-    targetBalance := abs(targetBalance - burnedTokens);
-    const newTotalSupply: tokenBalance = abs(store.totalSupply - burnedTokens);
+    // Check if MVK should force the transfer instead of checking the possibility of minting
+    if forceTransfer then {
+      transferedToken := mintedTokens;
+      mintedTokens := 0n;
+    }
+    else {
+      // Check if the desired minted amount will surpass the maximum total supply
+      const tempTotalSupply: tokenBalance = s.totalSupply + mintedTokens;
+      if tempTotalSupply > s.maximumTotalSupply then {
+        transferedToken := abs(tempTotalSupply - s.maximumTotalSupply);
+        mintedTokens := abs(mintedTokens - transferedToken);
+      } else skip;
+    };
 
-    (* Update storage *)
-    const updatedLedger: ledger = Big_map.update(targetAddress, Some(targetBalance), store.ledger);
-  } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
+    // Prepare operation list
+    var operations: list(operation) := noOperations;
 
+    // Mint Tokens
+    if mintedTokens > 0n then {
+      const mintParam: mintParams = (recipientAddress, mintedTokens);
+      const mintEntrypoint: contract(mintParams) =  case (Tezos.get_entrypoint_opt(
+          "%mint",
+          Tezos.self_address) : option(contract(mintParams))) of
+        Some(contr) -> contr
+      | None -> (failwith("Mint entrypoint not found") : contract(mintParams))
+      end;
+      const mintOperation: operation = Tezos.transaction(mintParam, 0tez, mintEntrypoint);
+      operations := mintOperation # operations;
+    } else skip;
+
+    // Transfer from treasury
+    if transferedToken > 0n then {
+      // Check if provided treasury exists
+      const transferParam: transferParams = list[
+        record[
+          from_=treasuryAddress;
+          txs=list[
+            record[
+              to_=recipientAddress;
+              amount=transferedToken;
+              token_id=0n;
+            ]
+          ]
+        ]
+      ];
+      const transferEntrypoint: contract(transferParams) =  case (Tezos.get_entrypoint_opt(
+          "%transfer",
+          Tezos.self_address) : option(contract(transferParams))) of
+        Some(contr) -> contr
+      | None -> (failwith("Transfer entrypoint not found") : contract(transferParams))
+      end;
+      const transferOperation: operation = Tezos.transaction(transferParam, 0tez, transferEntrypoint);
+      operations := transferOperation # operations;
+    } else skip;
+
+  } with (operations, s)
 
 (* OnStakeChange Entrypoint *)
 (* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
@@ -402,7 +463,7 @@ function main (const action : action; const store : storage) : return is
       | AssertMetadata (params) -> assertMetadata(params, store)
       | GetTotalSupply (params) -> getTotalSupply(params, store)
       | Mint (params) -> mint(params, store)
-      | Burn (params) -> burn(params, store)
+      | MintOrTransferFromTreasury (params) -> mintOrTransferFromTreasury(params, store)
       | OnStakeChange (params) -> onStakeChange(params, store)
       | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
