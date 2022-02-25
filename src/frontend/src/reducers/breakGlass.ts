@@ -25,7 +25,7 @@ export interface BreakGlassState {
 
 const breakGlassDefaultState: BreakGlassState = {
   breakGlassStorage: {},
-  glassBroken: true,
+  glassBroken: false,
 }
 
 export function breakGlass(state = breakGlassDefaultState, action: any): BreakGlassState {

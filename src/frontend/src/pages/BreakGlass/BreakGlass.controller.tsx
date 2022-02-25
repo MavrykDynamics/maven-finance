@@ -3,11 +3,12 @@ import { BreakGlassStyled } from './BreakGlass.style'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
 import { useEffect, useState } from 'react'
-import { getBreakGlassStorage, getEmergencyGovernanceStorage } from './BreakGlass.actions'
+import { getBreakGlassStorage } from './BreakGlass.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { BreakGlassView } from './BreakGlass.view'
+import { getEmergencyGovernanceStorage } from '../Governance/Governance.actions'
 
 export const BreakGlass = () => {
   const dispatch = useDispatch()
