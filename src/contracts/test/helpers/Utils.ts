@@ -5,6 +5,8 @@ import { BigNumber } from 'bignumber.js'
 
 import { confirmOperation } from '../../scripts/confirmation'
 
+import mvkTokenDecimals from '../../helpers/mvkTokenDecimals.json';
+
 import env from '../../env'
 
 const defaultNetwork = 'development'
@@ -74,3 +76,8 @@ export class Utils {
 }
 
 export const zeroAddress: string = 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg'
+
+// MVK Formatter
+export const MVK = (value: number = 1) => {
+  return value * 10**parseInt(mvkTokenDecimals.decimals)
+}
