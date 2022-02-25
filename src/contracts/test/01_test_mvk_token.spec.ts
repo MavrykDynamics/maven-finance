@@ -2399,7 +2399,7 @@ describe('MVK Token', async () => {
     })
   })
 
-//   describe('%updateMvkTotalSupplyForDoorman', function () {
+//   describe('%doormanUnstakeStage', function () {
 //     it('Updates Doorman MVK total supply for a known doorman in the token contract', async () => {
 //       try {
 //         // Update operator
@@ -2503,7 +2503,7 @@ describe('MVK Token', async () => {
               {
                 symbol: Buffer.from('MVK').toString('hex'),
                 name: Buffer.from('MAVRYK').toString('hex'),
-                decimals: Buffer.from('6').toString('hex'),
+                decimals: Buffer.from('9').toString('hex'),
                 icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
                 shouldPreferSymbol: true,
                 thumbnailUri: 'https://mavryk.finance/logo192.png',
@@ -2520,210 +2520,210 @@ describe('MVK Token', async () => {
     })
   })
 
-  describe('%mintOrTransferFromTreasury', function () {
-    it('Whitelist should not be able to mint or transfer tokens with a non-existing treasury specified', async () => {
-        try {
-            // Initial values
-            const amountToMint = 5*10**9;
-            const treasuryName = "fakeTreasury";
-            const forceTransfer = false;
-            const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
-            const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    // describe('%mintOrTransferFromTreasury', function () {
+    //     it('Whitelist should not be able to mint or transfer tokens with a non-existing treasury specified', async () => {
+    //         try {
+    //             // Initial values
+    //             const amountToMint = 5*10**9;
+    //             const treasuryName = "fakeTreasury";
+    //             const forceTransfer = false;
+    //             const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
+    //             const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            // Fake a whitelist contract for minting - add
-            const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-            await whitelistOperationAdd.confirmation()
-        
-            // Operation
-            await signerFactory(eve.sk);
-            await chai.expect(tokenInstance.methods.mintOrTransferFromTreasury(
-                alice.pkh,
-                amountToMint,
-                treasuryName,
-                forceTransfer
-            ).send()).to.be.rejected;
+    //             // Fake a whitelist contract for minting - add
+    //             const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+    //             await whitelistOperationAdd.confirmation()
+            
+    //             // Operation
+    //             await signerFactory(eve.sk);
+    //             await chai.expect(tokenInstance.methods.mintOrTransferFromTreasury(
+    //                 alice.pkh,
+    //                 amountToMint,
+    //                 treasuryName,
+    //                 forceTransfer
+    //             ).send()).to.be.rejected;
 
-            // Fake a whitelist contract for minting - remove
-            await signerFactory(alice.sk);
-            const whitelistOperationRemove = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-            await whitelistOperationRemove.confirmation();
+    //             // Fake a whitelist contract for minting - remove
+    //             await signerFactory(alice.sk);
+    //             const whitelistOperationRemove = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+    //             await whitelistOperationRemove.confirmation();
 
-            // Final values
-            tokenStorage = await tokenInstance.storage();
-            const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
-            const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    //             // Final values
+    //             tokenStorage = await tokenInstance.storage();
+    //             const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
+    //             const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            assert.equal(userMVKBalanceEnd, userMVKBalance)
-            assert.equal(mvkTotalSupplyEnd, mvkTotalSupply)
-            assert.equal(treasuryMVKBalanceEnd, treasuryMVKBalance)
-        } catch (e) {
-            console.log(e)
-        }
-    })
+    //             assert.equal(userMVKBalanceEnd, userMVKBalance)
+    //             assert.equal(mvkTotalSupplyEnd, mvkTotalSupply)
+    //             assert.equal(treasuryMVKBalanceEnd, treasuryMVKBalance)
+    //         } catch (e) {
+    //             console.log(e)
+    //         }
+    //     })
 
-    it('Non-whitelist should not be able to mint or transfer tokens', async () => {
-        try {
-            // Initial values
-            const amountToMint = 5*10**9;
-            const treasuryName = "farmTreasury";
-            const forceTransfer = false;
-            const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
-            const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    //     it('Non-whitelist should not be able to mint or transfer tokens', async () => {
+    //         try {
+    //             // Initial values
+    //             const amountToMint = 5*10**9;
+    //             const treasuryName = "farmTreasury";
+    //             const forceTransfer = false;
+    //             const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
+    //             const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            // Operation
-            await signerFactory(bob.sk)
-            await chai.expect(tokenInstance.methods.mintOrTransferFromTreasury(
-                alice.pkh,
-                amountToMint,
-                treasuryName,
-                forceTransfer
-            ).send()).to.be.rejected;
+    //             // Operation
+    //             await signerFactory(bob.sk)
+    //             await chai.expect(tokenInstance.methods.mintOrTransferFromTreasury(
+    //                 alice.pkh,
+    //                 amountToMint,
+    //                 treasuryName,
+    //                 forceTransfer
+    //             ).send()).to.be.rejected;
 
-            // Final values
-            tokenStorage = await tokenInstance.storage();
-            const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
-            const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    //             // Final values
+    //             tokenStorage = await tokenInstance.storage();
+    //             const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
+    //             const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            assert.equal(userMVKBalanceEnd, userMVKBalance)
-            assert.equal(mvkTotalSupplyEnd, mvkTotalSupply)
-            assert.equal(treasuryMVKBalanceEnd, treasuryMVKBalance)
-        } catch (e) {
-            console.log(e)
-        }
-    })
+    //             assert.equal(userMVKBalanceEnd, userMVKBalance)
+    //             assert.equal(mvkTotalSupplyEnd, mvkTotalSupply)
+    //             assert.equal(treasuryMVKBalanceEnd, treasuryMVKBalance)
+    //         } catch (e) {
+    //             console.log(e)
+    //         }
+    //     })
 
-    it('Whitelist should be able to mint tokens', async () => {
-        try {
-            // Initial values
-            const amountToMint = 5*10**9;
-            const treasuryName = "farmTreasury";
-            const forceTransfer = false;
-            const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
-            const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    //     it('Whitelist should be able to mint tokens', async () => {
+    //         try {
+    //             // Initial values
+    //             const amountToMint = 5*10**9;
+    //             const treasuryName = "farmTreasury";
+    //             const forceTransfer = false;
+    //             const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
+    //             const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            // Fake a whitelist contract for minting - add
-            const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-            await whitelistOperationAdd.confirmation()
-        
-            // Operation
-            await signerFactory(eve.sk);
-            const mintOperation = await tokenInstance.methods.mintOrTransferFromTreasury(
-                alice.pkh,
-                amountToMint,
-                treasuryName,
-                forceTransfer
-            ).send();
-            await mintOperation.confirmation();
+    //             // Fake a whitelist contract for minting - add
+    //             const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+    //             await whitelistOperationAdd.confirmation()
+            
+    //             // Operation
+    //             await signerFactory(eve.sk);
+    //             const mintOperation = await tokenInstance.methods.mintOrTransferFromTreasury(
+    //                 alice.pkh,
+    //                 amountToMint,
+    //                 treasuryName,
+    //                 forceTransfer
+    //             ).send();
+    //             await mintOperation.confirmation();
 
-            // Fake a whitelist contract for minting - remove
-            await signerFactory(alice.sk);
-            const whitelistOperationRemove = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-            await whitelistOperationRemove.confirmation();
+    //             // Fake a whitelist contract for minting - remove
+    //             await signerFactory(alice.sk);
+    //             const whitelistOperationRemove = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+    //             await whitelistOperationRemove.confirmation();
 
-            // Final values
-            tokenStorage = await tokenInstance.storage();
-            const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
-            const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    //             // Final values
+    //             tokenStorage = await tokenInstance.storage();
+    //             const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
+    //             const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            assert.notEqual(userMVKBalanceEnd, userMVKBalance)
-            assert.notEqual(mvkTotalSupplyEnd, mvkTotalSupply)
-            assert.equal(treasuryMVKBalanceEnd, treasuryMVKBalance)
-        } catch (e) {
-            console.log(e)
-        }
-    })
+    //             assert.notEqual(userMVKBalanceEnd, userMVKBalance)
+    //             assert.notEqual(mvkTotalSupplyEnd, mvkTotalSupply)
+    //             assert.equal(treasuryMVKBalanceEnd, treasuryMVKBalance)
+    //         } catch (e) {
+    //             console.log(e)
+    //         }
+    //     })
 
-    it('Whitelist should be able to force token transfer from a treasury', async () => {
-        try {
-            // Initial values
-            const amountToMint = 5*10**9;
-            const treasuryName = "farmTreasury";
-            const forceTransfer = true;
-            const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
-            const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    //     it('Whitelist should be able to force token transfer from a treasury', async () => {
+    //         try {
+    //             // Initial values
+    //             const amountToMint = 5*10**9;
+    //             const treasuryName = "farmTreasury";
+    //             const forceTransfer = true;
+    //             const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
+    //             const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            // Fake a whitelist contract for minting - add
-            const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-            await whitelistOperationAdd.confirmation()
-        
-            // Operation
-            await signerFactory(eve.sk);
-            const mintOperation = await tokenInstance.methods.mintOrTransferFromTreasury(
-                alice.pkh,
-                amountToMint,
-                treasuryName,
-                forceTransfer
-            ).send();
-            await mintOperation.confirmation();
+    //             // Fake a whitelist contract for minting - add
+    //             const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+    //             await whitelistOperationAdd.confirmation()
+            
+    //             // Operation
+    //             await signerFactory(eve.sk);
+    //             const mintOperation = await tokenInstance.methods.mintOrTransferFromTreasury(
+    //                 alice.pkh,
+    //                 amountToMint,
+    //                 treasuryName,
+    //                 forceTransfer
+    //             ).send();
+    //             await mintOperation.confirmation();
 
-            // Fake a whitelist contract for minting - remove
-            await signerFactory(alice.sk);
-            const whitelistOperationRemove = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-            await whitelistOperationRemove.confirmation();
+    //             // Fake a whitelist contract for minting - remove
+    //             await signerFactory(alice.sk);
+    //             const whitelistOperationRemove = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+    //             await whitelistOperationRemove.confirmation();
 
-            // Final values
-            tokenStorage = await tokenInstance.storage();
-            const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
-            const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    //             // Final values
+    //             tokenStorage = await tokenInstance.storage();
+    //             const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
+    //             const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            assert.notEqual(userMVKBalanceEnd, userMVKBalance)
-            assert.equal(mvkTotalSupplyEnd, mvkTotalSupply)
-            assert.notEqual(treasuryMVKBalanceEnd, treasuryMVKBalance)
-        } catch (e) {
-            console.log(e)
-        }
-    })
+    //             assert.notEqual(userMVKBalanceEnd, userMVKBalance)
+    //             assert.equal(mvkTotalSupplyEnd, mvkTotalSupply)
+    //             assert.notEqual(treasuryMVKBalanceEnd, treasuryMVKBalance)
+    //         } catch (e) {
+    //             console.log(e)
+    //         }
+    //     })
 
-    it('Entrypoint should split between mint and transfer if the desired amount is greater than the maximum supply', async () => {
-        try {
-            // Initial values
-            const maximumTotalSupply = parseInt(tokenStorage.maximumTotalSupply);
-            const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
-            const amountToMint = 5*10**9 + maximumTotalSupply - mvkTotalSupply;
-            const treasuryName = "farmTreasury";
-            const forceTransfer = false;
-            const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    //     it('Entrypoint should split between mint and transfer if the desired amount is greater than the maximum supply', async () => {
+    //         try {
+    //             // Initial values
+    //             const maximumTotalSupply = parseInt(tokenStorage.maximumTotalSupply);
+    //             const mvkTotalSupply = parseInt(await tokenStorage.totalSupply);
+    //             const amountToMint = 5*10**9 + maximumTotalSupply - mvkTotalSupply;
+    //             const treasuryName = "farmTreasury";
+    //             const forceTransfer = false;
+    //             const userMVKBalance = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const treasuryMVKBalance = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            // Fake a whitelist contract for minting - add
-            const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-            await whitelistOperationAdd.confirmation()
-        
-            // Operation
-            await signerFactory(eve.sk);
-            const mintOperation = await tokenInstance.methods.mintOrTransferFromTreasury(
-                alice.pkh,
-                amountToMint,
-                treasuryName,
-                forceTransfer
-            ).send();
-            await mintOperation.confirmation();
+    //             // Fake a whitelist contract for minting - add
+    //             const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+    //             await whitelistOperationAdd.confirmation()
+            
+    //             // Operation
+    //             await signerFactory(eve.sk);
+    //             const mintOperation = await tokenInstance.methods.mintOrTransferFromTreasury(
+    //                 alice.pkh,
+    //                 amountToMint,
+    //                 treasuryName,
+    //                 forceTransfer
+    //             ).send();
+    //             await mintOperation.confirmation();
 
-            // Fake a whitelist contract for minting - remove
-            await signerFactory(alice.sk);
-            const whitelistOperationRemove = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
-            await whitelistOperationRemove.confirmation();
+    //             // Fake a whitelist contract for minting - remove
+    //             await signerFactory(alice.sk);
+    //             const whitelistOperationRemove = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
+    //             await whitelistOperationRemove.confirmation();
 
-            // Final values
-            tokenStorage = await tokenInstance.storage();
-            const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
-            const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
-            const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
+    //             // Final values
+    //             tokenStorage = await tokenInstance.storage();
+    //             const userMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(alice.pkh));
+    //             const mvkTotalSupplyEnd = parseInt(await tokenStorage.totalSupply);
+    //             const treasuryMVKBalanceEnd = parseInt(await tokenStorage.ledger.get(eve.pkh)); // Eve is currently the treasury set in 00_test_deployments.spec.ts
 
-            assert.equal(userMVKBalanceEnd, userMVKBalance + amountToMint)
-            assert.equal(mvkTotalSupplyEnd, maximumTotalSupply)
-            assert.equal(treasuryMVKBalanceEnd, treasuryMVKBalance - 5*10**9)
-        } catch (e) {
-            console.log(e)
-        }
-    })
-})
+    //             assert.equal(userMVKBalanceEnd, userMVKBalance + amountToMint)
+    //             assert.equal(mvkTotalSupplyEnd, maximumTotalSupply)
+    //             assert.equal(treasuryMVKBalanceEnd, treasuryMVKBalance - 5*10**9)
+    //         } catch (e) {
+    //             console.log(e)
+    //         }
+    //     })
+    // })
 })

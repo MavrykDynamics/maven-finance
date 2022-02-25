@@ -10,8 +10,7 @@ type userStakeBalanceRecordType is record[
 ]
 type userStakeBalanceType is big_map(address, userStakeBalanceRecordType)
 
-type burnTokenType is (address * nat)
-type mintTokenType is (address * nat * string * bool)
+type mintTokenType is (address * nat)
 type updateSatelliteBalanceParams is (address * nat * nat)
 
 type breakGlassConfigType is record [
@@ -35,25 +34,27 @@ type transfer is [@layout:comb] record[
 type transferType is list(transfer)
 
 type storage is record [
-  admin                   : address;
+  admin                     : address;
   
-  minMvkAmount            : nat;
+  minMvkAmount              : nat;
   
-  whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-  generalContracts        : generalContractsType;
+  whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
+  generalContracts          : generalContractsType;
   
-  breakGlassConfig        : breakGlassConfigType;
+  breakGlassConfig          : breakGlassConfigType;
   
-  userStakeBalanceLedger  : userStakeBalanceType;  // user staked balance
+  userStakeBalanceLedger    : userStakeBalanceType;  // user staked balance
   
-  tempMvkTotalSupply      : nat; // temporary mvk total supply in circulation   
-  stakedMvkTotalSupply    : nat; // current total staked MVK
-  unclaimedRewards        : nat; // current exit fee pool rewards
+  tempMvkTotalSupply        : nat; // temporary mvk total supply in circulation
+  tempMvkMaximumTotalSupply : nat; // temporary mvk maximum total supply
 
-  logExitFee              : nat; // to be removed after testing
-  logFinalAmount          : nat; // to be removed after testing
+  stakedMvkTotalSupply      : nat; // current total staked MVK
+  unclaimedRewards          : nat; // current exit fee pool rewards
 
-  accumulatedFeesPerShare : nat;
+  logExitFee                : nat; // to be removed after testing
+  logFinalAmount            : nat; // to be removed after testing
+
+  accumulatedFeesPerShare   : nat;
 ]
 
 const noOperations : list (operation) = nil;
@@ -74,7 +75,7 @@ type doormanAction is
   
   | UpdateWhitelistContracts of updateWhitelistContractsParams
   | UpdateGeneralContracts of updateGeneralContractsParams
-  | SetTempMvkTotalSupply of (nat)
+  | SetTempMvkTotalSupply of (nat*nat) // total supply * maximum total supply
 
   | PauseAll of (unit)
   | UnpauseAll of (unit)
@@ -90,7 +91,8 @@ type doormanAction is
   | UnstakeComplete of (nat)
   | Compound of (unit)
 
-  | FarmClaim of (address * nat)
+  | FarmClaim of farmClaimType
+  | FarmClaimComplete of farmClaimType
 
 (* ---- Helper functions begin ---- *)
 
@@ -147,10 +149,10 @@ function checkCompoundIsNotPaused(var s : storage) : unit is
 // helper function to get mint entrypoint from token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
   case (Tezos.get_entrypoint_opt(
-      "%mintOrTransferFromTreasury",
+      "%mint",
       token_address) : option(contract(mintTokenType))) of
     Some(contr) -> contr
-  | None -> (failwith("MintOrTransferFromTreasury entrypoint not found") : contract(mintTokenType))
+  | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
   end;
 
 // helper function to update satellite's balance
@@ -171,13 +173,22 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
   | None -> (failwith("transfer entrypoint in Token Contract not found") : contract(transferType))
   end;
 
-// helper function to get MVK total supply
-function updateMvkTotalSupplyForDoorman(const tokenAddress : address) : contract(nat) is
+// helper function to get MVK total supply for unstake
+function doormanUnstakeStage(const tokenAddress : address) : contract(nat) is
   case (Tezos.get_entrypoint_opt(
-      "%updateMvkTotalSupplyForDoorman",
+      "%doormanUnstakeStage",
       tokenAddress) : option(contract(nat))) of
     Some(contr) -> contr
-  | None -> (failwith("UpdateMvkTotalSupplyForDoorman entrypoint in MVK Token Contract not found") : contract(nat))
+  | None -> (failwith("DoormanUnstakeStage entrypoint in MVK Token Contract not found") : contract(nat))
+  end;
+
+// helper function to get MVK total supply for farmClaim
+function doormanFarmClaimStage(const tokenAddress : address) : contract(farmClaimType) is
+  case (Tezos.get_entrypoint_opt(
+      "%doormanFarmClaimStage",
+      tokenAddress) : option(contract(farmClaimType))) of
+    Some(contr) -> contr
+  | None -> (failwith("DoormanFarmClaimStage entrypoint in MVK Token Contract not found") : contract(farmClaimType))
   end;
 
 (* ---- Helper functions end ---- *)
@@ -482,7 +493,7 @@ block {
   end;
 
   // update temp MVK total supply
-  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, updateMvkTotalSupplyForDoorman(mvkTokenAddress));
+  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, doormanUnstakeStage(mvkTokenAddress));
 
   // list of operations: get MVK total supply first, then get vMVK total supply (which will trigger unstake complete)
   const operations : list(operation) = 
@@ -492,11 +503,12 @@ block {
     end
 } with (operations, s)
 
-function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
+function setTempMvkTotalSupply(const supplyParams : (nat*nat); var s : storage) is
 block {
     // check that the call is coming from MVK Token Contract
     checkSenderIsMvkTokenContract(s);
-    s.tempMvkTotalSupply := totalSupply;
+    s.tempMvkTotalSupply := supplyParams.0;
+    s.tempMvkMaximumTotalSupply := supplyParams.1;
 } with (noOperations, s);
 
 function unstakeComplete(const unstakeAmount: nat; var s : storage): return is
@@ -604,10 +616,6 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     // Get farm address
     const farmAddress: address = Tezos.sender;
 
-    // Compound user rewards
-    const userCompound: (option(operation) * storage) = compoundUserRewards(s);
-    s := userCompound.1;
-
     // Check if farm address is known to the farmFactory
     const farmFactoryAddress: address = case Map.find_opt("farmFactory", s.generalContracts) of
         Some(_address) -> _address
@@ -620,38 +628,112 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
       end;
     const checkFarmOperation: operation = Tezos.transaction(farmAddress, 0tez, farmFactoryContract);
 
-    // Update the delegation balance
-    const delegationAddress : address = case s.generalContracts["delegation"] of
-        Some(_address) -> _address
-        | None -> failwith("Error. Delegation Contract is not found.")
-    end;
-    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (delegator, claimAmount, 1n),
-      0tez,
-      updateSatelliteBalance(delegationAddress)
-    );
-
     // Mint new MVK for the doorman contract: TODO --> Check for minting limit
     const mvkTokenAddress: address = case Map.find_opt("mvkToken", s.generalContracts) of
         Some(_address) -> _address
         | None -> failwith("Error. MVK Token Contract is not found.")
     end;
-    const mintOrTransferOperation: operation = Tezos.transaction((Tezos.self_address, claimAmount, "farmTreasury", forceTransfer), 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
+    const doormanFarmClaimStageOperation: operation = Tezos.transaction((delegator, claimAmount, forceTransfer), 0tez, doormanFarmClaimStage(mvkTokenAddress));
 
     // List of operation, first check the farm exists, then update the Satellite balance
-    const operations: list(operation) = list[checkFarmOperation;updateSatelliteBalanceOperation;mintOrTransferOperation];
+    const operations: list(operation) = list[checkFarmOperation;doormanFarmClaimStageOperation];
+
+  } with(operations, s)
+
+function farmClaimComplete(const farmClaim: farmClaimType; var s: storage): return is
+  block{
+    checkSenderIsMvkTokenContract(s);
+
+    const recipientAddress: address = farmClaim.0;
+    var mintedTokens: nat := farmClaim.1;
+    var transferedToken: nat := 0n;
+    const forceTransfer: bool = farmClaim.2;
+
+    // Compound user rewards
+    const userCompound: (option(operation) * storage) = compoundUserRewards(s);
+    s := userCompound.1;
+
+    // Update the delegation balance
+    const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of
+        Some(_address) -> _address
+        | None -> failwith("Error. Delegation Contract is not found.")
+    end;
+    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+      (recipientAddress, mintedTokens, 1n),
+      0tez,
+      updateSatelliteBalance(delegationAddress)
+    );
 
     // update user's staked balance in staked balance ledger
-    var userBalanceInStakeBalanceLedger : nat := 
-      case s.userStakeBalanceLedger[delegator] of
-          Some(_val) -> _val
-          | None -> 0n
-      end;
-    var userBalanceInStakeBalanceLedger : nat := userBalanceInStakeBalanceLedger + claimAmount; 
-    s.userStakeBalanceLedger[delegator] := userBalanceInStakeBalanceLedger;
+    var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[recipientAddress] of
+      Some (_val) -> _val
+    | None -> record[
+        balance=0n;
+        participationFeesPerShare=s.accumulatedFeesPerShare;
+      ]
+    end;
+
+    userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + mintedTokens; 
+    s.userStakeBalanceLedger[recipientAddress] := userBalanceInStakeBalanceLedger;
 
     // update staked MVK total supply
-    s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + claimAmount;
+    s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + mintedTokens;
+
+    // Get treasury address from name
+    const treasuryAddress: address = case Map.find_opt("farmTreasury", s.generalContracts) of
+      Some (v) -> v
+    | None -> failwith("Error. Farm treasury contract not found")
+    end;
+
+    // Check if MVK should force the transfer instead of checking the possibility of minting
+    if forceTransfer then {
+      transferedToken := mintedTokens;
+      mintedTokens := 0n;
+    }
+    else {
+      // Check if the desired minted amount will surpass the maximum total supply
+      const tempTotalSupply: nat = s.tempMvkTotalSupply + mintedTokens;
+      if tempTotalSupply > s.tempMvkMaximumTotalSupply then {
+        transferedToken := abs(tempTotalSupply - s.tempMvkMaximumTotalSupply);
+        mintedTokens := abs(mintedTokens - transferedToken);
+      } else skip;
+    };
+
+    // Prepare operation list
+    var operations: list(operation) := list[updateSatelliteBalanceOperation];
+
+    // Get MVK Token address
+    const mvkTokenAddress: address = Tezos.sender;
+
+    // Mint Tokens
+    if mintedTokens > 0n then {
+      const mintParam: mintTokenType = (recipientAddress, mintedTokens);
+      const mintOperation: operation = Tezos.transaction(mintParam, 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
+      operations := mintOperation # operations;
+    } else skip;
+
+    // Transfer from treasury
+    if transferedToken > 0n then {
+      // Check if provided treasury exists
+      const transferParam: transferType = list[
+        record[
+          from_=treasuryAddress;
+          txs=list[
+            record[
+              to_=recipientAddress;
+              amount=transferedToken;
+              token_id=0n;
+            ]
+          ]
+        ]
+      ];
+      const transferOperation: operation = Tezos.transaction(
+        transferParam,
+        0tez,
+        getTransferEntrypointFromTokenAddress(mvkTokenAddress)
+      );
+      operations := transferOperation # operations;
+    } else skip;
   } with(operations, s)
 
 (* Main entrypoint *)
@@ -683,6 +765,7 @@ function main (const action : doormanAction; const s : storage) : return is
     | Compound(_parameters) -> compound(s)
 
     | FarmClaim(parameters) -> farmClaim(parameters, s)
+    | FarmClaimComplete(parameters) -> farmClaimComplete(parameters, s)
     
     end
   )
