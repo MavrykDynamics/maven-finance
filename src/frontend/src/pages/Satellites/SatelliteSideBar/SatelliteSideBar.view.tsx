@@ -1,10 +1,9 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
-import { Link } from 'react-router-dom'
 
 import { FAQLink, SatelliteSideBarStyled, SideBarSection } from './SatelliteSideBar.style'
+import { RoutingButton } from '../../../app/App.components/RoutingButton/RoutingButton.controller'
 
 type SatelliteSideBarProps = {
   userIsSatellite: boolean
@@ -18,15 +17,21 @@ export const SatelliteSideBarView = ({
 }: SatelliteSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
-      {userIsSatellite ? (
-        <Link to={{ pathname: `/become-satellite`, userIsSatellite }}>
-          <Button icon="satellite" text="Edit Satellite Profile" />
-        </Link>
-      ) : (
-        <Link to="/become-satellite">
-          <Button icon="satellite" text="Become a Satellite" />
-        </Link>
-      )}
+      <RoutingButton
+        icon="satellite"
+        text={userIsSatellite ? 'Edit Satellite Profile' : 'Become a Satellite'}
+        pathName={`/become-satellite`}
+        pathParams={{ userIsSatellite: userIsSatellite }}
+      />
+      {/*{userIsSatellite ? (*/}
+      {/*  <Link to={{ pathname: `/become-satellite`, userIsSatellite }}>*/}
+      {/*    <Button icon="satellite" text="Edit Satellite Profile" />*/}
+      {/*  </Link>*/}
+      {/*) : (*/}
+      {/*  <Link to="/become-satellite">*/}
+      {/*    <Button icon="satellite" text="Become a Satellite" />*/}
+      {/*  </Link>*/}
+      {/*)}*/}
 
       <br />
       <SideBarSection>

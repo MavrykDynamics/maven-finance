@@ -4,29 +4,6 @@ import breakGlassAddress from '../../deployments/breakGlassAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
 import { getContractBigmapKeys } from '../../utils/api'
 
-export const GET_EMERGENCY_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
-export const getEmergencyGovernanceStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
-
-  // if (!accountPkh) {
-  //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-  //   return
-  // }
-  const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(emergencyGovernanceAddress.address)
-    : await new TezosToolkit(
-        (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(emergencyGovernanceAddress.address)
-
-  const storage = await (contract as any).storage()
-  console.log('Printing out Emergency Governance storage:\n', storage)
-
-  dispatch({
-    type: GET_EMERGENCY_GOVERNANCE_STORAGE,
-    emergencyGovernanceStorage: storage,
-  })
-}
-
 export const GET_BREAK_GLASS_STORAGE = 'GET_BREAK_GLASS_STORAGE'
 export const SET_GLASS_BROKEN = 'SET_GLASS_BROKEN'
 export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -46,7 +23,7 @@ export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: an
   console.log('Printing out Break Glass storage:\n', storage)
 
   const glassBroken = await storage.glassBroken
-  dispatch({ type: SET_GLASS_BROKEN, glassBroken: true })
+  dispatch({ type: SET_GLASS_BROKEN, glassBroken })
   console.log(glassBroken)
   dispatch({
     type: GET_BREAK_GLASS_STORAGE,
