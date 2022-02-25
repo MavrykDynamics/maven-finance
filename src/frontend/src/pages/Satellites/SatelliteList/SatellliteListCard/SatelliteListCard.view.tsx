@@ -3,7 +3,6 @@ import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
-import { Link } from 'react-router-dom'
 import { SatelliteRecord } from 'reducers/delegation'
 
 import {
@@ -17,6 +16,7 @@ import {
   SatelliteTextGroup,
   SideBySideImageAndText,
 } from './SatelliteListCard.style'
+import { RoutingButton } from '../../../../app/App.components/RoutingButton/RoutingButton.controller'
 
 type SatelliteListCardViewProps = {
   satellite: SatelliteRecord
@@ -67,9 +67,15 @@ export const SatelliteListCard = ({
           loading={loading}
           onClick={() => delegateCallback(satellite.address)}
         />
-        <Link to={{ pathname: `/satellite-details/${satellite.address}` }}>
-          <Button text="Profile Details" icon="man" kind="transparent" />
-        </Link>
+        <RoutingButton
+          icon="man"
+          text="Profile Details"
+          kind="transparent"
+          pathName={`/satellite-details/${satellite.address}`}
+        />
+        {/*<Link to={{ pathname: `/satellite-details/${satellite.address}` }}>*/}
+        {/*  <Button text="Profile Details" icon="man" kind="transparent" />*/}
+        {/*</Link>*/}
         <SatelliteTextGroup>
           <SatelliteMainText>
             <CommaNumber value={Number(satellite.totalDelegatedAmount)} endingText="%" />
