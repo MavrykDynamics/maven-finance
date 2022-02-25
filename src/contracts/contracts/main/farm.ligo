@@ -227,7 +227,10 @@ function transferLP(const from_: address; const to_: address; const tokenAmount:
 function transferReward(const delegator: delegator; const tokenAmount: tokenBalance; const s: storage): operation is
     block{
         // Call farmClaim from the doorman contract
-        const doormanContractAddress: address = getGeneralContract("doorman",s);
+        const doormanContractAddress: address = case Big_map.find_opt("doorman", s.generalContracts) of
+            Some (a) -> a
+        |   None -> (failwith("Doorman contract not found in generalContracts map"): address)
+        end;
         
         const doormanContract: contract(farmClaimType) =
         case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress): option(contract(farmClaimType))) of

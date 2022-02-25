@@ -34,6 +34,9 @@ import { BreakGlass } from '../helpers/breakGlassHelper'
 import { EmergencyGovernance } from '../helpers/emergencyGovernanceHelper'
 import { Vesting } from '../helpers/vestingHelper'
 import { Council } from '../helpers/councilHelper'
+import { Farm } from "../helpers/farmHelper";
+import { FarmFactory } from "../helpers/farmFactoryHelper";
+import { LPToken } from "../helpers/testLPHelper";
 import { Treasury } from '../helpers/treasuryHelper'
 
 import { doormanStorage } from '../../storage/doormanStorage'
@@ -45,6 +48,9 @@ import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceSto
 import { vestingStorage } from '../../storage/vestingStorage'
 import { councilStorage } from '../../storage/councilStorage'
 import { treasuryStorage } from '../../storage/treasuryStorage'
+import { farmStorage } from "../../storage/farmStorage";
+import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
+import { lpStorage } from "../../storage/testLPTokenStorage";
 
 describe('Contracts Deployment for Tests', async () => {
   var utils: Utils
@@ -57,6 +63,10 @@ describe('Contracts Deployment for Tests', async () => {
   var vesting: Vesting
   var council: Council
   var treasury: Treasury
+  var farm: Farm;
+  var farmFA2: Farm;
+  var farmFactory: FarmFactory;
+  var lpToken: LPToken;
   var tezos
   let deployedDoormanStorage
   let deployedDelegationStorage
@@ -155,6 +165,50 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('treasury contract originated')
 
+    lpToken = await LPToken.originate(
+      utils.tezos,
+      lpStorage
+    );
+
+    console.log("lp token contract originated")
+
+    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+      
+    farm = await Farm.originate(
+      utils.tezos,
+      farmStorage
+    );
+
+    console.log("fa12 farm contract originated")
+
+    farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
+    farmStorage.lpToken.tokenStandard = {
+      fa2: ""
+    };
+    
+    farmFA2 = await Farm.originate(
+      utils.tezos,
+      farmStorage
+    );
+
+    console.log("fa2 farm contract originated")
+
+    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+    farmStorage.infinite = true
+    farmStorage.lpToken.tokenStandard = {
+      fa12: ""
+    };
+    
+    farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
+      "doorman"  : doorman.contract.address
+    });
+    farmFactory = await FarmFactory.originate(
+      utils.tezos,
+      farmFactoryStorage
+    );
+
+    console.log("farm factory contract originated")
+
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos
@@ -163,6 +217,25 @@ describe('Contracts Deployment for Tests', async () => {
     //----------------------------
     // Set remaining contract addresses - post-deployment
     //----------------------------
+
+    // Doorman Contract - set treasury address
+    const updateGeneralContractsOperation = await doorman.contract.methods
+    .updateGeneralContracts("farmTreasury", eve.pkh)
+    .send();
+    await updateGeneralContractsOperation.confirmation();
+    // Give operator access to treasury for MVK Token Contract
+    await signerFactory(eve.sk); //TODO: Treasury should be able to update their operators directly from their contracts
+    const updateOperatorsOperation = await mvkToken.contract.methods.update_operators([
+        {
+            add_operator: {
+                owner: eve.pkh,
+                operator: doorman.contract.address,
+                token_id: 0
+            }
+        }
+    ]).send()
+    await updateOperatorsOperation.confirmation();
+    await signerFactory(alice.sk);
 
     // Doorman Contract - set contract addresses [delegation, mvkToken]
     const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods
@@ -173,7 +246,25 @@ describe('Contracts Deployment for Tests', async () => {
       .updateGeneralContracts('mvkToken', mvkToken.contract.address)
       .send()
     await setMvkTokenAddressInDoormanOperation.confirmation()
+    const setFarmFactoryAddressInDoormanOperation = await doorman.contract.methods
+      .updateGeneralContracts("farmFactory", farmFactory.contract.address)
+      .send();
+    await setFarmFactoryAddressInDoormanOperation.confirmation();
     console.log('doorman contract address set')
+
+    // Farm Contract - set contract addresses [doorman]
+    const setDoormanContractAddressInFarmOperation = await farm.contract.methods
+      .updateGeneralContracts('doorman', doorman.contract.address)
+      .send()
+    await setDoormanContractAddressInFarmOperation.confirmation()
+    console.log('farm contract address set')
+
+    // Farm Contract - set contract addresses [doorman]
+    const setDoormanContractAddressInFarmFA2Operation = await farmFA2.contract.methods
+      .updateGeneralContracts('doorman', doorman.contract.address)
+      .send()
+    await setDoormanContractAddressInFarmFA2Operation.confirmation()
+    console.log('farm fa2 contract address set')
 
     // Delegation Contract - set contract addresses [governance]
     const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods
@@ -238,6 +329,11 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
     await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
     await saveContractAddress('vestingAddress', vesting.contract.address)
+    await saveContractAddress('councilAddress', council.contract.address)
+    await saveContractAddress("lpTokenAddress", lpToken.contract.address)
+    await saveContractAddress("farmAddress", farm.contract.address)
+    await saveContractAddress("farmFA2Address", farmFA2.contract.address)
+    await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
     
     //----------------------------
     // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
@@ -274,6 +370,10 @@ describe('Contracts Deployment for Tests', async () => {
       console.log('Vesting Contract deployed at:', vesting.contract.address)
       console.log('Council Contract deployed at:', council.contract.address)
       console.log('Treasury Contract deployed at:', treasury.contract.address)
+      console.log("LP Token Contract deployed at:", lpToken.contract.address);
+      console.log("FA12 Farm Contract deployed at:", farm.contract.address);
+      console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
+      console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
     } catch (e) {
       console.log(e)
     }

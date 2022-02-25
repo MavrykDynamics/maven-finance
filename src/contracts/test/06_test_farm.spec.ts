@@ -534,7 +534,7 @@ describe("Farm", async () => {
                 })
 
                 assert.notEqual(mvkTotalSupply,mvkTotalSupplyFirstUpdate);
-                assert.equal(mvkTotalSupplySecondUpdate,mvkTotalSupplyFirstUpdate);
+                assert.notEqual(mvkTotalSupplySecondUpdate,mvkTotalSupplyFirstUpdate);
                 assert.equal(toggleTransferFirstUpdate,toggleTransfer);
                 assert.notEqual(doormanBalance,doormanBalanceFirstUpdate);
                 assert.notEqual(doormanBalance,doormanBalanceSecondUpdate);
