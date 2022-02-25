@@ -22,6 +22,7 @@ import { Dashboard } from '../pages/Dashboard/Dashboard.controller'
 import { State } from '../reducers'
 import ProtectedRoute from './App.components/ProtectedRoute'
 import { BreakGlass } from '../pages/BreakGlass/BreakGlass.controller'
+import { ProposalSubmission } from '../pages/ProposalSubmission/ProposalSubmission.controller'
 
 export const store = configureStore({})
 
@@ -85,7 +86,7 @@ const AppContainer = () => {
           </Route>
           <ProtectedRoute
             path="/submit-proposal"
-            component={Governance}
+            component={ProposalSubmission}
             accountPkh={accountPkh}
             arrayToFilterThrough={satelliteLedger}
             authenticationPath={'/'}

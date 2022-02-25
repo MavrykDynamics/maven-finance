@@ -1,46 +1,6 @@
 import { GET_GOVERNANCE_STORAGE } from 'pages/Governance/Governance.actions'
-import { MichelsonMap } from '@taquito/taquito'
+import { GovernanceStorage } from '../utils/TypesAndInterfaces/Governance'
 
-interface GovernanceConfig {
-  successReward: number
-  minQuorumPercentage: number
-  minQuorumMvkTotal: number
-  votingPowerRatio: number
-  proposalSubmissionFee: number // 10 tez
-  minimumStakeReqPercentage: number // 0.01% for testing: change to 10,000 later -> 10%
-  maxProposalsPerDelegate: number
-  newBlockTimeLevel: number
-  newBlocksPerMinute: number
-  blocksPerMinute: number
-  blocksPerProposalRound: number
-  blocksPerVotingRound: number
-  blocksPerTimelockRound: number
-}
-export interface GovernanceStorage {
-  admin: string
-  config: GovernanceConfig
-  whitelistContracts: MichelsonMap<string, unknown>
-  whitelistTokenContracts: MichelsonMap<string, unknown>
-  generalContracts: MichelsonMap<string, unknown>
-  proposalLedger: MichelsonMap<string, unknown>
-  snapshotLedger: MichelsonMap<string, unknown>
-  activeSatellitesMap: MichelsonMap<string, unknown>
-  startLevel: number
-  nextProposalId: number
-  currentRound: string
-  currentRoundStartLevel: number
-  currentRoundEndLevel: number
-  currentCycleEndLevel: number
-  currentRoundProposals: MichelsonMap<string, unknown>
-  currentRoundVotes: MichelsonMap<string, unknown>
-  currentRoundHighestVotedProposalId: number
-  timelockProposalId: number
-  snapshotMvkTotalSupply: number
-  governanceLambdaLedger: MichelsonMap<string, unknown>
-  financialRequestLedger: MichelsonMap<string, unknown>
-  financialRequestCounter: number
-  tempFlag: number
-}
 const PROPOSAL = 'PROPOSAL',
   VOTING = 'VOTING',
   TIME_LOCK = 'TIME_LOCK'
