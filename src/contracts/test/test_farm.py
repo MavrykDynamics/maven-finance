@@ -23,6 +23,12 @@ fileDir = os.path.dirname(os.path.realpath('__file__'))
 
 print('fileDir: '+fileDir)
 
+helpersDir          = os.path.join(fileDir, 'helpers')
+mvkTokenDecimals = os.path.join(helpersDir, 'mvkTokenDecimals.json')
+mvkTokenDecimals = open(mvkTokenDecimals)
+mvkTokenDecimals = json.load(mvkTokenDecimals)
+mvkTokenDecimals = mvkTokenDecimals['decimals']
+
 deploymentsDir          = os.path.join(fileDir, 'deployments')
 deployedFarmContract = os.path.join(deploymentsDir, 'farmAddress.json')
 deployedFarmFA2Contract = os.path.join(deploymentsDir, 'farmFA2Address.json')
@@ -107,6 +113,10 @@ class FarmContract(TestCase):
             self.assertEqual(f"FAILWITH: '{error_message}'", r.exception.format_stdout())
         else:
             self.assertEqual(f"'{error_message}': ", r.exception.format_stdout())
+
+    # MVK Formatter
+    def MVK(self, value: float = 1.0):
+        return int(value * 10**int(mvkTokenDecimals))
 
 #     ######################
 #     # Tests for farm contract #
@@ -1929,7 +1939,7 @@ class FarmContract(TestCase):
         
         # Initial values
         totalBlocks                 = 10000
-        currentRewardPerBlock       = 500 * 10**9
+        currentRewardPerBlock       = self.MVK(500)
         blocksPerMinute             = 2
         newBlocksPerMinute          = 3
         totalRewards                = totalBlocks * currentRewardPerBlock
@@ -1945,10 +1955,10 @@ class FarmContract(TestCase):
         lastBlockUpdate = res.storage['lastBlockUpdate']
 
         # Some tests operations to see if the total rewards are affected
-        res = self.farmContract.deposit(2*10**9).interpret(storage=res.storage, source=alice, level=lastBlockUpdate)
-        res = self.farmContract.deposit(2*10**9).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+2000)
-        res = self.farmContract.deposit(1*10**9).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate+5000)
-        res = self.farmContract.withdraw(2*10**9).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+5500)
+        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=alice, level=lastBlockUpdate)
+        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+2000)
+        res = self.farmContract.deposit(self.MVK()).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate+5000)
+        res = self.farmContract.withdraw(self.MVK(2)).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+5500)
         res = self.farmContract.claim().interpret(storage=res.storage, source=alice, level=lastBlockUpdate+6000)
         aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
@@ -1962,8 +1972,8 @@ class FarmContract(TestCase):
         # Some tests operations to see if the total rewards are affected
         res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=lastBlockUpdate+6000)
         bobClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-        res = self.farmContract.deposit(8*10**9).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+10200)
-        res = self.farmContract.withdraw(1*10**9).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+11000)
+        res = self.farmContract.deposit(self.MVK(8)).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+10200)
+        res = self.farmContract.withdraw(self.MVK()).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+11000)
 
         # # Final claims
         res = self.farmContract.claim().interpret(storage=res.storage, source=alice, level=lastBlockUpdate+storageTotalBlocks)
@@ -1997,7 +2007,7 @@ class FarmContract(TestCase):
         
         # Initial values
         totalBlocks                 = 10000
-        currentRewardPerBlock       = 500 * 10**9
+        currentRewardPerBlock       = self.MVK(500)
         blocksPerMinute             = 2
         newBlocksPerMinute          = 1
         totalRewards                = totalBlocks * currentRewardPerBlock
@@ -2013,10 +2023,10 @@ class FarmContract(TestCase):
         lastBlockUpdate = res.storage['lastBlockUpdate']
 
         # Some tests operations to see if the total rewards are affected
-        res = self.farmContract.deposit(2*10**9).interpret(storage=res.storage, source=alice, level=lastBlockUpdate)
-        res = self.farmContract.deposit(2*10**9).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+2000)
-        res = self.farmContract.deposit(1*10**9).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate+3000)
-        res = self.farmContract.withdraw(2*10**9).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+4000)
+        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=alice, level=lastBlockUpdate)
+        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+2000)
+        res = self.farmContract.deposit(self.MVK(1)).interpret(storage=res.storage, sender=bob, level=lastBlockUpdate+3000)
+        res = self.farmContract.withdraw(self.MVK(2)).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+4000)
         res = self.farmContract.claim().interpret(storage=res.storage, source=alice, level=lastBlockUpdate+4200)
         aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
@@ -2030,8 +2040,8 @@ class FarmContract(TestCase):
         # Some tests operations to see if the total rewards are affected
         res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=lastBlockUpdate+4200)
         bobClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
-        res = self.farmContract.deposit(8*10**9).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+4500)
-        res = self.farmContract.withdraw(1*10**9).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+4600)
+        res = self.farmContract.deposit(self.MVK(8)).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+4500)
+        res = self.farmContract.withdraw(self.MVK(1)).interpret(storage=res.storage, sender=eve, level=lastBlockUpdate+4600)
 
         # Final claims
         res = self.farmContract.claim().interpret(storage=res.storage, source=alice, level=lastBlockUpdate+storageTotalBlocks)
