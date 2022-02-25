@@ -4,15 +4,17 @@ import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
 import { array } from 'yargs'
 
-import { alice, bob, eve, mallory } from '../scripts/sandbox/accounts'
+const { alice, bob, eve, mallory } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from '../test/helpers/Utils'
+import { MVK } from '../test/helpers/Utils'
 
 import { mvkStorageType } from '../test/types/mvkTokenStorageType'
 
-const totalSupply = 1000000000*10**9
-const maximumTotalSupply = new BigNumber(totalSupply)
-const initialSupply = new BigNumber(totalSupply / 10**9) // 1,000 MVK Tokens in mu (10^6)
+export const mvkTokenDecimals = 9
+
+const totalSupply = MVK(100)
+const maximumTotalSupply = MVK(10**9)
+const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4)
 
 const metadata = MichelsonMap.fromLiteral({
@@ -33,7 +35,7 @@ const metadata = MichelsonMap.fromLiteral({
         {
           symbol: Buffer.from('MVK').toString('hex'),
           name: Buffer.from('MAVRYK').toString('hex'),
-          decimals: Buffer.from('6').toString('hex'),
+          decimals: Buffer.from(mvkTokenDecimals.toString()).toString('hex'),
           icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
           shouldPreferSymbol: true,
           thumbnailUri: 'https://mavryk.finance/logo192.png',
@@ -57,7 +59,7 @@ const token_metadata = MichelsonMap.fromLiteral({
     token_info: MichelsonMap.fromLiteral({
       symbol: Buffer.from('MVK').toString('hex'),
       name: Buffer.from('MAVRYK').toString('hex'),
-      decimals: Buffer.from('6').toString('hex'),
+      decimals: Buffer.from(mvkTokenDecimals.toString()).toString('hex'),
       icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
       shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
       thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
@@ -75,7 +77,7 @@ export const mvkStorage: mvkStorageType = {
   token_metadata: token_metadata,
 
   totalSupply: initialSupply,
-  maximumTotalSupply: maximumTotalSupply,
+  maximumTotalSupply: new BigNumber(maximumTotalSupply),
 
   ledger: ledger,
   operators: MichelsonMap.fromLiteral({}),

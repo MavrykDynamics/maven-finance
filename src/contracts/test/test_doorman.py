@@ -68,6 +68,7 @@ error_compound_paused = 'Compound entrypoint is paused.'
 error_only_delegation = 'Error. Only the Delegation Contract can call this entrypoint.'
 error_mvk_contract_not_found = 'Error. MVK Token Contract is not found.'
 error_delegation_contract_not_found = 'Error. Delegation Contract is not found.'
+error_treasury_contract_not_found = 'Error. Farm treasury contract not found'
 error_min_mvk_amount_stake = 'You have to stake at least 1 MVK token.'
 error_min_mvk_amount_unstake = 'You have to unstake at least 1 MVK token.'
 error_min_mvk_bound = 'Error. The minimum amount of MVK to stake should be equal to 1.'
@@ -929,3 +930,90 @@ class DoormanContract(TestCase):
         print('✅ Non-admin should not be able to update the minimum amount of MVK')
         print('minimum amount:')
         print(init_doorman_storage['minMvkAmount'])
+
+    ###
+    # %farmClaimComplete
+    ##
+    def test_80_mvk_contract_call_farmclaim_complete(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        recipientAddress = alice
+        mintedTokens = self.MVK(2)
+        forceTransfer = False
+
+        # Operations
+        self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=mvkTokenAddress, source=alice);
+
+        print('----')
+        print('✅ MVK Token contract tries to call farmClaimComplete')
+
+    def test_81_farmclaim_complete_treasury_contract_unknown_to_doorman(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        recipientAddress = alice
+        mintedTokens = self.MVK(2)
+        forceTransfer = False
+
+        # Operations
+        res = self.doormanContract.updateGeneralContracts("farmTreasury",eve).interpret(storage=init_doorman_storage, sender=alice); # update map
+        res = self.doormanContract.updateGeneralContracts("farmTreasury",eve).interpret(storage=res.storage, sender=alice); # then delete same entry
+        with self.raisesMichelsonError(error_treasury_contract_not_found):
+            self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+
+        print('----')
+        print('✅ MVK Token contract tries to call farmClaimComplete while doorman does not have farmTreasury contract in generalContracts')
+
+    def test_82_farmclaim_complete_delegation_contract_unknown_to_doorman(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        recipientAddress = alice
+        mintedTokens = self.MVK(2)
+        forceTransfer = False
+
+        # Operations
+        res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=init_doorman_storage, sender=alice);
+        with self.raisesMichelsonError(error_delegation_contract_not_found):
+            self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+
+        print('----')
+        print('✅ MVK Token contract tries to call farmClaimComplete while doorman does not have delegation contract in generalContracts')
+
+    def test_83_non_mvk_contract_call_farmclaim_complete(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        recipientAddress = alice
+        mintedTokens = self.MVK(2)
+        forceTransfer = False
+
+        # Operations
+        with self.raisesMichelsonError(error_only_mvk_can_call):
+            self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=alice, source=alice);
+
+        print('----')
+        print('✅ Non-MVK Token contract tries to call farmClaimComplete')
+
+    def test_84_claim_should_be_split_between_mint_transfer(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        recipientAddress = alice
+        fakeTotalSupply = self.MVK(100)
+        fakeMaximumTotalSupply = self.MVK(1000)
+        mintedTokens = self.MVK(910)
+        forceTransfer = False
+
+        # Operations
+        res = self.doormanContract.setTempMvkTotalSupply(fakeTotalSupply,fakeMaximumTotalSupply).interpret(storage=init_doorman_storage, sender=mvkTokenAddress, source=alice);
+        res = self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+        mintedAmount = int(res.operations[1]['parameters']['value']['args'][-1]['int'])
+        transferedAmount = int(res.operations[0]['parameters']['value'][-1]['args'][-1][-1]['args'][-1]['int'])
+
+        self.assertEqual(mintedAmount+transferedAmount,mintedTokens)
+        self.assertEqual(fakeTotalSupply+mintedAmount,fakeMaximumTotalSupply)
+
+        print('----')
+        print('✅ Claim should be split between mint and transfer if the reward exceed the MVK maximumTotalSupply')

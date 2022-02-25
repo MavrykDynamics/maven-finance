@@ -93,14 +93,14 @@ type assertMetadataParams is [@layout:comb] record[
   hash: bytes;
 ]
 
-(* TotalSupply entrypoint inputs *)
+(* GetTotalSupply entrypoint inputs *)
 type getTotalSupplyParams is contract(tokenBalance)
+
+(* GetDesiredMintPossibility entrypoint inputs *)
+type getDesiredMintPossibilityParams is contract(tokenBalance)
 
 (* Mint entrypoint inputs *)
 type mintParams is (owner * tokenBalance)
-
-(* MintOrTransferFromTreasury entrypoint inputs *)
-type mintOrTransferFromTreasuryParams is (owner * tokenBalance * treasury * forceTransfer)
 
 (* OnStakeChange entrypoint inputs *)
 type stakeType is 
@@ -108,8 +108,11 @@ type stakeType is
 | UnstakeAction of unit
 type onStakeChangeParamsType is (owner * tokenBalance * stakeType)
 
-(* UpdateMvkDoormanTotalSupply entrypoint inputs *)
-type updateMvkTotalSupplyForDoormanParams is tokenBalance
+(* DoormanUnstakeStage entrypoint inputs *)
+type doormanUnstakeStageParams is tokenBalance
+
+(* DoormanFarmClaimStage entrypoint inputs *)
+type doormanFarmClaimStageParams is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
 ////
 // ENTRYPOINTS
@@ -121,11 +124,11 @@ type action is
 | AssertMetadata of assertMetadataParams
 | GetTotalSupply of getTotalSupplyParams
 | Mint of mintParams
-| MintOrTransferFromTreasury of mintOrTransferFromTreasuryParams
 | OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
 | UpdateGeneralContracts of updateGeneralContractsParams
-| UpdateMvkTotalSupplyForDoorman of updateMvkTotalSupplyForDoormanParams
+| DoormanUnstakeStage of doormanUnstakeStageParams
+| DoormanFarmClaimStage of doormanFarmClaimStageParams
 
 ////
 // FUNCTIONS
@@ -319,82 +322,6 @@ function mint(const mintParams: mintParams; const store : storage) : return is
     const updatedLedger: ledger = Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
 
-(* MintOrTransferFromTreasury Entrypoint *)
-function mintOrTransferFromTreasury(const mintParams: mintOrTransferFromTreasuryParams; var s: storage) : return is
-  block {
-    const recipientAddress: owner = mintParams.0;
-    var mintedTokens: tokenBalance := mintParams.1;
-    var transferedToken: tokenBalance := 0n;
-    const treasuryName: string = mintParams.2;
-    const forceTransfer: bool = mintParams.3;
-
-    // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, s) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
-
-    // Get treasury address from name
-    const treasuryAddress: address = 
-      case Map.find_opt(treasuryName, s.generalContracts) of
-        Some (v) -> v
-      | None -> failwith("Treasury contract not found")
-      end;
-
-    // Check if MVK should force the transfer instead of checking the possibility of minting
-    if forceTransfer then {
-      transferedToken := mintedTokens;
-      mintedTokens := 0n;
-    }
-    else {
-      // Check if the desired minted amount will surpass the maximum total supply
-      const tempTotalSupply: tokenBalance = s.totalSupply + mintedTokens;
-      if tempTotalSupply > s.maximumTotalSupply then {
-        transferedToken := abs(tempTotalSupply - s.maximumTotalSupply);
-        mintedTokens := abs(mintedTokens - transferedToken);
-      } else skip;
-    };
-
-    // Prepare operation list
-    var operations: list(operation) := noOperations;
-
-    // Mint Tokens
-    if mintedTokens > 0n then {
-      const mintParam: mintParams = (recipientAddress, mintedTokens);
-      const mintEntrypoint: contract(mintParams) =  case (Tezos.get_entrypoint_opt(
-          "%mint",
-          Tezos.self_address) : option(contract(mintParams))) of
-        Some(contr) -> contr
-      | None -> (failwith("Mint entrypoint not found") : contract(mintParams))
-      end;
-      const mintOperation: operation = Tezos.transaction(mintParam, 0tez, mintEntrypoint);
-      operations := mintOperation # operations;
-    } else skip;
-
-    // Transfer from treasury
-    if transferedToken > 0n then {
-      // Check if provided treasury exists
-      const transferParam: transferParams = list[
-        record[
-          from_=treasuryAddress;
-          txs=list[
-            record[
-              to_=recipientAddress;
-              amount=transferedToken;
-              token_id=0n;
-            ]
-          ]
-        ]
-      ];
-      const transferEntrypoint: contract(transferParams) =  case (Tezos.get_entrypoint_opt(
-          "%transfer",
-          Tezos.self_address) : option(contract(transferParams))) of
-        Some(contr) -> contr
-      | None -> (failwith("Transfer entrypoint not found") : contract(transferParams))
-      end;
-      const transferOperation: operation = Tezos.transaction(transferParam, 0tez, transferEntrypoint);
-      operations := transferOperation # operations;
-    } else skip;
-
-  } with (operations, s)
-
 (* OnStakeChange Entrypoint *)
 (* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
 function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const store: storage): return is
@@ -424,20 +351,21 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const
     const updatedLedger = Big_map.update(owner, Some(ownerBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger])
 
-function updateMvkTotalSupplyForDoorman(const updateMvkTotalSupplyForDoormanParams: updateMvkTotalSupplyForDoormanParams; const store: storage): return is
+(* DoormanUnstakeStage Entrypoint *)
+function doormanUnstakeStage(const doormanUnstakeStageParams: doormanUnstakeStageParams; const store: storage): return is
   block {
     (* Check this call is comming from the doorman contract *)
     checkSenderIsDoormanContract(store);
 
-    const unstakeAmount: tokenBalance = updateMvkTotalSupplyForDoormanParams;
+    const unstakeAmount: tokenBalance = doormanUnstakeStageParams;
     const doormanAddress: address = Tezos.sender;
 
-    const setTempMvkTotalSupplyEntrypoint: contract(nat) = 
-      case (Tezos.get_entrypoint_opt("%setTempMvkTotalSupply", doormanAddress) : option(contract(nat))) of
+    const setTempMvkTotalSupplyEntrypoint: contract(nat*nat) = 
+      case (Tezos.get_entrypoint_opt("%setTempMvkTotalSupply", doormanAddress) : option(contract(nat*nat))) of
         Some (contr) -> contr
-      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat))
+      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat*nat))
       end;
-    const setTempMvkTotalSupplyEntrypoint_operation: operation = Tezos.transaction(store.totalSupply, 0tez, setTempMvkTotalSupplyEntrypoint);
+    const setTempMvkTotalSupplyEntrypoint_operation: operation = Tezos.transaction((store.totalSupply, store.maximumTotalSupply), 0tez, setTempMvkTotalSupplyEntrypoint);
 
     const unstakeCompleteEntrypoint: contract(nat) =
       case (Tezos.get_entrypoint_opt("%unstakeComplete", doormanAddress) : option(contract(nat))) of
@@ -447,6 +375,35 @@ function updateMvkTotalSupplyForDoorman(const updateMvkTotalSupplyForDoormanPara
     const unstakeCompleteOperation: operation = Tezos.transaction(unstakeAmount, 0tez, unstakeCompleteEntrypoint);
 
     const operations: list(operation) = list [setTempMvkTotalSupplyEntrypoint_operation; unstakeCompleteOperation];
+
+  } with (operations, store)
+
+(* DoormanFarmClaimStage Entrypoint *)
+function doormanFarmClaimStage(const doormanFarmClaimStageParams: doormanFarmClaimStageParams; const store: storage): return is
+  block {
+    (* Check this call is comming from the doorman contract *)
+    checkSenderIsDoormanContract(store);
+
+    const recipientAddress: owner = doormanFarmClaimStageParams.0;
+    var mintedTokens: tokenBalance := doormanFarmClaimStageParams.1;
+    const forceTransfer: bool = doormanFarmClaimStageParams.2;
+    const doormanAddress: address = Tezos.sender;
+
+    const setTempMvkTotalSupplyEntrypoint: contract(nat*nat) = 
+      case (Tezos.get_entrypoint_opt("%setTempMvkTotalSupply", doormanAddress) : option(contract(nat*nat))) of
+        Some (contr) -> contr
+      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat*nat))
+      end;
+    const setTempMvkTotalSupplyEntrypoint_operation: operation = Tezos.transaction((store.totalSupply, store.maximumTotalSupply), 0tez, setTempMvkTotalSupplyEntrypoint);
+
+    const farmClaimCompleteEntrypoint: contract(doormanFarmClaimStageParams) =
+      case (Tezos.get_entrypoint_opt("%farmClaimComplete", doormanAddress) : option(contract(doormanFarmClaimStageParams))) of
+        Some(contr) -> contr
+      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(doormanFarmClaimStageParams))
+      end;
+    const farmClaimCompleteOperation: operation = Tezos.transaction((recipientAddress,mintedTokens,forceTransfer), 0tez, farmClaimCompleteEntrypoint);
+
+    const operations: list(operation) = list [setTempMvkTotalSupplyEntrypoint_operation; farmClaimCompleteOperation];
 
   } with (operations, store)
 
@@ -463,10 +420,10 @@ function main (const action : action; const store : storage) : return is
       | AssertMetadata (params) -> assertMetadata(params, store)
       | GetTotalSupply (params) -> getTotalSupply(params, store)
       | Mint (params) -> mint(params, store)
-      | MintOrTransferFromTreasury (params) -> mintOrTransferFromTreasury(params, store)
       | OnStakeChange (params) -> onStakeChange(params, store)
       | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
-      | UpdateMvkTotalSupplyForDoorman (params) -> updateMvkTotalSupplyForDoorman(params, store)
+      | DoormanUnstakeStage (params) -> doormanUnstakeStage(params, store)
+      | DoormanFarmClaimStage (params) -> doormanFarmClaimStage(params, store)
     end
   )
