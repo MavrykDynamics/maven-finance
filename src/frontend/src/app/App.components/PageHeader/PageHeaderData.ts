@@ -164,4 +164,13 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
       backgroundImageSrc: '/images/farms-header-bg.svg',
     },
   ],
+  [
+    'admin',
+    {
+      title: 'Admin',
+      subText: 'Admin Panel - For development only',
+      foregroundImageSrc: '/images/farms-header-fg.svg',
+      backgroundImageSrc: '/images/farms-header-bg.svg',
+    },
+  ],
 ])

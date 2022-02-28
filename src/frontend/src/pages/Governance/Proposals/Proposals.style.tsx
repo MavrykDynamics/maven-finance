@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
-import { ProposalStatus } from '../mockProposals'
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 export const ProposalListContainer = styled.div`
   > h1 {
