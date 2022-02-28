@@ -1,14 +1,12 @@
-import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem, ProposalStatusFlag } from './Proposals.style'
-import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
+import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
 import * as React from 'react'
-import { ProposalData, ProposalStatus } from '../mockProposals'
-import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
 
 type ProposalsViewProps = {
   listTitle: string
-  proposalsList: Map<string, ProposalData>
-  handleItemSelect: (proposalListItem: ProposalData) => void
-  selectedProposal: ProposalData
+  proposalsList: Map<string, ProposalRecordType>
+  handleItemSelect: (proposalListItem: ProposalRecordType) => void
+  selectedProposal: ProposalRecordType
   isProposalPhase: boolean
 }
 export const ProposalsView = ({
@@ -21,24 +19,25 @@ export const ProposalsView = ({
   return (
     <ProposalListContainer>
       <h1>{listTitle}</h1>
-      {Array.from(proposalsList.values()).map((value, index) => {
-        return (
-          <ProposalListItem
-            key={value.id}
-            onClick={() => handleItemSelect(value)}
-            selected={selectedProposal.id === value.id}
-          >
-            <ProposalItemLeftSide>
-              <div>{isProposalPhase ? index : value.version}</div>
-              <h4>{value.title}</h4>
-            </ProposalItemLeftSide>
-            <div>
-              {isProposalPhase && <CommaNumber value={value.votedMVK} endingText={'voted MVK'} />}
-              {!isProposalPhase && <StatusFlag text={value.status} status={value.status} />}
-            </div>
-          </ProposalListItem>
-        )
-      })}
+      {proposalsList &&
+        Array.from(proposalsList.values()).map((value, index) => {
+          return (
+            <ProposalListItem
+              key={value.id}
+              onClick={() => handleItemSelect(value)}
+              selected={selectedProposal.id === value.id}
+            >
+              <ProposalItemLeftSide>
+                <div>{value.id}</div>
+                <h4>{value.title}</h4>
+              </ProposalItemLeftSide>
+              <div>
+                {/*{isProposalPhase && <CommaNumber value={value.votedMVK} endingText={'voted MVK'} />}*/}
+                {/*{!isProposalPhase && <StatusFlag text={value?.status} status={value.status} />}*/}
+              </div>
+            </ProposalListItem>
+          )
+        })}
     </ProposalListContainer>
   )
 }

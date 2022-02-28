@@ -1,8 +1,9 @@
 import * as React from 'react'
 
 import { StatusFlagStyle, UP, DOWN, PRIMARY, INFO } from './StatusFlag.constants'
-import { ProposalStatus } from '../../../pages/Governance/mockProposals'
+
 import { StatusFlagView } from './StatusFlag.view'
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 type StatusFlagProps = {
   text: string

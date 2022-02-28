@@ -12,43 +12,35 @@ import {
   VotingFor,
 } from './VotingBar.style'
 import { Tooltip } from '@mui/material'
+import { VoteStatistics } from '../../Governance.controller'
 
-type ProgressBarViewProps = {
+type VotingViewProps = {
   status: VotingBarStatus
   loading: boolean
-  forVotes: number
-  againstVotes: number
-  abstainingVotes: number
-  unusedVotes: number
+  totalMVKVoted: number
+  voteStatistics: VoteStatistics
 }
 
-export const VotingBarView = ({
-  status,
-  forVotes,
-  againstVotes,
-  abstainingVotes,
-  unusedVotes,
-}: ProgressBarViewProps) => {
-  const totalVotes = forVotes + againstVotes + abstainingVotes + unusedVotes
-  const forVotesWidth = (forVotes / totalVotes) * 100
-  const againstVotesWidth = (againstVotes / totalVotes) * 100
-  const abstainingVotesWidth = (abstainingVotes / totalVotes) * 100
-  const unusedVotesWidth = (unusedVotes / totalVotes) * 100
+export const VotingBarView = ({ status, totalMVKVoted, voteStatistics }: VotingViewProps) => {
+  const forVotesWidth = (voteStatistics.forVotesMVKTotal / totalMVKVoted) * 100
+  const againstVotesWidth = (voteStatistics.againstVotesMVKTotal / totalMVKVoted) * 100
+  const abstainingVotesWidth = (voteStatistics.abstainVotesMVKTotal / totalMVKVoted) * 100
+  const unusedVotesWidth = (voteStatistics.unusedVotesMVKTotal / totalMVKVoted) * 100
   return (
     <VotingContainer>
       <QuorumBar width={53.61}>Quorum 53.61%</QuorumBar>
       <VotingBarStyled>
-        <Tooltip title={`${forVotes} Yay votes`}>
+        <Tooltip title={`${voteStatistics.forVotesMVKTotal} Yay votes`}>
           <VotingFor width={forVotesWidth} />
         </Tooltip>
-        <Tooltip title={`${unusedVotes} Unused votes`}>
+        <Tooltip title={`${voteStatistics.unusedVotesMVKTotal} Unused votes`}>
           <NotYetVoted width={unusedVotesWidth} />
         </Tooltip>
-        <Tooltip title={`${abstainingVotes} Abstention votes`}>
+        <Tooltip title={`${voteStatistics.abstainVotesMVKTotal} Abstention votes`}>
           <VotingAbstention width={abstainingVotesWidth} />
         </Tooltip>
 
-        <Tooltip title={`${againstVotes} Nay votes`}>
+        <Tooltip title={`${voteStatistics.againstVotesMVKTotal} Nay votes`}>
           <VotingAgainst width={againstVotesWidth} />
         </Tooltip>
       </VotingBarStyled>
