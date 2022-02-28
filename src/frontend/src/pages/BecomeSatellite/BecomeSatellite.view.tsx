@@ -12,7 +12,16 @@ import { Page } from 'styles'
 import { TextEditor } from '../../app/App.components/TextEditor/TextEditor.controller'
 import { RegisterAsSatelliteForm, unregisterAsSatellite } from './BecomeSatellite.actions'
 // prettier-ignore
-import { BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteFormFeeCheck, BecomeSatelliteProfilePic, UploaderFileSelector, UploadIcon, UploadIconContainer } from './BecomeSatellite.style'
+import {
+  BecomeSatelliteForm,
+  BecomeSatelliteFormBalanceCheck,
+  BecomeSatelliteFormFeeCheck,
+  BecomeSatelliteFormTitle,
+  BecomeSatelliteProfilePic,
+  UploaderFileSelector,
+  UploadIcon,
+  UploadIconContainer,
+} from './BecomeSatellite.style'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import * as React from 'react'
@@ -137,7 +146,11 @@ export const BecomeSatelliteView = ({
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
       <BecomeSatelliteForm>
-        {updateSatellite ? <h1>Update Satellite Profile</h1> : <h1>Become a Satellite</h1>}
+        {updateSatellite ? (
+          <BecomeSatelliteFormTitle>Update Satellite Profile</BecomeSatelliteFormTitle>
+        ) : (
+          <BecomeSatelliteFormTitle>Become a Satellite</BecomeSatelliteFormTitle>
+        )}
         <CommaNumber value={Number(minimumStakedMvkBalance)} beginningText={'1- Stake at least'} endingText={'MVK'} />
         <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
           {accountPkh ? (

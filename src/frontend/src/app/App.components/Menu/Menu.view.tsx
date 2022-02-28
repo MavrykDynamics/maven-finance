@@ -24,8 +24,6 @@ type MenuViewProps = {
   wallet: any
   ready: boolean
   handleConnect: () => void
-  darkThemeEnabled: boolean
-  handleToggleTheme: () => void
 }
 
 export const MenuView = ({
@@ -36,8 +34,6 @@ export const MenuView = ({
   wallet,
   ready,
   handleConnect,
-  darkThemeEnabled,
-  handleToggleTheme,
 }: MenuViewProps) => {
   const location = useLocation()
   const [isExpanded, setExpanded] = useState<number>(0)
@@ -78,25 +74,6 @@ export const MenuView = ({
         </MenuGrid>
         <MenuBottomSection>
           <MenuBanner src="/images/buy-mvk.svg" alt="buy" />
-          <label>
-            <Toggle
-              defaultChecked={darkThemeEnabled}
-              icons={{
-                checked: (
-                  <ThemeToggleIcon>
-                    <use xlinkHref="/icons/sprites.svg#moon" />
-                  </ThemeToggleIcon>
-                ),
-                unchecked: (
-                  <ThemeToggleIcon>
-                    <use xlinkHref="/icons/sprites.svg#sun" />
-                  </ThemeToggleIcon>
-                ),
-              }}
-              aria-label="Dark mode toggle"
-              onChange={handleToggleTheme}
-            />
-          </label>
           <MenuFooter>
             MAVRYK App <p>v1.0</p>
           </MenuFooter>

@@ -1,5 +1,12 @@
 import { MichelsonMap } from '@taquito/taquito'
 
+export enum ProposalStatus {
+  EXECUTED = 'EXECUTED',
+  DEFEATED = 'DEFEATED',
+  ONGOING = 'ONGOING',
+  DISCOVERY = 'DISCOVERY',
+}
+
 export interface GovernanceConfig {
   successReward: number
   minQuorumPercentage: number
@@ -21,20 +28,22 @@ export type passVotersMapType = Map<string, proposalRoundVoteType>
 export type votingRoundVoteType = [number, number, Date] // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
 export type votersMapType = Map<string, votingRoundVoteType>
 
-export interface proposalRecordType {
+export interface ProposalRecordType {
+  id: number
+
   proposerAddress: string
-  proposalMetadata: proposalMetadataType
-  status: string // status - "ACTIVE", "DROPPED"
+  proposalMetadata: proposalMetadataType | {}
+  status: ProposalStatus // status - "ACTIVE", "DROPPED"
   title: string // title
   description: string // description
   invoice: string // ipfs hash of invoice file
   successReward: number // log of successful proposal reward for voters - may change over time
   executed: boolean // true / false
-  locked: boolean // true / false
+  locked: boolean // true / false   For updating of the proposal metadata
 
   passVoteCount: number // proposal round: pass votes count - number of satellites
   passVoteMvkTotal: number // proposal round pass vote total mvk from satellites who voted pass
-  passVotersMap: passVotersMapType // proposal round ledger
+  passVotersMap: passVotersMapType | {} // proposal round ledger
 
   upvoteCount: number // voting round: upvotes count - number of satellites
   upvoteMvkTotal: number // voting round: upvotes MVK total
@@ -42,7 +51,7 @@ export interface proposalRecordType {
   downvoteMvkTotal: number // voting round: downvotes MVK total
   abstainCount: number // voting round: abstain count - number of satellites
   abstainMvkTotal: number // voting round: abstain MVK total
-  voters: votersMapType // voting round ledger
+  voters: votersMapType | {} // voting round ledger
 
   minQuorumPercentage: number // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
   minQuorumMvkTotal: number // log of min quorum in MVK - capture state at this point
@@ -52,6 +61,18 @@ export interface proposalRecordType {
 
   currentCycleStartLevel: number // log of current cycle starting block level
   currentCycleEndLevel: number // log of current cycle end block level
+
+  invoiceTable: string
+  details?: string
+  votedMVK?: number | 0
+}
+
+export interface SnapshotRecordType {
+  totalMvkBalance: number // log of satellite's total mvk balance for this cycle
+  totalDelegatedAmount: number // log of satellite's total delegated amount
+  totalVotingPower: number // log calculated total voting power
+  currentCycleStartLevel: number // log of current cycle starting block level
+  currentCycleEndLevel: number // log of when cycle (proposal + voting) will end
 }
 export interface GovernanceStorage {
   admin: string
@@ -59,9 +80,9 @@ export interface GovernanceStorage {
   whitelistContracts: MichelsonMap<string, unknown>
   whitelistTokenContracts: MichelsonMap<string, unknown>
   generalContracts: MichelsonMap<string, unknown>
-  proposalLedger: MichelsonMap<string, proposalRecordType>
-  snapshotLedger: MichelsonMap<string, unknown>
-  activeSatellitesMap: MichelsonMap<string, unknown>
+  proposalLedger: MichelsonMap<string, ProposalRecordType>
+  snapshotLedger: MichelsonMap<string, SnapshotRecordType>
+  activeSatellitesMap: MichelsonMap<string, Date>
   startLevel: number
   nextProposalId: number
   currentRound: string

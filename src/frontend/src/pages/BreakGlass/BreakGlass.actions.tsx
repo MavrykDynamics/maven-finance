@@ -24,7 +24,6 @@ export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: an
 
   const glassBroken = await storage.glassBroken
   dispatch({ type: SET_GLASS_BROKEN, glassBroken })
-  console.log(glassBroken)
   dispatch({
     type: GET_BREAK_GLASS_STORAGE,
     breakGlassStorage: storage,

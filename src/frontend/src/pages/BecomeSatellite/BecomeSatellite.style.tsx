@@ -9,8 +9,15 @@ export const BecomeSatelliteStyled = styled.div<{ theme: MavrykTheme }>`
 export const BecomeSatelliteForm = styled(Card)`
   padding-bottom: 80px;
 
-  > p {
+  > h1 {
+    margin: 0;
+  }
+  > p,
+  > div > p {
     margin-top: 30px;
+    font-weight: 600;
+    font-size: 14px;
+    color: ${({ theme }) => theme.textColor};
   }
 
   > button {
@@ -18,6 +25,13 @@ export const BecomeSatelliteForm = styled(Card)`
     float: right;
     margin: 0 0 0 10px;
   }
+`
+
+export const BecomeSatelliteFormTitle = styled.h1<{ theme: MavrykTheme }>`
+  margin-top: 0;
+  font-size: 25px;
+  font-weight: bold;
+  color: ${({ theme }) => theme.textColor};
 `
 
 export const BecomeSatelliteFormBalanceCheck = styled.div<{ balanceOk: boolean; theme: MavrykTheme }>`
