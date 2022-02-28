@@ -1,13 +1,13 @@
 import { State } from '../../reducers'
 import governanceAddress from '../../deployments/governanceAddress.json'
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json'
-import { TezosToolkit } from '@taquito/taquito'
+import { MichelsonMap, TezosToolkit } from '@taquito/taquito'
 import { getContractBigmapKeys } from '../../utils/api'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
-import { HIDE_EXIT_FEE_MODAL } from '../Doorman/ExitFeeModal/ExitFeeModal.actions'
-import { GovernanceStorage } from '../../utils/TypesAndInterfaces/Governance'
+import { GovernanceStorage, ProposalRecordType, SnapshotRecordType } from '../../utils/TypesAndInterfaces/Governance'
 
+export const SET_GOVERNANCE_PHASE = 'SET_GOVERNANCE_PHASE'
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
 export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
@@ -23,7 +23,6 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
       ).contract.at(governanceAddress.address)
 
   const storage = await (contract as any).storage()
-  console.log('Printing out Governance storage:\n', storage)
   const proposalLedgerBigMap = await getContractBigmapKeys(governanceAddress.address, 'proposalLedger')
   const snapshotLedgerBigMap = await getContractBigmapKeys(governanceAddress.address, 'snapshotLedger')
   const financialRequestLedgerBigMap = await getContractBigmapKeys(governanceAddress.address, 'financialRequestLedger')
@@ -32,6 +31,23 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     'financialRequestSnapshotLedger',
   )
   const governanceLambdaLedgerBigMap = await getContractBigmapKeys(governanceAddress.address, 'governanceLambdaLedger')
+
+  const proposalLedger = new MichelsonMap<string, ProposalRecordType>()
+  proposalLedgerBigMap.forEach((item: any, index: number) => {
+    const newEntry = item.value as ProposalRecordType
+    newEntry.id = Number(item.key)
+    newEntry.votedMVK =
+      item.value?.passVoteMvkTotal +
+      item.value?.upvoteMvkTotal +
+      item.value?.abstainMvkTotal +
+      item.value?.downvoteMvkTotal +
+      proposalLedger.set(item.key, newEntry)
+  })
+  const snapshotLedger = new MichelsonMap<string, SnapshotRecordType>()
+  snapshotLedgerBigMap.forEach((item: any, index: number) => {
+    const newEntry = item.value as SnapshotRecordType
+    snapshotLedger.set(item.key, newEntry)
+  })
 
   const governanceStorage: GovernanceStorage = {
     admin: storage.admin,
@@ -53,9 +69,9 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     whitelistContracts: storage.whitelistContracts,
     whitelistTokenContracts: storage.whitelistTokenContracts,
     generalContracts: storage.generalContracts,
-    proposalLedger: proposalLedgerBigMap,
+    proposalLedger: proposalLedger,
     snapshotLedger: snapshotLedgerBigMap,
-    activeSatellitesMap: storage.activeSatellitesMap,
+    activeSatellitesMap: storage.activeSatellitesMap as MichelsonMap<string, Date>,
     startLevel: storage.startLevel.toNumber(),
     nextProposalId: storage.nextProposalId.toNumber(),
     currentRound: storage.currentRound,
@@ -73,10 +89,29 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     financialRequestCounter: storage.financialRequestCounter.toNumber(),
     tempFlag: storage.tempFlag.toNumber(),
   }
-  console.log(governanceStorage.currentRound)
+
+  console.log('Printing out Governance storage:\n', governanceStorage)
+
   dispatch({
     type: GET_GOVERNANCE_STORAGE,
     governanceStorage: governanceStorage,
+  })
+
+  let govPhase
+  switch (governanceStorage.currentRound) {
+    case 'proposal':
+      govPhase = 'PROPOSAL'
+      break
+    case 'voting':
+      govPhase = 'VOTING'
+      break
+    default:
+      govPhase = 'TIME_LOCK'
+      break
+  }
+  dispatch({
+    type: SET_GOVERNANCE_PHASE,
+    phase: govPhase,
   })
 }
 
@@ -110,33 +145,30 @@ export const getEmergencyGovernanceStorage = (accountPkh?: string) => async (dis
   })
 }
 
-export const VOTING_REQUEST = 'VOTING_REQUEST'
-export const VOTING_RESULT = 'VOTING_REQUEST'
-export const VOTING_ERROR = 'VOTING_REQUEST'
-export const VoteOnProposal = (vote: number) => async (dispatch: any, getState: any) => {
+export const PROPOSAL_ROUND_VOTING_REQUEST = 'PROPOSAL_ROUND_VOTING_REQUEST'
+export const PROPOSAL_ROUND_VOTING_RESULT = 'PROPOSAL_ROUND_VOTING_RESULT'
+export const PROPOSAL_ROUND_VOTING_ERROR = 'PROPOSAL_ROUND_VOTING_ERROR'
+export const proposalRoundVote = (proposalId: number) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   try {
     const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
     console.log('contract', contract)
-    const transaction = await contract?.methods.vote(vote).send()
+    const transaction = await contract?.methods.proposalRoundVote(proposalId).send()
     console.log('transaction', transaction)
 
     dispatch({
-      type: VOTING_REQUEST,
-      vote,
+      type: PROPOSAL_ROUND_VOTING_REQUEST,
+      proposalId: proposalId,
     })
-    dispatch(showToaster(INFO, 'Voting...', 'Please wait 30s'))
-    dispatch({
-      type: HIDE_EXIT_FEE_MODAL,
-    })
+    dispatch(showToaster(INFO, 'Proposal Vote executing...', 'Please wait 30s'))
 
     const done = await transaction?.confirmation()
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Voting done', 'All good :)'))
 
     dispatch({
-      type: VOTING_RESULT,
+      type: PROPOSAL_ROUND_VOTING_RESULT,
     })
 
     dispatch(getGovernanceStorage())
@@ -144,7 +176,44 @@ export const VoteOnProposal = (vote: number) => async (dispatch: any, getState: 
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
-      type: VOTING_ERROR,
+      type: PROPOSAL_ROUND_VOTING_ERROR,
+      error,
+    })
+  }
+}
+
+export const VOTING_ROUND_VOTING_REQUEST = 'VOTING_ROUND_VOTING_REQUEST'
+export const VOTING_ROUND_VOTING_RESULT = 'VOTING_ROUND_VOTING_RESULT'
+export const VOTING_ROUND_VOTING_ERROR = 'VOTING_ROUND_VOTING_ERROR'
+export const votingRoundVote = (vote: number) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  try {
+    const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.votingRoundVote(vote).send()
+    console.log('transaction', transaction)
+
+    dispatch({
+      type: VOTING_ROUND_VOTING_REQUEST,
+      vote: vote,
+    })
+    dispatch(showToaster(INFO, 'Voting...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Voting done', 'All good :)'))
+
+    dispatch({
+      type: VOTING_ROUND_VOTING_RESULT,
+    })
+
+    dispatch(getGovernanceStorage())
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: VOTING_ROUND_VOTING_ERROR,
       error,
     })
   }
