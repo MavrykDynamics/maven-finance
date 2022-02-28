@@ -1,9 +1,7 @@
-import { RightSideVotingArea } from '../Governance.style'
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { SUBMIT, TRANSPARENT } from '../../../app/App.components/Button/Button.constants'
+import { SUBMIT } from '../../../app/App.components/Button/Button.constants'
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import * as React from 'react'
-import { ProposalData } from '../mockProposals'
 import { VotingAreaStyled, VotingButtonsContainer } from './VotingArea.style'
 import { connect } from '../../../app/App.components/Menu/Menu.actions'
 import { useDispatch, useSelector } from 'react-redux'
@@ -12,20 +10,24 @@ import { ConnectWalletStyled } from 'app/App.components/ConnectWallet/ConnectWal
 import { VotingBar } from './VotingBar/VotingBar.controller'
 import { SatelliteRecord } from '../../../reducers/delegation'
 import { State } from '../../../reducers'
+import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+import { VoteStatistics } from '../Governance.controller'
 
 type VotingAreaProps = {
   ready: boolean
   loading: boolean
   accountPkh: string | undefined
-  handleVoteForProposal: (vote: string) => void
-  selectedProposal: ProposalData
-  voteStatistics: any
+  handleProposalRoundVote: (proposalId: number) => void
+  handleVotingRoundVote: (vote: string) => void
+  selectedProposal: ProposalRecordType
+  voteStatistics: VoteStatistics
 }
 export const VotingArea = ({
   ready,
   loading,
   accountPkh,
-  handleVoteForProposal,
+  handleProposalRoundVote,
+  handleVotingRoundVote,
   selectedProposal,
   voteStatistics,
 }: VotingAreaProps) => {
@@ -40,43 +42,39 @@ export const VotingArea = ({
     dispatch(connect({ forcePermission: false }))
   }
 
+  const totalMVKVoted =
+    voteStatistics.forVotesMVKTotal + voteStatistics.abstainVotesMVKTotal + voteStatistics.againstVotesMVKTotal
   return (
     <>
-      <VotingBar
-        abstainingVotes={voteStatistics.abstainingVotes}
-        againstVotes={voteStatistics.againstVotes}
-        forVotes={voteStatistics.forVotes}
-        unusedVotes={voteStatistics.unusedVotes}
-        loading
-      />
+      <VotingBar totalMVKVoted={totalMVKVoted} voteStatistics={voteStatistics} loading={loading} />
       <VotingAreaStyled>
         {!ready && ready && governancePhase !== 'TIME_LOCK' && (
           <>
             <ConnectWalletStyled>
               <NoWalletConnectedButton handleConnect={handleConnect} />
             </ConnectWalletStyled>
-            <CommaNumber value={selectedProposal.votedMVK} endingText={'voted MVK'} />
+            <CommaNumber value={totalMVKVoted} endingText={'voted MVK'} />
           </>
         )}
         {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && (
           <VotingButtonsContainer>
             <Button
               text={'Vote Yay'}
-              onClick={() => handleVoteForProposal('FOR')}
+              onClick={() => handleVotingRoundVote('FOR')}
               type={SUBMIT}
               kind={'votingFor'}
               loading={loading}
             />
             <Button
               text={'Vote Abstain'}
-              onClick={() => handleVoteForProposal('ABSTAIN')}
+              onClick={() => handleVotingRoundVote('ABSTAIN')}
               type={SUBMIT}
               kind={'votingAbstain'}
               loading={loading}
             />
             <Button
               text={'Vote NO'}
-              onClick={() => handleVoteForProposal('AGAINST')}
+              onClick={() => handleVotingRoundVote('AGAINST')}
               type={SUBMIT}
               kind={'votingAgainst'}
               loading={loading}
@@ -87,17 +85,17 @@ export const VotingArea = ({
           <VotingButtonsContainer className={governancePhase}>
             <Button
               text={'Vote for this Proposal'}
-              onClick={() => handleVoteForProposal('UPVOTE')}
+              onClick={() => handleProposalRoundVote(Number(selectedProposal.id))}
               type={SUBMIT}
               kind={'transparent'}
               loading={loading}
             />
-            <CommaNumber value={selectedProposal.votedMVK} endingText={'voted MVK'} />
+            <CommaNumber value={totalMVKVoted} endingText={'voted MVK'} />
           </VotingButtonsContainer>
         )}
         {ready && (!accountPkhIsSatellite || governancePhase === 'TIME_LOCK') && (
           <VotingButtonsContainer>
-            <CommaNumber value={selectedProposal.votedMVK} endingText={'voted MVK'} />
+            <CommaNumber value={totalMVKVoted} endingText={'voted MVK'} />
           </VotingButtonsContainer>
         )}
       </VotingAreaStyled>

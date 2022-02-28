@@ -23,6 +23,8 @@ import { State } from '../reducers'
 import ProtectedRoute from './App.components/ProtectedRoute'
 import { BreakGlass } from '../pages/BreakGlass/BreakGlass.controller'
 import { ProposalSubmission } from '../pages/ProposalSubmission/ProposalSubmission.controller'
+import { ThemeToggle } from './App.components/ThemeToggle/ThemeToggle.controller'
+import { Admin } from '../pages/Admin/Admin.controller'
 
 export const store = configureStore({})
 
@@ -41,6 +43,7 @@ const AppContainer = () => {
 
   return (
     <Router>
+      <ThemeToggle />
       <ProgressBar />
       <AppStyled>
         <Menu />
@@ -103,6 +106,9 @@ const AppContainer = () => {
           </Route>
           <Route exact path="/vaults">
             <Vaults />
+          </Route>
+          <Route exact path="/admin">
+            <Admin />
           </Route>
           <Route exact path="/404">
             {/*TODO: Replace later on with actual 404 page*/}
