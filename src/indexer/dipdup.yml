@@ -1,0 +1,61 @@
+spec_version: 1.2
+package: mavryk
+
+database:
+  kind: sqlite
+  path: mavryk.sqlite3
+
+contracts:
+  mvk:
+    address: KT1A6JGMVPnxzNhYZfctyEzmgUYGQ7LfaehZ
+    typename: mvk
+  # farm:
+  #   address: ${MVK_TOKEN_ADDRESS:-changeme}
+  #   typename: farm
+  # break_glass:
+  #   address: ${BREAKGLASSADDRESS}
+  #   typename: break_glass
+  # council:
+  #   address: ${COUNCILADDRESS}
+  #   typename: council
+  # doorman:
+  #   address: ${DOORMANADDRESS}
+  #   typename: doorman
+  # emergency_governance:
+  #   address: ${EMERGENCYGOVERNANCEADDRESS}
+  #   typename: emergency_governance
+  # governance:
+  #   address: ${GOVERNANCE}
+  #   typename: break_glass
+  # vesting:
+  #   address: ${VESTINGADDRESS}
+  #   typename: vesting
+
+datasources:
+  tzkt:
+    kind: tzkt
+    url: ${TZKT_URL:-changeme}
+
+indexes:
+  mvk_holders:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - mvk
+    handlers:
+      - callback: on_mvk_transfer
+        pattern:
+          - destination: mvk
+            entrypoint: transfer
+      - callback: on_mvk_mint
+        pattern:
+          - destination: mvk
+            entrypoint: mint
+      - callback: on_mvk_origination
+        pattern:
+          - type: origination
+            originated_contract: mvk
+
