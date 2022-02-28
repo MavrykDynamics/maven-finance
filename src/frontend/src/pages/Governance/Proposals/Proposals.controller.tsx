@@ -1,13 +1,12 @@
-import { GovernancePhase } from '../../../reducers/governance'
-import { ProposalData } from '../mockProposals'
 import { ProposalsView } from './Proposals.view'
 import { useSelector } from 'react-redux'
 import { State } from '../../../reducers'
+import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
 
 type ProposalsProps = {
-  proposalsList: Map<string, ProposalData>
-  handleItemSelect: (proposalListItem: ProposalData) => void
-  selectedProposal: ProposalData
+  proposalsList: Map<string, ProposalRecordType>
+  handleItemSelect: (proposalListItem: ProposalRecordType) => void
+  selectedProposal: ProposalRecordType
   isProposalHistory?: boolean
 }
 export const Proposals = ({
