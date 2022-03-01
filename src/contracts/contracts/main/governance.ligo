@@ -32,6 +32,9 @@ type proposalRecordType is [@layout:comb] record [
     title                : string;                  // title
     description          : string;                  // description
     invoice              : string;                  // ipfs hash of invoice file
+    sourceCode           : string;
+
+
     successReward        : nat;                     // log of successful proposal reward for voters - may change over time
     executed             : bool;                    // true / false
     locked               : bool;                    // true / false
@@ -247,6 +250,7 @@ type storage is record [
 
     startLevel                  : nat;                // use Tezos.level as start level
     nextProposalId              : nat;                // counter of next proposal id
+    cycleCounter                : nat;                // counter of current cycle 
     
     // current round state variables - will be flushed periodically
     currentRound                : string;             // proposal, voting, timelock
