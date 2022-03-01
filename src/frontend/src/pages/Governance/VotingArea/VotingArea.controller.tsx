@@ -34,6 +34,7 @@ export const VotingArea = ({
   const dispatch = useDispatch()
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
   const { satelliteLedger } = delegationStorage
   const accountPkhIsSatellite =
     satelliteLedger?.filter((satellite: SatelliteRecord) => satellite.address === accountPkh)[0] !== undefined
@@ -41,12 +42,16 @@ export const VotingArea = ({
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
   }
-
   const totalMVKVoted =
     voteStatistics.forVotesMVKTotal + voteStatistics.abstainVotesMVKTotal + voteStatistics.againstVotesMVKTotal
   return (
     <>
-      <VotingBar totalMVKVoted={totalMVKVoted} voteStatistics={voteStatistics} loading={loading} />
+      <VotingBar
+        totalMVKVoted={totalMVKVoted}
+        totalCirculatingMVKSupply={mvkTokenStorage.totalSupply}
+        voteStatistics={voteStatistics}
+        loading={loading}
+      />
       <VotingAreaStyled>
         {!ready && ready && governancePhase !== 'TIME_LOCK' && (
           <>

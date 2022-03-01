@@ -537,7 +537,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
 
-      status: ProposalStatus.DISCOVERY,
+      status: ProposalStatus.EXECUTED,
     },
   ],
   [

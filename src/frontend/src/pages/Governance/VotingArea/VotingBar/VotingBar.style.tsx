@@ -22,6 +22,7 @@ export const VotingContainer = styled.div<{ theme: MavrykTheme }>`
 `
 export const QuorumBar = styled.div<{ width: number; theme: MavrykTheme }>`
   width: ${({ width }) => width}%;
+  min-width: fit-content;
   border: 1px solid;
   border-right-color: ${({ theme }) => theme.placeholderTextColor};
   border-top: none;

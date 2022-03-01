@@ -10,6 +10,12 @@ export const ProposalSubmissionStyled = styled.div<{ theme: MavrykTheme }>`
 export const ProposalSubmissionForm = styled(Card)`
   padding-bottom: 80px;
 
+  > h1 {
+    margin-top: 0;
+    font-size: 25px;
+    font-weight: bold;
+    color: ${({ theme }) => theme.textColor};
+  }
   > p {
     margin-top: 30px;
   }
@@ -21,6 +27,14 @@ export const ProposalSubmissionForm = styled(Card)`
   }
 `
 
+export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+`
+export const FormTitle = styled.div<{ theme: MavrykTheme }>`
+  margin-right: 20%;
+`
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   margin: 15px 0;
   cursor: pointer;

@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as PropTypes from 'prop-types'
 
 import { InputStyled, InputComponent, InputStatus, InputIcon, InputErrorMessage } from './Input.style'
+import { InputStatusType } from './Input.controller'
 
 type InputViewProps = {
   icon?: string
@@ -10,7 +11,7 @@ type InputViewProps = {
   value?: string | number
   onChange: any
   onBlur: any
-  inputStatus?: 'success' | 'error'
+  inputStatus?: InputStatusType
   type: string
   errorMessage?: string
   disabled?: boolean
@@ -27,28 +28,31 @@ export const InputView = ({
   type,
   errorMessage,
   disabled,
-}: InputViewProps) => (
-  <InputStyled>
-    {icon && (
-      <InputIcon>
-        <use xlinkHref={`/icons/sprites.svg#${icon}`} />
-      </InputIcon>
-    )}
-    <InputComponent
-      type={type}
-      name={name}
-      className={inputStatus}
-      placeholder={placeholder}
-      value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      autoComplete={name}
-      disabled={disabled}
-    />
-    <InputStatus className={inputStatus} />
-    {errorMessage && <InputErrorMessage>{errorMessage}</InputErrorMessage>}
-  </InputStyled>
-)
+}: InputViewProps) => {
+  let status = inputStatus !== undefined ? inputStatus : 'none'
+  return (
+    <InputStyled>
+      {icon && (
+        <InputIcon>
+          <use xlinkHref={`/icons/sprites.svg#${icon}`} />
+        </InputIcon>
+      )}
+      <InputComponent
+        type={type}
+        name={name}
+        className={status}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        autoComplete={name}
+        disabled={disabled}
+      />
+      <InputStatus className={status} />
+      {errorMessage && <InputErrorMessage>{errorMessage}</InputErrorMessage>}
+    </InputStyled>
+  )
+}
 
 InputView.propTypes = {
   icon: PropTypes.string,

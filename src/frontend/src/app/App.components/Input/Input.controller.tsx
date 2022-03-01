@@ -3,6 +3,7 @@ import * as React from 'react'
 
 import { InputView } from './Input.view'
 
+export type InputStatusType = 'success' | 'error' | '' | undefined
 type InputProps = {
   icon?: string
   placeholder: string
@@ -10,7 +11,7 @@ type InputProps = {
   value?: string | number
   onChange: any
   onBlur: any
-  inputStatus?: 'success' | 'error'
+  inputStatus?: InputStatusType
   type: string
   errorMessage?: string
   disabled?: boolean

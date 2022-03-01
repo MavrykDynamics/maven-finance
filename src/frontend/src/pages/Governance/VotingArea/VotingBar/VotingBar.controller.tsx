@@ -6,6 +6,7 @@ interface VotingBarProps {
   loading: boolean
   totalMVKVoted: number
   voteStatistics: VoteStatistics
+  totalCirculatingMVKSupply: number
 }
 export const VotingBar = (props: VotingBarProps) => {
   return <VotingBarView {...props} />
