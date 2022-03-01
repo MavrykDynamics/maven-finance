@@ -114,7 +114,7 @@ type storage is record[
 
     breakGlassConfig       : breakGlassConfigType;
 
-    createdFarms           : set(address);
+    trackedFarms           : set(address);
     blocksPerMinute        : nat;
 ]
 
@@ -151,7 +151,7 @@ type action is
 |   CreateFarm of farmStorageType
 |   TrackFarm of address
 |   UntrackFarm of address
-|   CheckFarm of address
+|   CheckFarmExists of address
 
 ////
 // HELPER FUNCTIONS
@@ -292,7 +292,7 @@ function pauseAllFarms(var s: storage): return is
 
         var operations: list(operation) := nil;
 
-        for farmAddress in set s.createdFarms 
+        for farmAddress in set s.trackedFarms 
         block {
             var operation: operation := Tezos.transaction(Unit, 0tez, getPauseAllEntrypointFromFarmAddress(farmAddress));
             operations := operation # operations;
@@ -307,7 +307,7 @@ function unpauseAllFarms(var s: storage): return is
 
         var operations: list(operation) := nil;
 
-        for farmAddress in set s.createdFarms 
+        for farmAddress in set s.trackedFarms 
         block {
             var operation: operation := Tezos.transaction(Unit, 0tez, getUnpauseAllEntrypointFromFarmAddress(farmAddress));
             operations := operation # operations;
@@ -325,7 +325,7 @@ function updateAllBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage
 
         var operations: list(operation) := nil;
 
-        for farmAddress in set s.createdFarms 
+        for farmAddress in set s.trackedFarms 
         block {
             var operation: operation := Tezos.transaction(newBlocksPerMinutes, 0tez, getUpdateBlocksPerMinuteEntrypointFromFarmAddress(farmAddress));
             operations := operation # operations;
@@ -408,15 +408,15 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             originatedFarmStorage
         );
 
-        s.createdFarms := Set.add(farmOrigination.1, s.createdFarms);
+        s.trackedFarms := Set.add(farmOrigination.1, s.trackedFarms);
 
     } with(list[farmOrigination.0], s)
 
-(* CheckFarm entrypoint *)
-function checkFarm (const farmContract: address; const s: storage): return is 
-    case Set.mem(farmContract, s.createdFarms) of
+(* CheckFarmExists entrypoint *)
+function checkFarmExists (const farmContract: address; const s: storage): return is 
+    case Set.mem(farmContract, s.trackedFarms) of
         True -> (noOperations, s)
-    |   False -> failwith("The provided farm contract does not exist in the createdFarms big_map")
+    |   False -> failwith("The provided farm contract does not exist in the trackedFarms big_map")
     end
 
 (* TrackFarm entrypoint *)
@@ -428,11 +428,10 @@ function trackFarm (const farmContract: address; var s: storage): return is
         // Break glass check
         checkTrackFarmIsNotPaused(s);
 
-        s.createdFarms :=
-            case Set.mem(farmContract, s.createdFarms) of
-                True -> (failwith("The provided farm contract already exists in the createdFarms big_map"): set(address))
-            |   False -> Set.add(farmContract, s.createdFarms)
-            end;
+        s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of
+            True -> (failwith("The provided farm contract already exists in the trackedFarms big_map"): set(address))
+        |   False -> Set.add(farmContract, s.trackedFarms)
+        end;
     } with(noOperations, s)
 
 (* UntrackFarm entrypoint *)
@@ -444,11 +443,10 @@ function untrackFarm (const farmContract: address; var s: storage): return is
         // Break glass check
         checkUntrackFarmIsNotPaused(s);
 
-        s.createdFarms :=
-            case Set.mem(farmContract, s.createdFarms) of
-                True -> Set.remove(farmContract, s.createdFarms)
-            |   False -> (failwith("The provided farm contract does not exist in the createdFarms big_map"): set(address))
-            end;
+        s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of
+            True -> Set.remove(farmContract, s.trackedFarms)
+        |   False -> (failwith("The provided farm contract does not exist in the trackedFarms big_map"): set(address))
+        end;
     } with(noOperations, s)
 
 (* Main entrypoint *)
@@ -476,6 +474,6 @@ function main (const action: action; var s: storage): return is
     |   TrackFarm (params) -> trackFarm(params, s)
     |   UntrackFarm (params) -> untrackFarm(params, s)
 
-    |   CheckFarm (params) -> checkFarm(params, s)
+    |   CheckFarmExists (params) -> checkFarmExists(params, s)
     end
   )

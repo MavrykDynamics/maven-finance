@@ -622,11 +622,11 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
         | None -> failwith("Error. Farm Factory Contract is not found.")
     end;
     const farmFactoryContract: contract(address) = 
-      case (Tezos.get_entrypoint_opt("%checkFarm", farmFactoryAddress) : option(contract(address))) of
+      case (Tezos.get_entrypoint_opt("%checkFarmExists", farmFactoryAddress) : option(contract(address))) of
         Some(contr) -> contr
-      | None -> (failwith("CheckFarm entrypoint in Farm Factory Contract not found") : contract(address))
+      | None -> (failwith("CheckFarmExists entrypoint in Farm Factory Contract not found") : contract(address))
       end;
-    const checkFarmOperation: operation = Tezos.transaction(farmAddress, 0tez, farmFactoryContract);
+    const checkFarmExistsOperation: operation = Tezos.transaction(farmAddress, 0tez, farmFactoryContract);
 
     // Mint new MVK for the doorman contract: TODO --> Check for minting limit
     const mvkTokenAddress: address = case Map.find_opt("mvkToken", s.generalContracts) of
@@ -636,7 +636,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     const doormanFarmClaimStageOperation: operation = Tezos.transaction((delegator, claimAmount, forceTransfer), 0tez, doormanFarmClaimStage(mvkTokenAddress));
 
     // List of operation, first check the farm exists, then update the Satellite balance
-    const operations: list(operation) = list[checkFarmOperation;doormanFarmClaimStageOperation];
+    const operations: list(operation) = list[checkFarmExistsOperation;doormanFarmClaimStageOperation];
 
   } with(operations, s)
 
