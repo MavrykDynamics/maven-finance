@@ -60,7 +60,11 @@ export const NavigationLink = ({
   return (
     <>
       {subPages ? (
-        <NavigationLinkContainer className={'collapsible'} key={id} selected={mainLinkSelected}>
+        <NavigationLinkContainer
+          className={'collapsible'}
+          key={String('navLink' + path + id)}
+          selected={mainLinkSelected}
+        >
           <NavigationLinkItem
             selected={mainLinkSelected}
             className="header"
@@ -95,7 +99,7 @@ export const NavigationLink = ({
                   }
                   if (accountIsAuthorized) {
                     return (
-                      <SubNavLink>
+                      <SubNavLink key={String('sublink' + subNavLink.subPath + index)}>
                         <Link to={subNavLink.subPath}>
                           <div />
                           <SubLinkText id="navLinkSubTitle" selected={location.pathname === subNavLink.subPath}>
@@ -109,10 +113,10 @@ export const NavigationLink = ({
                   }
                 } else {
                   return (
-                    <SubNavLink>
+                    <SubNavLink key={String('sublink' + subNavLink.subPath + index)}>
                       <Link to={subNavLink.subPath}>
                         <div />
-                        <SubLinkText selected={location.pathname === subNavLink.subPath}>
+                        <SubLinkText id="navLinkSubTitle" selected={location.pathname === subNavLink.subPath}>
                           {subNavLink.subTitle}
                         </SubLinkText>
                       </Link>
@@ -124,7 +128,7 @@ export const NavigationLink = ({
           </div>
         </NavigationLinkContainer>
       ) : (
-        <NavigationLinkContainer key={id} selected={mainLinkSelected} onClick={handleClick}>
+        <NavigationLinkContainer key={String('navLink' + path + id)} selected={mainLinkSelected} onClick={handleClick}>
           <NavigationLinkItem selected={mainLinkSelected}>
             <Link to={path}>
               <NavigationLinkIcon selected={mainLinkSelected} id="navLinkIcon">

@@ -8,3 +8,5 @@
 // For 10^18 -> 1000000000000000000
 export const PRECISION_NUMBER = 1000000 // (10^6)
 export const DECIMALS_TO_SHOW = 2
+
+export const SECONDS_PER_BLOCK = 30
