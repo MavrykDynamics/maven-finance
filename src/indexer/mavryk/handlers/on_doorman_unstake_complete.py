@@ -1,0 +1,64 @@
+
+from dipdup.models import Transaction
+from mavryk.types.doorman.parameter.unstake_complete import UnstakeCompleteParameter
+from mavryk.types.doorman.storage import DoormanStorage
+from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.mvk.parameter.transfer import TransferParameter
+from dipdup.context import HandlerContext
+import mavryk.models as models
+
+async def on_doorman_unstake_complete(
+    ctx: HandlerContext,
+    unstake_complete: Transaction[UnstakeCompleteParameter, DoormanStorage],
+    transfer: Transaction[TransferParameter, MvkStorage],
+) -> None:
+     # Get operation info
+    doorman_address = unstake_complete.data.target_address
+    initiator_address = unstake_complete.data.initiator_address
+    initiator_stake_balance_ledger = unstake_complete.data.storage['userStakeBalanceLedger'][initiator_address]
+    smvk_balance = initiator_stake_balance_ledger['balance']
+    mvk_balance = transfer.data.storage['ledger'][initiator_address]
+    participation_fees_per_share = initiator_stake_balance_ledger['participationFeesPerShare']
+    timestamp = unstake_complete.data.timestamp
+    desired_amount = int(unstake_complete.parameter.__root__)
+    final_amount = int(transfer.parameter.__root__[0].txs[0].amount)
+    exit_fee = desired_amount - final_amount
+    doorman = await models.Doorman.get(address=doorman_address)
+    unclaimed_rewards = int(unstake_complete.data.storage['unclaimedRewards'])
+    accumulated_fees_per_share = int(unstake_complete.data.storage['accumulatedFeesPerShare'])
+
+    # Get or create the interacting user
+    user, _ = await models.User.get_or_create(
+        address=initiator_address
+    )
+    user.doorman = doorman
+    smvk_total_supply = user.mvk_balance # Gets value for MLI calculation
+    user.mvk_balance = mvk_balance
+    user.smvk_balance = smvk_balance
+    user.participation_fees_per_share = participation_fees_per_share
+    await user.save()
+
+    # Calculate the MLI
+    mvk_total_supply = int(transfer.data.storage['totalSupply'])
+    mli = 0.0
+    if smvk_total_supply > 0.0:
+        mli = mvk_total_supply / smvk_total_supply
+
+    # Create a stake record
+    stake_record = models.StakeRecord(
+        timestamp=timestamp,
+        type=models.StakeType.STAKE,
+        desired_amount=desired_amount,
+        final_amount=final_amount,
+        exit_fee=exit_fee,
+        doorman=doorman,
+        from_=user,
+        mvk_loyalty_index=mli
+    )
+    await stake_record.save()
+
+    # Update doorman contract
+    doorman.unclaimed_rewards = unclaimed_rewards
+    doorman.accumulated_fees_per_share = accumulated_fees_per_share
+    doorman.smvk_total_supply -= final_amount
+    await doorman.save()

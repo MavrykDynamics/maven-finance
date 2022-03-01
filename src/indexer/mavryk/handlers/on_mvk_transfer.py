@@ -12,6 +12,8 @@ async def on_mvk_transfer(
     transaction_batch = transfer.parameter.__root__
     timestamp = transfer.data.timestamp
     mvk_address = transfer.data.target_address
+    user_ledger = transfer.data.storage['ledger']
+
     for entry in transaction_batch:
         sender_address = entry.from_
         transactions = entry.txs
@@ -26,14 +28,14 @@ async def on_mvk_transfer(
             sender, _ = await models.User.get_or_create(
                 address=sender_address
             )
-            sender.mvk_balance -= amount
+            sender.mvk_balance = user_ledger[sender_address]
             await sender.save()
 
             # Get or create receiver
             receiver, _ = await models.User.get_or_create(
                 address=receiver_address
             )
-            receiver.mvk_balance += amount
+            receiver.mvk_balance = user_ledger[receiver_address]
             await receiver.save()
 
             # Create transfer

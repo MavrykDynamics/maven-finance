@@ -16,3 +16,5 @@
 
 # TZKT URL
 export TZKT_URL=https://api.hangzhou2net.tzkt.io
+export POSTGRES_PASSWORD=dipdup12345
+export ADMIN_SECRET=hasura12345
