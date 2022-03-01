@@ -13,6 +13,6 @@ export type farmFactoryStorageType = {
     untrackFarmIsPaused: boolean;
   }
   
-  createdFarms: Array<unknown>;
+  trackedFarms: Array<unknown>;
   blocksPerMinute: BigNumber
 };
