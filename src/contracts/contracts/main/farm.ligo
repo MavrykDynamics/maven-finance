@@ -268,12 +268,11 @@ function updateFarmParameters(var s: storage): storage is
         const totalClaimedRewards: tokenBalance = s.claimedRewards.paid + s.claimedRewards.unpaid;
         const totalFarmRewards: tokenBalance = suspectedReward + totalClaimedRewards;
         const totalPlannedRewards: tokenBalance = s.plannedRewards.totalRewards;
-        const reward: tokenBalance =
-            case totalFarmRewards > totalPlannedRewards and not s.infinite of
-                True -> abs(totalPlannedRewards - totalClaimedRewards)
-            |   False -> suspectedReward
-            end;
-
+        const reward: tokenBalance = case totalFarmRewards > totalPlannedRewards and not s.infinite of
+            True -> abs(totalPlannedRewards - totalClaimedRewards)
+        |   False -> suspectedReward
+        end;
+            
         // Updates the storage
         s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
         s.accumulatedMVKPerShare := s.accumulatedMVKPerShare + ((reward * fixedPointAccuracy) / s.lpToken.tokenBalance);
@@ -282,15 +281,13 @@ function updateFarmParameters(var s: storage): storage is
 
 function updateFarm(var s: storage): storage is
     block{
-        s := 
-            case s.lpToken.tokenBalance = 0n of
-                True -> updateBlock(s)
-            |   False ->
-                    case s.lastBlockUpdate = Tezos.level or not s.open of
-                        True -> s
-                    |   False -> updateFarmParameters(s)
-                    end
-            end;
+        s := case s.lpToken.tokenBalance = 0n of
+            True -> updateBlock(s)
+        |   False -> case s.lastBlockUpdate = Tezos.level or not s.open of
+                True -> s
+            |   False -> updateFarmParameters(s)
+            end
+        end;
     } with(s)
 
 function updateUnclaimedRewards(var s: storage): storage is

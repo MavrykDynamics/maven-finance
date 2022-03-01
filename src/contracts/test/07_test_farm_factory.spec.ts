@@ -81,7 +81,7 @@ describe("FarmFactory", async () => {
                     farmFactoryStorage    = await farmFactoryInstance.storage();
 
                     // Get the new farm
-                    farmAddress                             = farmFactoryStorage.createdFarms[0];
+                    farmAddress                             = farmFactoryStorage.trackedFarms[0];
                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
                     farmStorage                             = await farmInstance.storage();
 
@@ -119,11 +119,11 @@ describe("FarmFactory", async () => {
             })
         });
 
-        describe('%checkFarm', function() {
+        describe('%checkFarmExists', function() {
             it('Check with the previously created farm address', async () => {
                 try{
                     // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.checkFarm(farmAddress).send();
+                    const operation = await farmFactoryInstance.methods.checkFarmExists(farmAddress).send();
                     await operation.confirmation();
                 }catch(e){
                     console.log(e);
@@ -133,10 +133,10 @@ describe("FarmFactory", async () => {
             it('Check with a non-farm address', async () => {
                 try{
                     // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.checkFarm(bob.pkh).send();
+                    const operation = await farmFactoryInstance.methods.checkFarmExists(bob.pkh).send();
                     await operation.confirmation()
                 }catch(e){
-                    assert.strictEqual(e.message, "The provided farm contract does not exist in the createdFarms big_map");
+                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms big_map");
                 }
             })
         });
@@ -517,7 +517,7 @@ describe("FarmFactory", async () => {
 
                     // Farm storage
                     farmFactoryStorage      = await farmFactoryInstance.storage();
-                    const createdFarm       = await farmFactoryStorage.createdFarms.includes(farmAddress);
+                    const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
                     assert.equal(createdFarm,false);
                 }catch(e){
                     console.log(e);
@@ -530,7 +530,7 @@ describe("FarmFactory", async () => {
                     const operation = await farmFactoryInstance.methods.untrackFarm(bob.pkh).send();
                     await operation.confirmation();
                 }catch(e){
-                    assert.strictEqual(e.message, "The provided farm contract does not exist in the createdFarms big_map");
+                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms big_map");
                 }
             })
         });
@@ -544,7 +544,7 @@ describe("FarmFactory", async () => {
 
                     // Farm storage
                     farmFactoryStorage      = await farmFactoryInstance.storage();
-                    const createdFarm       = await farmFactoryStorage.createdFarms.includes(farmAddress);
+                    const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
                     assert.equal(createdFarm,true);
                 }catch(e){
                     console.log(e);
@@ -575,7 +575,7 @@ describe("FarmFactory", async () => {
             it('Admin should be able to pause all entrypoints on all tracked farms', async() => {
                 try{
                     // Initial values
-                    const trackedFarms = await farmFactoryStorage.createdFarms;
+                    const trackedFarms = await farmFactoryStorage.trackedFarms;
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
@@ -614,7 +614,7 @@ describe("FarmFactory", async () => {
                     await signerFactory(bob.sk);
 
                     // Initial values
-                    const trackedFarms = await farmFactoryStorage.createdFarms;
+                    const trackedFarms = await farmFactoryStorage.trackedFarms;
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
@@ -646,7 +646,7 @@ describe("FarmFactory", async () => {
             it('Admin should be able to unpause all entrypoints on all tracked farms', async() => {
                 try{
                     // Initial values
-                    const trackedFarms = await farmFactoryStorage.createdFarms;
+                    const trackedFarms = await farmFactoryStorage.trackedFarms;
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
@@ -695,7 +695,7 @@ describe("FarmFactory", async () => {
                     await signerFactory(bob.sk);
 
                     // Initial values
-                    const trackedFarms = await farmFactoryStorage.createdFarms;
+                    const trackedFarms = await farmFactoryStorage.trackedFarms;
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
@@ -727,7 +727,7 @@ describe("FarmFactory", async () => {
             it('Admin should be able to increase the blocksPerMinute on all tracked farms', async() => {
                 try{
                     // Initial values
-                    const trackedFarms = await farmFactoryStorage.createdFarms;
+                    const trackedFarms = await farmFactoryStorage.trackedFarms;
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
@@ -765,7 +765,7 @@ describe("FarmFactory", async () => {
             it('Admin should be able to decrease the blocksPerMinute on all tracked farms', async() => {
                 try{
                     // Initial values
-                    const trackedFarms = await farmFactoryStorage.createdFarms;
+                    const trackedFarms = await farmFactoryStorage.trackedFarms;
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
@@ -806,7 +806,7 @@ describe("FarmFactory", async () => {
                     await signerFactory(bob.sk);
 
                     // Initial values
-                    const trackedFarms = await farmFactoryStorage.createdFarms;
+                    const trackedFarms = await farmFactoryStorage.trackedFarms;
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
@@ -864,7 +864,7 @@ describe("FarmFactory", async () => {
                     farmFactoryStorage    = await farmFactoryInstance.storage();
 
                     // Get the new farm
-                    farmAddress                             = farmFactoryStorage.createdFarms[farmFactoryStorage.createdFarms.length - 1];
+                    farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
                     farmStorage                             = await farmInstance.storage();
 
@@ -948,7 +948,7 @@ describe("FarmFactory", async () => {
                     const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
                     console.log(doormanRecord)
                 }catch(e){
-                    assert.strictEqual(e.message, "The provided farm contract does not exist in the createdFarms big_map")
+                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms big_map")
                 }
             })
 
@@ -973,7 +973,7 @@ describe("FarmFactory", async () => {
             //         farmFactoryStorage    = await farmFactoryInstance.storage();
 
             //         // Get the new farm
-            //         farmAddress                             = farmFactoryStorage.createdFarms[farmFactoryStorage.createdFarms.length - 1];
+            //         farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
             //         farmInstance                            = await utils.tezos.contract.at(farmAddress);
             //         farmStorage                             = await farmInstance.storage();
 

@@ -14,6 +14,6 @@ export const farmFactoryStorage: farmFactoryStorageType = {
     untrackFarmIsPaused: false,
   },
 
-  createdFarms: [],
+  trackedFarms: [],
   blocksPerMinute: new BigNumber(2)
 };
