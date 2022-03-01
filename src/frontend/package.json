@@ -17,6 +17,7 @@
     "@emotion/styled": "^11.6.0",
     "@mui/material": "^5.4.2",
     "@mui/x-data-grid": "^5.5.1",
+    "@silevis/reactgrid": "^4.0.3",
     "@taquito/beacon-wallet": "^11.0.2-beta",
     "@taquito/signer": "^11.0.2-beta",
     "@taquito/taquito": "^11.0.2-beta",
