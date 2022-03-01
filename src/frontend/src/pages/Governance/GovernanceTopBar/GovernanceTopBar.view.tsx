@@ -20,6 +20,7 @@ export const GovernanceTopBarView = ({
 }: GovernanceTopBarViewProps) => {
   const isInExecution =
     governancePhase !== 'PROPOSAL' && governancePhase !== 'VOTING' && governancePhase !== 'TIME_LOCK'
+
   return (
     <GovernanceTopBarStyled>
       {isInEmergencyGovernance ? (
@@ -39,7 +40,9 @@ export const GovernanceTopBarView = ({
             <use xlinkHref="/icons/sprites.svg#greater-than" />
           </GovTopBarSidewaysArrowIcon>
           <GovTopBarPhaseText isCorrectPhase={isInExecution}>Execution</GovTopBarPhaseText>
-          <TimeLeftArea>Ends {timeLeftInPhase.toTimeString()}</TimeLeftArea>
+          <TimeLeftArea>
+            Ends {timeLeftInPhase.toLocaleDateString('en-GB')} at {timeLeftInPhase.toLocaleTimeString('en-GB')}
+          </TimeLeftArea>
         </>
       )}
     </GovernanceTopBarStyled>

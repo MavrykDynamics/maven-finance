@@ -9,6 +9,7 @@ import { GovernanceStorage, ProposalRecordType, SnapshotRecordType } from '../..
 
 export const SET_GOVERNANCE_PHASE = 'SET_GOVERNANCE_PHASE'
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
+export const SET_PAST_PROPOSALS = 'SET_PAST_PROPOSALS'
 export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
@@ -43,10 +44,36 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
       item.value?.downvoteMvkTotal +
       proposalLedger.set(item.key, newEntry)
   })
+
   const snapshotLedger = new MichelsonMap<string, SnapshotRecordType>()
+  let totalVotingPower = 0
   snapshotLedgerBigMap.forEach((item: any, index: number) => {
     const newEntry = item.value as SnapshotRecordType
+    totalVotingPower += newEntry.totalVotingPower
     snapshotLedger.set(item.key, newEntry)
+  })
+
+  // Getting all proposals for the current round
+  const currentRoundProposals = new MichelsonMap<string, ProposalRecordType>()
+  const currRoundPropMap = await storage.currentRoundProposals
+  currRoundPropMap.forEach((value: number, key: string) => {
+    const proposalItemFromProposalLedger = proposalLedger.get(key)
+    if (proposalItemFromProposalLedger) {
+      proposalItemFromProposalLedger.votedMVK = value
+      currentRoundProposals.set(key, proposalItemFromProposalLedger)
+    }
+  })
+
+  // Getting all past proposals
+  const pastProposals = new MichelsonMap<string, ProposalRecordType>()
+  proposalLedger.forEach((value: ProposalRecordType, key: string) => {
+    const proposalItemFromProposalLedger = proposalLedger.get(key)
+    if (
+      proposalItemFromProposalLedger &&
+      proposalItemFromProposalLedger.currentCycleEndLevel < storage.currentCycleEndLevel.toNumber()
+    ) {
+      pastProposals.set(key, proposalItemFromProposalLedger)
+    }
   })
 
   const governanceStorage: GovernanceStorage = {
@@ -70,7 +97,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     whitelistTokenContracts: storage.whitelistTokenContracts,
     generalContracts: storage.generalContracts,
     proposalLedger: proposalLedger,
-    snapshotLedger: snapshotLedgerBigMap,
+    snapshotLedger: snapshotLedger,
     activeSatellitesMap: storage.activeSatellitesMap as MichelsonMap<string, Date>,
     startLevel: storage.startLevel.toNumber(),
     nextProposalId: storage.nextProposalId.toNumber(),
@@ -78,7 +105,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     currentRoundStartLevel: storage.currentRoundStartLevel.toNumber(),
     currentRoundEndLevel: storage.currentRoundEndLevel.toNumber(),
     currentCycleEndLevel: storage.currentCycleEndLevel.toNumber(),
-    currentRoundProposals: storage.currentRoundProposals,
+    currentRoundProposals: currentRoundProposals,
     currentRoundVotes: storage.currentRoundVotes,
     currentRoundHighestVotedProposalId: storage.currentRoundHighestVotedProposalId.toNumber(),
     timelockProposalId: storage.timelockProposalId.toNumber(),
@@ -113,6 +140,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     type: SET_GOVERNANCE_PHASE,
     phase: govPhase,
   })
+  dispatch({ type: SET_PAST_PROPOSALS, pastProposals: pastProposals })
 }
 
 export const GET_EMERGENCY_GOVERNANCE_STORAGE = 'GET_EMERGENCY_GOVERNANCE_STORAGE'

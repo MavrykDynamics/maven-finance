@@ -6,7 +6,7 @@ import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance
 type ProposalsProps = {
   proposalsList: Map<string, ProposalRecordType>
   handleItemSelect: (proposalListItem: ProposalRecordType) => void
-  selectedProposal: ProposalRecordType
+  selectedProposal: ProposalRecordType | undefined
   isProposalHistory?: boolean
 }
 export const Proposals = ({

@@ -4,6 +4,7 @@ import {
   PROPOSAL_ROUND_VOTING_REQUEST,
   PROPOSAL_ROUND_VOTING_RESULT,
   SET_GOVERNANCE_PHASE,
+  SET_PAST_PROPOSALS,
   VOTING_ROUND_VOTING_ERROR,
   VOTING_ROUND_VOTING_REQUEST,
   VOTING_ROUND_VOTING_RESULT,
@@ -18,6 +19,7 @@ export interface GovernanceState {
   governanceStorage: GovernanceStorage | any
   governancePhase: GovernancePhase
   proposalId?: number
+  pastProposals?: any
   vote?: number
   error?: any
 }
@@ -66,6 +68,11 @@ export function governance(state = governanceDefaultState, action: any): Governa
       return {
         ...state,
         error: action.error,
+      }
+    case SET_PAST_PROPOSALS:
+      return {
+        ...state,
+        pastProposals: action.pastProposals,
       }
     default:
       return state

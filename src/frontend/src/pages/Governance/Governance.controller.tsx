@@ -1,22 +1,23 @@
 import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import { useEffect, useState } from 'react'
 import {
   getEmergencyGovernanceStorage,
   getGovernanceStorage,
   proposalRoundVote,
   votingRoundVote,
 } from './Governance.actions'
-import { getDelegationStorage } from '../Satellites/Satellites.actions'
-import { getBreakGlassStorage } from '../BreakGlass/BreakGlass.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-import { MOCK_ONGOING_PROPOSAL_LIST, MOCK_PAST_PROPOSAL_LIST, MOCK_PROPOSAL_LIST } from './mockProposals'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
-import { ProposalRecordType, ProposalStatus } from '../../utils/TypesAndInterfaces/Governance'
+import { ProposalStatus } from '../../utils/TypesAndInterfaces/Governance'
+import { getDelegationStorage } from '../Satellites/Satellites.actions'
+import { MOCK_PAST_PROPOSAL_LIST } from './mockProposals'
+import { calcTimeToBlock } from '../../utils/calcFunctions'
+
 export type VoteStatistics = {
   passVotesCount: number
   passVotesMVKTotal: number
@@ -34,15 +35,20 @@ export const Governance = () => {
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
-  const { proposalLedger } = governanceStorage
+  const { currentRoundProposals } = governanceStorage
   const { emergencyGovernanceStorage } = useSelector((state: State) => state.emergencyGovernance)
-  const { breakGlassStorage } = useSelector((state: State) => state.breakGlass)
-
-  const firstKeyInProposalLedger = proposalLedger?.keys().next().value || 0
-  console.log(firstKeyInProposalLedger)
-  const [selectedProposalToShow, setSelectedProposalToShow] = useState<number>(Number(firstKeyInProposalLedger))
-  let firstProposalItem = proposalLedger
-    ? proposalLedger?.get(firstKeyInProposalLedger)
+  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
+  // Period end time calculation
+  const { headData } = useSelector((state: State) => state.preferences)
+  const timeToEndOfPeriod =
+    headData?.knownLevel && governanceStorage?.currentRoundEndLevel
+      ? calcTimeToBlock(headData.knownLevel, governanceStorage.currentRoundEndLevel)
+      : 0
+  const currentDate = new Date()
+  const [periodEndsOn, _] = useState<Date>(new Date(currentDate.getTime() + timeToEndOfPeriod * (1000 * 60 * 60 * 24)))
+  const firstKeyInProposalLedger = currentRoundProposals?.keys().next().value || 0
+  let rightSideContent = currentRoundProposals
+    ? currentRoundProposals?.get(firstKeyInProposalLedger)
     : {
         id: 0,
         proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
@@ -82,7 +88,6 @@ export const Governance = () => {
 
         status: ProposalStatus.ONGOING,
       }
-  const [rightSideContent, setRightSideContent] = useState<ProposalRecordType>(firstProposalItem)
   const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
     abstainVotesCount: Number(rightSideContent?.abstainCount),
     abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
@@ -93,37 +98,38 @@ export const Governance = () => {
     passVotesCount: Number(rightSideContent?.passVoteCount),
     passVotesMVKTotal: Number(rightSideContent?.passVoteMvkTotal),
     unusedVotesCount: 0,
-    unusedVotesMVKTotal: 0,
+    unusedVotesMVKTotal:
+      mvkTokenStorage.totalSupply -
+      (rightSideContent?.abstainMvkTotal + rightSideContent?.downvoteMvkTotal + rightSideContent?.upvoteMvkTotal),
   })
-
-  let CURRENT_TIME = new Date()
 
   useEffect(() => {
     dispatch(getGovernanceStorage())
     dispatch(getEmergencyGovernanceStorage())
+    dispatch(getDelegationStorage())
   }, [dispatch])
 
-  const handleItemSelect = (chosenProposal: ProposalRecordType) => {
-    console.log(chosenProposal.id, selectedProposalToShow, chosenProposal.id === selectedProposalToShow)
-
-    setSelectedProposalToShow(chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id)
-    console.log(rightSideContent.id)
-    setRightSideContent(chosenProposal)
-    console.log(rightSideContent.id)
-    setVoteStatistics({
-      passVotesCount: Number(chosenProposal.passVoteCount),
-      passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
-      forVotesCount: Number(chosenProposal.upvoteCount),
-      forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
-      againstVotesCount: Number(chosenProposal.downvoteCount),
-      againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
-      abstainVotesCount: Number(chosenProposal.abstainCount),
-      abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
-      //TODO: Correct calculation for unused votes count
-      unusedVotesCount: Number(chosenProposal.abstainCount),
-      unusedVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
-    })
-  }
+  // const handleItemSelect = (chosenProposal: ProposalRecordType) => {
+  //   // console.log(chosenProposal.id, selectedProposalToShow, chosenProposal.id === selectedProposalToShow)
+  //   //
+  //   // setSelectedProposalToShow(chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id)
+  //   // console.log(rightSideContent.id)
+  //   // rightSideContent = chosenProposal
+  //   // console.log(rightSideContent.id)
+  //   setVoteStatistics({
+  //     passVotesCount: Number(chosenProposal.passVoteCount),
+  //     passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
+  //     forVotesCount: Number(chosenProposal.upvoteCount),
+  //     forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
+  //     againstVotesCount: Number(chosenProposal.downvoteCount),
+  //     againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
+  //     abstainVotesCount: Number(chosenProposal.abstainCount),
+  //     abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
+  //     //TODO: Correct calculation for unused votes count
+  //     unusedVotesCount: Number(chosenProposal.abstainCount),
+  //     unusedVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
+  //   })
+  // }
   const handleProposalRoundVote = (proposalId: number) => {
     console.log('Here in Proposal round vote', proposalId)
     //TODO: Adjust for the number of votes / voting power each satellite has
@@ -177,7 +183,7 @@ export const Governance = () => {
       <PageHeader page={'governance'} kind={PRIMARY} loading={loading} />
       <GovernanceTopBar
         governancePhase={governancePhase}
-        timeLeftInPhase={CURRENT_TIME}
+        timeLeftInPhase={periodEndsOn}
         isInEmergencyGovernance={false}
       />
       <GovernanceView
@@ -185,11 +191,11 @@ export const Governance = () => {
         loading={loading}
         accountPkh={accountPkh}
         // ongoingProposals={MOCK_ONGOING_PROPOSAL_LIST}
-        nextProposals={proposalLedger || undefined}
-        // pastProposals={MOCK_PAST_PROPOSAL_LIST}
+        nextProposals={currentRoundProposals || undefined}
+        pastProposals={MOCK_PAST_PROPOSAL_LIST}
         handleProposalRoundVote={handleProposalRoundVote}
         handleVotingRoundVote={handleVotingRoundVote}
-        handleItemSelect={handleItemSelect}
+        setVoteStatistics={setVoteStatistics}
         selectedProposal={rightSideContent}
         governancePhase={governancePhase}
         voteStatistics={voteStatistics}
