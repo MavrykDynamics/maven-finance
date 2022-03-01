@@ -5,10 +5,29 @@ database:
   kind: sqlite
   path: mavryk.sqlite3
 
+# database:
+#   kind: postgres
+#   host: 127.0.0.1
+#   port: 5432
+#   user: dipdup
+#   password: ${POSTGRES_PASSWORD:-changeme}
+#   database: dipdup
+#   schema_name: public
+
+# hasura:
+#   url: http://hasura:8080
+#   admin_secret: ${ADMIN_SECRET:-changeme}
+#   allow_aggregations: False
+#   camel_case: true
+#   select_limit: 100
+
 contracts:
   mvk:
-    address: KT1A6JGMVPnxzNhYZfctyEzmgUYGQ7LfaehZ
+    address: KT1XqeL5SyDrrLv7uz6jJZzoNtHWXR49LmkY
     typename: mvk
+  doorman:
+    address: KT1H6BxLD4KzavryWVg1fPQmbvATW6nVnWGA
+    typename: doorman
   # farm:
   #   address: ${MVK_TOKEN_ADDRESS:-changeme}
   #   typename: farm
@@ -18,9 +37,6 @@ contracts:
   # council:
   #   address: ${COUNCILADDRESS}
   #   typename: council
-  # doorman:
-  #   address: ${DOORMANADDRESS}
-  #   typename: doorman
   # emergency_governance:
   #   address: ${EMERGENCYGOVERNANCEADDRESS}
   #   typename: emergency_governance
@@ -37,7 +53,8 @@ datasources:
     url: ${TZKT_URL:-changeme}
 
 indexes:
-  mvk_holders:
+  # MVK Token contract indexes
+  mvk:
     kind: operation
     datasource: tzkt
     types:
@@ -46,6 +63,14 @@ indexes:
     contracts:
       - mvk
     handlers:
+      - callback: on_mvk_origination
+        pattern:
+          - type: origination
+            originated_contract: mvk
+      - callback: on_mvk_update_operators
+        pattern:
+          - destination: mvk
+            entrypoint: update_operators
       - callback: on_mvk_transfer
         pattern:
           - destination: mvk
@@ -54,8 +79,36 @@ indexes:
         pattern:
           - destination: mvk
             entrypoint: mint
-      - callback: on_mvk_origination
+  # Doorman contract indexes
+  doorman:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - doorman
+      - mvk
+    handlers:
+      - callback: on_doorman_origination
         pattern:
           - type: origination
-            originated_contract: mvk
-
+            originated_contract: doorman
+      - callback: on_doorman_stake
+        pattern:
+          - destination: doorman
+            entrypoint: stake
+          - source: doorman
+            destination: mvk
+            entrypoint: transfer
+      - callback: on_doorman_unstake_complete
+        pattern:
+          - destination: doorman
+            entrypoint: unstakeComplete
+          - source: doorman
+            destination: mvk
+            entrypoint: transfer
+      - callback: on_doorman_compound
+        pattern:
+          - destination: doorman
+            entrypoint: compound
