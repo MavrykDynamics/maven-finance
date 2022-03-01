@@ -19,16 +19,25 @@ type VotingViewProps = {
   loading: boolean
   totalMVKVoted: number
   voteStatistics: VoteStatistics
+  totalCirculatingMVKSupply: number
 }
 
-export const VotingBarView = ({ status, totalMVKVoted, voteStatistics }: VotingViewProps) => {
-  const forVotesWidth = (voteStatistics.forVotesMVKTotal / totalMVKVoted) * 100
-  const againstVotesWidth = (voteStatistics.againstVotesMVKTotal / totalMVKVoted) * 100
-  const abstainingVotesWidth = (voteStatistics.abstainVotesMVKTotal / totalMVKVoted) * 100
-  const unusedVotesWidth = (voteStatistics.unusedVotesMVKTotal / totalMVKVoted) * 100
+export const VotingBarView = ({
+  status,
+  totalMVKVoted,
+  voteStatistics,
+  totalCirculatingMVKSupply,
+}: VotingViewProps) => {
+  const forVotesWidth = (voteStatistics.forVotesMVKTotal / totalCirculatingMVKSupply) * 100
+  const againstVotesWidth = (voteStatistics.againstVotesMVKTotal / totalCirculatingMVKSupply) * 100
+  const abstainingVotesWidth = (voteStatistics.abstainVotesMVKTotal / totalCirculatingMVKSupply) * 100
+  const unusedVotesWidth = ((totalCirculatingMVKSupply - totalMVKVoted) / totalCirculatingMVKSupply) * 100
+  const quorum = (totalCirculatingMVKSupply ?? 0) * 0.05,
+    quorumWidth = (quorum / (totalCirculatingMVKSupply ?? 1)) * 100
+
   return (
     <VotingContainer>
-      <QuorumBar width={53.61}>Quorum 53.61%</QuorumBar>
+      <QuorumBar width={quorumWidth}>Quorum {5}%</QuorumBar>
       <VotingBarStyled>
         <Tooltip title={`${voteStatistics.forVotesMVKTotal} Yay votes`}>
           <VotingFor width={forVotesWidth} />

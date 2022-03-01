@@ -73,14 +73,11 @@ const zoomIn = keyframes`
 export const InputStatus = styled.div`
   display: block;
   position: absolute;
-  top: 20px;
+  top: 25px;
   right: 10px;
   z-index: 1;
-  width: 20px;
-  height: 20px;
   margin-top: -10px;
-  font-size: 14px;
-  line-height: 20px;
+  line-height: 13px;
   text-align: center;
   visibility: visible;
   pointer-events: none;
@@ -89,11 +86,15 @@ export const InputStatus = styled.div`
   &.error {
     background-image: url('/icons/input-error.svg');
     animation: ${zoomIn} 0.3s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    height: 15px;
+    width: 15px;
   }
 
   &.success {
     background-image: url('/icons/input-success.svg');
     animation: ${zoomIn} 0.3s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    height: 12px;
+    width: 17px;
   }
 `
 

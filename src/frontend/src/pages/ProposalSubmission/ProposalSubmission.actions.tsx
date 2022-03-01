@@ -4,8 +4,14 @@ import governanceAddress from 'deployments/governanceAddress.json'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import { State } from 'reducers'
 
-export type SubmitProposalForm = { title: string; description: string; ipfsHash: string }
-
+export type SubmitProposalForm = {
+  title: string
+  description: string
+  ipfs: string
+  successMVKReward: number
+  invoiceTable: string
+  sourceCodeLink: string
+}
 export const SUBMIT_PROPOSAL_REQUEST = 'SUBMIT_PROPOSAL_REQUEST'
 export const SUBMIT_PROPOSAL_RESULT = 'SUBMIT_PROPOSAL_RESULT'
 export const SUBMIT_PROPOSAL_ERROR = 'SUBMIT_PROPOSAL_ERROR'
@@ -27,7 +33,7 @@ export const submitProposal =
       const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
       console.log('contract', contract)
 
-      const transaction = await contract?.methods.propose(form.title, form.description, form.ipfsHash).send()
+      const transaction = await contract?.methods.propose(form.title, form.description, form.ipfs).send()
       console.log('transaction', transaction)
 
       dispatch({
