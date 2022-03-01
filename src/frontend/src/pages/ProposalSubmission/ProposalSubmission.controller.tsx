@@ -9,20 +9,18 @@ import { SatelliteRecord } from 'reducers/delegation'
 
 import { submitProposal, SubmitProposalForm } from './ProposalSubmission.actions'
 import { ProposalSubmissionView } from './ProposalSubmission.view'
+import { getGovernanceStorage } from '../Governance/Governance.actions'
 
 export const ProposalSubmission = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
-  const { accountPkh } = useSelector((state: State) => state.wallet)
-  const { myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { doormanStorage } = useSelector((state: State) => state.doorman)
+  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
+
+  const { delegationStorage } = useSelector((state: State) => state.delegation)
 
   useEffect(() => {
-    if (accountPkh) {
-      dispatch(getMvkTokenStorage(accountPkh))
-      dispatch(getDoormanStorage())
-    }
-
+    dispatch(getGovernanceStorage())
     dispatch(getDelegationStorage())
   }, [dispatch, accountPkh])
 
@@ -33,8 +31,4 @@ export const ProposalSubmission = () => {
   return (
     <ProposalSubmissionView loading={loading} submitProposalCallback={submitProposalCallback} accountPkh={accountPkh} />
   )
-}
-
-function getUsersSatelliteIfExists(accountPkh: string, satelliteLedger: SatelliteRecord[]): SatelliteRecord {
-  return satelliteLedger.filter((satellite: SatelliteRecord) => satellite.address === accountPkh)[0]
 }

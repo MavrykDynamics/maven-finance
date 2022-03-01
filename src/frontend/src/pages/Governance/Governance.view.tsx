@@ -17,6 +17,8 @@ import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
 import parse, { domToReact, HTMLReactParserOptions } from 'html-react-parser'
 import { SatelliteDescriptionText } from '../SatelliteDetails/SatelliteDetails.style'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
+import { useEffect, useState } from 'react'
+import { VoteStatistics } from './Governance.controller'
 type GovernanceViewProps = {
   ready: boolean
   loading: boolean
@@ -27,9 +29,9 @@ type GovernanceViewProps = {
   governancePhase: GovernancePhase
   handleProposalRoundVote: (proposalId: number) => void
   handleVotingRoundVote: (vote: string) => void
-  handleItemSelect: (proposalListItem: ProposalRecordType) => void
-  selectedProposal: ProposalRecordType
-  voteStatistics: any
+  setVoteStatistics: (voteStatistics: VoteStatistics) => void
+  selectedProposal: ProposalRecordType | undefined
+  voteStatistics: VoteStatistics
 }
 
 export const GovernanceView = ({
@@ -42,12 +44,14 @@ export const GovernanceView = ({
   governancePhase,
   handleProposalRoundVote,
   handleVotingRoundVote,
-  handleItemSelect,
+  setVoteStatistics,
   selectedProposal,
   voteStatistics,
 }: GovernanceViewProps) => {
   const location = useLocation()
   const onProposalHistoryPage = location.pathname === '/proposal-history'
+  const [selectedProposalToShow, setSelectedProposalToShow] = useState<number>(Number(selectedProposal?.id || 1))
+  const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(selectedProposal)
   // const options: HTMLReactParserOptions = {
   //   replace: (domNode: any) => {
   //     const isElement: boolean = domNode.type && domNode.type === 'tag' && domNode.name
@@ -70,45 +74,68 @@ export const GovernanceView = ({
   //   },
   // }
 
+  useEffect(() => {
+    if (rightSideContent?.id === 0 && selectedProposal?.id !== 0) {
+      setRightSideContent(selectedProposal)
+    }
+  }, [rightSideContent?.id, selectedProposal])
+
+  const _handleItemSelect = (chosenProposal: ProposalRecordType) => {
+    setSelectedProposalToShow(chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id)
+    setRightSideContent(chosenProposal)
+    setVoteStatistics({
+      passVotesCount: Number(chosenProposal.passVoteCount),
+      passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
+      forVotesCount: Number(chosenProposal.upvoteCount),
+      forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
+      againstVotesCount: Number(chosenProposal.downvoteCount),
+      againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
+      abstainVotesCount: Number(chosenProposal.abstainCount),
+      abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
+      //TODO: Correct calculation for unused votes count
+      unusedVotesCount: Number(chosenProposal.abstainCount),
+      unusedVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
+    })
+  }
   return (
     <GovernanceStyled>
       <GovernanceLeftContainer>
         {!onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'VOTING' && (
           <Proposals
             proposalsList={ongoingProposals}
-            handleItemSelect={handleItemSelect}
-            selectedProposal={selectedProposal}
+            handleItemSelect={_handleItemSelect}
+            selectedProposal={rightSideContent}
           />
         )}
         {!onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'TIME_LOCK' && (
           <Proposals
             proposalsList={ongoingProposals}
-            handleItemSelect={handleItemSelect}
-            selectedProposal={selectedProposal}
+            handleItemSelect={_handleItemSelect}
+            selectedProposal={rightSideContent}
           />
         )}
         {!onProposalHistoryPage && nextProposals !== undefined && governancePhase === 'PROPOSAL' && (
           <Proposals
             proposalsList={nextProposals}
-            handleItemSelect={handleItemSelect}
-            selectedProposal={selectedProposal}
+            handleItemSelect={_handleItemSelect}
+            selectedProposal={rightSideContent}
           />
         )}
         {onProposalHistoryPage && pastProposals !== undefined && (
           <Proposals
             proposalsList={pastProposals}
-            handleItemSelect={handleItemSelect}
-            selectedProposal={selectedProposal}
+            handleItemSelect={_handleItemSelect}
+            selectedProposal={rightSideContent}
             isProposalHistory={true}
           />
         )}
       </GovernanceLeftContainer>
       <GovernanceRightContainer>
-        {selectedProposal && (
+        {rightSideContent && rightSideContent.id !== 0 ? (
           <>
             <GovRightContainerTitleArea>
-              <h1>{selectedProposal.title}</h1>
-              <StatusFlag text={selectedProposal.status} status={selectedProposal.status} />
+              <h1>{rightSideContent.title}</h1>
+              <StatusFlag text={rightSideContent.status} status={rightSideContent.status} />
             </GovRightContainerTitleArea>
 
             <RightSideSubContent id="votingDeadline">Voting ending on September 12th, 05:16 CEST</RightSideSubContent>
@@ -118,7 +145,7 @@ export const GovernanceView = ({
               accountPkh={accountPkh}
               handleProposalRoundVote={handleProposalRoundVote}
               handleVotingRoundVote={handleVotingRoundVote}
-              selectedProposal={selectedProposal}
+              selectedProposal={rightSideContent}
               voteStatistics={voteStatistics}
             />
             {/*<div>*/}
@@ -127,21 +154,25 @@ export const GovernanceView = ({
             {/*</div>*/}
             <div>
               <RightSideSubHeader>Description</RightSideSubHeader>
-              <RightSideSubContent>{selectedProposal.description}</RightSideSubContent>
+              <RightSideSubContent>{rightSideContent.description}</RightSideSubContent>
             </div>
             <div>
               <RightSideSubHeader>Proposer</RightSideSubHeader>
               <RightSideSubContent>
-                <TzAddress tzAddress={selectedProposal.proposerAddress} type={'primary'} hasIcon={true} isBold={true} />
+                <TzAddress tzAddress={rightSideContent.proposerAddress} type={'primary'} hasIcon={true} isBold={true} />
               </RightSideSubContent>
             </div>
             <div>
-              <a target="_blank" rel="noopener noreferrer" href={selectedProposal.invoice}>
+              <a target="_blank" rel="noopener noreferrer" href={rightSideContent.invoice}>
                 <p>Invoice</p>
               </a>
             </div>
             {/*<Table tableData={selectedProposal.invoiceTable} />*/}
           </>
+        ) : (
+          <GovRightContainerTitleArea>
+            <h1>No proposal to show</h1>
+          </GovRightContainerTitleArea>
         )}
       </GovernanceRightContainer>
     </GovernanceStyled>
