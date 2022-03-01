@@ -65,6 +65,7 @@ export interface ProposalRecordType {
   invoiceTable: string
   details?: string
   votedMVK?: number | 0
+  totalVotingPower?: number | 0
 }
 
 export interface SnapshotRecordType {
@@ -89,7 +90,7 @@ export interface GovernanceStorage {
   currentRoundStartLevel: number
   currentRoundEndLevel: number
   currentCycleEndLevel: number
-  currentRoundProposals: MichelsonMap<string, unknown>
+  currentRoundProposals: MichelsonMap<string, ProposalRecordType>
   currentRoundVotes: MichelsonMap<string, unknown>
   currentRoundHighestVotedProposalId: number
   timelockProposalId: number

@@ -1,12 +1,14 @@
 import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
 import * as React from 'react'
 import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 
 type ProposalsViewProps = {
   listTitle: string
   proposalsList: Map<string, ProposalRecordType>
   handleItemSelect: (proposalListItem: ProposalRecordType) => void
-  selectedProposal: ProposalRecordType
+  selectedProposal: ProposalRecordType | undefined
   isProposalPhase: boolean
 }
 export const ProposalsView = ({
@@ -25,15 +27,15 @@ export const ProposalsView = ({
             <ProposalListItem
               key={value.id}
               onClick={() => handleItemSelect(value)}
-              selected={selectedProposal.id === value.id}
+              selected={selectedProposal ? selectedProposal.id === value.id : value.id === 1}
             >
               <ProposalItemLeftSide>
                 <div>{value.id}</div>
                 <h4>{value.title}</h4>
               </ProposalItemLeftSide>
               <div>
-                {/*{isProposalPhase && <CommaNumber value={value.votedMVK} endingText={'voted MVK'} />}*/}
-                {/*{!isProposalPhase && <StatusFlag text={value?.status} status={value.status} />}*/}
+                {isProposalPhase && <CommaNumber value={value.votedMVK || 0} endingText={'voted MVK'} />}
+                {!isProposalPhase && <StatusFlag text={value?.status} status={value.status} />}
               </div>
             </ProposalListItem>
           )
