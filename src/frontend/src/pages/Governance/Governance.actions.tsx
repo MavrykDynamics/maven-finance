@@ -246,3 +246,79 @@ export const votingRoundVote = (vote: number) => async (dispatch: any, getState:
     })
   }
 }
+
+// export const START_PROPOSAL_ROUND_REQUEST = 'START_PROPOSAL_ROUND_REQUEST'
+// export const START_PROPOSAL_ROUND_RESULT = 'START_PROPOSAL_ROUND_RESULT'
+// export const START_PROPOSAL_ROUND_ERROR = 'START_PROPOSAL_ROUND_ERROR'
+
+export const START_PROPOSAL_ROUND_REQUEST = 'START_PROPOSAL_ROUND_REQUEST'
+export const START_PROPOSAL_ROUND_RESULT = 'VOTING_ROUND_VOTING_RESULT'
+export const START_PROPOSAL_ROUND_ERROR = 'VOTING_ROUND_VOTING_ERROR'
+export const startProposalRound = () => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  try {
+    const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.startProposalRound().send()
+    console.log('transaction', transaction)
+
+    dispatch({
+      type: START_PROPOSAL_ROUND_REQUEST,
+    })
+    dispatch(showToaster(INFO, 'Request Proposal round start...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
+
+    dispatch({
+      type: START_PROPOSAL_ROUND_RESULT,
+    })
+
+    dispatch(getGovernanceStorage())
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: START_PROPOSAL_ROUND_ERROR,
+      error,
+    })
+  }
+}
+
+export const START_VOTING_ROUND_REQUEST = 'START_VOTING_ROUND_REQUEST'
+export const START_VOTING_ROUND_RESULT = 'START_VOTING_ROUND_RESULT'
+export const START_VOTING_ROUND_ERROR = 'START_VOTING_ROUND_ERROR'
+export const startVotingRound = () => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  try {
+    const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.startProposalRound().send()
+    console.log('transaction', transaction)
+
+    dispatch({
+      type: START_VOTING_ROUND_REQUEST,
+    })
+    dispatch(showToaster(INFO, 'Request Voting round start...', 'Please wait 30s'))
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Request confirmed', 'All good :)'))
+
+    dispatch({
+      type: START_VOTING_ROUND_RESULT,
+    })
+
+    dispatch(getGovernanceStorage())
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: START_VOTING_ROUND_ERROR,
+      error,
+    })
+  }
+}

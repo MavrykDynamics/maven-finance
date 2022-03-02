@@ -46,6 +46,8 @@ export const Governance = () => {
       : 0
   const currentDate = new Date()
   const [periodEndsOn, _] = useState<Date>(new Date(currentDate.getTime() + timeToEndOfPeriod * (1000 * 60 * 60 * 24)))
+  const daysLeftOfPeriod = timeToEndOfPeriod
+  //console.log(daysLeftOfPeriod)
   const firstKeyInProposalLedger = currentRoundProposals?.keys().next().value || 0
   let rightSideContent = currentRoundProposals
     ? currentRoundProposals?.get(firstKeyInProposalLedger)
@@ -183,8 +185,9 @@ export const Governance = () => {
       <PageHeader page={'governance'} kind={PRIMARY} loading={loading} />
       <GovernanceTopBar
         governancePhase={governancePhase}
-        timeLeftInPhase={periodEndsOn}
+        timeLeftInPhase={daysLeftOfPeriod}
         isInEmergencyGovernance={false}
+        loading={loading}
       />
       <GovernanceView
         ready={ready}

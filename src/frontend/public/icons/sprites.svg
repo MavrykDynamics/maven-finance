@@ -253,4 +253,46 @@
                 <path d="M1.5 21.7222L10.5 11.5L1.5 1.27779" stroke="#4F457C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </g>
     </symbol>
+    <symbol id="add" viewBox="0 0 24 24">
+        <g clip-path="url(#clip0_1510_12508)">
+            <path d="M0.75 12H23.25" stroke="#7068AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 0.75V23.25" stroke="#7068AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <defs>
+            <clipPath id="clip0_1510_12508">
+                <rect width="24" height="24" fill="none"/>
+            </clipPath>
+        </defs>
+    </symbol>
+    <symbol id="subtract" viewBox="0 0 24 24">
+        <g clip-path="url(#clip0_1510_12512)">
+            <path d="M0.75 12H23.25" stroke="#7068AA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <defs>
+            <clipPath id="clip0_1510_12512">
+                <rect width="24" height="24" fill="none"/>
+            </clipPath>
+        </defs>
+    </symbol>
+    <symbol id="check" viewBox="0 0 24 24">
+        <g clip-path="url(#clip0_1510_12545)">
+            <path d="M1 6L6 11L16 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </g>
+        <defs>
+            <clipPath id="clip0_1510_12545">
+                <rect width="24" height="24" fill="none"/>
+            </clipPath>
+        </defs>
+    </symbol>
+    <symbol id="man-running" viewBox="0 0 28 24">
+        <g>
+            <path fill="none" d="M23.7594 17.4153L25.4107 17.6415L25.8449 14.4711C26.0177 13.2098 25.6615 11.9287 24.8546 10.9096C24.0478 9.89055 22.8564 9.21692 21.5426 9.03695C20.2288 8.85699 18.9002 9.18543 17.849 9.95002C16.7978 10.7146 16.1102 11.8527 15.9375 13.114L15.5032 16.2844L17.1544 16.5106L23.7594 17.4153Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path fill="none" d="M23 18L25 22.8857L23 27" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path fill="none" d="M18.5 17L20 22.9231L16 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path fill="none" d="M23 7C24.6569 7 26 5.65685 26 4C26 2.34315 24.6569 1 23 1C21.3431 1 20 2.34315 20 4C20 5.65685 21.3431 7 23 7Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path fill="none" d="M10.5 12.5H3.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path fill="none" d="M8 17H1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path fill="none" d="M8 8H1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+    </symbol>
 </svg>
