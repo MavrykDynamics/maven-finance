@@ -634,6 +634,12 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: storage): re
 
         // Check if farm is already open
         if s.open or s.init then failwith("This farm is already opened you cannot initialize it again") else skip;
+
+        // Check if the blocks per minute is greater than 0
+        if initFarmParams.blocksPerMinute <= 0n then failwith("This farm farm blocks per minute should be greater than 0") else skip;
+
+        // Check wether the farm is infinite or its total blocks has been set
+        if not s.infinite and initFarmParams.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
         
         // Update storage
         s := updateFarm(s);

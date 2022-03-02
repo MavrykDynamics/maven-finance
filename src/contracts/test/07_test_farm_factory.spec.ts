@@ -100,9 +100,24 @@ describe("FarmFactory", async () => {
 
             it('Create a farm without being the admin', async () => {
                 try{
-                    // Change signer
-                    await signerFactory(bob.sk);
+                    await signerFactory(bob.sk)
+                    // Create a transaction for initiating a farm
+                    await chai.expect(farmFactoryInstance.methods.createFarm(
+                        false,
+                        false,
+                        12000,
+                        0,
+                        lpTokenAddress.address,
+                        0,
+                        "fa12"
+                    ).send()).to.be.rejected;
+                }catch(e){
+                    console.log(e)
+                }
+            })
 
+            it('Create a farm being the admin but without specific duration and finite', async () => {
+                try{
                     // Create a transaction for initiating a farm
                     const operation = await farmFactoryInstance.methods.createFarm(
                         false,
@@ -111,13 +126,31 @@ describe("FarmFactory", async () => {
                         100,
                         lpTokenAddress.address,
                         0,
-                        "fa12"
+                        "fa12",
                     ).send();
                     await operation.confirmation()
+
+                    // Created farms
+                    farmFactoryStorage    = await farmFactoryInstance.storage();
+
+                    // Get the new farm
+                    farmAddress                             = farmFactoryStorage.trackedFarms[0];
+                    farmInstance                            = await utils.tezos.contract.at(farmAddress);
+                    farmStorage                             = await farmInstance.storage();
+
+                    assert.strictEqual(farmStorage.lpToken.tokenAddress, lpTokenAddress.address);
+                    assert.equal(farmStorage.lpToken.tokenId, 0);
+                    assert.equal(farmStorage.lpToken.tokenBalance, 0);
+                    assert.equal(Object.keys(farmStorage.lpToken.tokenStandard)[0], "fa12");
+                    assert.equal(farmStorage.plannedRewards.currentRewardPerBlock, 100);
+                    assert.equal(farmStorage.plannedRewards.totalBlocks, 12000);
+                    assert.equal(farmStorage.open, true);
+                    assert.equal(farmStorage.init, true);
                 }catch(e){
-                    assert.strictEqual(e.message, "ONLY_ADMINISTRATOR_ALLOWED");
+                    console.log(e);
                 }
             })
+
         });
 
         describe('%checkFarmExists', function() {

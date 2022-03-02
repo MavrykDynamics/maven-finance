@@ -87,6 +87,8 @@ error_deposit_paused = 'Deposit entrypoint is paused.'
 error_withdraw_paused = 'Withdraw entrypoint is paused.'
 error_claim_paused = 'Claim entrypoint is paused.'
 error_increase_rewards_higher = 'The new reward per block must be higher than the previous one.'
+error_farm_duration = 'This farm should be either infinite or have a specified duration'
+error_farm_blocks_per_minute = 'This farm farm blocks per minute should be greater than 0'
 
 class FarmContract(TestCase):
     
@@ -190,7 +192,7 @@ class FarmContract(TestCase):
         print('init:')
         print(init_farm_storage['init'])
         
-    def test_03_admin_init_farm(self):
+    def test_03_admin_init_farm_twice(self):
         init_farm_storage = deepcopy(self.farmStorage)
 
         # Initial parameters
@@ -231,6 +233,48 @@ class FarmContract(TestCase):
         print(res.storage['open'])
         print('init:')
         print(res.storage['init'])
+
+    def test_04_admin_init_farm_finite_no_duration(self):
+        init_farm_storage = deepcopy(self.farmStorage)
+
+        # Initial parameters
+        totalBlocks     = 0
+        currentRewardPerBlock  = 1000
+        blocksPerMinute = 2
+        
+        # Init farm operation
+        with self.raisesMichelsonError(error_farm_duration):
+            self.farmContract.initFarm({
+                "currentRewardPerBlock": currentRewardPerBlock,
+                "totalBlocks": totalBlocks,
+                "blocksPerMinute": blocksPerMinute,
+                "forceRewardFromTransfer": False,
+                "infinite": False
+            }).interpret(storage=init_farm_storage, source=alice)
+
+        print('----')
+        print('✅ Admin should not be able to initialize a finite farm with no duration')
+
+    def test_05_admin_init_farm_with_wrong_blocks_per_minute(self):
+        init_farm_storage = deepcopy(self.farmStorage)
+
+        # Initial parameters
+        totalBlocks     = 100
+        currentRewardPerBlock  = 1000
+        blocksPerMinute = 0
+        
+        # Init farm operation
+        with self.raisesMichelsonError(error_farm_blocks_per_minute):
+            self.farmContract.initFarm({
+                "currentRewardPerBlock": currentRewardPerBlock,
+                "totalBlocks": totalBlocks,
+                "blocksPerMinute": blocksPerMinute,
+                "forceRewardFromTransfer": False,
+                "infinite": False
+            }).interpret(storage=init_farm_storage, source=alice)
+
+        print('----')
+        print('✅ Admin should not be able to initialize a farm with blocks per minute equal to 0')
     
     ###
     # %deposit
