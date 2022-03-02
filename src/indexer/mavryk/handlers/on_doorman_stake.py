@@ -16,8 +16,8 @@ async def on_doorman_stake(
     doorman_address = stake.data.target_address
     sender_address = stake.data.sender_address
     sender_stake_balance_ledger = stake.data.storage['userStakeBalanceLedger'][sender_address]
-    smvk_balance = sender_stake_balance_ledger['balance']
-    mvk_balance = transfer.data.storage['ledger'][sender_address]
+    smvk_balance = int(sender_stake_balance_ledger['balance'])
+    mvk_balance = int(transfer.data.storage['ledger'][sender_address])
     participation_fees_per_share = sender_stake_balance_ledger['participationFeesPerShare']
     timestamp = stake.data.timestamp
     amount = int(stake.parameter.__root__)
@@ -30,7 +30,6 @@ async def on_doorman_stake(
         address=sender_address
     )
     user.doorman = doorman
-    smvk_total_supply = user.mvk_balance # Gets value for MLI calculation
     user.mvk_balance = mvk_balance
     user.smvk_balance = smvk_balance
     user.participation_fees_per_share = participation_fees_per_share
@@ -38,9 +37,10 @@ async def on_doorman_stake(
 
     # Calculate the MLI
     mvk_total_supply = int(transfer.data.storage['totalSupply'])
+    smvk_total_supply = doorman.smvk_total_supply
     mli = 0.0
-    if smvk_total_supply > 0.0:
-        mli = mvk_total_supply / smvk_total_supply
+    if mvk_total_supply > 0.0:
+        mli = smvk_total_supply / mvk_total_supply
     
     # Create a stake record
     stake_record = models.StakeRecord(
