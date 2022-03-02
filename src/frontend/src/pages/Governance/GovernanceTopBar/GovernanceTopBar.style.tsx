@@ -12,6 +12,11 @@ export const GovernanceTopBarStyled = styled.div<{ theme: MavrykTheme }>`
   padding: 10px 20px;
   align-items: center;
   justify-content: space-evenly;
+
+  > button {
+    max-width: 20%;
+    height: 40px;
+  }
 `
 
 export const GovTopBarSidewaysArrowIcon = styled.svg<{ theme: MavrykTheme }>`
