@@ -32,8 +32,7 @@ type proposalRecordType is [@layout:comb] record [
     title                : string;                  // title
     description          : string;                  // description
     invoice              : string;                  // ipfs hash of invoice file
-    sourceCode           : string;
-
+    sourceCode           : string;                  // link to github / repo
 
     successReward        : nat;                     // log of successful proposal reward for voters - may change over time
     executed             : bool;                    // true / false
@@ -78,7 +77,7 @@ type financialRequestRecordType is [@layout:comb] record [
 
     requesterAddress        : address;
     requestType             : string;                // "MINT" or "TRANSFER"
-    status                  : bool;                  // True - ACTIVE / False - DROPPED  
+    status                  : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
     ready                   : bool;                  // false on creation; set to true once snapshot of staked MVK total supply has been taken
     executed                : bool;                  // false on creation; set to true when financial request is executed successfully
     expired                 : bool;                  // false on creation
