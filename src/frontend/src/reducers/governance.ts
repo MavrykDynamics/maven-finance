@@ -5,6 +5,12 @@ import {
   PROPOSAL_ROUND_VOTING_RESULT,
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
+  START_PROPOSAL_ROUND_ERROR,
+  START_PROPOSAL_ROUND_REQUEST,
+  START_PROPOSAL_ROUND_RESULT,
+  START_VOTING_ROUND_ERROR,
+  START_VOTING_ROUND_REQUEST,
+  START_VOTING_ROUND_RESULT,
   VOTING_ROUND_VOTING_ERROR,
   VOTING_ROUND_VOTING_REQUEST,
   VOTING_ROUND_VOTING_RESULT,
@@ -41,6 +47,11 @@ export function governance(state = governanceDefaultState, action: any): Governa
         ...state,
         governancePhase: action.phase,
       }
+    case SET_PAST_PROPOSALS:
+      return {
+        ...state,
+        pastProposals: action.pastProposals,
+      }
     case PROPOSAL_ROUND_VOTING_REQUEST:
       return {
         ...state,
@@ -69,11 +80,33 @@ export function governance(state = governanceDefaultState, action: any): Governa
         ...state,
         error: action.error,
       }
-    case SET_PAST_PROPOSALS:
+    case START_PROPOSAL_ROUND_REQUEST:
       return {
         ...state,
-        pastProposals: action.pastProposals,
       }
+    case START_PROPOSAL_ROUND_RESULT:
+      return {
+        ...state,
+      }
+    case START_PROPOSAL_ROUND_ERROR:
+      return {
+        ...state,
+        error: action.error,
+      }
+    case START_VOTING_ROUND_REQUEST:
+      return {
+        ...state,
+      }
+    case START_VOTING_ROUND_RESULT:
+      return {
+        ...state,
+      }
+    case START_VOTING_ROUND_ERROR:
+      return {
+        ...state,
+        error: action.error,
+      }
+
     default:
       return state
   }
