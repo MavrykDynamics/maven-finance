@@ -117,10 +117,12 @@ describe("Farm", async () => {
 
                 // Check that the farm has the correct values
                 const farmOpenEnd = farmStorage.open;
+                const farmInitEnd = farmStorage.init;
                 const farmTotalBlocksEnd = farmStorage.plannedRewards.totalBlocks;
                 const farmCurrentRewardPerBlockEnd = farmStorage.plannedRewards.currentRewardPerBlock;
 
                 assert.equal(farmOpenEnd, true, "The farm should be closed when originated");
+                assert.equal(farmInitEnd, true, "The farm should not be initiated when originated");
                 assert.equal(farmTotalBlocksEnd, 12000, "The farm should have totalBlocks set on initFarm");
                 assert.equal(farmCurrentRewardPerBlockEnd, 100, "The farm should have a currentRewardPerBlock set on initFarm");
 

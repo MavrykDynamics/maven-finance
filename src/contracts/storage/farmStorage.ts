@@ -48,6 +48,7 @@ export const farmStorage: farmStorageType = {
   delegators: MichelsonMap.fromLiteral({}),
   lpToken: lpToken,
   open: false,
+  init: false,
   infinite: false,
   forceRewardFromTransfer: false,
   initBlock: new BigNumber(0),
