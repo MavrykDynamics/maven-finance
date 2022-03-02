@@ -185,7 +185,7 @@ function checkClaimIsNotPaused(var s : storage) : unit is
 ////
 // TRANSFER FUNCTIONS
 ///
-function transferLPOld(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenContractAddress: address): operation is
+function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenContractAddress: address): operation is
     block{
         const transferParams: oldTransferType = (from_,(to_,tokenAmount));
 
@@ -196,7 +196,7 @@ function transferLPOld(const from_: address; const to_: address; const tokenAmou
             end;
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
-function transferLPNew(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
+function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
 block{
     const transferParams: newTransferType = list[
             record[
@@ -220,8 +220,8 @@ block{
 
 function transferLP(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenStandard: lpStandard; const tokenContractAddress: address): operation is
     case tokenStandard of
-        Fa12 -> transferLPOld(from_,to_,tokenAmount,tokenContractAddress)
-    |   Fa2 -> transferLPNew(from_,to_,tokenAmount,tokenId,tokenContractAddress)
+        Fa12 -> transferFa12Token(from_,to_,tokenAmount,tokenContractAddress)
+    |   Fa2 -> transferFa2Token(from_,to_,tokenAmount,tokenId,tokenContractAddress)
     end
 
 function transferReward(const delegator: delegator; const tokenAmount: tokenBalance; const s: storage): operation is
@@ -532,7 +532,11 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
         const existingDelegator: bool = Big_map.mem(delegator, s.delegators);
 
         // Prepare new delegator record
-        var delegatorRecord: delegatorRecord := record[balance=0n; participationMVKPerShare=0n; unclaimedRewards=0n];
+        var delegatorRecord: delegatorRecord := record[
+            balance=0n;
+            participationMVKPerShare=s.accumulatedMVKPerShare;
+            unclaimedRewards=0n
+        ];
 
         // Get delegator deposit and perform a claim
         if existingDelegator then {
@@ -540,18 +544,16 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
             s := updateUnclaimedRewards(s);
 
             // Refresh delegator deposit with updated unclaimed rewards
-            delegatorRecord := 
-                case getDelegatorDeposit(delegator, s) of
-                    Some (d) -> d
-                |   None -> failwith("Delegator not found")
-                end;
+            delegatorRecord :=  case getDelegatorDeposit(delegator, s) of
+                Some (_delegator) -> _delegator
+            |   None -> failwith("Delegator not found")
+            end;
             
         }
         else skip;
 
         // Update delegator token balance
         delegatorRecord.balance := delegatorRecord.balance + tokenAmount;
-        delegatorRecord.participationMVKPerShare := s.accumulatedMVKPerShare;
 
         // Update delegators Big_map and farmTokenBalance
         s.lpToken.tokenBalance := s.lpToken.tokenBalance + tokenAmount;

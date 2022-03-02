@@ -664,7 +664,7 @@ function farmClaimComplete(const farmClaim: farmClaimType; var s: storage): retu
       updateSatelliteBalance(delegationAddress)
     );
 
-    // update user's staked balance in staked balance ledger
+    // get user's staked balance in staked balance ledger
     var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[recipientAddress] of
       Some (_val) -> _val
     | None -> record[
