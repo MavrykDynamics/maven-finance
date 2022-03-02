@@ -92,6 +92,7 @@ describe("FarmFactory", async () => {
                     assert.equal(farmStorage.plannedRewards.currentRewardPerBlock, 100);
                     assert.equal(farmStorage.plannedRewards.totalBlocks, 12000);
                     assert.equal(farmStorage.open, true);
+                    assert.equal(farmStorage.init, true);
                 }catch(e){
                     console.log(e);
                 }

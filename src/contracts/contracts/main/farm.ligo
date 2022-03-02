@@ -60,6 +60,7 @@ type storage is record[
     delegators              : big_map(delegator, delegatorRecord);
     lpToken                 : lpToken;
     open                    : bool;
+    init                    : bool;
     infinite                : bool;
     forceRewardFromTransfer : bool; // If True, the claimed rewards will be transfered from the farmTreasury account
     initBlock               : nat;
@@ -153,7 +154,11 @@ function checkSourceIsAdmin(const s: storage): unit is
   else unit
 
 function checkFarmIsInit(const s: storage): unit is 
-  if s.plannedRewards.currentRewardPerBlock = 0n or s.plannedRewards.totalRewards = 0n then failwith("This farm has not yet been initiated")
+  if not s.init then failwith("This farm has not yet been initiated")
+  else unit
+
+function checkFarmIsOpen(const s: storage): unit is 
+  if not s.open then failwith("This farm is closed")
   else unit
 
 ////
@@ -523,7 +528,7 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
         s := updateFarm(s);
 
         // Check if farm is closed or not
-        if s.open then skip else failwith("This farm is closed you cannot deposit on it");
+        checkFarmIsOpen(s);
 
         // Delegator address
         const delegator: delegator = Tezos.sender;
@@ -613,7 +618,7 @@ function closeFarm (var s: storage): return is
         checkSenderIsAdmin(s);
 
         // Check if farm is open
-        if not s.open then failwith("This farm is not opened so you cannot close it") else skip;
+        checkFarmIsOpen(s);
         
         s := updateFarm(s);
     
@@ -628,7 +633,7 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: storage): re
         checkSenderIsAdmin(s);
 
         // Check if farm is already open
-        if s.open or s.plannedRewards.currentRewardPerBlock =/= 0n or s.plannedRewards.totalRewards =/= 0n then failwith("This farm is already opened you cannot initialize it again") else skip;
+        if s.open or s.init then failwith("This farm is already opened you cannot initialize it again") else skip;
         
         // Update storage
         s := updateFarm(s);
@@ -640,6 +645,7 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: storage): re
         s.plannedRewards.totalRewards := s.plannedRewards.currentRewardPerBlock * s.plannedRewards.totalBlocks;
         s.blocksPerMinute := initFarmParams.blocksPerMinute;
         s.open := True ;
+        s.init := True ;
     } with (noOperations, s)
 
 (* Main entrypoint *)

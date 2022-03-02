@@ -79,7 +79,7 @@ TOLERANCE = 0.0001
 error_farm_not_init = 'This farm has not yet been initiated'
 error_withdraw_higher_than_deposit = 'The amount withdrawn is higher than the delegator deposit'
 error_only_administrator = 'ONLY_ADMINISTRATOR_ALLOWED'
-error_farm_closed = 'This farm is closed you cannot deposit on it'
+error_farm_closed = 'This farm is closed'
 error_farm_already_init = 'This farm is already opened you cannot initialize it again'
 error_delegator_not_found = 'DELEGATOR_NOT_FOUND'
 error_no_unclaimed_rewards = 'The delegator has no rewards to claim'
@@ -145,6 +145,7 @@ class FarmContract(TestCase):
         self.assertEqual(totalBlocks, res.storage['plannedRewards']['totalBlocks'])
         self.assertEqual(currentRewardPerBlock, res.storage['plannedRewards']['currentRewardPerBlock'])
         self.assertEqual(True, res.storage['open'])
+        self.assertEqual(True, res.storage['init'])
         print('----')
         print('✅ Admin initialize a farm')
         print('total blocks:')
@@ -153,6 +154,8 @@ class FarmContract(TestCase):
         print(res.storage['plannedRewards']['currentRewardPerBlock'])
         print('open:')
         print(res.storage['open'])
+        print('init:')
+        print(res.storage['init'])
 
     def test_02_non_admin_init_farm(self):
         init_farm_storage = deepcopy(self.farmStorage)
@@ -175,6 +178,7 @@ class FarmContract(TestCase):
         self.assertEqual(0, init_farm_storage['plannedRewards']['totalBlocks'])
         self.assertEqual(0, init_farm_storage['plannedRewards']['currentRewardPerBlock'])
         self.assertEqual(False, init_farm_storage['open'])
+        self.assertEqual(False, init_farm_storage['init'])
         print('----')
         print('✅ Non-admin initialize a farm')
         print('total blocks:')
@@ -183,6 +187,8 @@ class FarmContract(TestCase):
         print(init_farm_storage['plannedRewards']['currentRewardPerBlock'])
         print('open:')
         print(init_farm_storage['open'])
+        print('init:')
+        print(init_farm_storage['init'])
         
     def test_03_admin_init_farm(self):
         init_farm_storage = deepcopy(self.farmStorage)
@@ -214,6 +220,7 @@ class FarmContract(TestCase):
         self.assertEqual(totalBlocks, res.storage['plannedRewards']['totalBlocks'])
         self.assertEqual(currentRewardPerBlock, res.storage['plannedRewards']['currentRewardPerBlock'])
         self.assertEqual(True, res.storage['open'])
+        self.assertEqual(True, res.storage['init'])
         print('----')
         print('✅ Admin initialize a farm twice')
         print('total blocks:')
@@ -222,6 +229,8 @@ class FarmContract(TestCase):
         print(res.storage['plannedRewards']['currentRewardPerBlock'])
         print('open:')
         print(res.storage['open'])
+        print('init:')
+        print(res.storage['init'])
     
     ###
     # %deposit
