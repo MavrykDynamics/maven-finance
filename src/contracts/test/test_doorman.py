@@ -68,6 +68,9 @@ error_compound_paused = 'Compound entrypoint is paused.'
 error_only_delegation = 'Error. Only the Delegation Contract can call this entrypoint.'
 error_mvk_contract_not_found = 'Error. MVK Token Contract is not found.'
 error_delegation_contract_not_found = 'Error. Delegation Contract is not found.'
+error_min_mvk_amount_stake = 'You have to stake at least 1 MVK token.'
+error_min_mvk_amount_unstake = 'You have to unstake at least 1 MVK token.'
+error_min_mvk_bound = 'Error. The minimum amount of MVK to stake should be equal to 1.'
 
 class DoormanContract(TestCase):
     
@@ -90,8 +93,8 @@ class DoormanContract(TestCase):
             self.assertEqual(f"'{error_message}': ", r.exception.format_stdout())
 
     # MVK Formatter
-    def MVK(self, value = 1):
-        return value * 10**int(mvkTokenDecimals)
+    def MVK(self, value: float = 1.0):
+        return int(value * 10**int(mvkTokenDecimals))
 
 #     ######################
 #     # Tests for doorman contract #
@@ -816,3 +819,113 @@ class DoormanContract(TestCase):
 
         print('----')
         print('✅ User tries to compound while doorman does not have delegation contract in generalContracts')
+
+    ###
+    # %updateMinMvkAmount
+    ##
+    def test_70_admin_can_increase_min_mvk(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(1)
+        minAmount = init_doorman_storage['minMvkAmount']
+        desiredMinAmount = self.MVK(2)
+
+        # Operation
+        res = self.doormanContract.updateMinMvkAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=alice);
+
+        # Test operation
+        with self.raisesMichelsonError(error_min_mvk_amount_stake):
+            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=alice);
+        
+        with self.raisesMichelsonError(error_min_mvk_amount_unstake):
+            res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=alice);
+
+        newAmount = res.storage['minMvkAmount']
+
+        self.assertNotEqual(minAmount, newAmount)
+
+        print('----')
+        print('✅ Admin should be able to increase the minimum amount of MVK to interact with the contract')
+        print('minimum amount:')
+        print(res.storage['minMvkAmount'])
+
+    def test_71_admin_can_decrease_min_mvk(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(1)
+        minAmount = init_doorman_storage['minMvkAmount']
+        firstDesiredMinAmount = self.MVK(3)
+        secondDesiredMinAmount = self.MVK(2)
+
+        # Operation
+        res = self.doormanContract.updateMinMvkAmount(firstDesiredMinAmount).interpret(storage=init_doorman_storage, sender=alice);
+        res = self.doormanContract.updateMinMvkAmount(secondDesiredMinAmount).interpret(storage=res.storage, sender=alice);
+
+        # Test operation
+        with self.raisesMichelsonError(error_min_mvk_amount_stake):
+            res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=alice);
+        
+        with self.raisesMichelsonError(error_min_mvk_amount_unstake):
+            res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=alice);
+
+        newAmount = res.storage['minMvkAmount']
+
+        self.assertNotEqual(minAmount, newAmount)
+
+        print('----')
+        print('✅ Admin should be able to decrease the minimum amount of MVK to interact with the contract')
+        print('minimum amount:')
+        print(res.storage['minMvkAmount'])
+
+    def test_72_admin_cant_decrease_min_mvk_too_much(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(1)
+        minAmount = init_doorman_storage['minMvkAmount']
+        desiredMinAmount = self.MVK(0.5)
+
+        # Operation
+        with self.raisesMichelsonError(error_min_mvk_bound):
+            res = self.doormanContract.updateMinMvkAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=alice);
+
+        # Test operation
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=alice);
+        res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=alice);
+
+        newAmount = res.storage['minMvkAmount']
+
+        self.assertEqual(minAmount, newAmount)
+
+        print('----')
+        print('✅ Admin should not be able to decrease the minimum amount of MVK below 1MVK')
+        print('minimum amount:')
+        print(init_doorman_storage['minMvkAmount'])
+
+    def test_73_non_admin_cant_update_min_mvk(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        stakeAmount = self.MVK(1)
+        minAmount = init_doorman_storage['minMvkAmount']
+        desiredMinAmount = self.MVK(2)
+
+        # Operation
+        newAmount = 0
+        with self.raisesMichelsonError(error_only_administrator):
+            res = self.doormanContract.updateMinMvkAmount(desiredMinAmount).interpret(storage=init_doorman_storage, sender=bob);
+
+        # Test operation
+        res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=alice);
+        res = self.doormanContract.unstake(stakeAmount).interpret(storage=res.storage, sender=alice);
+
+        newAmount = res.storage['minMvkAmount']
+
+        self.assertEqual(minAmount, newAmount)
+
+        print('----')
+        print('✅ Non-admin should not be able to update the minimum amount of MVK')
+        print('minimum amount:')
+        print(init_doorman_storage['minMvkAmount'])
