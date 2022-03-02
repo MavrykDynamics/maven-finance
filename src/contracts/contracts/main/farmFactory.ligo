@@ -416,7 +416,7 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
 function checkFarmExists (const farmContract: address; const s: storage): return is 
     case Set.mem(farmContract, s.trackedFarms) of
         True -> (noOperations, s)
-    |   False -> failwith("The provided farm contract does not exist in the trackedFarms big_map")
+    |   False -> failwith("The provided farm contract does not exist in the trackedFarms set")
     end
 
 (* TrackFarm entrypoint *)
@@ -429,7 +429,7 @@ function trackFarm (const farmContract: address; var s: storage): return is
         checkTrackFarmIsNotPaused(s);
 
         s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of
-            True -> (failwith("The provided farm contract already exists in the trackedFarms big_map"): set(address))
+            True -> (failwith("The provided farm contract already exists in the trackedFarms set"): set(address))
         |   False -> Set.add(farmContract, s.trackedFarms)
         end;
     } with(noOperations, s)
@@ -445,7 +445,7 @@ function untrackFarm (const farmContract: address; var s: storage): return is
 
         s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of
             True -> Set.remove(farmContract, s.trackedFarms)
-        |   False -> (failwith("The provided farm contract does not exist in the trackedFarms big_map"): set(address))
+        |   False -> (failwith("The provided farm contract does not exist in the trackedFarms set"): set(address))
         end;
     } with(noOperations, s)
 

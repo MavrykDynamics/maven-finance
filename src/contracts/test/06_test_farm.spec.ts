@@ -12,7 +12,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../env";
-import { alice, bob, eve } from "../scripts/sandbox/accounts";
+import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
 
 import farmAddress from '../deployments/farmAddress.json';
 import farmfactoryAddress from '../deployments/farmFactoryAddress.json';
@@ -64,8 +64,10 @@ describe("Farm", async () => {
         lpTokenStorage    = await lpTokenInstance.storage();
 
         // Make farm factory track the farm
-        const trackOperation = await farmFactoryInstance.methods.trackFarm(farmAddress.address).send();
-        await trackOperation.confirmation();
+        if(!farmFactoryStorage.trackedFarms.includes(farmAddress.address)){
+            const trackOperation = await farmFactoryInstance.methods.trackFarm(farmAddress.address).send();
+            await trackOperation.confirmation();
+        }
     });
 
     beforeEach("storage", async () => {
@@ -411,12 +413,14 @@ describe("Farm", async () => {
                 // Wait at least one block before claiming rewards from mint
                 var mvkTotalSupplyFirstUpdate = 0;
                 var doormanBalanceFirstUpdate = 0;
+                var treasuryFirstUpdate = 0;
                 await sleep(5000).then(async () => {
                     const claimOperation = await farmInstance.methods.claim().send();
                     await claimOperation.confirmation();
                     mvkTokenStorage = await mvkTokenInstance.storage();
                     mvkTotalSupplyFirstUpdate = parseInt(mvkTokenStorage.totalSupply);
                     doormanBalanceFirstUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
+                    treasuryFirstUpdate = parseInt(await mvkTokenStorage.ledger.get(eve.pkh));
                 })
 
                 // Toggle to transfer
@@ -430,12 +434,14 @@ describe("Farm", async () => {
                 //Do another claim
                 var mvkTotalSupplySecondUpdate = 0;
                 var doormanBalanceSecondUpdate = 0;
+                var treasurySecondUpdate = 0;
                 await sleep(5000).then(async () => {
                     const claimOperation = await farmInstance.methods.claim().send();
                     await claimOperation.confirmation();
                     mvkTokenStorage = await mvkTokenInstance.storage();
                     mvkTotalSupplySecondUpdate = parseInt(mvkTokenStorage.totalSupply);
                     doormanBalanceSecondUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
+                    treasurySecondUpdate = parseInt(await mvkTokenStorage.ledger.get(eve.pkh));
                 })
 
                 // Toggle to mint 
@@ -449,12 +455,14 @@ describe("Farm", async () => {
                 //Do another claim
                 var mvkTotalSupplyThirdUpdate = 0;
                 var doormanBalanceThirdUpdate = 0;
+                var treasuryThirdUpdate = 0;
                 await sleep(5000).then(async () => {
                     const claimOperation = await farmInstance.methods.claim().send();
                     await claimOperation.confirmation();
                     mvkTokenStorage = await mvkTokenInstance.storage();
                     mvkTotalSupplyThirdUpdate = parseInt(mvkTokenStorage.totalSupply);
                     doormanBalanceThirdUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
+                    treasuryThirdUpdate = parseInt(await mvkTokenStorage.ledger.get(eve.pkh));
                 })
 
                 assert.notEqual(mvkTotalSupply,mvkTotalSupplyFirstUpdate);
@@ -478,6 +486,9 @@ describe("Farm", async () => {
                 console.log("Doorman balance after first mint: ", doormanBalanceFirstUpdate)
                 console.log("Doorman balance after transfer: ", doormanBalanceSecondUpdate)
                 console.log("Doorman balance after second mint: ", doormanBalanceThirdUpdate)
+                console.log("Treasury after first mint: ",treasuryFirstUpdate)
+                console.log("Treasury after transfer: ",treasurySecondUpdate)
+                console.log("Treasury after second mint: ",treasuryThirdUpdate)
             } catch(e){
                 console.log(e);
             } 
@@ -511,6 +522,7 @@ describe("Farm", async () => {
                     mvkTokenStorage = await mvkTokenInstance.storage();
                     mvkTotalSupplyFirstUpdate = parseInt(mvkTokenStorage.totalSupply);
                     doormanBalanceFirstUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
+                    console.log(await mvkTokenStorage.ledger.get(doormanAddress.address))
                 })
 
                 // Toggle to transfer
