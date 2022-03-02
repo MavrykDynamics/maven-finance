@@ -6,6 +6,7 @@ class StakeType(IntEnum):
     STAKE       = 0
     UNSTAKE     = 1
     FARM_CLAIM  = 2
+    COMPOUND    = 3
 
 # Unique contract instances
 class MVKToken(Model):

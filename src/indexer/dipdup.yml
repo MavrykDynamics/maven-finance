@@ -112,3 +112,27 @@ indexes:
         pattern:
           - destination: doorman
             entrypoint: compound
+      - callback: on_doorman_update_min_mvk_amount
+        pattern:
+          - destination: doorman
+            entrypoint: updateMinMvkAmount
+      - callback: on_doorman_pause_all
+        pattern:
+          - destination: doorman
+            entrypoint: pauseAll
+      - callback: on_doorman_unpause_all
+        pattern:
+          - destination: doorman
+            entrypoint: unpauseAll
+      - callback: on_doorman_toggle_pause_stake
+        pattern:
+          - destination: doorman
+            entrypoint: togglePauseStake
+      - callback: on_doorman_toggle_pause_unstake
+        pattern:
+          - destination: doorman
+            entrypoint: togglePauseUnstake
+      - callback: on_doorman_toggle_pause_compound
+        pattern:
+          - destination: doorman
+            entrypoint: togglePauseCompound
