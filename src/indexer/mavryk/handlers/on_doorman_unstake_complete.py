@@ -47,7 +47,7 @@ async def on_doorman_unstake_complete(
     # Create a stake record
     stake_record = models.StakeRecord(
         timestamp=timestamp,
-        type=models.StakeType.STAKE,
+        type=models.StakeType.UNSTAKE,
         desired_amount=desired_amount,
         final_amount=final_amount,
         exit_fee=exit_fee,
