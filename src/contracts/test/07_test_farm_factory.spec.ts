@@ -136,7 +136,7 @@ describe("FarmFactory", async () => {
                     const operation = await farmFactoryInstance.methods.checkFarmExists(bob.pkh).send();
                     await operation.confirmation()
                 }catch(e){
-                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms big_map");
+                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set");
                 }
             })
         });
@@ -530,7 +530,7 @@ describe("FarmFactory", async () => {
                     const operation = await farmFactoryInstance.methods.untrackFarm(bob.pkh).send();
                     await operation.confirmation();
                 }catch(e){
-                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms big_map");
+                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set");
                 }
             })
         });
@@ -948,7 +948,7 @@ describe("FarmFactory", async () => {
                     const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
                     console.log(doormanRecord)
                 }catch(e){
-                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms big_map")
+                    assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set")
                 }
             })
 

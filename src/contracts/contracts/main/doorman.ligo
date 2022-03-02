@@ -498,7 +498,7 @@ block {
   // list of operations: get MVK total supply first, then get vMVK total supply (which will trigger unstake complete)
   const operations : list(operation) = 
     case userCompound.0 of
-      Some (o) -> list [updateMvkTotalSupplyProxyOperation; o]
+      Some (compound) -> list [compound; updateMvkTotalSupplyProxyOperation]
     | None -> list [updateMvkTotalSupplyProxyOperation]
     end
 } with (operations, s)
@@ -599,8 +599,8 @@ block {
 
     // create list of operations
     const operations : list(operation) = case compoundAction.0 of
-      Some (compoundOperation) -> list[compoundOperation; transferOperation; updateSatelliteBalanceOperation]
-    | None -> list[transferOperation; updateSatelliteBalanceOperation]
+      Some (compoundOperation) -> list[updateSatelliteBalanceOperation; transferOperation; compoundOperation]
+    | None -> list[updateSatelliteBalanceOperation; transferOperation]
     end;
 
 } with (operations, s);
@@ -636,7 +636,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     const doormanFarmClaimStageOperation: operation = Tezos.transaction((delegator, claimAmount, forceTransfer), 0tez, doormanFarmClaimStage(mvkTokenAddress));
 
     // List of operation, first check the farm exists, then update the Satellite balance
-    const operations: list(operation) = list[checkFarmExistsOperation;doormanFarmClaimStageOperation];
+    const operations: list(operation) = list[doormanFarmClaimStageOperation; checkFarmExistsOperation];
 
   } with(operations, s)
 
@@ -707,7 +707,7 @@ function farmClaimComplete(const farmClaim: farmClaimType; var s: storage): retu
 
     // Mint Tokens
     if mintedTokens > 0n then {
-      const mintParam: mintTokenType = (recipientAddress, mintedTokens);
+      const mintParam: mintTokenType = (Tezos.self_address, mintedTokens);
       const mintOperation: operation = Tezos.transaction(mintParam, 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
       operations := mintOperation # operations;
     } else skip;
@@ -720,7 +720,7 @@ function farmClaimComplete(const farmClaim: farmClaimType; var s: storage): retu
           from_=treasuryAddress;
           txs=list[
             record[
-              to_=recipientAddress;
+              to_=Tezos.self_address;
               amount=transferedToken;
               token_id=0n;
             ]
