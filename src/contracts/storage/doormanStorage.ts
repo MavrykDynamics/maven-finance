@@ -10,6 +10,7 @@ import { doormanStorageType } from "../test/types/doormanStorageType";
 export const doormanStorage: doormanStorageType = {
 
   admin: alice.pkh,
+  minMvkAmount: new BigNumber(MVK(1)),
 
   whitelistContracts : MichelsonMap.fromLiteral({}),
   generalContracts: MichelsonMap.fromLiteral({}),
@@ -23,6 +24,7 @@ export const doormanStorage: doormanStorageType = {
 
   tempMvkTotalSupply: new BigNumber(MVK(100)),
   stakedMvkTotalSupply: new BigNumber(0),
+  unclaimedRewards: new BigNumber(0),
   
   logExitFee: new BigNumber(1),
   logFinalAmount: new BigNumber(1),

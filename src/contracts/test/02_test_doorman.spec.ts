@@ -214,6 +214,7 @@ describe("Doorman tests", async () => {
                 const mvkTotalSupply = parseInt(mvkTokenStorage.totalSupply);
                 const doormanSMVKTotalSupply = parseInt(doormanStorage.stakedMvkTotalSupply);
                 const userUnstake = userStakeBalance - MVK();
+                const exitFeePool = parseInt(doormanStorage.exitFeePool);
 
                 // Operation
                 const unstakeOperation = await doormanInstance.methods.unstake(userUnstake).send();
@@ -234,11 +235,13 @@ describe("Doorman tests", async () => {
                 const userStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
                 const userStakeBalanceEnd = parseInt(userStakeLedgerEnd.balance);
                 const doormanSMVKTotalSupplyEnd = parseInt(doormanStorage.stakedMvkTotalSupply);
+                const exitFeePoolEnd = parseInt(doormanStorage.exitFeePool);
 
                 // Assertion
                 assert.equal(doormanSMVKTotalSupply - expectedFinalAmount, doormanSMVKTotalSupplyEnd);
                 assert.equal(userMVKBalance + expectedFinalAmount, userMVKBalanceEnd);
                 assert.equal(userStakeBalance - expectedFinalAmount, userStakeBalanceEnd);
+                assert.equal(exitFeePoolEnd, exitFeePool);
             } catch(e) {
                 console.log(e)
             }
@@ -250,6 +253,7 @@ describe("Doorman tests", async () => {
                 const firstUserStake = MVK(2);
                 const secondUserstake = MVK(2);
                 const firstUserUnstake = MVK();
+                const exitFeePool = parseInt(doormanStorage.exitFeePool);
 
                 // Operator set
                 const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
@@ -331,11 +335,14 @@ describe("Doorman tests", async () => {
                 const firstUserReward = firstUserStakeBalanceEnd - firstUserUnstake
                 const secondUserReward = secondUserStakeBalanceEnd - secondUserStakeBalancePreCompound
 
+                const exitFeePoolEnd = parseInt(doormanStorage.exitFeePool);
+
                 // Assertion
                 assert.equal(doormanStorage.logFinalAmount,expectedFinalAmount)
                 assert.equal(paidFee,firstUserReward+secondUserReward)
                 assert.equal(firstUserExpectedReward,firstUserReward)
                 assert.equal(secondUserExpectedReward,secondUserReward)
+                assert.notEqual(exitFeePool,exitFeePoolEnd)
             } catch(e) {
                 console.log(e)
             }

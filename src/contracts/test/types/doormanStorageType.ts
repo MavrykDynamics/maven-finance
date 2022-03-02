@@ -4,7 +4,8 @@ import { BigNumber } from "bignumber.js";
 export type doormanStorageType = {
   
   admin: string;
-  
+  minMvkAmount: BigNumber;
+
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
@@ -13,6 +14,7 @@ export type doormanStorageType = {
 
   tempMvkTotalSupply: BigNumber;
   stakedMvkTotalSupply: BigNumber;
+  unclaimedRewards: BigNumber;
   
   logExitFee: BigNumber;
   logFinalAmount: BigNumber;
