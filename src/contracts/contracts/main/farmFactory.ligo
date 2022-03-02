@@ -60,6 +60,7 @@ type farmStorage is record[
     delegators              : big_map(delegator, delegatorRecord);
     lpToken                 : lpToken;
     open                    : bool;
+    init                    : bool;
     infinite                : bool;
     forceRewardFromTransfer : bool;
     initBlock               : nat;
@@ -395,6 +396,7 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             delegators              = farmDelegators;
             lpToken                 = farmLPToken;
             open                    = True ;
+            init                    = True;
             infinite                = farmInfinite;
             forceRewardFromTransfer = farmForceRewardFromTransfer;
             initBlock               = Tezos.level;
