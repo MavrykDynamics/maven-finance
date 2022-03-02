@@ -381,6 +381,9 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             claimIsPaused=False;
         ];
 
+        // Check wether the farm is infinite or its total blocks has been set
+        if not farmInfinite and farmStorage.plannedRewards.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
+
         // Create a farm and auto init it?
         const originatedFarmStorage: farmStorage = record[
             admin                   = s.admin; // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
