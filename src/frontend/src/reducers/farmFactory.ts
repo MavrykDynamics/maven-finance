@@ -9,7 +9,7 @@ export interface FarmFactoryStorage {
     createFarmIsPaused: boolean
     untrackFarmIsPaused: boolean
   }
-  createdFarms: any[]
+  trackedFarms: any[]
 }
 
 export interface FarmFactoryState {
