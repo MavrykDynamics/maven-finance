@@ -13,6 +13,7 @@ export type doormanStorageType = {
   userStakeBalanceLedger: MichelsonMap<MichelsonMapKey, unknown>;
 
   tempMvkTotalSupply: BigNumber;
+  tempMvkMaximumTotalSupply: BigNumber;
   stakedMvkTotalSupply: BigNumber;
   unclaimedRewards: BigNumber;
   

@@ -11,6 +11,8 @@ type tokenId is nat;
 type tokenBalance is nat;
 type operator is address
 type owner is address
+type treasury is string
+type forceTransfer is bool
 
 ////
 // STORAGE
@@ -26,15 +28,16 @@ type tokenMetadata is big_map(tokenId, tokenMetadataInfo);
 type metadata is big_map (string, bytes);
 
 type storage is record [
-    admin                 : address;
-    generalContracts      : generalContractsType;    // map of contract addresses
-    whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
-    metadata              : metadata;
-    token_metadata        : tokenMetadata;
-    totalSupply           : tokenBalance;
-    ledger                : ledger;
-    operators             : operators
-  ]
+  admin                 : address;
+  generalContracts      : generalContractsType;    // map of contract addresses
+  whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
+  metadata              : metadata;
+  token_metadata        : tokenMetadata;
+  totalSupply           : tokenBalance;
+  maximumTotalSupply    : tokenBalance;
+  ledger                : ledger;
+  operators             : operators
+]
 
 ////
 // RETURN TYPES
@@ -90,14 +93,14 @@ type assertMetadataParams is [@layout:comb] record[
   hash: bytes;
 ]
 
-(* TotalSupply entrypoint inputs *)
+(* GetTotalSupply entrypoint inputs *)
 type getTotalSupplyParams is contract(tokenBalance)
+
+(* GetDesiredMintPossibility entrypoint inputs *)
+type getDesiredMintPossibilityParams is contract(tokenBalance)
 
 (* Mint entrypoint inputs *)
 type mintParams is (owner * tokenBalance)
-
-(* Burn entrypoint inputs *)
-type burnParams is (owner * tokenBalance)
 
 (* OnStakeChange entrypoint inputs *)
 type stakeType is 
@@ -105,8 +108,11 @@ type stakeType is
 | UnstakeAction of unit
 type onStakeChangeParamsType is (owner * tokenBalance * stakeType)
 
-(* UpdateMvkDoormanTotalSupply entrypoint inputs *)
-type updateMvkTotalSupplyForDoormanParams is tokenBalance
+(* DoormanUnstakeStage entrypoint inputs *)
+type doormanUnstakeStageParams is tokenBalance
+
+(* DoormanFarmClaimStage entrypoint inputs *)
+type doormanFarmClaimStageParams is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
 ////
 // ENTRYPOINTS
@@ -118,11 +124,11 @@ type action is
 | AssertMetadata of assertMetadataParams
 | GetTotalSupply of getTotalSupplyParams
 | Mint of mintParams
-| Burn of burnParams
 | OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
 | UpdateGeneralContracts of updateGeneralContractsParams
-| UpdateMvkTotalSupplyForDoorman of updateMvkTotalSupplyForDoormanParams
+| DoormanUnstakeStage of doormanUnstakeStageParams
+| DoormanFarmClaimStage of doormanFarmClaimStageParams
 
 ////
 // FUNCTIONS
@@ -298,41 +304,23 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
 (* Mint Entrypoint *)
 function mint(const mintParams: mintParams; const store : storage) : return is
   block {
-    const senderAddress: owner = mintParams.0;
+    const recipientAddress: owner = mintParams.0;
     const mintedTokens: tokenBalance = mintParams.1;
 
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Tezos.sender, store) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+
+    // Check if the minted token exceed the maximumTotalSupply defined in the storage
+    const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
+    if tempTotalSupply > store.maximumTotalSupply then failwith("Maximum total supply of MVK exceeded") else skip;
 
     // Update sender's balance
-    const senderNewBalance: tokenBalance = getBalance(senderAddress, store) + mintedTokens;
+    const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
     const newTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
 
     // Update storage
-    const updatedLedger: ledger = Big_map.update(senderAddress, Some(senderNewBalance), store.ledger);
+    const updatedLedger: ledger = Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
-
-(* Burn Entrypoint *)
-function burn(const burnParams: burnParams; const store: storage) : return is
-  block {
-    const targetAddress: owner = burnParams.0;
-    const burnedTokens: tokenBalance = burnParams.1;
-    var targetBalance: tokenBalance := getBalance(targetAddress, store);
-
-    (* Check this call is comming from the doorman contract *)
-    checkSenderIsDoormanContract(store);
-
-    (* Balance check *)
-    checkBalance(targetBalance, burnedTokens);
-
-    (* Update sender balance *)
-    targetBalance := abs(targetBalance - burnedTokens);
-    const newTotalSupply: tokenBalance = abs(store.totalSupply - burnedTokens);
-
-    (* Update storage *)
-    const updatedLedger: ledger = Big_map.update(targetAddress, Some(targetBalance), store.ledger);
-  } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
-
 
 (* OnStakeChange Entrypoint *)
 (* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
@@ -363,20 +351,21 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const
     const updatedLedger = Big_map.update(owner, Some(ownerBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger])
 
-function updateMvkTotalSupplyForDoorman(const updateMvkTotalSupplyForDoormanParams: updateMvkTotalSupplyForDoormanParams; const store: storage): return is
+(* DoormanUnstakeStage Entrypoint *)
+function doormanUnstakeStage(const doormanUnstakeStageParams: doormanUnstakeStageParams; const store: storage): return is
   block {
     (* Check this call is comming from the doorman contract *)
     checkSenderIsDoormanContract(store);
 
-    const unstakeAmount: tokenBalance = updateMvkTotalSupplyForDoormanParams;
+    const unstakeAmount: tokenBalance = doormanUnstakeStageParams;
     const doormanAddress: address = Tezos.sender;
 
-    const setTempMvkTotalSupplyEntrypoint: contract(nat) = 
-      case (Tezos.get_entrypoint_opt("%setTempMvkTotalSupply", doormanAddress) : option(contract(nat))) of
+    const setTempMvkTotalSupplyEntrypoint: contract(nat*nat) = 
+      case (Tezos.get_entrypoint_opt("%setTempMvkTotalSupply", doormanAddress) : option(contract(nat*nat))) of
         Some (contr) -> contr
-      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat))
+      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat*nat))
       end;
-    const setTempMvkTotalSupplyEntrypoint_operation: operation = Tezos.transaction(store.totalSupply, 0tez, setTempMvkTotalSupplyEntrypoint);
+    const setTempMvkTotalSupplyEntrypoint_operation: operation = Tezos.transaction((store.totalSupply, store.maximumTotalSupply), 0tez, setTempMvkTotalSupplyEntrypoint);
 
     const unstakeCompleteEntrypoint: contract(nat) =
       case (Tezos.get_entrypoint_opt("%unstakeComplete", doormanAddress) : option(contract(nat))) of
@@ -386,6 +375,35 @@ function updateMvkTotalSupplyForDoorman(const updateMvkTotalSupplyForDoormanPara
     const unstakeCompleteOperation: operation = Tezos.transaction(unstakeAmount, 0tez, unstakeCompleteEntrypoint);
 
     const operations: list(operation) = list [setTempMvkTotalSupplyEntrypoint_operation; unstakeCompleteOperation];
+
+  } with (operations, store)
+
+(* DoormanFarmClaimStage Entrypoint *)
+function doormanFarmClaimStage(const doormanFarmClaimStageParams: doormanFarmClaimStageParams; const store: storage): return is
+  block {
+    (* Check this call is comming from the doorman contract *)
+    checkSenderIsDoormanContract(store);
+
+    const recipientAddress: owner = doormanFarmClaimStageParams.0;
+    var mintedTokens: tokenBalance := doormanFarmClaimStageParams.1;
+    const forceTransfer: bool = doormanFarmClaimStageParams.2;
+    const doormanAddress: address = Tezos.sender;
+
+    const setTempMvkTotalSupplyEntrypoint: contract(nat*nat) = 
+      case (Tezos.get_entrypoint_opt("%setTempMvkTotalSupply", doormanAddress) : option(contract(nat*nat))) of
+        Some (contr) -> contr
+      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat*nat))
+      end;
+    const setTempMvkTotalSupplyEntrypoint_operation: operation = Tezos.transaction((store.totalSupply, store.maximumTotalSupply), 0tez, setTempMvkTotalSupplyEntrypoint);
+
+    const farmClaimCompleteEntrypoint: contract(doormanFarmClaimStageParams) =
+      case (Tezos.get_entrypoint_opt("%farmClaimComplete", doormanAddress) : option(contract(doormanFarmClaimStageParams))) of
+        Some(contr) -> contr
+      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(doormanFarmClaimStageParams))
+      end;
+    const farmClaimCompleteOperation: operation = Tezos.transaction((recipientAddress,mintedTokens,forceTransfer), 0tez, farmClaimCompleteEntrypoint);
+
+    const operations: list(operation) = list [setTempMvkTotalSupplyEntrypoint_operation; farmClaimCompleteOperation];
 
   } with (operations, store)
 
@@ -402,10 +420,10 @@ function main (const action : action; const store : storage) : return is
       | AssertMetadata (params) -> assertMetadata(params, store)
       | GetTotalSupply (params) -> getTotalSupply(params, store)
       | Mint (params) -> mint(params, store)
-      | Burn (params) -> burn(params, store)
       | OnStakeChange (params) -> onStakeChange(params, store)
       | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
-      | UpdateMvkTotalSupplyForDoorman (params) -> updateMvkTotalSupplyForDoorman(params, store)
+      | DoormanUnstakeStage (params) -> doormanUnstakeStage(params, store)
+      | DoormanFarmClaimStage (params) -> doormanFarmClaimStage(params, store)
     end
   )
