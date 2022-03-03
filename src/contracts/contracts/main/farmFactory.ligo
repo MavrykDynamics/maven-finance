@@ -352,8 +352,24 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
         // Break glass check
         checkCreateFarmIsNotPaused(s);
 
-        // Add FarmFactory Address to generalContracts of created farm
-        const farmGeneralContracts: generalContractsType = Map.update("factory", Some (Tezos.self_address), s.generalContracts);
+        // Add FarmFactory Address to whitelistContracts of created farm
+        const councilAddress: address = case s.whitelistContracts["council"] of 
+            Some (_address) -> _address
+        |   None -> failwith("Council contract not found in whitelist contracts")
+        end;
+        const farmWhitelistContract: whitelistContractsType = map[
+            ("farmFactory") -> (Tezos.self_address: address);
+            ("council") -> (councilAddress: address)
+        ];
+
+        // Add FarmFactory Address to doormanContracts of created farm
+        const doormanAddress: address = case s.generalContracts["doorman"] of 
+            Some (_address) -> _address
+        |   None -> failwith("Doorman contract not found in general contracts")
+        end;
+        const farmGeneralContracts: generalContractsType = map[
+            ("doorman") -> (doormanAddress: address)
+        ];
 
         // Create needed records for farm contract
         const farmDelegators: big_map(delegator, delegatorRecord) = Big_map.empty;
@@ -387,7 +403,7 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
         // Create a farm and auto init it?
         const originatedFarmStorage: farmStorage = record[
             admin                   = s.admin; // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
-            whitelistContracts      = s.whitelistContracts;      // whitelist of contracts that can access restricted entrypoints
+            whitelistContracts      = farmWhitelistContract;      // whitelist of contracts that can access restricted entrypoints
             generalContracts        = farmGeneralContracts;
 
             breakGlassConfig        = farmBreakGlassConfig;

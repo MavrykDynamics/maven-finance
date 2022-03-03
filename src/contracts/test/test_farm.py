@@ -35,6 +35,7 @@ deployedFarmFA2Contract = os.path.join(deploymentsDir, 'farmFA2Address.json')
 deployedFarmInfiniteContract = os.path.join(deploymentsDir, 'farmInfiniteAddress.json')
 deployedMvkTokenContract = os.path.join(deploymentsDir, 'mvkTokenAddress.json')
 deployedLpTokenContract = os.path.join(deploymentsDir, 'lpTokenAddress.json')
+deployedCouncilContract = os.path.join(deploymentsDir, 'councilAddress.json')
 
 deployedFarm = open(deployedFarmContract)
 farmContractAddress = json.load(deployedFarm)
@@ -55,6 +56,10 @@ mvkTokenAddress = mvkTokenAddress['address']
 deployedLpToken = open(deployedLpTokenContract)
 lpTokenAddress = json.load(deployedLpToken)
 lpTokenAddress = lpTokenAddress['address']
+
+deployedCouncil = open(deployedCouncilContract)
+councilAddress = json.load(deployedCouncil)
+councilAddress = councilAddress['address']
 
 print('Farm Contract Deployed at: ' + farmContractAddress)
 print('Farm FA2 Contract Deployed at: ' + farmContractAddress)
@@ -89,6 +94,8 @@ error_claim_paused = 'Claim entrypoint is paused.'
 error_increase_rewards_higher = 'The new reward per block must be higher than the previous one.'
 error_farm_duration = 'This farm should be either infinite or have a specified duration'
 error_farm_blocks_per_minute = 'This farm farm blocks per minute should be greater than 0'
+error_only_administrator_or_factory_not_found = 'Only Admin or Farm Factory contract allowed and Farm factory contract not found in whitelist contracts'
+error_only_council = 'Only Council contract allowed'
 
 class FarmContract(TestCase):
     
@@ -1600,7 +1607,7 @@ class FarmContract(TestCase):
         }).interpret(storage=init_farm_storage, source=alice)
 
         # Operation
-        with self.raisesMichelsonError(error_only_administrator):
+        with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
             res = self.farmContract.pauseAll().interpret(storage=res.storage, sender=bob)
 
             # Final values
@@ -1714,7 +1721,7 @@ class FarmContract(TestCase):
         pauseclaimIsPaused = res.storage['breakGlassConfig']['claimIsPaused']
 
         # Operation
-        with self.raisesMichelsonError(error_only_administrator):
+        with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
             res = self.farmContract.unpauseAll().interpret(storage=res.storage, sender=bob)
 
         # Tests operations
@@ -1811,7 +1818,7 @@ class FarmContract(TestCase):
         }).interpret(storage=init_farm_storage, source=alice)
 
         # Operation
-        with self.raisesMichelsonError(error_only_administrator):
+        with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
             res = self.farmContract.togglePauseDeposit().interpret(storage=res.storage, sender=bob)
 
             # Final values
@@ -1890,7 +1897,7 @@ class FarmContract(TestCase):
         }).interpret(storage=init_farm_storage, source=alice)
 
         # Operation
-        with self.raisesMichelsonError(error_only_administrator):
+        with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
             res = self.farmContract.togglePauseWithdraw().interpret(storage=res.storage, sender=bob)
 
             # Final values
@@ -1967,7 +1974,7 @@ class FarmContract(TestCase):
         }).interpret(storage=init_farm_storage, source=alice)
 
         # Operation
-        with self.raisesMichelsonError(error_only_administrator):
+        with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
             res = self.farmContract.togglePauseClaim().interpret(storage=res.storage, sender=bob)
 
             # Final values
@@ -1987,7 +1994,7 @@ class FarmContract(TestCase):
     ###
     # %updateBlocksPerMinute
     ##
-    def test_70_admin_should_increase_blocks_per_minute_farm(self):
+    def test_70_council_should_increase_blocks_per_minute_farm(self):
         init_farm_storage = deepcopy(self.farmStorage)
         
         # Initial values
@@ -2016,7 +2023,7 @@ class FarmContract(TestCase):
         aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Operation
-        res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+6000)
+        res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=councilAddress, level=lastBlockUpdate+6000)
         storageBlocksPerMinute = res.storage["blocksPerMinute"]
         storageTotalBlocks = res.storage['plannedRewards']["totalBlocks"]
         storageRewardPerBlock = res.storage['plannedRewards']["currentRewardPerBlock"]
@@ -2045,7 +2052,7 @@ class FarmContract(TestCase):
         self.assertNotEqual(totalBlocks, storageTotalBlocks)
 
         print('----')
-        print('✅ Admin should be to call updateBlocksPerMinute entrypoint')
+        print('✅ Council should be to call updateBlocksPerMinute entrypoint')
         print('blocksPerMinute:')
         print(storageBlocksPerMinute)
         print('new totalBlocks:')
@@ -2055,7 +2062,7 @@ class FarmContract(TestCase):
         print('total rewards claim:')
         print(totalClaim)
 
-    def test_71_admin_should_decrease_blocks_per_minute_farm(self):
+    def test_71_council_should_decrease_blocks_per_minute_farm(self):
         init_farm_storage = deepcopy(self.farmStorage)
         
         # Initial values
@@ -2084,7 +2091,7 @@ class FarmContract(TestCase):
         aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Operation
-        res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+4200)
+        res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=councilAddress, level=lastBlockUpdate+4200)
         storageBlocksPerMinute = res.storage["blocksPerMinute"]
         storageTotalBlocks = res.storage['plannedRewards']["totalBlocks"]
         storageRewardPerBlock = res.storage['plannedRewards']["currentRewardPerBlock"]
@@ -2113,7 +2120,7 @@ class FarmContract(TestCase):
         self.assertNotEqual(totalBlocks, storageTotalBlocks)
 
         print('----')
-        print('✅ Admin should be to call updateBlocksPerMinute entrypoint')
+        print('✅ Council should be to call updateBlocksPerMinute entrypoint')
         print('blocksPerMinute:')
         print(storageBlocksPerMinute)
         print('new totalBlocks:')
@@ -2123,7 +2130,7 @@ class FarmContract(TestCase):
         print('total rewards claim:')
         print(totalClaim)
 
-    def test_72_non_admin_update_blocks_per_minute(self):
+    def test_72_non_council_update_blocks_per_minute(self):
         init_farm_storage = deepcopy(self.farmStorage)
         
         # Initial values
@@ -2142,7 +2149,7 @@ class FarmContract(TestCase):
         }).interpret(storage=init_farm_storage, source=alice)
 
         # Operation
-        with self.raisesMichelsonError(error_only_administrator):
+        with self.raisesMichelsonError(error_only_council):
             res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=bob)
             storageBlocksPerMinute = res.storage["blocksPerMinute"]
             storageTotalBlocks = res.storage['plannedRewards']["totalBlocks"]
@@ -2151,11 +2158,11 @@ class FarmContract(TestCase):
             self.assertEqual(currentRewardPerBlock,storageRewardPerBlock)
             self.assertEqual(totalBlocks,storageTotalBlocks)
         print('----')
-        print('✅ Non-admin should not be to call updateBlocksPerMinute entrypoint')
+        print('✅ Non-council should not be to call updateBlocksPerMinute entrypoint')
         print('blocksPerMinute:')
         print(blocksPerMinute)
 
-    def test_73_admin_update_blocks_per_minute_farm_non_init(self):
+    def test_73_council_update_blocks_per_minute_farm_non_init(self):
         init_farm_storage = deepcopy(self.farmStorage)
         
         # Initial values
@@ -2163,7 +2170,7 @@ class FarmContract(TestCase):
 
         # Operation
         with self.raisesMichelsonError(error_farm_not_init):
-            res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=init_farm_storage, source=alice)
+            res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=init_farm_storage, source=councilAddress)
             storageBlocksPerMinute = res.storage["blocksPerMinute"]
             storageTotalBlocks = res.storage['plannedRewards']["totalBlocks"]
             storageRewardPerBlock = res.storage['plannedRewards']["currentRewardPerBlock"]
@@ -2171,9 +2178,57 @@ class FarmContract(TestCase):
             self.assertEqual(0,storageRewardPerBlock)
             self.assertEqual(0,storageTotalBlocks)
         print('----')
-        print('✅ Admin should not be to call updateBlocksPerMinute entrypoint if the farm has not yet been initiated')
+        print('✅ Council should not be to call updateBlocksPerMinute entrypoint if the farm has not yet been initiated')
         print('blocksPerMinute:')
         print(0)
+
+    def test_74_update_blocks_per_minute_infinite_farm(self):
+        init_farm_storage = deepcopy(self.farmStorage)
+        
+        # Initial values
+        totalBlocks                         = 0
+        currentRewardPerBlock               = self.MVK(500)
+        blocksPerMinute                     = 2
+        newBlocksPerMinute                  = 3
+
+        # Reward proportionnality testing
+        expectedRewardsForFiveMinutes       = 10 * currentRewardPerBlock # For 2BPM
+        blocksForTwoMinutes                 = 4 # For 2BPM
+        blocksForThreeMinutes               = 9 # For 9BPM
+
+        # Init farm operation
+        res = self.farmContract.initFarm({
+            "currentRewardPerBlock": currentRewardPerBlock,
+            "totalBlocks": totalBlocks,
+            "blocksPerMinute": blocksPerMinute,
+            "forceRewardFromTransfer": False,
+            "infinite": True
+        }).interpret(storage=init_farm_storage, source=alice)
+        lastBlockUpdate = res.storage['lastBlockUpdate']
+
+        # Some tests operations to see if the total rewards are affected
+        res = self.farmContract.deposit(self.MVK(2)).interpret(storage=res.storage, source=alice, level=lastBlockUpdate)
+
+        # Operation
+        res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=councilAddress, level=lastBlockUpdate+blocksForTwoMinutes)
+        storageBlocksPerMinute = res.storage["blocksPerMinute"]
+        storageRewardPerBlock = res.storage['plannedRewards']["currentRewardPerBlock"]
+
+        # Some tests operations to see if the total rewards are affected
+        res = self.farmContract.claim().interpret(storage=res.storage, source=alice, level=lastBlockUpdate+blocksForThreeMinutes+blocksForTwoMinutes)
+        aliceClaim = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
+
+        self.assertNotEqual(currentRewardPerBlock, storageRewardPerBlock)
+        self.assertEqual(aliceClaim, pytest.approx(expectedRewardsForFiveMinutes, 0.01))
+
+        print('----')
+        print('✅ Infinite farm should be to update its blocks per minute')
+        print('blocksPerMinute:')
+        print(storageBlocksPerMinute)
+        print('new currentRewardPerBlock:')
+        print(storageRewardPerBlock)
+        print('total rewards claim:')
+        print(aliceClaim)
 
     ###
     ## %closeFarm
@@ -2412,7 +2467,7 @@ class FarmContract(TestCase):
         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
         # Increase reward operation
-        with self.raisesMichelsonError(error_only_administrator):
+        with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
             res = self.farmContract.increaseRewardPerBlock(newRewardPerBlock).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+50)
 
         # Final tests operations
@@ -2430,6 +2485,51 @@ class FarmContract(TestCase):
         print(totalBlocks)
         print('currentRewardPerBlock:')
         print(storageRewardPerBlock)
+        print('claimed rewards:')
+        print(userClaimedRewards)
+
+    def test_93_extra_admin_can_increase_reward_per_block(self):
+        init_farm_storage = deepcopy(self.farmStorage)
+        
+        # Initial values
+        totalBlocks     = 100
+        currentRewardPerBlock  = 1000
+        newRewardPerBlock = 2000
+        blocksPerMinute = 2
+        userDepositAmount          = 2
+
+        # Init farm operation
+        res = self.farmInfiniteContract.initFarm({
+            "currentRewardPerBlock": currentRewardPerBlock,
+            "totalBlocks": totalBlocks,
+            "blocksPerMinute": blocksPerMinute,
+            "forceRewardFromTransfer": False,
+            "infinite": False
+        }).interpret(storage=init_farm_storage, source=alice)
+        lastBlockUpdate = res.storage['lastBlockUpdate']
+
+        # Test operations
+        res = self.farmContract.deposit(userDepositAmount).interpret(storage=res.storage, source=alice, level=lastBlockUpdate)
+
+        # Increase reward operation
+        res = self.farmContract.increaseRewardPerBlock(newRewardPerBlock).interpret(storage=res.storage, source=alice, level=lastBlockUpdate+50)
+        newStorageRewardPerBlock = res.storage['plannedRewards']['currentRewardPerBlock'];
+
+        # Final tests operations
+        res = self.farmContract.claim().interpret(storage=res.storage, source=alice, level=lastBlockUpdate+100)
+        userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
+
+        suspectedRewards = 50 * currentRewardPerBlock + newRewardPerBlock * 50
+
+        self.assertEqual(newStorageRewardPerBlock,newRewardPerBlock)
+        self.assertEqual(userClaimedRewards,suspectedRewards)
+
+        print('----')
+        print('✅ Admin should be able to increase the reward per block and user should be able to claim form the two different rewards')
+        print('totalBlocks:')
+        print(totalBlocks)
+        print('currentRewardPerBlock:')
+        print(newStorageRewardPerBlock)
         print('claimed rewards:')
         print(userClaimedRewards)
     
