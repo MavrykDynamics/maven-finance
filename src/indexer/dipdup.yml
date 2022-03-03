@@ -23,16 +23,16 @@ database:
 
 contracts:
   mvk:
-    address: KT19DaSJCmSUqQ8XwbMbD14L8fR1PUqia6mw
+    address: KT1VKaTpd4yrBy6WvrUGVR3szF6s4X2g36Kn
     typename: mvk
   doorman:
-    address: KT1VbEsT2p5GSmCgiTB3mXy3KnHavwt9GZgJ
+    address: KT1H4Su4wRYzu98eRGBhJy3Mmh6xD5kWxXG5
     typename: doorman
   farm:
-    address: KT1LNeLvxN1qWhLJyoNn3vKVcXJzpLYX46ZT
+    address: KT1UV7QyuPj9tgW2ywSEQpJNvKjhMHsHRezW
     typename: farm
   farm_factory:
-    address: KT1XTo42nqkMkSQ1TbvGciGnJfCRHSRBt7DW
+    address: KT1FBNYryWerEe2EKCYnkv4Sbxh2MMi21FMK
     typename: farm_factory
   # break_glass:
   #   address: ${BREAKGLASSADDRESS}
