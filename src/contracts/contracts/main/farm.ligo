@@ -149,9 +149,32 @@ function checkSenderIsAdmin(const s: storage): unit is
   if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
-function checkSourceIsAdmin(const s: storage): unit is
-  if Tezos.source =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
-  else unit
+function checkSenderOrSourceIsCouncil(const s: storage): unit is
+    block {
+        const councilAddress: address = case s.whitelistContracts["council"] of
+            Some (_address) -> _address
+        |   None -> (failwith("Council contract not found in whitelist contracts"): address)
+        end;
+
+        if Tezos.source = councilAddress or Tezos.sender = councilAddress then skip
+        else failwith("Only Council contract allowed");
+    } with(unit)
+
+function checkSenderOrSourceIsAllowed(const s: storage): unit is
+    block {
+        // First check because a farm without a factory should still be accessible
+        if Tezos.source = s.admin or Tezos.sender = s.admin then skip
+        else{
+            // Final check for factory
+            const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of
+                Some (_address) -> _address
+            |   None -> (failwith("Only Admin or Farm Factory contract allowed and Farm factory contract not found in whitelist contracts"): address)
+            end;
+
+            if farmFactoryAddress = Tezos.sender then skip 
+            else failwith("Only Admin or Factory contract allowed");
+        }
+    } with(unit)
 
 function checkFarmIsInit(const s: storage): unit is 
   if not s.init then failwith("This farm has not yet been initiated")
@@ -333,7 +356,7 @@ function updateUnclaimedRewards(var s: storage): storage is
 function pauseAll(var s: storage) : return is
     block {
         // check that source is admin
-        checkSourceIsAdmin(s);
+        checkSenderOrSourceIsAllowed(s);
 
         // set all pause configs to True
         if s.breakGlassConfig.depositIsPaused then skip
@@ -350,7 +373,7 @@ function pauseAll(var s: storage) : return is
 function unpauseAll(var s : storage) : return is
     block {
         // check that source is admin
-        checkSourceIsAdmin(s);
+        checkSenderOrSourceIsAllowed(s);
 
         // set all pause configs to False
         if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
@@ -367,7 +390,7 @@ function unpauseAll(var s : storage) : return is
 function togglePauseDeposit(var s : storage) : return is
     block {
         // check that source is admin
-        checkSourceIsAdmin(s);
+        checkSenderOrSourceIsAllowed(s);
 
         if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
         else s.breakGlassConfig.depositIsPaused := True;
@@ -377,7 +400,7 @@ function togglePauseDeposit(var s : storage) : return is
 function togglePauseWithdraw(var s : storage) : return is
     block {
         // check that source is admin
-        checkSourceIsAdmin(s);
+        checkSenderOrSourceIsAllowed(s);
 
         if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
         else s.breakGlassConfig.withdrawIsPaused := True;
@@ -387,7 +410,7 @@ function togglePauseWithdraw(var s : storage) : return is
 function togglePauseClaim(var s : storage) : return is
     block {
         // check that source is admin
-        checkSourceIsAdmin(s);
+        checkSenderOrSourceIsAllowed(s);
 
         if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
         else s.breakGlassConfig.claimIsPaused := True;
@@ -408,7 +431,7 @@ block {
 function increaseRewardPerBlock(const newRewardPerBlock: nat; var s: storage) : return is
 block {
     // check that source is admin
-    checkSourceIsAdmin(s);
+    checkSenderOrSourceIsAllowed(s);
 
     // check if farm has been initiated
     checkFarmIsInit(s);
@@ -429,16 +452,13 @@ block {
     s.plannedRewards.currentRewardPerBlock := newRewardPerBlock;
     s.plannedRewards.totalRewards := newTotalRewards;
 
-    // update storage
-    s := updateFarm(s);
-
 } with (noOperations, s)
 
 (*  UpdateBlocksPerMinute entrypoint *)
 function updateBlocksPerMinute(const blocksPerMinute: nat; var s: storage) : return is
 block {
-    // check that source is admin
-    checkSourceIsAdmin(s);
+    // check that source is admin or factory
+    checkSenderOrSourceIsCouncil(s);
 
     // check if farm has been initiated
     checkFarmIsInit(s);
@@ -449,22 +469,27 @@ block {
     // Check new blocksPerMinute
     if blocksPerMinute > 0n then skip else failwith("The new block per minute should be greater than zero");
 
-    // Unclaimed rewards
-    const totalUnclaimedRewards: nat = abs(s.plannedRewards.totalRewards - (s.claimedRewards.unpaid+s.claimedRewards.paid));
+    var newcurrentRewardPerBlock: nat := 0n;
+    if s.infinite then {
+        newcurrentRewardPerBlock := s.blocksPerMinute * s.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / blocksPerMinute;
+    }
+    else {
+        // Unclaimed rewards
+        const totalUnclaimedRewards: nat = abs(s.plannedRewards.totalRewards - (s.claimedRewards.unpaid+s.claimedRewards.paid));
 
-    // Updates rewards and total blocks accordingly
-    const blocksPerMinuteRatio: nat = s.blocksPerMinute * fixedPointAccuracy / blocksPerMinute;
-    const newTotalBlocks: nat = (s.plannedRewards.totalBlocks * fixedPointAccuracy) / blocksPerMinuteRatio;
-    const remainingBlocks: nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
-    const newcurrentRewardPerBlock: nat = (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
-    
+        // Updates rewards and total blocks accordingly
+        const blocksPerMinuteRatio: nat = s.blocksPerMinute * fixedPointAccuracy / blocksPerMinute;
+        const newTotalBlocks: nat = (s.plannedRewards.totalBlocks * fixedPointAccuracy) / blocksPerMinuteRatio;
+        const remainingBlocks: nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
+        newcurrentRewardPerBlock := (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
+        
+        // Update storage
+        s.plannedRewards.totalBlocks := newTotalBlocks;
+    };
+
     // Update storage
     s.blocksPerMinute := blocksPerMinute;
-    s.plannedRewards.totalBlocks := newTotalBlocks;
     s.plannedRewards.currentRewardPerBlock := (newcurrentRewardPerBlock/fixedPointAccuracy);
-
-    // update storage
-    s := updateFarm(s);
 
 } with (noOperations, s)
 
@@ -472,7 +497,7 @@ block {
 function toggleForceRewardFromTransfer(var s: storage): return is
     block {
         // check that source is admin
-        checkSourceIsAdmin(s);
+        checkSenderOrSourceIsAllowed(s);
 
         if s.forceRewardFromTransfer then s.forceRewardFromTransfer := False
         else s.forceRewardFromTransfer := True;
@@ -639,7 +664,7 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: storage): re
         if initFarmParams.blocksPerMinute <= 0n then failwith("This farm farm blocks per minute should be greater than 0") else skip;
 
         // Check wether the farm is infinite or its total blocks has been set
-        if not s.infinite and initFarmParams.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
+        if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
         
         // Update storage
         s := updateFarm(s);
