@@ -32,7 +32,7 @@ type proposalRecordType is [@layout:comb] record [
     title                : string;                  // title
     description          : string;                  // description
     invoice              : string;                  // ipfs hash of invoice file
-    sourceCode           : string;                  // link to github / repo
+    // sourceCode           : string;                  // link to github / repo
 
     successReward        : nat;                     // log of successful proposal reward for voters - may change over time
     executed             : bool;                    // true / false
