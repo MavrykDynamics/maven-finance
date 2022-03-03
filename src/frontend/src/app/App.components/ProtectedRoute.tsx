@@ -33,7 +33,7 @@ const isAllowedToRoute = (accountPkh: string | undefined, path: string, arrayToF
       const accountPkhIsSatellite = arrayToFilterThrough?.filter(
         (satellite: SatelliteRecord) => satellite.address === accountPkh,
       )[0]
-      isAllowed = accountPkhIsSatellite !== '' || accountPkhIsSatellite !== null
+      isAllowed = accountPkhIsSatellite
       break
     default:
       isAllowed = false
