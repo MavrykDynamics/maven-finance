@@ -79,7 +79,7 @@ describe('Contracts Deployment for Tests', async () => {
 
   before('setup', async () => {
     utils = new Utils()
-    await utils.init(alice.sk)
+    await utils.init(bob.sk)
 
     //----------------------------
     // Originate and deploy contracts
@@ -238,7 +238,7 @@ describe('Contracts Deployment for Tests', async () => {
         }
     ]).send()
     await updateOperatorsOperation.confirmation();
-    await signerFactory(alice.sk);
+    await signerFactory(bob.sk);
 
     // Doorman Contract - set contract addresses [delegation, mvkToken]
     const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods
