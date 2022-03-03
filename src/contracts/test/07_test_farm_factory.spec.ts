@@ -758,7 +758,17 @@ describe("FarmFactory", async () => {
         });
 
         describe('%updateAllBlocksPerMinute', function() {
-            it('Admin should be able to increase the blocksPerMinute on all tracked farms', async() => {
+            before("Set Alice as council contract", async () => {
+                try{
+                    await signerFactory(alice.sk);
+                    const updateWhitelistContracts = await farmFactoryInstance.methods.updateWhitelistContracts('council', alice.pkh).send();
+                    await updateWhitelistContracts.confirmation()
+                } catch(e) {
+                    console.log(e)
+                }
+            });
+        
+            it('Council should be able to increase the blocksPerMinute on all tracked farms', async() => {
                 try{
                     // Initial values
                     const trackedFarms = await farmFactoryStorage.trackedFarms;
@@ -796,7 +806,7 @@ describe("FarmFactory", async () => {
                 }
             })
 
-            it('Admin should be able to decrease the blocksPerMinute on all tracked farms', async() => {
+            it('Council should be able to decrease the blocksPerMinute on all tracked farms', async() => {
                 try{
                     // Initial values
                     const trackedFarms = await farmFactoryStorage.trackedFarms;
@@ -834,7 +844,7 @@ describe("FarmFactory", async () => {
                 }
             })
 
-            it('Non-admin should not be able to update the blocksPerMinute on all tracked farms', async() => {
+            it('Non-council should not be able to update the blocksPerMinute on all tracked farms', async() => {
                 try{
                     // Change signer
                     await signerFactory(bob.sk);

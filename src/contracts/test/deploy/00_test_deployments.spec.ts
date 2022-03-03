@@ -200,7 +200,10 @@ describe('Contracts Deployment for Tests', async () => {
     };
     
     farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
-      "doorman"  : doorman.contract.address
+      "doorman"  : doorman.contract.address,
+    });
+    farmFactoryStorage.whitelistContracts = MichelsonMap.fromLiteral({
+      "council"  : council.contract.address,
     });
     farmFactory = await FarmFactory.originate(
       utils.tezos,
@@ -257,6 +260,10 @@ describe('Contracts Deployment for Tests', async () => {
       .updateGeneralContracts('doorman', doorman.contract.address)
       .send()
     await setDoormanContractAddressInFarmOperation.confirmation()
+    const setCouncilContractAddressInFarmFA12Operation = await farm.contract.methods
+      .updateWhitelistContracts('council', council.contract.address)
+      .send()
+    await setCouncilContractAddressInFarmFA12Operation.confirmation()
     console.log('farm contract address set')
 
     // Farm Contract - set contract addresses [doorman]
@@ -264,6 +271,10 @@ describe('Contracts Deployment for Tests', async () => {
       .updateGeneralContracts('doorman', doorman.contract.address)
       .send()
     await setDoormanContractAddressInFarmFA2Operation.confirmation()
+    const setCouncilContractAddressInFarmFA2Operation = await farmFA2.contract.methods
+      .updateWhitelistContracts('council', council.contract.address)
+      .send()
+    await setCouncilContractAddressInFarmFA2Operation.confirmation()
     console.log('farm fa2 contract address set')
 
     // Delegation Contract - set contract addresses [governance]
