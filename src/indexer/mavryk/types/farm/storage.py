@@ -80,6 +80,7 @@ class FarmStorage(BaseModel):
     forceRewardFromTransfer: bool
     generalContracts: Dict[str, str]
     infinite: bool
+    init: bool
     initBlock: str
     lastBlockUpdate: str
     lpToken: LpToken

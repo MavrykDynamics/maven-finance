@@ -19,9 +19,9 @@ class MVKToken(Model):
 
 class Doorman(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    smvk_total_supply               = fields.BigIntField(default=0)
+    smvk_total_supply               = fields.FloatField(default=0)
     min_mvk_amount                  = fields.BigIntField(default=0)
-    unclaimed_rewards               = fields.BigIntField(default=0)
+    unclaimed_rewards               = fields.FloatField(default=0)
     accumulated_fees_per_share      = fields.FloatField(default=0)
     stake_paused                    = fields.BooleanField(default=False)
     unstake_paused                  = fields.BooleanField(default=False)
@@ -32,27 +32,27 @@ class Doorman(Model):
 
 class Farm(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    lp_token                        = fields.CharField(max_length=36)
+    lp_token                        = fields.CharField(max_length=36, default='')
+    lp_balance                      = fields.BigIntField(default=0)
     open                            = fields.BooleanField(default=False)
+    rewards_from_treasury           = fields.BooleanField(default=False)
     init_block                      = fields.BigIntField(default=0)
     last_block_update               = fields.BigIntField(default=0)
-    unpaid_rewards                  = fields.BigIntField(default=0)
-    paid_rewards                    = fields.BigIntField(default=0)
     accumulated_mvk_per_share       = fields.FloatField(default=0)
     total_blocks                    = fields.BigIntField(default=0)
+    reward_per_block                = fields.FloatField(default=0)
     blocks_per_minute               = fields.BigIntField(default=0)
     infinite                        = fields.BooleanField(default=False)
     deposit_paused                  = fields.BooleanField(default=False)
     withdraw_paused                 = fields.BooleanField(default=False)
     claim_paused                    = fields.BooleanField(default=False)
-    farm_factory                    = fields.ForeignKeyField('models.Farm', related_name='farms')
+    farm_factory                    = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
 
     class Meta:
         table = 'farm'
 
 class FarmFactory(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    blocks_per_minute               = fields.BigIntField(default=0)
     create_farm_paused              = fields.BooleanField(default=False)
     track_farm_paused               = fields.BooleanField(default=False)
     untrack_farm_paused             = fields.BooleanField(default=False)
@@ -76,11 +76,11 @@ class FarmAccount(Model):
     id                              = fields.BigIntField(pk=True, default=0)
     deposited_amount                = fields.BigIntField(default=0)
     participation_mvk_per_share     = fields.FloatField(default=0)
-    user                            = fields.ForeignKeyField('models.User', related_name='farm_accounts')
-    farm                            = fields.ForeignKeyField('models.Farm', related_name='farm')
+    user                            = fields.ForeignKeyField('models.User', related_name='farm_accounts', index=True)
+    farm                            = fields.ForeignKeyField('models.Farm', related_name='farm_accounts', index=True)
 
     class Meta:
-        table = 'user'
+        table = 'farm_account'
 
 # Time-based records
 class TransferRecord(Model):
