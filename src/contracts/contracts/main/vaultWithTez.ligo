@@ -1,63 +1,31 @@
 
-type editDepositorType is
-  | AllowAny of bool
-  | AllowAccount of bool * address
+#include "../partials/vault/vaultGeneralType.ligo"
 
-type vaultWithdrawType is tez * contract(unit)
-type vaultDelegateType is option(key_hash)
-
-type vaultHandleType is [@layout:comb] record [
-    id      : nat ;
-    owner   : address;
-]
-
-type depositorsType is
-  | Any
-  | Whitelist of set(address)
-
-type registerDepositType is [@layout:comb] record [
-    handle  : vaultHandleType; 
-    amount  : tez;
-]
-
-type vaultCollateralType is 
-    | XTZ of unit 
-    | FA2 of unit 
-    | FA12 of unit 
-
-type vaultStorage is record [
-    admin                   : address;              // vault admin contract
-    handle                  : vaultHandleType;      // owner of the vault
-    depositors              : depositorsType;       // users who can deposit into the vault    
-    vaultCollateralType     : vaultCollateralType;  // vault collateral type
-]
-
-type vaultReturn is list (operation) * vaultStorage
+#include "../partials/vault/vaultWithTezType.ligo"
 
 type vaultActionType is 
-  | VaultWithdraw      of vaultWithdrawType
-  | VaultDelegate      of vaultDelegateType
-  | [@annot:default] VaultDeposit
-  | VaultEditDepositor of editDepositorType
+  | VaultWithdrawTez      of vaultWithdrawTezType
+  | VaultDelegateTez      of vaultDelegateTezType
+  | [@annot:default] VaultDepositTez
+  | VaultEditTezDepositor of editDepositorType
   
-
 const noOperations : list (operation) = nil;
 
-function checkSenderIsAdmin(var s : vaultStorage) : unit is
+function checkSenderIsAdmin(var s : vaultTezStorage) : unit is
   if (Tezos.sender = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
 // helper function to get registerDeposit entrypoint
-function getRegisterDepositEntrypointFromContractAddress(const contractAddress : address) : contract(registerDepositType) is
+function getRegisterDepositEntrypointFromContractAddress(const contractAddress : address) : contract(registerTezDepositType) is
   case (Tezos.get_entrypoint_opt(
       "%registerDeposit",
-      contractAddress) : option(contract(registerDepositType))) of
+      contractAddress) : option(contract(registerTezDepositType))) of
     Some(contr) -> contr
-  | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(registerDepositType))
+  | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(registerTezDepositType))
   end;
 
-(* VaultWithdraw Entrypoint *)
-function vaultWithdraw(const vaultWithdrawParams : vaultWithdrawType; var s : vaultStorage) : vaultReturn is 
+(* VaultWithdrawTez Entrypoint *)
+function vaultWithdrawTez(const vaultWithdrawParams : vaultWithdrawTezType; var s : vaultTezStorage) : vaultTezReturn is 
 block {
     
     // check that sender is admin
@@ -68,8 +36,8 @@ block {
 
 } with (list[operation], s)
 
-(* VaultDelegate (to tez baker) Entrypoint *)
-function vaultDelegate(const vaultDelegateParams : vaultDelegateType; var s : vaultStorage) : vaultReturn is 
+(* VaultDelegateTez (to tez baker) Entrypoint *)
+function vaultDelegateTez(const vaultDelegateParams : vaultDelegateTezType; var s : vaultTezStorage) : vaultTezReturn is 
 block {
     
     // set new delegate only if sender is the vault owner
@@ -80,8 +48,8 @@ block {
 
 } with (list[delegateOperation], s)
 
-(* VaultDeposit Entrypoint *)
-function vaultDeposit(var s : vaultStorage) : vaultReturn is 
+(* VaultDepositTez Entrypoint *)
+function vaultDepositTez(var s : vaultTezStorage) : vaultTezReturn is 
 block {
 
     // init operations
@@ -101,7 +69,7 @@ block {
     if isOwnerCheck = True or isAbleToDeposit = True then block {
 
         // create deposit params
-        const depositParams : registerDepositType = record [
+        const depositParams : registerTezDepositType = record [
             amount = Tezos.amount; 
             handle = s.handle;
         ];
@@ -120,8 +88,8 @@ block {
 
 } with (operations, s)
 
-(* VaultEditDepositor Entrypoint *)
-function vaultEditDepositor(const editDepositorParams : editDepositorType; var s : vaultStorage) : vaultReturn is
+(* VaultEditTezDepositor Entrypoint *)
+function vaultEditTezDepositor(const editDepositorParams : editDepositorType; var s : vaultTezStorage) : vaultTezReturn is
 block {
 
     // set new depositor only if sender is the vault owner
@@ -148,10 +116,10 @@ block {
 
 } with (noOperations, s)
 
-function main (const vaultAction : vaultActionType; const s : vaultStorage) : vaultReturn is 
+function main (const vaultAction : vaultActionType; const s : vaultTezStorage) : vaultTezReturn is 
     case vaultAction of
-        | VaultWithdraw(parameters)      -> vaultWithdraw(parameters, s)
-        | VaultDelegate(parameters)      -> vaultDelegate(parameters, s)
-        | VaultDeposit(_parameters)      -> vaultDeposit(s)
-        | VaultEditDepositor(parameters) -> vaultEditDepositor(parameters, s)
+        | VaultWithdrawTez(parameters)      -> vaultWithdrawTez(parameters, s)
+        | VaultDelegateTez(parameters)      -> vaultDelegateTez(parameters, s)
+        | VaultDepositTez(_parameters)      -> vaultDepositTez(s)
+        | VaultEditTezDepositor(parameters) -> vaultEditTezDepositor(parameters, s)
     end
