@@ -40,6 +40,7 @@ class MvkStorage(BaseModel):
     admin: str
     generalContracts: Dict[str, str]
     ledger: Dict[str, str]
+    maximumTotalSupply: str
     metadata: Dict[str, str]
     operators: List[Operator]
     token_metadata: Dict[str, TokenMetadata]
