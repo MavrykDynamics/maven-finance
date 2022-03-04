@@ -23,16 +23,16 @@ database:
 
 contracts:
   mvk:
-    address: KT1VKaTpd4yrBy6WvrUGVR3szF6s4X2g36Kn
+    address: KT1SyZY3eyjEPKyiMshSkVedgH5dDUUmzKG8
     typename: mvk
   doorman:
-    address: KT1H4Su4wRYzu98eRGBhJy3Mmh6xD5kWxXG5
+    address: KT1KJxedLf5XqUq1UShaD6WShFjLdvgdLyZb
     typename: doorman
   farm:
-    address: KT1UV7QyuPj9tgW2ywSEQpJNvKjhMHsHRezW
+    address: KT1BHykfcuSEVdPFsWwteiUK2DS55CKHBRAh
     typename: farm
   farm_factory:
-    address: KT1FBNYryWerEe2EKCYnkv4Sbxh2MMi21FMK
+    address: KT18dbF7H4mwvDunV6hHYBxRdWE3GX7qxNGa
     typename: farm_factory
   # break_glass:
   #   address: ${BREAKGLASSADDRESS}
@@ -54,6 +54,69 @@ datasources:
   tzkt:
     kind: tzkt
     url: ${TZKT_URL:-changeme}
+
+templates:
+  farm_template:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - <farm_contract>
+    handlers:
+      - callback: on_farm_origination
+        pattern:
+          - type: origination
+            originated_contract: <farm_contract>
+      - callback: on_farm_init_farm
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: initFarm
+      - callback: on_farm_deposit
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: deposit
+      - callback: on_farm_withdraw
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: withdraw
+      - callback: on_farm_claim
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: claim
+      - callback: on_farm_close_farm
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: closeFarm
+      - callback: on_farm_increase_reward_per_block
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: increaseRewardPerBlock
+      - callback: on_farm_toggle_force_reward_from_transfer
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: toggleForceRewardFromTransfer
+      - callback: on_farm_pause_all
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: pauseAll
+      - callback: on_farm_unpause_all
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: unpauseAll
+      - callback: on_farm_toggle_pause_deposit
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: togglePauseDeposit
+      - callback: on_farm_toggle_pause_withdraw
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: togglePauseWithdraw
+      - callback: on_farm_toggle_pause_claim
+        pattern:
+          - destination: <farm_contract>
+            entrypoint: togglePauseClaim
 
 indexes:
   # MVK Token contract indexes
@@ -115,6 +178,10 @@ indexes:
         pattern:
           - destination: doorman
             entrypoint: compound
+      - callback: on_doorman_farm_claim_complete
+        pattern:
+          - destination: doorman
+            entrypoint: farmClaimComplete
       - callback: on_doorman_update_min_mvk_amount
         pattern:
           - destination: doorman
@@ -227,10 +294,6 @@ indexes:
         pattern:
           - destination: farm_factory
             entrypoint: trackFarm
-      - callback: on_farm_factory_untrack_farm
-        pattern:
-          - destination: farm_factory
-            entrypoint: untrackFarm
       - callback: on_farm_factory_pause_all
         pattern:
           - destination: farm_factory

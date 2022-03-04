@@ -37,6 +37,7 @@ class DoormanStorage(BaseModel):
     logFinalAmount: str
     minMvkAmount: str
     stakedMvkTotalSupply: str
+    tempMvkMaximumTotalSupply: str
     tempMvkTotalSupply: str
     unclaimedRewards: str
     userStakeBalanceLedger: Dict[str, UserStakeBalanceLedger]
