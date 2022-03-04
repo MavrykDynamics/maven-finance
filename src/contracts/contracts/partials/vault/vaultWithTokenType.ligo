@@ -40,7 +40,8 @@ type registerTokenDepositType is [@layout:comb] record [
 
 type vaultTokenStorage is record [
     admin                   : address;                       // vault admin contract
-    handle                  : vaultHandleType;      // owner of the vault
+    handle                  : vaultHandleType;               // owner of the vault
+    
     depositors              : depositorsType;                // users who can deposit into the vault    
     collateralTokenAddress  : address;                       // token contract address of collateral 
     vaultCollateralType     : vaultCollateralType;           // vault collateral type
