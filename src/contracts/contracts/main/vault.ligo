@@ -1,90 +1,25 @@
+#include "../partials/vault/vaultGeneralType.ligo"
 
-type tokenBalanceType   is nat;
-type tokenAmountType    is nat;
-
-type transferDestination is [@layout:comb] record[
-  to_       : address;
-  token_id  : nat;
-  amount    : tokenAmountType;
-]
-type transfer is [@layout:comb] record[
-  from_     : address;
-  txs       : list(transferDestination);
-]
-type fa2TransferType  is list(transfer)
-type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
-
-type fa12TokenType       is address
-type fa2TokenType        is [@layout:comb] record [
-  tokenContractAddress    : address;
-  tokenId                 : nat;
-]
-
-type tokenType       is
-| Fa12                    of fa12TokenType   // address
-| Fa2                     of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
-
-type transferTokenType is [@layout:comb] record [
-    from_           : address;
-    to_             : address;
-    amt             : nat;
-    token           : tokenType;
-]
-
-type vaultWithdrawType is transferTokenType
-type vaultDepositType  is transferTokenType
-
-type editDepositorType is
-  | AllowAny of bool
-  | AllowAccount of bool * address
-
-type vaultHandleType is [@layout:comb] record [
-    id      : nat ;
-    owner   : address;
-]
-
-type depositorsType is
-  | Any
-  | Whitelist of set(address)
-
-type registerDepositType is [@layout:comb] record [
-    handle  : vaultHandleType; 
-    amount  : nat;
-]
-
-type vaultCollateralType is 
-    | XTZ of unit 
-    | FA2 of unit 
-    | FA12 of unit 
-
-type vaultStorage is record [
-    admin                   : address;              // vault admin contract
-    handle                  : vaultHandleType;      // owner of the vault
-    depositors              : depositorsType;       // users who can deposit into the vault    
-    collateralTokenAddress  : address;              // token contract address of collateral 
-    vaultCollateralType     : vaultCollateralType;  // vault collateral type
-]
-
-type vaultReturn is list (operation) * vaultStorage
+#include "../partials/vault/vaultWithTokenType.ligo"
 
 type vaultActionType is 
-  | VaultDeposit       of vaultDepositType 
-  | VaultEditDepositor of editDepositorType
-  | VaultWithdraw      of vaultWithdrawType
+  | VaultDepositToken       of vaultDepositTokenType 
+  | VaultEditTokenDepositor of editDepositorType
+  | VaultWithdrawToken      of vaultWithdrawTokenType
 
 const noOperations : list (operation) = nil;
 
-function checkSenderIsAdmin(var s : vaultStorage) : unit is
+function checkSenderIsAdmin(var s : vaultTokenStorage) : unit is
   if (Tezos.sender = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
 // helper function to get registerDeposit entrypoint
-function getRegisterDepositEntrypointFromContractAddress(const contractAddress : address) : contract(registerDepositType) is
+function getRegisterDepositEntrypointFromContractAddress(const contractAddress : address) : contract(registerTokenDepositType) is
   case (Tezos.get_entrypoint_opt(
       "%registerDeposit",
-      contractAddress) : option(contract(registerDepositType))) of
+      contractAddress) : option(contract(registerTokenDepositType))) of
     Some(contr) -> contr
-  | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(registerDepositType))
+  | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(registerTokenDepositType))
   end;
 
 // helper function to transfer FA12 tokens
@@ -123,8 +58,8 @@ block{
 
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
-(* VaultWithdraw Entrypoint *)
-function vaultWithdraw(const vaultWithdrawParams : transferTokenType; var s : vaultStorage) : vaultReturn is 
+(* VaultWithdrawToken Entrypoint *)
+function vaultWithdrawToken(const vaultWithdrawParams : vaultWithdrawTokenType; var s : vaultTokenStorage) : vaultTokenReturn is 
 block {
     
     // check that sender is admin
@@ -157,8 +92,8 @@ block {
 } with (operations, s)
 
 
-(* VaultDeposit Entrypoint *)
-function vaultDeposit(const vaultDepositParams : transferTokenType; var s : vaultStorage) : vaultReturn is 
+(* VaultDepositToken Entrypoint *)
+function vaultDepositToken(const vaultDepositParams : vaultDepositTokenType; var s : vaultTokenStorage) : vaultTokenReturn is 
 block {
 
     // init operations
@@ -205,8 +140,8 @@ block {
 
 } with (operations, s)
 
-(* VaultEditDepositor Entrypoint *)
-function vaultEditDepositor(const editDepositorParams : editDepositorType; var s : vaultStorage) : vaultReturn is
+(* VaultEditTokenDepositor Entrypoint *)
+function vaultEditTokenDepositor(const editDepositorParams : editDepositorType; var s : vaultTokenStorage) : vaultTokenReturn is
 block {
 
     // set new depositor only if sender is the vault owner
@@ -232,9 +167,9 @@ block {
 
 } with (noOperations, s)
 
-function main (const vaultAction : vaultActionType; const s : vaultStorage) : vaultReturn is 
+function main (const vaultAction : vaultActionType; const s : vaultTokenStorage) : vaultTokenReturn is 
     case vaultAction of
-        | VaultWithdraw(parameters)      -> vaultWithdraw(parameters, s)
-        | VaultDeposit(parameters)       -> vaultDeposit(parameters, s)
-        | VaultEditDepositor(parameters) -> vaultEditDepositor(parameters, s)
+        | VaultWithdrawToken(parameters)      -> vaultWithdrawToken(parameters, s)
+        | VaultDepositToken(parameters)       -> vaultDepositToken(parameters, s)
+        | VaultEditTokenDepositor(parameters) -> vaultEditTokenDepositor(parameters, s)
     end
