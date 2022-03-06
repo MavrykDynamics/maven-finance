@@ -12,6 +12,9 @@ import {
 import { SubNavigationLink } from '../../../../styles/interfaces'
 import useCollapse from 'react-collapsed'
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { State } from '../../../../reducers'
+import { SatelliteRecord } from '../../../../reducers/delegation'
 
 type NavigationLinkProps = {
   title: string
@@ -23,6 +26,8 @@ type NavigationLinkProps = {
   location: any
   handleToggle: (id: number) => void
   isExpanded: boolean
+  walletReady: any
+  accountPkh: string | undefined
 }
 
 export const NavigationLink = ({
@@ -35,7 +40,11 @@ export const NavigationLink = ({
   location,
   handleToggle,
   isExpanded,
+  walletReady,
+  accountPkh,
 }: NavigationLinkProps) => {
+  const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { satelliteLedger } = delegationStorage
   let navigationLinkClasses = `collapsible .${kind}`
   const iconHref = `/icons/sprites.svg#${icon}`
   const subPagesPaths = [path]
@@ -69,16 +78,47 @@ export const NavigationLink = ({
           <div {...getCollapseProps()}>
             <NavigationSubLinks className="content">
               {subPages.map((subNavLink: SubNavigationLink, index: number) => {
-                return (
-                  <SubNavLink>
-                    <Link to={subNavLink.subPath}>
-                      <div />
-                      <SubLinkText selected={location.pathname === subNavLink.subPath}>
-                        {subNavLink.subTitle}
-                      </SubLinkText>
-                    </Link>
-                  </SubNavLink>
-                )
+                if (subNavLink.requires) {
+                  const { isSatellite, isVestee } = subNavLink.requires
+                  let accountIsAuthorized = false
+
+                  if (isSatellite) {
+                    const accountPkhIsSatellite = satelliteLedger?.filter(
+                      (satellite: SatelliteRecord) => satellite.address === accountPkh,
+                    )[0]
+                    accountIsAuthorized = accountPkhIsSatellite !== undefined
+                  } else if (isVestee) {
+                    const accountPkhIsSatellite = satelliteLedger?.filter(
+                      (satellite: SatelliteRecord) => satellite.address === accountPkh,
+                    )[0]
+                    accountIsAuthorized = accountPkhIsSatellite !== undefined
+                  }
+                  if (accountIsAuthorized) {
+                    return (
+                      <SubNavLink>
+                        <Link to={subNavLink.subPath}>
+                          <div />
+                          <SubLinkText selected={location.pathname === subNavLink.subPath}>
+                            {subNavLink.subTitle}
+                          </SubLinkText>
+                        </Link>
+                      </SubNavLink>
+                    )
+                  } else {
+                    return <></>
+                  }
+                } else {
+                  return (
+                    <SubNavLink>
+                      <Link to={subNavLink.subPath}>
+                        <div />
+                        <SubLinkText selected={location.pathname === subNavLink.subPath}>
+                          {subNavLink.subTitle}
+                        </SubLinkText>
+                      </Link>
+                    </SubNavLink>
+                  )
+                }
               })}
             </NavigationSubLinks>
           </div>
