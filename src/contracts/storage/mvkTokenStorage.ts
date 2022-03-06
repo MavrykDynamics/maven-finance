@@ -6,15 +6,12 @@ import { array } from 'yargs'
 
 const { alice, bob, eve, mallory } = require('../scripts/sandbox/accounts')
 
-import { MVK } from '../test/helpers/Utils'
+import { zeroAddress } from '../test/helpers/Utils'
 
 import { mvkStorageType } from '../test/types/mvkTokenStorageType'
 
-export const mvkTokenDecimals = 9
-
-const totalSupply = MVK(100)
-const maximumTotalSupply = MVK(10**9)
-const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
+const totalSupply = 10000000000000
+const initialSupply = new BigNumber(totalSupply) // 10,000,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4)
 
 const metadata = MichelsonMap.fromLiteral({
@@ -35,7 +32,7 @@ const metadata = MichelsonMap.fromLiteral({
         {
           symbol: Buffer.from('MVK').toString('hex'),
           name: Buffer.from('MAVRYK').toString('hex'),
-          decimals: Buffer.from(mvkTokenDecimals.toString()).toString('hex'),
+          decimals: Buffer.from('6').toString('hex'),
           icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
           shouldPreferSymbol: true,
           thumbnailUri: 'https://mavryk.finance/logo192.png',
@@ -59,7 +56,7 @@ const token_metadata = MichelsonMap.fromLiteral({
     token_info: MichelsonMap.fromLiteral({
       symbol: Buffer.from('MVK').toString('hex'),
       name: Buffer.from('MAVRYK').toString('hex'),
-      decimals: Buffer.from(mvkTokenDecimals.toString()).toString('hex'),
+      decimals: Buffer.from('6').toString('hex'),
       icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
       shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
       thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
@@ -77,7 +74,6 @@ export const mvkStorage: mvkStorageType = {
   token_metadata: token_metadata,
 
   totalSupply: initialSupply,
-  maximumTotalSupply: new BigNumber(maximumTotalSupply),
 
   ledger: ledger,
   operators: MichelsonMap.fromLiteral({}),
