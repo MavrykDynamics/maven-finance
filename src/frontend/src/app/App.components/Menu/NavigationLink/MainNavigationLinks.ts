@@ -9,6 +9,13 @@ export const mainNavigationLinks: MainNavigationLink[] = [
     subPages: [
       { subTitle: 'Overview', subPath: '/dashboard' },
       { subTitle: 'Personal', subPath: '/dashboard-personal' },
+      {
+        subTitle: 'Vestee Info',
+        subPath: '/your-vesting',
+        requires: {
+          isVestee: true,
+        },
+      },
     ],
   },
   {
@@ -35,6 +42,13 @@ export const mainNavigationLinks: MainNavigationLink[] = [
     subPages: [
       { subTitle: 'Proposals', subPath: '/governance' },
       { subTitle: 'Break Glass', subPath: '/break-glass' },
+      {
+        subTitle: 'Submit Proposal',
+        subPath: '/submit-proposal',
+        requires: {
+          isSatellite: true,
+        },
+      },
     ],
   },
   {
