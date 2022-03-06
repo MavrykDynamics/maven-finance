@@ -143,8 +143,8 @@ describe("Governance tests", async () => {
         await malloryTransferMockFa2ToTreasuryOperation.confirmation();
         
         // Mallory transfers 250 XTZ to Treasury
-        const malloryTransferXtzToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 100});
-        await malloryTransferXtzToTreasuryOperation.confirmation();
+        const malloryTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 100});
+        await malloryTransferTezToTreasuryOperation.confirmation();
         
         // const governanceParameterSchema = governanceInstance.parameterSchema.ExtractSchema();
         // console.log(JSON.stringify(governanceParameterSchema,null,2));
