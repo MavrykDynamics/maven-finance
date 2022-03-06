@@ -16,6 +16,11 @@ import {
   VOTING_ROUND_VOTING_RESULT,
 } from 'pages/Governance/Governance.actions'
 import { GovernanceStorage } from '../utils/TypesAndInterfaces/Governance'
+import {
+  PROPOSAL_UPDATE_ERROR,
+  SUBMIT_FINANCIAL_DATA_REQUEST,
+  PROPOSAL_UPDATE_RESULT,
+} from '../pages/ProposalSubmission/ProposalSubmission.actions'
 
 const PROPOSAL = 'PROPOSAL',
   VOTING = 'VOTING',
@@ -24,6 +29,7 @@ export type GovernancePhase = typeof PROPOSAL | typeof VOTING | typeof TIME_LOCK
 export interface GovernanceState {
   governanceStorage: GovernanceStorage | any
   governancePhase: GovernancePhase
+  form?: any
   proposalId?: number
   pastProposals?: any
   vote?: number
@@ -106,7 +112,20 @@ export function governance(state = governanceDefaultState, action: any): Governa
         ...state,
         error: action.error,
       }
-
+    case SUBMIT_FINANCIAL_DATA_REQUEST:
+      return {
+        ...state,
+        form: action.form,
+      }
+    case PROPOSAL_UPDATE_RESULT:
+      return {
+        ...state,
+      }
+    case PROPOSAL_UPDATE_ERROR:
+      return {
+        ...state,
+        error: action.error,
+      }
     default:
       return state
   }
