@@ -15,8 +15,8 @@ export const PageHeaderStyled = styled.div<{ backgroundImageSrc: string }>`
 
 export const PageHeaderTextArea = styled.div`
   margin: 40px 0 0 40px;
-  position: fixed;
-  max-width: 25%;
+  position: absolute;
+  max-width: 35%;
   > h1 {
     color: ${backgroundColor};
     font-size: 25px;
@@ -42,6 +42,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
   width: ${({ page }) => {
     switch (page) {
       case 'staking':
+      case 'governance':
         return `70%`
       case 'dashboard':
         return '50%'
