@@ -3,7 +3,7 @@ import * as React from 'react'
 
 import { TABS, SlidingTabButtonStyle, SlidingTabButtonTypes, PRIMARY } from './SlidingTabButtons.constants'
 import { ButtonLoadingIcon, ButtonStyled, ButtonText, SlidingTabButtonsStyled } from './SlidingTabButtons.style'
-import { Ref, useRef, useState } from 'react'
+import { Ref, useEffect, useRef, useState } from 'react'
 
 type SlidingTabButtonViewProps = {
   kind?: SlidingTabButtonStyle
@@ -26,26 +26,6 @@ export const SlidingTabButtonsView = ({ kind, onClick, clickCallback, type, load
   let generalClasses = kind ?? ''
 
   const handleButtonClick = (tabId: number) => {
-    // if (firstButtonRef?.current) {
-    //   const { offsetTop, offsetLeft, offsetHeight } = firstButtonRef?.current
-    //   console.log('[First] offsettop', offsetTop)
-    //   console.log('[First] offsetLeft', offsetLeft)
-    //   console.log('[First] offsetHeight ', offsetHeight)
-    // }
-    //
-    // if (secondButtonRef?.current) {
-    //   const { offsetTop, offsetLeft, offsetHeight } = secondButtonRef?.current
-    //   console.log('[Second] offsettop', offsetTop)
-    //   console.log('[Second] offsetLeft', offsetLeft)
-    //   console.log('[Second] offsetHeight ', offsetHeight)
-    // }
-    // if (thirdButtonRef?.current) {
-    //   const { offsetTop, offsetLeft, offsetHeight } = thirdButtonRef?.current
-    //   console.log('[Third] offsettop', offsetTop)
-    //   console.log('[Third] offsetLeft', offsetLeft)
-    //   console.log('[Third] offsetHeight ', offsetHeight)
-    // }
-
     switch (tabId) {
       case 1:
         setButtonActiveStatus({ buttonOne: true, buttonTwo: false, buttonThree: false })
@@ -115,13 +95,22 @@ const TabButton = ({
 }: TabButtonProps) => {
   const [buttonClasses, setButtonClasses] = useState(generalClasses)
 
+  useEffect(() => {
+    if (text === 'Stage 1' && buttonActiveStatus) {
+      setButtonClasses((buttonClasses) => buttonClasses + ' clicked')
+    }
+  }, [buttonActiveStatus, text])
   if (loading) {
-    setButtonClasses(' loading')
+    setButtonClasses((buttonClasses) => buttonClasses + ' loading')
   }
 
+  if (!buttonActiveStatus && buttonClasses.includes(' clicked')) {
+    let newClasses = buttonClasses.replace(' clicked', '')
+    setButtonClasses(newClasses)
+  }
   const _onClick = () => {
-    setButtonClasses(' clicked')
-    console.log(text, buttonClasses)
+    const updatedClasses = buttonClasses + ' clicked'
+    setButtonClasses(updatedClasses)
     onClick(buttonId)
   }
   return (

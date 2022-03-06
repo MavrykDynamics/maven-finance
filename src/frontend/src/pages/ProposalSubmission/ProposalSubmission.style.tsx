@@ -19,12 +19,6 @@ export const ProposalSubmissionForm = styled(Card)`
   > p {
     margin-top: 30px;
   }
-
-  > button {
-    width: 300px;
-    float: right;
-    margin: 0 0 0 10px;
-  }
 `
 
 export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
@@ -32,18 +26,30 @@ export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
   flex-direction: row;
   align-items: center;
 `
-export const FormTitle = styled.div<{ theme: MavrykTheme }>`
+export const FormTitleContainer = styled.div<{ theme: MavrykTheme }>`
   margin-right: 20%;
+`
+
+export const FormSubTitle = styled.p<{ theme: MavrykTheme }>`
+  color: ${({ theme }) => theme.textColor};
+  font-weight: 700;
+`
+export const FormTitleEntry = styled.div<{ theme: MavrykTheme }>`
+  display: inline-flex;
+  align-items: center;
+  height: 50px;
+  padding: 12px 16px;
+  color: ${({ theme }) => theme.primaryColor};
+  font-size: 16px;
 `
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   margin: 15px 0;
   cursor: pointer;
   min-height: 100px;
   width: 100%;
-  border: dashed ${({ theme }) => theme.borderColor};
+  border: 2px dashed ${({ theme }) => theme.borderColor};
   display: inline-block;
   border-radius: 10px;
-  border-width: 2px;
 
   > div {
     width: 100%;
@@ -101,5 +107,15 @@ export const ProposalSubmissionInvoiceImage = styled.div`
   min-height: 200px;
   > img {
     height: 100%;
+  }
+`
+
+export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
+  margin: 50px 15px 0 0;
+
+  > button {
+    max-width: 300px;
+    float: right;
+    margin: 0 10px;
   }
 `
