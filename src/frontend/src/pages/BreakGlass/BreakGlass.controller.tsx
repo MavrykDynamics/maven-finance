@@ -8,8 +8,8 @@ import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { BreakGlassView } from './BreakGlass.view'
-import { getEmergencyGovernanceStorage } from '../Governance/Governance.actions'
 import { MOCK_CONTRACTS } from './mockContracts'
+import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 
 export const BreakGlass = () => {
   const dispatch = useDispatch()
