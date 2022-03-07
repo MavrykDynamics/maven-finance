@@ -2,28 +2,26 @@ import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
 import { ConnectWalletView } from './ConnectWallet.view'
+import { connect } from '../Menu/Menu.actions'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from '../../../reducers'
 
 type ConnectWalletProps = {
-  loading: boolean
-  wallet: any
-  ready: boolean
-  accountPkh?: string
-  myMvkTokenBalance?: string | number
-  handleConnect: () => void
-  handleNewConnect: () => void
   type?: string | null
 }
 
-export const ConnectWallet = ({
-  loading,
-  wallet,
-  ready,
-  accountPkh,
-  myMvkTokenBalance,
-  handleConnect,
-  handleNewConnect,
-  type,
-}: ConnectWalletProps) => {
+export const ConnectWallet = ({ type }: ConnectWalletProps) => {
+  const dispatch = useDispatch()
+  const loading = useSelector((state: State) => state.loading)
+  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
+  const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
+  const handleConnect = () => {
+    dispatch(connect({ forcePermission: false }))
+  }
+
+  const handleNewConnect = () => {
+    dispatch(connect({ forcePermission: true }))
+  }
   return (
     <ConnectWalletView
       type={type}

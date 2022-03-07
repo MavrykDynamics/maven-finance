@@ -64,5 +64,4 @@ export const EntrypointNameWithStatus = styled.p<{ status: boolean; theme: Mavry
   font-size: 16px;
   color: ${({ status, theme }) => (status ? theme.upColor : theme.downColor)};
   margin: 6px 0;
-  padding: 3px 0;
 `

@@ -13,8 +13,6 @@ import {
 } from './BreakGlass.style'
 import { ContractBreakGlass } from './mockContracts'
 import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
-import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
-import { ProposalStatus } from '../../utils/TypesAndInterfaces/Governance'
 import { ContractCard } from './ContractCard/ContractCard.controller'
 
 type BreakGlassViewProps = {
