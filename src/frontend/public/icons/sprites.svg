@@ -295,4 +295,10 @@
             <path fill="none" d="M8 8H1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
     </symbol>
+    <symbol id="arrow-up" viewBox="0 0 13 8">
+        <path d="M11.3525 6.40002L6.4996 1.60002L1.64666 6.40002" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+    <symbol id="arrow-down" viewBox="0 0 13 8">
+        <path d="M1.5 1L6.5 6L11.5 1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
 </svg>
