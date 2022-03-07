@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { SatelliteRecord } from '../../reducers/delegation'
+import { SatelliteRecord } from '../../../reducers/delegation'
 import { Redirect, Route, RouteProps, useLocation } from 'react-router'
 
 export type ProtectedRouteProps = {
