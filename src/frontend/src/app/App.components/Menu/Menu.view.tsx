@@ -1,21 +1,20 @@
 import { Link, useLocation } from 'react-router-dom'
-import Toggle from 'react-toggle'
 // prettier-ignore
 import {
-  MenuBanner, MenuBottomSection,
+  MenuBanner,
+  MenuBottomSection,
   MenuFooter,
   MenuGrid,
-  MenuLogo, MenuSpacerDiv,
-  MenuStyled, MenuTopSection,
-  ThemeToggleIcon,
+  MenuLogo,
+  MenuStyled,
+  MenuTopSection,
 } from './Menu.style'
 import * as React from 'react'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
 import { MainNavigationRoute } from '../../../styles/interfaces'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
-import { createRef, useRef, useState } from 'react'
+import { useState } from 'react'
 import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import useWindowDimensions from '../../../utils/hooks/useWindowDimensions'
 
 type MenuViewProps = {
   loading: boolean
