@@ -8,6 +8,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
   position: relative;
   background-color: ${({ theme }) => theme.containerColor};
+  height: 100%;
   min-height: 100vh;
 `
 
