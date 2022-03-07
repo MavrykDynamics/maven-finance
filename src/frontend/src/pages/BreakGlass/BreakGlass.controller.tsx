@@ -9,13 +9,14 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { BreakGlassView } from './BreakGlass.view'
 import { getEmergencyGovernanceStorage } from '../Governance/Governance.actions'
+import { MOCK_CONTRACTS } from './mockContracts'
 
 export const BreakGlass = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { emergencyGovernanceStorage } = useSelector((state: State) => state.emergencyGovernance)
-  const { breakGlassStorage } = useSelector((state: State) => state.breakGlass)
+  const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
 
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
@@ -28,7 +29,7 @@ export const BreakGlass = () => {
   return (
     <Page>
       <PageHeader page={'break glass'} kind={PRIMARY} loading={loading} />
-      <BreakGlassView />
+      <BreakGlassView contracts={MOCK_CONTRACTS} glassBroken={glassBroken} pauseAllActive={glassBroken} />
     </Page>
   )
 }
