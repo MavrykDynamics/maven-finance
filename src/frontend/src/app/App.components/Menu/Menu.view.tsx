@@ -5,7 +5,7 @@ import {
   MenuBanner, MenuBottomSection,
   MenuFooter,
   MenuGrid,
-  MenuLogo,
+  MenuLogo, MenuSpacerDiv,
   MenuStyled, MenuTopSection,
   ThemeToggleIcon,
 } from './Menu.style'
@@ -13,8 +13,9 @@ import * as React from 'react'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
 import { MainNavigationRoute } from '../../../styles/interfaces'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
-import { useState } from 'react'
+import { createRef, useRef, useState } from 'react'
 import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
+import useWindowDimensions from '../../../utils/hooks/useWindowDimensions'
 
 type MenuViewProps = {
   loading: boolean
@@ -48,6 +49,7 @@ export const MenuView = ({
           <MenuLogo alt="logo" src="/logo.svg" />
         </Link>
         <ConnectWallet
+          // ref={connectWalletRef}
           type={'main-menu'}
           loading={loading}
           wallet={wallet}
@@ -72,13 +74,13 @@ export const MenuView = ({
             )
           })}
         </MenuGrid>
-        <MenuBottomSection>
-          <MenuBanner src="/images/buy-mvk.svg" alt="buy" />
-          <MenuFooter>
-            MAVRYK App <p>v1.0</p>
-          </MenuFooter>
-        </MenuBottomSection>
       </MenuTopSection>
+      <MenuBottomSection>
+        <MenuBanner src="/images/buy-mvk.svg" alt="buy" />
+        <MenuFooter>
+          MAVRYK App <p>v1.0</p>
+        </MenuFooter>
+      </MenuBottomSection>
     </MenuStyled>
   )
 }
