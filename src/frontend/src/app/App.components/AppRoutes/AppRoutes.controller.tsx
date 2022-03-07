@@ -15,6 +15,7 @@ import { Vaults } from '../../../pages/Vaults/Vaults.controller'
 import { Admin } from '../../../pages/Admin/Admin.controller'
 import { useSelector } from 'react-redux'
 import { State } from '../../../reducers'
+import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/EmergencyGovernance.controller'
 
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -57,7 +58,7 @@ export const AppRoutes = () => {
         <BreakGlass />
       </Route>
       <Route exact path="/emergency-governance">
-        <BreakGlass />
+        <EmergencyGovernance />
       </Route>
       <Route exact path="/mavryk-council">
         <Governance />

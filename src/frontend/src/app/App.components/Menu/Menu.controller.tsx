@@ -5,8 +5,9 @@ import { State } from 'reducers'
 import { connect, getHeadData } from './Menu.actions'
 
 import { MenuView } from './Menu.view'
-import { getEmergencyGovernanceStorage, getGovernanceStorage } from '../../../pages/Governance/Governance.actions'
+import { getGovernanceStorage } from '../../../pages/Governance/Governance.actions'
 import { getDelegationStorage } from '../../../pages/Satellites/Satellites.actions'
+import { getEmergencyGovernanceStorage } from '../../../pages/EmergencyGovernance/EmergencyGovernance.actions'
 
 export const Menu = () => {
   const dispatch = useDispatch()
@@ -32,23 +33,6 @@ export const Menu = () => {
       dispatch(getDelegationStorage())
     }
   }
-  const handleConnect = () => {
-    dispatch(connect({ forcePermission: false }))
-  }
 
-  const handleNewConnect = () => {
-    dispatch(connect({ forcePermission: true }))
-  }
-
-  return (
-    <MenuView
-      loading={loading}
-      myMvkTokenBalance={myMvkTokenBalance}
-      accountPkh={accountPkh}
-      wallet={wallet}
-      ready={ready}
-      handleConnect={handleConnect}
-      handleNewConnect={handleNewConnect}
-    />
-  )
+  return <MenuView loading={loading} accountPkh={accountPkh} ready={ready} />
 }
