@@ -1,11 +1,10 @@
 import { getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { connect, getHeadData } from './Menu.actions'
 
 import { MenuView } from './Menu.view'
-import { toggleDarkTheme } from '../DarkThemeProvider/DarkThemeProvider.actions'
 import { getEmergencyGovernanceStorage, getGovernanceStorage } from '../../../pages/Governance/Governance.actions'
 import { getDelegationStorage } from '../../../pages/Satellites/Satellites.actions'
 
