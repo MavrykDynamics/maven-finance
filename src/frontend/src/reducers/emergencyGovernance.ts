@@ -3,8 +3,7 @@ import {
   GET_EMERGENCY_GOVERNANCE_STORAGE,
   SET_EMERGENCY_GOVERNANCE_ACTIVE,
   SET_HAS_ACKNOWLEDGED_EMERGENCY_GOV,
-} from '../pages/Governance/Governance.actions'
-import { HIDE_EXIT_FEE_MODAL, SHOW_EXIT_FEE_MODAL } from '../pages/Doorman/ExitFeeModal/ExitFeeModal.actions'
+} from '../pages/EmergencyGovernance/EmergencyGovernance.actions'
 
 export interface EmergencyGovernanceStorage {
   admin: string

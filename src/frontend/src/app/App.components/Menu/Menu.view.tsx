@@ -18,23 +18,11 @@ import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
 
 type MenuViewProps = {
   loading: boolean
-  myMvkTokenBalance?: string
   accountPkh?: string
-  handleNewConnect: () => void
-  wallet: any
   ready: boolean
-  handleConnect: () => void
 }
 
-export const MenuView = ({
-  loading,
-  myMvkTokenBalance,
-  accountPkh,
-  handleNewConnect,
-  wallet,
-  ready,
-  handleConnect,
-}: MenuViewProps) => {
+export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
   const location = useLocation()
   const [isExpanded, setExpanded] = useState<number>(0)
 
@@ -50,13 +38,6 @@ export const MenuView = ({
         <ConnectWallet
           // ref={connectWalletRef}
           type={'main-menu'}
-          loading={loading}
-          wallet={wallet}
-          ready={ready}
-          accountPkh={accountPkh}
-          myMvkTokenBalance={myMvkTokenBalance}
-          handleConnect={handleConnect}
-          handleNewConnect={handleNewConnect}
         />
         <MenuGrid>
           {mainNavigationLinks.map((navigationLink: MainNavigationRoute, index: number) => {
