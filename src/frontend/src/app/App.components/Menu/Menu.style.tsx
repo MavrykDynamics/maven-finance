@@ -12,7 +12,7 @@ export const MenuStyled = styled.div`
   position: relative;
   text-align: center;
   width: 270px;
-  height: 100vh;
+  min-height: 100vh;
   align-items: center;
   display: flex;
   flex-direction: column;
@@ -25,7 +25,6 @@ export const MenuStyled = styled.div`
 `
 
 export const MenuTopSection = styled.div`
-  position: fixed;
   display: flex;
   flex-direction: column;
   top: 0;
@@ -55,7 +54,7 @@ export const MenuBottomSection = styled.div`
   flex-direction: column;
   justify-content: space-evenly;
   align-items: center;
-  margin-top: 50px;
+  margin-top: 40px;
 `
 
 export const MenuBanner = styled.img`
@@ -76,4 +75,8 @@ export const MenuFooter = styled.div`
 export const ThemeToggleIcon = styled.svg`
   width: inherit;
   height: inherit;
+`
+
+export const MenuSpacerDiv = styled.div<{ height: number }>`
+  height: ${({ height }) => height}px;
 `
