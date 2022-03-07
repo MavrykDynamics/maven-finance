@@ -2,12 +2,7 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import {
-  getEmergencyGovernanceStorage,
-  getGovernanceStorage,
-  proposalRoundVote,
-  votingRoundVote,
-} from './Governance.actions'
+import { getGovernanceStorage, proposalRoundVote, votingRoundVote } from './Governance.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -17,6 +12,7 @@ import { ProposalStatus } from '../../utils/TypesAndInterfaces/Governance'
 import { getDelegationStorage } from '../Satellites/Satellites.actions'
 import { MOCK_PAST_PROPOSAL_LIST } from './mockProposals'
 import { calcTimeToBlock } from '../../utils/calcFunctions'
+import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 
 export type VoteStatistics = {
   passVotesCount: number
