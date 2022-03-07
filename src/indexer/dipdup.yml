@@ -23,32 +23,20 @@ database:
 
 contracts:
   mvk:
-    address: KT1SyZY3eyjEPKyiMshSkVedgH5dDUUmzKG8
+    address: KT1CfB2hLU6oZpnFsuSw77aLanDEFPJjJtmW
     typename: mvk
   doorman:
-    address: KT1KJxedLf5XqUq1UShaD6WShFjLdvgdLyZb
+    address: KT1NYRHupHBMDLdChrweYuKfuFTJttbWP3ua
     typename: doorman
   farm:
-    address: KT1BHykfcuSEVdPFsWwteiUK2DS55CKHBRAh
+    address: KT1CazyJDLTCAYp4UXzzGFtN382V5NtAofBL
     typename: farm
   farm_factory:
-    address: KT18dbF7H4mwvDunV6hHYBxRdWE3GX7qxNGa
+    address: KT1TDe5Jh18wiNkoKW223L6oFvd4LV88u8yi
     typename: farm_factory
-  # break_glass:
-  #   address: ${BREAKGLASSADDRESS}
-  #   typename: break_glass
-  # council:
-  #   address: ${COUNCILADDRESS}
-  #   typename: council
-  # emergency_governance:
-  #   address: ${EMERGENCYGOVERNANCEADDRESS}
-  #   typename: emergency_governance
-  # governance:
-  #   address: ${GOVERNANCE}
-  #   typename: break_glass
-  # vesting:
-  #   address: ${VESTINGADDRESS}
-  #   typename: vesting
+  delegation:
+    address: KT1Nv9w4tShibfmyQc9hrZzwVnWZUJAgNYYn
+    typename: delegation
 
 datasources:
   tzkt:
@@ -314,3 +302,77 @@ indexes:
         pattern:
           - destination: farm_factory
             entrypoint: togglePauseUntrackFarm
+  # Delegation contract indexes
+  delegation:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - delegation
+    handlers:
+      - callback: on_delegation_origination
+        pattern:
+          - type: origination
+            originated_contract: delegation
+      - callback: on_delegation_update_config
+        pattern:
+          - destination: delegation
+            entrypoint: updateConfig
+      - callback: on_delegation_delegate_to_satellite_complete
+        pattern:
+          - destination: delegation
+            entrypoint: delegateToSatelliteComplete
+      - callback: on_delegation_redelegate_satellite
+        pattern:
+          - destination: delegation
+            entrypoint: redelegateSatellite
+      - callback: on_delegation_undelegate_from_satellite
+        pattern:
+          - destination: delegation
+            entrypoint: undelegateFromSatelliteComplete
+      - callback: on_delegation_register_as_satellite_complete
+        pattern:
+          - destination: delegation
+            entrypoint: registerAsSatelliteComplete
+      - callback: on_delegation_unregister_as_satellite
+        pattern:
+          - destination: delegation
+            entrypoint: unregisterAsSatellite
+      - callback: on_delegation_update_satellite_record
+        pattern:
+          - destination: delegation
+            entrypoint: updateSatelliteRecord
+      - callback: on_delegation_on_stake_change
+        pattern:
+          - destination: delegation
+            entrypoint: onStakeChange
+      - callback: on_delegation_toggle_pause_delegate_to_satellite
+        pattern:
+          - destination: delegation
+            entrypoint: togglePauseDelegateToSatellite
+      - callback: on_delegation_toggle_pause_undelegate_satellite
+        pattern:
+          - destination: delegation
+            entrypoint: togglePauseUndelegateSatellite
+      - callback: on_delegation_toggle_pause_register_satellite
+        pattern:
+          - destination: delegation
+            entrypoint: togglePauseRegisterSatellite
+      - callback: on_delegation_toggle_pause_unregister_satellite
+        pattern:
+          - destination: delegation
+            entrypoint: togglePauseUnregisterSatellite
+      - callback: on_delegation_toggle_pause_update_satellite
+        pattern:
+          - destination: delegation
+            entrypoint: togglePauseDelegateToSatellite
+      - callback: on_delegation_pause_all
+        pattern:
+          - destination: delegation
+            entrypoint: pauseAll
+      - callback: on_delegation_unpause_all
+        pattern:
+          - destination: delegation
+            entrypoint: unpauseAll
