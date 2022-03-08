@@ -6,8 +6,14 @@ export const ContractCardStyled = styled.div<{ theme: MavrykTheme }>`
   width: 300px;
   border-radius: 10px;
   padding-top: 20px;
-  margin: 15px;
-  height: 125px;
+  margin-top: 15px;
+
+  &.accordionHide {
+    height: 125px;
+  }
+  &.accordionHide {
+    height: max-content;
+  }
 `
 export const CardTopSection = styled.div<{ theme: MavrykTheme }>`
   padding: 0 20px;
