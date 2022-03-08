@@ -1,8 +1,10 @@
 import { State } from '../../reducers'
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json'
-import breakGlassAddress from '../../deployments/breakGlassAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
-import { getContractBigmapKeys } from '../../utils/api'
+import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
+import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
+import { HIDE_EXIT_FEE_MODAL } from '../Doorman/ExitFeeModal/ExitFeeModal.actions'
+import { getDoormanStorage, getMvkTokenStorage } from '../Doorman/Doorman.actions'
 
 export const GET_EMERGENCY_GOVERNANCE_STORAGE = 'GET_EMERGENCY_GOVERNANCE_STORAGE'
 export const SET_EMERGENCY_GOVERNANCE_ACTIVE = 'SET_EMERGENCY_GOVERNANCE_ACTIVE'
@@ -32,4 +34,55 @@ export const getEmergencyGovernanceStorage = (accountPkh?: string) => async (dis
     type: GET_EMERGENCY_GOVERNANCE_STORAGE,
     emergencyGovernanceStorage: storage,
   })
+}
+
+export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST'
+export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT'
+export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR'
+export const submitEmergencyGovernanceProposal = (form: any) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+
+  if (state.loading) {
+    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+    return
+  }
+
+  try {
+    const contract = await state.wallet.tezos?.wallet.at(emergencyGovernanceAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.triggerEmergencyControl(form.title, form.description).send()
+    console.log('transaction', transaction)
+
+    dispatch({
+      type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST,
+      emergencyGovernanceProposal: form,
+    })
+    dispatch(showToaster(INFO, 'Unstaking...', 'Please wait 30s'))
+    dispatch({
+      type: HIDE_EXIT_FEE_MODAL,
+    })
+
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Unstaking done', 'All good :)'))
+
+    dispatch({
+      type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT,
+    })
+
+    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+    dispatch(getDoormanStorage())
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR,
+      error,
+    })
+  }
 }

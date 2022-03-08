@@ -9,6 +9,8 @@ import { getEmergencyGovernanceStorage } from './EmergencyGovernance.actions'
 import { EmergencyGovernanceView } from './EmergencyGovernance.view'
 import { getBreakGlassStorage } from '../BreakGlass/BreakGlass.actions'
 import { MOCK_E_GOV_PAST_PROPOSALS } from './mockEGovProposals'
+import { EmergencyGovProposalModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.controller'
+import { showExitFeeModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.actions'
 
 export const EmergencyGovernance = () => {
   const dispatch = useDispatch()
@@ -26,10 +28,12 @@ export const EmergencyGovernance = () => {
     console.log('Here in handleVoteForEmergencyProposal')
   }
   const handleTriggerEmergencyProposal = () => {
+    dispatch(showExitFeeModal())
     console.log('Here in handleVoteForEmergencyProposal')
   }
   return (
     <Page>
+      <EmergencyGovProposalModal />
       <PageHeader page={'emergency governance'} kind={PRIMARY} loading={loading} />
       <EmergencyGovernanceView
         emergencyGovernanceActive={emergencyGovActive}

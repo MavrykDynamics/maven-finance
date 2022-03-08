@@ -63,7 +63,7 @@ export const EmergencyGovernanceView = ({
             <CardContentRightSide>
               {accountPkh ? (
                 <div>
-                  <Button text={'Activate Proposal'} icon={'hammer'} />
+                  <Button text={'Activate Proposal'} icon={'hammer'} onClick={handleTriggerEmergencyProposal} />
                 </div>
               ) : (
                 <ConnectWallet type={'main-menu'} />
