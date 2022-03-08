@@ -35,11 +35,12 @@ export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
   justify-content: flex-start;
   align-items: flex-start;
   > h3 {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 600;
   }
   > p {
     margin-bottom: 0;
+
     color: ${({ theme }) => theme.subTextColor};
     font-weight: 600;
   }

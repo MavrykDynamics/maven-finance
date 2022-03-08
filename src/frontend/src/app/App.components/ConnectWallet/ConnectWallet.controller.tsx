@@ -37,23 +37,9 @@ export const ConnectWallet = ({ type }: ConnectWalletProps) => {
 }
 
 ConnectWallet.propTypes = {
-  loading: PropTypes.bool,
-  wallet: PropTypes.any,
-  ready: PropTypes.bool,
-  accountPkh: PropTypes.string,
-  myMvkTokenBalance: PropTypes.string || PropTypes.number,
-  handleConnect: PropTypes.func.isRequired,
-  handleNewConnect: PropTypes.func.isRequired,
   type: PropTypes.string,
 }
 
 ConnectWallet.defaultProps = {
-  loading: false,
-  wallet: undefined,
-  ready: true,
-  accountPkh: 'string',
-  myMvkTokenBalance: '0',
-  handleConnect: undefined,
-  handleNewConnect: undefined,
   type: 'text',
 }
