@@ -2,7 +2,7 @@ import { getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { connect, getHeadData } from './Menu.actions'
+import { getHeadData } from './Menu.actions'
 
 import { MenuView } from './Menu.view'
 import { getGovernanceStorage } from '../../../pages/Governance/Governance.actions'

@@ -32,7 +32,7 @@ export const ContractCard = ({ contract }: ContractCardProps) => {
   }, [expanded])
 
   return (
-    <ContractCardStyled key={contract.address}>
+    <ContractCardStyled key={contract.address} className={`contractCard accordion${expanded ? 'Show' : 'Hide'}`}>
       <CardTopSection>
         <TitleStatusContainer>
           <BGTextTitle>{contract.name}</BGTextTitle>
@@ -56,7 +56,11 @@ export const ContractCard = ({ contract }: ContractCardProps) => {
         <div className={'accordion ' + `${expanded}`} ref={ref}>
           {entrypoints.map((item, index) => {
             const entryStatus = item.status === 'LIVE'
-            return <EntrypointNameWithStatus status={entryStatus}>%{item.name}</EntrypointNameWithStatus>
+            return (
+              <EntrypointNameWithStatus key={item.name} status={entryStatus}>
+                %{item.name}
+              </EntrypointNameWithStatus>
+            )
           })}
         </div>
       </DropDownContainer>
