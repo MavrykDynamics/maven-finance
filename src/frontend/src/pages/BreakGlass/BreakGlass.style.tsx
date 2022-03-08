@@ -7,6 +7,7 @@ export const BreakGlassStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: column;
   width: 100%;
+  flex-grow: 1;
 
   > h1 {
     margin: 10px auto 10px 0;
@@ -45,8 +46,7 @@ export const BreakGlassTopRightCard = styled.div<{ theme: MavrykTheme }>`
 `
 export const BreakGlassContractCardsContainer = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
-  display: flex;
-  flex-direction: row;
+  height: 100%;
 `
 
 export const BGTitle = styled.h1<{ theme: MavrykTheme }>`
@@ -64,27 +64,4 @@ export const BGTextWithStatus = styled.div<{ status: boolean; theme: MavrykTheme
   color: ${({ status, theme }) => (status ? theme.downColor : theme.upColor)};
   font-weight: 600;
   font-size: 22px;
-`
-
-export const BGContractCard = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
-  width: 300px;
-  border-radius: 10px;
-  padding: 20px;
-  margin: 15px;
-`
-export const ContractCardTitleStatusContainer = styled.div<{ theme: MavrykTheme }>`
-  width: 100%;
-  height: 70%;
-  display: inline-flex;
-  justify-content: space-between;
-  align-items: center;
-`
-
-export const ContractCardToggleContainer = styled.p<{ theme: MavrykTheme }>`
-  width: 100%;
-  height: 70%;
-  display: inline-flex;
-  justify-content: space-between;
-  align-items: center;
 `

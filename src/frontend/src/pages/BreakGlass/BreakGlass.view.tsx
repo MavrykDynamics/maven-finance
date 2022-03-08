@@ -1,6 +1,5 @@
 import * as React from 'react'
 import {
-  BGContractCard,
   BGTextTitle,
   BGTextWithStatus,
   BGTitle,
@@ -9,11 +8,13 @@ import {
   BreakGlassTop,
   BreakGlassTopLeftCard,
   BreakGlassTopRightCard,
-  ContractCardTitleStatusContainer,
 } from './BreakGlass.style'
 import { ContractBreakGlass } from './mockContracts'
 import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
 import { ContractCard } from './ContractCard/ContractCard.controller'
+import { useEffect, useState } from 'react'
+// @ts-ignore
+import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry'
 
 type BreakGlassViewProps = {
   contracts: ContractBreakGlass[]
@@ -24,8 +25,9 @@ type BreakGlassViewProps = {
 export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive }: BreakGlassViewProps) => {
   const breakGlassStatus = glassBroken ? 'Glass Broken' : 'Waiting'
   const pauseAllStatus = pauseAllActive ? 'Active' : 'Inactive'
+
   return (
-    <BreakGlassStyled>
+    <BreakGlassStyled className={'breakGlassContainer'}>
       <BreakGlassTop>
         <BreakGlassTopLeftCard>
           <div>
@@ -38,9 +40,11 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive }: Break
           </div>
         </BreakGlassTopLeftCard>
         <BreakGlassTopRightCard>
-          <p>
-            The Break Glass protocol (BGP) allows MVK holders to shutdown the system without waiting for a central
-            authority. The BGP is triggered through the Emergency governance vote.{' '}
+          <div>
+            <p>
+              The Break Glass protocol (BGP) allows MVK holders to shutdown the system without waiting for a central
+              authority. The BGP is triggered through the Emergency governance vote.
+            </p>
             <FAQLink>
               <a
                 href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
@@ -50,15 +54,25 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive }: Break
                 Read documentation here.
               </a>
             </FAQLink>
-          </p>
+          </div>
         </BreakGlassTopRightCard>
       </BreakGlassTop>
       <BGTitle>Contract Status'</BGTitle>
       <BreakGlassContractCardsContainer>
-        {contracts.map((item: ContractBreakGlass, index: number) => {
-          return <ContractCard contract={item} key={index} />
-        })}
+        <MasonryGallery>
+          {contracts.map((item: ContractBreakGlass, index: number) => (
+            <ContractCard contract={item} key={index} />
+          ))}
+        </MasonryGallery>
       </BreakGlassContractCardsContainer>
     </BreakGlassStyled>
+  )
+}
+
+function MasonryGallery({ children }: { children: any }) {
+  return (
+    <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 965: 2, 1280: 3, 1580: 4 }}>
+      <Masonry gutter={'10px'}>{children}</Masonry>
+    </ResponsiveMasonry>
   )
 }
