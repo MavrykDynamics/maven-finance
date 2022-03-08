@@ -8,30 +8,18 @@ export const EGovHistoryCardStyled = styled.div<{ theme: MavrykTheme }>`
 `
 export const EGovHistoryCardTopSection = styled.div<{ height: number; theme: MavrykTheme }>`
   margin: 15px 15px 0 15px;
-  padding: 20px 0;
   height: 100px;
   width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-evenly;
-  align-items: center;
-`
-
-export const EGovHistoryCardDropDown = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
-`
-export const EGovHistoryCardLeftSideContainer = styled.div<{ theme: MavrykTheme }>``
-export const EGovHistoryCardRightSideContainer = styled.div<{ theme: MavrykTheme }>`
-  width: 40%;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  padding-right: 35px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  padding: 20px 15px;
 `
 
 export const EGovHistoryArrowButton = styled.div<{ theme: MavrykTheme }>`
-  padding: 0 50px;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   > svg {
     height: 8px;
     width: 13px;
@@ -42,6 +30,10 @@ export const EGovHistoryArrowButton = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
   > h3 {
     font-size: 20px;
     font-weight: 600;
@@ -59,14 +51,21 @@ export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
     stroke-width: 5px;
     fill: none;
   }
+
+  &.statusFlag {
+    justify-content: center;
+    align-items: center;
+    display: inline-flex;
+    max-width: 90%;
+  }
 `
 
-export const CardDropDownContainer = styled.div<{ height: number; theme: MavrykTheme }>`
+export const EGovHistoryCardDropDown = styled.div<{ height: number; theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.connectWalletBackgroundColor};
   width: 100%;
   height: 0;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   display: flex;
   flex-direction: column;
   border-bottom-left-radius: 10px;
@@ -77,6 +76,7 @@ export const CardDropDownContainer = styled.div<{ height: number; theme: MavrykT
 
   .accordion {
     padding: 10px 15px 15px; /* changed */
+    text-align: left;
   }
 
   &.show {

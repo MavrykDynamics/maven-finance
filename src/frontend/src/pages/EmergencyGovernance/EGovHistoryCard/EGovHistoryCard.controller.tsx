@@ -1,7 +1,7 @@
 import { EmergencyGovernancePastProposal } from '../mockEGovProposals'
 import {
   EGovHistoryArrowButton,
-  CardDropDownContainer,
+  EGovHistoryCardDropDown,
   EGovHistoryCardStyled,
   EGovHistoryCardTitleTextGroup,
   EGovHistoryCardTopSection,
@@ -28,7 +28,7 @@ export const EGovHistoryCard = ({ pastProposal }: EGovHistoryCardProps) => {
   }, [expanded])
 
   return (
-    <EGovHistoryCardStyled key={String(pastProposal.title + pastProposal.proposer)}>
+    <EGovHistoryCardStyled key={String(pastProposal.title + pastProposal.proposer)} onClick={open}>
       <EGovHistoryCardTopSection className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
         <EGovHistoryCardTitleTextGroup>
           <h3>Title</h3>
@@ -48,7 +48,7 @@ export const EGovHistoryCard = ({ pastProposal }: EGovHistoryCardProps) => {
             <TzAddress tzAddress={pastProposal.proposer} hasIcon={false} />
           </p>
         </EGovHistoryCardTitleTextGroup>
-        <EGovHistoryArrowButton onClick={open}>
+        <EGovHistoryArrowButton>
           {expanded ? (
             <svg>
               <use xlinkHref={`/icons/sprites.svg#arrow-up`} />
@@ -59,14 +59,21 @@ export const EGovHistoryCard = ({ pastProposal }: EGovHistoryCardProps) => {
             </svg>
           )}
         </EGovHistoryArrowButton>
-        <StatusFlag status={pastProposal.status} text={pastProposal.status} />
+        <EGovHistoryCardTitleTextGroup className={'statusFlag'}>
+          <StatusFlag status={pastProposal.status} text={pastProposal.status} />
+        </EGovHistoryCardTitleTextGroup>
       </EGovHistoryCardTopSection>
 
-      <CardDropDownContainer onClick={open} className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
+      <EGovHistoryCardDropDown onClick={open} className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
         <div className={'accordion ' + `${expanded}`} ref={ref}>
-          Hello
+          <p>Information regarding the proposal should be place here. Such as:</p>
+          <ul>
+            <li>What the exact fatal flaw was</li>
+            <li>What the break glass triggered</li>
+            <li>What actions the council took</li>
+          </ul>
         </div>
-      </CardDropDownContainer>
+      </EGovHistoryCardDropDown>
     </EGovHistoryCardStyled>
   )
 }
