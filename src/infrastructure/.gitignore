@@ -4,3 +4,4 @@ env.sh
 charts/
 Chart.lock
 temp.yaml
+*secret.yaml
