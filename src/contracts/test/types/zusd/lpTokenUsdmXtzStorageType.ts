@@ -1,7 +1,7 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
-export type zUsdTokenStorageType = {
+export type lpTokenUsdmXtzStorageType = {
   admin: string;
 
   metadata: MichelsonMap<MichelsonMapKey, unknown>;
