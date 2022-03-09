@@ -10,7 +10,7 @@
 // ----- general types begin -----
 
 type vaultIdType            is nat;
-type zUsdAmountType         is nat;
+type usdmAmountType         is nat;
 
 type vaultOwnerType         is address;
 type initiatorAddressType   is address;
@@ -27,7 +27,7 @@ type vaultType is [@layout:comb] record [
     collateralBalance           : nat;                 // tez_balance in ctez
     collateralTokenAddress      : address;             // zero address for tez
     vaultType                   : vaultCollateralType; // XTZ / FA12 / FA2 of unit
-    zUsdOutstanding             : zUsdAmountType;      // nat 
+    usdmOutstanding             : usdmAmountType;      // nat 
 ]
 
 // ----- storage types end -----
@@ -37,7 +37,7 @@ type vaultType is [@layout:comb] record [
 
 type setAddressesActionType is [@layout:comb] record [
     cfmmAddress                 : address; 
-    zUsdTokenAddress            : address; 
+    usdmTokenAddress            : address; 
 ]
 
 type createVaultActionType is [@layout:comb] record [
@@ -80,8 +80,8 @@ type controllerStorage is [@layout:comb] record [
     drift                       : int;
     lastDriftUpdate             : timestamp;
 
-    zUsdTokenAddress            : address;  // zUSD token contract address
-    cfmmAddress                 : address;  // cfmm address providing the price feed
+    usdmTokenAddress            : address;  // USDM token contract address
+    cfmmAddress                 : address;  // CFMM address providing the price feed
 ]
 
 type controllerAction is 
@@ -145,8 +145,8 @@ function getVaultDelegateTezEntrypoint(const vaultAddress : address) : contract(
   | None -> (failwith("Error. vaultDelegateTez entrypoint in vault not found") : contract(vaultDelegateTezType))
   end;
 
-// helper function to get mintOrBurn entrypoint from zUSD contract
-function getZUsdMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
+// helper function to get mintOrBurn entrypoint from USDM contract
+function getUsdmMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
   case (Tezos.get_entrypoint_opt(
       "%mintOrBurn",
       tokenContractAddress) : option(contract(mintOrBurnParamsType))) of
@@ -219,7 +219,7 @@ block {
 // helper function to check if vault is under collaterized
 function isUnderCollaterized(const vault : vaultType; var s : controllerStorage) : bool is 
 block {
-    const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.zUsdOutstanding * s.target, 44n));
+    const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n));
 } with isUnderCollaterized
 
 function setAddresses(const setAddressesParams : setAddressesActionType; var s : controllerStorage) : return is
@@ -228,15 +228,15 @@ block {
     // check that sender is admin
     checkSenderIsAdmin(s);
 
-    // set zUsdTokenAddress and cfmmAddress if they have not been set, otherwise fail 
+    // set usdmTokenAddress and cfmmAddress if they have not been set, otherwise fail 
     // (i.e. they can only be set once after contract origination)
-    if s.zUsdTokenAddress =/= ("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU" : address) then 
-        failwith("Error. zUsdTokenAddress is already set.")
+    if s.usdmTokenAddress =/= ("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU" : address) then 
+        failwith("Error. usdmTokenAddress is already set.")
     else if s.cfmmAddress =/= ("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU" : address) then
         failwith("Error. cfmmAddress is already set.")
     else block {
         s.cfmmAddress      := setAddressesParams.cfmmAddress;
-        s.zUsdTokenAddress := setAddressesParams.zUsdTokenAddress;
+        s.usdmTokenAddress := setAddressesParams.usdmTokenAddress;
     }
 
 } with (noOperations, s)
@@ -361,7 +361,7 @@ block {
             // create new vault params
             const vault : vaultType = record [
                 collateralBalance       = mutezToNatural(Tezos.amount); 
-                zUsdOutstanding         = 0n;
+                usdmOutstanding         = 0n;
                 address                 = vaultWithTezOrigination.1; // vault address
                 collateralTokenAddress  = zeroAddress;
                 vaultType               = XTZ(unit);
@@ -403,7 +403,7 @@ block {
             // create new vault params
             const vault : vaultType = record [
                 collateralBalance       = createParams.tokenAmount; 
-                zUsdOutstanding         = 0n;
+                usdmOutstanding         = 0n;
                 address                 = vaultWithTokenOrigination.1;     // vault address
                 collateralTokenAddress  = tokenCollateralContractAddress;
                 vaultType               = FA2(unit);
@@ -448,7 +448,7 @@ block {
                 collateralBalance       = createParams.tokenAmount; 
                 collateralTokenAddress  = tokenCollateralContractAddress;
                 vaultType               = FA12(unit);
-                zUsdOutstanding         = 0n;
+                usdmOutstanding         = 0n;
             ];
 
             // update controller storage with new vault
@@ -552,11 +552,11 @@ block {
 
     if isUnderCollaterized(_vault, s) then block {
         
-        if quantity > _vault.zUsdOutstanding then failwith("Error. Cannot burn more than outstanding amount of zUSD.") else skip;
+        if quantity > _vault.usdmOutstanding then failwith("Error. Cannot burn more than outstanding amount of USDM.") else skip;
 
         const vaultCollateralBalance : nat = _vault.collateralBalance;
         
-        const remainingZUsd     : zUsdAmountType = abs(_vault.zUsdOutstanding - quantity);
+        const remainingUsdm     : usdmAmountType = abs(_vault.usdmOutstanding - quantity);
 
         (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
         const extractedBalance  : nat = (quantity * target * fixedPointAccuracy) / (31n * fixedPointAccuracy); // double check maths
@@ -564,8 +564,8 @@ block {
         // calculate new vault collateral balance
         const newCollateralBalance : nat = abs(vaultCollateralBalance - extractedBalance);
 
-        // save and update new vault params - zUsdOutstanding and collateral
-        _vault.zUsdOutstanding    := remainingZUsd;
+        // save and update new vault params - usdmOutstanding and collateral
+        _vault.usdmOutstanding    := remainingUsdm;
         _vault.collateralBalance  := newCollateralBalance;
         s.vaults[vaultHandle]    := _vault;
 
@@ -578,14 +578,14 @@ block {
         );
         operations := initiatorTakeCollateralOperation # operations;
 
-        // operation to burn zUSD
-        const burnZUsdOperationParams : mintOrBurnParamsType = (-quantity, initiator);
-        const burnZUsdOperation : operation = Tezos.transaction(
-            burnZUsdOperationParams,
+        // operation to burn USDM
+        const burnUsdmOperationParams : mintOrBurnParamsType = (-quantity, initiator);
+        const burnUsdmOperation : operation = Tezos.transaction(
+            burnUsdmOperationParams,
             0mutez,
-            getZUsdMintOrBurnEntrypoint(s.zUsdTokenAddress)
+            getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
         );
-        operations := burnZUsdOperation # operations;
+        operations := burnUsdmOperation # operations;
 
     } else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
 
@@ -613,22 +613,22 @@ block {
     // get vault if exists
     var vault : vaultType := getVault(vaultHandle, s);
 
-    // check if quantity to burn exceeds vault's zUsdOutstanding
-    if vault.zUsdOutstanding + quantity < 0 then failwith("Error. Cannot burn more than outstanding amount of zUSD.") else skip;
-    const newZUsdOutstanding : zUsdAmountType = abs(vault.zUsdOutstanding + quantity); 
-    vault.zUsdOutstanding := newZUsdOutstanding;
+    // check if quantity to burn exceeds vault's usdmOutstanding
+    if vault.usdmOutstanding + quantity < 0 then failwith("Error. Cannot burn more than outstanding amount of USDM.") else skip;
+    const newusdmOutstanding : usdmAmountType = abs(vault.usdmOutstanding + quantity); 
+    vault.usdmOutstanding := newusdmOutstanding;
     s.vaults[vaultHandle] := vault;
 
-    // check if vault is undercollaterized; if it is not, then create and send mintOrBurn operation to zUSD Token Contract
-    if isUnderCollaterized(vault, s) then failwith("Error. Excessive zUSD minting and vault will be undercollaterized.")
+    // check if vault is undercollaterized; if it is not, then create and send mintOrBurn operation to USDM Token Contract
+    if isUnderCollaterized(vault, s) then failwith("Error. Excessive USDM minting and vault will be undercollaterized.")
     else block {
 
-        // create and send mintOrBurn operation to zUSD Token Contract
-        const zUsdMintOrBurnParams : mintOrBurnParamsType = (quantity, initiator);
+        // create and send mintOrBurn operation to USDM Token Contract
+        const usdmMintOrBurnParams : mintOrBurnParamsType = (quantity, initiator);
         const mintOrBurnOperation : operation = Tezos.transaction(
-            zUsdMintOrBurnParams,
+            usdmMintOrBurnParams,
             0mutez,
-            getZUsdMintOrBurnEntrypoint(s.zUsdTokenAddress)
+            getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
         );
         operations := mintOrBurnOperation # operations;
 
