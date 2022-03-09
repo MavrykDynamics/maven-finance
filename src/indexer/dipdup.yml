@@ -320,14 +320,10 @@ indexes:
         pattern:
           - destination: delegation
             entrypoint: updateConfig
-      - callback: on_delegation_delegate_to_satellite_complete
+      - callback: on_delegation_delegate_to_satellite
         pattern:
           - destination: delegation
-            entrypoint: delegateToSatelliteComplete
-      - callback: on_delegation_redelegate_satellite
-        pattern:
-          - destination: delegation
-            entrypoint: redelegateSatellite
+            entrypoint: delegateToSatellite
       - callback: on_delegation_undelegate_from_satellite
         pattern:
           - destination: delegation
@@ -344,10 +340,6 @@ indexes:
         pattern:
           - destination: delegation
             entrypoint: updateSatelliteRecord
-      - callback: on_delegation_on_stake_change
-        pattern:
-          - destination: delegation
-            entrypoint: onStakeChange
       - callback: on_delegation_toggle_pause_delegate_to_satellite
         pattern:
           - destination: delegation
