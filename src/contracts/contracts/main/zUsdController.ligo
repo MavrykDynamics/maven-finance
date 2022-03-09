@@ -98,6 +98,7 @@ type controllerAction is
     | MintOrBurn                     of mintOrBurnActionType
     | GetTarget                      of contract(nat)
 
+// todo: add markForLiquidation entrypoint -> for grace period of 10 minutes before
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * controllerStorage
