@@ -7,9 +7,9 @@ import { array } from 'yargs'
 const { alice, bob, eve, mallory } = require('../scripts/sandbox/accounts')
 
 
-import { zUsdTokenStorageType } from '../test/types/zUsdTokenStorageType'
+import { lpTokenUsdmXtzTokenStorageType } from '../test/types/lpTokenUsdmXtzStorageType'
 
-export const zUsdTokenDecimals = 6
+export const lpTokenUsdmXtzDecimals = 6
 
 const totalSupply      = 1000000000
 const initialSupply    = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
@@ -20,7 +20,7 @@ const metadata = MichelsonMap.fromLiteral({
   data: Buffer.from(
     JSON.stringify({
       version: 'v1.0.0',
-      description: 'zUSD Algorithmic Stablecoin',
+      description: 'LP Token USDM-XTZ',
       authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
       source: {
         tools: ['Ligo', 'Flextesa'],
@@ -31,9 +31,9 @@ const metadata = MichelsonMap.fromLiteral({
       views: [],
       assets: [
         {
-          symbol: Buffer.from('zUSD').toString('hex'),
-          name: Buffer.from('zUSD').toString('hex'),
-          decimals: Buffer.from(zUsdTokenDecimals.toString()).toString('hex'),
+          symbol: Buffer.from('USDM-XTZ').toString('hex'),
+          name: Buffer.from('LP Token USDM-XTZ').toString('hex'),
+          decimals: Buffer.from(lpTokenUsdmXtzDecimals.toString()).toString('hex'),
           icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
           shouldPreferSymbol: true,
           thumbnailUri: 'https://mavryk.finance/logo192.png',
@@ -55,9 +55,9 @@ const token_metadata = MichelsonMap.fromLiteral({
   0: {
     token_id: '0',
     token_info: MichelsonMap.fromLiteral({
-      symbol: Buffer.from('zUSD').toString('hex'),
-      name: Buffer.from('zUSD').toString('hex'),
-      decimals: Buffer.from(zUsdTokenDecimals.toString()).toString('hex'),
+      symbol: Buffer.from('USDM-XTZ').toString('hex'),
+      name: Buffer.from('LP Token USDM-XTZ').toString('hex'),
+      decimals: Buffer.from(lpTokenUsdmXtzDecimals.toString()).toString('hex'),
       icon: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
       shouldPreferSymbol: Buffer.from(new Uint8Array([1])).toString('hex'),
       thumbnailUri: Buffer.from('https://mavryk.finance/logo192.png').toString('hex'),
@@ -65,7 +65,7 @@ const token_metadata = MichelsonMap.fromLiteral({
   },
 })
 
-export const zUsdStorage: zUsdTokenStorageType = {
+export const lpTokenUsdmXtzStorage: lpTokenUsdmXtzTokenStorageType = {
   admin: alice.pkh,
 
   metadata: metadata,
