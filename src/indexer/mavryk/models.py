@@ -60,6 +60,20 @@ class FarmFactory(Model):
     class Meta:
         table = 'farm_factory'
 
+class Delegation(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    minimum_smvk_balance            = fields.BigIntField(default=0)
+    delegation_ratio                = fields.BigIntField(default=0)
+    max_satellites                  = fields.BigIntField(default=0)
+    delegate_to_satellite_paused    = fields.BooleanField(default=False)
+    undelegate_from_satellite_paused= fields.BooleanField(default=False)
+    register_as_satellite_paused    = fields.BooleanField(default=False)
+    unregister_as_satellite_paused  = fields.BooleanField(default=False)
+    update_satellite_record_paused  = fields.BooleanField(default=False)
+
+    class Meta:
+        table = 'delegation'
+
 # Users
 class User(Model):
     address                         = fields.CharField(pk=True, max_length=36)
@@ -81,6 +95,30 @@ class FarmAccount(Model):
 
     class Meta:
         table = 'farm_account'
+
+class SatelliteRecord(Model):
+    id                              = fields.BigIntField(pk=True, default=0)
+    user                            = fields.ForeignKeyField('models.User', related_name='satellite_record')
+    delegation                      = fields.ForeignKeyField('models.Delegation', related_name='satellite_records')
+    registered_datetime             = fields.DatetimeField()
+    unregistered_datetime           = fields.DatetimeField()
+    active                          = fields.BooleanField(default=False)
+    fee                             = fields.BigIntField(default=0)
+    name                            = fields.CharField(max_length=255) #TODO: Set max length in contract + here
+    description                     = fields.CharField(max_length=255) #TODO: Set max length in contract + here
+    image                           = fields.CharField(max_length=255) #TODO: Set max length in contract + here
+
+    class Meta:
+        table = 'satellite_record'
+
+class DelegationRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    satellite_record                = fields.ForeignKeyField('models.SatelliteRecord', related_name='delegation_records')
+    user                            = fields.ForeignKeyField('models.User', related_name='delegation_records')
+    delegation                      = fields.ForeignKeyField('models.Delegation', related_name='delegation_records')
+
+    class Meta:
+        table = 'delegation_record'
 
 # Time-based records
 class TransferRecord(Model):
