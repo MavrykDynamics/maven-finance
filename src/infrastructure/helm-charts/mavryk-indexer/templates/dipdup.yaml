@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.2
+          image: tezosdynamics/mavryk-indexer:v0.0.3
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.2
+          image: tezosdynamics/mavryk-indexer:v0.0.3
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -113,6 +113,11 @@ data:
       password: ${POSTGRES_PASSWORD:-changeme}
       database: dipdup
       schema_name: public
+
+    hasura:
+      url: http://hasura.mavryk-indexer.svc.cluster.local:8080
+      admin_secret: ${ADMIN_SECRET:-changeme}
+      select_limit: 1000
 
     contracts:
       mvk:

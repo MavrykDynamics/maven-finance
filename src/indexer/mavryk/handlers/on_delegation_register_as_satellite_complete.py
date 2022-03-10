@@ -21,7 +21,7 @@ async def on_delegation_register_as_satellite_complete(
     #TODO??: Balance change for MVK?
 
     # Create and update records
-    user, _ = await models.User.get_or_create(
+    user, _ = await models.MavrykUser.get_or_create(
         address     = userAddress
     )
     delegation = await models.Delegation.get(

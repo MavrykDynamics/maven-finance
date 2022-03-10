@@ -1,14 +1,20 @@
 from tortoise import Model, fields
 from enum import IntEnum
 
-# Enumerators
+
+class ExampleModel(Model):
+    id = fields.IntField(pk=True)
+    ...
+
+    class Meta:
+        table = 'example_models'
+
 class StakeType(IntEnum):
     STAKE       = 0
     UNSTAKE     = 1
     FARM_CLAIM  = 2
     COMPOUND    = 3
 
-# Unique contract instances
 class MVKToken(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     maximum_supply                  = fields.BigIntField(default=0)
@@ -74,23 +80,21 @@ class Delegation(Model):
     class Meta:
         table = 'delegation'
 
-# Users
-class User(Model):
+class MavrykUser(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     mvk_balance                     = fields.BigIntField(default=0)
     smvk_balance                    = fields.BigIntField(default=0)
     participation_fees_per_share    = fields.FloatField(default=0)
-    operators                       = fields.ManyToManyField('models.User', related_name='operates', null=True)
     doorman                         = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts', null=True)
 
     class Meta:
-        table = 'user'
+        table = 'mavryk_user'
 
 class FarmAccount(Model):
     id                              = fields.BigIntField(pk=True, default=0)
     deposited_amount                = fields.BigIntField(default=0)
     participation_mvk_per_share     = fields.FloatField(default=0)
-    user                            = fields.ForeignKeyField('models.User', related_name='farm_accounts', index=True)
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='farm_accounts', index=True)
     farm                            = fields.ForeignKeyField('models.Farm', related_name='farm_accounts', index=True)
 
     class Meta:
@@ -98,7 +102,7 @@ class FarmAccount(Model):
 
 class SatelliteRecord(Model):
     id                              = fields.BigIntField(pk=True, default=0)
-    user                            = fields.ForeignKeyField('models.User', related_name='satellite_record')
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_record')
     delegation                      = fields.ForeignKeyField('models.Delegation', related_name='satellite_records')
     registered_datetime             = fields.DatetimeField()
     unregistered_datetime           = fields.DatetimeField()
@@ -114,19 +118,18 @@ class SatelliteRecord(Model):
 class DelegationRecord(Model):
     id                              = fields.BigIntField(pk=True)
     satellite_record                = fields.ForeignKeyField('models.SatelliteRecord', related_name='delegation_records')
-    user                            = fields.ForeignKeyField('models.User', related_name='delegation_records')
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='delegation_records')
     delegation                      = fields.ForeignKeyField('models.Delegation', related_name='delegation_records')
 
     class Meta:
         table = 'delegation_record'
 
-# Time-based records
 class TransferRecord(Model):
     id                              = fields.BigIntField(pk=True)
     timestamp                       = fields.DatetimeField()
     token_address                   = fields.ForeignKeyField('models.MVKToken', related_name='transfer_records')
-    from_                           = fields.ForeignKeyField('models.User', related_name='transfer_sender')
-    to_                             = fields.ForeignKeyField('models.User', related_name='transfer_receiver')
+    from_                           = fields.ForeignKeyField('models.MavrykUser', related_name='transfer_sender')
+    to_                             = fields.ForeignKeyField('models.MavrykUser', related_name='transfer_receiver')
     amount                          = fields.BigIntField(default=0)
 
     class Meta:
@@ -138,7 +141,7 @@ class StakeRecord(Model):
     type                            = fields.IntEnumField(enum_type=StakeType)
     mvk_loyalty_index               = fields.FloatField(default=0.0)
     exit_fee                        = fields.BigIntField(default=0)
-    from_                           = fields.ForeignKeyField('models.User', related_name='stake_records')
+    from_                           = fields.ForeignKeyField('models.MavrykUser', related_name='stake_records')
     desired_amount                  = fields.BigIntField(default=0)
     final_amount                    = fields.BigIntField(default=0)
     doorman                         = fields.ForeignKeyField('models.Doorman', related_name='stake_records')

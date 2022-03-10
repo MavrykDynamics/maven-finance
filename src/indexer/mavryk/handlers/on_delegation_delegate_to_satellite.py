@@ -15,7 +15,7 @@ async def on_delegation_delegate_to_satellite(
     satelliteAddress    = delegate_to_satellite.parameter.__root__
 
     # Create and/or update record
-    user, _ = await models.User.get_or_create(
+    user, _ = await models.MavrykUser.get_or_create(
         address = userAddress
     )
     delegation = await models.Delegation.get(
