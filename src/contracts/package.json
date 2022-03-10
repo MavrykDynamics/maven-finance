@@ -41,7 +41,10 @@
     "compile-treasury-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/treasury/treasuryLambdaIndex.json -c contracts/main/treasury.ligo -n treasuryLambdas",
     "compile-treasuryFactory-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/treasuryFactory/treasuryFactoryLambdaIndex.json -c contracts/main/treasuryFactory.ligo -n treasuryFactoryLambdas",
     "compile-emergencyGovernance-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/emergencyGovernance/emergencyGovernanceLambdaIndex.json -c contracts/main/emergencyGovernance.ligo -n emergencyGovernanceLambdas",
-    
+
+    "pre-compile-usdm": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main/usdm -o compiled",
+    "compile-usdm": "yarn pre-compile-usdm && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -p main/usdm",
+
     "compile-all-lambdas-1": "yarn compile-governanceProxy-lambdas && yarn compile-governance-lambdas && yarn compile-doorman-lambdas && yarn compile-delegation-lambdas && yarn compile-breakGlass-lambdas && yarn compile-council-lambdas && yarn compile-emergencyGovernance-lambdas",
     "compile-all-lambdas-2": "yarn compile-farm-lambdas && yarn compile-farmFactory-lambdas && yarn compile-vesting-lambdas && yarn compile-treasury-lambdas && yarn compile-treasuryFactory-lambdas",
 
