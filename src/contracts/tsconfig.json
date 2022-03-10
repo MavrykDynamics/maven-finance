@@ -7,8 +7,8 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "baseUrl": "./",
-    "typeRoots": ["./node_modules/@types", "./test/types", "./test"],
-    "types": ["node", "@types/mocha", "@types/chai", "@types/expect", "./test/types"],
+    "typeRoots": ["./node_modules/@types", "./test/types", "./test", "./test/types/usdm"],
+    "types": ["node", "@types/mocha", "@types/chai", "@types/expect", "./test/types", "./test/types/usdm"],
   },
   "exclude": ["node_modules", "build", "cache", "artifacts"],
   "include": ["./*.ts", "./test/*.ts", "./test/helpers/*.ts", "test/deploy/00_test_deployments.spec.ts"]
