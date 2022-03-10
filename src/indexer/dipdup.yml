@@ -1,25 +1,23 @@
 spec_version: 1.2
 package: mavryk
 
-database:
-  kind: sqlite
-  path: mavryk.sqlite3
-
 # database:
-#   kind: postgres
-#   host: 127.0.0.1
-#   port: 5432
-#   user: dipdup
-#   password: ${POSTGRES_PASSWORD:-changeme}
-#   database: dipdup
-#   schema_name: public
+#   kind: sqlite
+#   path: mavryk.sqlite3
+
+database:
+  kind: postgres
+  host: '127.0.0.1'
+  port: '5432'
+  user: dipdup
+  password: dipdup12345
+  database: dipdup
+  schema_name: dipdup
 
 # hasura:
-#   url: http://hasura:8080
+#   url: http://127.0.0.1:42000
 #   admin_secret: ${ADMIN_SECRET:-changeme}
-#   allow_aggregations: False
-#   camel_case: true
-#   select_limit: 100
+#   select_limit: 1000
 
 contracts:
   mvk:
