@@ -35,7 +35,7 @@ spec:
             - name: HASURA_GRAPHQL_ENABLE_CONSOLE
               value: 'true'
             - name: HASURA_GRAPHQL_DEV_MODE
-              value: 'false'
+              value: 'true'
             - name: HASURA_GRAPHQL_ENABLED_LOG_TYPES
               value: startup, http-log, webhook-log, websocket-log, query-log
             - name: HASURA_GRAPHQL_UNAUTHORIZED_ROLE
@@ -50,13 +50,37 @@ spec:
                 secretKeyRef:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
-          image: hasura/graphql-engine:v2.0.1
+          image: hasura/graphql-engine:v2.3.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
               name: http
               protocol: TCP
-          resources:
-            requests:
-              cpu: 100m
-              memory: 90Mi
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hasura
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-expose-headers: '*'
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
+    nginx.ingress.kubernetes.io/cors-allow-methods: PUT, GET, POST, OPTIONS, DELETE, PATCH
+spec:
+  tls:
+    - hosts:
+        - api.mavryk.finance
+      secretName: api-mavryk-tls
+  rules:
+    - host: api.mavryk.finance
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hasura
+                port:
+                  number: 8080
