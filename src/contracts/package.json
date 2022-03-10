@@ -30,8 +30,8 @@
     "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-lambdas",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
     
-    "pre-compile-zusd": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main/zusd -o compiled",
-    "compile-zusd": "yarn pre-compile-zusd && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -p main/zusd",
+    "pre-compile-usdm": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main/usdm -o compiled",
+    "compile-usdm": "yarn pre-compile-usdm && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -p main/usdm",
 
     "compile-lambdas": "ts-node scripts/cli.ts compile-lambda -j contracts/partials/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo",
     "compile-lambda-parameters": "ts-node scripts/cli.ts compile-lambda-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",    
