@@ -13,7 +13,7 @@ async def on_delegation_undelegate_from_satellite(
     userAddress = undelegate_from_satellite_complete.data.initiator_address
 
     # # Delete record
-    # user, _ = await models.User.get_or_create(
+    # user, _ = await models.MavrykUser.get_or_create(
     #     address = userAddress
     # )
     # delegationRecord = await models.DelegationRecord.get(

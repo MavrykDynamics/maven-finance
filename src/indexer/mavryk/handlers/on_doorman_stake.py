@@ -26,7 +26,7 @@ async def on_doorman_stake(
     accumulated_fees_per_share = int(stake.data.storage['accumulatedFeesPerShare'])
 
     # Get or create the interacting user
-    user, _ = await models.User.get_or_create(
+    user, _ = await models.MavrykUser.get_or_create(
         address=sender_address
     )
     user.doorman = doorman

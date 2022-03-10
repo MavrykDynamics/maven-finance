@@ -24,7 +24,7 @@ async def on_farm_claim(
     farm.last_block_update = farmLastBlock
     await farm.save()
 
-    user, _ = await models.User.get_or_create(
+    user, _ = await models.MavrykUser.get_or_create(
         address = userAddress
     )
     await user.save()

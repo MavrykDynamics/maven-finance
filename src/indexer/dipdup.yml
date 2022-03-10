@@ -12,12 +12,12 @@ database:
   user: dipdup
   password: dipdup12345
   database: dipdup
-  schema_name: dipdup
+  schema_name: public
 
-# hasura:
-#   url: http://127.0.0.1:42000
-#   admin_secret: ${ADMIN_SECRET:-changeme}
-#   select_limit: 1000
+hasura:
+  url: http://127.0.0.1:42000
+  admin_secret: ${ADMIN_SECRET:-changeme}
+  select_limit: 1000
 
 contracts:
   mvk:
