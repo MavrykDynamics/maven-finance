@@ -28,7 +28,7 @@ async def on_doorman_farm_claim_complete(
     await doorman.save()
 
     # Get user
-    user = await models.User.get(
+    user = await models.MavrykUser.get(
         address = userAddress
     )
     user.smvk_balance = userSMVKBalance

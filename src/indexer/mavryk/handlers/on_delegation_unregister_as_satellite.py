@@ -13,7 +13,7 @@ async def on_delegation_unregister_as_satellite(
     satelliteAddress    = unregister_as_satellite.data.sender_address
 
     # Delete records
-    user = await models.User.get(
+    user = await models.MavrykUser.get(
         address = satelliteAddress
     )
     satelliteRecord = await models.SatelliteRecord.get(

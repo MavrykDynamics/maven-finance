@@ -28,7 +28,7 @@ async def on_doorman_unstake_complete(
     accumulated_fees_per_share = int(unstake_complete.data.storage['accumulatedFeesPerShare'])
 
     # Get or create the interacting user
-    user, _ = await models.User.get_or_create(
+    user, _ = await models.MavrykUser.get_or_create(
         address=initiator_address
     )
     user.doorman = doorman

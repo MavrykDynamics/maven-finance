@@ -17,7 +17,7 @@ async def on_delegation_update_satellite_record(
     newSatelliteFee                = int(update_satellite_record.parameter.nat)
 
     # Update satellite record
-    user        = await models.User.get(
+    user        = await models.MavrykUser.get(
         address = satelliteAddress
     )
     satellite   = await models.SatelliteRecord.get(

@@ -14,7 +14,7 @@ async def on_mvk_mint(
     newUserBalance = mint.storage.ledger[mintAddress]
 
     # Get mint account
-    user, _ = await models.User.get_or_create(
+    user, _ = await models.MavrykUser.get_or_create(
         address = mintAddress
     )
     user.mvk_balance = newUserBalance
