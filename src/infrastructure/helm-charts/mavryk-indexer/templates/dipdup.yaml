@@ -17,8 +17,9 @@ spec:
     spec:
       imagePullSecrets:
         - name: docker-pull-credentials
-      containers:
-        - name: dipdup
+      initContainers:
+        - name: empty-db
+          args: ['-c', 'dipdup.yml', 'schema', 'wipe', '--force']
           env:
             - name: POSTGRES_HOST
               valueFrom:
@@ -47,16 +48,45 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.1
+          image: tezosdynamics/mavryk-indexer:v0.0.2
           imagePullPolicy: Always
-          ports:
-            - containerPort: 8080
-              name: http
-              protocol: TCP
-          resources:
-            requests:
-              cpu: 100m
-              memory: 90Mi
+          volumeMounts:
+            - name: config-volume
+              mountPath: /mavryk/dipdup.yml
+              subPath: dipdup.yml
+      containers:
+        - name: dipdup
+          args: ['-c', 'dipdup.yml', 'run']
+          env:
+            - name: POSTGRES_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_HOST
+            - name: POSTGRES_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PORT
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: POSTGRES_PASSWORD
+            - name: ADMIN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: indexer
+                  key: HASURA_GRAPHQL_ADMIN_SECRET
+            - name: TZKT_URL
+              value: https://api.hangzhou2net.tzkt.io
+          image: tezosdynamics/mavryk-indexer:v0.0.2
+          imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
               mountPath: /mavryk/dipdup.yml
@@ -83,13 +113,6 @@ data:
       password: ${POSTGRES_PASSWORD:-changeme}
       database: dipdup
       schema_name: public
-
-    # hasura:
-    #   url: http://hasura.mavryk-indexer.svc.cluster.local:8080
-    #   admin_secret: ${ADMIN_SECRET:-changeme}
-    #   allow_aggregations: False
-    #   camel_case: true
-    #   select_limit: 100
 
     contracts:
       mvk:
@@ -390,14 +413,10 @@ data:
             pattern:
               - destination: delegation
                 entrypoint: updateConfig
-          - callback: on_delegation_delegate_to_satellite_complete
+          - callback: on_delegation_delegate_to_satellite
             pattern:
               - destination: delegation
-                entrypoint: delegateToSatelliteComplete
-          - callback: on_delegation_redelegate_satellite
-            pattern:
-              - destination: delegation
-                entrypoint: redelegateSatellite
+                entrypoint: delegateToSatellite
           - callback: on_delegation_undelegate_from_satellite
             pattern:
               - destination: delegation
@@ -414,10 +433,6 @@ data:
             pattern:
               - destination: delegation
                 entrypoint: updateSatelliteRecord
-          - callback: on_delegation_on_stake_change
-            pattern:
-              - destination: delegation
-                entrypoint: onStakeChange
           - callback: on_delegation_toggle_pause_delegate_to_satellite
             pattern:
               - destination: delegation
