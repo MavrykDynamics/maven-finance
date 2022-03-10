@@ -32,7 +32,8 @@ type proposalRecordType is [@layout:comb] record [
     title                : string;                  // title
     description          : string;                  // description
     invoice              : string;                  // ipfs hash of invoice file
-    sourceCode           : string;                  // link to github / repo
+    // sourceCode           : string;                  // todo: link to github / repo
+    
 
     successReward        : nat;                     // log of successful proposal reward for voters - may change over time
     executed             : bool;                    // true / false
@@ -56,6 +57,7 @@ type proposalRecordType is [@layout:comb] record [
     quorumMvkTotal       : nat;                     // log of total positive votes in MVK 
     startDateTime        : timestamp;               // log of when the proposal was proposed
 
+    // cycle                    : nat;                 // todo: log of cycle that proposal belongs to
     currentCycleStartLevel   : nat;                 // log of current cycle starting block level
     currentCycleEndLevel     : nat;                 // log of current cycle end block level
 ]
