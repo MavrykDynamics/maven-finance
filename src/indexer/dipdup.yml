@@ -35,6 +35,12 @@ contracts:
   delegation:
     address: KT1Nv9w4tShibfmyQc9hrZzwVnWZUJAgNYYn
     typename: delegation
+  vesting:
+    address: KT1Hzo5zQGSg18V1mPJ6umt7fmJq54MAF2ks
+    typename: vesting
+  council:
+    address: KT1EmLaLkxmK92oMBbcU934DgbF1ChYXQwjr
+    typename: council
 
 datasources:
   tzkt:
@@ -366,3 +372,71 @@ indexes:
         pattern:
           - destination: delegation
             entrypoint: unpauseAll
+  # Vesting contract indexes
+  vesting:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - vesting
+    handlers:
+      - callback: on_vesting_origination
+        pattern:
+          - type: origination
+            originated_contract: vesting
+      - callback: on_vesting_update_config
+        pattern:
+          - destination: vesting
+            entrypoint: updateConfig
+      - callback: on_vesting_add_vestee
+        pattern:
+          - destination: vesting
+            entrypoint: addVestee
+      - callback: on_vesting_remove_vestee
+        pattern:
+          - destination: vesting
+            entrypoint: removeVestee
+      - callback: on_vesting_claim
+        pattern:
+          - destination: vesting
+            entrypoint: claim
+      - callback: on_vesting_toggle_vestee_lock
+        pattern:
+          - destination: vesting
+            entrypoint: toggleVesteeLock
+      - callback: on_vesting_update_vestee
+        pattern:
+          - destination: vesting
+            entrypoint: updateVestee
+  # Council contract indexes
+  council:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - council
+    handlers:
+      - callback: on_council_origination
+        pattern:
+          - type: origination
+            originated_contract: council
+      - callback: on_council_update_config
+        pattern:
+          - destination: council
+            entrypoint: updateConfig
+      - callback: on_council_council_action_add_member
+        pattern:
+          - destination: council
+            entrypoint: councilActionAddMember
+      - callback: on_council_council_action_add_vestee
+        pattern:
+          - destination: council
+            entrypoint: councilActionAddVestee
+      - callback: on_council_council_action_change_member
+        pattern:
+          - destination: council
+            entrypoint: councilActionChangeMember

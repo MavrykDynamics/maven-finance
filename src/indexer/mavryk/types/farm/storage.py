@@ -12,17 +12,17 @@ class BreakGlassConfig(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    claimIsPaused: bool
     depositIsPaused: bool
     withdrawIsPaused: bool
+    claimIsPaused: bool
 
 
 class ClaimedRewards(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    paid: str
     unpaid: str
+    paid: str
 
 
 class Delegators(BaseModel):
@@ -53,17 +53,17 @@ class LpToken(BaseModel):
         extra = Extra.forbid
 
     tokenAddress: str
-    tokenBalance: str
     tokenId: str
     tokenStandard: Union[TokenStandardItem, TokenStandardItem1]
+    tokenBalance: str
 
 
 class PlannedRewards(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    currentRewardPerBlock: str
     totalBlocks: str
+    currentRewardPerBlock: str
     totalRewards: str
 
 
