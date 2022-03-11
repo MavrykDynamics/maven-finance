@@ -1,19 +1,20 @@
-#include "../partials/vault/vaultGeneralType.ligo"
-
-#include "../partials/vault/vaultWithTokenType.ligo"
-
-#include "../partials/vault/vaultWithTezType.ligo"
+#include "../partials/vault/vaultType.ligo"
 
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
 // ----- general types begin -----
 
-type vaultIdType            is nat;
-type usdmAmountType         is nat;
 
-type vaultOwnerType         is address;
-type initiatorAddressType   is address;
+type vaultIdType                 is nat;
+type usdmAmountType              is nat;
+type tokenBalanceType            is nat;
+
+type vaultOwnerType              is address;
+type initiatorAddressType        is address;
+type tokenContractAddressType    is address;
+
+type collateralNameType          is string;
 
 type mintOrBurnParamsType is (int * address);
 
@@ -22,12 +23,14 @@ type mintOrBurnParamsType is (int * address);
 
 // ----- storage types begin -----
 
+type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
+type collateralTokenAddressesType is map(address, string) // token collateral address : name of token collateral
+
 type vaultType is [@layout:comb] record [
     address                     : address;
-    collateralBalance           : nat;                 // tez_balance in ctez
-    collateralTokenAddress      : address;             // zero address for tez
-    vaultType                   : vaultCollateralType; // XTZ / FA12 / FA2 of unit
-    usdmOutstanding             : usdmAmountType;      // nat 
+    collateralBalanceLedger     : collateralBalanceLedgerType;     // tez/token balance
+    collateralTokenAddress      : collateralTokenAddressesType;    // zero address for tez
+    usdmOutstanding             : usdmAmountType;                  // nat 
 ]
 
 // ----- storage types end -----
@@ -44,9 +47,7 @@ type createVaultActionType is [@layout:comb] record [
     id                          : nat; 
     delegate                    : option(key_hash); 
     depositors                  : depositorsType;
-    tokenContractAddress        : string;               // "none" for XTZ 
     tokenAmount                 : nat;
-    vaultType                   : vaultCollateralType;  // XTZ / FA12 / FA2 of unit
 ]
 
 type withdrawFromVaultActionType is [@layout:comb] record [
@@ -112,11 +113,8 @@ const fixedPointAccuracy   : nat      = 1_000_000_000_000_000_000_000_000n // 10
 // ----- constants end -----
 
 
-// vault with token
-#include "vaultWithToken.ligo"
-
-// vault with tez 
-#include "vaultWithTez.ligo"
+// multi-asset vault
+#include "vault.ligo"
 
 // helper functions - conversions
 function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
@@ -219,7 +217,8 @@ block {
 // helper function to check if vault is under collaterized
 function isUnderCollaterized(const vault : vaultType; var s : controllerStorage) : bool is 
 block {
-    const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n));
+    // const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n));
+    skip
 } with isUnderCollaterized
 
 function setAddresses(const setAddressesParams : setAddressesActionType; var s : controllerStorage) : return is
@@ -278,42 +277,6 @@ block {
     s.lastDriftUpdate    := Tezos.now;
 
     // math probably not correct with the divisions - double check with checker formula
-
-// (* todo: restore when ligo interpret is fixed
-//    let cfmm_price (storage : storage) (tez : tez) (token : nat) : result =      *)
-// let cfmm_price (storage, tez, token : storage * nat * nat) : result =
-//   if Tezos.sender <> storage.cfmm_address then
-//     (failwith error_CALLER_MUST_BE_CFMM : result)
-//   else
-//     let delta = abs (Tezos.now - storage.last_drift_update) in
-//     let target = storage.target in
-//     let d_target = Bitwise.shift_right (target * (abs storage.drift) * delta) 48n in
-//     (* We assume that `target - d_target < 0` never happens for economic reasons.
-//        Concretely, even drift were as low as -50% annualized, it would take not
-//        updating the target for 1.4 years for a negative number to occur *)
-//     let target  = if storage.drift < 0  then abs (target - d_target) else target + d_target in
-//     (* This is not homegeneous, but setting the constant delta is multiplied with
-//            to 1.0 magically happens to be reasonable. Why?
-//            Because (24 * 3600 / 2^48) * 365.25*24*3600 ~ 0.97%.
-//            This means that the annualized drift changes by roughly one percentage point
-//            for each day over or under the target by more than 1/64th.
-//         *)
-
-//     let price = (Bitwise.shift_left tez 48n) / token in
-//     let target_less_price : int = target - price in
-//     let d_drift =
-//       let x = Bitwise.shift_left (abs (target_less_price * target_less_price)) 10n in
-//       let p2 = price * price  in
-//       if x > p2 then delta else x * delta / p2 in
-
-//     let drift =
-//     if target_less_price > 0 then
-//       storage.drift + d_drift
-//     else
-//       storage.drift - d_drift in
-
-//     (([] : operation list), {storage with drift = drift ; last_drift_update = Tezos.now ; target = target})
-
 
 } with (noOperations, s)
 
