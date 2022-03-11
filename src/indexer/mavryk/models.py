@@ -1,3 +1,4 @@
+from ctypes import addressof
 from tortoise import Model, fields
 from enum import IntEnum
 
@@ -14,6 +15,12 @@ class StakeType(IntEnum):
     UNSTAKE     = 1
     FARM_CLAIM  = 2
     COMPOUND    = 3
+
+class ActionStatus(IntEnum):
+    PENDING     = 0
+    FLUSHED     = 1
+    EXECUTED    = 2
+    EXPIRED     = 3
 
 class MVKToken(Model):
     address                         = fields.CharField(pk=True, max_length=36)
@@ -80,12 +87,35 @@ class Delegation(Model):
     class Meta:
         table = 'delegation'
 
+class Council(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    threshold                       = fields.BigIntField(default=0)
+    action_expiry_days              = fields.BigIntField(default=0)
+    threshold_signers               = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'council'
+
+class Vesting(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    blocks_per_minute               = fields.BigIntField(default=0)
+    blocks_per_month                = fields.BigIntField(default=0)
+    default_cliff_period            = fields.BigIntField(default=0)
+    default_cooldown_period         = fields.BigIntField(default=0)
+    new_blocktime_level             = fields.BigIntField(default=0)
+    new_block_per_minute            = fields.BigIntField(default=0)
+    total_vested_amount             = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'vesting'
+
 class MavrykUser(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     mvk_balance                     = fields.BigIntField(default=0)
     smvk_balance                    = fields.BigIntField(default=0)
     participation_fees_per_share    = fields.FloatField(default=0)
     doorman                         = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts', null=True)
+    council                         = fields.ForeignKeyField('models.Council', related_name='council_members', null=True)
 
     class Meta:
         table = 'mavryk_user'
@@ -148,3 +178,67 @@ class StakeRecord(Model):
 
     class Meta:
         table = 'stake_record'
+
+class CouncilActionRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    council                         = fields.ForeignKeyField('models.Council', related_name='council_action_records')
+    initiator                       = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator')
+    start_datetime                  = fields.DatetimeField()
+    start_level                     = fields.BigIntField(default=0)
+    executed_datetime               = fields.DatetimeField()
+    executed_level                  = fields.BigIntField(default=0)
+    expiration_datetime             = fields.DatetimeField()
+    action_type                     = fields.CharField(max_length=48)
+    status                          = fields.IntEnumField(enum_type=ActionStatus)
+    executed                        = fields.BooleanField(default=False)
+
+    class Meta:
+        table = 'council_action_record'
+
+class CouncilActionRecordParameter(Model):
+    id                              = fields.BigIntField(pk=True)
+    council_action_record           = fields.ForeignKeyField('models.CouncilActionRecord', related_name='council_action_record_parameters')
+    name                            = fields.CharField(max_length=255)
+    value                           = fields.CharField(max_length=255)
+
+    class Meta:
+        table = 'council_action_record_parameter'
+
+class VestingVesteeRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    vesting                         = fields.ForeignKeyField('models.Vesting', related_name='vesting_vestee_records')
+    vestee                          = fields.ForeignKeyField('models.MavrykUser', related_name='vesting_vestee_record')
+    total_allocated_amount          = fields.BigIntField(default=0)
+    claim_amount_per_month          = fields.BigIntField(default=0)
+    start_block                     = fields.BigIntField(default=0)
+    start_timestamp                 = fields.DatetimeField()
+    vesting_months                  = fields.BigIntField(default=0)
+    cliff_months                    = fields.BigIntField(default=0)
+    end_cliff_block                 = fields.BigIntField(default=0)
+    end_cliff_timestamp             = fields.DatetimeField()
+    end_vesting_block               = fields.BigIntField(default=0)
+    end_vesting_timestamp           = fields.DatetimeField()
+    locked                          = fields.BooleanField(default=False)
+    total_remainder                 = fields.BigIntField(default=0)
+    total_claimed                   = fields.BigIntField(default=0)
+    months_claimed                  = fields.BigIntField(default=0)
+    months_remaining                = fields.BigIntField(default=0)
+    next_redemption_block           = fields.BigIntField(default=0)
+    next_redemption_timestamp       = fields.DatetimeField()
+    last_claimed_block              = fields.BigIntField(default=0)
+    last_claimed_timestamp          = fields.DatetimeField()
+
+    class Meta:
+        table = 'vesting_vestee_record'
+
+class VestingClaimRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    vesting                         = fields.ForeignKeyField('models.Vesting', related_name='vesting_claim_records')
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='vesting_claim_record')
+    timestamp                       = fields.DatetimeField()
+    amount_claimed                  = fields.BigIntField(default=0)
+    remainder_vested                = fields.BigIntField(default=0)
+    block_level_claimed             = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'vesting_claim_record'
