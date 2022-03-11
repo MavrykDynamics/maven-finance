@@ -119,17 +119,16 @@ type tokenToCashActionType is [@layout:comb] record [
     tokensSold              : nat;
 ]
 
-type tokenToTokenActionType is [@layout:comb] record [
-    deadline                : timestamp;
-    minTokensBought         : nat;
-    outputCfmmContract      : address;
-    [@annot:to] to_         : address;
-    tokensSold              : nat
-]
 
 // oracle update consumer 
-type updateConsumerActionType   is contract(nat * nat);
-type updateConsumerParams       is contract(nat * nat);
+type updateConsumerActionType   is contract(nat * nat)
+type updateConsumerParams       is contract(nat * nat)
+
+// type onPriceActionType          is [@layout:comb] record [
+//     assetAlphaAmount    : nat;
+//     assetBetaAmount     : nat;
+// ]
+type onPriceActionType is (nat * nat) // assetAlphaAmount, assetBetaAmount
 
 
 // for ctez / USDM
@@ -178,31 +177,30 @@ type cfmmStorage is [@layout:comb] record [
     // for oracle
     lastOracleUpdate        : timestamp;
     consumerEntrypoint      : address;
+
+    usdmTokenAddress        : address;
 ]
 
 type cfmmAction is 
     | Default                       of unit
     | SetAdmin                      of (address)
     | SetBaker                      of setBakerActionType
+    | SetLpTokenAddress             of address 
 
     | AddLiquidity                  of addLiquidityActionType
     | RemoveLiquidity               of removeLiquidityActionType 
-    | SetLpTokenAddress             of address 
+
     | CashToToken                   of cashToTokenActionType
     | TokenToCash                   of tokenToCashActionType
-    | TokenToToken                  of tokenToTokenActionType
 
     // if cash is not tez
-    | UpdatePools of unit
+    | UpdatePools                   of unit
     | UpdateFa12CashPoolInternal    of updateFa12CashPoolInternalActionType
     | UpdateFa2CashPoolInternal     of updateFa2CashPoolInternalActionType
     
     | UpdateFa12TokenPoolInternal   of updateFa12TokenPoolInternalActionType
     | UpdateFa2TokenPoolInternal    of updateFa2TokenPoolInternalActionType
     
-    // for oracle
-    | UpdateConsumer                of updateConsumerActionType
-
 const noOperations : list (operation) = nil;
 type return is list (operation) * cfmmStorage
 
@@ -371,6 +369,18 @@ function getFa12ApproveEntrypoint(const tokenContractAddress : address) : contra
 
 
 
+// helper function to update USDM contract on price action
+function getOnPriceActionInUsdMEntrypoint(const tokenContractAddress : address) : contract(onPriceActionType) is
+  case (Tezos.get_entrypoint_opt(
+      "%onPriceAction",
+      tokenContractAddress) : option(contract(onPriceActionType))) of
+    Some(contr) -> contr
+  | None -> (failwith("Error. OnPriceAction entrypoint in token contract not found") : contract(onPriceActionType))
+  end;
+
+
+
+
 // helper function to get oracleconsumer
 function getOracleConsumer(const contractAddress : address) : contract(updateConsumerParams) is
   case (Tezos.get_contract_opt(contractAddress) : option(contract(updateConsumerParams))) of
@@ -439,6 +449,17 @@ function updateFa2PoolInternal(const poolUpdateParams : updateFa2PoolType) : nat
         | x # _xs -> x.1
     ]
 
+
+function onPriceAction(const onPriceActionParams : onPriceActionType; var s : cfmmStorage) : operation is 
+block {
+    const updateConsumerOperation : operation = Tezos.transaction(
+        onPriceActionParams,
+        0mutez,
+        getOnPriceActionInUsdMEntrypoint(s.usdmTokenAddress)
+    );
+} with (updateConsumerOperation)
+
+
 // ------ Helper Functions end ------
 
 function default(var s : cfmmStorage) : return is 
@@ -482,9 +503,9 @@ block {
     checkSenderIsAdmin(s);          // check that sender is admin (i.e. Governance DAO contract address)
     checkNoPendingPoolUpdates(s);   // check no pending pool updates
 
-    const delegateOperation : operation = Tezos.set_delegate(setBakerParams);
+    const delegateOperation : operation = Tezos.set_delegate(setBakerParams.baker);
 
-} with (noOperations, s)
+} with (list[delegateOperation], s)
 
 
 
@@ -583,7 +604,7 @@ block {
     const minCashWithdrawn      : nat                 = removeLiquidityParams.minCashWithdrawn;
     const minTokensWithdrawn    : nat                 = removeLiquidityParams.minTokensWithdrawn;
     const recipient             : address             = removeLiquidityParams.to_; 
-    var operations            : list(operation)      := nil;    
+    var operations              : list(operation)    := nil;    
 
     // check no pending pool updates
     checkNoPendingPoolUpdates(s);
@@ -734,6 +755,12 @@ block {
     );
     operations := withdrawTokensOperation # operations;
 
+    const onPriceActionParams : onPriceActionType = (newCashPool, newTokenPool);
+    if s.lastOracleUpdate = Tezos.now then skip else block {
+        const onPriceActionUpdateUsdmOperation : operation = onPriceAction(onPriceActionParams, s);
+        operations := onPriceActionUpdateUsdmOperation # operations;
+    }
+
 } with (operations, s)
 
 
@@ -804,111 +831,16 @@ block {
     s.cashPool   := newCashPool;
     s.tokenPool  := newTokenPool;
 
+    const onPriceActionParams : onPriceActionType = (newCashPool, newTokenPool);
+    if s.lastOracleUpdate = Tezos.now then skip else block {
+        const onPriceActionUpdateUsdmOperation : operation = onPriceAction(onPriceActionParams, s);
+        operations := onPriceActionUpdateUsdmOperation # operations;
+    }
+
+
 } with (operations, s)
 
 
-
-
-(* tokenToToken entrypoint *)
-function tokenToToken(const tokenToTokenParams : tokenToTokenActionType; var s : cfmmStorage) : return is 
-block {
-
-    // init variables for convenience
-    const deadline              : timestamp           = tokenToTokenParams.deadline;
-    const tokensSold            : nat                 = tokenToTokenParams.tokensSold;
-    const minTokensBought       : nat                 = tokenToTokenParams.minTokensBought;
-    const recipient             : address             = tokenToTokenParams.to_; 
-    const outputCfmmContract    : address             = tokenToTokenParams.outputCfmmContract; 
-    var operations              : list(operation)    := nil;
-
-    // check no pending pool updates
-    checkNoPendingPoolUpdates(s);
-
-    // check deadline has not passed
-    checkDeadlineHasNotPassed(deadline);
-
-    // check that no tez is sent
-    checkNoAmount(Unit);
-
-    (* We don't check that tokenPool > 0, because that is impossible unless all liquidity has been removed. *)
-    const cashPool   : nat = s.cashPool;
-    const tokenPool  : nat = s.tokenPool;
-
-    const cashBought : nat = (tokensSold * constFee * cashPool) / (tokenPool * constFeeDenom + (tokensSold * constFee));
-    if cashBought < minCashBought then failwith("Error. Cash bought must be greater than or equal to min cash bought.") else skip;
-
-    if cashBought > cashPool then failwith("Error. Cash pool minus cash bought is negative.") else skip;
-    const newCashPool   : nat = abs(cashPool - cashBought);
-    const newTokenPool  : nat = tokenPool + tokensSold;
-
-    // update new storage
-    s.cashPool   := newCashPool;
-    s.tokenPool  := newTokenPool;    
-
-#if CASH_IS_TEZ
-
-    const sendCashToOutputCfmmContractParams : cashToTokenActionType = record [
-        minTokensBought = minTokensBought;
-        deadline        = deadline;
-        to_             = recipient;
-    ];
-    const sendCashToOutputCfmmContractOperation : operation = Tezos.transaction(
-        sendCashToOutputCfmmContractParams,
-        naturalToMutez(cashBought),
-        getCashToTokenOutputCfmmEntrypoint(outputCfmmContract)
-    );
-    operations := sendCashToOutputCfmmContractOperation # operations;
-
-
-#else
-
-#if CASH_IS_FA12
-
-    // FA12 Token - set allowance to 0 first
-    const outputCfmmContractSetApproveFa12ToZeroOperation : operation = Tezos.transaction(
-        (outputCfmmContract, 0n),
-        0mutez,
-        getFa12ApproveEntrypoint(s.cashTokenAddress)
-    );
-    operations := outputCfmmContractSetApproveFa12ToZeroOperation # operations;
-
-    // FA12 Token - set allowance to cashBought amount
-    const outputCfmmContractApproveFa12Operation : operation = Tezos.transaction(
-        (outputCfmmContract, cashBought),
-        0mutez,
-        getFa12ApproveEntrypoint(s.cashTokenAddress)
-    );
-    operations := outputCfmmContractApproveFa12Operation # operations;
-
-#else
-
-#endif
-
-    const sendCashTokensToOutputCfmmContractParams : cashToTokenActionType = record [
-        minTokensBought = minTokensBought;
-        deadline        = deadline;
-        to_             = recipient;
-        cashSold        = cashBought;
-    ];
-    const sendCashTokensToOutputCfmmContractOperation : operation = Tezos.transaction(
-        sendCashTokensToOutputCfmmContractParams, 
-        0mutez,
-        getCashToTokenOutputCfmmEntrypoint(outputCfmmContract)
-    );
-    operations := sendCashTokensToOutputCfmmContractOperation # operations;
-
-#endif
-
-    const acceptTokensFromSenderOperation : operation = transferFa2Token(
-        Tezos.sender,           // from_
-        Tezos.self_address,     // to_
-        tokensSold,             // token amount
-        s.tokenId,              // token id
-        s.tokenAddress          // token contract address
-    );
-    operations := acceptTokensFromSenderOperation # operations;
-
-} with (operations, s)
 
 
 
@@ -1056,26 +988,6 @@ block {
 } with (noOperations, s)
 
 
-function updateConsumer(const updateConsumerParams : updateConsumerActionType; var s : cfmmStorage) : return is 
-block {
-
-    // init operations
-    var operations : list(operation) := nil;
-    
-    if s.lastOracleUpdate = Tezos.now then skip
-    else block {
-
-        const updateConsumerOperation : operation = Tezos.transaction(
-            updateConsumerParams,
-            0mutez,
-            getOracleConsumer(s.consumerEntrypoint)
-        );
-        operations := updateConsumerOperation # operations;
-
-    }
-
-} with (operations, s)
-
 function main (const action : cfmmAction; const s : cfmmStorage) : return is 
     case action of
         | Default(_parameters)                      -> default(s)
@@ -1085,7 +997,6 @@ function main (const action : cfmmAction; const s : cfmmStorage) : return is
 
         | CashToToken(parameters)                   -> cashToToken(parameters, s)
         | TokenToCash(parameters)                   -> tokenToCash(parameters, s)
-        | TokenToToken(parameters)                  -> tokenToToken(parameters, s)
 
         | AddLiquidity(parameters)                  -> addLiquidity(parameters, s)
         | RemoveLiquidity(parameters)               -> removeLiquidity(parameters, s)
@@ -1097,5 +1008,4 @@ function main (const action : cfmmAction; const s : cfmmStorage) : return is
         | UpdateFa12TokenPoolInternal(parameters)   -> updateFa12TokenPoolInternal(parameters, s)
         | UpdateFa2TokenPoolInternal(parameters)    -> updateFa2TokenPoolInternal(parameters, s)
         
-        | UpdateConsumer(parameters)                -> updateConsumer(parameters, s)
     end
