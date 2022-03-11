@@ -7,6 +7,7 @@ authors = ["Tristan ALLAIRE <tristan.allaire@alarch.fr>"]
 [tool.poetry.dependencies]
 python = "^3.10"
 dipdup = "5.0.0rc1"
+python-dateutil = "^2.8.2"
 
 [tool.poetry.dev-dependencies]
 
