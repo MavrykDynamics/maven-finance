@@ -21,6 +21,9 @@ type updateConfigParamsType is [@layout:comb] record [
   updateConfigAction    : updateConfigActionType;
 ]
 
+type addressMapType   is map(string, address);
+type natMapType       is map(string, nat);
+
 type actionRecordType is record [
     
     initiator                  : address;          // address of action initiator
@@ -31,12 +34,8 @@ type actionRecordType is record [
     signers                    : signersType;      // set of signers
     signersCount               : nat;              // total number of signers
 
-    address_param_1            : address;
-    address_param_2            : address;
-    address_param_3            : address;
-    nat_param_1                : nat;
-    nat_param_2                : nat;
-    nat_param_3                : nat;
+    addressMap                 : addressMapType;
+    natMap                     : natMapType;
 
     startDateTime              : timestamp;       // timestamp of when action was initiated
     startLevel                 : nat;             // block level of when action was initiated           
@@ -183,7 +182,7 @@ block {
 
 } with (noOperations, s)
 
-function addCouncilMember(const newCouncilMemberAddress : address; var s : storage) : return is 
+function addCouncilMember(const councilMemberAddress : address; var s : storage) : return is 
 block {
 
     // Overall steps:
@@ -193,7 +192,10 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const addressMap : addressMapType     = map [
+        ("councilMemberAddress" : string) -> councilMemberAddress;
+    ];
+    const emptyNatMap : natMapType        = map [];
 
     var actionRecord : actionRecordType := record[
 
@@ -205,12 +207,8 @@ block {
         signers               = set[Tezos.sender];
         signersCount          = 1n;
 
-        address_param_1       = newCouncilMemberAddress;  
-        address_param_2       = zeroAddress;                 // extra slot for address if needed
-        address_param_3       = zeroAddress;                 // extra slot for address if needed
-        nat_param_1           = 0n;
-        nat_param_2           = 0n;
-        nat_param_3           = 0n;
+        addressMap            = addressMap;
+        natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -235,7 +233,10 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const addressMap : addressMapType     = map [
+        ("councilMemberAddress"         : string) -> councilMemberAddress;
+    ];
+    const emptyNatMap : natMapType        = map [];
 
     var actionRecord : actionRecordType := record[
 
@@ -247,12 +248,8 @@ block {
         signers               = set[Tezos.sender];
         signersCount          = 1n;
 
-        address_param_1       = councilMemberAddress;  
-        address_param_2       = zeroAddress;                 // extra slot for address if needed
-        address_param_3       = zeroAddress;                 // extra slot for address if needed
-        nat_param_1           = 0n;
-        nat_param_2           = 0n;
-        nat_param_3           = 0n;
+        addressMap            = addressMap;
+        natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -277,7 +274,11 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const addressMap : addressMapType     = map [
+        ("oldCouncilMemberAddress"         : string) -> oldCouncilMemberAddress;
+        ("newCouncilMemberAddress"         : string) -> newCouncilMemberAddress;
+    ];
+    const emptyNatMap : natMapType        = map [];
 
     var actionRecord : actionRecordType := record[
 
@@ -289,12 +290,8 @@ block {
         signers               = set[Tezos.sender];
         signersCount          = 1n;
 
-        address_param_1       = oldCouncilMemberAddress;  
-        address_param_2       = newCouncilMemberAddress;           
-        address_param_3       = zeroAddress;           
-        nat_param_1           = 0n;
-        nat_param_2           = 0n;
-        nat_param_3           = 0n;
+        addressMap            = addressMap;
+        natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -319,7 +316,10 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const emptyAddressMap  : addressMapType      = map [];
+    const natMap           : natMapType          = map [
+        ("actionId" : string) -> actionId;
+    ];
 
     var actionRecord : actionRecordType := record[
 
@@ -331,12 +331,8 @@ block {
         signers               = set[Tezos.sender];
         signersCount          = 1n;
 
-        address_param_1       = zeroAddress;     // extra slot for address if needed
-        address_param_2       = zeroAddress;     // extra slot for address if needed
-        address_param_3       = zeroAddress;     // extra slot for address if needed
-        nat_param_1           = actionId;
-        nat_param_2           = 0n;
-        nat_param_3           = 0n;
+        addressMap            = emptyAddressMap;
+        natMap                = natMap;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -363,7 +359,8 @@ block {
     checkGlassIsBroken(s);          // check that glass is broken
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const emptyAddressMap  : addressMapType      = map [];
+    const emptyNatMap      : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
 
@@ -375,12 +372,8 @@ block {
         signers               = set[Tezos.sender];
         signersCount          = 1n;
 
-        address_param_1       = zeroAddress;     // extra slot for address if needed
-        address_param_2       = zeroAddress;     // extra slot for address if needed
-        address_param_3       = zeroAddress;     // extra slot for address if needed
-        nat_param_1           = 0n;
-        nat_param_2           = 0n;
-        nat_param_3           = 0n;
+        addressMap            = emptyAddressMap;
+        natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -407,7 +400,8 @@ block {
     checkGlassIsBroken(s);          // check that glass is broken
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const emptyAddressMap  : addressMapType      = map [];
+    const emptyNatMap      : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
 
@@ -419,12 +413,8 @@ block {
         signers               = set[Tezos.sender];
         signersCount          = 1n;
 
-        address_param_1       = zeroAddress;     // extra slot for address if needed
-        address_param_2       = zeroAddress;     // extra slot for address if needed
-        address_param_3       = zeroAddress;     // extra slot for address if needed
-        nat_param_1           = 0n;
-        nat_param_2           = 0n;
-        nat_param_3           = 0n;
+        addressMap            = emptyAddressMap;
+        natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -451,7 +441,11 @@ block {
     checkGlassIsBroken(s);          // check that glass is broken
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const addressMap   : addressMapType      = map [
+        ("newAdminAddress" : string) -> newAdminAddress;
+        ("targetContractAddress" : string) -> targetContractAddress;
+    ];
+    const emptyNatMap  : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
 
@@ -463,12 +457,8 @@ block {
         signers               = set[Tezos.sender];
         signersCount          = 1n;
 
-        address_param_1       = newAdminAddress;     
-        address_param_2       = targetContractAddress;
-        address_param_3       = zeroAddress;
-        nat_param_1           = 0n;
-        nat_param_2           = 0n;
-        nat_param_3           = 0n;
+        addressMap            = addressMap;
+        natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -495,7 +485,10 @@ block {
     checkGlassIsBroken(s);          // check that glass is broken
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const addressMap   : addressMapType      = map [
+        ("newAdminAddress" : string) -> newAdminAddress;
+    ];
+    const emptyNatMap  : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
 
@@ -507,12 +500,8 @@ block {
         signers               = set[Tezos.sender];
         signersCount          = 1n;
 
-        address_param_1       = newAdminAddress;     
-        address_param_2       = zeroAddress;
-        address_param_3       = zeroAddress;
-        nat_param_1           = 0n;
-        nat_param_2           = 0n;
-        nat_param_3           = 0n;
+        addressMap            = addressMap;
+        natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -541,7 +530,8 @@ block {
     checkGlassIsBroken(s);          // check that glass is broken
     checkSenderIsCouncilMember(s);
 
-    const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
+    const emptyAddressMap  : addressMapType      = map [];
+    const emptyNatMap      : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
 
@@ -553,12 +543,8 @@ block {
         signers               = set[Tezos.sender];
         signersCount          = 1n;
 
-        address_param_1       = zeroAddress;     
-        address_param_2       = zeroAddress;
-        address_param_3       = zeroAddress;
-        nat_param_1           = 0n;
-        nat_param_2           = 0n;
-        nat_param_3           = 0n;
+        addressMap            = emptyAddressMap;
+        natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
         startLevel            = Tezos.level;             
@@ -620,7 +606,12 @@ block {
         // flush action type
         if actionType = "flushAction" then block {
 
-            const flushedActionId : nat = _actionRecord.nat_param_1;
+            // fetch params begin ---
+            const flushedActionId : nat = case _actionRecord.natMap["actionId"] of
+                Some(_nat) -> _nat
+                | None -> failwith("Error. ActionId not found.")
+            end;
+            // fetch params end ---
 
             var flushedActionRecord : actionRecordType := case s.actionsLedger[flushedActionId] of        
                 Some(_record) -> _record
@@ -632,21 +623,56 @@ block {
 
         } else skip;
 
+
+
         // addCouncilMember action type
         if actionType = "addCouncilMember" then block {
-            s.councilMembers := Set.add(_actionRecord.address_param_1, s.councilMembers);
+
+            // fetch params begin ---
+            const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of
+                Some(_address) -> _address
+                | None -> failwith("Error. CouncilMemberAddress not found.")
+            end;
+            // fetch params end ---
+
+            s.councilMembers := Set.add(councilMemberAddress, s.councilMembers);
         } else skip;
+
+
 
         // removeCouncilMember action type
         if actionType = "removeCouncilMember" then block {
-            s.councilMembers := Set.remove(_actionRecord.address_param_1, s.councilMembers);
+            // fetch params begin ---
+            const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of
+                Some(_address) -> _address
+                | None -> failwith("Error. CouncilMemberAddress not found.")
+            end;
+            // fetch params end ---
+            s.councilMembers := Set.remove(councilMemberAddress, s.councilMembers);
         } else skip;
+
+
 
         // changeCouncilMember action type
         if actionType = "changeCouncilMember" then block {
-            s.councilMembers := Set.add(_actionRecord.address_param_2, s.councilMembers);
-            s.councilMembers := Set.remove(_actionRecord.address_param_1, s.councilMembers);
+
+            // fetch params begin ---
+            const oldCouncilMemberAddress : address = case _actionRecord.addressMap["oldCouncilMemberAddress"] of
+                Some(_address) -> _address
+                | None -> failwith("Error. OldCouncilMemberAddress not found.")
+            end;
+
+            const newCouncilMemberAddress : address = case _actionRecord.addressMap["newCouncilMemberAddress"] of
+                Some(_address) -> _address
+                | None -> failwith("Error. NewCouncilMemberAddress not found.")
+            end;
+            // fetch params end ---
+
+            s.councilMembers := Set.add(newCouncilMemberAddress, s.councilMembers);
+            s.councilMembers := Set.remove(oldCouncilMemberAddress, s.councilMembers);
         } else skip;
+
+
 
         // pauseAllEntrypoints action type
         if actionType = "pauseAllEntrypoints" then block {
@@ -660,6 +686,8 @@ block {
             };      
         } else skip;
 
+
+
         // unpauseAllEntrypoints action type
         if actionType = "unpauseAllEntrypoints" then block {
             for _contractName -> contractAddress in map s.generalContracts block {
@@ -672,27 +700,55 @@ block {
             };            
         } else skip;
 
+
+
         // setSingleContractAdmin action type
         if actionType = "setSingleContractAdmin" then block {
+
+            // fetch params begin ---
+            const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of
+                Some(_address) -> _address
+                | None -> failwith("Error. NewAdminAddress not found.")
+            end;
+
+            const targetContractAddress : address = case _actionRecord.addressMap["targetContractAddress"] of
+                Some(_address) -> _address
+                | None -> failwith("Error. TargetContractAddress not found.")
+            end;
+            // fetch params end ---
+
             const setSingleContractAdminOperation : operation = Tezos.transaction(
-                _actionRecord.address_param_1, 
+                newAdminAddress, 
                 0tez, 
-                setAdminInContract(_actionRecord.address_param_2)
+                setAdminInContract(targetContractAddress)
             );
             operations := setSingleContractAdminOperation # operations;
         } else skip;
 
+
+
         // setAllContractsAdmin action type
         if actionType = "setAllContractsAdmin" then block {
+
+            // fetch params begin ---
+            const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of
+                Some(_address) -> _address
+                | None -> failwith("Error. NewAdminAddress not found.")
+            end;
+            // fetch params end ---
+
+
             for _contractName -> contractAddress in map s.generalContracts block {
                 const setContractAdminOperation : operation = Tezos.transaction(
-                    _actionRecord.address_param_1, 
+                    newAdminAddress, 
                     0tez, 
                     setAdminInContract(contractAddress)
                 );
                 operations := setContractAdminOperation # operations;
             } 
         } else skip;
+
+
 
         // removeBreakGlassControl action type
         if actionType = "removeBreakGlassControl" then block {
