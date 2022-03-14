@@ -8,9 +8,10 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     icon: 'grid',
     protectedRoute: false,
     subPages: [
-      { subTitle: 'Overview', subPath: '/dashboard', protectedRoute: false },
-      { subTitle: 'Personal', subPath: '/dashboard-personal', protectedRoute: false },
+      { id: 57483, subTitle: 'Overview', subPath: '/dashboard', protectedRoute: false },
+      { id: 84425, subTitle: 'Personal', subPath: '/dashboard-personal', protectedRoute: false },
       {
+        id: 59526,
         subTitle: 'Vestee Info',
         subPath: '/your-vesting',
         protectedRoute: true,
@@ -34,8 +35,8 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     icon: 'satellite',
     protectedRoute: false,
     subPages: [
-      { subTitle: 'Overview', subPath: '/satellites', protectedRoute: false },
-      { subTitle: 'Become A Satellite', subPath: '/become-satellite', protectedRoute: false },
+      { id: 57281, subTitle: 'Overview', subPath: '/satellites', protectedRoute: false },
+      { id: 55614, subTitle: 'Become A Satellite', subPath: '/become-satellite', protectedRoute: false },
     ],
   },
   {
@@ -45,15 +46,17 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     icon: 'hammer',
     protectedRoute: false,
     subPages: [
-      { subTitle: 'Proposals', subPath: '/governance', protectedRoute: false },
-      { subTitle: 'Proposal History', subPath: '/proposal-history', protectedRoute: false },
-      { subTitle: 'Break Glass', subPath: '/break-glass', protectedRoute: false },
+      { id: 56179, subTitle: 'Proposals', subPath: '/governance', protectedRoute: false },
+      { id: 31471, subTitle: 'Proposal History', subPath: '/proposal-history', protectedRoute: false },
+      { id: 35587, subTitle: 'Break Glass', subPath: '/break-glass', protectedRoute: false },
       {
+        id: 79754,
         subTitle: 'Mavryk Council',
         subPath: '/mavryk-council',
         protectedRoute: false,
       },
       {
+        id: 59416,
         subTitle: 'Submit Proposal',
         subPath: '/submit-proposal',
         protectedRoute: true,
@@ -62,6 +65,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         },
       },
       {
+        id: 47293,
         subTitle: 'Emergency Governance',
         subPath: '/emergency-governance',
         protectedRoute: true,

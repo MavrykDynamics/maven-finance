@@ -21,9 +21,9 @@ export const Satellites = () => {
   const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
   const satelliteLedger = delegationStorage?.satelliteLedger
   const userStakedBalance = accountPkh ? parseFloat(userStakeBalanceLedger?.get(accountPkh) || '0') : 0
-  const satelliteUserIsDelegatedTo = accountPkh
-    ? delegationStorage?.delegateLedger.get(accountPkh)?.satelliteAddress || ''
-    : ''
+  const satelliteUserIsDelegatedTo = 'tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb' //accountPkh
+  // ? delegationStorage?.delegateLedger.get(accountPkh)?.satelliteAddress || ''
+  // : ''
 
   useEffect(() => {
     if (accountPkh) {

@@ -43,6 +43,7 @@ export const NavigationLink = ({
   walletReady,
   accountPkh,
 }: NavigationLinkProps) => {
+  const key = `${path.substring(1)}-${id}`
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { satelliteLedger } = delegationStorage
   let navigationLinkClasses = `collapsible .${kind}`
@@ -60,11 +61,7 @@ export const NavigationLink = ({
   return (
     <>
       {subPages ? (
-        <NavigationLinkContainer
-          className={'collapsible'}
-          key={String('navLink' + path + id)}
-          selected={mainLinkSelected}
-        >
+        <NavigationLinkContainer className={'collapsible'} selected={mainLinkSelected} key={key}>
           <NavigationLinkItem
             selected={mainLinkSelected}
             className="header"
@@ -82,6 +79,7 @@ export const NavigationLink = ({
           <div {...getCollapseProps()}>
             <NavigationSubLinks className="content">
               {subPages.map((subNavLink: SubNavigationRoute, index: number) => {
+                const key = String(subNavLink.id)
                 if (subNavLink.requires) {
                   const { isSatellite, isVestee } = subNavLink.requires
                   let accountIsAuthorized = false
@@ -99,7 +97,7 @@ export const NavigationLink = ({
                   }
                   if (accountIsAuthorized) {
                     return (
-                      <SubNavLink key={String('sublink' + subNavLink.subPath + index)}>
+                      <SubNavLink key={key}>
                         <Link to={subNavLink.subPath}>
                           <div />
                           <SubLinkText id="navLinkSubTitle" selected={location.pathname === subNavLink.subPath}>
@@ -109,11 +107,11 @@ export const NavigationLink = ({
                       </SubNavLink>
                     )
                   } else {
-                    return <></>
+                    return <div key={key} />
                   }
                 } else {
                   return (
-                    <SubNavLink key={String('sublink' + subNavLink.subPath + index)}>
+                    <SubNavLink key={key}>
                       <Link to={subNavLink.subPath}>
                         <div />
                         <SubLinkText id="navLinkSubTitle" selected={location.pathname === subNavLink.subPath}>
@@ -128,7 +126,7 @@ export const NavigationLink = ({
           </div>
         </NavigationLinkContainer>
       ) : (
-        <NavigationLinkContainer key={String('navLink' + path + id)} selected={mainLinkSelected} onClick={handleClick}>
+        <NavigationLinkContainer key={key} selected={mainLinkSelected} onClick={handleClick}>
           <NavigationLinkItem selected={mainLinkSelected}>
             <Link to={path}>
               <NavigationLinkIcon selected={mainLinkSelected} id="navLinkIcon">

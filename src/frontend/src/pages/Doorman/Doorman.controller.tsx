@@ -17,17 +17,18 @@ export const Doorman = () => {
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { doormanStorage, totalStakedMvkSupply } = useSelector((state: State) => state.doorman)
-  const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
-  const myMvkStakeBalance = userStakeBalanceLedger?.get(accountPkh || '') || '0.00'
+  const { doormanStorage, totalStakedMvkSupply, userStakeInfo } = useSelector((state: State) => state.doorman)
+  // const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
+  const myMvkStakeBalance = userStakeInfo?.mySMvkBalance || '0.00' //userStakeBalanceLedger?.get(accountPkh || '')
 
   useEffect(() => {
     if (accountPkh) {
       dispatch(getMvkTokenStorage(accountPkh))
+      dispatch(getDoormanStorage(accountPkh))
     } else {
       dispatch(getMvkTokenStorage())
+      dispatch(getDoormanStorage())
     }
-    dispatch(getDoormanStorage())
   }, [dispatch, accountPkh])
 
   const stakeCallback = (amount: number) => {
