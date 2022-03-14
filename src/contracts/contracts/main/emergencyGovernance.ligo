@@ -101,12 +101,12 @@ function checkNoAmount(const _p : unit) : unit is
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to get token total supply (for MVK)
-function getTokenTotalSupply(const tokenAddress : address) : contract(unit * contract(nat)) is
+function getTokenTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
   case (Tezos.get_entrypoint_opt(
       "%getTotalSupply",
-      tokenAddress) : option(contract(unit * contract(nat)))) of
+      tokenAddress) : option(contract(contract(nat)))) of
     Some(contr) -> contr
-  | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(unit * contract(nat)))
+  | None -> (failwith("GetTotalSupply entrypoint in Token Contract not found") : contract(contract(nat)))
   end;
 
 // helper function to get User's MVK balance from MVK token address
@@ -214,7 +214,7 @@ block {
     // update temp MVK total supply
     const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
     const updateMvkTotalSupplyOperation : operation = Tezos.transaction(
-        (unit, setTempMvkTotalSupplyCallback),
+         (setTempMvkTotalSupplyCallback: contract(nat)),
          0tez, 
          getTokenTotalSupply(mvkTokenAddress)
          );
