@@ -12,6 +12,7 @@ import {
 } from 'reducers/delegation'
 import { getContractBigmapKeys, getContractStorage } from 'utils/api'
 import { PRECISION_NUMBER } from '../../utils/constants'
+import { MichelsonMap } from '@taquito/taquito'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: any, getState: any) => {
@@ -42,7 +43,7 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
         image: element.value?.image,
         description: element.value?.description,
         satelliteFee: String(satelliteFee),
-        status: element.value?.status === '1',
+        active: element.value?.status === '1',
         mvkBalance: String(mvkBalance),
         totalDelegatedAmount: String(totalDelegatedAmount),
         registeredDateTime: new Date(element.value?.registeredDateTime),
@@ -52,7 +53,7 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
       satelliteLedger.push(newSatellite)
     })
 
-    const delegationLedger: DelegationLedger = new Map()
+    const delegationLedger: DelegationLedger = new MichelsonMap<string, DelegateRecord>()
     delegateLedgerBigMap.forEach((element: any) => {
       const keyAddress = element.key
       const newDelegateRecord: DelegateRecord = {
@@ -75,9 +76,6 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
       config: delegationConfig,
       delegateLedger: delegationLedger,
       breakGlassConfig: storage.breakGlassConfig,
-      sMvkTokenAddress: storage.sMvkTokenAddress,
-      vMvkTokenAddress: storage.vMvkTokenAddress,
-      governanceAddress: storage.governanceAddress,
     }
 
     dispatch({

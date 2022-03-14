@@ -1,5 +1,6 @@
 import { TOGGLE_DARK_THEME } from '../app/App.components/DarkThemeProvider/DarkThemeProvider.actions'
 import { GET_HEAD_DATA } from '../app/App.components/Menu/Menu.actions'
+import { getItemFromStorage } from '../utils/storage'
 
 export interface PreferencesState {
   darkThemeEnabled: boolean
@@ -7,7 +8,7 @@ export interface PreferencesState {
 }
 
 const preferencesDefaultState: PreferencesState = {
-  darkThemeEnabled: false,
+  darkThemeEnabled: getItemFromStorage('theme') || false,
 }
 
 export function preferences(state = preferencesDefaultState, action: any): PreferencesState {
