@@ -16,6 +16,7 @@ export interface MavrykTheme {
 }
 
 export interface SubNavigationRoute {
+  id: number
   subTitle: string
   subPath: string
   protectedRoute: boolean

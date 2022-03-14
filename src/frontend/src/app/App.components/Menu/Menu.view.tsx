@@ -41,9 +41,10 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
         />
         <MenuGrid>
           {mainNavigationLinks.map((navigationLink: MainNavigationRoute, index: number) => {
+            const key = `${index}-${navigationLink.path.substring(1)}-${navigationLink.id}`
             return (
               <NavigationLink
-                key={index}
+                key={key}
                 handleToggle={handleToggle}
                 isExpanded={navigationLink.id === isExpanded}
                 location={location}

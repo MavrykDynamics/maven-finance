@@ -12,6 +12,7 @@ import { AppStyled } from './App.style'
 import { State } from '../reducers'
 import { ThemeToggle } from './App.components/ThemeToggle/ThemeToggle.controller'
 import { AppRoutes } from './App.components/AppRoutes/AppRoutes.controller'
+import { onStart } from './App.actions'
 
 export const store = configureStore({})
 
@@ -20,6 +21,7 @@ const AppContainer = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
 
   useEffect(() => {
+    dispatch(onStart())
     // For using Beacon wallet, replace following lines with dispatch(setWallet())
     return TempleWallet.onAvailabilityChange((available) => {
       if (available) dispatch(setWallet(new TempleWallet(process.env.REACT_APP_NAME || 'MAVRYK')))

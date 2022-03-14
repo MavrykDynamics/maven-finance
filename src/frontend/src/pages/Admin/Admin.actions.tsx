@@ -5,6 +5,9 @@ import { getContractBigmapKeys } from '../../utils/api'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { getGovernanceStorage } from '../Governance/Governance.actions'
+import farmFactoryAddress from '../../deployments/farmFactoryAddress.json'
+import { GET_FARM_FACTORY_STORAGE } from '../Farms/Farms.actions'
+import { PRECISION_NUMBER } from '../../utils/constants'
 
 export const ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_REQUEST = 'ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_REQUEST'
 export const ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_RESULT = 'ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_RESULT'
@@ -12,6 +15,11 @@ export const ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR = 'ADMIN_ACTION_CHANGE_
 export const adminChangeGovernancePeriod =
   (chosenPeriod: string, accountPkh?: string) => async (dispatch: any, getState: any) => {
     const state: State = getState()
+
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
     try {
       const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
       console.log('contract', contract)
@@ -54,3 +62,30 @@ export const adminChangeGovernancePeriod =
       })
     }
   }
+
+export const trackFarm = (accountPkh?: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+
+  if (!state.wallet.ready) {
+    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+    return
+  }
+  // TODO: Change address used to that of the Farm Factory address when possible
+  try {
+    const contract = await state.wallet.tezos?.wallet.at(farmFactoryAddress.address)
+    console.log('contract', contract)
+    const transaction = await contract?.methods.trackFarm('KT1CazyJDLTCAYp4UXzzGFtN382V5NtAofBL').send()
+    console.log('transaction', transaction)
+    dispatch(showToaster(INFO, 'Tracking Farm...', 'Please wait 30s'))
+    const done = await transaction?.confirmation()
+    console.log('done', done)
+    dispatch(showToaster(SUCCESS, 'Tracking Farm done...', 'All good :)'))
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_ERROR,
+      error,
+    })
+  }
+}
