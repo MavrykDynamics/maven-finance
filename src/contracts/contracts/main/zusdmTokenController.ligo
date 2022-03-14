@@ -5,7 +5,6 @@
 
 // ----- general types begin -----
 
-
 type vaultIdType                 is nat;
 type usdmAmountType              is nat;
 type tokenBalanceType            is nat;
@@ -24,14 +23,22 @@ type mintOrBurnParamsType is (int * address);
 // ----- storage types begin -----
 
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
-type collateralTokenAddressesType is map(address, string) // token collateral address : name of token collateral
+type collateralTokenRecord is [@layout:comb] record [
+    tokenContractAddress    : address;
+    tokenType               : tokenType; // from vaultType.ligo partial
+]
+type collateralTokenLedgerType is map(string, collateralTokenRecord) 
 
 type vaultType is [@layout:comb] record [
     address                     : address;
     collateralBalanceLedger     : collateralBalanceLedgerType;     // tez/token balance
-    collateralTokenAddress      : collateralTokenAddressesType;    // zero address for tez
     usdmOutstanding             : usdmAmountType;                  // nat 
 ]
+
+type targetLedgerType               is map(string, nat)
+type driftLedgerType                is map(string, int)
+type lastDriftUpdateLedgerType      is map(string, timestamp)
+type cfmmAddressesType              is map(string, address)
 
 // ----- storage types end -----
 
@@ -43,11 +50,12 @@ type setAddressesActionType is [@layout:comb] record [
     usdmTokenAddress            : address; 
 ]
 
+type tokenAmountLedgerType is map(string, tokenAmountType)
 type createVaultActionType is [@layout:comb] record [
     id                          : nat; 
     delegate                    : option(key_hash); 
     depositors                  : depositorsType;
-    tokenAmount                 : nat;
+    tokenAmountLedger           : tokenAmountLedgerType;
 ]
 
 type withdrawFromVaultActionType is [@layout:comb] record [
@@ -67,22 +75,32 @@ type mintOrBurnActionType is [@layout:comb] record [
     quantity    : int;
 ]
 
-type cfmmPriceActionType is (nat * nat);
+type cfmmPriceActionType is record [ 
+    pairName      : string;
+    cashAmount    : nat; 
+    tokenAmount   : nat; 
+]
+
+type registerDepositType is [@layout:comb] record [
+    handle      : vaultHandleType; 
+    amount      : nat;
+    tokenName   : string;
+]
 
 // ----- types for entrypoint actions end -----
-
 
 type controllerStorage is [@layout:comb] record [
     admin                       : address;
     whitelistTokenContracts     : whitelistTokenContractsType;      
     vaults                      : big_map(vaultHandleType, vaultType);
 
-    target                      : nat;
-    drift                       : int;
-    lastDriftUpdate             : timestamp;
+    targetLedger                : targetLedgerType;
+    driftLedger                 : driftLedgerType;
+    lastDriftUpdateLedger       : lastDriftUpdateLedgerType;
+    collateralTokenLedger       : collateralTokenLedgerType;
 
-    usdmTokenAddress            : address;  // USDM token contract address
-    cfmmAddress                 : address;  // CFMM address providing the price feed
+    usdmTokenAddress            : address;            // USDM token contract address
+    cfmmAddresses               : cfmmAddressesType;  // map of CFMM addresss providing the price feed
 ]
 
 type controllerAction is 
@@ -95,7 +113,7 @@ type controllerAction is
     | WithdrawFromVault              of withdrawFromVaultActionType
     | LiquidateVault                 of liquidateVaultActionType
 
-    | RegisterDeposit                of registerTezDepositType
+    | RegisterDeposit                of registerDepositType
     | MintOrBurn                     of mintOrBurnActionType
     | GetTarget                      of contract(nat)
 
@@ -125,13 +143,13 @@ function checkSenderIsAdmin(var s : controllerStorage) : unit is
   if (Tezos.sender = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
-// helper function to get vaultWithdrawTez entrypoint
-function getVaultWithdrawTezEntrypoint(const vaultAddress : address) : contract(vaultWithdrawTezType) is
+// helper function to get vaultWithdraw entrypoint
+function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(vaultWithdrawType) is
   case (Tezos.get_entrypoint_opt(
-      "%vaultWithdrawTez",
-      vaultAddress) : option(contract(vaultWithdrawTezType))) of
+      "%vaultWithdraw",
+      vaultAddress) : option(contract(vaultWithdrawType))) of
     Some(contr) -> contr
-  | None -> (failwith("Error. VaultWithdrawTez entrypoint in vault not found") : contract(vaultWithdrawTezType))
+  | None -> (failwith("Error. VaultWithdraw entrypoint in vault not found") : contract(vaultWithdrawType))
   end;
 
 // helper function to get vaultDelegateTez entrypoint
@@ -185,25 +203,16 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
 
   } with (noOperations, s) 
 
-// helper function to create vault with token
-type createVaultWithTokenFuncType is (option(key_hash) * tez * vaultTokenStorage) -> (operation * address)
-const createVaultWithTokenFunc : createVaultWithTokenFuncType =
+// helper function to create vault 
+type createVaultFuncType is (option(key_hash) * tez * vaultStorage) -> (operation * address)
+const createVaultFunc : createVaultFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
-#include "../compiled/vaultWithToken.tz"
+#include "../compiled/vault.tz"
         ;
           PAIR } |}
-: createVaultWithTokenFuncType)];
+: createVaultFuncType)];
 
-// helper function to create vault with tez
-type createVaultWithTezFuncType is (option(key_hash) * tez * vaultTezStorage) -> (operation * address)
-const createVaultWithTezFunc : createVaultWithTezFuncType =
-[%Michelson ( {| { UNPPAIIR ;
-                  CREATE_CONTRACT
-#include "../compiled/vaultWithTez.tz"
-        ;
-          PAIR } |}
-: createVaultWithTezFuncType)];
 
 // helper function to get vault
 function getVault(const handle : vaultHandleType; var s : controllerStorage) : vaultType is 
@@ -247,21 +256,36 @@ function cfmmPrice(const cfmmPriceParams : cfmmPriceActionType; var s : controll
 block {
 
     // init variables for convenience
-    const tezAmount         : nat               = cfmmPriceParams.0;
-    const tokenAmount       : nat               = cfmmPriceParams.1;
+    const tezAmount         : nat               = cfmmPriceParams.cashAmount;
+    const tokenAmount       : nat               = cfmmPriceParams.tokenAmount;
+    const pairNamne         : string            = cfmmPriceParams.pairName;
     const cfmmAddress       : address           = s.cfmmAddress;
 
     // check if sender is from the cfmm address
     if Tezos.sender =/= cfmmAddress then failwith("Error. Caller must be CFMM contract.")  else skip;
 
+    var lastDriftUpdate : timestamp := case s.lastDriftUpdateLedger[pairName] of 
+          Some(_timestamp) -> _timestamp
+        | None -> failwith("Error. LastDriftUpdate not found for this pair.")
+    end;
+
     // check that last drift update is before current time
-    if s.lastDriftUpdate > Tezos.now then failwith("Error. Delta cannot be negative.") else skip;
-    const delta   : nat   = abs(Tezos.now - s.lastDriftUpdate);
+    if lastDriftUpdate > Tezos.now then failwith("Error. Delta cannot be negative.") else skip;
+    const delta   : nat   = abs(Tezos.now - lastDriftUpdate); 
 
-    var target    : nat  := s.target;
-    var d_target  : nat  := (target * abs(s.drift) * delta) / fixedPointAccuracy;
+    var target : nat  := case s.targetLedger[pairName] of 
+          Some(_nat) -> _nat
+        | None -> failwith("Error. Target not found for this pair.")
+    end;
 
-    target := if s.drift < 0 then abs(target - d_target) else target + d_target;
+    var drift : int  := case s.driftLedger[pairName] of 
+          Some(_int) -> _int
+        | None -> failwith("Error. Drift not found for this pair.")
+    end;
+
+    var d_target  : nat  := (target * abs(drift) * delta) / fixedPointAccuracy;
+
+    target := if drift < 0 then abs(target - d_target) else target + d_target;
 
     var price            : nat   := (tezAmount * fixedPointAccuracy) / tokenAmount;
     var targetLessPrice  : int   := target - price;
@@ -270,11 +294,11 @@ block {
     const priceSquared   : nat    = price * price; 
     const d_drift        : nat    = if x > priceSquared then delta else delta / priceSquared;
 
-    var drift            : int    := if targetLessPrice > 0 then s.drift + d_drift else s.drift - d_drift;
+    var drift            : int    := if targetLessPrice > 0 then drift + d_drift else drift - d_drift;
 
-    s.drift              := drift;
-    s.target             := target;
-    s.lastDriftUpdate    := Tezos.now;
+    s.targetLedger[pairName] := target;
+    s.driftLedger[pairName]  := drift;
+    s.lastDriftUpdateLedger  := Tezos.now;
 
     // math probably not correct with the divisions - double check with checker formula
 
@@ -300,124 +324,52 @@ block {
     // init operations
     var operations : list(operation) := nil;
 
-    case createParams.vaultType of 
-        XTZ(_v) -> block {
+    // params for vault with tez storage origination
+    const originateVaultStorage : vaultStorage = record [
+        admin                       = Tezos.self_address;
+        handle                      = handle;
+        depositors                  = createParams.depositors;
+        collateralTokenLedger       = s.collateralTokenLedger;
+    ];
 
-            // params for vault with tez storage origination
-            const originateVaultWithTezStorage : vaultTezStorage = record [
-                admin               = Tezos.self_address;
-                handle              = handle;
-                depositors          = createParams.depositors;
-                vaultCollateralType = XTZ(unit);
-            ];
+    // originate vault func
+    const vaultOrigination : (operation * address) = createVaultFunc(
+        (None : option(key_hash)), 
+        Tezos.amount,
+        originateVaultStorage
+    );
 
-            // originate vault with tez func
-            const vaultWithTezOrigination : (operation * address) = createVaultWithTezFunc(
-                (None : option(key_hash)), 
-                Tezos.amount,
-                originateVaultWithTezStorage
-            );
+    // add vaultWithTezOrigination operation to operations list
+    operations := vaultOrigination.0 # operations; 
 
-            // add vaultWithTezOrigination operation to operations list
-            operations := vaultWithTezOrigination.0 # operations; 
-
-            // create new vault params
-            const vault : vaultType = record [
-                collateralBalance       = mutezToNatural(Tezos.amount); 
-                usdmOutstanding         = 0n;
-                address                 = vaultWithTezOrigination.1; // vault address
-                collateralTokenAddress  = zeroAddress;
-                vaultType               = XTZ(unit);
-            ];
-
-            // update controller storage with new vault
-            s.vaults := Big_map.update(handle, Some(vault), s.vaults);
-
-        }
-      | FA2(_v) -> block {
-
-            // get token contract address
-            const tokenCollateralContractAddress : address = case s.whitelistTokenContracts[createParams.tokenContractAddress] of
-                Some(_address) -> _address
-                | None -> failwith("Error. Token contract address not found in whitelist token contracts.")
-            end;
-
-            // params for vault with token storage origination
-            const originateVaultWithTokenStorage : vaultTokenStorage = record [
-                admin                   = Tezos.self_address;
-                handle                  = handle;
-                depositors              = createParams.depositors;
-                collateralTokenAddress  = tokenCollateralContractAddress;
-                vaultCollateralType     = FA2(unit);
-            ];
-
-            // originate vault with token func
-            const vaultWithTokenOrigination : (operation * address) = createVaultWithTokenFunc(
-                (None : option(key_hash)), 
-                0tez,
-                originateVaultWithTokenStorage
-            );
-
-            // todo: transfer tokens to vault
-
-            // add vaultWithTokenOrigination operation to operations list
-            operations := vaultWithTokenOrigination.0 # operations; 
-
-            // create new vault params
-            const vault : vaultType = record [
-                collateralBalance       = createParams.tokenAmount; 
-                usdmOutstanding         = 0n;
-                address                 = vaultWithTokenOrigination.1;     // vault address
-                collateralTokenAddress  = tokenCollateralContractAddress;
-                vaultType               = FA2(unit);
-            ];
-
-            // update controller storage with new vault
-            s.vaults := Big_map.update(handle, Some(vault), s.vaults);
+    // create new vault params
+    if mutezToNatural(Tezos.amount) > 0n then block {
         
-        }
-      | FA12(_v) -> block {
-        
-            // get token contract address
-            const tokenCollateralContractAddress : address = case s.whitelistTokenContracts[createParams.tokenContractAddress] of
-                Some(_address) -> _address
-                | None -> failwith("Error. Token contract address not found in whitelist token contracts.")
-            end;
+        // tez is sent
+        const collateralBalanceLedgerMap : collateralBalanceLedgerType = map[
+            ("tez" : string) -> mutezToNatural(Tezos.amount)
+        ];
+        const vault : vaultType = record [
+            address                    = vaultWithTezOrigination.1; // vault address
+            collateralBalanceLedger    = collateralBalanceLedgerMap;
+            collateralTokenLedger      = s.collateralTokenLedger;
+            usdmOutstanding            = 0n;
+        ];
 
-            // params for vault with token storage origination
-            const originateVaultWithTokenStorage : vaultTokenStorage = record [
-                admin                   = Tezos.self_address;
-                handle                  = handle;
-                depositors              = createParams.depositors;
-                collateralTokenAddress  = tokenCollateralContractAddress;
-                vaultCollateralType     = FA12(unit);
-            ];
+    } else block {
+        // no tez is sent
+        const emptyCollateralBalanceLedgerMap : collateralBalanceLedgerType = map[];
+        const vault : vaultType = record [
+            address                    = vaultWithTezOrigination.1; // vault address
+            collateralBalanceLedger    = emptyCollateralBalanceLedgerMap;
+            collateralTokenLedger      = s.collateralTokenLedger;
+            usdmOutstanding            = 0n;
+        ];
 
-            // originate vault with token func
-            const vaultWithTokenOrigination : (operation * address) = createVaultWithTokenFunc(
-                (None : option(key_hash)), 
-                0tez,
-                originateVaultWithTokenStorage
-            );
+    };
 
-            // todo: transfer tokens to vault
-
-            // add vaultWithTokenOrigination operation to operations list
-            operations := vaultWithTokenOrigination.0 # operations; 
-
-            // create new vault params
-            const vault : vaultType = record [
-                address                 = vaultWithTokenOrigination.1;     // vault address
-                collateralBalance       = createParams.tokenAmount; 
-                collateralTokenAddress  = tokenCollateralContractAddress;
-                vaultType               = FA12(unit);
-                usdmOutstanding         = 0n;
-            ];
-
-            // update controller storage with new vault
-            s.vaults := Big_map.update(handle, Some(vault), s.vaults);
-        }
-    end;
+    // update controller storage with new vault
+    s.vaults := Big_map.update(handle, Some(vault), s.vaults);
 
 } with (operations, s)
 
@@ -470,28 +422,48 @@ block {
 
 
 (* registerDeposit entrypoint *)
-function registerDeposit(const registerDepositParams : registerTezDepositType; var s : controllerStorage) : return is 
+function registerDeposit(const registerDepositParams : registerDepositType; var s : controllerStorage) : return is 
 block {
 
     // init variables for convenience
     const vaultHandle     : vaultHandleType   = registerDepositParams.handle;
-    const depositAmount   : tez               = registerDepositParams.amount;
+    const depositAmount   : nat               = registerDepositParams.amount;
+    const tokenName       : string            = registerDepositType.tokenName;
+
     const initiator       : vaultOwnerType    = Tezos.sender;
+
+    // get token 
+    const collateralToken : collateralTokenRecord = case s.collateralTokenLedger[tokenName] of 
+        Some(_record) -> _record
+        | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+    end;
+
+    // if tez is sent, check that Tezos amount should be the same as deposit amount
+    if tokenName = "tez" then block {
+        if mutezToNatural(Tezos.amount) =/= depositAmount then failwith("Error. Tezos amount and deposit amount do not match.") else skip;
+    } else skip;
 
     // get vault
     var _vault : vaultType := getVault(vaultHandle, s);
 
     // check if sender matches vault owner; if match, then update and save vault with new collateral balance
-    if _vault.address =/= initiator then failwith("Error. Sender does not match vault owner address.") else block {
+    if _vault.address =/= initiator then failwith("Error. Sender does not match vault owner address.") else skip;
+    
+    // get token collateral balance in vault
+    var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of
+          Some(_balance) -> _balance
+        | None -> 0n
+    end;
 
-        // calculate new collateral balance with deposit amount
-        const newCollateralBalance : nat = _vault.collateralBalance + mutezToNatural(depositAmount);
+    const newCollateralBalance : nat = vaultTokenCollateralBalance + depositAmount;
 
-        // update and save vault with new collateral balance
-        _vault.collateralBalance := newCollateralBalance;
-        s.vaults[vaultHandle]    := _vault;
+    // // calculate new collateral balance with deposit amount
+    // const newCollateralBalance : nat = _vault.collateralBalance + mutezToNatural(depositAmount);
 
-    };
+    // // update and save vault with new collateral balance
+    // _vault.collateralBalance := newCollateralBalance;
+    // s.vaults[vaultHandle]    := _vault;
+
     
 } with (noOperations, s)
 
