@@ -98,16 +98,22 @@ class Council(Model):
 
 class Vesting(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    blocks_per_minute               = fields.BigIntField(default=0)
-    blocks_per_month                = fields.BigIntField(default=0)
     default_cliff_period            = fields.BigIntField(default=0)
     default_cooldown_period         = fields.BigIntField(default=0)
-    new_blocktime_level             = fields.BigIntField(default=0)
-    new_block_per_minute            = fields.BigIntField(default=0)
     total_vested_amount             = fields.BigIntField(default=0)
 
     class Meta:
         table = 'vesting'
+
+class EmergencyGovernance(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    current_emergency_governance    = fields.ForeignKeyField('models.EmergencyGovernanceRecord', related_name='emergency_governance', null=True)
+    required_fee                    = fields.BigIntField(default=0)
+    smvk_percentage_required        = fields.BigIntField(default=0)
+    vote_expiry_days                = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'emergency_governance'
 
 class MavrykUser(Model):
     address                         = fields.CharField(pk=True, max_length=36)
@@ -210,22 +216,17 @@ class VestingVesteeRecord(Model):
     vestee                          = fields.ForeignKeyField('models.MavrykUser', related_name='vesting_vestee_record')
     total_allocated_amount          = fields.BigIntField(default=0)
     claim_amount_per_month          = fields.BigIntField(default=0)
-    start_block                     = fields.BigIntField(default=0)
     start_timestamp                 = fields.DatetimeField()
     vesting_months                  = fields.BigIntField(default=0)
     cliff_months                    = fields.BigIntField(default=0)
-    end_cliff_block                 = fields.BigIntField(default=0)
     end_cliff_timestamp             = fields.DatetimeField()
-    end_vesting_block               = fields.BigIntField(default=0)
     end_vesting_timestamp           = fields.DatetimeField()
     locked                          = fields.BooleanField(default=False)
     total_remainder                 = fields.BigIntField(default=0)
     total_claimed                   = fields.BigIntField(default=0)
     months_claimed                  = fields.BigIntField(default=0)
     months_remaining                = fields.BigIntField(default=0)
-    next_redemption_block           = fields.BigIntField(default=0)
     next_redemption_timestamp       = fields.DatetimeField()
-    last_claimed_block              = fields.BigIntField(default=0)
     last_claimed_timestamp          = fields.DatetimeField()
 
     class Meta:
@@ -238,7 +239,36 @@ class VestingClaimRecord(Model):
     timestamp                       = fields.DatetimeField()
     amount_claimed                  = fields.BigIntField(default=0)
     remainder_vested                = fields.BigIntField(default=0)
-    block_level_claimed             = fields.BigIntField(default=0)
 
     class Meta:
         table = 'vesting_claim_record'
+
+class EmergencyGovernanceRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    emergency_governance            = fields.ForeignKeyField('models.EmergencyGovernance', related_name='emergency_governance_records')
+    proposer                        = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_proposer')
+    active                          = fields.BooleanField(default=False)
+    executed                        = fields.BooleanField(default=False)
+    dropped                         = fields.BooleanField(default=False)
+    title                           = fields.CharField(max_length=255)
+    description                     = fields.CharField(max_length=255)
+    smvk_percentage_required        = fields.BigIntField(default=0)
+    smvk_required_for_trigger       = fields.BigIntField(default=0)
+    start_timestamp                 = fields.DatetimeField()
+    start_level                     = fields.BigIntField(default=0)
+    executed_timestamp              = fields.DatetimeField()
+    executed_level                  = fields.BigIntField(default=0)
+    expiration_timestamp            = fields.DatetimeField()
+
+    class Meta:
+        table = 'emergency_governance_record'
+
+class EmergencyGovernanceVote(Model):
+    id                              = fields.BigIntField(pk=True)
+    timestamp                       = fields.DatetimeField()
+    emergency_governance_record     = fields.ForeignKeyField('models.EmergencyGovernanceRecord', related_name='voters')
+    voter                           = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_votes')
+    smvk_amount                     = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'emergency_governance_vote'

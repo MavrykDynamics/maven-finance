@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.5
+          image: tezosdynamics/mavryk-indexer:v0.0.6
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.5
+          image: tezosdynamics/mavryk-indexer:v0.0.6
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -138,6 +138,9 @@ data:
       vesting:
         address: KT1Hzo5zQGSg18V1mPJ6umt7fmJq54MAF2ks
         typename: vesting
+      emergency_governance:
+        address: KT1By7RvnByUULr6TQABJ9CwHZwxDb6bmpVD
+        typename: emergency_governance
       council:
         address: KT1EmLaLkxmK92oMBbcU934DgbF1ChYXQwjr
         typename: council
@@ -510,6 +513,20 @@ data:
             pattern:
               - destination: vesting
                 entrypoint: updateVestee
+      # Emergency Governance contract indexes
+      emergency_governance:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - emergency_governance
+        handlers:
+          - callback: on_emergency_governance_origination
+            pattern:
+              - type: origination
+                originated_contract: emergency_governance
       # Council contract indexes
       council:
         kind: operation
