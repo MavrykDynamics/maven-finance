@@ -280,7 +280,7 @@ block {
 
 } with (operations, s)
 
-function voteForEmergencyControlComplete(const stakedMvkBalance : nat; const emergencyGovernanceLastVotedTimestamp : timestamp; var s : storage) : return is 
+function voteForEmergencyControlComplete(const stakedMvkBalance : nat; var s : storage) : return is 
 block {
 
     checkSenderIsDoormanContract(s);
