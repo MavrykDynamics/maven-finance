@@ -1,6 +1,10 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// type emergencyGovernanceVoteCheckParams is (nat * timestamp)
+// type emergencyGovernanceVoteCheckCallback is contract(nat * timestamp)
+// type emergencyGovernanceVoteCheckType is (address * emergencyGovernanceVoteCheckCallback)
+
 type voteType is (nat * timestamp)              // mvk amount, timestamp
 type voterMapType is map (address, voteType)
 type emergencyGovernanceRecordType is record [
@@ -63,7 +67,7 @@ type emergencyGovernanceAction is
     
     | TriggerEmergencyControl of (string * string)
     | VoteForEmergencyControl of (nat)
-    | VoteForEmergencyControlComplete of (nat)    
+    | VoteForEmergencyControlComplete of (nat)
     | DropEmergencyGovernance of (unit)
 
 const noOperations : list (operation) = nil;
@@ -126,6 +130,15 @@ function fetchStakedMvkBalance(const contractAddress : address) : contract(addre
     Some(contr) -> contr
   | None -> (failwith("GetStakedBalance entrypoint in Doorman Contract not found") : contract(address * contract(nat)))
   end;
+
+// helper function to get User's staked MVK balance and emergency governance last voted timestamp from Doorman address
+// function doormanVoteCheck(const contractAddress : address) : contract(emergencyGovernanceVoteCheckType) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%emergencyGovernanceVoteCheck",
+//       contractAddress) : option(contract(emergencyGovernanceVoteCheckType))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("EmergencyGovernanceVoteCheck entrypoint in Doorman Contract not found") : contract(emergencyGovernanceVoteCheckType))
+//   end;
 
 // helper function to break glass in the governance or breakGlass contract
 function triggerBreakGlass(const contractAddress : address) : contract(unit) is
@@ -260,7 +273,7 @@ block {
 
 } with (operations, s)
 
-function voteForEmergencyControlComplete(const stakedMvkBalance : nat; var s : storage) : return is 
+function voteForEmergencyControlComplete(const stakedMvkBalance : nat; const emergencyGovernanceLastVotedTimestamp : timestamp; var s : storage) : return is 
 block {
 
     checkSenderIsDoormanContract(s);
@@ -272,6 +285,10 @@ block {
 
     if _emergencyGovernance.dropped = True then failwith("Error. Emergency governance has been dropped")
       else skip; 
+
+    // if emergencyGovernanceLastVotedTimestamp > _emergencyGovernance.startDateTime and emergencyGovernanceLastVotedTimestamp < _emergencyGovernance.expirationDateTime 
+    // then failwith("Error. You have already voted for this emergency governance.")
+    // else skip;
 
     const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
 
