@@ -29,16 +29,6 @@ type councilActionRecordType is record [
     // - using snake_case instead of camelCase for better readability (address_param_1 vs addressParam1)
     // ----------------------------------
     
-    // address_param_1            : address;
-    // address_param_2            : address;
-    // address_param_3            : address;
-    // nat_param_1                : nat;
-    // nat_param_2                : nat;
-    // nat_param_3                : nat;
-    // string_param_1             : string;
-    // string_param_2             : string;
-    // string_param_3             : string;
-    
     addressMap                 : addressMapType;
     stringMap                  : stringMapType;
     natMap                     : natMapType;
