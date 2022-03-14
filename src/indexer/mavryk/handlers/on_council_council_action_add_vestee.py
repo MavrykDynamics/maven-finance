@@ -44,6 +44,7 @@ async def on_council_council_action_add_vestee(
     initiator, _ = await models.MavrykUser.get_or_create(
         address = councilActionInitiator
     )
+    await initiator.save()
 
     councilActionRecord = models.CouncilActionRecord(
         council                         = council,
