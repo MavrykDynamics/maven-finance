@@ -56,13 +56,13 @@ type registerDepositType is [@layout:comb] record [
     collateralName  : string;   // name of collateral: tez, token name A, token name B
 ]
 
-type collateralTokenAddressesType is map(address, string) // token collateral address : name of token collateral
+type validCollateralTokenAddressesType is map(address, string) // token collateral address : name of token collateral
 
 type vaultStorage is record [
-    admin                       : address;                          // vault admin contract
-    handle                      : vaultHandleType;                  // owner of the vault
-    depositors                  : depositorsType;                   // users who can deposit into the vault    
-    collateralTokenAddresses    : collateralTokenAddressesType;     // token collateral address : name of token collateral
+    admin                            : address;                               // vault admin contract
+    handle                           : vaultHandleType;                       // owner of the vault
+    depositors                       : depositorsType;                        // users who can deposit into the vault    
+    validCollateralTokenAddresses    : validCollateralTokenAddressesType;     // token collateral address : name of token collateral
 ]
 
 type vaultActionType is 
