@@ -17,7 +17,12 @@ type passVotersMapType is map (address, proposalRoundVoteType)
 type votingRoundVoteType is (nat * nat * timestamp)       // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundVoteType)
 
-type newProposalType is (string * string * string)        // title, description, invoice ipfs - add more if needed
+type newProposalType is [@layout:comb] record [
+  title         : string;
+  description   : string;
+  invoice       : string; // IPFS file
+  sourceCode    : string; 
+]        
 type proposalMetadataType is map (string, bytes)   
 
 // action title: change governance config successReward to 100000 MVK, params in bytes
@@ -32,8 +37,7 @@ type proposalRecordType is [@layout:comb] record [
     title                : string;                  // title
     description          : string;                  // description
     invoice              : string;                  // ipfs hash of invoice file
-    // sourceCode           : string;                  // todo: link to github / repo
-    
+    sourceCode           : string;                  // link to github / repo
 
     successReward        : nat;                     // log of successful proposal reward for voters - may change over time
     executed             : bool;                    // true / false
@@ -57,7 +61,7 @@ type proposalRecordType is [@layout:comb] record [
     quorumMvkTotal       : nat;                     // log of total positive votes in MVK 
     startDateTime        : timestamp;               // log of when the proposal was proposed
 
-    // cycle                    : nat;                 // todo: log of cycle that proposal belongs to
+    cycle                    : nat;                 // log of cycle that proposal belongs to
     currentCycleStartLevel   : nat;                 // log of current cycle starting block level
     currentCycleEndLevel     : nat;                 // log of current cycle end block level
 ]
@@ -878,9 +882,11 @@ block {
         proposalMetadata        = proposalMetadata;
 
         status                  = "ACTIVE";                        // status: "ACTIVE", "DROPPED"
-        title                   = newProposal.0;                   // title
-        description             = newProposal.1;                   // description
-        invoice                 = newProposal.2;                   // ipfs hash of invoice file
+        title                   = newProposal.title;               // title
+        description             = newProposal.description;         // description
+        invoice                 = newProposal.invoice;             // ipfs hash of invoice file
+        sourceCode              = newProposal.sourceCode;
+
         successReward           = s.config.successReward;          // log of successful proposal reward for voters - may change over time
         executed                = False;                           // boolean: executed set to true if proposal is executed
         locked                  = False;                           // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
@@ -903,6 +909,7 @@ block {
         quorumMvkTotal          = 0n;                              // log of total positive votes in MVK  
         startDateTime           = Tezos.now;                       // log of when the proposal was proposed
 
+        cycle                   = s.cycleCounter;
         currentCycleStartLevel  = s.currentRoundStartLevel;        // log current round/cycle start level
         currentCycleEndLevel    = s.currentCycleEndLevel;          // log current cycle end level
     ];
@@ -1786,7 +1793,7 @@ function main (const action : governanceAction; const s : storage) : return is
         | SetSatelliteVotingPowerSnapshot(parameters) -> setSatelliteVotingPowerSnapshot(parameters.0, parameters.1, parameters.2, s)        
   
         | StartProposalRound(_parameters) -> startProposalRound(s)
-        | Propose(parameters) -> propose((parameters.0, parameters.1, parameters.2), s)
+        | Propose(parameters) -> propose(parameters, s)
         | ProposalRoundVote(parameters) -> proposalRoundVote(parameters, s)
         | AddUpdateProposalData(parameters) -> addUpdateProposalData(parameters, s)
         | LockProposal(parameters) -> lockProposal(parameters, s)
