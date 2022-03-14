@@ -1,6 +1,5 @@
 import {
   GET_DOORMAN_STORAGE,
-  SET_USER_STAKE_INFO,
   STAKE_ERROR,
   STAKE_REQUEST,
   STAKE_RESULT,
@@ -9,7 +8,7 @@ import {
   UNSTAKE_RESULT,
 } from 'pages/Doorman/Doorman.actions'
 import { MichelsonMap } from '@taquito/taquito'
-import { getItemFromStorage, updateItemInStorage } from '../utils/storage'
+import { getItemFromStorage } from '../utils/storage'
 
 const STAKE = 'STAKE'
 const UNSTAKE = 'UNSTAKE'
@@ -47,12 +46,11 @@ export interface DoormanStorage {
   accumulatedFeesPerShare?: number
 }
 export interface DoormanState {
-  type?: typeof STAKE | typeof UNSTAKE | typeof GET_DOORMAN_STORAGE | typeof SET_USER_STAKE_INFO
+  type?: typeof STAKE | typeof UNSTAKE | typeof GET_DOORMAN_STORAGE
   amount: number
   error?: any
   doormanStorage?: DoormanStorage
   totalStakedMvkSupply?: number
-  userStakeInfo?: any
 }
 const defaultStorageState = {
   admin: '',
@@ -82,7 +80,6 @@ const doormanDefaultState: DoormanState = {
   error: undefined,
   doormanStorage: getItemFromStorage('DoormanStorage') || defaultStorageState,
   totalStakedMvkSupply: 0,
-  userStakeInfo: getItemFromStorage('UserInfo')?.stakeInfo || {},
 }
 
 export function doorman(state = doormanDefaultState, action: any): DoormanState {
@@ -130,12 +127,6 @@ export function doorman(state = doormanDefaultState, action: any): DoormanState 
         doormanStorage: action.storage,
         totalStakedMvkSupply: action.totalStakedMvkSupply,
         amount: 0,
-      }
-    case SET_USER_STAKE_INFO:
-      return {
-        ...state,
-        type: SET_USER_STAKE_INFO,
-        userStakeInfo: action.userStakeInfo,
       }
     default:
       return state

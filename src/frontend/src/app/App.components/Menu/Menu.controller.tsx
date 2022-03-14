@@ -1,4 +1,4 @@
-import { getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
+import { getMvkTokenStorage, getUserInfo } from 'pages/Doorman/Doorman.actions'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -13,10 +13,12 @@ export const Menu = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
 
   useEffect(() => {
-    if (accountPkh) dispatch(getMvkTokenStorage(accountPkh))
+    if (accountPkh) {
+      dispatch(getUserInfo(accountPkh))
+      dispatch(getMvkTokenStorage(accountPkh))
+    }
     GetHeadData()
     // GetChainData()
   }, [dispatch, accountPkh])

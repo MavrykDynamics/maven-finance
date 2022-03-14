@@ -21,6 +21,11 @@ query DelegationStorageQuery {
       unregistered_datetime
       user_id
       active
+       delegation_records {
+        user {
+          smvk_balance
+        }
+      }
     }
     delegation_records {
       satellite_record_id
