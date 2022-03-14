@@ -52,6 +52,10 @@ function convertToMvkTokenStorageType(storage: any): MvkTokenStorage {
 function convertToDelegationStorageType(storage: any): DelegationStorage {
   const satelliteMap: SatelliteRecord[] = []
   storage.satellite_records.map((item: any) => {
+    const totalDelegatedAmount = item.delegation_records.reduce(
+      (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
+      0,
+    )
     const newSatelliteRecord: SatelliteRecord = {
       address: item.user_id,
       description: item.description,
@@ -61,7 +65,7 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
       registeredDateTime: new Date(item.registered_datetime),
       satelliteFee: calcWithoutMu(item.fee),
       active: item.status,
-      totalDelegatedAmount: '0',
+      totalDelegatedAmount: String(calcWithoutMu(totalDelegatedAmount)),
       unregisteredDateTime: new Date(item.unregistered_datetime),
     }
     satelliteMap.push(newSatelliteRecord)
