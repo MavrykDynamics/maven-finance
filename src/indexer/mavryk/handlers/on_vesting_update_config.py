@@ -18,17 +18,9 @@ async def on_vesting_update_config(
     vesting = await models.Vesting.get(
         address = vestingAddress
     )
-    if updateConfigAction == configBlocksPerMinute:
-        vesting.blocks_per_minute           = updatedValue
-    elif updateConfigAction == configBlocksPerMonth:
-        vesting.blocks_per_month            = updatedValue
-    elif updateConfigAction == configDefaultCliffPeriod:
+    if updateConfigAction == configDefaultCliffPeriod:
         vesting.default_cliff_period        = updatedValue
     elif updateConfigAction == configDefaultCooldownPeriod:
-        vesting.default_cooldown_period     = updatedValue
-    elif updateConfigAction == configNewBlockTimeLevel:
-        vesting.new_blocktime_level         = updatedValue
-    elif updateConfigAction == configNewBlocksPerMinute:
-        vesting.new_block_per_minute        = updatedValue
+        vesting.default_cooldown_period     = updatedValue     = updatedValue
 
     await vesting.save()
