@@ -5,10 +5,11 @@
 #include "../partials/generalContractsType.ligo"
 
 type userStakeBalanceRecordType is record[
-    balance: nat;
-    participationFeesPerShare: nat;
+    balance                                : nat;
+    participationFeesPerShare              : nat;
+    // emergencyGovernanceLastVotedTimestamp  : timestamp;
 ]
-type userStakeBalanceType is big_map(address, userStakeBalanceRecordType)
+type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
 type burnTokenType is (address * nat)
 type mintTokenType is (address * nat)
@@ -44,7 +45,7 @@ type storage is record [
   
   breakGlassConfig        : breakGlassConfigType;
   
-  userStakeBalanceLedger  : userStakeBalanceType;  // user staked balance
+  userStakeBalanceLedger  : userStakeBalanceLedgerType;  // user staked balance ledger
   
   tempMvkTotalSupply      : nat; // temporary mvk total supply in circulation   
   stakedMvkTotalSupply    : nat; // current total staked MVK
@@ -70,6 +71,9 @@ type stakeType is
 
 type getTotalStakedSupplyParamsType is contract(nat)
 
+type emergencyGovernanceVoteCheckCallback is contract(nat * timestamp)
+type emergencyGovernanceVoteCheckType is (address * emergencyGovernanceVoteCheckCallback)
+
 type doormanAction is 
     SetAdmin of (address)
   | UpdateMinMvkAmount of (nat)
@@ -87,6 +91,7 @@ type doormanAction is
   | GetTotalStakedSupply of getTotalStakedSupplyParamsType
   | GetStakedBalance of (address * contract(nat))
   | GetSatelliteBalance of getSatelliteBalanceType
+  // | EmergencyGovernanceVoteCheck of emergencyGovernanceVoteCheckType
 
   | Stake of (nat)
   | Unstake of (nat)
@@ -289,6 +294,30 @@ function getStakedBalance (const userAddress : address; const contr : contract(n
     end;
 
   } with (list [transaction(userBalanceInStakeBalanceLedger, 0tz, contr)], s)
+
+(* View function that forwards the staked balance of source to a contract *)
+// function emergencyGovernanceVoteCheck (const emergencyGovernanceVoteCheckParams : emergencyGovernanceVoteCheckType; var s : storage) : return is
+//   block {
+
+//     const userAddress : address = emergencyGovernanceVoteCheckParams.0;
+
+//     const userRecordInStakeBalanceLedger : userStakeBalanceRecordType = case s.userStakeBalanceLedger[userAddress] of
+//         Some (_record) -> _record
+//       | None -> failwith("Error. User stake balance record not found.")
+//     end;
+
+//     const stakedBalance                          : nat        = userRecordInStakeBalanceLedger.balance;
+//     const emergencyGovernanceLastVotedTimestamp  : timestamp  = userRecordInStakeBalanceLedger.emergencyGovernanceLastVotedTimestamp;
+
+//     const callbackContract : emergencyGovernanceVoteCheckCallback = emergencyGovernanceVoteCheckParams.1;
+
+//     const callbackOperation : operation = Tezos.transaction(
+//       (stakedBalance, emergencyGovernanceLastVotedTimestamp),
+//       0mutez,
+//       callbackContract
+//     )
+
+//   } with (list [callbackOperation], s)
 
 (* View function that forwards the balance of satellite with satellite creation params to the delegation contract *)
 function getSatelliteBalance (const userAddress : address; const name : string; const description : string; const image : string; const satelliteFee : nat; const contr : contract(satelliteInfoType); var s : storage) : return is
