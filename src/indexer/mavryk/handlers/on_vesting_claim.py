@@ -17,9 +17,7 @@ async def on_vesting_claim(
     vesteeLedgerRecord                  = claim.storage.vesteeLedger[vesteeAddress]
     vesteeMonthsRemaining               = int(vesteeLedgerRecord.monthsRemaining)
     vesteeMonthsClaimed                 = int(vesteeLedgerRecord.monthsClaimed)
-    vesteeNextRedemptionBlock           = int(vesteeLedgerRecord.nextRedemptionBlock)
     vesteeNextRedemptionTimestamp       = parser.parse(vesteeLedgerRecord.nextRedemptionTimestamp)
-    vesteeLastClaimedBlock              = int(vesteeLedgerRecord.lastClaimedBlock)
     vesteeLastClaimedTimestamp          = parser.parse(vesteeLedgerRecord.lastClaimedTimestamp)
     vesteeTotalClaimed                  = int(vesteeLedgerRecord.totalClaimed)
     vesteeTotalRemainder                = int(vesteeLedgerRecord.totalRemainder)
@@ -38,9 +36,7 @@ async def on_vesting_claim(
     )
     vesteeRecord.months_remaining               = vesteeMonthsRemaining
     vesteeRecord.months_claimed                 = vesteeMonthsClaimed
-    vesteeRecord.next_redemption_block          = vesteeNextRedemptionBlock
     vesteeRecord.next_redemption_timestamp      = vesteeNextRedemptionTimestamp
-    vesteeRecord.last_claimed_block             = vesteeLastClaimedBlock
     vesteeRecord.last_claimed_timestamp         = vesteeLastClaimedTimestamp
     vesteeRecord.total_claimed                  = vesteeTotalClaimed
     vesteeRecord.total_remainder                = vesteeTotalRemainder

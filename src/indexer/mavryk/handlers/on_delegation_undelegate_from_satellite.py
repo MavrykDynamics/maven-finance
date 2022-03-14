@@ -12,12 +12,12 @@ async def on_delegation_undelegate_from_satellite(
     # Get operation values
     userAddress = undelegate_from_satellite_complete.data.initiator_address
 
-    # # Delete record
-    # user, _ = await models.MavrykUser.get_or_create(
-    #     address = userAddress
-    # )
-    # delegationRecord = await models.DelegationRecord.get(
-    #     user = user
-    # )
-    # await user.save()
-    # await delegationRecord.delete()
+    # Delete record
+    user, _ = await models.MavrykUser.get_or_create(
+        address = userAddress
+    )
+    delegationRecord = await models.DelegationRecord.get(
+        user = user
+    )
+    await user.save()
+    await delegationRecord.delete()
