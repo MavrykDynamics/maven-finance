@@ -33,7 +33,7 @@ async def on_delegation_register_as_satellite_complete(
         registered_datetime     = satelliteRegisteredDatetime,
         unregistered_datetime   = satelliteRegisteredDatetime,
         active                  = satelliteActive,
-        fee           = satelliteFee,
+        fee                     = satelliteFee,
         name                    = satelliteName,
         description             = satelliteDescription,
         image                   = satelliteImage,
