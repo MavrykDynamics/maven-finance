@@ -107,7 +107,8 @@ class Vesting(Model):
 
 class EmergencyGovernance(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    current_emergency_governance    = fields.ForeignKeyField('models.EmergencyGovernanceRecord', related_name='emergency_governance', null=True)
+    current_emergency_record_id     = fields.BigIntField(default=0)
+    next_emergency_record_id        = fields.BigIntField(default=0)
     required_fee                    = fields.BigIntField(default=0)
     smvk_percentage_required        = fields.BigIntField(default=0)
     vote_expiry_days                = fields.BigIntField(default=0)
@@ -153,7 +154,7 @@ class SatelliteRecord(Model):
 
 class DelegationRecord(Model):
     id                              = fields.BigIntField(pk=True)
-    satellite_record                = fields.ForeignKeyField('models.SatelliteRecord', related_name='delegation_records')
+    satellite_record                = fields.ForeignKeyField('models.SatelliteRecord', related_name='delegation_records', null=True)
     user                            = fields.ForeignKeyField('models.MavrykUser', related_name='delegation_records')
     delegation                      = fields.ForeignKeyField('models.Delegation', related_name='delegation_records')
 
@@ -247,7 +248,7 @@ class EmergencyGovernanceRecord(Model):
     id                              = fields.BigIntField(pk=True)
     emergency_governance            = fields.ForeignKeyField('models.EmergencyGovernance', related_name='emergency_governance_records')
     proposer                        = fields.ForeignKeyField('models.MavrykUser', related_name='emergency_governance_proposer')
-    active                          = fields.BooleanField(default=False)
+    status                          = fields.BooleanField(default=False)
     executed                        = fields.BooleanField(default=False)
     dropped                         = fields.BooleanField(default=False)
     title                           = fields.CharField(max_length=255)
@@ -255,9 +256,7 @@ class EmergencyGovernanceRecord(Model):
     smvk_percentage_required        = fields.BigIntField(default=0)
     smvk_required_for_trigger       = fields.BigIntField(default=0)
     start_timestamp                 = fields.DatetimeField()
-    start_level                     = fields.BigIntField(default=0)
     executed_timestamp              = fields.DatetimeField()
-    executed_level                  = fields.BigIntField(default=0)
     expiration_timestamp            = fields.DatetimeField()
 
     class Meta:

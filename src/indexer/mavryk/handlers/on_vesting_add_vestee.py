@@ -36,6 +36,7 @@ async def on_vesting_add_vestee(
     user, _ = await models.MavrykUser.get_or_create(
         address = vesteeAddress
     )
+    await user.save()
     vesting = await models.Vesting.get(
         address = vestingAddress
     )

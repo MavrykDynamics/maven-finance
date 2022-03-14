@@ -19,5 +19,6 @@ async def on_delegation_undelegate_from_satellite(
     delegationRecord = await models.DelegationRecord.get(
         user = user
     )
+    delegationRecord.satellite_record   = None
     await user.save()
-    await delegationRecord.delete()
+    await delegationRecord.save()

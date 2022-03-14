@@ -1,8 +1,8 @@
 
-from mavryk.types.delegation.parameter.delegate_to_satellite import DelegateToSatelliteParameter
 from dipdup.context import HandlerContext
-from dipdup.models import Transaction
+from mavryk.types.delegation.parameter.delegate_to_satellite import DelegateToSatelliteParameter
 from mavryk.types.delegation.storage import DelegationStorage
+from dipdup.models import Transaction
 import mavryk.models as models
 
 async def on_delegation_delegate_to_satellite(
@@ -24,10 +24,19 @@ async def on_delegation_delegate_to_satellite(
     satelliteRecord = await models.SatelliteRecord.get(
         user = satelliteAddress
     )
-    delegationRecord = models.DelegationRecord(
-        satellite_record = satelliteRecord,
+
+    # Check if delegation record already exists, if yes, redelegate to new satellite
+    delegationRecord = await models.DelegationRecord.get_or_none(
         user = user,
         delegation = delegation
     )
+    if delegationRecord == None:
+        delegationRecord = models.DelegationRecord(
+            satellite_record = satelliteRecord,
+            user = user,
+            delegation = delegation
+        )
+    else:
+        delegationRecord.satellite_record = satelliteRecord
     await user.save()
-    await delegationRecord.save()
+    await delegationRecord.save()    
