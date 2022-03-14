@@ -15,6 +15,8 @@ export const ConnectWallet = ({ type }: ConnectWalletProps) => {
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
+  const { user } = useSelector((state: State) => state.user)
+
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
   }
@@ -29,7 +31,7 @@ export const ConnectWallet = ({ type }: ConnectWalletProps) => {
       wallet={wallet}
       ready={ready}
       accountPkh={accountPkh}
-      myMvkTokenBalance={myMvkTokenBalance}
+      myMvkTokenBalance={user.myMvkTokenBalance}
       handleConnect={handleConnect}
       handleNewConnect={handleNewConnect}
     />

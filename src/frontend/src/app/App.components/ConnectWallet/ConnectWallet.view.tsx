@@ -8,7 +8,7 @@ type ConnectWalletViewProps = {
   wallet: any
   ready: boolean
   accountPkh?: string
-  myMvkTokenBalance?: string | number
+  myMvkTokenBalance: string | number | undefined
   handleConnect: () => void
   handleNewConnect: () => void
 }

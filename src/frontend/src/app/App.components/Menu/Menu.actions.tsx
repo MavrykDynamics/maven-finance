@@ -6,6 +6,7 @@ import { State } from 'reducers'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR } from '../Toaster/Toaster.constants'
 import { getChainInfo } from '../../../utils/api'
+import { getUserInfo } from '../../../pages/Doorman/Doorman.actions'
 
 export const SET_WALLET = 'SET_WALLET'
 export const setWallet = (wallet: TempleWallet) => (dispatch: any, getState: any) => {
@@ -56,6 +57,8 @@ export const connect =
           ready: Boolean(tzs),
           accountPkh: accountPkh,
         })
+
+        if (accountPkh) dispatch(getUserInfo(accountPkh))
       }
     } catch (err: any) {
       dispatch(showToaster(ERROR, 'Failed to connect TempleWallet', err.message))

@@ -19,12 +19,14 @@ import { DOORMAN_STORAGE_QUERY, DOORMAN_STORAGE_QUERY_NAME, DOORMAN_STORAGE_QUER
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { calcWithoutMu } from '../../utils/calcFunctions'
-import { updateItemInStorage } from '../../utils/storage'
+import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
 import {
   USER_STAKE_BALANCE_QUERY_NAME,
   USER_STAKE_BALANCE_QUERY_VARIABLES,
   USER_STAKE_BALANCE_STORAGE_QUERY,
 } from '../../gql/queries/getUserStakeInfo'
+import { USER_INFO_QUERY, USER_INFO_QUERY_NAME, USER_INFO_QUERY_VARIABLES } from '../../gql/queries/getUserInfo'
+import { UserData } from '../../reducers/user'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -41,11 +43,8 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
       ).contract.at(mvkTokenAddress.address)
   const storage = await (contract as any).storage()
   const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
-  const myBalanceMu = myLedgerEntry?.toNumber()
-  const myBalance = myBalanceMu > 0 ? myBalanceMu / PRECISION_NUMBER : 0
-
-  const totalMvkSupplyMu = parseFloat(storage?.totalSupply) || 0
-  const totalMvkSupply = totalMvkSupplyMu > 0 ? totalMvkSupplyMu / PRECISION_NUMBER : 0
+  const myBalance = myLedgerEntry ? calcWithoutMu(myLedgerEntry?.toNumber()) : 0
+  const totalMvkSupply = calcWithoutMu(storage?.totalSupply)
 
   const mvkTokenStorage: MvkTokenStorage = {
     maximumTotalSupply: 0,
@@ -101,6 +100,8 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
     dispatch({
       type: STAKE_RESULT,
     })
+
+    if (state.wallet.accountPkh) dispatch(getUserInfo(state.wallet.accountPkh))
 
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDoormanStorage())
@@ -158,6 +159,8 @@ export const unstake = (amount: number) => async (dispatch: any, getState: any) 
       type: UNSTAKE_RESULT,
     })
 
+    if (state.wallet.accountPkh) dispatch(getUserInfo(state.wallet.accountPkh))
+
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDoormanStorage())
   } catch (error: any) {
@@ -171,7 +174,6 @@ export const unstake = (amount: number) => async (dispatch: any, getState: any) 
 }
 
 export const GET_DOORMAN_STORAGE = 'GET_DOORMAN_STORAGE'
-export const SET_USER_STAKE_INFO = 'SET_USER_STAKE_INFO'
 export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
@@ -232,25 +234,6 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
       tempMvkMaximumTotalSupply: convertedStorage.tempMvkMaximumTotalSupply,
     }
 
-    if (accountPkh) {
-      const stakeAccounts = await fetchFromIndexer(
-        USER_STAKE_BALANCE_STORAGE_QUERY,
-        USER_STAKE_BALANCE_QUERY_NAME,
-        USER_STAKE_BALANCE_QUERY_VARIABLES(accountPkh),
-      )
-      const myStakeLedgerEntryBase = stakeAccounts?.doorman[0].stake_accounts[0]
-      const myStakeLedgerEntry = {
-        myMvkBalance: calcWithoutMu(myStakeLedgerEntryBase.mvk_balance),
-        mySMvkBalance: calcWithoutMu(myStakeLedgerEntryBase.smvk_balance),
-        participation_fees_per_share: calcWithoutMu(myStakeLedgerEntryBase.participation_fees_per_share),
-      }
-      updateItemInStorage('UserInfo', { stakeInfo: myStakeLedgerEntry })
-      dispatch({
-        type: SET_USER_STAKE_INFO,
-        userStakeInfo: myStakeLedgerEntry,
-      })
-    }
-
     updateItemInStorage('DoormanStorage', doormanStorage)
     dispatch({
       type: GET_DOORMAN_STORAGE,
@@ -262,6 +245,63 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
       type: GET_DOORMAN_STORAGE,
+      error,
+    })
+  }
+}
+
+export const GET_USER_INFO = 'GET_USER_INFO'
+export const SET_USER_INFO = 'SET_USER_INFO'
+export const UPDATE_USER_INFO = 'UPDATE_USER_INFO'
+export const getUserInfo = (accountPkh: string) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+  try {
+    const userInfoFromIndexer = await fetchFromIndexer(
+      USER_INFO_QUERY,
+      USER_INFO_QUERY_NAME,
+      USER_INFO_QUERY_VARIABLES(accountPkh),
+    )
+    const userInfoData = userInfoFromIndexer?.mavryk_user[0]
+
+    const userInfo: UserData = {
+      myAddress: userInfoData.address,
+      myMvkTokenBalance: calcWithoutMu(userInfoData.mvk_balance),
+      mySMvkTokenBalance: calcWithoutMu(userInfoData.smvk_balance),
+      participationFeesPerShare: calcWithoutMu(userInfoData.participation_fees_per_share),
+      satelliteMvkIsDelegatedTo: userInfoData.delegation_records[0].satellite_record.user_id ?? '',
+    }
+    setItemInStorage('UserData', userInfo)
+    dispatch({
+      type: GET_USER_INFO,
+      userData: userInfo,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: GET_USER_INFO,
+      error,
+    })
+  }
+}
+
+export const updateUserInfo = (field: string, value: any) => async (dispatch: any, getState: any) => {
+  const state: State = getState()
+  try {
+    const userState = state.user
+    // @ts-ignore
+    userState[field] = value
+    updateItemInStorage('UserDate', value)
+    dispatch({
+      type: UPDATE_USER_INFO,
+      userKey: field,
+      userValue: value,
+    })
+  } catch (error: any) {
+    console.error(error)
+    dispatch(showToaster(ERROR, 'Error', error.message))
+    dispatch({
+      type: UPDATE_USER_INFO,
       error,
     })
   }

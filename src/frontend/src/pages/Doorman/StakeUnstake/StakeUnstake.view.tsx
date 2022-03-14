@@ -19,8 +19,8 @@ import {
 } from './StakeUnstake.style'
 
 type StakeUnstakeViewProps = {
-  myMvkTokenBalance?: string
-  userStakeBalance?: string
+  myMvkTokenBalance?: number
+  userStakeBalance?: number
   stakeCallback: (amount: number) => void
   unstakeCallback: (amount: number) => void
   loading: boolean

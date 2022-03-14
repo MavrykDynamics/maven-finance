@@ -18,6 +18,7 @@ export const Satellites = () => {
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { doormanStorage } = useSelector((state: State) => state.doorman)
+  const { user } = useSelector((state: State) => state.user)
   const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
   const satelliteLedger = delegationStorage?.satelliteLedger
   const userStakedBalance = accountPkh ? parseFloat(userStakeBalanceLedger?.get(accountPkh) || '0') : 0
@@ -49,8 +50,8 @@ export const Satellites = () => {
           loading={loading}
           delegateCallback={delegateCallback}
           undelegateCallback={undelegateCallback}
-          userStakedBalance={userStakedBalance}
-          satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
+          userStakedBalance={user.mySMvkTokenBalance}
+          satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
         />
         <SatelliteSideBar />
       </PageContent>
