@@ -39,7 +39,7 @@ contracts:
     address: KT1Hzo5zQGSg18V1mPJ6umt7fmJq54MAF2ks
     typename: vesting
   emergency_governance:
-    address: KT1By7RvnByUULr6TQABJ9CwHZwxDb6bmpVD
+    address: KT1JFRuQHqfzUDnvksz5URaY5oteWpzFvvW1
     typename: emergency_governance
   council:
     address: KT1EmLaLkxmK92oMBbcU934DgbF1ChYXQwjr
@@ -128,10 +128,6 @@ indexes:
         pattern:
           - type: origination
             originated_contract: mvk
-      - callback: on_mvk_update_operators
-        pattern:
-          - destination: mvk
-            entrypoint: update_operators
       - callback: on_mvk_transfer
         pattern:
           - destination: mvk
@@ -439,8 +435,10 @@ indexes:
         pattern:
           - destination: emergency_governance
             entrypoint: dropEmergencyGovernance
-      - callback: on_emergency_governance_vote_for_emergency_control_complete
+      - callback: on_emergency_governance_vote_for_emergency_control
         pattern:
+          - destination: emergency_governance
+            entrypoint: voteForEmergencyControl
           - destination: emergency_governance
             entrypoint: voteForEmergencyControlComplete
   # Council contract indexes
