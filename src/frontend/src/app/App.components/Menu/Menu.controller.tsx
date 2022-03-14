@@ -18,11 +18,11 @@ export const Menu = () => {
   useEffect(() => {
     if (accountPkh) dispatch(getMvkTokenStorage(accountPkh))
     GetHeadData()
-    GetChainData()
+    // GetChainData()
   }, [dispatch, accountPkh])
 
-  setInterval(GetHeadData, 30000)
-  setInterval(GetChainData, 60000)
+  // setInterval(GetHeadData, 30000)
+  // setInterval(GetChainData, 60000)
   async function GetHeadData() {
     dispatch(getHeadData())
   }

@@ -27,7 +27,7 @@ export const BecomeSatellite = (props: any) => {
     image: '',
     description: '',
     satelliteFee: '',
-    status: false,
+    active: false,
     mvkBalance: '',
     totalDelegatedAmount: '',
     registeredDateTime: new Date(),

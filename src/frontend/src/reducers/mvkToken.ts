@@ -1,5 +1,6 @@
 import { GET_MVK_TOKEN_STORAGE } from 'pages/Doorman/Doorman.actions'
 import { MichelsonMap } from '@taquito/taquito'
+import { getItemFromStorage } from '../utils/storage'
 
 type account = {
   balance: number
@@ -11,10 +12,11 @@ type TokenMetadataInfo = {
 }
 
 export interface MvkTokenStorage {
-  admin: string
-  contractAddresses: MichelsonMap<string, string>
-  whitelistContracts: MichelsonMap<string, string>
+  admin?: string
+  contractAddresses?: MichelsonMap<string, string>
+  whitelistContracts?: MichelsonMap<string, string>
   totalSupply: number
+  maximumTotalSupply: number
 }
 export interface MvkTokenState {
   mvkTokenStorage: MvkTokenStorage | any
@@ -22,8 +24,8 @@ export interface MvkTokenState {
 }
 
 const mvkTokenDefaultState: MvkTokenState = {
-  mvkTokenStorage: {},
-  myMvkTokenBalance: undefined,
+  mvkTokenStorage: getItemFromStorage('MvkTokenStorage') ?? {},
+  myMvkTokenBalance: getItemFromStorage('UserInfo')?.stakeInfo.myMvkBalance ?? undefined,
 }
 
 export function mvkToken(state = mvkTokenDefaultState, action: any): MvkTokenState {
