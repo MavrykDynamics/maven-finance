@@ -61,7 +61,7 @@ const noOperations : list (operation) = nil;
 type return is list (operation) * storage
 
 type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
-type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
+type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, sMVK balance
 
 type farmClaimType is (address * nat)
 
@@ -405,7 +405,7 @@ block {
   // 4. add a new stake record for the user
   
   // old steps - no more mint + burn used
-  // 2. mint + burn method in mvkToken.ligo and vmvkToken.ligo - then Temple wallet reflects the ledger amounts of MVK and vMVK - burn/mint operations are reflected
+  // 2. mint + burn method in mvkToken.ligo and smvkToken.ligo - then Temple wallet reflects the ledger amounts of MVK and sMVK - burn/mint operations are reflected
   // 3. update record of user staking
   // ----------------------------------------
 
@@ -455,13 +455,13 @@ block {
     updateSatelliteBalance(delegationAddress)
   );
 
-  // list of operations: burn mvk tokens first, then mint vmvk tokens
-  // const operations : list(operation) = list [burnMvkTokensOperation; mintVMvkTokensOperation; updateSatelliteBalanceOperation];
+  // list of operations: burn mvk tokens first, then mint smvk tokens
+  // const operations : list(operation) = list [burnMvkTokensOperation; mintSMvkTokensOperation; updateSatelliteBalanceOperation];
   const operations : list(operation) = case userCompound.0 of
     Some (o) -> list [updateSatelliteBalanceOperation; transferOperation; o]
   | None -> list [updateSatelliteBalanceOperation; transferOperation]
   end;
-  // 3. update record of user address with minted vMVK tokens
+  // 3. update record of user address with minted sMVK tokens
 
   // update user's staked balance in staked balance ledger
   var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.sender] of
@@ -483,7 +483,7 @@ block {
 function unstake(const unstakeAmount : nat; var s : storage) : return is
 block {
   // Steps Overview
-  // 1. verify that user is unstaking more than 0 vMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
+  // 1. verify that user is unstaking more than 0 sMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
   // 2. fetch and update total MVK supply by getting balance in MVK token coontract
   // 3. complete unstake in callback operation after total MVK supply has been set
   // 4. calculate exit fee and verify that user has a record in stake balance ledger, and has enough balance to unstake
@@ -493,12 +493,12 @@ block {
   // 8. increase staked MVK in exit fee reward pool - update exit fee staked balance in stake balance ledger 
 
   // old steps - no more mint + burn used
-  // 2. intercontract invocation -> update total supply for MVK and vMVK
-  // 3. unstakeComplete -> calculate exit fee, mint and burn method in vmvkToken.ligo and mvkToken.ligo respectively
+  // 2. intercontract invocation -> update total supply for MVK and sMVK
+  // 3. unstakeComplete -> calculate exit fee, mint and burn method in smvkToken.ligo and mvkToken.ligo respectively
   
   // to be done in future
-  // 4. calculate distribution of exit fee as rewards to vMVK holders
-  // 5. transfer / save record of exit fee rewards for each vMVK holder - unless exit fee rewards are calculated in a different way 
+  // 4. calculate distribution of exit fee as rewards to sMVK holders
+  // 5. transfer / save record of exit fee rewards for each sMVK holder - unless exit fee rewards are calculated in a different way 
   // ----------------------------------------
 
   // break glass check
@@ -520,7 +520,7 @@ block {
   // update temp MVK total supply
   const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, updateMvkTotalSupplyForDoorman(mvkTokenAddress));
 
-  // list of operations: get MVK total supply first, then get vMVK total supply (which will trigger unstake complete)
+  // list of operations: get MVK total supply first, then get sMVK total supply (which will trigger unstake complete)
   const operations : list(operation) = 
     case userCompound.0 of
       Some (o) -> list [updateMvkTotalSupplyProxyOperation; o]

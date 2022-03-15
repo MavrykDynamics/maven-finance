@@ -441,7 +441,7 @@ block {
 
     // Overall steps:
     // 1. check if satellite exists
-    // 2. callback to doorman contract to fetch staked MVK (vMVK) balance
+    // 2. callback to doorman contract to fetch staked MVK (sMVK) balance
     // 3. save new user delegate record
     // 4. update satellite total delegated amount
 
@@ -481,7 +481,7 @@ block {
       if previousSatellite = satelliteAddress then failwith("You are already delegated to this satellite")
         else skip;
 
-      // update previously delegated satellite totalDelegatedAmount with decrease in user's vMVK balance
+      // update previously delegated satellite totalDelegatedAmount with decrease in user's sMVK balance
       const undelegateFromSatelliteCompleteCallback : contract(nat) = Tezos.self("%undelegateFromSatelliteComplete");
       const undelegateFromPreviousSatelliteOperation : operation = Tezos.transaction(
           (Tezos.sender, undelegateFromSatelliteCompleteCallback),
@@ -496,7 +496,7 @@ block {
           redelegateSatellite(Tezos.self_address)
           );
 
-      // update new satellite totalDelegatedAmount with increase in user's vMVK balance
+      // update new satellite totalDelegatedAmount with increase in user's sMVK balance
       const delegateToSatelliteCompleteCallback : contract(nat) = Tezos.self("%delegateToSatelliteComplete");
       const delegateToNewSatelliteOperation : operation = Tezos.transaction(
           (Tezos.sender, delegateToSatelliteCompleteCallback),
@@ -518,7 +518,7 @@ block {
 
       s.delegateLedger[Tezos.sender] := delegateRecord;
 
-      // update satellite totalDelegatedAmount with user's vMVK balance
+      // update satellite totalDelegatedAmount with user's sMVK balance
       const delegateToSatelliteCompleteCallback : contract(nat) = Tezos.self("%delegateToSatelliteComplete");
 
       const delegateToSatelliteCompleteOperation : operation = Tezos.transaction(
@@ -585,7 +585,7 @@ block {
 
     // Overall steps:
     // 1. check if user address exists in delegateLedger
-    // 2. callback to doorman contract to fetch vMVK balance
+    // 2. callback to doorman contract to fetch sMVK balance
     // 3a. if satellite exists, update satellite record with new balance and remove user from delegateLedger
     // 3b. if satellite does not exist, remove user from delegateLedger
     
@@ -605,15 +605,15 @@ block {
       | None -> failwith("Error. Doorman Contract is not found")
     end;
 
-    // update satellite totalDelegatedAmount - decrease total amount with user's vMVK balance
+    // update satellite totalDelegatedAmount - decrease total amount with user's sMVK balance
     const undelegateFromSatelliteCompleteCallback : contract(nat) = Tezos.self("%undelegateFromSatelliteComplete");
-    const checkVMvkBalanceOperation : operation = Tezos.transaction(
+    const checkSMvkBalanceOperation : operation = Tezos.transaction(
         (Tezos.sender, undelegateFromSatelliteCompleteCallback),
          0tez, 
          fetchStakedMvkBalance(doormanAddress)
          );
     
-    const operations : list(operation) = list [checkVMvkBalanceOperation];
+    const operations : list(operation) = list [checkSMvkBalanceOperation];
 
 } with (operations, s)
 
@@ -649,7 +649,7 @@ block {
     if _satelliteRecord.status = 1n then block {
       // satellite exists
 
-      // check that vMVK balance does not exceed satellite's total delegated amount
+      // check that sMVK balance does not exceed satellite's total delegated amount
         if stakedMvkBalance > _satelliteRecord.totalDelegatedAmount then failwith("Error. User's staked MVK balance exceeds satellite's total delegated amount.")
           else skip;
         
@@ -693,15 +693,15 @@ block {
 } with (noOperations, s)
 
 // type newSatelliteRecordType is (string * string * string * nat) // name, description, image, satellite fee
-// type registerAsSatelliteCompleteParamsType  is (string * string * string * nat * nat) // name, description, image, satellite fee, vMVK balance
+// type registerAsSatelliteCompleteParamsType  is (string * string * string * nat * nat) // name, description, image, satellite fee, sMVK balance
 
 function registerAsSatellite(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : storage) : return is 
 block {
     
     // Overall steps: 
     // 1. verify that satellite does not already exist (prevent double registration)
-    // 2. callback to doorman contract to fetch vMVK balance
-    // 3. if user vMVK balance is more than minimumDelegateBond, register as delegate
+    // 2. callback to doorman contract to fetch sMVK balance
+    // 3. if user sMVK balance is more than minimumDelegateBond, register as delegate
     // 4. add new satellite record and save to satelliteLedger
 
     // add the satellite fields here
@@ -755,8 +755,8 @@ block {
     // check sender is Doorman Contract
     checkSenderIsDoormanContract(s);
 
-    // lock satellite's vMVK amount -> bond? 
-    if satelliteParams.4 < s.config.minimumStakedMvkBalance then failwith("You do not have enough vMVK to meet the minimum delegate bond.")
+    // lock satellite's sMVK amount -> bond? 
+    if satelliteParams.4 < s.config.minimumStakedMvkBalance then failwith("You do not have enough sMVK to meet the minimum delegate bond.")
       else skip;
 
     // // add new satellite record
