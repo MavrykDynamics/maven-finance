@@ -20,7 +20,7 @@ type councilActionRecordType is record [
     actionType                 : string;           // addVestee / updateVestee / toggleVesteeLock / addCouncilMember / removeCouncilMember / requestTokens / requestMint
     signers                    : signersType;      // set of signers
 
-    status                     : string;           // PENDING / FLUSHED / EXECUTED / EXPIRED
+    status                     : string;           // PENDING / FLUSHED / EXECUTED 
     signersCount               : nat;              // total number of signers
     executed                   : bool;             // boolean of whether action has been executed
 
@@ -48,6 +48,7 @@ type councilActionsLedgerType is big_map(nat, councilActionRecordType)
 type configType is record [
     threshold                   : nat;                 // min number of council members who need to agree on action
     actionExpiryDays            : nat;                 // action expiry in number of days 
+    // todo: strings, nats validation length
 ]
 
 type storage is record [
@@ -59,11 +60,7 @@ type storage is record [
     generalContracts            : generalContractsType;
 
     councilActionsLedger        : councilActionsLedgerType; 
-
-    thresholdSigners            : nat; 
     actionCounter               : nat;
-
-    tempString                  : string;
 ]
 
 type councilActionAddVesteeType is  [@layout:comb] record [ 
@@ -145,7 +142,13 @@ type councilActionTransferType is [@layout:comb] record [
     tokenContractAddress  : address;       // token contract address
     tokenAmount           : nat;           // token amount requested
     tokenType             : string;        // "XTZ", "FA12", "FA2"
-    tokenId               : nat;        
+    tokenId               : nat;  
+    purpose               : string;           
+]
+
+type councilActionChangeMemberType is [@layout:comb] record [
+    oldCouncilMemberAddress           : address;
+    newCouncilMemberAddress           : address;
 ]
 
 type councilAction is 
@@ -165,7 +168,7 @@ type councilAction is
     // Council actions for internal control
     | CouncilActionAddMember of address
     | CouncilActionRemoveMember of address
-    | CouncilActionChangeMember of (address * address)
+    | CouncilActionChangeMember of councilActionChangeMemberType
     | CouncilActionTransfer of councilActionTransferType
 
     // Council actions to Governance DAO and Treasury
@@ -174,9 +177,6 @@ type councilAction is
 
     | SignAction of nat                
     | FlushAction of flushActionType
-
-    // todo:
-    // transfer -> entrypoint
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -409,7 +409,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionChangeMember(const oldCouncilMemberAddress : address ; const newCouncilMemberAddress : address ; var s : storage) : return is 
+function councilActionChangeMember(const councilActionChangeMemberParams : councilActionChangeMemberType; var s : storage) : return is 
 block {
 
     // Overall steps:
@@ -420,8 +420,8 @@ block {
     checkSenderIsCouncilMember(s);
 
     const addressMap          : addressMapType     = map [
-            ("oldCouncilMemberAddress" : string) -> oldCouncilMemberAddress;
-            ("newCouncilMemberAddress" : string) -> newCouncilMemberAddress;
+            ("oldCouncilMemberAddress" : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
+            ("newCouncilMemberAddress" : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
         ];
     const emptyStringMap      : stringMapType      = map [];
     const emptyNatMap         : natMapType         = map [];
@@ -468,6 +468,7 @@ block {
     ];
     const stringMap : stringMapType      = map [
         ("tokenType"             : string) -> councilActionTransferParams.tokenType; 
+        ("purpose"               : string) -> councilActionTransferParams.purpose; 
     ];
     const natMap : natMapType         = map [
         ("tokenAmount"           : string) -> councilActionTransferParams.tokenAmount;
@@ -832,17 +833,8 @@ block {
     // check if council action has been flushed
     if _councilActionRecord.status = "FLUSHED" then failwith("Error. Council action has been flushed") else skip;
 
-    // check if council action has expired (status check, and block level + timestamp check)
-    if _councilActionRecord.status = "Expired" then failwith("Error. Council action has expired") else skip;
-
-    var isExpired : bool := False;
-    if Tezos.now > _councilActionRecord.expirationDateTime then isExpired := True else isExpired := False;
-
-    if isExpired = True then block {
-        _councilActionRecord.status       := "EXPIRED";
-         s.councilActionsLedger[actionId] := _councilActionRecord;
-        failwith("Error. Council action has expired.");
-    } else skip;
+    // check if council action has expired
+    if Tezos.now > _councilActionRecord.expirationDateTime then failwith("Error. Council action has expired") else skip;
 
     // update signers and signersCount for council action record
     var signersCount : nat             := _councilActionRecord.signersCount + 1n;
@@ -853,8 +845,6 @@ block {
     const actionType : string = _councilActionRecord.actionType;
 
     var operations : list(operation) := nil;
-
-    s.tempString := actionType;
 
     // check if threshold has been reached
     if signersCount = s.config.threshold then block {
@@ -1305,7 +1295,7 @@ function main (const action : councilAction; const s : storage) : return is
         // Council actions for internal control
         | CouncilActionAddMember(parameters) -> councilActionAddMember(parameters, s)
         | CouncilActionRemoveMember(parameters) -> councilActionRemoveMember(parameters, s)
-        | CouncilActionChangeMember(parameters) -> councilActionChangeMember(parameters.0, parameters.1, s)
+        | CouncilActionChangeMember(parameters) -> councilActionChangeMember(parameters, s)
         | CouncilActionTransfer(parameters) -> councilActionTransfer(parameters, s)
         
         // Council actions to Governance DAO and Treasury

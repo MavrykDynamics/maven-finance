@@ -12,8 +12,5 @@ export type councilStorageType = {
 
   councilActionsLedger: MichelsonMap<MichelsonMapKey, unknown>;
 
-  thresholdSigners: BigNumber;
   actionCounter: BigNumber;
-
-  tempString: string;
 };
