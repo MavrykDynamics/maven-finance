@@ -21,25 +21,19 @@ class CouncilActionsLedger(BaseModel):
         extra = Extra.forbid
 
     actionType: str
-    address_param_1: str
-    address_param_2: str
-    address_param_3: str
+    addressMap: Dict[str, str]
     executed: bool
     executedDateTime: str
     executedLevel: str
     expirationDateTime: str
     initiator: str
-    nat_param_1: str
-    nat_param_2: str
-    nat_param_3: str
+    natMap: Dict[str, str]
     signers: List[str]
     signersCount: str
     startDateTime: str
     startLevel: str
     status: str
-    string_param_1: str
-    string_param_2: str
-    string_param_3: str
+    stringMap: Dict[str, str]
 
 
 class CouncilStorage(BaseModel):
@@ -52,6 +46,4 @@ class CouncilStorage(BaseModel):
     councilActionsLedger: Dict[str, CouncilActionsLedger]
     councilMembers: List[str]
     generalContracts: Dict[str, str]
-    tempString: str
-    thresholdSigners: str
     whitelistContracts: Dict[str, str]

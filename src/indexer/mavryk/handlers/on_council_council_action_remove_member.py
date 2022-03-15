@@ -1,0 +1,11 @@
+from mavryk.utils.council_actions import persist_council_action
+from mavryk.types.council.parameter.council_action_remove_member import CouncilActionRemoveMemberParameter
+from mavryk.types.council.storage import CouncilStorage
+from dipdup.context import HandlerContext
+from dipdup.models import Transaction
+
+async def on_council_council_action_remove_member(
+    ctx: HandlerContext,
+    council_action_remove_member: Transaction[CouncilActionRemoveMemberParameter, CouncilStorage],
+) -> None:
+    await persist_council_action(council_action_remove_member)
