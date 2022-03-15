@@ -10,19 +10,18 @@ async def on_council_council_action_add_member(
     ctx: HandlerContext,
     council_action_add_member: Transaction[CouncilActionAddMemberParameter, CouncilStorage],
 ) -> None:
+    breakpoint()
     # Get operation values
     councilAddress                  = council_action_add_member.data.target_address
     councilActionRecordDiff         = council_action_add_member.data.diffs[-1]['content']['value']
     councilActionType               = councilActionRecordDiff['actionType']
     councilActionInitiator          = councilActionRecordDiff['initiator']
     councilActionStartDate          = parser.parse(councilActionRecordDiff['startDateTime'])
-    councilActionStartLevel         = councilActionRecordDiff['startLevel']
     councilActionExecutedDate       = parser.parse(councilActionRecordDiff['executedDateTime'])
-    councilActionExecutedLevel      = councilActionRecordDiff['executedLevel']
     councilActionExpirationDate     = parser.parse(councilActionRecordDiff['expirationDateTime'])
     councilActionStatus             = councilActionRecordDiff['status']
     councilActionExecuted           = councilActionRecordDiff['executed']
-    councilActionNewMember          = councilActionRecordDiff['address_param_1']
+    councilActionSigners            = councilActionRecordDiff['signers']
 
     # Create and update records
     recordStatus    = models.ActionStatus.PENDING
@@ -46,9 +45,7 @@ async def on_council_council_action_add_member(
         council                         = council,
         initiator                       = initiator,
         start_datetime                  = councilActionStartDate,
-        start_level                     = councilActionStartLevel,
         executed_datetime               = councilActionExecutedDate,
-        executed_level                  = councilActionExecutedLevel,
         expiration_datetime             = councilActionExpirationDate,
         action_type                     = councilActionType,
         status                          = recordStatus,
@@ -56,3 +53,14 @@ async def on_council_council_action_add_member(
         address_param_1                 = councilActionNewMember
     )
     await councilActionRecord.save()
+
+    for signer in councilActionSigners:
+        user, _ = await models.MavrykUser.get_or_create(
+            address = signer
+        )
+        await user.save()
+        councilActionRecordSigner = models.CouncilActionRecordSigner(
+            signer                  = user,
+            council_action_record   = councilActionRecord
+        )
+        await councilActionRecordSigner.save()
