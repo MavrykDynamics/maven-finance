@@ -836,6 +836,9 @@ block {
     // check if council action has expired
     if Tezos.now > _councilActionRecord.expirationDateTime then failwith("Error. Council action has expired") else skip;
 
+    // check if signer already signer
+    if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith("Error. Sender already signed this council action") else skip;
+
     // update signers and signersCount for council action record
     var signersCount : nat             := _councilActionRecord.signersCount + 1n;
     _councilActionRecord.signersCount  := signersCount;
@@ -847,7 +850,7 @@ block {
     var operations : list(operation) := nil;
 
     // check if threshold has been reached
-    if signersCount = s.config.threshold then block {
+    if signersCount >= s.config.threshold and not _councilActionRecord.executed then block {
         
         // --------------------------------------
         // execute action based on action types
