@@ -126,6 +126,14 @@ class MavrykUser(Model):
     class Meta:
         table = 'mavryk_user'
 
+class MavrykUserOperator(Model):
+    id                              = fields.BigIntField(pk=True, default=0)
+    owner                           = fields.ForeignKeyField('models.MavrykUser', related_name='users_owner')
+    operator                        = fields.ForeignKeyField('models.MavrykUser', related_name='user_operators')
+
+    class Meta:
+        table = 'mavryk_user_operator'
+
 class FarmAccount(Model):
     id                              = fields.BigIntField(pk=True, default=0)
     deposited_amount                = fields.BigIntField(default=0)

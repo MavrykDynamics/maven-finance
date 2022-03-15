@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.9
+          image: tezosdynamics/mavryk-indexer:v0.0.10
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.9
+          image: tezosdynamics/mavryk-indexer:v0.0.10
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -139,10 +139,10 @@ data:
         address: KT1Hzo5zQGSg18V1mPJ6umt7fmJq54MAF2ks
         typename: vesting
       emergency_governance:
-        address: KT1By7RvnByUULr6TQABJ9CwHZwxDb6bmpVD
+        address: KT1SeJkZ8ML8pHRHMMYhHqgtet6N3b5Snq7c
         typename: emergency_governance
       council:
-        address: KT1EmLaLkxmK92oMBbcU934DgbF1ChYXQwjr
+        address: KT1E47MwvFfSoc4CTg8PwYpN2SS6N8rdjikN
         typename: council
 
     datasources:
@@ -228,10 +228,6 @@ data:
             pattern:
               - type: origination
                 originated_contract: mvk
-          - callback: on_mvk_update_operators
-            pattern:
-              - destination: mvk
-                entrypoint: update_operators
           - callback: on_mvk_transfer
             pattern:
               - destination: mvk
@@ -240,6 +236,10 @@ data:
             pattern:
               - destination: mvk
                 entrypoint: mint
+          - callback: on_mvk_update_operators
+            pattern:
+              - destination: mvk
+                entrypoint: update_operators
       # Doorman contract indexes
       doorman:
         kind: operation
@@ -527,6 +527,24 @@ data:
             pattern:
               - type: origination
                 originated_contract: emergency_governance
+          - callback: on_emergency_governance_update_config
+            pattern:
+              - destination: emergency_governance
+                entrypoint: updateConfig
+          - callback: on_emergency_governance_trigger_emergency_control
+            pattern:
+              - destination: emergency_governance
+                entrypoint: triggerEmergencyControl
+          - callback: on_emergency_governance_drop_emergency_governance
+            pattern:
+              - destination: emergency_governance
+                entrypoint: dropEmergencyGovernance
+          - callback: on_emergency_governance_vote_for_emergency_control
+            pattern:
+              - destination: emergency_governance
+                entrypoint: voteForEmergencyControl
+              - destination: emergency_governance
+                entrypoint: voteForEmergencyControlComplete
       # Council contract indexes
       council:
         kind: operation
@@ -557,3 +575,39 @@ data:
             pattern:
               - destination: council
                 entrypoint: councilActionChangeMember
+          - callback: on_council_council_action_remove_member
+            pattern:
+              - destination: council
+                entrypoint: councilActionRemoveMember
+          - callback: on_council_council_action_remove_vestee
+            pattern:
+              - destination: council
+                entrypoint: councilActionRemoveVestee
+          - callback: on_council_council_action_request_mint
+            pattern:
+              - destination: council
+                entrypoint: councilActionRequestMint
+          - callback: on_council_council_action_request_tokens
+            pattern:
+              - destination: council
+                entrypoint: councilActionRequestTokens
+          - callback: on_council_council_action_toggle_vestee_lock
+            pattern:
+              - destination: council
+                entrypoint: councilActionToggleVesteeLock
+          - callback: on_council_council_action_transfer
+            pattern:
+              - destination: council
+                entrypoint: councilActionTransfer
+          - callback: on_council_council_action_update_vestee
+            pattern:
+              - destination: council
+                entrypoint: councilActionUpdateVestee
+          - callback: on_council_flush_action
+            pattern:
+              - destination: council
+                entrypoint: flushAction
+          - callback: on_council_sign_action
+            pattern:
+              - destination: council
+                entrypoint: signAction

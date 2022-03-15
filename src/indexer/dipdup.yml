@@ -42,7 +42,7 @@ contracts:
     address: KT1SeJkZ8ML8pHRHMMYhHqgtet6N3b5Snq7c
     typename: emergency_governance
   council:
-    address: KT1ME6AT7Lvux7m9djhCY4fRCBF3vmebbuSZ
+    address: KT1E47MwvFfSoc4CTg8PwYpN2SS6N8rdjikN
     typename: council
 
 datasources:
@@ -136,6 +136,10 @@ indexes:
         pattern:
           - destination: mvk
             entrypoint: mint
+      - callback: on_mvk_update_operators
+        pattern:
+          - destination: mvk
+            entrypoint: update_operators
   # Doorman contract indexes
   doorman:
     kind: operation
