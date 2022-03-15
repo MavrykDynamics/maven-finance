@@ -263,13 +263,13 @@ block {
 
         const mvkTokenAddress : address = s.mvkTokenAddress;
 
-        const mintVMvkTokensOperation : operation = mintTokens(
+        const mintSMvkTokensOperation : operation = mintTokens(
             Tezos.sender,           // to address
             totalClaimAmount,       // amount of mvk Tokens to be minted
             mvkTokenAddress         // mvkTokenAddress
         ); 
 
-        _operations := mintVMvkTokensOperation # _operations;
+        _operations := mintSMvkTokensOperation # _operations;
         
         const one_day        : int   = 86_400;
         const thirty_days    : int   = one_day * 30;
