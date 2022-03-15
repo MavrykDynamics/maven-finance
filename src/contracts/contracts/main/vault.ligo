@@ -50,12 +50,12 @@ function checkSenderIsAdmin(var s : vaultStorage) : unit is
   else failwith("Error. Only the administrator can call this entrypoint.");
 
 // helper function to get registerDeposit entrypoint
-function getRegisterDepositEntrypointFromContractAddress(const contractAddress : address) : contract(registerDepositType) is
+function registerDepositInTokenController(const contractAddress : address) : contract(tokenControllerDepositType) is
   case (Tezos.get_entrypoint_opt(
       "%registerDeposit",
-      contractAddress) : option(contract(registerDepositType))) of
+      contractAddress) : option(contract(tokenControllerDepositType))) of
     Some(contr) -> contr
-  | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(registerDepositType))
+  | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(tokenControllerDepositType))
   end;
 
 
@@ -64,7 +64,7 @@ function getRegisterDepositEntrypointFromContractAddress(const contractAddress :
 function vaultWithdraw(const vaultWithdrawParams : vaultWithdrawType; var s : vaultStorage) : vaultReturn is 
 block {
     
-    // check that sender is admin
+    // check that sender is admin (token controller)
     checkSenderIsAdmin(s);
 
     // init operations
@@ -166,16 +166,16 @@ block {
                 
                 // create register deposit params
                 const registerDepositParams : registerDepositType = record [
-                    amount         = mutezToNatural(Tezos.amount); 
                     handle          = s.handle;
-                    collateralName  = "tez";
+                    amount          = mutezToNatural(Tezos.amount); 
+                    tokenName       = "tez";
                 ];
                 
                 // create register deposit operation
                 const registerDepositOperation : operation = Tezos.transaction(
                     registerDepositParams,
                     0mutez,
-                    getRegisterDepositEntrypointFromContractAddress(s.admin)
+                    registerDepositInTokenController(s.admin)
                 );
 
             } with registerDepositOperation
@@ -188,16 +188,16 @@ block {
 
                 // create register deposit params
                 const registerDepositParams : registerDepositType = record [
-                    amount          = amt; 
                     handle          = s.handle;
-                    collateralName  = collateralTokenName;
+                    amount          = amt; 
+                    tokenName       = collateralTokenName;
                 ];
                 
                 // create register deposit operation
                 const registerDepositOperation : operation = Tezos.transaction(
                     registerDepositParams,
                     0mutez,
-                    getRegisterDepositEntrypointFromContractAddress(s.admin)
+                    registerDepositInTokenController(s.admin)
                 );
 
             } with registerDepositOperation
@@ -210,16 +210,16 @@ block {
 
                 // create register deposit params
                 const registerDepositParams : registerDepositType = record [
-                    amount          = amt; 
                     handle          = s.handle;
-                    collateralName  = collateralTokenName;
+                    amount          = amt; 
+                    tokenName       = collateralTokenName;
                 ];
                 
                 // create register deposit operation
                 const registerDepositOperation : operation = Tezos.transaction(
                     registerDepositParams,
                     0mutez,
-                    getRegisterDepositEntrypointFromContractAddress(s.admin)
+                    registerDepositInTokenController(s.admin)
                 );
             } with registerDepositOperation
         end;
