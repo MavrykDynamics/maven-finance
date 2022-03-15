@@ -12,15 +12,15 @@ async def on_council_origination(
     councilAddress              = council_origination.data.originated_contract_address
     councilThreshold            = int(council_origination.storage.config.threshold)
     councilActionExpiryDays     = int(council_origination.storage.config.actionExpiryDays)
+    councilActionCounter        = int(council_origination.storage.actionCounter)
     councilMembers              = council_origination.storage.councilMembers
-    councilThresholdSigners     = int(council_origination.storage.thresholdSigners)
 
     # Update and create record
     council = models.Council(
-        address     = councilAddress,
-        threshold   = councilThreshold,
-        action_expiry_days  = councilActionExpiryDays,
-        threshold_signers   = councilThresholdSigners
+        address                 = councilAddress,
+        threshold               = councilThreshold,
+        action_expiry_days      = councilActionExpiryDays,
+        action_counter          = councilActionCounter
     )
     await council.save()
 

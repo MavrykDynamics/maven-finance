@@ -39,10 +39,10 @@ contracts:
     address: KT1Hzo5zQGSg18V1mPJ6umt7fmJq54MAF2ks
     typename: vesting
   emergency_governance:
-    address: KT1JFRuQHqfzUDnvksz5URaY5oteWpzFvvW1
+    address: KT1SeJkZ8ML8pHRHMMYhHqgtet6N3b5Snq7c
     typename: emergency_governance
   council:
-    address: KT1ST1Du4hWVVt9VvAwVexWt6xnhVAGRdQRc
+    address: KT1ME6AT7Lvux7m9djhCY4fRCBF3vmebbuSZ
     typename: council
 
 datasources:
@@ -471,3 +471,39 @@ indexes:
         pattern:
           - destination: council
             entrypoint: councilActionChangeMember
+      - callback: on_council_council_action_remove_member
+        pattern:
+          - destination: council
+            entrypoint: councilActionRemoveMember
+      - callback: on_council_council_action_remove_vestee
+        pattern:
+          - destination: council
+            entrypoint: councilActionRemoveVestee
+      - callback: on_council_council_action_request_mint
+        pattern:
+          - destination: council
+            entrypoint: councilActionRequestMint
+      - callback: on_council_council_action_request_tokens
+        pattern:
+          - destination: council
+            entrypoint: councilActionRequestTokens
+      - callback: on_council_council_action_toggle_vestee_lock
+        pattern:
+          - destination: council
+            entrypoint: councilActionToggleVesteeLock
+      - callback: on_council_council_action_transfer
+        pattern:
+          - destination: council
+            entrypoint: councilActionTransfer
+      - callback: on_council_council_action_update_vestee
+        pattern:
+          - destination: council
+            entrypoint: councilActionUpdateVestee
+      - callback: on_council_flush_action
+        pattern:
+          - destination: council
+            entrypoint: flushAction
+      - callback: on_council_sign_action
+        pattern:
+          - destination: council
+            entrypoint: signAction
