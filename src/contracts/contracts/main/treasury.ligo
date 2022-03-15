@@ -127,7 +127,7 @@ function getMintEntrypointFromTokenAddress(const token_address : address) : cont
   | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
   end;
 
-(* Helper function to mint mvk/vmvk tokens *)
+(* Helper function to mint mvk/smvk tokens *)
 function mintTokens(
   const to_ : address;
   const amount_ : nat;
