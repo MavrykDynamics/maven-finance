@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js'
 
 const { alice } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from '../test/helpers/Utils'
+import { MVK } from "../test/helpers/Utils";
 
 import { emergencyGovernanceStorageType } from '../test/types/emergencyGovernanceStorageType'
 
@@ -12,6 +12,7 @@ const config = {
   voteExpiryDays: 3,
   stakedMvkPercentageRequired: 10000,
   requiredFee: 10000000,
+  minStakedMvkRequiredToVote: MVK(5)
 }
 
 export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {

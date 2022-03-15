@@ -33,6 +33,7 @@ type configType is record [
     voteExpiryDays                   : nat;   // track time by tezos blocks - e.g. 2 days 
     stakedMvkPercentageRequired      : nat;   // minimum staked MVK percentage amount required to trigger emergency control
     requiredFee                      : nat;   // fee for triggering emergency control - e.g. 100 tez -> change to MVK 
+    minStakedMvkRequiredToVote       : nat;   // minimum staked MVK balance of user required to vote for emergency governance
 ]
 
 type storage is record [
@@ -282,6 +283,8 @@ block {
         | None -> failwith("Error. Emergency governance record not found.")
         | Some(_instance) -> _instance
     end;
+
+    if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith("Error. You do not have enough staked MVK balance to vote.");
 
     if _emergencyGovernance.dropped = True then failwith("Error. Emergency governance has been dropped")
       else skip; 
