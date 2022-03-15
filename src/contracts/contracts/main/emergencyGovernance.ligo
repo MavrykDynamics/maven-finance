@@ -54,6 +54,7 @@ type updateConfigActionType is
   ConfigVoteExpiryDays of unit
 | ConfigStakedMvkPercentRequired of unit
 | ConfigRequiredFee of unit
+| ConfigMinStakedMvkRequiredVote of unit
 type updateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : updateConfigNewValueType; 
   updateConfigAction    : updateConfigActionType;
@@ -185,7 +186,8 @@ block {
   case updateConfigAction of
     ConfigVoteExpiryDays (_v)                -> s.config.voteExpiryDays                 := updateConfigNewValue
   | ConfigStakedMvkPercentRequired (_v)      -> s.config.stakedMvkPercentageRequired    := updateConfigNewValue  
-  | ConfigRequiredFee (_v)                   -> s.config.requiredFee                    := updateConfigNewValue  
+  | ConfigRequiredFee (_v)                   -> s.config.requiredFee                    := updateConfigNewValue
+  | ConfigMinStakedMvkRequiredVote (_v)      -> s.config.minStakedMvkRequiredToVote     := updateConfigNewValue
   end;
 
 } with (noOperations, s)
