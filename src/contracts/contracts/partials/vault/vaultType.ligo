@@ -48,21 +48,27 @@ type transferTokenType is [@layout:comb] record [
 type vaultDelegateTezType is option(key_hash)
 
 type vaultWithdrawType is transferTokenType
+
 type vaultDepositType  is transferTokenType
+type tokenControllerDepositType is [@layout:comb] record [
+    handle      : vaultHandleType; 
+    amount      : nat;
+    tokenName   : string;
+]
 
 type registerDepositType is [@layout:comb] record [
     handle          : vaultHandleType; 
     amount          : nat;
-    collateralName  : string;   // name of collateral: tez, token name A, token name B
+    tokenName       : string;   // name of collateral: tez, token name A, token name B
 ]
 
-type validCollateralTokenAddressesType is map(address, string) // token collateral address : name of token collateral
+type collateralTokenAddressesType is map(address, string) // token collateral address : name of token collateral
 
 type vaultStorage is record [
     admin                            : address;                               // vault admin contract
     handle                           : vaultHandleType;                       // owner of the vault
     depositors                       : depositorsType;                        // users who can deposit into the vault    
-    validCollateralTokenAddresses    : validCollateralTokenAddressesType;     // token collateral address : name of token collateral
+    collateralTokenAddresses         : collateralTokenAddressesType;     // token collateral address : name of token collateral
 ]
 
 type vaultActionType is 
