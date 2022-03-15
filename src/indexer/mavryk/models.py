@@ -1,4 +1,3 @@
-from ctypes import addressof
 from tortoise import Model, fields
 from enum import IntEnum
 
@@ -20,7 +19,6 @@ class ActionStatus(IntEnum):
     PENDING     = 0
     FLUSHED     = 1
     EXECUTED    = 2
-    EXPIRED     = 3
 
 class MVKToken(Model):
     address                         = fields.CharField(pk=True, max_length=36)
