@@ -97,7 +97,7 @@ describe("Council tests", async () => {
 
         // Mallory transfers 250 MVK tokens to Treasury
         await signerFactory(mallory.sk);
-        const malloryTransferMvkToTreasuryOperation = await mvkTokenInstance.methods.transfer([
+        const malloryTransferMvkToCouncilOperation = await mvkTokenInstance.methods.transfer([
             {
                 from_: mallory.pkh,
                 txs: [
@@ -109,14 +109,14 @@ describe("Council tests", async () => {
                 ]
             }
         ]).send();
-        await malloryTransferMvkToTreasuryOperation.confirmation();
+        await malloryTransferMvkToCouncilOperation.confirmation();
 
-        // Mallory transfers 250 Mock FA12 Tokens to Treasury
-        const malloryTransferMockFa12ToTreasuryOperation = await mockFa12TokenInstance.methods.transfer(mallory.pkh, councilContractAddress, 250000000).send();
-        await malloryTransferMockFa12ToTreasuryOperation.confirmation();
+        // Mallory transfers 250 Mock FA12 Tokens to Council
+        const malloryTransferMockFa12ToCouncilOperation = await mockFa12TokenInstance.methods.transfer(mallory.pkh, councilContractAddress, 250000000).send();
+        await malloryTransferMockFa12ToCouncilOperation.confirmation();
 
-        // Mallory transfers 250 Mock FA2 Tokens to Treasury
-        const malloryTransferMockFa2ToTreasuryOperation = await mockFa2TokenInstance.methods.transfer([
+        // Mallory transfers 250 Mock FA2 Tokens to Council
+        const malloryTransferMockFa2ToCouncilOperation = await mockFa2TokenInstance.methods.transfer([
             {
                 from_: mallory.pkh,
                 txs: [
@@ -128,7 +128,7 @@ describe("Council tests", async () => {
                 ]
             }
         ]).send();
-        await malloryTransferMockFa2ToTreasuryOperation.confirmation();
+        await malloryTransferMockFa2ToCouncilOperation.confirmation();
 
 
     });
@@ -142,7 +142,7 @@ describe("Council tests", async () => {
 
              // init constants
             const actionId                  = 1;
-            const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
+
             // Council Members: Alice, Bob, Eve
 
             // params: new council member address
@@ -213,7 +213,7 @@ describe("Council tests", async () => {
 
             // init constants
             const actionId                  = 2;
-            const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
+
             // Council Members: Alice, Bob, Eve, Mallory
 
             // params: remove council member address
@@ -284,7 +284,6 @@ describe("Council tests", async () => {
 
             // init constants
             const actionId                  = 3;
-            const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
             // Council Members: Alice, Eve, Mallory
 
             // params: change council member address (mallory to bob)
@@ -360,7 +359,6 @@ describe("Council tests", async () => {
             // init constants
             const actionId                  = 4;
             const flushActionId             = 5;
-            const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
             // Council Members: Alice, Eve, Bob
 
             // params: new council member address (mallory)
@@ -461,7 +459,6 @@ describe("Council tests", async () => {
 
             // init constants
             const actionId                  = 6;
-            const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
             const councilContractAddress    = councilAddress.address;
             // Council Members: Alice, Bob, Eve
 
@@ -555,7 +552,6 @@ describe("Council tests", async () => {
 
             // init constants
             const actionId                  = 7;
-            const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
             const councilContractAddress    = councilAddress.address;
             // Council Members: Alice, Bob, Eve
 
@@ -649,7 +645,6 @@ describe("Council tests", async () => {
 
             // init constants
             const actionId                  = 8;
-            const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
             const councilContractAddress    = councilAddress.address;
             // Council Members: Alice, Bob, Eve
 
@@ -742,7 +737,6 @@ describe("Council tests", async () => {
 
             // init constants
             const actionId                  = 9;
-            const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
             const councilContractAddress    = councilAddress.address;
             // Council Members: Alice, Bob, Eve
 
@@ -830,5 +824,8 @@ describe("Council tests", async () => {
         } 
 
     });    
+
+
+    // todo: non-council member cannot create action or sign action
 
 });
