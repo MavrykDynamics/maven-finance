@@ -42,7 +42,7 @@ contracts:
     address: KT1JFRuQHqfzUDnvksz5URaY5oteWpzFvvW1
     typename: emergency_governance
   council:
-    address: KT1EmLaLkxmK92oMBbcU934DgbF1ChYXQwjr
+    address: KT1ST1Du4hWVVt9VvAwVexWt6xnhVAGRdQRc
     typename: council
 
 datasources:

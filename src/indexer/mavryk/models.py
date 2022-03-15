@@ -189,9 +189,7 @@ class CouncilActionRecord(Model):
     council                         = fields.ForeignKeyField('models.Council', related_name='council_action_records')
     initiator                       = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_initiator')
     start_datetime                  = fields.DatetimeField()
-    start_level                     = fields.BigIntField(default=0)
     executed_datetime               = fields.DatetimeField()
-    executed_level                  = fields.BigIntField(default=0)
     expiration_datetime             = fields.DatetimeField()
     action_type                     = fields.CharField(max_length=48)
     status                          = fields.IntEnumField(enum_type=ActionStatus)
@@ -199,6 +197,14 @@ class CouncilActionRecord(Model):
 
     class Meta:
         table = 'council_action_record'
+
+class CouncilActionRecordSigner(Model):
+    id                              = fields.BigIntField(pk=True)
+    council_action_record           = fields.ForeignKeyField('models.CouncilActionRecord', related_name='signers')
+    signer                          = fields.ForeignKeyField('models.MavrykUser', related_name='council_actions_signer')
+
+    class Meta:
+        table = 'council_action_record_signer'
 
 class CouncilActionRecordParameter(Model):
     id                              = fields.BigIntField(pk=True)
