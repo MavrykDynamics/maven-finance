@@ -89,7 +89,7 @@ class Council(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     threshold                       = fields.BigIntField(default=0)
     action_expiry_days              = fields.BigIntField(default=0)
-    threshold_signers               = fields.BigIntField(default=0)
+    action_counter                  = fields.BigIntField(default=0)
 
     class Meta:
         table = 'council'
@@ -109,6 +109,7 @@ class EmergencyGovernance(Model):
     next_emergency_record_id        = fields.BigIntField(default=0)
     required_fee                    = fields.BigIntField(default=0)
     smvk_percentage_required        = fields.BigIntField(default=0)
+    min_smvk_required_to_vote       = fields.BigIntField(default=0)
     vote_expiry_days                = fields.BigIntField(default=0)
 
     class Meta:

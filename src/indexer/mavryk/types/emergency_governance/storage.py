@@ -12,6 +12,7 @@ class Config(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    minStakedMvkRequiredToVote: str
     requiredFee: str
     stakedMvkPercentageRequired: str
     voteExpiryDays: str

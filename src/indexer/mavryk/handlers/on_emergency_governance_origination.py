@@ -13,12 +13,14 @@ async def on_emergency_governance_origination(
     emergencyRequiredFee                = int(emergency_governance_origination.storage.config.requiredFee)
     emergencySMVKPercentageRequired     = int(emergency_governance_origination.storage.config.stakedMvkPercentageRequired)
     emergencyVoteExpiryDays             = int(emergency_governance_origination.storage.config.voteExpiryDays)
+    emergencyMinSMVKRequiredToVote      = int(emergency_governance_origination.storage.config.minStakedMvkRequiredToVote)
 
     # Create record
     emergencyGovernance = models.EmergencyGovernance(
         address                     = emergencyAddress,
         required_fee                = emergencyRequiredFee,
         smvk_percentage_required    = emergencySMVKPercentageRequired,
-        vote_expiry_days            = emergencyVoteExpiryDays
+        vote_expiry_days            = emergencyVoteExpiryDays,
+        min_smvk_required_to_vote   = emergencyMinSMVKRequiredToVote
     )
     await emergencyGovernance.save()
