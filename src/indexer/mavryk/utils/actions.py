@@ -104,7 +104,6 @@ async def persist_break_glass_action(action):
     breakGlassActionExecuted           = breakGlassActionRecordDiff['executed']
     breakGlassActionSigners            = breakGlassActionRecordDiff['signers']
     breakGlassActionAddressParams      = breakGlassActionRecordDiff['addressMap']
-    breakGlassActionStringParams       = breakGlassActionRecordDiff['stringMap']
     breakGlassActionNatParams          = breakGlassActionRecordDiff['natMap']
 
     # Create and update records
@@ -146,17 +145,8 @@ async def persist_break_glass_action(action):
         value   = breakGlassActionAddressParams[key]
         breakGlassActionRecordParameter    = models.BreakGlassActionRecordParameter(
             break_glass_action_record   = breakGlassActionRecord,
-            name                    = key,
-            value                   = value
-        )
-        await breakGlassActionRecordParameter.save()
-
-    for key in breakGlassActionStringParams:
-        value   = breakGlassActionStringParams[key]
-        breakGlassActionRecordParameter    = models.BreakGlassActionRecordParameter(
-            break_glass_action_record   = breakGlassActionRecord,
-            name                    = key,
-            value                   = value
+            name                        = key,
+            value                       = value
         )
         await breakGlassActionRecordParameter.save()
 
@@ -164,8 +154,8 @@ async def persist_break_glass_action(action):
         value   = breakGlassActionNatParams[key]
         breakGlassActionRecordParameter    = models.BreakGlassActionRecordParameter(
             break_glass_action_record   = breakGlassActionRecord,
-            name                    = key,
-            value                   = value
+            name                        = key,
+            value                       = value
         )
         await breakGlassActionRecordParameter.save()
 
@@ -176,7 +166,7 @@ async def persist_break_glass_action(action):
         )
         await user.save()
         breakGlassActionRecordSigner = models.BreakGlassActionRecordSigner(
-            signer                      = user,
-            break_glass_action_record    = breakGlassActionRecord
+            signer                          = user,
+            break_glass_action_record       = breakGlassActionRecord
         )
         await breakGlassActionRecordSigner.save()

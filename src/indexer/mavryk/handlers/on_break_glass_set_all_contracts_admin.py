@@ -1,0 +1,12 @@
+
+from dipdup.context import HandlerContext
+from mavryk.utils.actions import persist_break_glass_action
+from mavryk.types.break_glass.parameter.set_all_contracts_admin import SetAllContractsAdminParameter
+from mavryk.types.break_glass.storage import BreakGlassStorage
+from dipdup.models import Transaction
+
+async def on_break_glass_set_all_contracts_admin(
+    ctx: HandlerContext,
+    set_all_contracts_admin: Transaction[SetAllContractsAdminParameter, BreakGlassStorage],
+) -> None:
+    await persist_break_glass_action(set_all_contracts_admin)

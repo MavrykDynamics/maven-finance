@@ -120,6 +120,7 @@ class BreakGlass(Model):
     threshold                       = fields.BigIntField(default=0)
     action_expiry_days              = fields.BigIntField(default=0)
     glass_broken                    = fields.BooleanField(default=False)
+    action_counter                  = fields.BigIntField(default=0)
 
     class Meta:
         table = 'break_glass'
@@ -308,7 +309,7 @@ class BreakGlassActionRecord(Model):
     class Meta:
         table = 'break_glass_action_record'
 
-class BreakGlassRecordSigner(Model):
+class BreakGlassActionRecordSigner(Model):
     id                              = fields.BigIntField(pk=True)
     break_glass_action_record       = fields.ForeignKeyField('models.BreakGlassActionRecord', related_name='signers')
     signer                          = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_actions_signer')
@@ -316,7 +317,7 @@ class BreakGlassRecordSigner(Model):
     class Meta:
         table = 'break_glass_action_record_signer'
 
-class BreakGlassRecordParameter(Model):
+class BreakGlassActionRecordParameter(Model):
     id                              = fields.BigIntField(pk=True)
     break_glass_action_record       = fields.ForeignKeyField('models.BreakGlassActionRecord', related_name='break_glass_action_record_parameters')
     name                            = fields.CharField(max_length=255)
