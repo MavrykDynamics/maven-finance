@@ -8,4 +8,6 @@ async def on_break_glass_add_council_member(
     ctx: HandlerContext,
     add_council_member: Transaction[AddCouncilMemberParameter, BreakGlassStorage],
 ) -> None:
-    breakpoint()
+    # Get 
+    # breakpoint()
+    ...

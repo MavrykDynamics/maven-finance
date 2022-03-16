@@ -1,4 +1,4 @@
-from mavryk.utils.council_actions import persist_council_action
+from mavryk.utils.actions import persist_council_action
 from mavryk.types.council.parameter.council_action_toggle_vestee_lock import CouncilActionToggleVesteeLockParameter
 from mavryk.types.council.storage import CouncilStorage
 from dipdup.context import HandlerContext

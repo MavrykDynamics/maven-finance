@@ -1,4 +1,4 @@
-from mavryk.utils.council_actions import persist_council_action
+from mavryk.utils.actions import persist_council_action
 from mavryk.types.council.parameter.council_action_remove_vestee import CouncilActionRemoveVesteeParameter
 from mavryk.types.council.storage import CouncilStorage
 from dipdup.context import HandlerContext
