@@ -115,6 +115,15 @@ class EmergencyGovernance(Model):
     class Meta:
         table = 'emergency_governance'
 
+class BreakGlass(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    threshold                       = fields.BigIntField(default=0)
+    action_expiry_days              = fields.BigIntField(default=0)
+    glass_broken                    = fields.BooleanField(default=False)
+
+    class Meta:
+        table = 'break_glass'
+
 class MavrykUser(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     mvk_balance                     = fields.BigIntField(default=0)

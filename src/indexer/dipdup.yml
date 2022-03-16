@@ -44,6 +44,9 @@ contracts:
   council:
     address: KT1E47MwvFfSoc4CTg8PwYpN2SS6N8rdjikN
     typename: council
+  break_glass:
+    address: KT1CSxvreaCriXsw6TJDKuR3YXc6F78UxmFe
+    typename: break_glass
 
 datasources:
   tzkt:
@@ -511,3 +514,17 @@ indexes:
         pattern:
           - destination: council
             entrypoint: signAction
+  # Break Glass contract indexes
+  break_glass:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - break_glass
+    handlers:
+      - callback: on_break_glass_origination
+        pattern:
+          - type: origination
+            originated_contract: break_glass
