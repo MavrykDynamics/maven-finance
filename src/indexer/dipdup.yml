@@ -528,3 +528,11 @@ indexes:
         pattern:
           - type: origination
             originated_contract: break_glass
+      - callback: on_break_glass_update_config
+        pattern:
+          - destination: break_glass
+            entrypoint: updateConfig
+      - callback: on_break_glass_add_council_member
+        pattern:
+          - destination: break_glass
+            entrypoint: addCouncilMember

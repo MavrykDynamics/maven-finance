@@ -293,3 +293,34 @@ class EmergencyGovernanceVote(Model):
 
     class Meta:
         table = 'emergency_governance_vote'
+
+class BreakGlassActionRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    break_glass                     = fields.ForeignKeyField('models.BreakGlass', related_name='break_glass_action_records')
+    initiator                       = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_actions_initiator')
+    start_datetime                  = fields.DatetimeField()
+    executed_datetime               = fields.DatetimeField()
+    expiration_datetime             = fields.DatetimeField()
+    action_type                     = fields.CharField(max_length=48)
+    status                          = fields.IntEnumField(enum_type=ActionStatus)
+    executed                        = fields.BooleanField(default=False)
+
+    class Meta:
+        table = 'break_glass_action_record'
+
+class BreakGlassRecordSigner(Model):
+    id                              = fields.BigIntField(pk=True)
+    break_glass_action_record       = fields.ForeignKeyField('models.BreakGlassActionRecord', related_name='signers')
+    signer                          = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_actions_signer')
+
+    class Meta:
+        table = 'break_glass_action_record_signer'
+
+class BreakGlassRecordParameter(Model):
+    id                              = fields.BigIntField(pk=True)
+    break_glass_action_record       = fields.ForeignKeyField('models.BreakGlassActionRecord', related_name='break_glass_action_record_parameters')
+    name                            = fields.CharField(max_length=255)
+    value                           = fields.CharField(max_length=255)
+
+    class Meta:
+        table = 'break_glass_action_record_parameter'
