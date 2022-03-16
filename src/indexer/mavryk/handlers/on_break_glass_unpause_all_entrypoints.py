@@ -1,0 +1,12 @@
+
+from dipdup.context import HandlerContext
+from mavryk.utils.actions import persist_break_glass_action
+from mavryk.types.break_glass.parameter.unpause_all_entrypoints import UnpauseAllEntrypointsParameter
+from mavryk.types.break_glass.storage import BreakGlassStorage
+from dipdup.models import Transaction
+
+async def on_break_glass_unpause_all_entrypoints(
+    ctx: HandlerContext,
+    unpause_all_entrypoints: Transaction[UnpauseAllEntrypointsParameter, BreakGlassStorage],
+) -> None:
+    await persist_break_glass_action(unpause_all_entrypoints)
