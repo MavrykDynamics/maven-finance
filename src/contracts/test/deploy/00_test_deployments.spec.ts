@@ -151,7 +151,7 @@ describe('Contracts Deployment for Tests', async () => {
       "council"             : council.contract.address,
       "emergencyGovernance" : emergencyGovernance.contract.address
     });
-    breakGlassStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh];
+    breakGlassStorage.councilMembers = [bob.pkh];
     breakGlassStorage.whitelistContracts = MichelsonMap.fromLiteral({
       "emergencyGovernance" : emergencyGovernance.contract.address
     });
