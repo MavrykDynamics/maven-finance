@@ -1,7 +1,7 @@
 
 from dipdup.models import Transaction
-from mavryk.types.farm_factory.storage import FarmFactoryStorage
 from dipdup.context import HandlerContext
+from mavryk.types.farm_factory.storage import FarmFactoryStorage
 from mavryk.types.farm_factory.parameter.create_farm import CreateFarmParameter
 
 async def on_farm_factory_create_farm(
@@ -9,7 +9,7 @@ async def on_farm_factory_create_farm(
     create_farm: Transaction[CreateFarmParameter, FarmFactoryStorage],
 ) -> None:
     # Get transaction info
-    farmAddress = create_farm.data.storage['trackedFarms'][-1]
+    farmAddress = create_farm.data.storage['trackedFarms'][0]
 
     # Create a contract and index it
     await ctx.add_contract(

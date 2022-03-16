@@ -1,6 +1,6 @@
 
 from dipdup.models import Transaction
-from mavryk.utils.council_actions import persist_council_action
+from mavryk.utils.actions import persist_council_action
 from mavryk.types.council.storage import CouncilStorage
 from mavryk.types.council.parameter.flush_action import FlushActionParameter
 from dipdup.context import HandlerContext
