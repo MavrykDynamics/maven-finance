@@ -33,6 +33,8 @@ type vaultType is [@layout:comb] record [
     address                     : address;
     collateralBalanceLedger     : collateralBalanceLedgerType;     // tez/token balance
     usdmOutstanding             : usdmAmountType;                  // nat 
+    markedForLiquidation        : bool;                            // marked for liquidation
+    timeMarkedForLiquidation    : timestamp;                       // time marked for liquidation
 ]
 
 type targetLedgerType               is map(string, nat)
@@ -78,6 +80,10 @@ type liquidateVaultActionType is [@layout:comb] record [
     [@annot:to] to_             : contract(unit);
 ]
 
+type markForLiquidationActionType is @layout:comb] record [
+    handle                      : vaultHandleType; 
+]
+
 type mintOrBurnActionType is [@layout:comb] record [ 
     id          : nat; 
     quantity    : int;
@@ -95,13 +101,14 @@ type registerDepositType is [@layout:comb] record [
     tokenName   : string;
 ]
 
-type configType is record [
+type configType is @layout:comb] record [
     collateralRatio           : nat;    // collateral ratio
     collateralRatioDecimals   : nat;    // decimals for collateral ratio  - 3 decimals
     liquidationRatio          : nat;    // liquidation ratio
     liquidationRatioDeciamsl  : nat;    // decimals for liquidation ratio  - 3 decimals
     
 ]
+
 
 // ----- types for entrypoint actions end -----
 
@@ -129,6 +136,7 @@ type controllerAction is
 
     | CreateVault                    of createVaultActionType
     | WithdrawFromVault              of withdrawFromVaultActionType
+    | MarkForLiquidation             of markForLiquidationActionType
     | LiquidateVault                 of liquidateVaultActionType
 
     | RegisterDeposit                of registerDepositType
@@ -279,8 +287,19 @@ block {
         };
     };
 
+    // assume 200% collateral ratio
+    // 1. deposit 100 xtz into vault    - 1 xtz to 3 usdm
+    // 2. deposit 50 crunchy into vault - 10 crunchy to 1 xtz -> 15 usdm
 
-    // get price of zUSD in xtz
+    // - actual ratio (other liquidity pools) - crunchy to xtz
+    // - liquidity pool ratio - crunchy to xtz (assuming is the same as actual ratio)
+    // - xtz to usd price - we do not have
+    // - xtz to usdm price (in our liquidity pools) - in place of xtz to usd
+
+    // 3. deposit 25 uToken into vault  - 
+    // x. borrow 150 usdm
+
+    // get price of USDM in xtz
     const usdmTokenPrice : nat = case s.priceLedger["usdm"] of 
         Some(_price) -> _price
         | None -> failwith("Error. Price not found for USDM Token.")
@@ -291,7 +310,7 @@ block {
     // todo: adjust later for 300% collateral check
     const isUnderCollaterized : bool = vaultCollateralValue < abs( (collateralRatio * usdmOutstandingValueInXtz) / (10 * collateralRatioDecimals) );
     
-    // const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n));
+    // const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n)); 
 
 } with isUnderCollaterized
 
@@ -362,7 +381,6 @@ block {
     const d_drift          : nat    = if x > priceSquared then delta else delta / priceSquared;
 
     var drift              : int    := if targetLessPrice > 0 then drift + d_drift else drift - d_drift;
-
 
     s.targetLedger[tokenName]            := target;
     s.driftLedger[tokenName]             := drift;
@@ -572,13 +590,13 @@ block {
     } else skip;
 
     // get vault
-    var _vault : vaultType := getVault(vaultHandle, s);
+    var vault : vaultType := getVault(vaultHandle, s);
 
     // check if sender matches vault owner; if match, then update and save vault with new collateral balance
-    if _vault.address =/= initiator then failwith("Error. Sender does not match vault owner address.") else skip;
+    if vault.address =/= initiator then failwith("Error. Sender does not match vault owner address.") else skip;
     
     // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
-    var vaultTokenCollateralBalance : nat := case _vault.collateralBalanceLedger[tokenName] of
+    var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of
           Some(_balance) -> _balance
         | None -> 0n
     end;
@@ -587,8 +605,28 @@ block {
     const newCollateralBalance : nat = vaultTokenCollateralBalance + depositAmount;
 
     // save and update new balance for collateral token
-    _vault.collateralBalanceLedger[tokenName] := newCollateralBalance;
-    s.vaults[vaultHandle]                     := _vault;
+    vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+    s.vaults[vaultHandle]                     := vault;
+
+} with (noOperations, s)
+
+
+
+
+(* markForLiquidation entrypoint *)
+function markForLiquidation(const markForLiquidationParams : markForLiquidationActionType; var s : controllerStorage) : return is 
+block {
+    
+    // init variables for convenience
+    const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
+    const initiator         : initiatorAddressType    = Tezos.sender;
+
+    // get vault
+    var vault : vaultType := getVault(vaultHandle, s);
+
+    // check if vault is under collaterized
+    if isUnderCollaterized(vault, s) then skip else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
+
 
 } with (noOperations, s)
 
@@ -633,7 +671,7 @@ block {
     end;
 
 
-    // todo: fix extracted balance 
+    // todo: fix extracted balance amount
     (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
     const extractedBalance  : nat = (usdmQuantity * target * fixedPointAccuracy) / (31n * fixedPointAccuracy); // double check maths
 
@@ -779,6 +817,7 @@ function main (const action : controllerAction; const s : controllerStorage) : r
 
         | CreateVault(parameters)                       -> createVault(parameters, s)
         | WithdrawFromVault(parameters)                 -> withdrawFromVault(parameters, s)
+        | MarkForLiquidation(parameters)                -> markForLiquidation(parameters, s)
         | LiquidateVault(parameters)                    -> liquidateVault(parameters, s)
         
         | RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
