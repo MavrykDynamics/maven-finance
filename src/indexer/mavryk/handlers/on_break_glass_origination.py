@@ -13,12 +13,14 @@ async def on_break_glass_origination(
     breakGlassThreshold             = int(break_glass_origination.storage.config.threshold)
     breakGlassActionExpiryDays      = int(break_glass_origination.storage.config.actionExpiryDays)
     breakGlassGlassBroken           = break_glass_origination.storage.glassBroken
+    breakGlassActionCounter         = break_glass_origination.storage.actionCounter
 
     # Create record
     breakGlass  = models.BreakGlass(
         address                 = breakGlassAddress,
         threshold               = breakGlassThreshold,
         action_expiry_days      = breakGlassActionExpiryDays,
-        glass_broken            = breakGlassGlassBroken
+        glass_broken            = breakGlassGlassBroken,
+        action_counter          = breakGlassActionCounter
     )
     await breakGlass.save()
