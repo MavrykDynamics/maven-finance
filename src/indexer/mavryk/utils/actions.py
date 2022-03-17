@@ -16,6 +16,7 @@ async def persist_council_action(action):
     councilActionAddressParams      = councilActionRecordDiff['addressMap']
     councilActionStringParams       = councilActionRecordDiff['stringMap']
     councilActionNatParams          = councilActionRecordDiff['natMap']
+    councilActionCounter            = int(action.storage.actionCounter)
 
     # Create and update records
     recordStatus    = models.ActionStatus.PENDING
@@ -29,8 +30,8 @@ async def persist_council_action(action):
     council = await models.Council.get(
         address = councilAddress
     )
-    actionID                = council.action_counter
-    council.action_counter  += 1
+    council.action_counter      = councilActionCounter
+    actionID                    = councilActionCounter - 1
     await council.save()
 
     initiator, _ = await models.MavrykUser.get_or_create(
@@ -38,58 +39,62 @@ async def persist_council_action(action):
     )
     await initiator.save()
 
-    councilActionRecord = models.CouncilActionRecord(
-        id                              = actionID,
-        council                         = council,
-        initiator                       = initiator,
-        start_datetime                  = councilActionStartDate,
-        executed_datetime               = councilActionExecutedDate,
-        expiration_datetime             = councilActionExpirationDate,
-        action_type                     = councilActionType,
-        status                          = recordStatus,
-        executed                        = councilActionExecuted,
+    councilActionRecord = await models.CouncilActionRecord.get_or_none(
+        id                              = actionID
     )
-    await councilActionRecord.save()
+    if councilActionRecord == None:
+        councilActionRecord = models.CouncilActionRecord(
+            id                              = actionID,
+            council                         = council,
+            initiator                       = initiator,
+            start_datetime                  = councilActionStartDate,
+            executed_datetime               = councilActionExecutedDate,
+            expiration_datetime             = councilActionExpirationDate,
+            action_type                     = councilActionType,
+            status                          = recordStatus,
+            executed                        = councilActionExecuted,
+        )
+        await councilActionRecord.save()
 
-    # Parameters
-    for key in councilActionAddressParams:
-        value   = councilActionAddressParams[key]
-        councilActionRecordParameter    = models.CouncilActionRecordParameter(
-            council_action_record   = councilActionRecord,
-            name                    = key,
-            value                   = value
-        )
-        await councilActionRecordParameter.save()
+        # Parameters
+        for key in councilActionAddressParams:
+            value   = councilActionAddressParams[key]
+            councilActionRecordParameter    = models.CouncilActionRecordParameter(
+                council_action_record   = councilActionRecord,
+                name                    = key,
+                value                   = value
+            )
+            await councilActionRecordParameter.save()
 
-    for key in councilActionStringParams:
-        value   = councilActionStringParams[key]
-        councilActionRecordParameter    = models.CouncilActionRecordParameter(
-            council_action_record   = councilActionRecord,
-            name                    = key,
-            value                   = value
-        )
-        await councilActionRecordParameter.save()
+        for key in councilActionStringParams:
+            value   = councilActionStringParams[key]
+            councilActionRecordParameter    = models.CouncilActionRecordParameter(
+                council_action_record   = councilActionRecord,
+                name                    = key,
+                value                   = value
+            )
+            await councilActionRecordParameter.save()
 
-    for key in councilActionNatParams:
-        value   = councilActionNatParams[key]
-        councilActionRecordParameter    = models.CouncilActionRecordParameter(
-            council_action_record   = councilActionRecord,
-            name                    = key,
-            value                   = value
-        )
-        await councilActionRecordParameter.save()
+        for key in councilActionNatParams:
+            value   = councilActionNatParams[key]
+            councilActionRecordParameter    = models.CouncilActionRecordParameter(
+                council_action_record   = councilActionRecord,
+                name                    = key,
+                value                   = value
+            )
+            await councilActionRecordParameter.save()
 
-    # Signers
-    for signer in councilActionSigners:
-        user, _ = await models.MavrykUser.get_or_create(
-            address = signer
-        )
-        await user.save()
-        councilActionRecordSigner = models.CouncilActionRecordSigner(
-            signer                  = user,
-            council_action_record   = councilActionRecord
-        )
-        await councilActionRecordSigner.save()
+        # Signers
+        for signer in councilActionSigners:
+            user, _ = await models.MavrykUser.get_or_create(
+                address = signer
+            )
+            await user.save()
+            councilActionRecordSigner = models.CouncilActionRecordSigner(
+                signer                  = user,
+                council_action_record   = councilActionRecord
+            )
+            await councilActionRecordSigner.save()
 
 async def persist_break_glass_action(action):
     # Get operation values
@@ -105,6 +110,7 @@ async def persist_break_glass_action(action):
     breakGlassActionSigners            = breakGlassActionRecordDiff['signers']
     breakGlassActionAddressParams      = breakGlassActionRecordDiff['addressMap']
     breakGlassActionNatParams          = breakGlassActionRecordDiff['natMap']
+    breakGlassActionCounter            = int(action.storage.actionCounter)
 
     # Create and update records
     recordStatus    = models.ActionStatus.PENDING
@@ -118,8 +124,8 @@ async def persist_break_glass_action(action):
     breakGlass = await models.BreakGlass.get(
         address = breakGlassAddress
     )
-    actionID                = breakGlass.action_counter
-    breakGlass.action_counter  += 1
+    breakGlass.action_counter   = breakGlassActionCounter
+    actionID                    = breakGlassActionCounter - 1
     await breakGlass.save()
 
     initiator, _ = await models.MavrykUser.get_or_create(
@@ -127,46 +133,50 @@ async def persist_break_glass_action(action):
     )
     await initiator.save()
 
-    breakGlassActionRecord = models.BreakGlassActionRecord(
-        id                              = actionID,
-        break_glass                     = breakGlass,
-        initiator                       = initiator,
-        start_datetime                  = breakGlassActionStartDate,
-        executed_datetime               = breakGlassActionExecutedDate,
-        expiration_datetime             = breakGlassActionExpirationDate,
-        action_type                     = breakGlassActionType,
-        status                          = recordStatus,
-        executed                        = breakGlassActionExecuted,
+    breakGlassActionRecord = await models.BreakGlassActionRecord.get_or_none(
+        id                              = actionID
     )
-    await breakGlassActionRecord.save()
+    if breakGlassActionRecord == None:
+        breakGlassActionRecord = models.BreakGlassActionRecord(
+            id                              = actionID,
+            break_glass                     = breakGlass,
+            initiator                       = initiator,
+            start_datetime                  = breakGlassActionStartDate,
+            executed_datetime               = breakGlassActionExecutedDate,
+            expiration_datetime             = breakGlassActionExpirationDate,
+            action_type                     = breakGlassActionType,
+            status                          = recordStatus,
+            executed                        = breakGlassActionExecuted,
+        )
+        await breakGlassActionRecord.save()
 
-    # Parameters
-    for key in breakGlassActionAddressParams:
-        value   = breakGlassActionAddressParams[key]
-        breakGlassActionRecordParameter    = models.BreakGlassActionRecordParameter(
-            break_glass_action_record   = breakGlassActionRecord,
-            name                        = key,
-            value                       = value
-        )
-        await breakGlassActionRecordParameter.save()
+        # Parameters
+        for key in breakGlassActionAddressParams:
+            value   = breakGlassActionAddressParams[key]
+            breakGlassActionRecordParameter    = models.BreakGlassActionRecordParameter(
+                break_glass_action_record   = breakGlassActionRecord,
+                name                        = key,
+                value                       = value
+            )
+            await breakGlassActionRecordParameter.save()
 
-    for key in breakGlassActionNatParams:
-        value   = breakGlassActionNatParams[key]
-        breakGlassActionRecordParameter    = models.BreakGlassActionRecordParameter(
-            break_glass_action_record   = breakGlassActionRecord,
-            name                        = key,
-            value                       = value
-        )
-        await breakGlassActionRecordParameter.save()
+        for key in breakGlassActionNatParams:
+            value   = breakGlassActionNatParams[key]
+            breakGlassActionRecordParameter    = models.BreakGlassActionRecordParameter(
+                break_glass_action_record   = breakGlassActionRecord,
+                name                        = key,
+                value                       = value
+            )
+            await breakGlassActionRecordParameter.save()
 
-    # Signers
-    for signer in breakGlassActionSigners:
-        user, _ = await models.MavrykUser.get_or_create(
-            address = signer
-        )
-        await user.save()
-        breakGlassActionRecordSigner = models.BreakGlassActionRecordSigner(
-            signer                          = user,
-            break_glass_action_record       = breakGlassActionRecord
-        )
-        await breakGlassActionRecordSigner.save()
+        # Signers
+        for signer in breakGlassActionSigners:
+            user, _ = await models.MavrykUser.get_or_create(
+                address = signer
+            )
+            await user.save()
+            breakGlassActionRecordSigner = models.BreakGlassActionRecordSigner(
+                signer                          = user,
+                break_glass_action_record       = breakGlassActionRecord
+            )
+            await breakGlassActionRecordSigner.save()

@@ -86,8 +86,8 @@ async def on_council_sign_action(
     )
     await signer.save()
 
-    councilRecordSigners    = models.CouncilActionRecordSigner(
+    councilRecordSigner     = models.CouncilActionRecordSigner(
         council_action_record   = signedActionRecord,
         signer                  = signer
     )
-    await councilRecordSigners.save()
+    await councilRecordSigner.save()

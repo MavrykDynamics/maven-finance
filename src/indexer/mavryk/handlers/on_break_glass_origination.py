@@ -14,6 +14,7 @@ async def on_break_glass_origination(
     breakGlassActionExpiryDays      = int(break_glass_origination.storage.config.actionExpiryDays)
     breakGlassGlassBroken           = break_glass_origination.storage.glassBroken
     breakGlassActionCounter         = break_glass_origination.storage.actionCounter
+    councilMembers                  = break_glass_origination.storage.councilMembers
 
     # Create record
     breakGlass  = models.BreakGlass(
@@ -24,3 +25,10 @@ async def on_break_glass_origination(
         action_counter          = breakGlassActionCounter
     )
     await breakGlass.save()
+
+    for member in councilMembers:
+        user, _ = await models.MavrykUser.get_or_create(
+            address = member
+        )
+        user.break_glass    = breakGlass
+        await user.save()
