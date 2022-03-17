@@ -46,8 +46,10 @@ type storage is record [
   
   userStakeBalanceLedger    : userStakeBalanceType;  // user staked balance
   
-  tempMvkTotalSupply        : nat; // temporary mvk total supply in circulation
-  tempMvkMaximumTotalSupply : nat; // temporary mvk maximum total supply
+  tempUnstakeAmount         : option(nat); // temporary unstake amount for a user who wants to unstake
+  tempClaimForceTransfer    : option(bool); // temporary claim forceTransfer for a user who wants to claim from a farm
+  tempClaimDelegator        : option(address); // temporary claim delegator for a user who wants to claim from a farm
+  tempClaimAmount           : option(nat); // temporary claim amount for a user who wants to claim from a farm
 
   stakedMvkTotalSupply      : nat; // current total staked MVK
   unclaimedRewards          : nat; // current exit fee pool rewards
@@ -76,7 +78,6 @@ type doormanAction is
   
   | UpdateWhitelistContracts of updateWhitelistContractsParams
   | UpdateGeneralContracts of updateGeneralContractsParams
-  | SetTempMvkTotalSupply of (nat*nat) // total supply * maximum total supply
 
   | PauseAll of (unit)
   | UnpauseAll of (unit)
@@ -93,7 +94,7 @@ type doormanAction is
   | Compound of (unit)
 
   | FarmClaim of farmClaimType
-  | FarmClaimComplete of farmClaimType
+  | FarmClaimComplete of (nat * nat)
 
 (* ---- Helper functions begin ---- *)
 
@@ -171,22 +172,22 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
   | None -> (failwith("transfer entrypoint in Token Contract not found") : contract(transferType))
   end;
 
-// helper function to get MVK total supply for unstake
-function doormanUnstakeStage(const tokenAddress : address) : contract(nat) is
+// helper function to get MVK total supply
+function getMvkTotalSupplyEntrypoint(const s: storage) : contract(contract(nat)) is
   case (Tezos.get_entrypoint_opt(
-      "%doormanUnstakeStage",
-      tokenAddress) : option(contract(nat))) of
+      "%getTotalSupply",
+      s.mvkTokenAddress) : option(contract(contract(nat)))) of
     Some(contr) -> contr
-  | None -> (failwith("DoormanUnstakeStage entrypoint in MVK Token Contract not found") : contract(nat))
+  | None -> (failwith("GetTotalSupply entrypoint in MVK Token Contract not found") : contract(contract(nat)))
   end;
 
-// helper function to get MVK total supply for farmClaim
-function doormanFarmClaimStage(const tokenAddress : address) : contract(farmClaimType) is
+// helper function to get MVK supplies
+function getMvkSuppliesEntrypoint(const s: storage) : contract(contract(nat * nat)) is
   case (Tezos.get_entrypoint_opt(
-      "%doormanFarmClaimStage",
-      tokenAddress) : option(contract(farmClaimType))) of
+      "%getSupplies",
+      s.mvkTokenAddress) : option(contract(contract(nat * nat)))) of
     Some(contr) -> contr
-  | None -> (failwith("DoormanFarmClaimStage entrypoint in MVK Token Contract not found") : contract(farmClaimType))
+  | None -> (failwith("GetSupplies entrypoint in MVK Token Contract not found") : contract(contract(nat * nat)))
   end;
 
 (* ---- Helper functions end ---- *)
@@ -482,33 +483,36 @@ block {
   const userCompound: (option(operation) * storage) = compoundUserRewards(s);
   s := userCompound.1;
 
-  const mvkTokenAddress : address = s.mvkTokenAddress;
+  // Store the unstake amount in the storage as a temp var
+  s.tempUnstakeAmount := Some (unstakeAmount);
 
-  // update temp MVK total supply
-  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, doormanUnstakeStage(mvkTokenAddress));
+  // update temp MVK total supply and MVK maximum supply
+  const unstakeCompleteEntrypoint: contract(nat) = case (Tezos.get_entrypoint_opt("%unstakeComplete", Tezos.self_address) : option(contract(nat))) of
+    Some(contr) -> contr
+  | None -> (failwith("Unstake complete entrypoint not found"): contract(nat))
+  end;
+  const unstakeCompleteOperation : operation = Tezos.transaction(unstakeCompleteEntrypoint, 0tez, getMvkTotalSupplyEntrypoint(s));
 
   // list of operations: get MVK total supply first, then get vMVK total supply (which will trigger unstake complete)
-  const operations : list(operation) = 
-    case userCompound.0 of
-      Some (compound) -> list [compound; updateMvkTotalSupplyProxyOperation]
-    | None -> list [updateMvkTotalSupplyProxyOperation]
-    end
+  const operations : list(operation) = case userCompound.0 of
+    Some (compound) -> list [compound; unstakeCompleteOperation]
+  | None -> list [unstakeCompleteOperation]
+  end
 } with (operations, s)
 
-function setTempMvkTotalSupply(const supplyParams : (nat*nat); var s : storage) is
+function unstakeComplete(const mvkTotalSupply: nat; var s : storage): return is
 block {
-    // check that the call is coming from MVK Token Contract
     checkSenderIsMvkTokenContract(s);
-    s.tempMvkTotalSupply := supplyParams.0;
-    s.tempMvkMaximumTotalSupply := supplyParams.1;
-} with (noOperations, s);
 
-function unstakeComplete(const unstakeAmount: nat; var s : storage): return is
-block {
-    checkSenderIsMvkTokenContract(s);
+    // Get unstake amount from the storage and reset it
+    const unstakeAmount: nat  = case s.tempUnstakeAmount of
+      Some (value) -> value
+    | None -> failwith("Temp unstake amount invalid")
+    end;
+    s.tempUnstakeAmount := (None : option(nat));
 
     // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
-    const mvkLoyaltyIndex: nat = (s.stakedMvkTotalSupply * 100n * fixedPointAccuracy) / s.tempMvkTotalSupply;
+    const mvkLoyaltyIndex: nat = (s.stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
     
     // Fee calculation
     const exitFee: nat = (500n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (5n * fixedPointAccuracy));
@@ -529,7 +533,6 @@ block {
     // temp to check correct amount of exit fee and final amount in console truffle tests
     s.logExitFee := exitFee;
     s.logFinalAmount := finalUnstakeAmount;
-    // todo: split remainder of exitFee to be distributed as rewards
 
     // update user's staked balance in staked balance ledger
     var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.source] of
@@ -602,6 +605,11 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     const claimAmount: nat  = farmClaim.1;
     const forceTransfer: bool = farmClaim.2;
 
+    // Store the variables in the storage as temp variables
+    s.tempClaimAmount         := Some (claimAmount);
+    s.tempClaimDelegator      := Some (delegator);
+    s.tempClaimForceTransfer  := Some (forceTransfer);
+
     // Get farm address
     const farmAddress: address = Tezos.sender;
 
@@ -617,23 +625,43 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
       end;
     const checkFarmExistsOperation: operation = Tezos.transaction(farmAddress, 0tez, farmFactoryContract);
 
-    // Mint new MVK for the doorman contract: TODO --> Check for minting limit
-    const mvkTokenAddress: address = s.mvkTokenAddress;
-    const doormanFarmClaimStageOperation: operation = Tezos.transaction((delegator, claimAmount, forceTransfer), 0tez, doormanFarmClaimStage(mvkTokenAddress));
+    // update temp MVK total supply and MVK maximum supply
+    const farmClaimCompleteEntrypoint: contract(nat * nat) = case (Tezos.get_entrypoint_opt("%farmClaimComplete", Tezos.self_address) : option(contract(nat * nat))) of
+      Some(contr) -> contr
+    | None -> (failwith("Farm claim complete entrypoint not found"): contract(nat * nat))
+    end;
+    const farmClaimCompleteOperation : operation = Tezos.transaction(farmClaimCompleteEntrypoint, 0tez, getMvkSuppliesEntrypoint(s));
 
     // List of operation, first check the farm exists, then update the Satellite balance
-    const operations: list(operation) = list[doormanFarmClaimStageOperation; checkFarmExistsOperation];
+    const operations: list(operation) = list[checkFarmExistsOperation; farmClaimCompleteOperation];
 
   } with(operations, s)
 
-function farmClaimComplete(const farmClaim: farmClaimType; var s: storage): return is
+function farmClaimComplete(const mvkSuppliesParam: (nat * nat); var s: storage): return is
   block{
     checkSenderIsMvkTokenContract(s);
 
-    const recipientAddress: address = farmClaim.0;
-    var mintedTokens: nat := farmClaim.1;
+    // Get claim variables from the storage and reset them
+    const recipientAddress: address = case s.tempClaimDelegator of
+      Some (value) -> value
+    | None -> failwith("Temp claim delegator invalid")
+    end;
+    s.tempClaimDelegator  := (None : option(address));
+    var mintedTokens: nat := case s.tempClaimAmount of
+      Some (value) -> value
+    | None -> failwith("Temp claim amount invalid")
+    end;
+    s.tempClaimAmount  := (None : option(nat));
     var transferedToken: nat := 0n;
-    const forceTransfer: bool = farmClaim.2;
+    const forceTransfer: bool = case s.tempClaimForceTransfer of
+      Some (value) -> value
+    | None -> failwith("Temp claim forceTransfer invalid")
+    end;
+    s.tempClaimForceTransfer  := (None : option(bool));
+
+    // Set the supplies variables
+    const mvkTotalSupply: nat = mvkSuppliesParam.0;
+    const mvkMaximumSupply: nat = mvkSuppliesParam.1;
 
     // Compound user rewards
     const userCompound: (option(operation) * storage) = compoundUserRewards(s);
@@ -678,9 +706,9 @@ function farmClaimComplete(const farmClaim: farmClaimType; var s: storage): retu
     }
     else {
       // Check if the desired minted amount will surpass the maximum total supply
-      const tempTotalSupply: nat = s.tempMvkTotalSupply + mintedTokens;
-      if tempTotalSupply > s.tempMvkMaximumTotalSupply then {
-        transferedToken := abs(tempTotalSupply - s.tempMvkMaximumTotalSupply);
+      const tempTotalSupply: nat = mvkTotalSupply + mintedTokens;
+      if tempTotalSupply > mvkMaximumSupply then {
+        transferedToken := abs(tempTotalSupply - mvkMaximumSupply);
         mintedTokens := abs(mintedTokens - transferedToken);
       } else skip;
     };
@@ -734,7 +762,6 @@ function main (const action : doormanAction; const s : storage) : return is
 
     | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
     | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
-    | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
 
     | PauseAll(_parameters) -> pauseAll(s)
     | UnpauseAll(_parameters) -> unpauseAll(s)

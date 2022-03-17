@@ -368,7 +368,7 @@ describe('Contracts Deployment for Tests', async () => {
     try {
       console.log('-- -- -- -- -- -- -- -- -- -- -- -- --') // break
       console.log('Test: All contracts deployed')
-      console.log('-- -- -- -- -- Deployments -- -- -- --')
+      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
     } catch (e) {
       console.log(e)
     }
