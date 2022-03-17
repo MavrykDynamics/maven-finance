@@ -639,22 +639,22 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
   } with _proposal
 
 // break glass helper function to pause all entrypoints in contract 
-function pauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
-  case (Tezos.get_entrypoint_opt(
-      "%pauseAll",
-      contractAddress) : option(contract(unit))) of
-    Some(contr) -> contr
-  | None -> (failwith("pauseAll entrypoint in Contract Address not found") : contract(unit))
-  end;
+// function pauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%pauseAll",
+//       contractAddress) : option(contract(unit))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("pauseAll entrypoint in Contract Address not found") : contract(unit))
+//   end;
 
 // break glass helper function to set admin entrypoints in contract 
-function setAdminInContract(const contractAddress : address) : contract(address) is
-  case (Tezos.get_entrypoint_opt(
-      "%setAdmin",
-      contractAddress) : option(contract(address))) of
-    Some(contr) -> contr
-  | None -> (failwith("setAdmin entrypoint in Contract Address not found") : contract(address))
-  end;
+// function setAdminInContract(const contractAddress : address) : contract(address) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%setAdmin",
+//       contractAddress) : option(contract(address))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("setAdmin entrypoint in Contract Address not found") : contract(address))
+//   end;
 // helper functions end: --
 
 // housekeeping functions begin: --
@@ -713,22 +713,20 @@ block {
       | None -> failwith("Error. Break Glass Contract is not found")
     end;
 
-
     var operations : list(operation) := nil;
     for _contractName -> contractAddress in map s.generalContracts block {
-        const pauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
-            unit, 
-            0tez, 
-            pauseAllEntrypointsInContract(contractAddress)
-        );
-        operations := pauseAllEntrypointsInContractOperation # operations;
-
-        const setContractAdminToBreakGlassOperation : operation = Tezos.transaction(
-            _breakGlassAddress, 
-            0tez, 
-            setAdminInContract(contractAddress)
-        );
-        operations := setContractAdminToBreakGlassOperation # operations;
+        case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of
+          Some(contr) -> operations := Tezos.transaction(_breakGlassAddress, 0tez, contr) # operations
+        | None -> skip
+        end;
+        
+        // These two operations were inverted because the setAdmin was executed before the pauseAll so it didn't work
+        // The "operation # operations" adds an operation before another and not after
+        
+        case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of
+          Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+        | None -> skip
+        end;
     } 
     
 } with (operations, s)
