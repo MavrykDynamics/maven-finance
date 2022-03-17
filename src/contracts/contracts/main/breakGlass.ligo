@@ -125,22 +125,22 @@ function checkGlassIsBroken(var s : storage) : unit is
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to pause all entrypoints in contract 
-function pauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
-  case (Tezos.get_entrypoint_opt(
-      "%pauseAll",
-      contractAddress) : option(contract(unit))) of
-    Some(contr) -> contr
-  | None -> (failwith("pauseAll entrypoint in Contract Address not found") : contract(unit))
-  end;
+// function pauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%pauseAll",
+//       contractAddress) : option(contract(unit))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("pauseAll entrypoint in Contract Address not found") : contract(unit))
+//   end;
 
-// helper function to unpause all entrypoints in contract 
-function unpauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
-  case (Tezos.get_entrypoint_opt(
-      "%unpauseAll",
-      contractAddress) : option(contract(unit))) of
-    Some(contr) -> contr
-  | None -> (failwith("unpauseAll entrypoint in Contract Address not found") : contract(unit))
-  end;
+// // helper function to unpause all entrypoints in contract 
+// function unpauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%unpauseAll",
+//       contractAddress) : option(contract(unit))) of
+//     Some(contr) -> contr
+//   | None -> (failwith("unpauseAll entrypoint in Contract Address not found") : contract(unit))
+//   end;
 
 // helper function to set admin entrypoints in contract 
 function setAdminInContract(const contractAddress : address) : contract(address) is
@@ -572,17 +572,10 @@ block {
     // check if break glass action has been flushed
     if _actionRecord.status = "FLUSHED" then failwith("Error. Break Glass action has been flushed") else skip;
 
-    // check if break glass action has expired (status check, and block level + timestamp check)
-    if _actionRecord.status = "Expired" then failwith("Error. Break Glass action has expired") else skip;
+    if Tezos.now > _actionRecord.expirationDateTime then failwith("Error. Break Glass action has expired") else skip;
 
-    var isExpired : bool := False;
-    if Tezos.now > _actionRecord.expirationDateTime then isExpired := True else isExpired := False;
-
-    if isExpired = True then block {
-        _actionRecord.status       := "EXPIRED";
-         s.actionsLedger[actionId] := _actionRecord;
-        failwith("Error. Break Glass action has expired.");
-    } else skip;
+    // check if signer already signer
+    if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith("Error. Sender already signed this break glass action") else skip;
 
     // update signers and signersCount for break glass action record
     var signersCount : nat             := _actionRecord.signersCount + 1n;
@@ -595,7 +588,7 @@ block {
     var operations : list(operation) := nil;
 
     // check if threshold has been reached
-    if signersCount = s.config.threshold then block {
+    if signersCount >= s.config.threshold and not _actionRecord.executed then block {
         
         // --------------------------------------
         // execute action based on action types
@@ -675,12 +668,10 @@ block {
         // pauseAllEntrypoints action type
         if actionType = "pauseAllEntrypoints" then block {
             for _contractName -> contractAddress in map s.generalContracts block {
-                const unpauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
-                    unit, 
-                    0tez, 
-                    unpauseAllEntrypointsInContract(contractAddress)
-                );
-                operations := unpauseAllEntrypointsInContractOperation # operations;
+                case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of
+                    Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+                |   None -> skip
+                end;
             };      
         } else skip;
 
@@ -689,12 +680,10 @@ block {
         // unpauseAllEntrypoints action type
         if actionType = "unpauseAllEntrypoints" then block {
             for _contractName -> contractAddress in map s.generalContracts block {
-                const unpauseAllEntrypointsInContractOperation : operation = Tezos.transaction(
-                    unit, 
-                    0tez, 
-                    unpauseAllEntrypointsInContract(contractAddress)
-                );
-                operations := unpauseAllEntrypointsInContractOperation # operations;
+                case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of
+                    Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+                |   None -> skip
+                end;
             };            
         } else skip;
 
@@ -731,18 +720,16 @@ block {
             // fetch params begin ---
             const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of
                 Some(_address) -> _address
-                | None -> failwith("Error. NewAdminAddress not found.")
+            |   None -> failwith("Error. NewAdminAddress not found.")
             end;
             // fetch params end ---
 
 
             for _contractName -> contractAddress in map s.generalContracts block {
-                const setContractAdminOperation : operation = Tezos.transaction(
-                    newAdminAddress, 
-                    0tez, 
-                    setAdminInContract(contractAddress)
-                );
-                operations := setContractAdminOperation # operations;
+                case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of
+                    Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
+                |   None -> skip
+                end;
             } 
         } else skip;
 
