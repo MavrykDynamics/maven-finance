@@ -28,6 +28,8 @@ type flushLedgerType is big_map(nat, flushRecordType)
 
 type storage is record [
     admin                       : address;               // for init of contract - needed?
+    mvkTokenAddress             : address;
+    
     config                      : configType;
     
     generalContracts            : generalContractsType; // map of all contract addresses (e.g. doorman, delegation, vesting)

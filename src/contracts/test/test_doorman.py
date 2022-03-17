@@ -722,21 +722,7 @@ class DoormanContract(TestCase):
     ###
     # %stake
     ##
-    def test_40_stake_mvk_token_contract_unknown_to_doorman(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
-
-        # Initial values
-        stakeAmount = self.MVK(2)
-
-        # Operations
-        res = self.doormanContract.updateGeneralContracts("mvkToken",mvkTokenAddress).interpret(storage=init_doorman_storage, sender=alice);
-        with self.raisesMichelsonError(error_mvk_contract_not_found):
-            self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=alice);
-
-        print('----')
-        print('✅ User tries to stake while doorman does not have mvkToken contract in generalContracts')
-
-    def test_4_stake_delegation_contract_unknown_to_doorman(self):
+    def test_40_stake_delegation_contract_unknown_to_doorman(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
 
         # Initial values
@@ -749,23 +735,6 @@ class DoormanContract(TestCase):
 
         print('----')
         print('✅ User tries to stake while doorman does not have delegation contract in generalContracts')
-
-    ###
-    # %unstake
-    ##
-    def test_50_unstake_mvk_token_contract_unknown_to_doorman(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
-
-        # Initial values
-        unstakeAmount = self.MVK(2)
-
-        # Operations
-        res = self.doormanContract.updateGeneralContracts("mvkToken",mvkTokenAddress).interpret(storage=init_doorman_storage, sender=alice);
-        with self.raisesMichelsonError(error_mvk_contract_not_found):
-            self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=alice);
-
-        print('----')
-        print('✅ User tries to unstake while doorman does not have mvkToken contract in generalContracts')
 
     ###
     # %unstakeComplete

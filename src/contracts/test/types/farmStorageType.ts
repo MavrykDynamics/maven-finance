@@ -3,6 +3,8 @@ import { BigNumber } from "bignumber.js";
 
 export type farmStorageType = {
   admin: string;
+  mvkTokenAddress: string;
+  
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
