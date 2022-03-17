@@ -8,8 +8,9 @@ import { MVK } from "../test/helpers/Utils";
 import { doormanStorageType } from "../test/types/doormanStorageType";
 
 export const doormanStorage: doormanStorageType = {
-
   admin: alice.pkh,
+  mvkTokenAddress: "",
+
   minMvkAmount: new BigNumber(MVK(1)),
 
   whitelistContracts : MichelsonMap.fromLiteral({}),

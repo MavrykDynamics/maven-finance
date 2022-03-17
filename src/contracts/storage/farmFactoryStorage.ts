@@ -5,6 +5,8 @@ import { farmFactoryStorageType } from "../test/types/farmFactoryStorageType";
 
 export const farmFactoryStorage: farmFactoryStorageType = {
   admin: alice.pkh,
+  mvkTokenAddress: "",
+  
   generalContracts: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
 

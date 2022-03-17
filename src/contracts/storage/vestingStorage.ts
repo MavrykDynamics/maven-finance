@@ -19,6 +19,8 @@ const config = {
 
 export const vestingStorage: vestingStorageType = {
   admin: alice.pkh,
+  mvkTokenAddress: "",
+
   config: config,
 
   whitelistContracts: MichelsonMap.fromLiteral({}),
