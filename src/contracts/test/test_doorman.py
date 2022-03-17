@@ -150,71 +150,6 @@ class DoormanContract(TestCase):
         print(newAdmin)
 
     ###
-    # %setTempMvkTotalSupply
-    ##
-    def test_10_mvk_contract_set_total_supply(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
-
-        # Initial values
-        previousTotalSupply = init_doorman_storage['tempMvkTotalSupply']
-        previousMaximumTotalSupply = init_doorman_storage['tempMvkMaximumTotalSupply']
-        testTotalSupply = self.MVK(9000000)
-        testMaximumTotalSupply = self.MVK(100*10**12)
-
-        # Operation
-        res = self.doormanContract.setTempMvkTotalSupply(testTotalSupply,testMaximumTotalSupply).interpret(storage=init_doorman_storage, sender=mvkTokenAddress)
-
-        # Check new totak supply
-        newTotalSupply = res.storage['tempMvkTotalSupply']
-        newMaximumTotalSupply = res.storage['tempMvkMaximumTotalSupply']
-
-        self.assertNotEqual(previousTotalSupply, newTotalSupply)
-        self.assertNotEqual(previousMaximumTotalSupply, newMaximumTotalSupply)
-        self.assertEqual(testTotalSupply, newTotalSupply)
-        self.assertEqual(testMaximumTotalSupply, newMaximumTotalSupply)
-
-        print('----')
-        print('✅ MVK Token contract tries to set doorman new mvk total supply')
-        print('previous total supply:')
-        print(previousTotalSupply)
-        print('new total supply:')
-        print(newTotalSupply)
-        print('previous maximum total supply:')
-        print(previousMaximumTotalSupply)
-        print('new maximum total supply:')
-        print(newMaximumTotalSupply)
-
-    def test_11_other_contract_set_total_supply(self):
-        init_doorman_storage = deepcopy(self.doormanStorage)
-
-        # Initial values
-        previousTotalSupply = init_doorman_storage['tempMvkTotalSupply']
-        previousMaximumTotalSupply = init_doorman_storage['tempMvkMaximumTotalSupply']
-        testTotalSupply = self.MVK(900000)
-        testMaximumTotalSupply = self.MVK(100*10**12)
-        newTotalSupply = 0
-        newMaximumTotalSupply = 0
-
-        # Operation
-        with self.raisesMichelsonError(error_only_mvk_can_call):
-            res = self.doormanContract.setTempMvkTotalSupply(testTotalSupply,testMaximumTotalSupply).interpret(storage=init_doorman_storage, sender=alice)
-
-            # Check new totak supply
-            newTotalSupply = res.storage['tempMvkTotalSupply']
-            newMaximumTotalSupply = res.storage['tempMvkMaximumTotalSupply']
-
-        print('----')
-        print('✅ Another contract tries to set doorman new mvk total supply')
-        print('previous total supply:')
-        print(previousTotalSupply)
-        print('new total supply:')
-        print(newTotalSupply)
-        print('previous maximum total supply:')
-        print(previousMaximumTotalSupply)
-        print('new maximum total supply:')
-        print(newMaximumTotalSupply)
-
-    ###
     # %pauseAll
     ##
     def test_20_admin_call_entrypoint(self):
@@ -731,7 +666,7 @@ class DoormanContract(TestCase):
         # Operations
         res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=init_doorman_storage, sender=alice);
         with self.raisesMichelsonError(error_delegation_contract_not_found):
-            self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=alice);
+            self.doormanContract.stake( stakeAmount).interpret(storage=res.storage, sender=alice);
 
         print('----')
         print('✅ User tries to stake while doorman does not have delegation contract in generalContracts')
@@ -745,10 +680,12 @@ class DoormanContract(TestCase):
         # Initial values
         stakeAmount = self.MVK(2)
         unstakeAmount = self.MVK(2)
+        mvkTotalSupply = self.MVK(100)
 
         # Operations
         res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=alice);
-        res = self.doormanContract.unstakeComplete(unstakeAmount).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+        res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=alice);
+        res = self.doormanContract.unstakeComplete(mvkTotalSupply).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
 
         print('----')
         print('✅ MVK Token contract tries to call unstakeComplete')
@@ -759,12 +696,14 @@ class DoormanContract(TestCase):
         # Initial values
         stakeAmount = self.MVK(2)
         unstakeAmount = self.MVK(2)
+        mvkTotalSupply = self.MVK(100)
 
         # Operations
         res = self.doormanContract.stake(stakeAmount).interpret(storage=init_doorman_storage, sender=alice);
         res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=res.storage, sender=alice);
+        res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=alice);
         with self.raisesMichelsonError(error_delegation_contract_not_found):
-            self.doormanContract.unstakeComplete(unstakeAmount).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+            self.doormanContract.unstakeComplete(mvkTotalSupply).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
 
         print('----')
         print('✅ MVK Token contract tries to call unstakeComplete while doorman does not have delegation contract in generalContracts')
@@ -922,9 +861,12 @@ class DoormanContract(TestCase):
         recipientAddress = alice
         mintedTokens = self.MVK(2)
         forceTransfer = False
+        mvkTotalSupply = self.MVK(100)
+        mvkMaximumSupply = self.MVK(1000)
 
         # Operations
-        self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=mvkTokenAddress, source=alice);
+        res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=alice);
+        self.doormanContract.farmClaimComplete(mvkTotalSupply,mvkMaximumSupply).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
 
         print('----')
         print('✅ MVK Token contract tries to call farmClaimComplete')
@@ -936,12 +878,15 @@ class DoormanContract(TestCase):
         recipientAddress = alice
         mintedTokens = self.MVK(2)
         forceTransfer = False
+        mvkTotalSupply = self.MVK(100)
+        mvkMaximumSupply = self.MVK(1000)
 
         # Operations
         res = self.doormanContract.updateGeneralContracts("farmTreasury",eve).interpret(storage=init_doorman_storage, sender=alice); # update map
         res = self.doormanContract.updateGeneralContracts("farmTreasury",eve).interpret(storage=res.storage, sender=alice); # then delete same entry
+        res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=alice);
         with self.raisesMichelsonError(error_treasury_contract_not_found):
-            self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+            self.doormanContract.farmClaimComplete(mvkTotalSupply,mvkMaximumSupply).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
 
         print('----')
         print('✅ MVK Token contract tries to call farmClaimComplete while doorman does not have farmTreasury contract in generalContracts')
@@ -953,11 +898,14 @@ class DoormanContract(TestCase):
         recipientAddress = alice
         mintedTokens = self.MVK(2)
         forceTransfer = False
+        mvkTotalSupply = self.MVK(100)
+        mvkMaximumSupply = self.MVK(1000)
 
         # Operations
         res = self.doormanContract.updateGeneralContracts("delegation",delegationAddress).interpret(storage=init_doorman_storage, sender=alice);
+        res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=alice);
         with self.raisesMichelsonError(error_delegation_contract_not_found):
-            self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+            self.doormanContract.farmClaimComplete(mvkTotalSupply,mvkMaximumSupply).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
 
         print('----')
         print('✅ MVK Token contract tries to call farmClaimComplete while doorman does not have delegation contract in generalContracts')
@@ -969,10 +917,13 @@ class DoormanContract(TestCase):
         recipientAddress = alice
         mintedTokens = self.MVK(2)
         forceTransfer = False
+        mvkTotalSupply = self.MVK(100)
+        mvkMaximumSupply = self.MVK(1000)
 
         # Operations
+        res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=alice);
         with self.raisesMichelsonError(error_only_mvk_can_call):
-            self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=alice, source=alice);
+            self.doormanContract.farmClaimComplete(mvkTotalSupply,mvkMaximumSupply).interpret(storage=res.storage, sender=alice, source=alice);
 
         print('----')
         print('✅ Non-MVK Token contract tries to call farmClaimComplete')
@@ -983,18 +934,17 @@ class DoormanContract(TestCase):
         # Initial values
         recipientAddress = alice
         fakeTotalSupply = self.MVK(100)
-        fakeMaximumTotalSupply = self.MVK(1000)
+        fakemaximumSupply = self.MVK(1000)
         mintedTokens = self.MVK(910)
         forceTransfer = False
 
-        # Operations
-        res = self.doormanContract.setTempMvkTotalSupply(fakeTotalSupply,fakeMaximumTotalSupply).interpret(storage=init_doorman_storage, sender=mvkTokenAddress, source=alice);
-        res = self.doormanContract.farmClaimComplete(recipientAddress,mintedTokens,forceTransfer).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
+        res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=alice);
+        res = self.doormanContract.farmClaimComplete(fakeTotalSupply,fakemaximumSupply).interpret(storage=res.storage, sender=mvkTokenAddress, source=alice);
         mintedAmount = int(res.operations[1]['parameters']['value']['args'][-1]['int'])
         transferedAmount = int(res.operations[0]['parameters']['value'][-1]['args'][-1][-1]['args'][-1]['int'])
 
         self.assertEqual(mintedAmount+transferedAmount,mintedTokens)
-        self.assertEqual(fakeTotalSupply+mintedAmount,fakeMaximumTotalSupply)
+        self.assertEqual(fakeTotalSupply+mintedAmount,fakemaximumSupply)
 
         print('----')
-        print('✅ Claim should be split between mint and transfer if the reward exceed the MVK maximumTotalSupply')
+        print('✅ Claim should be split between mint and transfer if the reward exceed the MVK maximumSupply')

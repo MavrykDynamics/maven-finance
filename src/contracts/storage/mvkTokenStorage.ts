@@ -13,7 +13,7 @@ import { mvkStorageType } from '../test/types/mvkTokenStorageType'
 export const mvkTokenDecimals = 9
 
 const totalSupply = MVK(100)
-const maximumTotalSupply = MVK(10**9)
+const maximumSupply = MVK(10**9)
 const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4)
 
@@ -77,7 +77,7 @@ export const mvkStorage: mvkStorageType = {
   token_metadata: token_metadata,
 
   totalSupply: initialSupply,
-  maximumTotalSupply: new BigNumber(maximumTotalSupply),
+  maximumSupply: new BigNumber(maximumSupply),
 
   ledger: ledger,
   operators: MichelsonMap.fromLiteral({}),
