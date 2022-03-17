@@ -48,6 +48,8 @@ type farmBreakGlassConfigType is [@layout:comb] record [
 
 type farmStorage is record[
     admin                   : address;
+    mvkTokenAddress         : address;
+    
     whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts        : generalContractsType;
 
@@ -110,6 +112,8 @@ type breakGlassConfigType is record [
 
 type storage is record[
     admin                  : address;
+    mvkTokenAddress        : address;
+
     whitelistContracts     : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts       : generalContractsType;
 
@@ -403,6 +407,7 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
         // Create a farm and auto init it?
         const originatedFarmStorage: farmStorage = record[
             admin                   = s.admin; // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
+            mvkTokenAddress         = s.mvkTokenAddress;
             whitelistContracts      = farmWhitelistContract;      // whitelist of contracts that can access restricted entrypoints
             generalContracts        = farmGeneralContracts;
 

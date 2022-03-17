@@ -161,6 +161,8 @@ type activeSatellitesMapType is map(address, timestamp) // satellite address, ti
 
 type storage is record [
     admin                       : address;
+    mvkTokenAddress             : address;
+
     config                      : configType;
 
     whitelistContracts          : whitelistContractsType;      
@@ -271,10 +273,7 @@ block{
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
 block{
-  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found.")
-  end;
+  const mvkTokenAddress : address = s.mvkTokenAddress;
   if (Tezos.sender = mvkTokenAddress) then skip
   else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
 } with unit
@@ -635,10 +634,7 @@ block {
       | None -> failwith("Error. Delegation Contract is not found")
     end;
 
-    const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found")
-    end;
+    const mvkTokenAddress : address = s.mvkTokenAddress;
 
     // update temp MVK total supply
     const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    

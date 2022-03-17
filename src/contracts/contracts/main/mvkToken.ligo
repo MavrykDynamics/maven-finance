@@ -29,6 +29,7 @@ type metadata is big_map (string, bytes);
 
 type storage is record [
   admin                 : address;
+
   generalContracts      : generalContractsType;    // map of contract addresses
   whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
   metadata              : metadata;

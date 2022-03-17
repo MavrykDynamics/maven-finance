@@ -35,6 +35,7 @@ type transferType is list(transfer)
 
 type storage is record [
   admin                     : address;
+  mvkTokenAddress           : address;
   
   minMvkAmount              : nat;
   
@@ -103,10 +104,7 @@ function checkSenderIsAdmin(var s : storage) : unit is
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
 block{
-  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found.")
-  end;
+  const mvkTokenAddress : address = s.mvkTokenAddress;
   if (Tezos.sender = mvkTokenAddress) then skip
     else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
 } with unit
@@ -395,10 +393,7 @@ block {
   if stakeAmount < s.minMvkAmount then failwith("You have to stake at least 1 MVK token.")
     else skip;
 
-  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found.")
-  end;
+  const mvkTokenAddress : address = s.mvkTokenAddress;
 
   const delegationAddress : address = case s.generalContracts["delegation"] of
       Some(_address) -> _address
@@ -487,10 +482,7 @@ block {
   const userCompound: (option(operation) * storage) = compoundUserRewards(s);
   s := userCompound.1;
 
-  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found.")
-  end;
+  const mvkTokenAddress : address = s.mvkTokenAddress;
 
   // update temp MVK total supply
   const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, doormanUnstakeStage(mvkTokenAddress));
@@ -557,10 +549,7 @@ block {
     userBalanceInStakeBalanceLedger.balance := abs(userBalanceInStakeBalanceLedger.balance - unstakeAmount); 
     s.userStakeBalanceLedger[Tezos.source] := userBalanceInStakeBalanceLedger;
 
-    const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-        Some(_address) -> _address
-        | None -> failwith("Error. MVK Token Contract is not found.")
-    end;
+    const mvkTokenAddress : address = s.mvkTokenAddress;
 
     const delegationAddress : address = case s.generalContracts["delegation"] of
         Some(_address) -> _address
@@ -629,10 +618,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     const checkFarmExistsOperation: operation = Tezos.transaction(farmAddress, 0tez, farmFactoryContract);
 
     // Mint new MVK for the doorman contract: TODO --> Check for minting limit
-    const mvkTokenAddress: address = case Map.find_opt("mvkToken", s.generalContracts) of
-        Some(_address) -> _address
-        | None -> failwith("Error. MVK Token Contract is not found.")
-    end;
+    const mvkTokenAddress: address = s.mvkTokenAddress;
     const doormanFarmClaimStageOperation: operation = Tezos.transaction((delegator, claimAmount, forceTransfer), 0tez, doormanFarmClaimStage(mvkTokenAddress));
 
     // List of operation, first check the farm exists, then update the Satellite balance
