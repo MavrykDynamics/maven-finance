@@ -132,6 +132,7 @@ class MavrykUser(Model):
     participation_fees_per_share    = fields.FloatField(default=0)
     doorman                         = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts', null=True)
     council                         = fields.ForeignKeyField('models.Council', related_name='council_members', null=True)
+    break_glass                     = fields.ForeignKeyField('models.BreakGlass', related_name='council_members', null=True)
 
     class Meta:
         table = 'mavryk_user'

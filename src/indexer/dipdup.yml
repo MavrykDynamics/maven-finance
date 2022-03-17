@@ -45,7 +45,7 @@ contracts:
     address: KT1E47MwvFfSoc4CTg8PwYpN2SS6N8rdjikN
     typename: council
   break_glass:
-    address: KT1AjKoHC9f1Ksi1K3TYZ7RbbyTWCnHu2nSi
+    address: KT1J1jQ1vjYh6ke8sRjp4MMrN3S7LL72bZ8o
     typename: break_glass
 
 datasources:
