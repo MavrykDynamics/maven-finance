@@ -234,14 +234,16 @@ describe('Contracts Deployment for Tests', async () => {
       mockFa12TokenStorage
     );
 
-    console.log("mock FA12 Token originated")
+    await saveContractAddress("mockFa12TokenAddress", mockFa12Token.contract.address)
+    console.log("Mock FA12 Token Contract deployed at:", mockFa12Token.contract.address);
 
     mockFa2Token = await MockFa2Token.originate(
       utils.tezos,
       mockFa2TokenStorage
     );
 
-    console.log("mock FA2 Token originated")
+    await saveContractAddress("mockFa2TokenAddress", mockFa2Token.contract.address)
+    console.log("Mock Fa2 Token Contract deployed at:", mockFa2Token.contract.address);
 
     /* ---- ---- ---- ---- ---- */
 
