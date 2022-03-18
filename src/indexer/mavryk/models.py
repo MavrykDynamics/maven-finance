@@ -1,3 +1,4 @@
+from pickle import NONE
 from tortoise import Model, fields
 from enum import IntEnum
 
@@ -19,6 +20,12 @@ class ActionStatus(IntEnum):
     PENDING     = 0
     FLUSHED     = 1
     EXECUTED    = 2
+
+class GovernanceRoundType(IntEnum):
+    NONE        = 0
+    PROPOSAL    = 1
+    VOTING      = 2
+    TIMELOCK    = 3
 
 class MVKToken(Model):
     address                         = fields.CharField(pk=True, max_length=36)
@@ -124,6 +131,32 @@ class BreakGlass(Model):
 
     class Meta:
         table = 'break_glass'
+
+class Governance(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    success_reward                  = fields.BigIntField(default=0)
+    min_quorum_percentage           = fields.BigIntField(default=0)
+    min_quorum_mvk_total            = fields.BigIntField(default=0)
+    voting_power_ratio              = fields.BigIntField(default=0)
+    proposal_submission_fee         = fields.BigIntField(default=0)
+    minimum_stake_req_percentage    = fields.BigIntField(default=0)
+    max_proposal_per_delegate       = fields.BigIntField(default=0)
+    new_blocktime_level             = fields.BigIntField(default=0)
+    new_block_per_minute            = fields.BigIntField(default=0)
+    blocks_per_minute               = fields.BigIntField(default=0)
+    blocks_per_proposal_round       = fields.BigIntField(default=0)
+    blocks_per_voting_round         = fields.BigIntField(default=0)
+    blocks_per_timelock_round       = fields.BigIntField(default=0)
+    financial_req_approval_percent  = fields.BigIntField(default=0)
+    financial_req_duration_in_days  = fields.BigIntField(default=0)
+    start_level                     = fields.BigIntField(default=0)
+    current_round                   = fields.IntEnumField(enum_type=GovernanceRoundType)
+    current_round_start_level       = fields.BigIntField(default=0)
+    current_round_end_level         = fields.BigIntField(default=0)
+    # current_round_proposal          = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'governance'
 
 class MavrykUser(Model):
     address                         = fields.CharField(pk=True, max_length=36)

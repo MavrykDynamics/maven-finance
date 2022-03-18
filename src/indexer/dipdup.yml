@@ -47,6 +47,9 @@ contracts:
   break_glass:
     address: KT1J1jQ1vjYh6ke8sRjp4MMrN3S7LL72bZ8o
     typename: break_glass
+  governance:
+    address: KT1Hh9yDPfkwXFsni7kKZaADZTnVZ7s8yvsw
+    typename: governance
 
 datasources:
   tzkt:
@@ -584,3 +587,21 @@ indexes:
         pattern:
           - destination: break_glass
             entrypoint: signAction
+  # Governance contract indexes
+  governance:
+    kind: operation
+    datasource: tzkt
+    types:
+      - origination
+      - transaction
+    contracts:
+      - governance
+    handlers:
+      - callback: on_governance_origination
+        pattern:
+          - type: origination
+            originated_contract: governance
+      - callback: on_governance_update_config
+        pattern:
+          - destination: governance
+            entrypoint: updateConfig
