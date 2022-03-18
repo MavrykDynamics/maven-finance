@@ -48,7 +48,7 @@ contracts:
     address: KT1J1jQ1vjYh6ke8sRjp4MMrN3S7LL72bZ8o
     typename: break_glass
   governance:
-    address: KT1Hh9yDPfkwXFsni7kKZaADZTnVZ7s8yvsw
+    address: KT1CyWegk8p93JDy8w2jrG77B8qiQSV8RaeQ
     typename: governance
 
 datasources:
@@ -605,3 +605,15 @@ indexes:
         pattern:
           - destination: governance
             entrypoint: updateConfig
+      - callback: on_governance_start_proposal_round
+        pattern:
+          - destination: governance
+            entrypoint: startProposalRound
+      - callback: on_governance_propose
+        pattern:
+          - destination: governance
+            entrypoint: propose
+      - callback: on_governance_add_update_proposal_data
+        pattern:
+          - destination: governance
+            entrypoint: addUpdateProposalData
