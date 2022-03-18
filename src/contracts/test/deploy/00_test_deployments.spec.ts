@@ -332,6 +332,7 @@ describe('Contracts Deployment for Tests', async () => {
       .updateWhitelistContracts('vesting', vesting.contract.address)
       .send()
     await setWhitelistVestingContractInMvkTokenOperation.confirmation()
+    
     const setWhitelistTreasuryContractInMvkTokenOperation = await mvkToken.contract.methods
       .updateWhitelistContracts('treasury', treasury.contract.address)
       .send()
@@ -343,6 +344,7 @@ describe('Contracts Deployment for Tests', async () => {
       .updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address)
       .send()
     await setEmergencyGovernanceContractInGovernanceOperation.confirmation()
+    
     const setBreakGlassContractInGovernanceOperation = await governance.contract.methods
       .updateGeneralContracts('breakGlass', breakGlass.contract.address)
       .send()
@@ -354,6 +356,12 @@ describe('Contracts Deployment for Tests', async () => {
       .updateGeneralContracts('breakGlass', breakGlass.contract.address)
       .send()
     await setBreakGlassContractAddressInEmergencyGovernance.confirmation()
+
+    const setTreasuryContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods
+      .updateGeneralContracts('treasury', treasury.contract.address)
+      .send()
+    await setTreasuryContractAddressInEmergencyGovernance.confirmation()
+
 
     // Vesting Contract - set whitelist contract addresses map [council]
     const setCouncilContractAddressInVesting = await vesting.contract.methods
