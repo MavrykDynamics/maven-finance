@@ -153,7 +153,7 @@ class Governance(Model):
     current_round                   = fields.IntEnumField(enum_type=GovernanceRoundType)
     current_round_start_level       = fields.BigIntField(default=0)
     current_round_end_level         = fields.BigIntField(default=0)
-    # current_round_proposal          = fields.BigIntField(default=0)
+    current_cycle_end_level         = fields.BigIntField(default=0)
 
     class Meta:
         table = 'governance'
@@ -350,6 +350,15 @@ class BreakGlassActionRecordSigner(Model):
 
     class Meta:
         table = 'break_glass_action_record_signer'
+
+class BreakGlassActionRecordParameter(Model):
+    id                              = fields.BigIntField(pk=True)
+    break_glass_action_record       = fields.ForeignKeyField('models.BreakGlassActionRecord', related_name='break_glass_action_record_parameters')
+    name                            = fields.CharField(max_length=255)
+    value                           = fields.CharField(max_length=255)
+
+    class Meta:
+        table = 'break_glass_action_record_parameter'
 
 class BreakGlassActionRecordParameter(Model):
     id                              = fields.BigIntField(pk=True)

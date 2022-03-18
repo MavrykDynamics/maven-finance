@@ -13,6 +13,8 @@ class Config(BaseModel):
         extra = Extra.forbid
 
     successReward: str
+    minProposalRoundVotePercentage: str
+    minProposalRoundVotesRequired: str
     minQuorumPercentage: str
     minQuorumMvkTotal: str
     votingPowerRatio: str
@@ -122,6 +124,8 @@ class ProposalLedger(BaseModel):
     passVoteCount: str
     passVoteMvkTotal: str
     passVotersMap: Dict[str, PassVotersMap]
+    minProposalRoundVotePercentage: str
+    minProposalRoundVotesRequired: str
     upvoteCount: str
     upvoteMvkTotal: str
     downvoteCount: str
