@@ -560,7 +560,6 @@ block {
 } with (noOperations, s)
 
 
-// function signAction(const actionId: nat; const voteType: nat; var s : storage) : return is 
 function signAction(const actionId: nat; var s : storage) : return is 
 block {
     
@@ -576,8 +575,8 @@ block {
 
     if Tezos.now > _actionRecord.expirationDateTime then failwith("Error. Break Glass action has expired") else skip;
 
-    // check if signer already signer
-    if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith("Error. Sender already signed this break glass action") else skip;
+    // check if signer already signed
+    if Set.mem(Tezos.sender, _actionRecord.signers) then failwith("Error. Sender has already signed this break glass action") else skip;
 
     // update signers and signersCount for break glass action record
     var signersCount : nat             := _actionRecord.signersCount + 1n;

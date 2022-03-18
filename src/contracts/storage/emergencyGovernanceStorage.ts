@@ -1,18 +1,19 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-
 import { BigNumber } from 'bignumber.js'
 
 const { alice } = require('../scripts/sandbox/accounts')
 
-import { MVK } from "../test/helpers/Utils";
+import { MVK, zeroAddress } from "../test/helpers/Utils";
 
 import { emergencyGovernanceStorageType } from '../test/types/emergencyGovernanceStorageType'
 
 const config = {
+  decimals : 4,
   voteExpiryDays: 3,
-  stakedMvkPercentageRequired: 10000,
   requiredFee: 10000000,
-  minStakedMvkRequiredToVote: MVK(5)
+  stakedMvkPercentageRequired: 10000,
+  minStakedMvkRequiredToVote: MVK(5),
+  minStakedMvkRequiredToTrigger: MVK(10)
 }
 
 export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
@@ -20,6 +21,7 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
   mvkTokenAddress: "",
 
   config: config,
+  mvkTokenAddress : zeroAddress,
 
   generalContracts: MichelsonMap.fromLiteral({}),
 
