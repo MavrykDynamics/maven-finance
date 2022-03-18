@@ -1,5 +1,4 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
-
 import { BigNumber } from 'bignumber.js'
 
 const { alice, bob } = require('../scripts/sandbox/accounts')
@@ -10,6 +9,10 @@ import { governanceStorageType } from '../test/types/governanceStorageType'
 
 const config = {
     successReward             : 10000,
+
+    minProposalRoundVotePercentage : 1000,
+    minProposalRoundVotesRequired : 10000,
+
     minQuorumPercentage       : 1000,
     minQuorumMvkTotal         : 10000,
 
