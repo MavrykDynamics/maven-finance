@@ -30,6 +30,7 @@ async def on_governance_origination(
     governanceCurrentRoundStartLevel                = int(governance_origination.storage.currentRoundStartLevel)
     governanceCurrentRoundEndLevel                  = int(governance_origination.storage.currentRoundEndLevel)
     governanceCurrentCycleEndLevel                  = int(governance_origination.storage.currentCycleEndLevel)
+    governanceNextProposalID                        = int(governance_origination.storage.nextProposalId)
 
     # Current round
     governanceRoundType = models.GovernanceRoundType.NONE
@@ -43,6 +44,7 @@ async def on_governance_origination(
     # Create record
     governance  = models.Governance(
         address                         = governanceAddress,
+        next_proposal_id                = governanceNextProposalID,
         success_reward                  = governanceSuccessReward,
         min_quorum_percentage           = governanceMinQuorumPercentage,
         min_quorum_mvk_total            = governanceMinQuorumMvkTotal,

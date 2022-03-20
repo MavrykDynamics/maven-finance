@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.11
+          image: tezosdynamics/mavryk-indexer:v0.0.12
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.11
+          image: tezosdynamics/mavryk-indexer:v0.0.12
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -144,6 +144,12 @@ data:
       council:
         address: KT1E47MwvFfSoc4CTg8PwYpN2SS6N8rdjikN
         typename: council
+      break_glass:
+        address: KT1J1jQ1vjYh6ke8sRjp4MMrN3S7LL72bZ8o
+        typename: break_glass
+      governance:
+        address: KT19T2uG3uMu7qo8qCicD161kvhSjFYvLmTq
+        typename: governance
 
     datasources:
       tzkt:
@@ -611,3 +617,135 @@ data:
             pattern:
               - destination: council
                 entrypoint: signAction
+      # Break Glass contract indexes
+      break_glass:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - break_glass
+        handlers:
+          - callback: on_break_glass_origination
+            pattern:
+              - type: origination
+                originated_contract: break_glass
+          - callback: on_break_glass_update_config
+            pattern:
+              - destination: break_glass
+                entrypoint: updateConfig
+          - callback: on_break_glass_add_council_member
+            pattern:
+              - destination: break_glass
+                entrypoint: addCouncilMember
+          - callback: on_break_glass_change_council_member
+            pattern:
+              - destination: break_glass
+                entrypoint: changeCouncilMember
+          - callback: on_break_glass_flush_action
+            pattern:
+              - destination: break_glass
+                entrypoint: flushAction
+          - callback: on_break_glass_pause_all_entrypoints
+            pattern:
+              - destination: break_glass
+                entrypoint: pauseAllEntrypoints
+          - callback: on_break_glass_unpause_all_entrypoints
+            pattern:
+              - destination: break_glass
+                entrypoint: unpauseAllEntrypoints
+          - callback: on_break_glass_remove_break_glass_control
+            pattern:
+              - destination: break_glass
+                entrypoint: removeBreakGlassControl
+          - callback: on_break_glass_remove_council_member
+            pattern:
+              - destination: break_glass
+                entrypoint: removeCouncilMember
+          - callback: on_break_glass_remove_council_member
+            pattern:
+              - destination: break_glass
+                entrypoint: removeCouncilMember
+          - callback: on_break_glass_set_all_contracts_admin
+            pattern:
+              - destination: break_glass
+                entrypoint: setAllContractsAdmin
+          - callback: on_break_glass_set_all_contracts_admin
+            pattern:
+              - destination: break_glass
+                entrypoint: setAllContractsAdmin
+          - callback: on_break_glass_set_single_contract_admin
+            pattern:
+              - destination: break_glass
+                entrypoint: setSingleContractAdmin
+          - callback: on_break_glass_break_glass
+            pattern:
+              - destination: break_glass
+                entrypoint: breakGlass
+          - callback: on_break_glass_sign_action
+            pattern:
+              - destination: break_glass
+                entrypoint: signAction
+      # Governance contract indexes
+      governance:
+        kind: operation
+        datasource: tzkt
+        types:
+          - origination
+          - transaction
+        contracts:
+          - governance
+        handlers:
+          - callback: on_governance_origination
+            pattern:
+              - type: origination
+                originated_contract: governance
+          - callback: on_governance_update_config
+            pattern:
+              - destination: governance
+                entrypoint: updateConfig
+          - callback: on_governance_start_proposal_round
+            pattern:
+              - destination: governance
+                entrypoint: startProposalRound
+          - callback: on_governance_propose
+            pattern:
+              - destination: governance
+                entrypoint: propose
+          - callback: on_governance_add_update_proposal_data
+            pattern:
+              - destination: governance
+                entrypoint: addUpdateProposalData
+          - callback: on_governance_lock_proposal
+            pattern:
+              - destination: governance
+                entrypoint: lockProposal
+          - callback: on_governance_proposal_round_vote
+            pattern:
+              - destination: governance
+                entrypoint: proposalRoundVote
+          # - callback: on_governance_drop_proposal
+          #   pattern:
+          #     - destination: governance
+          #       entrypoint: dropProposal
+          # - callback: on_governance_execute_proposal
+          #   pattern:
+          #     - destination: governance
+          #       entrypoint: executeProposal
+          # - callback: on_governance_setup_lambda_function
+          #   pattern:
+          #     - destination: governance
+          #       entrypoint: setupLambdaFunction
+          # - callback: on_governance_start_timelock_round
+          #   pattern:
+          #     - destination: governance
+          #       entrypoint: startTimelockRound
+          # - callback: on_governance_start_voting_round
+          #   pattern:
+          #     - destination: governance
+          #       entrypoint: startVotingRound
+          # - callback: on_governance_voting_round_vote
+          #   pattern:
+          #     - destination: governance
+          #       entrypoint: votingRoundVote

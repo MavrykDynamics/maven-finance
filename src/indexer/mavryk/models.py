@@ -27,6 +27,10 @@ class GovernanceRoundType(IntEnum):
     VOTING      = 2
     TIMELOCK    = 3
 
+class GovernanceRecordStatus(IntEnum):
+    ACTIVE      = 0
+    DROPPED     = 1
+
 class MVKToken(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     maximum_supply                  = fields.BigIntField(default=0)
@@ -154,6 +158,7 @@ class Governance(Model):
     current_round_start_level       = fields.BigIntField(default=0)
     current_round_end_level         = fields.BigIntField(default=0)
     current_cycle_end_level         = fields.BigIntField(default=0)
+    next_proposal_id                = fields.BigIntField(default=0)
 
     class Meta:
         table = 'governance'
@@ -360,11 +365,45 @@ class BreakGlassActionRecordParameter(Model):
     class Meta:
         table = 'break_glass_action_record_parameter'
 
-class BreakGlassActionRecordParameter(Model):
+class GovernanceProposalRecord(Model):
     id                              = fields.BigIntField(pk=True)
-    break_glass_action_record       = fields.ForeignKeyField('models.BreakGlassActionRecord', related_name='break_glass_action_record_parameters')
-    name                            = fields.CharField(max_length=255)
-    value                           = fields.CharField(max_length=255)
+    proposer                        = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_proposer')
+    status                          = fields.IntEnumField(enum_type=GovernanceRecordStatus)
+    title                           = fields.CharField(max_length=255)
+    description                     = fields.CharField(max_length=255)
+    invoice                         = fields.CharField(max_length=255)
+    source_code                     = fields.CharField(max_length=255) #TODO: needs to be ajusted
+    executed                        = fields.BooleanField(default=False)
+    locked                          = fields.BooleanField(default=False)
+    success_reward                  = fields.FloatField(default=0)
+    pass_vote_count                 = fields.BigIntField(default=0)
+    pass_vote_mvk_total             = fields.FloatField(default=0)
+    min_proposal_round_vote_pct     = fields.BigIntField(default=0)
+    min_proposal_round_vote_req     = fields.BigIntField(default=0)
+    up_vote_count                   = fields.BigIntField(default=0)
+    up_vote_mvk_total               = fields.FloatField(default=0)
+    down_vote_count                 = fields.BigIntField(default=0)
+    down_vote_mvk_total             = fields.FloatField(default=0)
+    abstain_count                   = fields.BigIntField(default=0)
+    abstain_mvk_total               = fields.FloatField(default=0)
+    min_quorum_percentage           = fields.BigIntField(default=0)
+    min_quorum_mvk_total            = fields.FloatField(default=0)
+    quorum_count                    = fields.BigIntField(default=0)
+    quorum_mvk_total                = fields.BigIntField(default=0)
+    start_datetime                  = fields.DatetimeField()
+    cycle                           = fields.BigIntField(default=0)
+    current_cycle_start_level       = fields.BigIntField(default=0)
+    current_cycle_end_level         = fields.BigIntField(default=0)
+    current_round_proposal          = fields.BooleanField(default=True)
 
     class Meta:
-        table = 'break_glass_action_record_parameter'
+        table = 'governance_proposal_record'
+
+class GovernanceProposalRecordMetadata(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_proposal_record      = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='metadata')
+    name                            = fields.CharField(max_length=255)
+    metadata                        = fields.CharField(max_length=255, default="")
+
+    class Meta:
+        table = 'governance_proposal_record_metadata'
