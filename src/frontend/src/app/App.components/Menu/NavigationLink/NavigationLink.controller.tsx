@@ -46,13 +46,15 @@ export const NavigationLink = ({
   const key = `${path.substring(1)}-${id}`
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { satelliteLedger } = delegationStorage
-  let navigationLinkClasses = `collapsible .${kind}`
   const iconHref = `/icons/sprites.svg#${icon}`
   const subPagesPaths = [path]
   subPages?.forEach((subPage: SubNavigationRoute, index) => subPagesPaths.push(subPage.subPath))
   let mainLinkSelected = location.pathname === path
   if (subPages) mainLinkSelected = subPagesPaths.includes(location.pathname)
 
+  if (path === '/satellites' && location.pathname.startsWith('/satellite-details')) {
+    mainLinkSelected = true
+  }
   const { getCollapseProps, getToggleProps } = useCollapse({ isExpanded })
 
   const handleClick = () => {

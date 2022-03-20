@@ -73,25 +73,62 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
   // }
 
   try {
-    console.log('Here in stake', amount * PRECISION_NUMBER)
+    const mvkTokenContract = await state.wallet.tezos?.wallet.at(mvkTokenAddress.address)
     const doormanContract = await state.wallet.tezos?.wallet.at(doormanAddress.address)
-    console.log('contract', doormanContract)
-    const transaction = await doormanContract?.methods.stake(amount * PRECISION_NUMBER).send()
-    console.log('transaction', transaction)
+    console.log('MvkToken contract', doormanContract)
+    console.log('Doorman contract', doormanContract)
 
-    dispatch({
-      type: STAKE_REQUEST,
-      amount,
-    })
-    dispatch(showToaster(INFO, 'Staking...', 'Please wait 30s'))
+    const addOperators = [
+        {
+          add_operator: {
+            owner: state.wallet.accountPkh,
+            operator: doormanAddress.address,
+            token_id: 0,
+          },
+        },
+      ],
+      removeOperators = [
+        {
+          remove_operator: {
+            owner: state.wallet.accountPkh,
+            operator: doormanAddress.address,
+            token_id: 0,
+          },
+        },
+      ]
+    if (mvkTokenContract && doormanContract) {
+      const batch = await state.wallet.tezos?.wallet
+        .batch()
+        .withContractCall(mvkTokenContract.methods.update_operators(addOperators))
+        .withContractCall(doormanContract.methods.stake(amount * PRECISION_NUMBER))
+        .withContractCall(mvkTokenContract.methods.update_operators(removeOperators))
+      // const transaction = await doormanContract?.methods.stake(amount * PRECISION_NUMBER).send()
+      // console.log('transaction', transaction)
+      if (batch) {
+        dispatch(showToaster(INFO, 'Staking...', 'Please wait 30s'))
+        const batchOp = await batch.send()
+        console.log('Operation hash:', batchOp)
+        dispatch({
+          type: STAKE_REQUEST,
+          amount,
+        })
 
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
+        await batchOp.confirmation()
+        dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
 
-    dispatch({
-      type: STAKE_RESULT,
-    })
+        dispatch({
+          type: STAKE_RESULT,
+        })
+      }
+    }
+
+    // const done = await transaction?.confirmation()
+    // console.log('done', done)
+    // dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
+    //
+    // dispatch({
+    //   type: STAKE_RESULT,
+    // })
 
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDoormanStorage())
@@ -179,8 +216,7 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
 
     userStakeBalanceLedgerBigMap.forEach((element: any) => {
       const keyAddress = element.key
-      const myStakeBalanceMu = Number(element.value?.balance) || 0
-      const myStakeBalance = myStakeBalanceMu > 0 ? myStakeBalanceMu / PRECISION_NUMBER : 0
+      const myStakeBalance = calcWithoutMu(element.value?.balance)
       userStakeBalanceLedger.set(keyAddress, myStakeBalance.toFixed(2))
     })
 

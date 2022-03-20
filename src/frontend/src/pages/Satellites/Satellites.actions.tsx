@@ -42,7 +42,6 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
           Number(element.value?.totalDelegatedAmount) > 0
             ? (Number(element.value?.totalDelegatedAmount) / PRECISION_NUMBER).toFixed(2)
             : 0
-
       const newSatellite: SatelliteRecord = {
         address: element.key,
         name: element.value?.name,

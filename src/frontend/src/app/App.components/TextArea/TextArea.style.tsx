@@ -10,6 +10,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   min-width: 100%;
   width: 100%;
   height: 250px;
+  font-family: 'Metropolis', Helvetica, Arial, sans-serif;
   background-color: ${({ theme }) => theme.placeholderColor};
   font-weight: 600;
   border: none;

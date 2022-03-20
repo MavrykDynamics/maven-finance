@@ -30,6 +30,7 @@ type SatelliteDetailsViewProps = {
   loading: boolean
   delegateCallback: (address: string) => void
   undelegateCallback: (address: string) => void
+  myDelegatedMvk: any
 }
 
 export const SatelliteDetailsView = ({
@@ -37,15 +38,11 @@ export const SatelliteDetailsView = ({
   loading,
   delegateCallback,
   undelegateCallback,
+  myDelegatedMvk,
 }: SatelliteDetailsViewProps) => {
-  const totalDelegatedMVK =
-      parseFloat(satellite?.totalDelegatedAmount || '0') > 0
-        ? parseFloat(satellite?.totalDelegatedAmount || '0') / 100000
-        : 0,
-    myDelegatedMVK =
-      parseFloat(satellite?.totalDelegatedAmount || '0') > 0
-        ? parseFloat(satellite?.totalDelegatedAmount || '0') / 100000
-        : 0
+  console.log()
+  const totalDelegatedMVK = Number(satellite?.totalDelegatedAmount),
+    myDelegatedMVK = myDelegatedMvk >= 0 ? myDelegatedMvk : 0
 
   const options: HTMLReactParserOptions = {
     replace: (domNode: any) => {
@@ -113,9 +110,10 @@ export const SatelliteDetailsView = ({
                 loading={loading}
                 onClick={() => delegateCallback(satellite.address)}
               />
-              <div>Put last voted here</div>
+              <div />
+              {/*<div>Put last voted here</div>*/}
               <SatelliteTextGroup>
-                <SatelliteMainText>{satellite.totalDelegatedAmount}%</SatelliteMainText>
+                <SatelliteMainText>{87}%</SatelliteMainText>
                 <SatelliteSubText>Participation</SatelliteSubText>
               </SatelliteTextGroup>
               <SatelliteTextGroup>
@@ -136,14 +134,14 @@ export const SatelliteDetailsView = ({
             <SatelliteCardBottomRow>
               <div>
                 <h4>Description:</h4>
-                <div>{parse(satellite.description, options)}</div>
+                <p>{parse(satellite.description, options)}</p>
               </div>
-              <div>
-                <h4>Voting History:</h4>
-              </div>
-              <div>
-                <h4>Participation Metrics:</h4>
-              </div>
+              {/*<div>*/}
+              {/*  <h4>Voting History:</h4>*/}
+              {/*</div>*/}
+              {/*<div>*/}
+              {/*  <h4>Participation Metrics:</h4>*/}
+              {/*</div>*/}
             </SatelliteCardBottomRow>
           </SatelliteCard>
         )}

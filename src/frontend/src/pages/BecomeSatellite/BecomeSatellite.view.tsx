@@ -10,6 +10,7 @@ import { SatelliteRecord } from 'reducers/delegation'
 import { Page } from 'styles'
 
 import { TextEditor } from '../../app/App.components/TextEditor/TextEditor.controller'
+import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { RegisterAsSatelliteForm, unregisterAsSatellite } from './BecomeSatellite.actions'
 // prettier-ignore
 import {
@@ -57,6 +58,13 @@ export const BecomeSatelliteView = ({
     fee: 0,
     image: undefined,
   })
+  const [formInputStatus, setFormInputStatus] = useState<any>({
+    name: false,
+    fee: false,
+    description: false,
+    image: false,
+  })
+
   const [isUploading, setIsUploading] = useState(false)
   const [isUploaded, setIsUploaded] = useState(false)
   const inputFile = useRef<HTMLInputElement>(null)
@@ -120,11 +128,11 @@ export const BecomeSatelliteView = ({
     const validForm = {
       staked: balanceOk,
       name: form.name.length !== 0 && !/\s/g.test(form.name),
-      description: form.description.length !== 0 && /<\/?[a-z][\s\S]*>/i.test(form.description),
+      description: form.description.length !== 0,
       fee: feeOk,
       image: form.image !== undefined && form.image.indexOf('ipfs/') > 0,
     }
-
+    console.log(!/\s/g.test(form.description), form.description)
     const errors: any[] = []
     let errorMessage = 'Please correct:'
     Object.entries(validForm).forEach((k) => {
@@ -168,7 +176,14 @@ export const BecomeSatelliteView = ({
           onBlur={() => {}}
         />
         {updateSatellite ? <p>3- Update description</p> : <p>3- Enter your description</p>}
-        <TextEditor onChange={handleTextEditorChange} initialValue={form.description} />
+        {/*<TextEditor onChange={handleTextEditorChange} initialValue={form.description} />*/}
+        <TextArea
+          placeholder="Your satellite description here..."
+          value={form.description}
+          onChange={(e: any) => setForm({ ...form, description: e.target.value })}
+          inputStatus={formInputStatus.description}
+          onBlur={() => {}}
+        />
         {updateSatellite ? <p>4- Update your fee (%)</p> : <p>4- Enter your fee (%)</p>}
         <BecomeSatelliteFormFeeCheck feeOk={false}>
           <Input
@@ -180,7 +195,7 @@ export const BecomeSatelliteView = ({
           />
         </BecomeSatelliteFormFeeCheck>
 
-        <p>6- Upload a profile picture</p>
+        <p>5- Upload a profile picture</p>
         <UploaderFileSelector>
           {isUploading ? (
             <div>Uploading...</div>

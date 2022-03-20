@@ -13,7 +13,11 @@ export const SatelliteDetails = () => {
   const dispatch = useDispatch()
   const location = useLocation()
   const loading = useSelector((state: State) => state.loading)
+  const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { doormanStorage, totalStakedMvkSupply } = useSelector((state: State) => state.doorman)
+  const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
+  const myDelegatedMvkBalance = userStakeBalanceLedger?.get(accountPkh || '')
   const pathAddress = location.pathname?.substring(location.pathname?.lastIndexOf('/') + 1)
   const neededSatellite = getDesiredSatellite(pathAddress, delegationStorage.satelliteLedger)
 
@@ -35,6 +39,7 @@ export const SatelliteDetails = () => {
       loading={loading}
       delegateCallback={delegateCallback}
       undelegateCallback={undelegateCallback}
+      myDelegatedMvk={myDelegatedMvkBalance}
     />
   )
 }
