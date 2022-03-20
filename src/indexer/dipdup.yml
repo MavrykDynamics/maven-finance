@@ -48,7 +48,7 @@ contracts:
     address: KT1J1jQ1vjYh6ke8sRjp4MMrN3S7LL72bZ8o
     typename: break_glass
   governance:
-    address: KT1CyWegk8p93JDy8w2jrG77B8qiQSV8RaeQ
+    address: KT19T2uG3uMu7qo8qCicD161kvhSjFYvLmTq
     typename: governance
 
 datasources:
@@ -617,3 +617,35 @@ indexes:
         pattern:
           - destination: governance
             entrypoint: addUpdateProposalData
+      - callback: on_governance_lock_proposal
+        pattern:
+          - destination: governance
+            entrypoint: lockProposal
+      - callback: on_governance_proposal_round_vote
+        pattern:
+          - destination: governance
+            entrypoint: proposalRoundVote
+      # - callback: on_governance_drop_proposal
+      #   pattern:
+      #     - destination: governance
+      #       entrypoint: dropProposal
+      # - callback: on_governance_execute_proposal
+      #   pattern:
+      #     - destination: governance
+      #       entrypoint: executeProposal
+      # - callback: on_governance_setup_lambda_function
+      #   pattern:
+      #     - destination: governance
+      #       entrypoint: setupLambdaFunction
+      # - callback: on_governance_start_timelock_round
+      #   pattern:
+      #     - destination: governance
+      #       entrypoint: startTimelockRound
+      # - callback: on_governance_start_voting_round
+      #   pattern:
+      #     - destination: governance
+      #       entrypoint: startVotingRound
+      # - callback: on_governance_voting_round_vote
+      #   pattern:
+      #     - destination: governance
+      #       entrypoint: votingRoundVote
