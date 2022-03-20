@@ -1,4 +1,4 @@
-import { SECONDS_PER_BLOCK } from './constants'
+import { PRECISION_NUMBER, SECONDS_PER_BLOCK } from './constants'
 
 /**
  * Calculates the MVK Loyalty Index (MLI) per the function in the litepaper
@@ -24,4 +24,9 @@ export function calcTimeToBlock(currentBlockLevel: number, endBlockLevel: number
   const hoursUntilEndBlockReached = minutesUntilEndBlockReached / 60
   const daysUntilEndBlockReached = hoursUntilEndBlockReached / 24
   return daysUntilEndBlockReached
+}
+
+export function calcWithoutMu(amount: string): number {
+  const numberMu = parseFloat(amount) || 0
+  return numberMu > 0 ? numberMu / PRECISION_NUMBER : 0
 }

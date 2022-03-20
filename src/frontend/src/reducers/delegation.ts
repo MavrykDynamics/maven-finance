@@ -18,14 +18,15 @@ import {
   UPDATE_AS_SATELLITE_REQUEST,
   UPDATE_AS_SATELLITE_RESULT,
 } from '../pages/BecomeSatellite/BecomeSatellite.actions'
+import { MichelsonMap } from '@taquito/taquito'
 
 export interface SatelliteRecord {
   address: string
   name: string
   image: string
   description: string
-  satelliteFee: string
-  status: boolean
+  satelliteFee: string | number
+  active: boolean
   mvkBalance: string
   totalDelegatedAmount: string
   registeredDateTime: Date
@@ -36,21 +37,26 @@ export type DelegationConfig = {
   delegationRatio: string
   minimumStakedMvkBalance: number
 }
+export interface DelegationBreakGlassConfigType {
+  delegateToSatelliteIsPaused: boolean
+  undelegateFromSatelliteIsPaused: boolean
+  registerAsSatelliteIsPaused: boolean
+  unregisterAsSatelliteIsPaused: boolean
+  updateSatelliteRecordIsPaused: boolean
+}
 export interface DelegateRecord {
   satelliteAddress: string
   delegatedDateTime: Date | null
 }
-export type DelegationLedger = Map<string, DelegateRecord>
-
+export type DelegationLedger = MichelsonMap<string, DelegateRecord>
 export interface DelegationStorage {
-  admin: string
+  admin?: string
+  contractAddresses?: MichelsonMap<string, string>
+  whitelistContracts?: MichelsonMap<string, string>
   satelliteLedger: SatelliteRecord[]
   config: DelegationConfig
   delegateLedger: DelegationLedger
-  breakGlassConfig: any
-  sMvkTokenAddress: string
-  vMvkTokenAddress: string
-  governanceAddress: string
+  breakGlassConfig: DelegationBreakGlassConfigType
 }
 
 const DELEGATE = 'DELEGATE'
@@ -62,22 +68,24 @@ export interface DelegationState {
   amount?: number
   error?: any
 }
-
-const delegationDefaultState: DelegationState = {
-  delegationStorage: {
-    admin: '',
-    satelliteLedger: [],
-    config: {
-      maxSatellites: '1000',
-      delegationRatio: '10000',
-      minimumStakedMvkBalance: 10000,
-    },
-    delegateLedger: new Map(),
-    breakGlassConfig: {},
-    sMvkTokenAddress: '',
-    vMvkTokenAddress: '',
-    governanceAddress: '',
+const defaultDelegationStorage: DelegationStorage = {
+  satelliteLedger: [],
+  config: {
+    maxSatellites: '1000',
+    delegationRatio: '10000',
+    minimumStakedMvkBalance: 10000,
   },
+  delegateLedger: new MichelsonMap<string, DelegateRecord>(),
+  breakGlassConfig: {
+    delegateToSatelliteIsPaused: false,
+    undelegateFromSatelliteIsPaused: false,
+    registerAsSatelliteIsPaused: false,
+    unregisterAsSatelliteIsPaused: false,
+    updateSatelliteRecordIsPaused: false,
+  },
+}
+const delegationDefaultState: DelegationState = {
+  delegationStorage: defaultDelegationStorage,
   amount: 0,
 }
 

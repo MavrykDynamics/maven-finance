@@ -75,6 +75,7 @@ export const StakeUnstakeView = ({
       setStakeUnstakeValueError('Stake value cannot exceed your MVK balance')
     } else if (accountPkh && inputAmount > Number(userStakeBalance) && actionType === 'UNSTAKE') {
       setStakeUnstakeValueError('Unstake value cannot exceed your Total MVK Staked')
+      setStakeUnstakeValueOK(false)
     } else {
       switch (actionType) {
         case 'STAKE':

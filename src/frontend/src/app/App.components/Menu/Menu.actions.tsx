@@ -4,13 +4,13 @@ import { TempleDAppNetwork, TempleWallet } from '@temple-wallet/dapp'
 import { State } from 'reducers'
 
 import { showToaster } from '../Toaster/Toaster.actions'
-import { ERROR } from '../Toaster/Toaster.constants'
+import { ERROR, INFO, SUCCESS } from '../Toaster/Toaster.constants'
 import { getChainInfo } from '../../../utils/api'
 
 export const SET_WALLET = 'SET_WALLET'
 export const setWallet = (wallet: TempleWallet) => (dispatch: any, getState: any) => {
   /*
-  //TODO: For change to Beacon, don't forget to substitube params wall: TempleWallet to wallet?: any
+  //TODO: For change to Beacon, don't forget to substitute params wall: TempleWallet to wallet?: any
   try {
     const walletOptions = {
       name: process.env.REACT_APP_NAME || 'MAVRYK',

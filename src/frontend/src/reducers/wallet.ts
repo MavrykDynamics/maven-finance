@@ -1,14 +1,14 @@
-import { TezosToolkit } from "@taquito/taquito"
-import { TempleWallet } from "@temple-wallet/dapp"
-import { CONNECT, SET_WALLET } from "app/App.components/Menu/Menu.actions"
+import { TezosToolkit } from '@taquito/taquito'
+import { TempleWallet } from '@temple-wallet/dapp'
+import { CONNECT, SET_WALLET } from 'app/App.components/Menu/Menu.actions'
 
 export interface WalletState {
-  wallet?: TempleWallet,
-  tezos?: TezosToolkit,
-  accountPkh?: string,
+  wallet?: TempleWallet
+  tezos?: TezosToolkit
+  accountPkh?: string
   ready: boolean
+  error?: any
 }
-
 const walletDefaultState: WalletState = {
   wallet: undefined,
   tezos: undefined,

@@ -1,4 +1,5 @@
 import {
+  GET_DOORMAN_STORAGE,
   STAKE_ERROR,
   STAKE_REQUEST,
   STAKE_RESULT,
@@ -6,18 +7,15 @@ import {
   UNSTAKE_REQUEST,
   UNSTAKE_RESULT,
 } from 'pages/Doorman/Doorman.actions'
+import { MichelsonMap } from '@taquito/taquito'
+import { getItemFromStorage } from '../utils/storage'
 
 const STAKE = 'STAKE'
 const UNSTAKE = 'UNSTAKE'
-const GET_DOORMAN_STORAGE = 'GET_DOORMAN_STORAGE'
 
 export interface UserStakeRecord {
-  time: string
-  amount: number
-  exitFee: number
-  mvkLoyaltyIndex: number
-  mvkTotalSupply: number
-  opType: typeof STAKE | typeof UNSTAKE
+  balance: number
+  participationFeesPerShare: number
 }
 export type UserStakeBalanceLedger = Map<string, string>
 
@@ -25,48 +23,62 @@ export type UserStakeRecordsLedger = Map<string, Map<number, UserStakeRecord>>
 export interface DoormanBreakGlassConfigType {
   stakeIsPaused: boolean
   unstakeIsPaused: boolean
+  compoundIsPaused: boolean
 }
 export interface DoormanStorage {
+  admin?: string
+  minMvkAmount?: number
+
+  whitelistContracts?: MichelsonMap<string, unknown>
+  generalContracts?: MichelsonMap<string, unknown>
+
+  breakGlassConfig?: DoormanBreakGlassConfigType
   userStakeBalanceLedger: UserStakeBalanceLedger
-  userStakeRecordsLedger: UserStakeRecordsLedger
-  totalStakedMvkSupply: number
-  admin: string
-  breakGlassConfig: DoormanBreakGlassConfigType
-  mvkTokenAddress: string
-  delegationAddress: string
-  exitFeePoolAddress: string
-  tempMvkTotalSupply: number
+
+  tempMvkTotalSupply?: number
+  tempMvkMaximumTotalSupply?: number
+  stakedMvkTotalSupply?: number
+  unclaimedRewards?: number
+
   logExitFee?: number // to be removed after testing
   logFinalAmount?: number // to be removed after testing
+
+  accumulatedFeesPerShare?: number
 }
 export interface DoormanState {
   type?: typeof STAKE | typeof UNSTAKE | typeof GET_DOORMAN_STORAGE
   amount: number
   error?: any
-  doormanStorage?: DoormanStorage | undefined
+  doormanStorage?: DoormanStorage
   totalStakedMvkSupply?: number
 }
+const defaultStorageState: DoormanStorage = {
+  admin: '',
+  minMvkAmount: 0,
 
+  whitelistContracts: new MichelsonMap<string, unknown>(),
+  generalContracts: new MichelsonMap<string, unknown>(),
+
+  breakGlassConfig: {
+    stakeIsPaused: false,
+    unstakeIsPaused: false,
+    compoundIsPaused: false,
+  },
+  userStakeBalanceLedger: new Map<string, string>(),
+  tempMvkTotalSupply: 0,
+  tempMvkMaximumTotalSupply: 0,
+  stakedMvkTotalSupply: 0,
+
+  logExitFee: 0, // to be removed after testing
+  logFinalAmount: 0, // to be removed after testing
+
+  accumulatedFeesPerShare: 0,
+}
 const doormanDefaultState: DoormanState = {
   type: undefined,
   amount: 0,
   error: undefined,
-  doormanStorage: {
-    userStakeBalanceLedger: new Map<string, string>(),
-    userStakeRecordsLedger: new Map<string, Map<number, UserStakeRecord>>(),
-    totalStakedMvkSupply: 0,
-    admin: '',
-    breakGlassConfig: {
-      stakeIsPaused: false,
-      unstakeIsPaused: false,
-    },
-    mvkTokenAddress: '',
-    delegationAddress: '',
-    exitFeePoolAddress: '',
-    tempMvkTotalSupply: 0,
-    logExitFee: 0, // to be removed after testing
-    logFinalAmount: 0, // to be removed after testing
-  },
+  doormanStorage: defaultStorageState,
   totalStakedMvkSupply: 0,
 }
 
@@ -74,42 +86,49 @@ export function doorman(state = doormanDefaultState, action: any): DoormanState 
   switch (action.type) {
     case STAKE_REQUEST:
       return {
+        ...state,
         type: STAKE,
         amount: action.amount,
         error: undefined,
       }
     case STAKE_RESULT:
       return {
+        ...state,
         type: STAKE,
         amount: state.amount,
         error: undefined,
       }
     case STAKE_ERROR:
       return {
+        ...state,
         type: STAKE,
         amount: 0,
         error: action.error,
       }
     case UNSTAKE_REQUEST:
       return {
+        ...state,
         type: UNSTAKE,
         amount: action.amount,
         error: undefined,
       }
     case UNSTAKE_RESULT:
       return {
+        ...state,
         type: UNSTAKE,
         amount: state.amount,
         error: undefined,
       }
     case UNSTAKE_ERROR:
       return {
+        ...state,
         type: UNSTAKE,
         amount: 0,
         error: action.error,
       }
     case GET_DOORMAN_STORAGE:
       return {
+        ...state,
         type: GET_DOORMAN_STORAGE,
         doormanStorage: action.storage,
         totalStakedMvkSupply: action.totalStakedMvkSupply,

@@ -12,12 +12,19 @@ import {
 } from 'reducers/delegation'
 import { getContractBigmapKeys, getContractStorage } from 'utils/api'
 import { PRECISION_NUMBER } from '../../utils/constants'
+import { MichelsonMap } from '@taquito/taquito'
 
 export const GET_DELEGATION_STORAGE = 'GET_DELEGATION_STORAGE'
 export const getDelegationStorage = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   try {
+    // const delegationStorageFromIndexer = await fetchFromIndexerWithPromise(
+    //   DELEGATION_STORAGE_QUERY,
+    //   DELEGATION_STORAGE_QUERY_NAME,
+    //   DELEGATION_STORAGE_QUERY_VARIABLE,
+    // )
+    // const delegationStorage = storageToTypeConverter('delegation', delegationStorageFromIndexer.delegation[0])
     const storage = await getContractStorage(delegationAddress.address)
     const satelliteLedgerBigMap = await getContractBigmapKeys(delegationAddress.address, 'satelliteLedger')
     const delegateLedgerBigMap = await getContractBigmapKeys(delegationAddress.address, 'delegateLedger')
@@ -42,7 +49,7 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
         image: element.value?.image,
         description: element.value?.description,
         satelliteFee: String(satelliteFee),
-        status: element.value?.status === '1',
+        active: element.value?.status === '1',
         mvkBalance: String(mvkBalance),
         totalDelegatedAmount: String(totalDelegatedAmount),
         registeredDateTime: new Date(element.value?.registeredDateTime),
@@ -52,7 +59,7 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
       satelliteLedger.push(newSatellite)
     })
 
-    const delegationLedger: DelegationLedger = new Map()
+    const delegationLedger: DelegationLedger = new MichelsonMap<string, DelegateRecord>()
     delegateLedgerBigMap.forEach((element: any) => {
       const keyAddress = element.key
       const newDelegateRecord: DelegateRecord = {
@@ -75,9 +82,6 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
       config: delegationConfig,
       delegateLedger: delegationLedger,
       breakGlassConfig: storage.breakGlassConfig,
-      sMvkTokenAddress: storage.sMvkTokenAddress,
-      vMvkTokenAddress: storage.vMvkTokenAddress,
-      governanceAddress: storage.governanceAddress,
     }
 
     dispatch({
@@ -177,6 +181,7 @@ export const undelegate = (satelliteAddress: string) => async (dispatch: any, ge
     dispatch({
       type: UNDELEGATE_RESULT,
     })
+
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDelegationStorage())
     dispatch(getDoormanStorage())

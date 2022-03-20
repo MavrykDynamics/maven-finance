@@ -4,18 +4,15 @@ import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constan
 import doormanAddress from 'deployments/doormanAddress.json'
 import mvkTokenAddress from 'deployments/mvkTokenAddress.json'
 import { State } from 'reducers'
-import {
-  DoormanBreakGlassConfigType,
-  DoormanStorage,
-  UserStakeBalanceLedger,
-  UserStakeRecord,
-  UserStakeRecordsLedger,
-} from 'reducers/doorman'
-import { getContractBigmapKeys, getContractStorage } from 'utils/api'
+import { DoormanBreakGlassConfigType, DoormanStorage, UserStakeBalanceLedger } from 'reducers/doorman'
 
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import { PRECISION_NUMBER } from '../../utils/constants'
 import { MvkTokenStorage } from '../../reducers/mvkToken'
+import { calcWithoutMu } from '../../utils/calcFunctions'
+import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
+
+import { getContractBigmapKeys, getContractStorage } from '../../utils/api'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -31,12 +28,10 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
         (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
       ).contract.at(mvkTokenAddress.address)
   const storage = await (contract as any).storage()
-  const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
-  const myBalanceMu = myLedgerEntry?.toNumber()
-  const myBalance = myBalanceMu > 0 ? myBalanceMu / PRECISION_NUMBER : 0
 
-  const totalMvkSupplyMu = parseFloat(storage?.totalSupply) || 0
-  const totalMvkSupply = totalMvkSupplyMu > 0 ? totalMvkSupplyMu / PRECISION_NUMBER : 0
+  const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
+  const myBalance = myLedgerEntry ? calcWithoutMu(myLedgerEntry?.toNumber()) : 0
+  const totalMvkSupply = calcWithoutMu(storage?.totalSupply)
 
   const mvkTokenStorage: MvkTokenStorage = {
     admin: storage.admin,
@@ -47,7 +42,7 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
   dispatch({
     type: GET_MVK_TOKEN_STORAGE,
     mvkTokenStorage: mvkTokenStorage,
-    myMvkTokenBalance: myBalance?.toFixed(2),
+    myMvkTokenBalance: myBalance,
   })
 }
 
@@ -72,10 +67,16 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
     return
   }
 
+  // if (!state.wallet.contractPermissionsMap.get(doormanAddress.address)) {
+  //   dispatch(showToaster(ERROR, "Doorman contract doesn't have permission", 'Please approve permissions update'))
+  //   dispatch(updateOperators('doorman', doormanAddress.address, state.wallet.accountPkh))
+  // }
+
   try {
-    const contract = await state.wallet.tezos?.wallet.at(doormanAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.stake(amount * PRECISION_NUMBER).send()
+    console.log('Here in stake', amount * PRECISION_NUMBER)
+    const doormanContract = await state.wallet.tezos?.wallet.at(doormanAddress.address)
+    console.log('contract', doormanContract)
+    const transaction = await doormanContract?.methods.stake(amount * PRECISION_NUMBER).send()
     console.log('transaction', transaction)
 
     dispatch({
@@ -161,50 +162,52 @@ export const unstake = (amount: number) => async (dispatch: any, getState: any) 
 }
 
 export const GET_DOORMAN_STORAGE = 'GET_DOORMAN_STORAGE'
-export const getDoormanStorage = () => async (dispatch: any, getState: any) => {
+export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   try {
+    // const storage = await fetchFromIndexer(
+    //   DOORMAN_STORAGE_QUERY,
+    //   DOORMAN_STORAGE_QUERY_NAME,
+    //   DOORMAN_STORAGE_QUERY_VARIABLE,
+    // )
+    // const convertedStorage = storageToTypeConverter('doorman', storage.doorman[0])
     const storage = await getContractStorage(doormanAddress.address)
     const userStakeBalanceLedgerBigMap = await getContractBigmapKeys(doormanAddress.address, 'userStakeBalanceLedger')
-    const userStakeRecordsLedgerBigMap = await getContractBigmapKeys(doormanAddress.address, 'userStakeRecordsLedger')
 
-    const userStakeBalanceLedger: UserStakeBalanceLedger = new Map<string, string>(),
-      userStakeRecordsLedger: UserStakeRecordsLedger = new Map<string, Map<number, UserStakeRecord>>()
+    const userStakeBalanceLedger: UserStakeBalanceLedger = new Map<string, string>()
 
     userStakeBalanceLedgerBigMap.forEach((element: any) => {
       const keyAddress = element.key
-      const myBalanceMu = Number(element.value) || 0
-      const myBalance = myBalanceMu > 0 ? myBalanceMu / PRECISION_NUMBER : 0
-      userStakeBalanceLedger.set(keyAddress, myBalance.toFixed(2))
-    })
-    userStakeRecordsLedgerBigMap.forEach((element: any) => {
-      const keyAddress = element.key
-      const value = (element.value as Map<number, UserStakeRecord>) || {}
-      userStakeRecordsLedger.set(keyAddress, value)
+      const myStakeBalanceMu = Number(element.value?.balance) || 0
+      const myStakeBalance = myStakeBalanceMu > 0 ? myStakeBalanceMu / PRECISION_NUMBER : 0
+      userStakeBalanceLedger.set(keyAddress, myStakeBalance.toFixed(2))
     })
 
     const doormanBreakGlassConfig: DoormanBreakGlassConfigType = {
       stakeIsPaused: storage.breakGlassConfig?.stakeIsPaused,
       unstakeIsPaused: storage.breakGlassConfig?.unstakeIsPaused,
+      compoundIsPaused: storage.breakGlassConfig?.compoundIsPaused,
     }
 
-    const stakedMvkTotalSupplyMu = parseFloat(storage?.stakedMvkTotalSupply) || 0
-    const stakedMvkTotalSupply = stakedMvkTotalSupplyMu > 0 ? stakedMvkTotalSupplyMu / PRECISION_NUMBER : 0
-    const tempMvkTotalSupplyMu = parseFloat(storage?.tempMvkTotalSupply) || 0
-    const tempMvkTotalSupply = tempMvkTotalSupplyMu > 0 ? tempMvkTotalSupplyMu / PRECISION_NUMBER : 0
+    const stakedMvkTotalSupply = calcWithoutMu(storage?.stakedMvkTotalSupply)
+    const tempMvkTotalSupply = calcWithoutMu(storage?.tempMvkTotalSupply)
+    const accumulatedFeesPerShare = calcWithoutMu(storage?.accumulatedFeesPerShare)
+    const minMvkAmount = calcWithoutMu(storage?.minMvkAmount)
+    const tempMvkMaximumTotalSupply = calcWithoutMu(storage?.tempMvkMaximumTotalSupply)
+
     const doormanStorage: DoormanStorage = {
       admin: storage.admin,
       breakGlassConfig: doormanBreakGlassConfig,
-      mvkTokenAddress: storage.mvkTokenAddress,
-      delegationAddress: storage.delegationAddress,
-      exitFeePoolAddress: storage.exitFeePoolAddress,
       userStakeBalanceLedger: userStakeBalanceLedger,
-      userStakeRecordsLedger: userStakeRecordsLedger,
       tempMvkTotalSupply: tempMvkTotalSupply,
-      totalStakedMvkSupply: stakedMvkTotalSupply,
+      stakedMvkTotalSupply: stakedMvkTotalSupply,
+      accumulatedFeesPerShare: accumulatedFeesPerShare,
+      minMvkAmount: minMvkAmount,
+      tempMvkMaximumTotalSupply: tempMvkMaximumTotalSupply,
     }
 
+    updateItemInStorage('DoormanStorage', doormanStorage)
     dispatch({
       type: GET_DOORMAN_STORAGE,
       storage: doormanStorage,

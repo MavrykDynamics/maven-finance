@@ -28,7 +28,7 @@ import * as React from 'react'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
-  myTotalStakeBalance?: string
+  myTotalStakeBalance: string
   minimumStakedMvkBalance?: string
   accountPkh?: string
   registerCallback: (form: RegisterAsSatelliteForm) => void
@@ -78,7 +78,7 @@ export const BecomeSatelliteView = ({
   }
 
   useEffect(() => {
-    if (accountPkh && parseInt(myTotalStakeBalance || '0') >= (minimumStakedMvkBalance || parseInt('10000'))) {
+    if (accountPkh && myTotalStakeBalance >= (minimumStakedMvkBalance || parseInt('10000'))) {
       setBalanceOk(true)
     }
     if (accountPkh && form.fee >= 0 && form.fee <= 100 && form.fee % 1 === 0) {

@@ -1,13 +1,13 @@
 import { Link, useLocation } from 'react-router-dom'
-import Toggle from 'react-toggle'
 // prettier-ignore
 import {
-  MenuBanner, MenuBottomSection,
+  MenuBanner,
+  MenuBottomSection,
   MenuFooter,
   MenuGrid,
   MenuLogo,
-  MenuStyled, MenuTopSection,
-  ThemeToggleIcon,
+  MenuStyled,
+  MenuTopSection,
 } from './Menu.style'
 import * as React from 'react'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
@@ -18,23 +18,11 @@ import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
 
 type MenuViewProps = {
   loading: boolean
-  myMvkTokenBalance?: string
   accountPkh?: string
-  handleNewConnect: () => void
-  wallet: any
   ready: boolean
-  handleConnect: () => void
 }
 
-export const MenuView = ({
-  loading,
-  myMvkTokenBalance,
-  accountPkh,
-  handleNewConnect,
-  wallet,
-  ready,
-  handleConnect,
-}: MenuViewProps) => {
+export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
   const location = useLocation()
   const [isExpanded, setExpanded] = useState<number>(0)
 
@@ -48,20 +36,15 @@ export const MenuView = ({
           <MenuLogo alt="logo" src="/logo.svg" />
         </Link>
         <ConnectWallet
+          // ref={connectWalletRef}
           type={'main-menu'}
-          loading={loading}
-          wallet={wallet}
-          ready={ready}
-          accountPkh={accountPkh}
-          myMvkTokenBalance={myMvkTokenBalance}
-          handleConnect={handleConnect}
-          handleNewConnect={handleNewConnect}
         />
         <MenuGrid>
           {mainNavigationLinks.map((navigationLink: MainNavigationRoute, index: number) => {
+            const key = `${index}-${navigationLink.path.substring(1)}-${navigationLink.id}`
             return (
               <NavigationLink
-                key={index}
+                key={key}
                 handleToggle={handleToggle}
                 isExpanded={navigationLink.id === isExpanded}
                 location={location}
@@ -72,13 +55,13 @@ export const MenuView = ({
             )
           })}
         </MenuGrid>
-        <MenuBottomSection>
-          <MenuBanner src="/images/buy-mvk.svg" alt="buy" />
-          <MenuFooter>
-            MAVRYK App <p>v1.0</p>
-          </MenuFooter>
-        </MenuBottomSection>
       </MenuTopSection>
+      <MenuBottomSection>
+        <MenuBanner src="/images/buy-mvk.svg" alt="buy" />
+        <MenuFooter>
+          MAVRYK App <p>v1.0</p>
+        </MenuFooter>
+      </MenuBottomSection>
     </MenuStyled>
   )
 }

@@ -2,13 +2,13 @@ import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 import * as React from 'react'
 import { ConnectWalletStyled, WalletConnectedButton, WalletNotConnectedButton } from './ConnectWallet.style'
 
-type ConnectWalletProps = {
+type ConnectWalletViewProps = {
   type?: string | null
   loading: boolean
   wallet: any
   ready: boolean
   accountPkh?: string
-  myMvkTokenBalance?: string | number
+  myMvkTokenBalance: string | number | undefined
   handleConnect: () => void
   handleNewConnect: () => void
 }
@@ -21,7 +21,7 @@ export const ConnectWalletView = ({
   myMvkTokenBalance,
   handleConnect,
   handleNewConnect,
-}: ConnectWalletProps) => {
+}: ConnectWalletViewProps) => {
   return (
     <ConnectWalletStyled>
       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
