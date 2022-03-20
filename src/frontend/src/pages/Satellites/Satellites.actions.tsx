@@ -1,7 +1,7 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import delegationAddress from 'deployments/delegationAddress.json'
-import { getDoormanStorage, getMvkTokenStorage, getUserInfo } from 'pages/Doorman/Doorman.actions'
+import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
 import {
   DelegateRecord,
@@ -141,7 +141,7 @@ export const delegate = (satelliteAddress: string) => async (dispatch: any, getS
       type: DELEGATE_RESULT,
     })
 
-    if (state.wallet.accountPkh) dispatch(getUserInfo(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
 
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDelegationStorage())
@@ -191,7 +191,7 @@ export const undelegate = (satelliteAddress: string) => async (dispatch: any, ge
       type: UNDELEGATE_RESULT,
     })
 
-    if (state.wallet.accountPkh) dispatch(getUserInfo(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
 
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDelegationStorage())

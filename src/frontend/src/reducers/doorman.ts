@@ -51,6 +51,7 @@ export interface DoormanState {
   error?: any
   doormanStorage?: DoormanStorage
   totalStakedMvkSupply?: number
+  isOperator: boolean
 }
 const defaultStorageState = {
   admin: '',
@@ -78,44 +79,51 @@ const doormanDefaultState: DoormanState = {
   type: undefined,
   amount: 0,
   error: undefined,
-  doormanStorage: getItemFromStorage('DoormanStorage') || defaultStorageState,
+  doormanStorage: getItemFromStorage('DoormanStorage') ?? defaultStorageState,
   totalStakedMvkSupply: 0,
+  isOperator: false,
 }
 
 export function doorman(state = doormanDefaultState, action: any): DoormanState {
   switch (action.type) {
     case STAKE_REQUEST:
       return {
+        ...state,
         type: STAKE,
         amount: action.amount,
         error: undefined,
       }
     case STAKE_RESULT:
       return {
+        ...state,
         type: STAKE,
         amount: state.amount,
         error: undefined,
       }
     case STAKE_ERROR:
       return {
+        ...state,
         type: STAKE,
         amount: 0,
         error: action.error,
       }
     case UNSTAKE_REQUEST:
       return {
+        ...state,
         type: UNSTAKE,
         amount: action.amount,
         error: undefined,
       }
     case UNSTAKE_RESULT:
       return {
+        ...state,
         type: UNSTAKE,
         amount: state.amount,
         error: undefined,
       }
     case UNSTAKE_ERROR:
       return {
+        ...state,
         type: UNSTAKE,
         amount: 0,
         error: action.error,
