@@ -27,6 +27,7 @@ import {
 } from '../../gql/queries/getUserStakeInfo'
 import { USER_INFO_QUERY, USER_INFO_QUERY_NAME, USER_INFO_QUERY_VARIABLES } from '../../gql/queries/getUserInfo'
 import { UserData } from '../../reducers/user'
+import { updateOperators } from '../../app/App.components/Menu/Menu.actions'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -42,11 +43,13 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
         (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
       ).contract.at(mvkTokenAddress.address)
   const storage = await (contract as any).storage()
+  console.log(await storage['token_metadata'].id.toNumber())
   const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
   const myBalance = myLedgerEntry ? calcWithoutMu(myLedgerEntry?.toNumber()) : 0
   const totalMvkSupply = calcWithoutMu(storage?.totalSupply)
 
   const mvkTokenStorage: MvkTokenStorage = {
+    tokenId: await storage['token_metadata'].id.toNumber(),
     maximumTotalSupply: 0,
     admin: storage.admin,
     contractAddresses: storage.contractAddresses,
@@ -56,7 +59,7 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
   dispatch({
     type: GET_MVK_TOKEN_STORAGE,
     mvkTokenStorage: mvkTokenStorage,
-    myMvkTokenBalance: myBalance?.toFixed(2),
+    myMvkTokenBalance: myBalance,
   })
 }
 
@@ -81,7 +84,13 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
     return
   }
 
+  // if (!state.wallet.contractPermissionsMap.get(doormanAddress.address)) {
+  //   dispatch(showToaster(ERROR, "Doorman contract doesn't have permission", 'Please approve permissions update'))
+  //   dispatch(updateOperators('doorman', doormanAddress.address, state.wallet.accountPkh))
+  // }
+
   try {
+    console.log('Here in stake', amount * PRECISION_NUMBER)
     const contract = await state.wallet.tezos?.wallet.at(doormanAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.stake(amount * PRECISION_NUMBER).send()
@@ -101,7 +110,7 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
       type: STAKE_RESULT,
     })
 
-    if (state.wallet.accountPkh) dispatch(getUserInfo(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
 
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDoormanStorage())
@@ -159,7 +168,7 @@ export const unstake = (amount: number) => async (dispatch: any, getState: any) 
       type: UNSTAKE_RESULT,
     })
 
-    if (state.wallet.accountPkh) dispatch(getUserInfo(state.wallet.accountPkh))
+    if (state.wallet.accountPkh) dispatch(getUserData(state.wallet.accountPkh))
 
     dispatch(getMvkTokenStorage(state.wallet.accountPkh))
     dispatch(getDoormanStorage())
@@ -250,10 +259,11 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
   }
 }
 
-export const GET_USER_INFO = 'GET_USER_INFO'
-export const SET_USER_INFO = 'SET_USER_INFO'
-export const UPDATE_USER_INFO = 'UPDATE_USER_INFO'
-export const getUserInfo = (accountPkh: string) => async (dispatch: any, getState: any) => {
+export const GET_USER_DATA = 'GET_USER_DATA'
+export const GET_USER_DATA_ERROR = 'GET_USER_DATA'
+export const SET_USER_DATA = 'SET_USER_DATA'
+export const UPDATE_USER_DATA = 'UPDATE_USER_DATA'
+export const getUserData = (accountPkh: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
   try {
     const userInfoFromIndexer = await fetchFromIndexer(
@@ -262,38 +272,40 @@ export const getUserInfo = (accountPkh: string) => async (dispatch: any, getStat
       USER_INFO_QUERY_VARIABLES(accountPkh),
     )
     const userInfoData = userInfoFromIndexer?.mavryk_user[0]
-
+    const userIsDelegatedToSatellite = userInfoData.delegation_records.length > 0
     const userInfo: UserData = {
       myAddress: userInfoData.address,
       myMvkTokenBalance: calcWithoutMu(userInfoData.mvk_balance),
       mySMvkTokenBalance: calcWithoutMu(userInfoData.smvk_balance),
       participationFeesPerShare: calcWithoutMu(userInfoData.participation_fees_per_share),
-      satelliteMvkIsDelegatedTo: userInfoData.delegation_records[0].satellite_record.user_id ?? '',
+      satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite
+        ? userInfoData.delegation_records[0].satellite_record?.user_id
+        : '',
     }
     setItemInStorage('UserData', userInfo)
     dispatch({
-      type: GET_USER_INFO,
+      type: GET_USER_DATA,
       userData: userInfo,
     })
   } catch (error: any) {
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
-      type: GET_USER_INFO,
+      type: GET_USER_DATA,
       error,
     })
   }
 }
 
-export const updateUserInfo = (field: string, value: any) => async (dispatch: any, getState: any) => {
+export const updateUserData = (field: string, value: any) => async (dispatch: any, getState: any) => {
   const state: State = getState()
   try {
     const userState = state.user
     // @ts-ignore
     userState[field] = value
-    updateItemInStorage('UserDate', value)
+    updateItemInStorage('UserData', value)
     dispatch({
-      type: UPDATE_USER_INFO,
+      type: UPDATE_USER_DATA,
       userKey: field,
       userValue: value,
     })
@@ -301,7 +313,7 @@ export const updateUserInfo = (field: string, value: any) => async (dispatch: an
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
-      type: UPDATE_USER_INFO,
+      type: UPDATE_USER_DATA,
       error,
     })
   }

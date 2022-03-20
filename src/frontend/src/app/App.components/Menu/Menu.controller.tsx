@@ -1,4 +1,4 @@
-import { getMvkTokenStorage, getUserInfo } from 'pages/Doorman/Doorman.actions'
+import { getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
@@ -16,7 +16,7 @@ export const Menu = () => {
 
   useEffect(() => {
     if (accountPkh) {
-      dispatch(getUserInfo(accountPkh))
+      dispatch(getUserData(accountPkh))
       dispatch(getMvkTokenStorage(accountPkh))
     }
     GetHeadData()

@@ -13,6 +13,7 @@ type TokenMetadataInfo = {
 
 export interface MvkTokenStorage {
   admin?: string
+  tokenId?: number
   contractAddresses?: MichelsonMap<string, string>
   whitelistContracts?: MichelsonMap<string, string>
   totalSupply: number
@@ -22,10 +23,13 @@ export interface MvkTokenState {
   mvkTokenStorage: MvkTokenStorage | any
   myMvkTokenBalance?: string
 }
-
+const defaultMvkTokenStorage: MvkTokenStorage = {
+  totalSupply: 0,
+  maximumTotalSupply: 1000000000,
+}
 const mvkTokenDefaultState: MvkTokenState = {
-  mvkTokenStorage: getItemFromStorage('MvkTokenStorage') ?? {},
-  myMvkTokenBalance: getItemFromStorage('UserInfo')?.stakeInfo.myMvkBalance ?? undefined,
+  mvkTokenStorage: getItemFromStorage('MvkTokenStorage') ?? defaultMvkTokenStorage,
+  myMvkTokenBalance: getItemFromStorage('UserData')?.myMvkBalance ?? undefined,
 }
 
 export function mvkToken(state = mvkTokenDefaultState, action: any): MvkTokenState {
@@ -35,6 +39,7 @@ export function mvkToken(state = mvkTokenDefaultState, action: any): MvkTokenSta
         mvkTokenStorage: action.mvkTokenStorage,
         myMvkTokenBalance: action.myMvkTokenBalance,
       }
+
     default:
       return state
   }
