@@ -1,4 +1,4 @@
-import { GET_USER_INFO, SET_USER_INFO, UPDATE_USER_INFO } from '../pages/Doorman/Doorman.actions'
+import { GET_USER_DATA, SET_USER_DATA, UPDATE_USER_DATA } from '../pages/Doorman/Doorman.actions'
 import { getItemFromStorage } from '../utils/storage'
 
 export interface UserData {
@@ -10,7 +10,7 @@ export interface UserData {
   myDelegationHistory?: any[]
 }
 export interface UserState {
-  type: typeof GET_USER_INFO | typeof SET_USER_INFO | typeof UPDATE_USER_INFO
+  type: typeof GET_USER_DATA | typeof SET_USER_DATA | typeof UPDATE_USER_DATA
   user: UserData
 }
 
@@ -23,28 +23,28 @@ const defaultUser: UserData = {
   satelliteMvkIsDelegatedTo: '',
 }
 const userDefaultState: UserState = {
-  type: GET_USER_INFO,
+  type: GET_USER_DATA,
   user: getItemFromStorage('UserData') ?? defaultUser,
 }
 
 export function user(state = userDefaultState, action: any): UserState {
   switch (action.type) {
-    case GET_USER_INFO:
+    case GET_USER_DATA:
       return {
-        type: GET_USER_INFO,
+        type: GET_USER_DATA,
         user: action.userData,
       }
-    case SET_USER_INFO:
+    case SET_USER_DATA:
       return {
-        type: SET_USER_INFO,
+        type: SET_USER_DATA,
         user: action.userData,
       }
-    case UPDATE_USER_INFO:
+    case UPDATE_USER_DATA:
       const userState = state.user
       // @ts-ignore
       userState[action.userKey] = action.userValue
       return {
-        type: UPDATE_USER_INFO,
+        type: UPDATE_USER_DATA,
         user: userState,
       }
     default:

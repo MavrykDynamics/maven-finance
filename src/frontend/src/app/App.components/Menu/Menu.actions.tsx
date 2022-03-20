@@ -4,14 +4,15 @@ import { TempleDAppNetwork, TempleWallet } from '@temple-wallet/dapp'
 import { State } from 'reducers'
 
 import { showToaster } from '../Toaster/Toaster.actions'
-import { ERROR } from '../Toaster/Toaster.constants'
+import { ERROR, INFO, SUCCESS } from '../Toaster/Toaster.constants'
 import { getChainInfo } from '../../../utils/api'
-import { getUserInfo } from '../../../pages/Doorman/Doorman.actions'
+import { getUserData } from '../../../pages/Doorman/Doorman.actions'
+import mvkTokenAddress from '../../../deployments/mvkTokenAddress.json'
 
 export const SET_WALLET = 'SET_WALLET'
 export const setWallet = (wallet: TempleWallet) => (dispatch: any, getState: any) => {
   /*
-  //TODO: For change to Beacon, don't forget to substitube params wall: TempleWallet to wallet?: any
+  //TODO: For change to Beacon, don't forget to substitute params wall: TempleWallet to wallet?: any
   try {
     const walletOptions = {
       name: process.env.REACT_APP_NAME || 'MAVRYK',
@@ -50,7 +51,7 @@ export const connect =
         })
         const tzs = state.wallet.wallet?.toTezos()
         const accountPkh = await tzs?.wallet.pkh()
-
+        debugger
         dispatch({
           type: CONNECT,
           tezos: tzs,
@@ -58,7 +59,7 @@ export const connect =
           accountPkh: accountPkh,
         })
 
-        if (accountPkh) dispatch(getUserInfo(accountPkh))
+        if (accountPkh) dispatch(getUserData(accountPkh))
       }
     } catch (err: any) {
       dispatch(showToaster(ERROR, 'Failed to connect TempleWallet', err.message))
@@ -106,3 +107,55 @@ export const getHeadData = () => async (dispatch: any, getState: any) => {
     })
   }
 }
+
+export const UPDATE_OPERATORS_REQUEST = 'UPDATE_OPERATORS_REQUEST'
+export const UPDATE_OPERATORS_RESULT = 'UPDATE_OPERATORS_RESULT'
+export const UPDATE_OPERATORS_ERROR = 'UPDATE_OPERATORS_ERROR'
+export const updateOperators =
+  (contractName: string, contractAddress: string, accountPkh?: string) => async (dispatch: any, getState: any) => {
+    const state: State = getState()
+    try {
+      const contract = accountPkh
+        ? await state.wallet.tezos?.wallet.at(mvkTokenAddress.address)
+        : await new TezosToolkit(
+            (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
+          ).contract.at(mvkTokenAddress.address)
+
+      console.log('contract', contract)
+      const transaction = await contract?.methods
+        .update_operators([
+          {
+            add_operator: {
+              owner: accountPkh,
+              operator: contractAddress,
+              token_id: 0,
+            },
+          },
+        ])
+        .send()
+      console.log('transaction', transaction)
+
+      dispatch(showToaster(INFO, `Allowing ${contractName} permission...`, 'Please wait 30s'))
+      const done = await transaction?.confirmation()
+      console.log('done here in Update Operators', done)
+
+      dispatch({
+        type: UPDATE_OPERATORS_REQUEST,
+        contract: contractAddress,
+        // @ts-ignore
+        isAuthorized: done['completed'],
+      })
+      dispatch(showToaster(SUCCESS, `${contractName} is authorized`, 'All good :)'))
+
+      dispatch({
+        type: UPDATE_OPERATORS_RESULT,
+      })
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: UPDATE_OPERATORS_ERROR,
+        error,
+      })
+    }
+  }

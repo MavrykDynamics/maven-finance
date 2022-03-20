@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { Page } from 'styles'
 
-import { getDoormanStorage, getMvkTokenStorage, getUserInfo, stake, unstake } from './Doorman.actions'
+import { getDoormanStorage, getMvkTokenStorage, getUserData, stake, unstake } from './Doorman.actions'
 import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
@@ -24,7 +24,7 @@ export const Doorman = () => {
 
   useEffect(() => {
     if (accountPkh) {
-      dispatch(getUserInfo(accountPkh))
+      dispatch(getUserData(accountPkh))
       dispatch(getMvkTokenStorage(accountPkh))
       dispatch(getDoormanStorage(accountPkh))
     } else {
