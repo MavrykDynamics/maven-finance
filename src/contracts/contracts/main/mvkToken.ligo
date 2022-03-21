@@ -97,8 +97,8 @@ type assertMetadataParams is [@layout:comb] record[
 (* GetTotalSupply & GetMaximumSupply entrypoint inputs *)
 type getSingleSupplyParamsType is contract(tokenBalance)
 
-(* GetSupplies entrypoint inputs *)
-type getSuppliesParamsType is contract(tokenBalance * tokenBalance)
+(* GetTotalAndMaximumSupply entrypoint inputs *)
+type getTotalAndMaximumSupplyParamsType is contract(tokenBalance * tokenBalance)
 
 (* GetDesiredMintPossibility entrypoint inputs *)
 type getDesiredMintPossibilityParams is contract(tokenBalance)
@@ -122,7 +122,7 @@ type action is
 | AssertMetadata of assertMetadataParams
 | GetTotalSupply of getSingleSupplyParamsType
 | GetMaximumSupply of getSingleSupplyParamsType
-| GetSupplies of getSuppliesParamsType
+| GetTotalAndMaximumSupply of getTotalAndMaximumSupplyParamsType
 | Mint of mintParams
 | OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
@@ -251,11 +251,11 @@ function getTotalSupply(const getSingleSupplyParams: getSingleSupplyParamsType; 
 
 (* GetMaximumSupply Entrypoint *)
 function getMaximumSupply(const getSingleSupplyParams: getSingleSupplyParamsType; const store: storage) : return is
-  (list[Tezos.transaction(store.totalSupply, 0tez, getSingleSupplyParams)], store)
+  (list[Tezos.transaction(store.maximumSupply, 0tez, getSingleSupplyParams)], store)
 
-(* GetSupplies Entrypoint *)
-function getSupplies(const getSuppliesParams: getSuppliesParamsType; const store: storage) : return is
-  (list[Tezos.transaction((store.totalSupply, store.maximumSupply), 0tez, getSuppliesParams)], store)
+(* GetTotalAndMaximumSupply Entrypoint *)
+function getTotalAndMaximumSupply(const getTotalAndMaximumSupplyParams: getTotalAndMaximumSupplyParamsType; const store: storage) : return is
+  (list[Tezos.transaction((store.totalSupply, store.maximumSupply), 0tez, getTotalAndMaximumSupplyParams)], store)
 
 (* Update_operators Entrypoint *)
 function addOperator(const operatorParameter: operatorParameter; const operators: operators): operators is
@@ -371,7 +371,7 @@ function main (const action : action; const store : storage) : return is
 
       | GetTotalSupply (params) -> getTotalSupply(params, store)
       | GetMaximumSupply (params) -> getMaximumSupply(params, store)
-      | GetSupplies (params) -> getSupplies(params, store)
+      | GetTotalAndMaximumSupply (params) -> getTotalAndMaximumSupply(params, store)
 
       | Mint (params) -> mint(params, store)
       | OnStakeChange (params) -> onStakeChange(params, store)
