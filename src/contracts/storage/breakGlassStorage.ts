@@ -17,6 +17,8 @@ const config = {
 
 export const breakGlassStorage: breakGlassStorageType = {
   admin: alice.pkh,
+  mvkTokenAddress: "",
+
   config: config,
 
   generalContracts: MichelsonMap.fromLiteral({}),

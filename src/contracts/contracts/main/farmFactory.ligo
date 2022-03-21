@@ -48,6 +48,8 @@ type farmBreakGlassConfigType is [@layout:comb] record [
 
 type farmStorage is record[
     admin                   : address;
+    mvkTokenAddress         : address;
+    
     whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts        : generalContractsType;
 
@@ -110,6 +112,8 @@ type breakGlassConfigType is record [
 
 type storage is record[
     admin                  : address;
+    mvkTokenAddress        : address;
+
     whitelistContracts     : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts       : generalContractsType;
 
@@ -165,33 +169,6 @@ function checkNoAmount(const _p: unit): unit is
 function checkSenderIsAdmin(const s: storage): unit is
   if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
-
-// helper function to get pause all entrypoint from farm address
-function getPauseAllEntrypointFromFarmAddress(const farmAddress: address): contract(unit) is
-  case (Tezos.get_entrypoint_opt(
-      "%pauseAll",
-      farmAddress): option(contract(unit))) of
-    Some(contr) -> contr
-  | None -> (failwith("PauseAll entrypoint not found in farm contract"): contract(unit))
-  end;
-
-// helper function to get pause all entrypoint from farm address
-function getUnpauseAllEntrypointFromFarmAddress(const farmAddress: address): contract(unit) is
-  case (Tezos.get_entrypoint_opt(
-      "%unpauseAll",
-      farmAddress): option(contract(unit))) of
-    Some(contr) -> contr
-  | None -> (failwith("UnpauseAll entrypoint not found in farm contract"): contract(unit))
-  end;
-
-// helper function to get updateBlocksPerMinute entrypoint from farm address
-function getUpdateBlocksPerMinuteEntrypointFromFarmAddress(const farmAddress: address): contract(nat) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateBlocksPerMinute",
-      farmAddress): option(contract(nat))) of
-    Some(contr) -> contr
-  | None -> (failwith("UpdateBlocksPerMinute entrypoint not found in farm contract"): contract(nat))
-  end;
 
 ////
 // BREAK GLASS CHECKS
@@ -295,8 +272,10 @@ function pauseAllFarms(var s: storage): return is
 
         for farmAddress in set s.trackedFarms 
         block {
-            var operation: operation := Tezos.transaction(Unit, 0tez, getPauseAllEntrypointFromFarmAddress(farmAddress));
-            operations := operation # operations;
+            case (Tezos.get_entrypoint_opt("%pauseAll", farmAddress): option(contract(unit))) of
+                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+            |   None -> skip
+            end;
         };
 
     } with (operations, s)
@@ -310,11 +289,14 @@ function unpauseAllFarms(var s: storage): return is
 
         for farmAddress in set s.trackedFarms 
         block {
-            var operation: operation := Tezos.transaction(Unit, 0tez, getUnpauseAllEntrypointFromFarmAddress(farmAddress));
-            operations := operation # operations;
+            case (Tezos.get_entrypoint_opt("%unpauseAll", farmAddress): option(contract(unit))) of
+                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+            |   None -> skip
+            end;
         };
 
     } with (operations, s)
+
 ////
 // ENTRYPOINTS FUNCTIONS
 ///
@@ -328,8 +310,10 @@ function updateAllBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage
 
         for farmAddress in set s.trackedFarms 
         block {
-            var operation: operation := Tezos.transaction(newBlocksPerMinutes, 0tez, getUpdateBlocksPerMinuteEntrypointFromFarmAddress(farmAddress));
-            operations := operation # operations;
+            case (Tezos.get_entrypoint_opt("%updateBlocksPerMinute", farmAddress): option(contract(nat))) of
+                Some(contr) -> operations := Tezos.transaction(newBlocksPerMinutes, 0tez, contr) # operations
+            |   None -> skip
+            end;
         };
 
         s.blocksPerMinute := newBlocksPerMinutes;
@@ -403,6 +387,7 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
         // Create a farm and auto init it?
         const originatedFarmStorage: farmStorage = record[
             admin                   = s.admin; // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
+            mvkTokenAddress         = s.mvkTokenAddress;
             whitelistContracts      = farmWhitelistContract;      // whitelist of contracts that can access restricted entrypoints
             generalContracts        = farmGeneralContracts;
 

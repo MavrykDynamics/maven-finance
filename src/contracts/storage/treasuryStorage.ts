@@ -21,6 +21,8 @@ const breakGlassConfig = {
 
 export const treasuryStorage: treasuryStorageType = {
   admin: alice.pkh,
+  mvkTokenAddress: "",
+
   config: config,
 
   whitelistContracts : MichelsonMap.fromLiteral({}),

@@ -48,6 +48,8 @@ type breakGlassConfigType is [@layout:comb] record [
 
 type storage is record[
     admin                   : address;
+    mvkTokenAddress         : address;
+
     whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts        : generalContractsType;
 

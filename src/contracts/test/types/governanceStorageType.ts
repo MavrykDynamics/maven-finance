@@ -4,6 +4,8 @@ import { BigNumber } from "bignumber.js";
 
 export type governanceStorageType = {
   admin: string;
+  mvkTokenAddress: string;
+
   config: {};
 
   whitelistContracts : MichelsonMap<MichelsonMapKey, unknown>;

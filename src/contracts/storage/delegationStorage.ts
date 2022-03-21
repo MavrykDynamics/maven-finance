@@ -23,8 +23,9 @@ const breakGlassConfig = {
 }
 
 export const delegationStorage: delegationStorageType = {
-
   admin: alice.pkh,
+  mvkTokenAddress: "",
+  
   config: config,
   breakGlassConfig: breakGlassConfig,
 

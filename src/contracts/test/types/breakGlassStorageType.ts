@@ -4,6 +4,8 @@ import { BigNumber } from "bignumber.js";
 
 export type breakGlassStorageType = {
   admin: string;
+  mvkTokenAddress: string;
+  
   config: {};
 
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;

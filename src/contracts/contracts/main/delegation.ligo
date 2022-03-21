@@ -59,6 +59,8 @@ type breakGlassConfigType is record [
 
 type storage is record [
     admin                : address;
+    mvkTokenAddress      : address;
+
     config               : configType;
 
     whitelistContracts   : whitelistContractsType;      
