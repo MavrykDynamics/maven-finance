@@ -819,31 +819,35 @@ block {
         | None -> failwith("Error. Proposal not found.")
       end;
 
-      if proposal.passVoteMvkTotal < proposal.minProposalRoundVotesRequired then skip else failwith("Error. Voting round should be triggered next instead of Proposal Round.");
+      if proposal.upvoteMvkTotal < proposal.minQuorumMvkTotal  then skip else failwith("Error. Timelock round should be triggered next instead of Proposal Round.");
 
     } else skip;
 
-    // simple loop to get the proposal with the highest vote count in MVK 
-    var _highestVoteCounter     : nat := 0n;
-    var highestVotedProposalId  : nat := 0n;
-    for proposalId -> voteCount in map s.currentRoundProposals block {
-        if voteCount > _highestVoteCounter then block {
-             _highestVoteCounter := voteCount;
-             highestVotedProposalId := proposalId;
-        } else skip;
-    };
+    if s.currentRound = "proposal" then block {
+      
+      // simple loop to get the proposal with the highest vote count in MVK 
+      var _highestVoteCounter     : nat := 0n;
+      var highestVotedProposalId  : nat := 0n;
+      for proposalId -> voteCount in map s.currentRoundProposals block {
+          if voteCount > _highestVoteCounter then block {
+              _highestVoteCounter := voteCount;
+              highestVotedProposalId := proposalId;
+          } else skip;
+      };
 
-    // check if there is a valid proposal 
-    if highestVotedProposalId =/= 0n then block {
+      // check if there is a valid proposal 
+      if highestVotedProposalId =/= 0n then block {
 
-        // fetch proposal
-        const proposal : proposalRecordType = case s.proposalLedger[highestVotedProposalId] of 
-            Some(_proposalRecord) -> _proposalRecord
-          | None -> failwith("Error. Proposal not found.")
-        end;
+          // fetch proposal
+          const proposal : proposalRecordType = case s.proposalLedger[highestVotedProposalId] of 
+              Some(_proposalRecord) -> _proposalRecord
+            | None -> failwith("Error. Proposal not found.")
+          end;
 
-        if proposal.passVoteMvkTotal < proposal.minProposalRoundVotesRequired then skip else failwith("Error. Voting round should be triggered next instead of Proposal Round.");
+          if proposal.passVoteMvkTotal < proposal.minProposalRoundVotesRequired then skip else failwith("Error. Voting round should be triggered next instead of Proposal Round.");
 
+      } else skip;
+      
     } else skip;
 
     // conditions fulfilled to start another proposal round
