@@ -60,11 +60,35 @@ describe("Emergency Governance tests", async () => {
         console.log('Bob address: ' + bob.pkh);
         console.log('Eve address: ' + eve.pkh);
 
+
+        // init variables
+
+        // mallory update operators - set initial staked MVK total supply of 250
+        await signerFactory(mallory.sk);
+        const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+            {
+                add_operator: {
+                    owner: mallory.pkh,
+                    operator: doormanAddress.address,
+                    token_id: 0,
+                },
+            }])
+        .send()
+        await updateOperatorsOperation.confirmation();
+
+        const userStake = MVK(250);
+        const malloryStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+        await malloryStakeMvkOperation.confirmation();
+
+        const malloryStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(mallory.pkh);
+        assert.equal(malloryStakedMvkBalance.balance, userStake);
+
     });
 
     it('alice cannot trigger emergency control (no staked MVK, no tez sent)', async () => {
         try{        
 
+            await signerFactory(alice.sk);
             const emergencyGovernanceTitle       = "New Emergency By Alice";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
 
@@ -307,7 +331,6 @@ describe("Emergency Governance tests", async () => {
             assert.equal(emergencyGovernanceProposal.executed,        false);
             assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes,        0);
             
-            
         } catch (e){
             console.log(e)
         }
@@ -401,7 +424,7 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('eve can vote for emergency control if she has sufficient staked mvk', async () => {
+    it('eve can vote for emergency control (enough staked MVK)', async () => {
         try{        
 
             await signerFactory(eve.sk);
@@ -442,16 +465,33 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    // it('alice can vote for emergency control and trigger break glass (500 MVK > 100 MVK required)', async () => {
+    // it('alice can vote for emergency control (enough MVK))', async () => {
     //     try{        
 
+    //         await signerFactory(alice.sk);
     //         const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1).send();
     //         await voteForEmergencyControlOperation.confirmation();
 
-    //         afterEmergencyGovernanceStorage     = await emergencyGovernanceInstance.storage();
-    //         // emergencyGovernanceProposal         = await afterEmergencyGovernanceStorage.emergencyGovernanceLedger.get(1);
+    //         const updatedEmergencyGovernanceStorage     = await emergencyGovernanceInstance.storage();
 
-    //         console.log(afterEmergencyGovernanceStorage);
+    //         console.log(updatedEmergencyGovernanceStorage);
+    //         // console.log(emergencyGovernanceProposal);
+            
+    //     } catch (e){
+    //         console.log(e)
+    //     }
+    // });
+
+    // it('mallory cannot vote for emergency control (notenough MVK))', async () => {
+    //     try{        
+
+    //         await signerFactory(alice.sk);
+    //         const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1).send();
+    //         await voteForEmergencyControlOperation.confirmation();
+
+    //         const updatedEmergencyGovernanceStorage     = await emergencyGovernanceInstance.storage();
+
+    //         console.log(updatedEmergencyGovernanceStorage);
     //         // console.log(emergencyGovernanceProposal);
             
     //     } catch (e){

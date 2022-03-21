@@ -8,7 +8,7 @@ import { MVK, zeroAddress } from "../test/helpers/Utils";
 import { emergencyGovernanceStorageType } from '../test/types/emergencyGovernanceStorageType'
 
 const config = {
-  decimals : 4,
+  decimals : 5,
   voteExpiryDays: 3,
   requiredFee: 10000000,
   stakedMvkPercentageRequired: 10000,
@@ -25,7 +25,7 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
 
   emergencyGovernanceLedger: MichelsonMap.fromLiteral({}),
 
-  tempMvkTotalSupply: new BigNumber(1000000000),
+  tempStakedMvkTotalSupply: new BigNumber(0),
   currentEmergencyGovernanceId: new BigNumber(0),
   nextEmergencyGovernanceProposalId: new BigNumber(1),
 }
