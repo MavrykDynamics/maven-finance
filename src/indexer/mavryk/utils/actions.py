@@ -180,3 +180,74 @@ async def persist_break_glass_action(action):
                 break_glass_action_record       = breakGlassActionRecord
             )
             await breakGlassActionRecordSigner.save()
+
+
+async def persist_financial_request(action):
+    # Get operation values
+    governanceAddress       = action.data.target_address
+    requestLedger           = action.storage.financialRequestLedger
+
+    # Create record
+    governance  = await models.Governance.get(
+        address = governanceAddress
+    )
+
+    for requestID in requestLedger:
+        requestRecord       = await models.GovernanceFinancialRequestRecord.get_or_none(
+            id  = int(requestID)
+        )
+        if requestRecord == None:
+            requestRecordStorage            = requestLedger[requestID]
+            treasuryAddress                 = requestRecordStorage.treasuryAddress
+            requesterAddress                = requestRecordStorage.requesterAddress
+            request_type                    = requestRecordStorage.requestType
+            status                          = requestRecordStorage.status
+            statusType                      = models.GovernanceRecordStatus.ACTIVE
+            if not status:
+                statusType  = models.GovernanceRecordStatus.DROPPED
+            ready                           = requestRecordStorage.ready
+            executed                        = requestRecordStorage.executed
+            expired                         = requestRecordStorage.expired
+            token_contract_address          = requestRecordStorage.tokenContractAddress
+            token_amount                    = float(requestRecordStorage.tokenAmount)
+            token_name                      = requestRecordStorage.tokenName
+            token_id                        = int(requestRecordStorage.tokenId)
+            request_purpose                 = requestRecordStorage.requestPurpose
+            approve_vote_total              = float(requestRecordStorage.approveVoteTotal)
+            disapprove_vote_total           = float(requestRecordStorage.disapproveVoteTotal)
+            smvk_percentage_for_approval    = int(requestRecordStorage.stakedMvkPercentageForApproval)
+            smvk_required_for_approval      = float(requestRecordStorage.stakedMvkRequiredForApproval)
+            expiration_datetime             = parser.parse(requestRecordStorage.expiryDateTime)
+            requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
+
+            treasury, _             = await models.Treasury.get_or_create(
+                address = treasuryAddress
+            )
+            await treasury.save()
+
+            requester, _            = await models.MavrykUser.get_or_create(
+                address = requesterAddress
+            )
+            requestRecord           = models.GovernanceFinancialRequestRecord(
+                id                              = int(requestID),
+                governance                      = governance,
+                treasury                        = treasury,
+                requester                       = requester,
+                request_type                    = request_type,
+                status                          = statusType,
+                ready                           = ready,
+                executed                        = executed,
+                expired                         = expired,
+                token_contract_address          = token_contract_address,
+                token_amount                    = token_amount,
+                token_name                      = token_name,
+                token_id                        = token_id,
+                request_purpose                 = request_purpose,
+                approve_vote_total              = approve_vote_total,
+                disapprove_vote_total           = disapprove_vote_total,
+                smvk_percentage_for_approval    = smvk_percentage_for_approval,
+                smvk_required_for_approval      = smvk_required_for_approval,
+                expiration_datetime             = expiration_datetime,
+                requested_datetime              = requested_datetime
+            )
+            await requestRecord.save()
