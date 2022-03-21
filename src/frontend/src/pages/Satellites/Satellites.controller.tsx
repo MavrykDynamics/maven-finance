@@ -1,6 +1,6 @@
 import { getDoormanStorage, getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
 import * as React from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { Page, PageContent } from 'styles'

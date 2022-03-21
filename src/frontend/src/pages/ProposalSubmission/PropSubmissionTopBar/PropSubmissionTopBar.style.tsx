@@ -1,5 +1,5 @@
 import { MavrykTheme } from '../../../styles/interfaces'
-import styled, { keyframes } from 'styled-components/macro'
+import styled from 'styled-components/macro'
 
 export const PropSubmissionTopBarStyled = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.backgroundColor};

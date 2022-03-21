@@ -1,5 +1,4 @@
 import styled, { keyframes } from 'styled-components/macro'
-
 import { backgroundColor } from '../../../styles'
 
 export const PageHeaderStyled = styled.div<{ backgroundImageSrc: string }>`

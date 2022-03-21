@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { DECIMALS_TO_SHOW } from '../../../utils/constants'
-import { ButtonLoadingIcon } from '../Button/Button.style'
 import { LoadingIcon } from './CommaNumber.style'
 
 export const CommaNumber = ({

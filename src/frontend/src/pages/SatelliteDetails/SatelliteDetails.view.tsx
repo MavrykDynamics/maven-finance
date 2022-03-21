@@ -18,12 +18,12 @@ import {
 import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import * as React from 'react'
 import { Link } from 'react-router-dom'
-import { SatelliteRecord } from 'reducers/delegation'
 import { Page, PageContent } from 'styles'
 
 import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord | undefined

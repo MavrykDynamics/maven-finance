@@ -1,7 +1,4 @@
 import styled, { keyframes } from 'styled-components/macro'
-
-// prettier-ignore
-import { backgroundTextColor, downColor, placeholderColor, primaryColor, subTextColor, upColor, selectedColor } from '../../../styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const InputStyled = styled.div`

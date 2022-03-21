@@ -1,21 +1,6 @@
-import { MichelsonMap } from '@taquito/taquito'
 import { GET_COUNCIL_STORAGE } from '../pages/Treasury/Treasury.actions'
+import { CouncilStorage } from '../utils/TypesAndInterfaces/Council'
 
-export interface CouncilStorage {
-  admin: string
-  config: {
-    actionExpiryBlockLevels: number
-    actionExpiryDays: number
-    threshold: number
-  }
-  councilMembers: string[]
-  whitelistContracts: MichelsonMap<string, unknown>
-  generalContracts: MichelsonMap<string, unknown>
-  councilActionsLedger: MichelsonMap<number, unknown>
-  thresholdSigners: number
-  actionCounter: number
-  tempString: string
-}
 export interface CouncilState {
   councilStorage: CouncilStorage | any
 }

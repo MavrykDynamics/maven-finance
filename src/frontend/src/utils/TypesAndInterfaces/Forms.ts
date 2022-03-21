@@ -4,6 +4,7 @@ import { InputStatusType } from '../../app/App.components/Input/Input.controller
  * Types for forms
  * 1. Proposal Submission
  * 2. Proposal Update
+ * 3. Financial Request
  */
 export type AllValidFormTypes = ValidSubmitProposalForm | ValidProposalUpdateForm | ValidFinancialRequestForm
 

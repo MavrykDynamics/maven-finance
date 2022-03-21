@@ -1,11 +1,11 @@
 import * as React from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { SatelliteRecord } from 'reducers/delegation'
 
 import { getDelegationStorage } from '../Satellites.actions'
 import { SatelliteSideBarView } from './SatelliteSideBar.view'
+import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 
 export const SatelliteSideBar = () => {
   const dispatch = useDispatch()

@@ -1,5 +1,4 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, backgroundTextColor, primaryColor, subTextColor, textColor } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const TzAddressContainer = styled.div`

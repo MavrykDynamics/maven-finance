@@ -1,5 +1,5 @@
 import { getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { getHeadData } from './Menu.actions'

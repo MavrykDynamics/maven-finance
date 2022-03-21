@@ -1,7 +1,6 @@
-import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
-import { ColoredLineStyle, PRIMARY, SECONDARY, TRANSPARENT } from './ColoredLine.constants'
+import { ColoredLineStyle, SECONDARY } from './ColoredLine.constants'
 import { ColoredLineStyled } from './ColoredLine.style'
 
 type ColoredLineProps = {

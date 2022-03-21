@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, primaryColor, subTextColor } from 'styles'
+import { Card } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const DoormanStatsStyled = styled(Card)`

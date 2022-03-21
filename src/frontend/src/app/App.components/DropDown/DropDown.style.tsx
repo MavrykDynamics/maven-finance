@@ -1,13 +1,12 @@
 import styled from 'styled-components/macro'
+import { MavrykTheme } from '../../../styles/interfaces'
 
-import { backgroundColor, borderColor } from '../../../styles'
-
-export const DropDownStyled = styled('div')`
+export const DropDownStyled = styled.div`
   width: 10.5em;
   margin: 0 auto;
 `
 
-export const DropDownMenu = styled('div')`
+export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
   display: block;
   position: relative;
@@ -15,16 +14,16 @@ export const DropDownMenu = styled('div')`
   padding: 12px 16px 12px 40px;
   border-width: 1px;
   border-style: solid;
-  border-color: ${borderColor};
+  border-color: ${({ theme }) => theme.borderColor};
   border-radius: 4px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
 `
 
-export const DropDownListContainer = styled('div')``
+export const DropDownListContainer = styled.div``
 
-export const DropDownList = styled('ul')`
+export const DropDownList = styled.ul<{ theme: MavrykTheme }>`
   width: 100%;
   display: block;
   position: relative;
@@ -32,18 +31,18 @@ export const DropDownList = styled('ul')`
   padding: 12px 16px 12px 40px;
   border-width: 1px;
   border-style: solid;
-  border-color: ${borderColor};
+  border-color: ${({ theme }) => theme.borderColor};
   border-radius: 4px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
   font-weight: 500;
   &:first-child {
     padding-top: 0.8em;
   }
 `
 
-export const DropDownListItem = styled('li')`
+export const DropDownListItem = styled.li`
   list-style: none;
   margin-bottom: 0.8em;
 `

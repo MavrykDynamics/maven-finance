@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { backgroundColor } from 'styles'
+import { MavrykTheme } from '../styles/interfaces'
 
 export const AppStyled = styled.div`
   min-height: 100vh;
@@ -7,13 +7,13 @@ export const AppStyled = styled.div`
   grid-template-columns: 270px auto;
 `
 
-export const AppBg = styled.div`
+export const AppBg = styled.div<{ theme: MavrykTheme }>`
   position: fixed;
   top: 0;
   left: 0;
   min-width: 100vw;
   min-height: 100vh;
-  background-color: ${backgroundColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
   /* background-image: url('/images/bg.png');
   background-position: center;
   background-repeat: no-repeat;

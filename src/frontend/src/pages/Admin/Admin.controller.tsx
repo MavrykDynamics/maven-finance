@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { adminChangeGovernancePeriod, trackFarm } from './Admin.actions'
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
