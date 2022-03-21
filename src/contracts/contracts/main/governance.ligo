@@ -1140,6 +1140,7 @@ block {
     
         // update proposal with new vote, increment proposal with satellite snapshot's total voting power
         s.proposalLedger[proposalId] := _proposal;
+        s.proposalLedger[previousVotedProposalId] := _previousProposal;
 
         // increment proposal with satellite snapshot's total voting power
         s.currentRoundProposals[proposalId] := newPassVoteMvkTotal;
