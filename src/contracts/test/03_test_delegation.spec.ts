@@ -75,8 +75,8 @@
 //             // init values
 //             const userStake               = MVK(100);
 //             const doormanContractAddress  = doormanAddress.address;
-//             const satelliteName           = "New Satellite";
-//             const satelliteDescription    = "New Satellite Description";
+//             const satelliteName           = "New Satellite (Alice)";
+//             const satelliteDescription    = "New Satellite Description (Alice)";
 //             const satelliteImage          = "https://placeholder.com/300";
 //             const satelliteFee            = "700";
 
@@ -120,7 +120,7 @@
 //             // Alice's satellite details
 //             assert.equal(afterDelegationLedgerAlice.name,                   satelliteName);
 //             assert.equal(afterDelegationLedgerAlice.description,            satelliteDescription);
-//             assert.equal(afterDelegationLedgerAlice.mvkBalance,             userStake);
+//             assert.equal(afterDelegationLedgerAlice.stakedMvkBalance,       userStake);
 //             assert.equal(afterDelegationLedgerAlice.satelliteFee,           satelliteFee);
 //             assert.equal(afterDelegationLedgerAlice.totalDelegatedAmount,   0);
 //             assert.equal(afterDelegationLedgerAlice.status,                 1);
@@ -163,8 +163,8 @@
 //             // Check state before stake action
 //             const beforeDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);        // should return null or undefined
 //             const beforeAliceStakedBalance     = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);    // BigNumber { s: 1, e: 8, c: [ 100000000 ] }
-//             assert.equal(beforeDelegationLedgerAlice.mvkBalance, userStake);
-//             assert.equal(beforeAliceStakedBalance.balance,       userStake);
+//             assert.equal(beforeDelegationLedgerAlice.stakedMvkBalance, userStake);
+//             assert.equal(beforeAliceStakedBalance.balance,             userStake);
              
 //             // alice stake another 100 MVK tokens 
 //             const stakeAmountOperation = await doormanInstance.methods.stake(userStake).send();
@@ -173,8 +173,8 @@
 //             // Check state after stake action
 //             const afterDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);         // should return alice's satellite record
 //             const afterAliceStakedBalance     = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);     // should return BigNumber { s: 1, e: 8, c: [ 100000000 ] }
-//             assert.equal(afterDelegationLedgerAlice.mvkBalance, newUserStakedBalance);
-//             assert.equal(afterAliceStakedBalance.balance,       newUserStakedBalance);
+//             assert.equal(afterDelegationLedgerAlice.stakedMvkBalance, newUserStakedBalance);
+//             assert.equal(afterAliceStakedBalance.balance,             newUserStakedBalance);
         
 //         } catch(e){
 //             console.log(e);
@@ -195,8 +195,8 @@
 //             // Check state before unstake action
 //             const beforeDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);        // should return null or undefined
 //             const beforeAliceStakedBalance     = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);    // BigNumber { s: 1, e: 8, c: [ 100000000 ] }
-//             assert.equal(beforeDelegationLedgerAlice.mvkBalance, oldUserStakedBalance);
-//             assert.equal(beforeAliceStakedBalance.balance,       oldUserStakedBalance);
+//             assert.equal(beforeDelegationLedgerAlice.stakedMvkBalance, oldUserStakedBalance);
+//             assert.equal(beforeAliceStakedBalance.balance,             oldUserStakedBalance);
             
 //             // alice unstakes 100 MVK tokens 
 //             const unstakeAmountOperation = await doormanInstance.methods.unstake(userUnstake).send();
@@ -205,8 +205,8 @@
 //             // Check state after unstake action
 //             const afterDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);         // should return alice's satellite record
 //             const afterAliceStakedBalance     = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);     // should return BigNumber { s: 1, e: 8, c: [ 100000000 ] }
-//             assert.notEqual(afterDelegationLedgerAlice.mvkBalance, oldUserStakedBalance);
-//             assert.notEqual(afterAliceStakedBalance.balance,       oldUserStakedBalance);
+//             assert.notEqual(afterDelegationLedgerAlice.stakedMvkBalance, oldUserStakedBalance);
+//             assert.notEqual(afterAliceStakedBalance.balance,             oldUserStakedBalance);
 
 //         } catch(e){
 //             console.log(e);
@@ -334,7 +334,7 @@
 //             // Mallory's satellite details
 //             assert.equal(mallorySatellite.name,                   satelliteName);
 //             assert.equal(mallorySatellite.description,            satelliteDescription);
-//             assert.equal(mallorySatellite.mvkBalance,             userStake);
+//             assert.equal(mallorySatellite.stakedMvkBalance,       userStake);
 //             assert.equal(mallorySatellite.satelliteFee,           satelliteFee);
 //             assert.equal(mallorySatellite.totalDelegatedAmount,   0);
 //             assert.equal(mallorySatellite.status,                 1);
@@ -356,6 +356,28 @@
 //             console.log(e);
 //         } 
 //     });
+
+//     it('alice cannot delegate to another satellite as a satellite', async () => {
+//         try{        
+
+//             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
+//             console.log("Test: Alice cannot delegate to another satellite as a satellite") 
+//             console.log("---") // break
+
+//             // Alice tries to delegate to mallory's satellite
+//             await signerFactory(alice.sk); 
+//             const failDelegateToSatelliteAsSatelliteOperation = await delegationInstance.methods.delegateToSatellite(mallory.pkh);    
+//             await chai.expect(failDelegateToSatelliteAsSatelliteOperation.send()).to.be.eventually.rejected;
+            
+//             // Check state for mallory satellite remains unchanged
+//             const mallorySatellite     = await delegationStorage.satelliteLedger.get(mallory.pkh);         
+//             assert.equal(mallorySatellite.totalDelegatedAmount, MVK(100)); // from bob's delegation in previous test
+        
+//         } catch(e){
+//             console.log(e);
+//         } 
+//     });
+
 
 //     it('eve can undelegate from alice satellite', async () => {
 //         try{        
@@ -497,7 +519,7 @@
 
 //     //         const beforeDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);        // should return null or undefined
 //     //         const beforeAliceStakedBalance     = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);    // BigNumber { s: 1, e: 8, c: [ 100000000 ] }
-//     //         assert.equal(beforeDelegationLedgerAlice.mvkBalance, 100000000);
+//     //         assert.equal(beforeDelegationLedgerAlice.stakedMvkBalance, 100000000);
 //     //         assert.equal(beforeAliceStakedBalance, 100000000);
             
 //     //         // console.log("Before test: console log checks ----")
@@ -510,7 +532,7 @@
 
 //     //         const afterDelegationLedgerAlice  = await delegationStorage.satelliteLedger.get(alice.pkh);         // should return alice's satellite record
 //     //         const afterAliceStakedBalance     = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);     // should return BigNumber { s: 1, e: 8, c: [ 100000000 ] }
-//     //         assert.equal(afterDelegationLedgerAlice.mvkBalance, 100000000);
+//     //         assert.equal(afterDelegationLedgerAlice.stakedMvkBalance, 100000000);
 //     //         assert.equal(afterAliceStakedBalance, 100000000);
         
 //     //         // console.log("After test: console log checks  ----")
