@@ -79,49 +79,53 @@ describe('Contracts Deployment for Tests', async () => {
 
   before('setup', async () => {
     utils = new Utils()
-    await utils.init(bob.sk)
+    await utils.init(alice.sk)
 
     //----------------------------
     // Originate and deploy contracts
     //----------------------------
 
+    mvkToken = await MvkToken.originate(utils.tezos, mvkStorage)
+
+    await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
+    console.log('MVK Token Contract deployed at:', mvkToken.contract.address)
+
+    doormanStorage.mvkTokenAddress  = mvkToken.contract.address
     doorman = await Doorman.originate(utils.tezos, doormanStorage)
 
-    console.log('doorman contract originated')
+    await saveContractAddress('doormanAddress', doorman.contract.address)
+    console.log('Doorman Contract deployed at:', doorman.contract.address)
 
+    delegationStorage.mvkTokenAddress  = mvkToken.contract.address
     delegationStorage.generalContracts = MichelsonMap.fromLiteral({
       doorman: doorman.contract.address,
     })
     delegation = await Delegation.originate(utils.tezos, delegationStorage)
 
-    console.log('delegation contract originated')
+    await saveContractAddress('delegationAddress', delegation.contract.address)
+    console.log('Delegation Contract deployed at:', delegation.contract.address)
 
-    mvkStorage.generalContracts = MichelsonMap.fromLiteral({
-      doorman: doorman.contract.address,
-    })
-    mvkStorage.whitelistContracts = MichelsonMap.fromLiteral({
-      doorman: doorman.contract.address,
-    })
-    mvkToken = await MvkToken.originate(utils.tezos, mvkStorage)
-
-    console.log('MVK token contract originated')
-
+    governanceStorage.mvkTokenAddress  = mvkToken.contract.address
     governanceStorage.generalContracts = MichelsonMap.fromLiteral({
       delegation: delegation.contract.address,
       mvkToken: mvkToken.contract.address,
     })
     governance = await Governance.originate(utils.tezos, governanceStorage)
 
-    console.log('governance contract originated')
+    await saveContractAddress('governanceAddress', governance.contract.address)
+    console.log('Governance Contract deployed at:', governance.contract.address)
 
+    emergencyGovernanceStorage.mvkTokenAddress  = mvkToken.contract.address
     emergencyGovernanceStorage.generalContracts = MichelsonMap.fromLiteral({
       mvkToken: mvkToken.contract.address,
       governance: governance.contract.address,
     })
     emergencyGovernance = await EmergencyGovernance.originate(utils.tezos, emergencyGovernanceStorage)
 
-    console.log('emergency governance contract originated')
+    await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
+    console.log('Emergency Governance Contract deployed at:', emergencyGovernance.contract.address)
 
+    vestingStorage.mvkTokenAddress  = mvkToken.contract.address
     vestingStorage.generalContracts = MichelsonMap.fromLiteral({
       mvkToken: mvkToken.contract.address,
       doorman: doorman.contract.address,
@@ -130,8 +134,10 @@ describe('Contracts Deployment for Tests', async () => {
     })
     vesting = await Vesting.originate(utils.tezos, vestingStorage)
 
-    console.log('vesting contract originated')
+    await saveContractAddress('vestingAddress', vesting.contract.address)
+    console.log('Vesting Contract deployed at:', vesting.contract.address)
 
+    councilStorage.mvkTokenAddress  = mvkToken.contract.address
     councilStorage.generalContracts = MichelsonMap.fromLiteral({
       vesting: vesting.contract.address,
       governance: governance.contract.address,
@@ -139,8 +145,10 @@ describe('Contracts Deployment for Tests', async () => {
     councilStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh]
     council = await Council.originate(utils.tezos, councilStorage)
 
-    console.log('council contract originated')
+    await saveContractAddress('councilAddress', council.contract.address)
+    console.log('Council Contract deployed at:', council.contract.address)
 
+    breakGlassStorage.mvkTokenAddress  = mvkToken.contract.address
     breakGlassStorage.generalContracts = MichelsonMap.fromLiteral({
       mvkToken: mvkToken.contract.address,
       doorman: doorman.contract.address,
@@ -152,8 +160,10 @@ describe('Contracts Deployment for Tests', async () => {
     })
     breakGlass = await BreakGlass.originate(utils.tezos, breakGlassStorage)
 
-    console.log('break glass contract originated')
+    await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
+    console.log('BreakGlass Contract deployed at:', breakGlass.contract.address)
 
+    treasuryStorage.mvkTokenAddress  = mvkToken.contract.address
     treasuryStorage.generalContracts = MichelsonMap.fromLiteral({
       mvkToken: mvkToken.contract.address,
       delegation: delegation.contract.address,
@@ -163,15 +173,18 @@ describe('Contracts Deployment for Tests', async () => {
     })
     treasury = await Treasury.originate(utils.tezos, treasuryStorage)
 
-    console.log('treasury contract originated')
+    await saveContractAddress('treasury', treasury.contract.address)
+    console.log('Treasury Contract deployed at:', treasury.contract.address)
 
     lpToken = await LPToken.originate(
       utils.tezos,
       lpStorage
     );
 
-    console.log("lp token contract originated")
+    await saveContractAddress("lpTokenAddress", lpToken.contract.address)
+    console.log("LP Token Contract deployed at:", lpToken.contract.address);
 
+    farmStorage.mvkTokenAddress  = mvkToken.contract.address
     farmStorage.lpToken.tokenAddress = lpToken.contract.address;
       
     farm = await Farm.originate(
@@ -179,7 +192,8 @@ describe('Contracts Deployment for Tests', async () => {
       farmStorage
     );
 
-    console.log("fa12 farm contract originated")
+    await saveContractAddress("farmAddress", farm.contract.address)
+    console.log("FA12 Farm Contract deployed at:", farm.contract.address);
 
     farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
     farmStorage.lpToken.tokenStandard = {
@@ -191,7 +205,8 @@ describe('Contracts Deployment for Tests', async () => {
       farmStorage
     );
 
-    console.log("fa2 farm contract originated")
+    await saveContractAddress("farmFA2Address", farmFA2.contract.address)
+    console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
 
     farmStorage.lpToken.tokenAddress = lpToken.contract.address;
     farmStorage.infinite = true
@@ -199,6 +214,7 @@ describe('Contracts Deployment for Tests', async () => {
       fa12: ""
     };
     
+    farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
     farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
       "doorman"  : doorman.contract.address,
     });
@@ -210,7 +226,8 @@ describe('Contracts Deployment for Tests', async () => {
       farmFactoryStorage
     );
 
-    console.log("farm factory contract originated")
+    await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
+    console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
 
     /* ---- ---- ---- ---- ---- */
 
@@ -220,6 +237,16 @@ describe('Contracts Deployment for Tests', async () => {
     //----------------------------
     // Set remaining contract addresses - post-deployment
     //----------------------------
+
+    // MVK Token Contract - set general & whitelist addresses
+    const mvkUpdateGeneralContractsOperation = await mvkToken.contract.methods
+    .updateGeneralContracts("doorman", doorman.contract.address)
+    .send();
+    await mvkUpdateGeneralContractsOperation.confirmation();
+    const mvkUpdateWhitelistContractsOperation = await mvkToken.contract.methods
+    .updateWhitelistContracts("doorman", doorman.contract.address)
+    .send();
+    await mvkUpdateWhitelistContractsOperation.confirmation();
 
     // Doorman Contract - set treasury address
     const updateGeneralContractsOperation = await doorman.contract.methods
@@ -238,7 +265,7 @@ describe('Contracts Deployment for Tests', async () => {
         }
     ]).send()
     await updateOperatorsOperation.confirmation();
-    await signerFactory(bob.sk);
+    await signerFactory(alice.sk);
 
     // Doorman Contract - set contract addresses [delegation, mvkToken]
     const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods
@@ -329,62 +356,19 @@ describe('Contracts Deployment for Tests', async () => {
 
     const setupGovernanceLambdasOperation = await governanceLambdaBatch.send()
     await setupGovernanceLambdasOperation.confirmation()
-
-    //----------------------------
-    // Save Contract Addresses to JSON (for reuse in JS / PyTezos Tests)
-    //----------------------------
-    await saveContractAddress('doormanAddress', doorman.contract.address)
-    await saveContractAddress('delegationAddress', delegation.contract.address)
-    await saveContractAddress('mvkTokenAddress', mvkToken.contract.address)
-    await saveContractAddress('governanceAddress', governance.contract.address)
-    await saveContractAddress('breakGlassAddress', breakGlass.contract.address)
-    await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
-    await saveContractAddress('vestingAddress', vesting.contract.address)
-    await saveContractAddress('councilAddress', council.contract.address)
-    await saveContractAddress("lpTokenAddress", lpToken.contract.address)
-    await saveContractAddress("farmAddress", farm.contract.address)
-    await saveContractAddress("farmFA2Address", farmFA2.contract.address)
-    await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
     
     //----------------------------
     // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
     //----------------------------
     await saveMVKDecimals(mvkTokenDecimals)
 
-    // deployedDoormanStorage    = await doorman.contract.storage();
-    // deployedDelegationStorage = await delegation.contract.storage();
-    // deployedMvkTokenStorage   = await mvkToken.contract.storage();
-    // const afterMvkTokenStorage = await mvkToken.contract.storage();
-    // const afterDelegationStorage = await delegation.contract.storage();
-    // const afterGovernanceStorage = await governance.contract.storage();
-    // const afterBreakGlassStorage = await breakGlass.contract.storage();
-    // const afterEmergencyGovernanceStorage = await emergencyGovernance.contract.storage();
-
-    // console.log(afterMvkTokenStorage);
-    // console.log(afterDelegationStorage);
-    // console.log(afterGovernanceStorage);
-    // console.log(afterBreakGlassStorage);
-    // console.log(afterEmergencyGovernanceStorage);
   })
 
   it(`test all contract deployments`, async () => {
     try {
       console.log('-- -- -- -- -- -- -- -- -- -- -- -- --') // break
       console.log('Test: All contracts deployed')
-      console.log('-- -- -- -- -- Deployments -- -- -- --')
-      console.log('Doorman Contract deployed at:', doorman.contract.address)
-      console.log('Delegation Contract deployed at:', delegation.contract.address)
-      console.log('Governance Contract deployed at:', governance.contract.address)
-      console.log('BreakGlass Contract deployed at:', breakGlass.contract.address)
-      console.log('Emergency Governance Contract deployed at:', emergencyGovernance.contract.address)
-      console.log('MVK Token Contract deployed at:', mvkToken.contract.address)
-      console.log('Vesting Contract deployed at:', vesting.contract.address)
-      console.log('Council Contract deployed at:', council.contract.address)
-      console.log('Treasury Contract deployed at:', treasury.contract.address)
-      console.log("LP Token Contract deployed at:", lpToken.contract.address);
-      console.log("FA12 Farm Contract deployed at:", farm.contract.address);
-      console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
-      console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
+      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
     } catch (e) {
       console.log(e)
     }

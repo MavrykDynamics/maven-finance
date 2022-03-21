@@ -52,6 +52,8 @@ type configType is record [
 
 type storage is record [
     admin                       : address;
+    mvkTokenAddress             : address;
+    
     config                      : configType;
     councilMembers              : councilMembersType;  // set of council member addresses
     

@@ -4,6 +4,8 @@ import { BigNumber } from "bignumber.js";
 
 export type councilStorageType = {
   admin: string;
+  mvkTokenAddress: string;
+
   config: {};
   councilMembers: Array<string>;
 

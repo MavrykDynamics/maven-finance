@@ -32,6 +32,8 @@ const lpToken = {
 
 export const farmStorage: farmStorageType = {
   admin: alice.pkh,
+  mvkTokenAddress: "",
+  
   generalContracts: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
 
