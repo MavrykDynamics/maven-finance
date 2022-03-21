@@ -1,8 +1,6 @@
 import {
   ProposalFinancialRequestForm,
   ProposalFinancialRequestInputStatus,
-  ProposalUpdateForm,
-  ProposalUpdateFormInputStatus,
 } from '../../../utils/TypesAndInterfaces/Forms'
 import {
   FormSubTitle,

@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components/macro'
+import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`

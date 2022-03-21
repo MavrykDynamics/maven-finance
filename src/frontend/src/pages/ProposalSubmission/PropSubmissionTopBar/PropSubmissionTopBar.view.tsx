@@ -10,7 +10,6 @@ import {
 } from './PropSubmissionTopBar.style'
 import * as React from 'react'
 import { GovernancePhase } from '../../../reducers/governance'
-import { Button } from '../../../app/App.components/Button/Button.controller'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 
 export type PropSubmissionTopBarViewProps = {

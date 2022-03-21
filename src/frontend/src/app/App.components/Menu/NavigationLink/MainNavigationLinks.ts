@@ -1,4 +1,4 @@
-import { MainNavigationRoute } from '../../../../styles/interfaces'
+import { MainNavigationRoute } from '../../../../utils/TypesAndInterfaces/Navigation'
 
 export const mainNavigationLinks: MainNavigationRoute[] = [
   {

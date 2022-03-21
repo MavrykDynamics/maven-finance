@@ -1,9 +1,9 @@
 import { setItemInStorage } from './storage'
-import { DoormanStorage } from '../reducers/doorman'
 import { calcWithoutMu } from './calcFunctions'
-import { MvkTokenStorage } from '../reducers/mvkToken'
-import { DelegateRecord, DelegationStorage, SatelliteRecord } from '../reducers/delegation'
 import { MichelsonMap } from '@taquito/taquito'
+import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
+import { DelegateRecord, DelegationStorage, SatelliteRecord } from './TypesAndInterfaces/Delegation'
+import { DoormanStorage } from './TypesAndInterfaces/Doorman'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}

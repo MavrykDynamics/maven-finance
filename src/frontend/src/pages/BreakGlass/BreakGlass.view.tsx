@@ -12,7 +12,6 @@ import {
 import { ContractBreakGlass } from './mockContracts'
 import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
 import { ContractCard } from './ContractCard/ContractCard.controller'
-import { useEffect, useState } from 'react'
 // @ts-ignore
 import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry'
 

@@ -1,14 +1,7 @@
 import { GET_USER_DATA, SET_USER_DATA, UPDATE_USER_DATA } from '../pages/Doorman/Doorman.actions'
 import { getItemFromStorage } from '../utils/storage'
+import { UserData } from '../utils/TypesAndInterfaces/User'
 
-export interface UserData {
-  myAddress: string
-  myMvkTokenBalance: number
-  mySMvkTokenBalance: number
-  participationFeesPerShare: number
-  satelliteMvkIsDelegatedTo: string
-  myDelegationHistory?: any[]
-}
 export interface UserState {
   type: typeof GET_USER_DATA | typeof SET_USER_DATA | typeof UPDATE_USER_DATA
   user: UserData

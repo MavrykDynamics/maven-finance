@@ -1,13 +1,12 @@
-import { Loader } from 'app/App.components/Loader/Loader.view'
 import { delegate, getDelegationStorage, undelegate } from 'pages/Satellites/Satellites.actions'
 import * as React from 'react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 import { State } from 'reducers'
-import { SatelliteRecord } from 'reducers/delegation'
 
 import { SatelliteDetailsView } from './SatelliteDetails.view'
+import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 
 export const SatelliteDetails = () => {
   const dispatch = useDispatch()

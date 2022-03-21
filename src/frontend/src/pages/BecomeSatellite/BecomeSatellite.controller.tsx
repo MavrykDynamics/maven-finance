@@ -5,12 +5,12 @@ import { useEffect, useState } from 'react'
 import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { SatelliteRecord } from 'reducers/delegation'
 
 import { registerAsSatellite, RegisterAsSatelliteForm, updateSatelliteRecord } from './BecomeSatellite.actions'
 import { BecomeSatelliteView } from './BecomeSatellite.view'
+import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 
-export const BecomeSatellite = (props: any) => {
+export const BecomeSatellite = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { accountPkh } = useSelector((state: State) => state.wallet)
