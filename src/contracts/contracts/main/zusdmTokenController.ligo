@@ -76,7 +76,6 @@ type withdrawFromVaultActionType is [@layout:comb] record [
 type liquidateVaultActionType is [@layout:comb] record [
     handle                      : vaultHandleType; 
     usdmQuantity                : nat; 
-    tokenName                   : string;
     [@annot:to] to_             : contract(unit);
 ]
 
@@ -286,18 +285,6 @@ block {
 
         };
     };
-
-    // assume 200% collateral ratio
-    // 1. deposit 100 xtz into vault    - 1 xtz to 3 usdm
-    // 2. deposit 50 crunchy into vault - 10 crunchy to 1 xtz -> 15 usdm
-
-    // - actual ratio (other liquidity pools) - crunchy to xtz
-    // - liquidity pool ratio - crunchy to xtz (assuming is the same as actual ratio)
-    // - xtz to usd price - we do not have
-    // - xtz to usdm price (in our liquidity pools) - in place of xtz to usd
-
-    // 3. deposit 25 uToken into vault  - 
-    // x. borrow 150 usdm
 
     // get price of USDM in xtz
     const usdmTokenPrice : nat = case s.priceLedger["usdm"] of 
@@ -614,22 +601,21 @@ block {
 
 
 (* markForLiquidation entrypoint *)
-function markForLiquidation(const markForLiquidationParams : markForLiquidationActionType; var s : controllerStorage) : return is 
-block {
+// function markForLiquidation(const markForLiquidationParams : markForLiquidationActionType; var s : controllerStorage) : return is 
+// block {
     
-    // init variables for convenience
-    const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
-    const initiator         : initiatorAddressType    = Tezos.sender;
+//     // init variables for convenience
+//     const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
+//     const initiator         : initiatorAddressType    = Tezos.sender;
 
-    // get vault
-    var vault : vaultType := getVault(vaultHandle, s);
+//     // get vault
+//     var vault : vaultType := getVault(vaultHandle, s);
 
-    // check if vault is under collaterized
-    if isUnderCollaterized(vault, s) then skip else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
+//     // check if vault is under collaterized
+//     if isUnderCollaterized(vault, s) then skip else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
 
 
-} with (noOperations, s)
-
+// } with (noOperations, s)
 
 
 
@@ -640,12 +626,10 @@ block {
     // init variables for convenience
     const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
     const usdmQuantity      : nat                     = liquidateParams.usdmQuantity;
-    const tokenName         : string                  = liquidateParams.tokenName;
 
     const recipient         : contract(unit)          = liquidateParams.to_;
     const initiator         : initiatorAddressType    = Tezos.sender;
     
-    const target            : nat                     = s.target; 
     var operations          : list(operation)        := nil;
 
     // get vault
@@ -658,76 +642,145 @@ block {
     if usdmQuantity > _vault.usdmOutstanding then failwith("Error. Cannot burn more than outstanding amount of USDM in vault.") else skip;
     const remainingUsdm : usdmAmountType = abs(_vault.usdmOutstanding - usdmQuantity);
 
-    // get token collateral balance in vault, fail if none found
-    var vaultTokenCollateralBalance : nat := case _vault.collateralBalanceLedger[tokenName] of
-          Some(_balance) -> _balance
-        | None -> failwith("Error. Vault does not have this token as its collateral.")
+    // get USDM target
+    var usdmTarget : nat  := case s.targetLedger["usdm"] of 
+          Some(_nat) -> _nat
+        | None -> failwith("Error. Target not found for USDM.")
     end;
 
-    // get collateral token record - with token contract address and token type
-    const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
-          Some(_collateralTokenRecord) -> _collateralTokenRecord
-        | None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
+    // get USDM price in xtz
+    var usdmPriceInXtz : nat  := case s.priceLedger["usdm"] of 
+          Some(_nat) -> _nat
+        | None -> failwith("Error. Price not found for USDM.")
     end;
-
 
     // todo: fix extracted balance amount
     (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
-    const extractedBalance  : nat = (usdmQuantity * target * fixedPointAccuracy) / (31n * fixedPointAccuracy); // double check maths
+    // const totalExtractedBalance : nat = (usdmQuantity * usdmTarget * fixedPointAccuracy) / (31n * fixedPointAccuracy); 
 
-    // calculate new vault collateral balance
-    const newCollateralBalance : nat = abs(vaultTokenCollateralBalance - extractedBalance);
+    const totalValueToBeLiquidated : nat = usdmQuantity * usdmPriceInXtz;
+        
+    // get total vault collateral value
+    var vaultCollateralValue      : nat := 0n;
+    for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
+        
+        if tokenName = "tez" then block {
 
-    // send collateral to initiator of liquidation: pattern match withdraw operation based on token type
-    const initiatorTakeCollateralOperation : operation = case collateralTokenRecord.tokenType of
-        Tez(_tez) -> block {
+            // calculate value of tez balance with same fixed point accuracy as price
+            const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
+
+            // increment vault collateral value
+            vaultCollateralValue := vaultCollateralValue + tezValueWithFixedPointAccuracy;
             
-            const withdrawTezOperationParams : vaultWithdrawType = record [
-                from_ = vault.address;
-                to_   = recipient; 
-                amt   = extractedBalance;
-                token = _tez;
-            ];
-            const withdrawTezOperation : operation = Tezos.transaction(
-                withdrawTezOperationParams,
-                0mutez,
-                getVaultWithdrawEntrypoint(vault.address)
-            );
+        } else block {
 
-        } with withdrawTezOperation
-        | FA12(_token) -> block {
+            // get price of token in xtz
+            const tokenPrice : nat = case s.priceLedger[tokenName] of 
+                Some(_price) -> _price
+                | None -> failwith("Error. Price not found for token.")
+            end;
 
-            const withdrawFa12OperationParams : vaultWithdrawType = record [
-                from_ = vault.address;
-                to_   = recipient; 
-                amt   = extractedBalance;
-                token = _token;
-            ];
-            const withdrawFa12Operation : operation = Tezos.transaction(
-                withdrawTezOperationParams,
-                0mutez,
-                getVaultWithdrawEntrypoint(vault.address)
-            );
+            // calculate value of collateral balance
+            const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
 
-        } with withdrawFa12Operation
-        | FA2(_token) -> block {
+            // increment vault collateral value
+            vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
 
-            const withdrawFa2OperationParams : vaultWithdrawType = record [
-                from_ = vault.address;
-                to_   = recipient; 
-                amt   = extractedBalance;
-                token = _token;
-            ];
-            const withdrawFa2Operation : operation = Tezos.transaction(
-                withdrawTezOperationParams,
-                0mutez,
-                getVaultWithdrawEntrypoint(vault.address)
-            );
+        };
+    };
 
-        } with withdrawFa2Operation
-    end;
+    
+    // loop tokens in vault collateral balance ledger to be liquidated
+    var extractedBalanceTracker   : nat := 0n;
+    for tokenName -> tokenBalance in map _vault.collateralBalanceLedger block {
 
-    operations := initiatorTakeCollateralOperation # operations;
+        // skip if token balance is 0n
+        if tokenBalance = 0n then skip else block {
+
+            // get collateral token record - with token contract address and token type
+            const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
+                Some(_collateralTokenRecord) -> _collateralTokenRecord
+                | None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
+            end;
+
+            // get price of token in xtz
+            const tokenPrice : nat = case s.priceLedger[tokenName] of 
+                Some(_price) -> _price
+                | None -> failwith("Error. Price not found for token.")
+            end;
+
+            // calculate value of collateral balance
+            const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
+
+            // get proportion of collateral balance against total collateral value
+            const tokenProportion : nat = tokenValueInXtz * fixedPointAccuracy / vaultCollateralValue;
+
+            // get balance to be extracted from token
+            const tokenProportionalLiquidationValue : nat = tokenProportion * totalValueToBeLiquidated;
+
+            // get quantity of tokens to be liquidated
+            const tokenQuantityToBeLiquidated : nat = (tokenProportionalLiquidationValue / tokenPrice) / fixedPointAccuracy;
+
+            // calculate new collateral balance
+            const newTokenCollateralBalance : nat = abs(vaultTokenCollateralBalance - tokenQuantityToBeLiquidated);
+
+            // send collateral to initiator of liquidation: pattern match withdraw operation based on token type
+            const initiatorTakeCollateralOperation : operation = case collateralTokenRecord.tokenType of
+                Tez(_tez) -> block {
+                    
+                    const withdrawTezOperationParams : vaultWithdrawType = record [
+                        from_ = vault.address;
+                        to_   = recipient; 
+                        amt   = tokenQuantityToBeLiquidated;
+                        token = _tez;
+                    ];
+                    const withdrawTezOperation : operation = Tezos.transaction(
+                        withdrawTezOperationParams,
+                        0mutez,
+                        getVaultWithdrawEntrypoint(vault.address)
+                    );
+
+                } with withdrawTezOperation
+                | FA12(_token) -> block {
+
+                    const withdrawFa12OperationParams : vaultWithdrawType = record [
+                        from_ = vault.address;
+                        to_   = recipient; 
+                        amt   = tokenQuantityToBeLiquidated;
+                        token = _token;
+                    ];
+                    const withdrawFa12Operation : operation = Tezos.transaction(
+                        withdrawTezOperationParams,
+                        0mutez,
+                        getVaultWithdrawEntrypoint(vault.address)
+                    );
+
+                } with withdrawFa12Operation
+                | FA2(_token) -> block {
+
+                    const withdrawFa2OperationParams : vaultWithdrawType = record [
+                        from_ = vault.address;
+                        to_   = recipient; 
+                        amt   = tokenQuantityToBeLiquidated;
+                        token = _token;
+                    ];
+                    const withdrawFa2Operation : operation = Tezos.transaction(
+                        withdrawTezOperationParams,
+                        0mutez,
+                        getVaultWithdrawEntrypoint(vault.address)
+                    );
+
+                } with withdrawFa2Operation
+            end;
+
+            operations := initiatorTakeCollateralOperation # operations;
+
+            // save and update new balance for collateral token
+            vault.collateralBalanceLedger[tokenName]  := newTokenCollateralBalance;
+
+        }
+
+    }
 
     // operation to burn USDM
     const burnUsdmOperationParams : mintOrBurnParamsType = (-usdmQuantity, initiator);
@@ -744,6 +797,119 @@ block {
     s.vaults[vaultHandle]                     := _vault;
 
 } with (operations, s)
+
+
+// (* liquidateVault entrypoint *)
+// function liquidateVault(const liquidateParams : liquidateVaultActionType; var s : controllerStorage) : return is 
+// block {
+    
+//     // init variables for convenience
+//     const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
+//     const usdmQuantity      : nat                     = liquidateParams.usdmQuantity;
+//     const tokenName         : string                  = liquidateParams.tokenName;
+
+//     const recipient         : contract(unit)          = liquidateParams.to_;
+//     const initiator         : initiatorAddressType    = Tezos.sender;
+    
+//     const target            : nat                     = s.target; 
+//     var operations          : list(operation)        := nil;
+
+//     // get vault
+//     var _vault : vaultType := getVault(vaultHandle, s);
+
+//     // check if vault is under collaterized
+//     if isUnderCollaterized(_vault, s) then skip else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
+
+//     // check if there is sufficient usdmOutstanding, and calculate remaining usdm after liquidation
+//     if usdmQuantity > _vault.usdmOutstanding then failwith("Error. Cannot burn more than outstanding amount of USDM in vault.") else skip;
+//     const remainingUsdm : usdmAmountType = abs(_vault.usdmOutstanding - usdmQuantity);
+
+//     // get token collateral balance in vault, fail if none found
+//     var vaultTokenCollateralBalance : nat := case _vault.collateralBalanceLedger[tokenName] of
+//           Some(_balance) -> _balance
+//         | None -> failwith("Error. Vault does not have this token as its collateral.")
+//     end;
+
+//     // get collateral token record - with token contract address and token type
+//     const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
+//           Some(_collateralTokenRecord) -> _collateralTokenRecord
+//         | None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
+//     end;
+
+
+//     // todo: fix extracted balance amount
+//     (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
+//     const extractedBalance  : nat = (usdmQuantity * target * fixedPointAccuracy) / (31n * fixedPointAccuracy); // double check maths
+
+//     // calculate new vault collateral balance
+//     const newCollateralBalance : nat = abs(vaultTokenCollateralBalance - extractedBalance);
+
+//     // send collateral to initiator of liquidation: pattern match withdraw operation based on token type
+//     const initiatorTakeCollateralOperation : operation = case collateralTokenRecord.tokenType of
+//         Tez(_tez) -> block {
+            
+//             const withdrawTezOperationParams : vaultWithdrawType = record [
+//                 from_ = vault.address;
+//                 to_   = recipient; 
+//                 amt   = extractedBalance;
+//                 token = _tez;
+//             ];
+//             const withdrawTezOperation : operation = Tezos.transaction(
+//                 withdrawTezOperationParams,
+//                 0mutez,
+//                 getVaultWithdrawEntrypoint(vault.address)
+//             );
+
+//         } with withdrawTezOperation
+//         | FA12(_token) -> block {
+
+//             const withdrawFa12OperationParams : vaultWithdrawType = record [
+//                 from_ = vault.address;
+//                 to_   = recipient; 
+//                 amt   = extractedBalance;
+//                 token = _token;
+//             ];
+//             const withdrawFa12Operation : operation = Tezos.transaction(
+//                 withdrawTezOperationParams,
+//                 0mutez,
+//                 getVaultWithdrawEntrypoint(vault.address)
+//             );
+
+//         } with withdrawFa12Operation
+//         | FA2(_token) -> block {
+
+//             const withdrawFa2OperationParams : vaultWithdrawType = record [
+//                 from_ = vault.address;
+//                 to_   = recipient; 
+//                 amt   = extractedBalance;
+//                 token = _token;
+//             ];
+//             const withdrawFa2Operation : operation = Tezos.transaction(
+//                 withdrawTezOperationParams,
+//                 0mutez,
+//                 getVaultWithdrawEntrypoint(vault.address)
+//             );
+
+//         } with withdrawFa2Operation
+//     end;
+
+//     operations := initiatorTakeCollateralOperation # operations;
+
+//     // operation to burn USDM
+//     const burnUsdmOperationParams : mintOrBurnParamsType = (-usdmQuantity, initiator);
+//     const burnUsdmOperation : operation = Tezos.transaction(
+//         burnUsdmOperationParams,
+//         0mutez,
+//         getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
+//     );
+//     operations := burnUsdmOperation # operations;
+
+//     // save and update new usdmOutstanding and balance for collateral token
+//     _vault.usdmOutstanding                    := remainingUsdm;
+//     _vault.collateralBalanceLedger[tokenName] := newCollateralBalance;
+//     s.vaults[vaultHandle]                     := _vault;
+
+// } with (operations, s)
 
 
 

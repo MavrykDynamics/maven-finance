@@ -30,7 +30,7 @@ type emergencyGovernanceAction is
         SetAdmin                  of (address)
     |   SetGovernance             of (address)
     |   UpdateMetadata            of updateMetadataType
-    |   UpdateConfig              of emergencyUpdateConfigParamsType    
+    |   UpdateConfig              of emergencyUpdateConfigParamsType
     |   UpdateGeneralContracts    of updateGeneralContractsType
     |   UpdateWhitelistContracts  of updateWhitelistContractsType
     |   MistakenTransfer          of transferActionType
@@ -93,7 +93,7 @@ function checkSenderIsAdmin(var s : emergencyGovernanceStorageType) : unit is
 
 
 // Allowed Senders: MVK Token Contract
-function checkSenderIsMvkTokenContract(var s : emergencyGovernanceStorageType) : unit is    
+function checkSenderIsMvkTokenContract(var s : emergencyGovernanceStorageType) : unit is
     if (Tezos.get_sender() = s.mvkTokenAddress) then unit
     else failwith(error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED);
 
@@ -162,7 +162,7 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
 // ------------------------------------------------------------------------------
 
 // helper function to unpack and execute entrypoint logic stored as bytes in lambdaLedger
-function unpackLambda(const lambdaBytes : bytes; const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is 
+function unpackLambda(const lambdaBytes : bytes; const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorageType) : return is
 block {
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option(emergencyGovernanceUnpackLambdaFunctionType)) of [
@@ -226,7 +226,7 @@ block {
 
 
 (* View: get whitelist contracts *)
-[@view] function getWhitelistContracts (const _ : unit; const s : emergencyGovernanceStorageType) : whitelistContractsType is 
+[@view] function getWhitelistContracts (const _ : unit; const s : emergencyGovernanceStorageType) : whitelistContractsType is
     s.whitelistContracts
 
 
@@ -299,7 +299,7 @@ block {
 (*  setGovernance entrypoint *)
 function setGovernance(const newGovernanceAddress : address; var s : emergencyGovernanceStorageType) : return is
 block {
-    
+
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
@@ -335,7 +335,7 @@ block {
 
 
 (* updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType; var s : emergencyGovernanceStorageType) : return is 
+function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType; var s : emergencyGovernanceStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
@@ -375,7 +375,7 @@ block {
 (*  updateWhitelistContracts entrypoint *)
 function updateWhitelistContracts(const updateWhitelistContractsParams : updateWhitelistContractsType; var s : emergencyGovernanceStorageType) : return is
 block {
-        
+
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
         |   Some(_v) -> _v
         |   None     -> failwith(error_LAMBDA_NOT_FOUND)
@@ -385,7 +385,7 @@ block {
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);
 
 } with response
 
@@ -404,7 +404,7 @@ block {
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaMistakenTransfer(destinationParams);
 
     // init response
-    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);
 
 } with response
 
@@ -419,7 +419,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* triggerEmergencyControl entrypoint  *)
-function triggerEmergencyControl(const triggerEmergencyControlParams : triggerEmergencyControlType; var s : emergencyGovernanceStorageType) : return is 
+function triggerEmergencyControl(const triggerEmergencyControlParams : triggerEmergencyControlType; var s : emergencyGovernanceStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaTriggerEmergencyControl"] of [
@@ -438,7 +438,7 @@ block {
 
 
 (* voteForEmergencyControl entrypoint  *)
-function voteForEmergencyControl(var s : emergencyGovernanceStorageType) : return is 
+function voteForEmergencyControl(var s : emergencyGovernanceStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVoteForEmergencyControl"] of [
@@ -457,7 +457,7 @@ block {
 
 
  (* dropEmergencyGovernance entrypoint  *)
-function dropEmergencyGovernance(var s : emergencyGovernanceStorageType) : return is 
+function dropEmergencyGovernance(var s : emergencyGovernanceStorageType) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDropEmergencyGovernance"] of [
@@ -507,7 +507,7 @@ block{
 //
 // ------------------------------------------------------------------------------
 
-function main (const action : emergencyGovernanceAction; const s : emergencyGovernanceStorageType) : return is 
+function main (const action : emergencyGovernanceAction; const s : emergencyGovernanceStorageType) : return is
 
     case action of [
 
