@@ -39,7 +39,7 @@ type storage is record [
 
     emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
     
-    tempMvkTotalSupply                  : nat;           // at point where emergency control is triggered
+    tempMvkTotalSupply                  : nat; // at point where emergency control is triggered
     currentEmergencyGovernanceId        : nat;
     nextEmergencyGovernanceProposalId   : nat;
 ]
@@ -148,12 +148,12 @@ block {
     const emergencyGovernanceProposalId : nat = abs(s.nextEmergencyGovernanceProposalId - 1n);
     var emergencyGovernanceRecord : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[emergencyGovernanceProposalId] of
         | Some(_governanceRecord) -> _governanceRecord
-        | None -> failwith("Emergency Governance Record not found.")
+        | None -> failwith("Error. Emergency Governance Record not found.")
     end;
 
     var stakedMvkRequiredForTrigger : nat := abs(s.config.stakedMvkPercentageRequired * totalSupply / 100_000);
 
-    emergencyGovernanceRecord.stakedMvkRequiredForTrigger := stakedMvkRequiredForTrigger;
+    emergencyGovernanceRecord.stakedMvkRequiredForTrigger      := stakedMvkRequiredForTrigger;
     s.emergencyGovernanceLedger[emergencyGovernanceProposalId] := emergencyGovernanceRecord;    
 
 } with (noOperations, s);
@@ -178,6 +178,7 @@ block {
 
 function triggerEmergencyControl(const title : string; const description : string; var s : storage) : return is 
 block {
+
     // Steps Overview:
     // 1. check that there is no currently active emergency governance being voted on
     // 2. operation to MVK token contract to get total supply -> then update temp total supply and emergency governce record min MVK required
@@ -278,7 +279,7 @@ block {
     end;
 
     if _emergencyGovernance.dropped = True then failwith("Error. Emergency governance has been dropped")
-      else skip; 
+    else skip; 
 
     const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
 
@@ -325,7 +326,6 @@ block {
         
         // save emergency governance record
         s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId]  := _emergencyGovernance;
-
 
     } else skip;
 

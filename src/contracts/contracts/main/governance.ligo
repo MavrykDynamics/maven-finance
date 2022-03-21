@@ -50,6 +50,8 @@ type proposalRecordType is [@layout:comb] record [
     abstainMvkTotal      : nat;                     // voting round: abstain MVK total
     voters               : votersMapType;           // voting round ledger
 
+    minProposalRoundVotePercentage : nat;           // min vote percentage of total MVK supply required to pass proposal round
+
     minQuorumPercentage  : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
     minQuorumMvkTotal    : nat;                     // log of min quorum in MVK - capture state at this point
     quorumCount          : nat;                     // log of turnout for voting round - number of satellites who voted
@@ -787,8 +789,27 @@ block {
     // 6. take snapshot of MVK total supply 
 
     // check that sender is admin
-    checkSenderIsAdminOrSelf(s);
-    s.tempFlag := Tezos.level;
+    // checkSenderIsAdminOrSelf(s);
+
+
+    // sender can be anyone
+
+    // current round is timelock round
+    if s.currentRound = "timelock" and Tezos.level < s.currentRoundEndLevel 
+    then failwith("Error. New proposal round can only start after the timelock round ends.") 
+    else skip;
+
+    // if s.currentRound = "voting" then failwith("Error. You cannot start a ")
+
+    const currentRoundProposalsCount : nat = Map.size(s.currentRoundProposals);
+
+    if s.currentRound = "proposal" and Tezos.level < s.currentRoundEndLevel 
+    then failwith("Error. Current proposal round has not ended yet.") 
+    else skip;
+
+    if s.currentRound = "proposal" and Tezos.level > s.currentRoundEndLevel and currentRoundProposalsCount = 0n 
+    then skip 
+    else failwith("Error. The next round should be a voting round.");
 
     var operations : list(operation) := nil;
 
@@ -986,8 +1007,6 @@ block {
     // 6a. if satellite has not voted in the current round, submit satellite's vote for proposal and update vote counts
     // 6b. if satellite has voted for another proposal in the current round, submit satellite's vote for new proposal and remove satellite's vote from previously voted proposal
 
-    s.tempFlag := Tezos.level;
-
     if s.currentRound = "proposal" then skip
       else failwith("You can only make a proposal during a proposal round.");
 
@@ -1004,7 +1023,7 @@ block {
     // check if proposal exists in the current round's proposals
     const checkProposalExistsFlag : bool = Map.mem(proposalId, s.currentRoundProposals);
     if checkProposalExistsFlag = False then failwith("Error: Proposal not found.")
-      else skip;
+    else skip;
 
     var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of
         Some(_proposal) -> _proposal
@@ -1096,9 +1115,14 @@ block {
     // 3a. get ids of current proposals, and select the proposal with highest vote
     // 3b. if there is no proposal, restart proposal round
     
-    checkSenderIsAdmin(s);
+    // checkSenderIsAdmin(s);
 
-    s.tempFlag := Tezos.level;
+    // anyone can start voting round
+
+    // check rounds logic
+    if s.currentRound = "timelock" then failwith("Error. You cannot start a voting round from the timelock round.") else skip;
+    if s.currentRound = "voting" then failwith("Error. You are already in the voting round.") else skip;
+    if s.currentRound = "proposal" and Tezos.level < s.currentRoundEndLevel then failwith("Error. The proposal round has not ended yet.") else skip;
 
     // voting round can be triggered at any time by admin,  but boundaries will still remain fixed to the start and end of the cycle (calculated at start of proposal round)
     s.currentRound               := "voting";
@@ -1151,8 +1175,6 @@ block {
     // 4. verify that vote type is a valid type - i.e. set of 1n, 0n, 2n - Yay, Nay, Abstain 
     // 5. submit satellite's vote for proposal and update vote counts
     
-    s.tempFlag := Tezos.level;
-
     if s.currentRound = "voting" then skip
         else failwith("Error. You can only vote during the voting round.");
 
@@ -1246,7 +1268,14 @@ block {
     // 2. set current round from "voting" to "timelock", and set current round start level and end level 
     // 3. set timelockProposalId to currentRoundHighestVotedProposalId
     
-    checkSenderIsAdmin(s);
+    // checkSenderIsAdmin(s);
+
+    // check rounds logic
+    if s.currentRound = "timelock" then failwith("Error. You are already in the timelock round.") else skip;
+    if s.currentRound = "proposal" then failwith("Error. You cannot start a timelock round from the proposal round.") else skip;
+    // if s.currentRound = "voting" then block {
+
+    // } else skip;
 
     // timelock round can be triggered at any time by admin, but boundaries will still remain fixed to the start and end of the cycle (calculated at start of proposal round)
     s.currentRound               := "timelock";
