@@ -5,15 +5,12 @@ import {
   SubmitProposalForm,
   ValidSubmitProposalForm,
 } from '../../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isNotAllWhitespace, isValidHttpUrl, isValidIPFSUrl } from '../../../utils/validatorFunctions'
+import { getFormErrors, isNotAllWhitespace, isValidHttpUrl } from '../../../utils/validatorFunctions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 import { useDispatch, useSelector } from 'react-redux'
-import { create } from 'ipfs-http-client'
 import { submitProposal } from '../ProposalSubmission.actions'
 import { State } from '../../../reducers'
-
-const client = create({ url: 'https://ipfs.infura.io:5001/api/v0' })
 
 type StageOneFormProps = {
   loading: boolean
@@ -45,35 +42,8 @@ export const StageOneForm = ({ loading }: StageOneFormProps) => {
     invoiceTable: '',
     sourceCodeLink: '',
   })
-  const [isUploading, setIsUploading] = useState(false)
-  const [isUploaded, setIsUploaded] = useState(false)
-  const inputFile = useRef<HTMLInputElement>(null)
 
-  async function handleIPFSUpload(file: any) {
-    try {
-      setIsUploading(true)
-      const added = await client.add(file)
-      const invoice = `https://ipfs.infura.io/ipfs/${added.path}`
-      setForm({ ...form, ipfs: invoice })
-      let validityCheckResult = isValidIPFSUrl(form.ipfs)
-      setValidForm({ ...validForm, ipfs: validityCheckResult })
-      let updatedState = { ...validForm, ipfs: validityCheckResult }
-      setFormInputStatus({ ...formInputStatus, ipfs: updatedState.ipfs ? 'success' : 'error' })
-      setIsUploading(false)
-      setIsUploaded(!isUploading)
-    } catch (error: any) {
-      dispatch(showToaster(ERROR, error.message, ''))
-      console.error(error)
-      setIsUploading(false)
-      setIsUploaded(false)
-    }
-  }
-
-  const handleIPFSIconClick = () => {
-    inputFile?.current?.click()
-  }
-
-  const handleOnBlur = (formField: string) => {
+  const handleOnBlur = (e: any, formField: string) => {
     let updatedState, validityCheckResult
     switch (formField) {
       case 'TITLE':
@@ -125,11 +95,6 @@ export const StageOneForm = ({ loading }: StageOneFormProps) => {
       form={form}
       setForm={setForm}
       formInputStatus={formInputStatus}
-      isUploading={isUploading}
-      isUploaded={isUploaded}
-      inputFile={inputFile}
-      handleIPFSUpload={handleIPFSUpload}
-      handleIPFSIconClick={handleIPFSIconClick}
       handleOnBlur={handleOnBlur}
       handleSubmitProposal={handleSubmitProposal}
     />

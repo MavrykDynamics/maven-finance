@@ -1,8 +1,13 @@
 import styled, { keyframes } from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 
-export const IPFSUploaderStyled = styled.div`
+export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 5px;
+  margin-top: 30px;
+  > p {
+    font-weight: 700;
+    color: ${({ theme }) => theme.textColor};
+  }
 `
 
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
