@@ -7,43 +7,56 @@ import { State } from 'reducers'
 
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import { PRECISION_NUMBER } from '../../utils/constants'
-import { DOORMAN_STORAGE_QUERY, DOORMAN_STORAGE_QUERY_NAME, DOORMAN_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
+import {
+  DOORMAN_STORAGE_QUERY,
+  DOORMAN_STORAGE_QUERY_NAME,
+  DOORMAN_STORAGE_QUERY_VARIABLE,
+  MVK_TOKEN_STORAGE_QUERY,
+  MVK_TOKEN_STORAGE_QUERY_NAME,
+  MVK_TOKEN_STORAGE_QUERY_VARIABLE,
+} from '../../gql/queries'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { calcWithoutMu } from '../../utils/calcFunctions'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
 import { USER_INFO_QUERY, USER_INFO_QUERY_NAME, USER_INFO_QUERY_VARIABLES } from '../../gql/queries/getUserInfo'
-import { DoormanBreakGlassConfigType, DoormanStorage } from '../../utils/TypesAndInterfaces/Doorman'
 import { UserData } from '../../utils/TypesAndInterfaces/User'
-import { MvkTokenStorage } from '../../utils/TypesAndInterfaces/MvkToken'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
-  const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(mvkTokenAddress.address)
-    : await new TezosToolkit(
-        (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(mvkTokenAddress.address)
-  const storage = await (contract as any).storage()
-  console.log(await storage['token_metadata'].id.toNumber())
-  const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
-  const myBalance = myLedgerEntry ? calcWithoutMu(myLedgerEntry?.toNumber()) : 0
-  const totalMvkSupply = calcWithoutMu(storage?.totalSupply)
+  // const contract = accountPkh
+  //   ? await state.wallet.tezos?.wallet.at(mvkTokenAddress.address)
+  //   : await new TezosToolkit(
+  //       (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
+  //     ).contract.at(mvkTokenAddress.address)
+  // const storage = await (contract as any).storage()
 
-  const mvkTokenStorage: MvkTokenStorage = {
-    tokenId: await storage['token_metadata'].id.toNumber(),
-    maximumTotalSupply: 0,
-    admin: storage.admin,
-    contractAddresses: storage.contractAddresses,
-    totalSupply: totalMvkSupply,
-    whitelistContracts: storage.contractAddresses,
-  }
+  const storage = await fetchFromIndexer(
+    MVK_TOKEN_STORAGE_QUERY,
+    MVK_TOKEN_STORAGE_QUERY_NAME,
+    MVK_TOKEN_STORAGE_QUERY_VARIABLE,
+  )
+
+  const convertedStorage = storageToTypeConverter('mvkToken', storage.mvk_token[0])
+  //
+  // const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
+  // const myBalance = myLedgerEntry ? calcWithoutMu(myLedgerEntry?.toNumber()) : 0
+  // const totalMvkSupply = calcWithoutMu(storage?.totalSupply)
+  //
+  // const mvkTokenStorage: MvkTokenStorage = {
+  //   tokenId: await storage['token_metadata'].id.toNumber(),
+  //   maximumTotalSupply: 0,
+  //   admin: storage.admin,
+  //   contractAddresses: storage.contractAddresses,
+  //   totalSupply: totalMvkSupply,
+  //   whitelistContracts: storage.contractAddresses,
+  // }
   dispatch({
     type: GET_MVK_TOKEN_STORAGE,
-    mvkTokenStorage: mvkTokenStorage,
-    myMvkTokenBalance: myBalance,
+    mvkTokenStorage: convertedStorage,
+    myMvkTokenBalance: 0,
   })
 }
 
@@ -233,27 +246,27 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
     //   minMvkAmount: minMvkAmount,
     //   tempMvkMaximumTotalSupply: tempMvkMaximumTotalSupply,
     // }
+    //
+    // const doormanBreakGlassConfig: DoormanBreakGlassConfigType = {
+    //   stakeIsPaused: convertedStorage.breakGlassConfig.stakeIsPaused,
+    //   unstakeIsPaused: convertedStorage.breakGlassConfig.unstakeIsPaused,
+    //   compoundIsPaused: convertedStorage.breakGlassConfig.compoundIsPaused,
+    // }
+    //
+    // const doormanStorage: DoormanStorage = {
+    //   admin: storage.admin,
+    //   breakGlassConfig: doormanBreakGlassConfig,
+    //   tempMvkTotalSupply: convertedStorage.tempMvkTotalSupply,
+    //   stakedMvkTotalSupply: convertedStorage.stakedMvkTotalSupply,
+    //   accumulatedFeesPerShare: convertedStorage.accumulatedFeesPerShare,
+    //   minMvkAmount: convertedStorage.minMvkAmount,
+    //   tempMvkMaximumTotalSupply: convertedStorage.tempMvkMaximumTotalSupply,
+    // }
 
-    const doormanBreakGlassConfig: DoormanBreakGlassConfigType = {
-      stakeIsPaused: convertedStorage.breakGlassConfig.stakeIsPaused,
-      unstakeIsPaused: convertedStorage.breakGlassConfig.unstakeIsPaused,
-      compoundIsPaused: convertedStorage.breakGlassConfig.compoundIsPaused,
-    }
-
-    const doormanStorage: DoormanStorage = {
-      admin: storage.admin,
-      breakGlassConfig: doormanBreakGlassConfig,
-      tempMvkTotalSupply: convertedStorage.tempMvkTotalSupply,
-      stakedMvkTotalSupply: convertedStorage.stakedMvkTotalSupply,
-      accumulatedFeesPerShare: convertedStorage.accumulatedFeesPerShare,
-      minMvkAmount: convertedStorage.minMvkAmount,
-      tempMvkMaximumTotalSupply: convertedStorage.tempMvkMaximumTotalSupply,
-    }
-
-    updateItemInStorage('DoormanStorage', doormanStorage)
+    updateItemInStorage('DoormanStorage', convertedStorage)
     dispatch({
       type: GET_DOORMAN_STORAGE,
-      storage: doormanStorage,
+      storage: convertedStorage,
       totalStakedMvkSupply: convertedStorage.stakedMvkTotalSupply,
     })
   } catch (error: any) {

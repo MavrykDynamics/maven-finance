@@ -4,8 +4,7 @@ import delegationAddress from 'deployments/delegationAddress.json'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import { State } from 'reducers'
 import { PRECISION_NUMBER } from '../../utils/constants'
-
-export type RegisterAsSatelliteForm = { name: string; description: string; fee: number; image: string | undefined }
+import { RegisterAsSatelliteForm } from '../../utils/TypesAndInterfaces/Forms'
 
 export const REGISTER_AS_SATELLITE_REQUEST = 'REGISTER_AS_SATELLITE_REQUEST'
 export const REGISTER_AS_SATELLITE_RESULT = 'REGISTER_AS_SATELLITE_RESULT'
