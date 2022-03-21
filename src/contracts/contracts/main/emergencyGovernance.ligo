@@ -229,11 +229,25 @@ block {
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
+<<<<<<< HEAD
     // init response
     const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+=======
+    // set min MVK total required in emergency governance record based on temp MVK total supply
+    const emergencyGovernanceProposalId : nat = abs(s.nextEmergencyGovernanceProposalId - 1n);
+    var emergencyGovernanceRecord : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[emergencyGovernanceProposalId] of
+        | Some(_governanceRecord) -> _governanceRecord
+        | None -> failwith("Error. Emergency Governance Record not found.")
+    end;
+>>>>>>> USDM Token Controller - Liquidate vault logic for multi-asset proportional liquidation
 
 } with response
 
+<<<<<<< HEAD
+=======
+    emergencyGovernanceRecord.stakedMvkRequiredForTrigger      := stakedMvkRequiredForTrigger;
+    s.emergencyGovernanceLedger[emergencyGovernanceProposalId] := emergencyGovernanceRecord;    
+>>>>>>> USDM Token Controller - Liquidate vault logic for multi-asset proportional liquidation
 
 
 (* updateMetadata entrypoint - update the metadata at a given key *)
@@ -259,9 +273,38 @@ block {
 function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType; var s : emergencyGovernanceStorage) : return is 
 block {
 
+<<<<<<< HEAD
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
+=======
+    // Steps Overview:
+    // 1. check that there is no currently active emergency governance being voted on
+    // 2. operation to MVK token contract to get total supply -> then update temp total supply and emergency governce record min MVK required
+
+    if s.currentEmergencyGovernanceId = 0n then skip
+      else failwith("Error. There is a emergency control governance in process.");
+
+    const emptyVotersMap : voterMapType = map[];
+    var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
+        proposerAddress                  = Tezos.sender;
+        status                           = False;
+        executed                         = False;
+        dropped                          = False;
+
+        title                            = title;
+        description                      = description; 
+        voters                           = emptyVotersMap;
+        totalStakedMvkVotes              = 0n;
+        stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
+        stakedMvkRequiredForTrigger      = 0n;
+
+        startDateTime                    = Tezos.now;
+        startLevel                       = Tezos.level;             
+        executedDateTime                 = Tezos.now;
+        executedLevel                    = Tezos.level;
+        expirationDateTime               = Tezos.now + (86_400 * s.config.voteExpiryDays);
+>>>>>>> USDM Token Controller - Liquidate vault logic for multi-asset proportional liquidation
     ];
 
     // init emergencyGovernance lambda action
@@ -324,6 +367,7 @@ block {
 function voteForEmergencyControl(var s : emergencyGovernanceStorage) : return is 
 block {
 
+<<<<<<< HEAD
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVoteForEmergencyControl"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
@@ -341,6 +385,69 @@ block {
 
  (* dropEmergencyGovernance entrypoint  *)
 function dropEmergencyGovernance(var s : emergencyGovernanceStorage) : return is 
+=======
+    checkSenderIsDoormanContract(s);
+
+    var _emergencyGovernance : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of 
+        | None -> failwith("Error. Emergency governance record not found.")
+        | Some(_instance) -> _instance
+    end;
+
+    if _emergencyGovernance.dropped = True then failwith("Error. Emergency governance has been dropped")
+    else skip; 
+
+    const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
+
+    _emergencyGovernance.voters[Tezos.source] := (stakedMvkBalance, Tezos.now);
+    _emergencyGovernance.totalStakedMvkVotes := totalStakedMvkVotes;
+    s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
+
+    // check if total votes has exceed threshold - if yes, trigger operation to break glass contract
+    var operations : list(operation) := nil;
+    if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForTrigger then block {
+
+        const breakGlassContractAddress : address = case s.generalContracts["breakGlass"] of
+            Some(_address) -> _address
+            | None -> failwith("Error. Break Glass Contract is not found.")
+        end;
+
+        const governanceContractAddress : address = case s.generalContracts["governance"] of
+            Some(_address) -> _address
+            | None -> failwith("Error. Governance Contract is not found.")
+        end;
+
+        // trigger break glass in break glass contract - set glassbroken to true in breakglass contract to give council members access to protected entrypoints
+        const triggerBreakGlassOperation : operation = Tezos.transaction(
+            unit,
+            0tez, 
+            triggerBreakGlass(breakGlassContractAddress)
+            );
+
+        // trigger break glass in governance contract - send operations to pause all entrypoints and change contract admin to break glass address
+        const triggerGovernanceBreakGlassOperation : operation = Tezos.transaction(
+            unit,
+            0tez, 
+            triggerBreakGlass(governanceContractAddress)
+            );
+        
+        operations := triggerBreakGlassOperation # operations;
+        operations := triggerGovernanceBreakGlassOperation # operations;
+
+        // update emergency governance record
+        _emergencyGovernance.status              := True;
+        _emergencyGovernance.executed            := True;
+        _emergencyGovernance.executedDateTime    := Tezos.now;
+        _emergencyGovernance.executedLevel       := Tezos.level;
+        
+        // save emergency governance record
+        s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId]  := _emergencyGovernance;
+
+    } else skip;
+
+} with (operations, s)
+ 
+function dropEmergencyGovernance(var s : storage) : return is 
+>>>>>>> USDM Token Controller - Liquidate vault logic for multi-asset proportional liquidation
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDropEmergencyGovernance"] of [
