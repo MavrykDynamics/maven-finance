@@ -530,9 +530,11 @@ block {
 
 function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
 block {
+  
     // check that the call is coming from MVK Token Contract
     checkSenderIsMvkTokenContract(s);
     s.tempMvkTotalSupply := totalSupply;
+
 } with (noOperations, s);
 
 function unstakeComplete(const unstakeAmount: nat; var s : storage): return is
