@@ -11,8 +11,6 @@ export const recaptchaRequest = () => (dispatch: any) => {
 }
 
 export const onStart = () => async (dispatch: any, getState: any) => {
-  console.log('Here in onStart')
-
   const res = await getInitialData()
   const addressesStorage = storageToTypeConverter('addresses', res[0])
   const mvkTokenStorage = storageToTypeConverter('mvkToken', res[1].mvk_token[0])

@@ -5,6 +5,8 @@ query GetSatelliteRecords {
   image
   name
   description
+  active
+  user_id
   registered_datetime
   unregistered_datetime
   delegation_records {
