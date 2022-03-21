@@ -6,7 +6,11 @@ import { InputStatusType } from '../../app/App.components/Input/Input.controller
  * 2. Proposal Update
  * 3. Financial Request
  */
-export type AllValidFormTypes = ValidSubmitProposalForm | ValidProposalUpdateForm | ValidFinancialRequestForm
+export type AllValidFormTypes =
+  | ValidSubmitProposalForm
+  | ValidProposalUpdateForm
+  | ValidFinancialRequestForm
+  | ValidRegisterAsSatelliteForm
 
 export type SubmitProposalForm = {
   title: string
@@ -63,4 +67,19 @@ export type ValidFinancialRequestForm = {
 
 export type ProposalFinancialRequestInputStatus = {
   financialData: InputStatusType
+}
+
+export type RegisterAsSatelliteForm = { name: string; description: string; fee: number; image: string | undefined }
+
+export type ValidRegisterAsSatelliteForm = {
+  name: boolean | undefined
+  description: boolean | undefined
+  fee: boolean | undefined
+  image: boolean | undefined
+}
+export type RegisterAsSatelliteFormInputStatus = {
+  name: InputStatusType
+  description: InputStatusType
+  fee: InputStatusType
+  image: InputStatusType
 }

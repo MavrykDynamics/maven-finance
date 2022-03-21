@@ -64,7 +64,7 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
       name: item.name,
       registeredDateTime: new Date(item.registered_datetime),
       satelliteFee: calcWithoutMu(item.fee),
-      active: item.status,
+      active: item.active,
       totalDelegatedAmount: String(calcWithoutMu(totalDelegatedAmount)),
       unregisteredDateTime: new Date(item.unregistered_datetime),
     }

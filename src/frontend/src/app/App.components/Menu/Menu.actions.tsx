@@ -50,7 +50,6 @@ export const connect =
         })
         const tzs = state.wallet.wallet?.toTezos()
         const accountPkh = await tzs?.wallet.pkh()
-        debugger
         dispatch({
           type: CONNECT,
           tezos: tzs,

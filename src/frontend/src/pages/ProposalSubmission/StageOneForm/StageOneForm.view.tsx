@@ -12,17 +12,13 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { SubmitProposalFormInputStatus, SubmitProposalForm } from '../../../utils/TypesAndInterfaces/Forms'
 import { Ref } from 'react'
+import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 
 type StageOneFormViewProps = {
   loading: boolean
   form: SubmitProposalForm
   setForm: (form: SubmitProposalForm) => void
   formInputStatus: SubmitProposalFormInputStatus
-  isUploading: boolean
-  isUploaded: boolean
-  inputFile: Ref<any>
-  handleIPFSUpload: (file: any) => void
-  handleIPFSIconClick: () => void
   handleOnBlur: (e: any, formField: string) => void
   handleSubmitProposal: () => void
 }
@@ -31,11 +27,6 @@ export const StageOneFormView = ({
   form,
   setForm,
   formInputStatus,
-  isUploading,
-  isUploaded,
-  inputFile,
-  handleIPFSUpload,
-  handleIPFSIconClick,
   handleOnBlur,
   handleSubmitProposal,
 }: StageOneFormViewProps) => {
@@ -85,33 +76,12 @@ export const StageOneFormView = ({
         inputStatus={formInputStatus.sourceCodeLink}
       />
       {/*<TextEditor onChange={handleTextEditorChange} initialValue={form.description} />*/}
-      <FormSubTitle>4- Upload invoice for governance proposal and required expense report</FormSubTitle>
-      <UploaderFileSelector>
-        {isUploading && !isUploaded ? (
-          <div>Uploading...</div>
-        ) : (
-          <div>
-            <input
-              id="uploader"
-              type="file"
-              accept="image/*"
-              ref={inputFile}
-              onChange={(e: any) => {
-                e.target && e.target.files && e.target.files[0] && handleIPFSUpload(e.target.files[0])
-              }}
-            />
-            <UploadIconContainer onClick={handleIPFSIconClick}>
-              <UploadIcon>
-                <use xlinkHref={`/icons/sprites.svg#upload`} />
-              </UploadIcon>
-              <div>Upload file</div>
-            </UploadIconContainer>
-          </div>
-        )}
-      </UploaderFileSelector>
-      {isUploaded && (
-        <ProposalSubmissionInvoiceImage>{form.ipfs && <img src={form.ipfs} alt="" />}</ProposalSubmissionInvoiceImage>
-      )}
+      <IPFSUploader
+        imageIpfsUrl={form.ipfs}
+        setIpfsImageUrl={(e: any) => setForm({ ...form, ipfs: e })}
+        title={'Upload invoice for governance proposal and required expense report'}
+        listNumber={4}
+      />
       <FormButtonContainer>
         <Button icon="hammer" text={'Submit Governance Proposal'} loading={loading} onClick={handleSubmitProposal} />
       </FormButtonContainer>

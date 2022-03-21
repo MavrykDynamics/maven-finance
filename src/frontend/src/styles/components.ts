@@ -1,5 +1,4 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, containerColor, subTextColor } from 'styles'
 import { MavrykTheme } from './interfaces'
 
 export const Page = styled.div<{ theme: MavrykTheme }>`
