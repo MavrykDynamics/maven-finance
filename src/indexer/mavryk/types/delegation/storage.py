@@ -42,13 +42,12 @@ class SatelliteLedger(BaseModel):
 
     description: str
     image: str
-    mvkBalance: str
     name: str
     registeredDateTime: str
     satelliteFee: str
+    stakedMvkBalance: str
     status: str
     totalDelegatedAmount: str
-    unregisteredDateTime: str
 
 
 class DelegationStorage(BaseModel):

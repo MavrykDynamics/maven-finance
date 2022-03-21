@@ -15,8 +15,6 @@ async def on_governance_start_proposal_round(
     governanceRoundStartLevel       = int(start_proposal_round.storage.currentRoundStartLevel)
     governanceRoundEndLevel         = int(start_proposal_round.storage.currentRoundEndLevel)
     governanceCycleEndLevel         = int(start_proposal_round.storage.currentCycleEndLevel)
-    # governanceRoundProposals        = start_proposal_round.storage.currentRoundProposals
-    # governanceRoundVotes            = start_proposal_round.storage.currentRoundVotes
     
     # Current round
     governanceRoundType = models.GovernanceRoundType.NONE
@@ -37,4 +35,13 @@ async def on_governance_start_proposal_round(
     governance.current_cycle_end_level      = governanceCycleEndLevel
     await governance.save()
 
-    # TODO: Update voters and current proposals records
+    # Reset current round votes & proposals
+    currentRoundVotes   = await models.GovernanceProposalRecordVote.filter(current_round_vote=True).all()
+    for currentRoundVote in currentRoundVotes:
+        currentRoundVote.current_round_vote = False
+        await currentRoundVote.save()
+
+    currentRoundProposals   = await models.GovernanceProposalRecord.filter(current_round_proposal=True).all()
+    for currentRoundProposal in currentRoundProposals:
+        currentRoundProposal.current_round_proposal = False
+        await currentRoundProposal.save()

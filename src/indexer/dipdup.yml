@@ -33,7 +33,7 @@ contracts:
     address: KT1TDe5Jh18wiNkoKW223L6oFvd4LV88u8yi
     typename: farm_factory
   delegation:
-    address: KT1Nv9w4tShibfmyQc9hrZzwVnWZUJAgNYYn
+    address: KT18iM2Xm4xGN94XP2BnTsRfufEpaagDPsuA
     typename: delegation
   vesting:
     address: KT1Hzo5zQGSg18V1mPJ6umt7fmJq54MAF2ks
@@ -625,27 +625,51 @@ indexes:
         pattern:
           - destination: governance
             entrypoint: proposalRoundVote
-      # - callback: on_governance_drop_proposal
+      - callback: on_governance_drop_proposal
+        pattern:
+          - destination: governance
+            entrypoint: dropProposal
+      - callback: on_governance_execute_proposal
+        pattern:
+          - destination: governance
+            entrypoint: executeProposal
+      - callback: on_governance_setup_lambda_function
+        pattern:
+          - destination: governance
+            entrypoint: setupLambdaFunction
+      - callback: on_governance_start_timelock_round
+        pattern:
+          - destination: governance
+            entrypoint: startTimelockRound
+      - callback: on_governance_start_voting_round
+        pattern:
+          - destination: governance
+            entrypoint: startVotingRound
+      - callback: on_governance_set_satellite_voting_power_snapshot
+        pattern:
+          - destination: governance
+            entrypoint: setSatelliteVotingPowerSnapshot
+      # - callback: on_governance_request_tokens
       #   pattern:
       #     - destination: governance
-      #       entrypoint: dropProposal
-      # - callback: on_governance_execute_proposal
+      #       entrypoint: requestTokens
+      # - callback: on_governance_request_mint
       #   pattern:
       #     - destination: governance
-      #       entrypoint: executeProposal
-      # - callback: on_governance_setup_lambda_function
+      #       entrypoint: requestMint
+      # - callback: on_governance_drop_financial_request
       #   pattern:
       #     - destination: governance
-      #       entrypoint: setupLambdaFunction
-      # - callback: on_governance_start_timelock_round
+      #       entrypoint: dropFinancialRequest
+      # - callback: on_governance_request_staked_mvk_snapshot
       #   pattern:
       #     - destination: governance
-      #       entrypoint: startTimelockRound
-      # - callback: on_governance_start_voting_round
+      #       entrypoint: RequestStakedMvkSnapshot
+      # - callback: on_governance_request_satellite_snapshot
       #   pattern:
       #     - destination: governance
-      #       entrypoint: startVotingRound
-      # - callback: on_governance_voting_round_vote
+      #       entrypoint: RequestSatelliteSnapshot
+      # - callback: on_governance_request_vote_for_request
       #   pattern:
       #     - destination: governance
-      #       entrypoint: votingRoundVote
+      #       entrypoint: VoteForRequest

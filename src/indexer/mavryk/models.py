@@ -31,6 +31,11 @@ class GovernanceRecordStatus(IntEnum):
     ACTIVE      = 0
     DROPPED     = 1
 
+class GovernanceVoteType(IntEnum):
+    NAY         = 0
+    YAY         = 1
+    ABSTAIN     = 2
+
 class MVKToken(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     maximum_supply                  = fields.BigIntField(default=0)
@@ -376,25 +381,22 @@ class GovernanceProposalRecord(Model):
     executed                        = fields.BooleanField(default=False)
     locked                          = fields.BooleanField(default=False)
     success_reward                  = fields.FloatField(default=0)
-    pass_vote_count                 = fields.BigIntField(default=0)
     pass_vote_mvk_total             = fields.FloatField(default=0)
     min_proposal_round_vote_pct     = fields.BigIntField(default=0)
     min_proposal_round_vote_req     = fields.BigIntField(default=0)
-    up_vote_count                   = fields.BigIntField(default=0)
     up_vote_mvk_total               = fields.FloatField(default=0)
-    down_vote_count                 = fields.BigIntField(default=0)
     down_vote_mvk_total             = fields.FloatField(default=0)
-    abstain_count                   = fields.BigIntField(default=0)
     abstain_mvk_total               = fields.FloatField(default=0)
     min_quorum_percentage           = fields.BigIntField(default=0)
     min_quorum_mvk_total            = fields.FloatField(default=0)
-    quorum_count                    = fields.BigIntField(default=0)
     quorum_mvk_total                = fields.BigIntField(default=0)
     start_datetime                  = fields.DatetimeField()
     cycle                           = fields.BigIntField(default=0)
     current_cycle_start_level       = fields.BigIntField(default=0)
     current_cycle_end_level         = fields.BigIntField(default=0)
     current_round_proposal          = fields.BooleanField(default=True)
+    round_highest_voted_proposal    = fields.BooleanField(default=False) # If true, it is the current voted proposal in the voting round
+    timelock_proposal               = fields.BooleanField(default=False)
 
     class Meta:
         table = 'governance_proposal_record'
@@ -407,3 +409,37 @@ class GovernanceProposalRecordMetadata(Model):
 
     class Meta:
         table = 'governance_proposal_record_metadata'
+
+class GovernanceProposalRecordVote(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_proposal_record      = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='votes')
+    voter                           = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_votes')
+    timestamp                       = fields.DatetimeField()
+    round                           = fields.IntEnumField(enum_type=GovernanceRoundType)
+    vote                            = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
+    voting_power                    = fields.FloatField()
+    current_round_vote              = fields.BooleanField(default=True)
+
+    class Meta:
+        table = 'governance_proposal_record_vote'
+
+class GovernanceLambdaRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='governance_lambda_records')
+    lambda_function                 = fields.TextField()
+
+    class Meta:
+        table = 'governance_lambda_record'
+
+class GovernanceSatelliteSnapshotRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='governance_satellite_snapshot_records')
+    satellite                       = fields.ForeignKeyField('models.SatelliteRecord', related_name='governance_satellite_snapshot_records')
+    total_mvk_balance               = fields.FloatField(default=0.0)
+    total_delegated_amount          = fields.FloatField(default=0.0)
+    total_voting_power              = fields.FloatField(default=0.0)
+    current_cycle_start_level       = fields.BigIntField(default=0.0)
+    current_cycle_end_level         = fields.BigIntField(default=0.0)
+
+    class Meta:
+        table = 'governance_satellite_snapshot_record'
