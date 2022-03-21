@@ -1,4 +1,5 @@
 from pickle import NONE
+from xml.etree.ElementInclude import DEFAULT_MAX_INCLUSION_DEPTH
 from tortoise import Model, fields
 from enum import IntEnum
 
@@ -179,6 +180,13 @@ class MavrykUser(Model):
 
     class Meta:
         table = 'mavryk_user'
+
+class Treasury(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    balance                         = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'treasury'
 
 class MavrykUserOperator(Model):
     id                              = fields.BigIntField(pk=True, default=0)
@@ -443,3 +451,28 @@ class GovernanceSatelliteSnapshotRecord(Model):
 
     class Meta:
         table = 'governance_satellite_snapshot_record'
+
+class GovernanceFinancialRequestRecord(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='governance_financial_request_records')
+    treasury                        = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_request_records')
+    requester                       = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_request_records')
+    request_type                    = fields.CharField(max_length=255)
+    status                          = fields.IntEnumField(enum_type=GovernanceRecordStatus, default=GovernanceRecordStatus.ACTIVE)
+    ready                           = fields.BooleanField()
+    executed                        = fields.BooleanField()
+    expired                         = fields.BooleanField()
+    token_contract_address          = fields.CharField(max_length=36)
+    token_amount                    = fields.FloatField(default=0.0)
+    token_name                      = fields.CharField(max_length=255)
+    token_id                        = fields.BigIntField(default=0)
+    request_purpose                 = fields.CharField(max_length=255)
+    approve_vote_total              = fields.FloatField(default=0.0)
+    disapprove_vote_total           = fields.FloatField(default=0.0)
+    smvk_percentage_for_approval    = fields.BigIntField(default=0)
+    smvk_required_for_approval      = fields.FloatField(default=0.0)
+    expiration_datetime             = fields.DatetimeField()
+    requested_datetime              = fields.DatetimeField()
+
+    class Meta:
+        table = 'governance_financial_request_record'
