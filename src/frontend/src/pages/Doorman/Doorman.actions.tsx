@@ -90,11 +90,40 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
   // }
 
   try {
+    const mvkTokenContract = await state.wallet.tezos?.wallet.at(mvkTokenAddress.address)
+    const doormanContract = await state.wallet.tezos?.wallet.at(doormanAddress.address)
+    console.log('MvkToken contract', doormanContract)
+    console.log('Doorman contract', doormanContract)
+
+    const addOperators = [
+        {
+          add_operator: {
+            owner: state.wallet.accountPkh,
+            operator: doormanAddress.address,
+            token_id: 0,
+          },
+        },
+      ],
+      removeOperators = [
+        {
+          remove_operator: {
+            owner: state.wallet.accountPkh,
+            operator: doormanAddress.address,
+            token_id: 0,
+          },
+        },
+      ]
+
     console.log('Here in stake', amount * PRECISION_NUMBER)
-    const contract = await state.wallet.tezos?.wallet.at(doormanAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.stake(amount * PRECISION_NUMBER).send()
-    console.log('transaction', transaction)
+    const batch =
+      mvkTokenContract &&
+      doormanContract &&
+      (await state.wallet.tezos?.wallet
+        .batch()
+        .withContractCall(mvkTokenContract.methods.update_operators(addOperators))
+        .withContractCall(doormanContract.methods.stake(amount * PRECISION_NUMBER))
+        .withContractCall(mvkTokenContract.methods.update_operators(removeOperators)))
+    const batchOp = await batch?.send()
 
     dispatch({
       type: STAKE_REQUEST,
@@ -102,7 +131,7 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
     })
     dispatch(showToaster(INFO, 'Staking...', 'Please wait 30s'))
 
-    const done = await transaction?.confirmation()
+    const done = await batchOp?.confirmation()
     console.log('done', done)
     dispatch(showToaster(SUCCESS, 'Staking done', 'All good :)'))
 
