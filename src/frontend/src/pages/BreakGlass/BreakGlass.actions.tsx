@@ -1,8 +1,6 @@
 import { State } from '../../reducers'
-import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json'
 import breakGlassAddress from '../../deployments/breakGlassAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
-import { getContractBigmapKeys } from '../../utils/api'
 
 export const GET_BREAK_GLASS_STORAGE = 'GET_BREAK_GLASS_STORAGE'
 export const SET_GLASS_BROKEN = 'SET_GLASS_BROKEN'

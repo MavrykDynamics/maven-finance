@@ -4,16 +4,6 @@ import delegationAddress from 'deployments/delegationAddress.json'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
 import {
-  DelegateRecord,
-  DelegationConfig,
-  DelegationLedger,
-  DelegationStorage,
-  SatelliteRecord,
-} from 'reducers/delegation'
-import { getContractBigmapKeys, getContractStorage } from 'utils/api'
-import { PRECISION_NUMBER } from '../../utils/constants'
-import { MichelsonMap } from '@taquito/taquito'
-import {
   DELEGATION_STORAGE_QUERY,
   DELEGATION_STORAGE_QUERY_NAME,
   DELEGATION_STORAGE_QUERY_VARIABLE,

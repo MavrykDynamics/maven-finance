@@ -5,12 +5,7 @@ import { getEmergencyGovernanceStorage } from '../EmergencyGovernance.actions'
 import { getBreakGlassStorage } from '../../BreakGlass/BreakGlass.actions'
 import { hideExitFeeModal } from './EmergencyGovProposalModal.actions'
 import { EmergencyGovProposalModalView } from './EmergencyGovProposalModal.view'
-import {
-  ProposalUpdateForm,
-  ProposalUpdateFormInputStatus,
-  ValidProposalUpdateForm,
-} from '../../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isHexadecimalByteString, isNotAllWhitespace } from '../../../utils/validatorFunctions'
+import { getFormErrors, isNotAllWhitespace } from '../../../utils/validatorFunctions'
 import { updateProposal } from '../../ProposalSubmission/ProposalSubmission.actions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'

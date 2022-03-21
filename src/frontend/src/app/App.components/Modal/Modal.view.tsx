@@ -1,15 +1,8 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { ModalKind, PRIMARY } from './Modal.constants'
-import { PageHeaderStyled, PageHeaderTextArea } from './Modal.style'
 import { ModalCard, ModalCardContent, ModalClose, ModalMask, ModalStyled } from 'styles'
-import {
-  ExitFeeModalButtons,
-  ExitFeeModalContent,
-  ExitFeeModalFee,
-  ExitFeeModalGrid,
-} from '../../../pages/Doorman/ExitFeeModal/ExitFeeModal.style'
-import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
+
 import { Button } from '../Button/Button.controller'
 type ModalViewProps = {
   title: string

@@ -6,7 +6,6 @@ import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
 import { create } from 'ipfs-http-client'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { SatelliteRecord } from 'reducers/delegation'
 import { Page } from 'styles'
 
 import { TextEditor } from '../../app/App.components/TextEditor/TextEditor.controller'
@@ -25,6 +24,7 @@ import {
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import * as React from 'react'
+import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 
 type BecomeSatelliteViewProps = {
   loading: boolean

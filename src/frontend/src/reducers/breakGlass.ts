@@ -1,23 +1,6 @@
-import { MichelsonMap } from '@taquito/taquito'
 import { GET_BREAK_GLASS_STORAGE, SET_GLASS_BROKEN } from '../pages/BreakGlass/BreakGlass.actions'
+import { BreakGlassStorage } from '../utils/TypesAndInterfaces/BreakGlass'
 
-type BreakGlassConfig = {
-  threshold: number
-  actionExpiryDuration: number
-  developerAddress: string
-  emergencyGovernanceAddress: string
-}
-export interface BreakGlassStorage {
-  admin: string
-  config: BreakGlassConfig
-  generalContracts: MichelsonMap<string, unknown>
-  glassBroken: boolean
-  councilMembers: string[]
-  currentActionId: number
-  nextActionId: number
-  actionLedger: MichelsonMap<string, unknown>
-  flushLedger: MichelsonMap<string, unknown>
-}
 export interface BreakGlassState {
   breakGlassStorage: BreakGlassStorage | any
   glassBroken: boolean

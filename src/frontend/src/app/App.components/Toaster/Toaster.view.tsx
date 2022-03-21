@@ -2,8 +2,16 @@ import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
 import { ERROR } from './Toaster.constants'
-// prettier-ignore
-import { ToasterClose, ToasterContent, ToasterCountdown, ToasterGrid, ToasterIcon, ToasterMessage, ToasterStyled, ToasterTitle } from './Toaster.style'
+import {
+  ToasterClose,
+  ToasterContent,
+  ToasterCountdown,
+  ToasterGrid,
+  ToasterIcon,
+  ToasterMessage,
+  ToasterStyled,
+  ToasterTitle,
+} from './Toaster.style'
 
 type ToasterViewProps = {
   showing: boolean

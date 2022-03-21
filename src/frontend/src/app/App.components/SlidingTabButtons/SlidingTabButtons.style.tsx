@@ -1,6 +1,6 @@
-import styled, { css, keyframes } from 'styled-components/macro'
+import styled, { keyframes } from 'styled-components/macro'
 
-import { primaryColor, textColor, backgroundColor } from '../../../styles'
+import { primaryColor } from '../../../styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 import { BUTTON_RADIUS } from '../../../styles/constants'
 

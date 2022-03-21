@@ -1,6 +1,6 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { SlidingTabButtonStyle, SlidingTabButtonTypes, PRIMARY, TABS } from './SlidingTabButtons.constants'
 import { SlidingTabButtonsView } from './SlidingTabButtons.view'

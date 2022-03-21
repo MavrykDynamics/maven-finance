@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
-import { SatelliteRecord } from 'reducers/delegation'
 
 import { SatelliteListView } from './SatelliteList.view'
+import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 
 type SatelliteListProps = {
   satellitesList: SatelliteRecord[]

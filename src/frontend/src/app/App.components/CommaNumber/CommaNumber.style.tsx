@@ -1,5 +1,4 @@
 import styled, { keyframes } from 'styled-components/macro'
-import { backgroundColor, primaryColor, textColor } from '../../../styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 const turn = keyframes`

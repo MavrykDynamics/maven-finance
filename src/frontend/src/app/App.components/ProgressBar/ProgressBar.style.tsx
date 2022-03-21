@@ -1,6 +1,4 @@
 import styled, { css } from 'styled-components/macro'
-
-import { primaryColor } from '../../../styles'
 import { ProgressBarStatus } from './ProgressBar.constants'
 import { MavrykTheme } from '../../../styles/interfaces'
 

@@ -1,7 +1,5 @@
 import { Input } from 'app/App.components/Input/Input.controller'
 import Select from 'react-select'
-import { SatelliteRecord } from 'reducers/delegation'
-
 import {
   SatelliteListEmptyContainer,
   SatelliteListStyled,
@@ -9,9 +7,10 @@ import {
   SelectContainer,
 } from './SatelliteList.style'
 import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
-import { darkMode, lightMode, placeholderColor } from '../../../styles'
+import { darkMode, lightMode } from '../../../styles'
 import { useSelector } from 'react-redux'
 import { State } from '../../../reducers'
+import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 
 type SatelliteListViewProps = {
   loading: boolean

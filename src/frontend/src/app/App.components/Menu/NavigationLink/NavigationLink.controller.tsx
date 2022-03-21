@@ -9,12 +9,11 @@ import {
   SubLinkText,
   SubNavLink,
 } from './NavigationLink.style'
-import { SubNavigationRoute } from '../../../../styles/interfaces'
 import useCollapse from 'react-collapsed'
-import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { State } from '../../../../reducers'
-import { SatelliteRecord } from '../../../../reducers/delegation'
+import { SubNavigationRoute } from '../../../../utils/TypesAndInterfaces/Navigation'
+import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
 
 type NavigationLinkProps = {
   title: string

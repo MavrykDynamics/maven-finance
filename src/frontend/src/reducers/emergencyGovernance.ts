@@ -1,4 +1,3 @@
-import { MichelsonMap } from '@taquito/taquito'
 import {
   GET_EMERGENCY_GOVERNANCE_STORAGE,
   SET_EMERGENCY_GOVERNANCE_ACTIVE,
@@ -7,20 +6,8 @@ import {
   SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST,
   SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT,
 } from '../pages/EmergencyGovernance/EmergencyGovernance.actions'
+import { EmergencyGovernanceStorage } from '../utils/TypesAndInterfaces/EmergencyGovernance'
 
-export interface EmergencyGovernanceStorage {
-  admin: string
-  config: {
-    voteDuration: number
-    minStakedMvkPercentageForTrigger: number
-    requiredFee: number
-  }
-  generalContracts: MichelsonMap<string, unknown>
-  emergencyGovernanceLedger: MichelsonMap<string, unknown>
-  tempMvkTotalSupply: number
-  currentEmergencyGovernanceId: number
-  nextEmergencyGovernanceProposalId: number
-}
 export interface EmergencyGovernanceState {
   type?: typeof GET_EMERGENCY_GOVERNANCE_STORAGE | typeof SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST
   emergencyGovernanceStorage: EmergencyGovernanceStorage | any
