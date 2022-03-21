@@ -54,6 +54,8 @@ type proposalRecordType is [@layout:comb] record [
     abstainMvkTotal      : nat;                     // voting round: abstain MVK total
     voters               : votersMapType;           // voting round ledger
 
+    minProposalRoundVotePercentage : nat;           // min vote percentage of total MVK supply required to pass proposal round
+
     minQuorumPercentage  : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
     minQuorumMvkTotal    : nat;                     // log of min quorum in MVK - capture state at this point
     quorumCount          : nat;                     // log of turnout for voting round - number of satellites who voted
