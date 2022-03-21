@@ -4,6 +4,8 @@ import { BigNumber } from 'bignumber.js'
 
 export type delegationStorageType = {
   admin: string
+  mvkTokenAddress: string;
+  
   config: {}
   breakGlassConfig: {}
 

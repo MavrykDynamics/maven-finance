@@ -1991,9 +1991,9 @@ describe('MVK Token', async () => {
     it("Whitelist should not be able to exceed the MVK Maximum total supply while minting", async () => {
         try {
             // Initial values
-            const maximumTotalSupply = await tokenStorage.maximumTotalSupply;
+            const maximumSupply = await tokenStorage.maximumSupply;
             const currentTotalSupply = await tokenStorage.totalSupply;
-            const amountToMint = maximumTotalSupply.minus(currentTotalSupply).plus(1);
+            const amountToMint = maximumSupply.minus(currentTotalSupply).plus(1);
 
             // Fake a whitelist contract for minting - add
             const whitelistOperationAdd = await tokenInstance.methods.updateWhitelistContracts('fake', eve.pkh).send()
@@ -2398,67 +2398,6 @@ describe('MVK Token', async () => {
       }
     })
   })
-
-//   describe('%doormanUnstakeStage', function () {
-//     it('Updates Doorman MVK total supply for a known doorman in the token contract', async () => {
-//       try {
-//         // Update operator
-//         const updateOperatorsOperation = await tokenInstance.methods
-//             .update_operators([
-//             {
-//                 add_operator: {
-//                     owner: alice.pkh,
-//                     operator: doormanAddress.address,
-//                     token_id: 0,
-//                 },
-//             },
-//             ])
-//             .send()
-//         await updateOperatorsOperation.confirmation()
-
-//         const doormanInstance = await utils.tezos.contract.at(doormanAddress.address)
-
-//         // Doorman calls
-//         const stakeOperation = await doormanInstance.methods.stake(2).send()
-//         await stakeOperation.confirmation()
-//         const unstakeOperation = await doormanInstance.methods.unstake(1).send()
-//         await unstakeOperation.confirmation()
-//       } catch (e) {
-//         assert.equal(
-//           e.message,
-//           'ONLY_WHITELISTED_CONTRACTS_ALLOWED',
-//           'This entrypoint should only be called by whitelisted contracts',
-//         )
-//       }
-//     })
-
-//     it('Updates Doorman MVK total supply for a unknown doorman or vesting contract in the token contract', async () => {
-//       try {
-//         const whitelistOperationAdd = await tokenInstance.methods
-//           .updateWhitelistContracts('doorman', alice.pkh)
-//           .send()
-//         await whitelistOperationAdd.confirmation()
-
-//         const doormanInstance = await utils.tezos.contract.at(doormanAddress.address)
-
-//         // Doorman calls
-//         const stakeOperation = await doormanInstance.methods.stake(2).send()
-//         await stakeOperation.confirmation()
-//         const unstakeOperation = await doormanInstance.methods.unstake(1).send()
-//         await unstakeOperation.confirmation()
-//       } catch (e) {
-//         const whitelistOperationRemove = await tokenInstance.methods
-//           .updateWhitelistContracts('doorman', alice.pkh)
-//           .send()
-//         await whitelistOperationRemove.confirmation()
-//         assert.equal(
-//           e.message,
-//           'ONLY_WHITELISTED_CONTRACTS_ALLOWED',
-//           'This entrypoint should only be called by whitelisted contracts',
-//         )
-//       }
-//     })
-//   })
 
   describe('%assertMetadata', function () {
     it('Checks an non-existent value in the metadata', async () => {
