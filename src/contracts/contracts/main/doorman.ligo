@@ -184,10 +184,10 @@ function getMvkTotalSupplyEntrypoint(const s: storage) : contract(contract(nat))
 // helper function to get MVK supplies
 function getMvkSuppliesEntrypoint(const s: storage) : contract(contract(nat * nat)) is
   case (Tezos.get_entrypoint_opt(
-      "%getSupplies",
+      "%getTotalAndMaximumSupply",
       s.mvkTokenAddress) : option(contract(contract(nat * nat)))) of
     Some(contr) -> contr
-  | None -> (failwith("GetSupplies entrypoint in MVK Token Contract not found") : contract(contract(nat * nat)))
+  | None -> (failwith("GetTotalAndMaximumSupply entrypoint in MVK Token Contract not found") : contract(contract(nat * nat)))
   end;
 
 (* ---- Helper functions end ---- *)
