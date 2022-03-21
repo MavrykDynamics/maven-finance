@@ -134,6 +134,14 @@ function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.sender = Tezos.self_address) then unit
     else failwith("Only this contract can call this entrypoint.");
 
+function checkSenderIsSatellite(var s : storage) : unit is 
+  if (Big_map.mem(Tezos.sender, s.satelliteLedger)) then unit
+  else failwith("Error. Sender is not a satellite.");
+
+function checkSenderIsNotSatellite(var s : storage) : unit is 
+  if (Big_map.mem(Tezos.sender, s.satelliteLedger)) then failwith("Error. Sender is a satellite.")
+  else unit;
+
 function checkSenderIsDoormanContract(var s : storage) : unit is
 block{
   const doormanAddress : address = case s.generalContracts["doorman"] of
@@ -450,6 +458,9 @@ block {
 
     // check that entrypoint is not paused
     checkDelegateToSatelliteIsNotPaused(s);
+
+    // check that sender is not a satellite
+    checkSenderIsNotSatellite(s);
     
     // check if satellite exists
     var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of
@@ -803,17 +814,12 @@ block {
 
     // check that entrypoint is not paused
     checkUnregisterAsSatelliteIsNotPaused(s);
-    
-    var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[Tezos.sender] of
-          Some(_val) -> _val
-        | None -> failwith("Satellite address does not exist.")
-    end;
 
-    // changing of status - to inactive instead of removing
-    remove (Tezos.sender : address) from map s.satelliteLedger;
+    // check sender is satellite
+    checkSenderIsSatellite(s);
     
-    // _checkSatelliteExists.status := 0n;
-    // s.satelliteLedger[Tezos.sender] := _checkSatelliteExists;
+    // remove sender from satellite ledger
+    remove (Tezos.sender : address) from map s.satelliteLedger;
 
     const governanceAddress : address = case s.generalContracts["governance"] of
       Some(_address) -> _address
@@ -828,6 +834,8 @@ block {
          );
     
     const operations : list(operation) = list [updateGovernanceActiveSatellitesMapOperation];
+
+    // todo: oracles check
 
 } with (operations, s)
 
