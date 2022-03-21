@@ -8,10 +8,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { NoWalletConnectedButton } from '../../../app/App.components/ConnectWallet/ConnectWallet.view'
 import { ConnectWalletStyled } from 'app/App.components/ConnectWallet/ConnectWallet.style'
 import { VotingBar } from './VotingBar/VotingBar.controller'
-import { SatelliteRecord } from '../../../reducers/delegation'
 import { State } from '../../../reducers'
 import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from '../Governance.controller'
+import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
 
 type VotingAreaProps = {
   ready: boolean

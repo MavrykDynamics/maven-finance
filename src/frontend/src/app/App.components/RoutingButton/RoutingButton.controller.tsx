@@ -4,8 +4,6 @@ import { useState } from 'react'
 
 import { BUTTON, RoutingButtonStyle, RoutingButtonTypes, PRIMARY } from './RoutingButton.constants'
 import { RoutingButtonView } from './RoutingButton.view'
-import { useSelector } from 'react-redux'
-import { State } from '../../../reducers'
 
 type RoutingButtonProps = {
   text: string

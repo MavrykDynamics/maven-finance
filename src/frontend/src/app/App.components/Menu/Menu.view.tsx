@@ -1,20 +1,11 @@
 import { Link, useLocation } from 'react-router-dom'
-// prettier-ignore
-import {
-  MenuBanner,
-  MenuBottomSection,
-  MenuFooter,
-  MenuGrid,
-  MenuLogo,
-  MenuStyled,
-  MenuTopSection,
-} from './Menu.style'
+import { MenuBanner, MenuBottomSection, MenuFooter, MenuGrid, MenuLogo, MenuStyled, MenuTopSection } from './Menu.style'
 import * as React from 'react'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
-import { MainNavigationRoute } from '../../../styles/interfaces'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
 import { useState } from 'react'
 import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
+import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
 
 type MenuViewProps = {
   loading: boolean

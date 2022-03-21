@@ -1,4 +1,3 @@
-import { ContentState, convertFromHTML } from 'draft-js'
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import RichTextEditor, { ToolbarConfig } from 'react-rte'

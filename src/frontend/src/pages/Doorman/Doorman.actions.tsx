@@ -4,39 +4,23 @@ import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constan
 import doormanAddress from 'deployments/doormanAddress.json'
 import mvkTokenAddress from 'deployments/mvkTokenAddress.json'
 import { State } from 'reducers'
-import {
-  DoormanBreakGlassConfigType,
-  DoormanStorage,
-  UserStakeBalanceLedger,
-  UserStakeRecord,
-  UserStakeRecordsLedger,
-} from 'reducers/doorman'
 
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 import { PRECISION_NUMBER } from '../../utils/constants'
-import { MvkTokenStorage } from '../../reducers/mvkToken'
 import { DOORMAN_STORAGE_QUERY, DOORMAN_STORAGE_QUERY_NAME, DOORMAN_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { calcWithoutMu } from '../../utils/calcFunctions'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
-import {
-  USER_STAKE_BALANCE_QUERY_NAME,
-  USER_STAKE_BALANCE_QUERY_VARIABLES,
-  USER_STAKE_BALANCE_STORAGE_QUERY,
-} from '../../gql/queries/getUserStakeInfo'
 import { USER_INFO_QUERY, USER_INFO_QUERY_NAME, USER_INFO_QUERY_VARIABLES } from '../../gql/queries/getUserInfo'
-import { UserData } from '../../reducers/user'
-import { updateOperators } from '../../app/App.components/Menu/Menu.actions'
+import { DoormanBreakGlassConfigType, DoormanStorage } from '../../utils/TypesAndInterfaces/Doorman'
+import { UserData } from '../../utils/TypesAndInterfaces/User'
+import { MvkTokenStorage } from '../../utils/TypesAndInterfaces/MvkToken'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
-  // if (!accountPkh) {
-  //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
-  //   return
-  // }
   const contract = accountPkh
     ? await state.wallet.tezos?.wallet.at(mvkTokenAddress.address)
     : await new TezosToolkit(
@@ -84,11 +68,6 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
     return
   }
 
-  // if (!state.wallet.contractPermissionsMap.get(doormanAddress.address)) {
-  //   dispatch(showToaster(ERROR, "Doorman contract doesn't have permission", 'Please approve permissions update'))
-  //   dispatch(updateOperators('doorman', doormanAddress.address, state.wallet.accountPkh))
-  // }
-
   try {
     const mvkTokenContract = await state.wallet.tezos?.wallet.at(mvkTokenAddress.address)
     const doormanContract = await state.wallet.tezos?.wallet.at(doormanAddress.address)
@@ -114,7 +93,6 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
         },
       ]
 
-    console.log('Here in stake', amount * PRECISION_NUMBER)
     const batch =
       mvkTokenContract &&
       doormanContract &&
@@ -320,7 +298,7 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
     console.error(error)
     dispatch(showToaster(ERROR, 'Error', error.message))
     dispatch({
-      type: GET_USER_DATA,
+      type: GET_USER_DATA_ERROR,
       error,
     })
   }

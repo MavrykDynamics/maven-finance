@@ -3,11 +3,7 @@ import { Page } from 'styles'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import '@silevis/reactgrid/styles.css'
-// prettier-ignore
-import {
-  ProposalSubmissionForm,
-} from './ProposalSubmission.style'
-
+import { ProposalSubmissionForm } from './ProposalSubmission.style'
 import { PropSubmissionTopBar } from './PropSubmissionTopBar/PropSubmissionTopBar.controller'
 import { GovernancePhase } from '../../reducers/governance'
 import { StageOneForm } from './StageOneForm/StageOneForm.controller'

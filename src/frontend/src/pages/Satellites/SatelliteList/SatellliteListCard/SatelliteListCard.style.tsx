@@ -1,5 +1,4 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, subTextColor, textColor } from 'styles'
 import { MavrykTheme } from '../../../../styles/interfaces'
 
 export const SatelliteCard = styled.div<{ theme: MavrykTheme }>`

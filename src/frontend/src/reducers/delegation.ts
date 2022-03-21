@@ -20,55 +20,18 @@ import {
 } from '../pages/BecomeSatellite/BecomeSatellite.actions'
 import { MichelsonMap } from '@taquito/taquito'
 import { getItemFromStorage } from '../utils/storage'
+import { DelegateRecord, DelegationStorage } from '../utils/TypesAndInterfaces/Delegation'
 
-export interface SatelliteRecord {
-  address: string
-  name: string
-  image: string
-  description: string
-  satelliteFee: string | number
-  active: boolean
-  mvkBalance: string
-  totalDelegatedAmount: string
-  registeredDateTime: Date
-  unregisteredDateTime: Date | null
-}
-export type DelegationConfig = {
-  maxSatellites: string
-  delegationRatio: string
-  minimumStakedMvkBalance: number
-}
-export interface DelegationBreakGlassConfigType {
-  delegateToSatelliteIsPaused: boolean
-  undelegateFromSatelliteIsPaused: boolean
-  registerAsSatelliteIsPaused: boolean
-  unregisterAsSatelliteIsPaused: boolean
-  updateSatelliteRecordIsPaused: boolean
-}
-export interface DelegateRecord {
-  satelliteAddress: string
-  delegatedDateTime: Date | null
-}
-export type DelegationLedger = MichelsonMap<string, DelegateRecord>
-export interface DelegationStorage {
-  admin?: string
-  contractAddresses?: MichelsonMap<string, string>
-  whitelistContracts?: MichelsonMap<string, string>
-  satelliteLedger: SatelliteRecord[]
-  config: DelegationConfig
-  delegateLedger: DelegationLedger
-  breakGlassConfig: DelegationBreakGlassConfigType
-}
-
-const DELEGATE = 'DELEGATE'
-const UNDELEGATE = 'UNDELEGATE'
-const SATELLITE_ACTION = 'SATELLITE_ACTION'
+export const DELEGATE = 'DELEGATE'
+export const UNDELEGATE = 'UNDELEGATE'
+export const SATELLITE_ACTION = 'SATELLITE_ACTION'
 export interface DelegationState {
   type?: typeof DELEGATE | typeof UNDELEGATE | typeof SATELLITE_ACTION
   delegationStorage: DelegationStorage
   amount?: number
   error?: any
 }
+
 const defaultDelegationStorage: DelegationStorage = {
   satelliteLedger: [],
   config: {

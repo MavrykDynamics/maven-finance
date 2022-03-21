@@ -1,21 +1,6 @@
-import { MichelsonMap } from '@taquito/taquito'
 import { GET_TREASURY_STORAGE } from '../pages/Treasury/Treasury.actions'
+import { TreasuryStorage } from '../utils/TypesAndInterfaces/Treasury'
 
-export interface TreasuryStorage {
-  admin: string
-  config: {
-    minXtzAmount: number
-    maxXtzAmount: number
-  }
-  whitelistContracts: MichelsonMap<string, unknown>
-  whitelistTokenContracts: MichelsonMap<string, unknown>
-  generalContracts: MichelsonMap<string, unknown>
-  breakGlassConfig: {
-    transferIsPaused: boolean
-    mintAndTransferIsPaused: boolean
-    updateOperatorsIsPaused: boolean
-  }
-}
 export interface TreasuryState {
   treasuryStorage: TreasuryStorage | any
 }

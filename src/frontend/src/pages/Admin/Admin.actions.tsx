@@ -1,13 +1,9 @@
 import { State } from '../../reducers'
 import governanceAddress from '../../deployments/governanceAddress.json'
-import { TezosToolkit } from '@taquito/taquito'
-import { getContractBigmapKeys } from '../../utils/api'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { getGovernanceStorage } from '../Governance/Governance.actions'
 import farmFactoryAddress from '../../deployments/farmFactoryAddress.json'
-import { GET_FARM_FACTORY_STORAGE } from '../Farms/Farms.actions'
-import { PRECISION_NUMBER } from '../../utils/constants'
 
 export const ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_REQUEST = 'ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_REQUEST'
 export const ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_RESULT = 'ADMIN_ACTION_CHANGE_GOVERNANCE_PERIOD_RESULT'

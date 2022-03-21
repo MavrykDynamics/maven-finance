@@ -1,12 +1,17 @@
-import { gsap } from 'gsap'
-import { Fragment, useEffect, useState } from 'react'
-import { Controls, PlayState, Timeline, Tween } from 'react-gsap'
-// prettier-ignore
-import { useSelector } from "react-redux";
+import { Fragment } from 'react'
+import { PlayState, Timeline, Tween } from 'react-gsap'
+import { useSelector } from 'react-redux'
 import { State } from 'reducers'
-
-//prettier-ignore
-import { DoormanHeaderAnimation, DoormanHeaderPortal, DoormanHeaderShip, DoormanHeaderShipComing, DoormanHeaderShipFlamePart, DoormanHeaderShipGoing, DoormanHeaderShipMainPart, DoormanHeaderStyled } from './DoormanHeader.style'
+import {
+  DoormanHeaderAnimation,
+  DoormanHeaderPortal,
+  DoormanHeaderShip,
+  DoormanHeaderShipComing,
+  DoormanHeaderShipFlamePart,
+  DoormanHeaderShipGoing,
+  DoormanHeaderShipMainPart,
+  DoormanHeaderStyled,
+} from './DoormanHeader.style'
 
 type DoormanHeaderViewProps = {}
 

@@ -1,5 +1,4 @@
 import styled from 'styled-components/macro'
-import { primaryColor, subTextColor } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const ExitFeeModalContent = styled.div`

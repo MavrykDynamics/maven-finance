@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components/macro'
+import styled, { keyframes } from 'styled-components/macro'
 
 export const moveDown = keyframes`
   from {

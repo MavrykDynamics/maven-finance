@@ -3,8 +3,6 @@ import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
-import { SatelliteRecord } from 'reducers/delegation'
-
 import {
   SatelliteCard,
   SatelliteCardRow,
@@ -17,6 +15,7 @@ import {
   SideBySideImageAndText,
 } from './SatelliteListCard.style'
 import { RoutingButton } from '../../../../app/App.components/RoutingButton/RoutingButton.controller'
+import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
 
 type SatelliteListCardViewProps = {
   satellite: SatelliteRecord

@@ -4,13 +4,10 @@ import { useState } from 'react'
 import {
   ProposalFinancialRequestForm,
   ProposalFinancialRequestInputStatus,
-  ProposalUpdateForm,
-  ProposalUpdateFormInputStatus,
   ValidFinancialRequestForm,
-  ValidProposalUpdateForm,
 } from '../../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isHexadecimalByteString, isJsonString } from '../../../utils/validatorFunctions'
-import { submitFinancialRequestData, updateProposal } from '../ProposalSubmission.actions'
+import { getFormErrors, isJsonString } from '../../../utils/validatorFunctions'
+import { submitFinancialRequestData } from '../ProposalSubmission.actions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 

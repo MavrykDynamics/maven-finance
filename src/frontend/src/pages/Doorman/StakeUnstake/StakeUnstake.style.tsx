@@ -1,5 +1,4 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, downColor, placeholderColor, subTextColor, upColor } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const StakeUnstakeStyled = styled.div`

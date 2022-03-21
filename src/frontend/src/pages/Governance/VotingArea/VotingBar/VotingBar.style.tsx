@@ -1,5 +1,4 @@
 import styled, { keyframes } from 'styled-components/macro'
-import { VotingBarStatus } from './VotingBar.constants'
 import { MavrykTheme } from '../../../../styles/interfaces'
 import { upColor } from '../../../../styles'
 

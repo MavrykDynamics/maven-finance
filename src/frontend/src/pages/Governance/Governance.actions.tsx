@@ -1,6 +1,5 @@
 import { State } from '../../reducers'
 import governanceAddress from '../../deployments/governanceAddress.json'
-import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json'
 import { MichelsonMap, TezosToolkit } from '@taquito/taquito'
 import { getContractBigmapKeys } from '../../utils/api'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'

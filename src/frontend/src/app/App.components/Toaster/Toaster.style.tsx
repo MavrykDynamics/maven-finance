@@ -1,6 +1,4 @@
 import styled, { css, keyframes } from 'styled-components/macro'
-
-import { backgroundColor, downColor, infoColor, subTextColor, textColor, upColor, warningColor } from '../../../styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const ToasterStyled = styled.div<{ showing: boolean; theme: MavrykTheme }>`
