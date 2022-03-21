@@ -45,7 +45,7 @@ type storage is record [
 
     emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
     
-    tempMvkTotalSupply                  : nat; // at point where emergency control is triggered
+    tempStakedMvkTotalSupply            : nat; // at point where emergency control is triggered
     currentEmergencyGovernanceId        : nat;
     nextEmergencyGovernanceProposalId   : nat;
 ]
@@ -53,9 +53,10 @@ type storage is record [
 type updateConfigNewValueType is nat
 type updateConfigActionType is 
   ConfigVoteExpiryDays of unit
-| ConfigStakedMvkPercentRequired of unit
 | ConfigRequiredFee of unit
-| ConfigMinStakedMvkRequiredVote of unit
+| ConfigStakedMvkPercentRequired of unit
+| ConfigMinStakedMvkForVoting of unit
+| ConfigMinStakedMvkForTrigger of unit
 type updateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : updateConfigNewValueType; 
   updateConfigAction    : updateConfigActionType;
@@ -69,7 +70,7 @@ type triggerEmergencyControlType is [@layout:comb] record[
 type emergencyGovernanceAction is 
     | UpdateConfig of updateConfigParamsType    
     | UpdateGeneralContracts of updateGeneralContractsParams
-    | SetTempMvkTotalSupply of (nat)
+    | SetTempStakedMvkTotalSupply of (nat)
     
     | TriggerEmergencyControl of triggerEmergencyControlType
     | TriggerEmergencyControlComplete of (nat)
@@ -147,6 +148,15 @@ function fetchStakedMvkBalance(const contractAddress : address) : contract(addre
   | None -> (failwith("GetStakedBalance entrypoint in Doorman Contract not found") : contract(address * contract(nat)))
   end;
 
+// helper function to get total staked MVK supply from Doorman address
+function fetchTotalStakedMvkSupply(const contractAddress : address) : contract(contract(nat)) is
+  case (Tezos.get_entrypoint_opt(
+      "%getTotalStakedSupply",
+      contractAddress) : option(contract(contract(nat)))) of
+    Some(contr) -> contr
+  | None -> (failwith("GetTotalStakedSupply entrypoint in Doorman Contract not found") : contract(contract(nat)))
+  end;
+
 // helper function to break glass in the governance or breakGlass contract
 function triggerBreakGlass(const contractAddress : address) : contract(unit) is
   case (Tezos.get_entrypoint_opt(
@@ -160,11 +170,12 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
 // transfer tez helper function
 function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
 
-function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
+function setTempStakedMvkTotalSupply(const totalSupply : nat; var s : storage) is
 block {
+    
     checkNoAmount(Unit);                    (* Should not receive any tez amount *)
-    checkSenderIsMvkTokenContract(s);       (* Check this call is comming from the mvk Token contract *)
-    s.tempMvkTotalSupply := totalSupply;
+    checkSenderIsDoormanContract(s);       (* Check this call is comming from the doorman contract *)
+    s.tempStakedMvkTotalSupply := totalSupply;
 
     // set min MVK total required in emergency governance record based on temp MVK total supply
     const emergencyGovernanceProposalId : nat = abs(s.nextEmergencyGovernanceProposalId - 1n);
@@ -173,7 +184,7 @@ block {
         | None -> failwith("Error. Emergency Governance Record not found.")
     end;
 
-    var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * totalSupply / (10 * s.config.decimals));
+    var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * totalSupply / 100000);
 
     emergencyGovernanceRecord.stakedMvkRequiredForBreakGlass    := stakedMvkRequiredForBreakGlass;
     s.emergencyGovernanceLedger[emergencyGovernanceProposalId]  := emergencyGovernanceRecord;    
@@ -191,10 +202,11 @@ block {
   const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of
-    ConfigVoteExpiryDays (_v)                -> s.config.voteExpiryDays                 := updateConfigNewValue
-  | ConfigStakedMvkPercentRequired (_v)      -> s.config.stakedMvkPercentageRequired    := updateConfigNewValue  
-  | ConfigRequiredFee (_v)                   -> s.config.requiredFee                    := updateConfigNewValue
-  | ConfigMinStakedMvkRequiredVote (_v)      -> s.config.minStakedMvkRequiredToVote     := updateConfigNewValue
+    ConfigVoteExpiryDays (_v)                     -> s.config.voteExpiryDays                  := updateConfigNewValue
+  | ConfigRequiredFee (_v)                        -> s.config.requiredFee                     := updateConfigNewValue
+  | ConfigStakedMvkPercentRequired (_v)           -> s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
+  | ConfigMinStakedMvkForVoting (_v)              -> s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
+  | ConfigMinStakedMvkForTrigger (_v)             -> s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
   end;
 
 } with (noOperations, s)
@@ -267,6 +279,7 @@ block {
     s.nextEmergencyGovernanceProposalId := s.nextEmergencyGovernanceProposalId + 1n;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     const mvkTokenAddress : address = s.mvkTokenAddress;
 
 =======
@@ -275,18 +288,24 @@ block {
     const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
     const updateMvkTotalSupplyOperation : operation = Tezos.transaction(
          (setTempMvkTotalSupplyCallback: contract(nat)),
+=======
+    // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
+    const setTempStakedMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempStakedMvkTotalSupply");    
+    const updateStakedMvkTotalSupplyOperation : operation = Tezos.transaction(
+         (setTempStakedMvkTotalSupplyCallback),
+>>>>>>> ae8414b (Emergency Contract changes - use staked MVK supply instead of MVK supply for calculation of break glass trigger, update initial storage values)
          0tez, 
-         getTokenTotalSupply(s.mvkTokenAddress)
+         fetchTotalStakedMvkSupply(doormanAddress)
          );
 
     // order of operations
     // 1. triggerEmergencyControlCompleteOperation - check if user has sufficient staked mvk balance
-    // 2. updateMvkTotalSupplyOperation - set temp MVK supply and calculate staked mvk required for break glass activation
+    // 2. updateStakedMvkTotalSupplyOperation - set temp staked MVK supply and calculate staked mvk required for break glass activation
     // 3. transferFeeToTreasuryOperation - transfer fee to treasury address
 
     operations := transferFeeToTreasuryOperation # operations;
 
-    operations := updateMvkTotalSupplyOperation # operations;
+    operations := updateStakedMvkTotalSupplyOperation # operations;
 
     operations := triggerEmergencyControlCompleteOperation # operations;
 
@@ -353,6 +372,9 @@ block {
     if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith("Error. You do not have enough staked MVK balance to vote.");
 
     if _emergencyGovernance.dropped = True then failwith("Error. Emergency governance has been dropped")
+    else skip; 
+
+    if _emergencyGovernance.executed = True then failwith("Error. Emergency governance has already been executed.")
     else skip; 
 
     const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
@@ -435,7 +457,7 @@ function main (const action : emergencyGovernanceAction; const s : storage) : re
     case action of
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
-        | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
+        | SetTempStakedMvkTotalSupply(parameters) -> setTempStakedMvkTotalSupply(parameters, s)
 
         | TriggerEmergencyControl(parameters) -> triggerEmergencyControl(parameters, s)
         | TriggerEmergencyControlComplete(parameters) -> triggerEmergencyControlComplete(parameters, s)

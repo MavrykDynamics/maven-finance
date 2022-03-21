@@ -13,7 +13,7 @@ export type emergencyGovernanceStorageType = {
 
   emergencyGovernanceLedger: MichelsonMap<MichelsonMapKey, unknown>;
 
-  tempMvkTotalSupply: BigNumber;
+  tempStakedMvkTotalSupply: BigNumber;
   currentEmergencyGovernanceId: BigNumber;
   nextEmergencyGovernanceProposalId: BigNumber;
 
