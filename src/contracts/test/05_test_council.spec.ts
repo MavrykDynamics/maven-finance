@@ -97,7 +97,7 @@
 
 //         // Mallory transfers 250 MVK tokens to Treasury
 //         await signerFactory(mallory.sk);
-//         const malloryTransferMvkToTreasuryOperation = await mvkTokenInstance.methods.transfer([
+//         const malloryTransferMvkToCouncilOperation = await mvkTokenInstance.methods.transfer([
 //             {
 //                 from_: mallory.pkh,
 //                 txs: [
@@ -109,14 +109,14 @@
 //                 ]
 //             }
 //         ]).send();
-//         await malloryTransferMvkToTreasuryOperation.confirmation();
+//         await malloryTransferMvkToCouncilOperation.confirmation();
 
-//         // Mallory transfers 250 Mock FA12 Tokens to Treasury
-//         const malloryTransferMockFa12ToTreasuryOperation = await mockFa12TokenInstance.methods.transfer(mallory.pkh, councilContractAddress, 250000000).send();
-//         await malloryTransferMockFa12ToTreasuryOperation.confirmation();
+//         // Mallory transfers 250 Mock FA12 Tokens to Council
+//         const malloryTransferMockFa12ToCouncilOperation = await mockFa12TokenInstance.methods.transfer(mallory.pkh, councilContractAddress, 250000000).send();
+//         await malloryTransferMockFa12ToCouncilOperation.confirmation();
 
-//         // Mallory transfers 250 Mock FA2 Tokens to Treasury
-//         const malloryTransferMockFa2ToTreasuryOperation = await mockFa2TokenInstance.methods.transfer([
+//         // Mallory transfers 250 Mock FA2 Tokens to Council
+//         const malloryTransferMockFa2ToCouncilOperation = await mockFa2TokenInstance.methods.transfer([
 //             {
 //                 from_: mallory.pkh,
 //                 txs: [
@@ -128,7 +128,7 @@
 //                 ]
 //             }
 //         ]).send();
-//         await malloryTransferMockFa2ToTreasuryOperation.confirmation();
+//         await malloryTransferMockFa2ToCouncilOperation.confirmation();
 
 
 //     });
@@ -142,7 +142,6 @@
 
 //              // init constants
 //             const actionId                  = 1;
-//             const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
 //             // Council Members: Alice, Bob, Eve
 
 //             // params: new council member address
@@ -164,18 +163,12 @@
 //             // assert that new addMember action has been created with PENDING status
 //             const updatedCouncilStorage    = await councilInstance.storage();
 //             const councilActionAddMember   = await updatedCouncilStorage.councilActionsLedger.get(actionId);
-        
+
 //             // check details of council action
 //             assert.equal(councilActionAddMember.actionType,       "addCouncilMember");
-//             assert.equal(councilActionAddMember.address_param_1,  newCouncilMemberAddress);
-//             assert.equal(councilActionAddMember.address_param_2,  zeroAddress);
-//             assert.equal(councilActionAddMember.address_param_3,  zeroAddress);
-//             assert.equal(councilActionAddMember.nat_param_1,      0);
-//             assert.equal(councilActionAddMember.nat_param_2,      0);
-//             assert.equal(councilActionAddMember.nat_param_3,      0);
-//             assert.equal(councilActionAddMember.string_param_1,   "EMPTY");
-//             assert.equal(councilActionAddMember.string_param_2,   "EMPTY");
-//             assert.equal(councilActionAddMember.string_param_3,   "EMPTY");
+
+//             assert.equal(councilActionAddMember.addressMap.get("councilMemberAddress"),  newCouncilMemberAddress);
+            
 //             assert.equal(councilActionAddMember.executed,         false);
 //             assert.equal(councilActionAddMember.status,           "PENDING");
 //             assert.equal(councilActionAddMember.signersCount,     1);
@@ -219,7 +212,7 @@
 
 //             // init constants
 //             const actionId                  = 2;
-//             const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
+
 //             // Council Members: Alice, Bob, Eve, Mallory
 
 //             // params: remove council member address
@@ -244,15 +237,9 @@
         
 //             // check details of council action
 //             assert.equal(councilActionRemoveMember.actionType,       "removeCouncilMember");
-//             assert.equal(councilActionRemoveMember.address_param_1,  removedCouncilMemberAddress);
-//             assert.equal(councilActionRemoveMember.address_param_2,  zeroAddress);
-//             assert.equal(councilActionRemoveMember.address_param_3,  zeroAddress);
-//             assert.equal(councilActionRemoveMember.nat_param_1,      0);
-//             assert.equal(councilActionRemoveMember.nat_param_2,      0);
-//             assert.equal(councilActionRemoveMember.nat_param_3,      0);
-//             assert.equal(councilActionRemoveMember.string_param_1,   "EMPTY");
-//             assert.equal(councilActionRemoveMember.string_param_2,   "EMPTY");
-//             assert.equal(councilActionRemoveMember.string_param_3,   "EMPTY");
+
+//             assert.equal(councilActionRemoveMember.addressMap.get("councilMemberAddress"),  removedCouncilMemberAddress);
+            
 //             assert.equal(councilActionRemoveMember.executed,         false);
 //             assert.equal(councilActionRemoveMember.status,           "PENDING");
 //             assert.equal(councilActionRemoveMember.signersCount,     1);
@@ -296,7 +283,6 @@
 
 //             // init constants
 //             const actionId                  = 3;
-//             const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
 //             // Council Members: Alice, Eve, Mallory
 
 //             // params: change council member address (mallory to bob)
@@ -322,15 +308,10 @@
         
 //             // check details of council action
 //             assert.equal(councilActionChangeMember.actionType,       "changeCouncilMember");
-//             assert.equal(councilActionChangeMember.address_param_1,  oldCouncilMemberAddress);
-//             assert.equal(councilActionChangeMember.address_param_2,  newCouncilMemberAddress);
-//             assert.equal(councilActionChangeMember.address_param_3,  zeroAddress);
-//             assert.equal(councilActionChangeMember.nat_param_1,      0);
-//             assert.equal(councilActionChangeMember.nat_param_2,      0);
-//             assert.equal(councilActionChangeMember.nat_param_3,      0);
-//             assert.equal(councilActionChangeMember.string_param_1,   "EMPTY");
-//             assert.equal(councilActionChangeMember.string_param_2,   "EMPTY");
-//             assert.equal(councilActionChangeMember.string_param_3,   "EMPTY");
+
+//             assert.equal(councilActionChangeMember.addressMap.get("oldCouncilMemberAddress"),  oldCouncilMemberAddress);
+//             assert.equal(councilActionChangeMember.addressMap.get("newCouncilMemberAddress"),  newCouncilMemberAddress);
+
 //             assert.equal(councilActionChangeMember.executed,         false);
 //             assert.equal(councilActionChangeMember.status,           "PENDING");
 //             assert.equal(councilActionChangeMember.signersCount,     1);
@@ -377,7 +358,6 @@
 //             // init constants
 //             const actionId                  = 4;
 //             const flushActionId             = 5;
-//             const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
 //             // Council Members: Alice, Eve, Bob
 
 //             // params: new council member address (mallory)
@@ -389,7 +369,7 @@
 //             // check that there are 3 council members
 //             assert.equal(initialCouncilMemberCount, 3);
 
-//             // Council remove council member
+//             // Council add council member
 //             await signerFactory(alice.sk)
 //             const councilAddCouncilMemberOperation = await councilInstance.methods.councilActionAddMember(
 //                 councilMemberAddress
@@ -402,15 +382,9 @@
         
 //             // check details of council action
 //             assert.equal(councilActionAddMember.actionType,       "addCouncilMember");
-//             assert.equal(councilActionAddMember.address_param_1,  councilMemberAddress);
-//             assert.equal(councilActionAddMember.address_param_2,  zeroAddress);
-//             assert.equal(councilActionAddMember.address_param_3,  zeroAddress);
-//             assert.equal(councilActionAddMember.nat_param_1,      0);
-//             assert.equal(councilActionAddMember.nat_param_2,      0);
-//             assert.equal(councilActionAddMember.nat_param_3,      0);
-//             assert.equal(councilActionAddMember.string_param_1,   "EMPTY");
-//             assert.equal(councilActionAddMember.string_param_2,   "EMPTY");
-//             assert.equal(councilActionAddMember.string_param_3,   "EMPTY");
+
+//             assert.equal(councilActionAddMember.addressMap.get("councilMemberAddress"),  councilMemberAddress);
+
 //             assert.equal(councilActionAddMember.executed,         false);
 //             assert.equal(councilActionAddMember.status,           "PENDING");
 //             assert.equal(councilActionAddMember.signersCount,     1);
@@ -432,15 +406,9 @@
         
 //             // check details of council action
 //             assert.equal(councilActionFlush.actionType,       "flushAction");
-//             assert.equal(councilActionFlush.address_param_1,  zeroAddress);
-//             assert.equal(councilActionFlush.address_param_2,  zeroAddress);
-//             assert.equal(councilActionFlush.address_param_3,  zeroAddress);
-//             assert.equal(councilActionFlush.nat_param_1,      actionId);
-//             assert.equal(councilActionFlush.nat_param_2,      0);
-//             assert.equal(councilActionFlush.nat_param_3,      0);
-//             assert.equal(councilActionFlush.string_param_1,   "EMPTY");
-//             assert.equal(councilActionFlush.string_param_2,   "EMPTY");
-//             assert.equal(councilActionFlush.string_param_3,   "EMPTY");
+
+//             assert.equal(councilActionFlush.natMap.get("actionId"),  actionId);
+
 //             assert.equal(councilActionFlush.executed,         false);
 //             assert.equal(councilActionFlush.status,           "PENDING");
 //             assert.equal(councilActionFlush.signersCount,     1);
@@ -490,7 +458,6 @@
 
 //             // init constants
 //             const actionId                  = 6;
-//             const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
 //             const councilContractAddress    = councilAddress.address;
 //             // Council Members: Alice, Bob, Eve
 
@@ -529,15 +496,13 @@
         
 //             // check details of council action
 //             assert.equal(councilActionTransfer.actionType,       "transfer");
-//             assert.equal(councilActionTransfer.address_param_1,  receiverAddress);
-//             assert.equal(councilActionTransfer.address_param_2,  tokenContractAddress);
-//             assert.equal(councilActionTransfer.address_param_3,  zeroAddress);
-//             assert.equal(councilActionTransfer.nat_param_1,      tokenAmount);
-//             assert.equal(councilActionTransfer.nat_param_2,      tokenId);
-//             assert.equal(councilActionTransfer.nat_param_3,      0);
-//             assert.equal(councilActionTransfer.string_param_1,   tokenType);
-//             assert.equal(councilActionTransfer.string_param_2,   "EMPTY");
-//             assert.equal(councilActionTransfer.string_param_3,   "EMPTY");
+
+//             assert.equal(councilActionTransfer.addressMap.get("receiverAddress"),  receiverAddress);
+//             assert.equal(councilActionTransfer.addressMap.get("tokenContractAddress"),  tokenContractAddress);
+//             assert.equal(councilActionTransfer.natMap.get("tokenAmount"),  tokenAmount);
+//             assert.equal(councilActionTransfer.natMap.get("tokenId"),  tokenId);
+//             assert.equal(councilActionTransfer.stringMap.get("tokenType"),  tokenType);
+
 //             assert.equal(councilActionTransfer.executed,         false);
 //             assert.equal(councilActionTransfer.status,           "PENDING");
 //             assert.equal(councilActionTransfer.signersCount,     1);
@@ -586,7 +551,6 @@
 
 //             // init constants
 //             const actionId                  = 7;
-//             const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
 //             const councilContractAddress    = councilAddress.address;
 //             // Council Members: Alice, Bob, Eve
 
@@ -625,15 +589,13 @@
         
 //             // check details of council action
 //             assert.equal(councilActionTransfer.actionType,       "transfer");
-//             assert.equal(councilActionTransfer.address_param_1,  receiverAddress);
-//             assert.equal(councilActionTransfer.address_param_2,  tokenContractAddress);
-//             assert.equal(councilActionTransfer.address_param_3,  zeroAddress);
-//             assert.equal(councilActionTransfer.nat_param_1,      tokenAmount);
-//             assert.equal(councilActionTransfer.nat_param_2,      tokenId);
-//             assert.equal(councilActionTransfer.nat_param_3,      0);
-//             assert.equal(councilActionTransfer.string_param_1,   tokenType);
-//             assert.equal(councilActionTransfer.string_param_2,   "EMPTY");
-//             assert.equal(councilActionTransfer.string_param_3,   "EMPTY");
+
+//             assert.equal(councilActionTransfer.addressMap.get("receiverAddress"),  receiverAddress);
+//             assert.equal(councilActionTransfer.addressMap.get("tokenContractAddress"),  tokenContractAddress);
+//             assert.equal(councilActionTransfer.natMap.get("tokenAmount"),  tokenAmount);
+//             assert.equal(councilActionTransfer.natMap.get("tokenId"),  tokenId);
+//             assert.equal(councilActionTransfer.stringMap.get("tokenType"),  tokenType);
+            
 //             assert.equal(councilActionTransfer.executed,         false);
 //             assert.equal(councilActionTransfer.status,           "PENDING");
 //             assert.equal(councilActionTransfer.signersCount,     1);
@@ -682,7 +644,6 @@
 
 //             // init constants
 //             const actionId                  = 8;
-//             const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
 //             const councilContractAddress    = councilAddress.address;
 //             // Council Members: Alice, Bob, Eve
 
@@ -721,15 +682,13 @@
         
 //             // check details of council action
 //             assert.equal(councilActionTransfer.actionType,       "transfer");
-//             assert.equal(councilActionTransfer.address_param_1,  receiverAddress);
-//             assert.equal(councilActionTransfer.address_param_2,  tokenContractAddress);
-//             assert.equal(councilActionTransfer.address_param_3,  zeroAddress);
-//             assert.equal(councilActionTransfer.nat_param_1,      tokenAmount);
-//             assert.equal(councilActionTransfer.nat_param_2,      tokenId);
-//             assert.equal(councilActionTransfer.nat_param_3,      0);
-//             assert.equal(councilActionTransfer.string_param_1,   tokenType);
-//             assert.equal(councilActionTransfer.string_param_2,   "EMPTY");
-//             assert.equal(councilActionTransfer.string_param_3,   "EMPTY");
+
+//             assert.equal(councilActionTransfer.addressMap.get("receiverAddress"),  receiverAddress);
+//             assert.equal(councilActionTransfer.addressMap.get("tokenContractAddress"),  tokenContractAddress);
+//             assert.equal(councilActionTransfer.natMap.get("tokenAmount"),  tokenAmount);
+//             assert.equal(councilActionTransfer.natMap.get("tokenId"),  tokenId);
+//             assert.equal(councilActionTransfer.stringMap.get("tokenType"),  tokenType);
+
 //             assert.equal(councilActionTransfer.executed,         false);
 //             assert.equal(councilActionTransfer.status,           "PENDING");
 //             assert.equal(councilActionTransfer.signersCount,     1);
@@ -777,7 +736,6 @@
 
 //             // init constants
 //             const actionId                  = 9;
-//             const zeroAddress               = "tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg";
 //             const councilContractAddress    = councilAddress.address;
 //             // Council Members: Alice, Bob, Eve
 
@@ -817,15 +775,13 @@
         
 //             // check details of council action
 //             assert.equal(councilActionTransfer.actionType,       "transfer");
-//             assert.equal(councilActionTransfer.address_param_1,  receiverAddress);
-//             assert.equal(councilActionTransfer.address_param_2,  tokenContractAddress);
-//             assert.equal(councilActionTransfer.address_param_3,  zeroAddress);
-//             assert.equal(councilActionTransfer.nat_param_1,      tokenAmount);
-//             assert.equal(councilActionTransfer.nat_param_2,      tokenId);
-//             assert.equal(councilActionTransfer.nat_param_3,      0);
-//             assert.equal(councilActionTransfer.string_param_1,   tokenType);
-//             assert.equal(councilActionTransfer.string_param_2,   "EMPTY");
-//             assert.equal(councilActionTransfer.string_param_3,   "EMPTY");
+
+//             assert.equal(councilActionTransfer.addressMap.get("receiverAddress"),  receiverAddress);
+//             assert.equal(councilActionTransfer.addressMap.get("tokenContractAddress"),  tokenContractAddress);
+//             assert.equal(councilActionTransfer.natMap.get("tokenAmount"),  tokenAmount);
+//             assert.equal(councilActionTransfer.natMap.get("tokenId"),  tokenId);
+//             assert.equal(councilActionTransfer.stringMap.get("tokenType"),  tokenType);
+
 //             assert.equal(councilActionTransfer.executed,         false);
 //             assert.equal(councilActionTransfer.status,           "PENDING");
 //             assert.equal(councilActionTransfer.signersCount,     1);
@@ -867,5 +823,8 @@
 //         } 
 
 //     });    
+
+
+//     // todo: non-council member cannot create action or sign action
 
 // });
