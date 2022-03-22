@@ -89,7 +89,6 @@ type financialRequestRecordType is [@layout:comb] record [
     status                  : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
     ready                   : bool;                  // false on creation; set to true once snapshot of staked MVK total supply has been taken
     executed                : bool;                  // false on creation; set to true when financial request is executed successfully
-    expired                 : bool;                  // false on creation
 
     treasuryAddress         : address;
     tokenContractAddress    : address; 
@@ -1473,7 +1472,6 @@ block {
 //         status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
 //         ready                = False;
 //         executed             = False;
-//         expired              = False;      
 
 //         treasuryAddress      = requestTokensParams.treasuryAddress;
 //         tokenContractAddress = requestTokensParams.tokenContractAddress;
@@ -1565,10 +1563,7 @@ block {
 
 //   const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
   
-//   const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-//     Some(_address) -> _address
-//     | None -> failwith("Error. MVK Token Contract is not found")
-//   end;
+//   const mvkTokenAddress : address = s.mvkTokenAddress;
 
 //   var newFinancialRequest : financialRequestRecordType := record [
 
@@ -1577,7 +1572,6 @@ block {
 //         status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
 //         ready                = False;
 //         executed             = False;
-//         expired              = False;      
 
 //         treasuryAddress      = requestMintParams.treasuryAddress;
 //         tokenContractAddress = mvkTokenAddress;
@@ -1756,11 +1750,7 @@ block {
 //   if _financialRequest.ready     = False then failwith("Error. Financial request is not ready yet.")          else skip;
 //   if _financialRequest.executed  = True  then failwith("Error. Financial request has already been executed.") else skip;
 
-//   if Tezos.now > _financialRequest.expiryDateTime then block {
-//     _financialRequest.expired := True;
-//     s.financialRequestLedger[financialRequestId] := _financialRequest;
-//     failwith("Error. Financial request has expired");
-//   } else skip;
+//   if Tezos.now > _financialRequest.expiryDateTime then failwith("Error. Financial request has expired") else skip;
 
 //   var operations : list(operation) := nil;
 
