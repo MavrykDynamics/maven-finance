@@ -12,6 +12,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   height: 250px;
   background-color: ${({ theme }) => theme.placeholderColor};
   font-weight: 600;
+  font-family: Metropolis, Helvetica, Arial, sans-serif;
   border: none;
   margin: 10px 0;
   color: ${({ theme }) => theme.subTextColor};
@@ -43,7 +44,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
 
   &.error {
     border-color: ${({ theme }) => theme.downColor};
-
+    color: ${({ theme }) => theme.downColor};
     &:focus {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.downColor}7F;
     }
@@ -51,7 +52,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
 
   &.success {
     border-color: ${({ theme }) => theme.upColor};
-
+    color: ${({ theme }) => theme.upColor};
     &:focus {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.upColor}7F;
     }

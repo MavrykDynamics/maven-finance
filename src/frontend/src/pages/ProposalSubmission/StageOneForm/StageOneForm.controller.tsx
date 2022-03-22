@@ -5,7 +5,12 @@ import {
   SubmitProposalForm,
   ValidSubmitProposalForm,
 } from '../../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isNotAllWhitespace, isValidHttpUrl } from '../../../utils/validatorFunctions'
+import {
+  getFormErrors,
+  isNotAllWhitespace,
+  isValidHttpUrl,
+  validateFormAndThrowErrors,
+} from '../../../utils/validatorFunctions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 import { useDispatch, useSelector } from 'react-redux'
@@ -75,18 +80,8 @@ export const StageOneForm = ({ loading }: StageOneFormProps) => {
     }
   }
   const handleSubmitProposal = () => {
-    const formIsValid = validateForm()
+    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) dispatch(submitProposal(form, accountPkh as any))
-  }
-
-  const validateForm = () => {
-    const { errors, errorMessage } = getFormErrors(validForm)
-    if (errors.length === 0) return true
-    else {
-      const errorTitle = 'Invalid fields'
-      dispatch(showToaster(ERROR, errorTitle, errorMessage, 3000))
-      return false
-    }
   }
 
   return (

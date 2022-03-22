@@ -21,6 +21,7 @@ type SatelliteListViewProps = {
   handleSelect: (selectedOption: any) => void
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
+  satelliteFound: boolean | undefined
 }
 
 export const SatelliteListView = ({
@@ -32,8 +33,9 @@ export const SatelliteListView = ({
   handleSelect,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
+  satelliteFound,
 }: SatelliteListViewProps) => {
-  if (!loading && satellitesList.length === 0) {
+  if (satelliteFound === undefined && !loading && satellitesList.length === 0) {
     return <EmptySatelliteList />
   } else {
     return (
@@ -46,6 +48,7 @@ export const SatelliteListView = ({
         handleSelect={handleSelect}
         userStakedBalance={userStakedBalance}
         satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
+        satelliteFound={satelliteFound}
       />
     )
   }
@@ -64,6 +67,7 @@ const ListWithSatellites = ({
   handleSelect,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
+  satelliteFound,
 }: SatelliteListViewProps) => {
   const { darkThemeEnabled } = useSelector((state: State) => state.preferences)
   const selectOptions = [
@@ -88,6 +92,7 @@ const ListWithSatellites = ({
           <Select styles={customStyles} options={selectOptions} onChange={handleSelect} />
         </SelectContainer>
       </SatelliteSearchFilter>
+      {satelliteFound === false && <SatelliteListEmptyContainer>Satellite Not Found</SatelliteListEmptyContainer>}
       {satellitesList.map((item, index) => {
         return (
           <SatelliteListCard

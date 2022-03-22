@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { getEmergencyGovernanceStorage } from '../EmergencyGovernance.actions'
+import { getEmergencyGovernanceStorage, submitEmergencyGovernanceProposal } from '../EmergencyGovernance.actions'
 import { getBreakGlassStorage } from '../../BreakGlass/BreakGlass.actions'
 import { hideExitFeeModal } from './EmergencyGovProposalModal.actions'
 import { EmergencyGovProposalModalView } from './EmergencyGovProposalModal.view'
-import { getFormErrors, isNotAllWhitespace } from '../../../utils/validatorFunctions'
+import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { updateProposal } from '../../ProposalSubmission/ProposalSubmission.actions'
-import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
-import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
+import {
+  EmergencyGovernanceProposalForm,
+  EmergencyGovernanceProposalFormInputStatus,
+  ValidEmergencyGovernanceProposalForm,
+} from '../../../utils/TypesAndInterfaces/Forms'
 
 export const EmergencyGovProposalModal = () => {
   const dispatch = useDispatch()
@@ -18,20 +21,23 @@ export const EmergencyGovProposalModal = () => {
   const { emergencyGovernanceStorage, emergencyGovActive } = useSelector((state: State) => state.emergencyGovernance)
   const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
 
-  const [form, setForm] = useState<any>({
+  const [form, setForm] = useState<EmergencyGovernanceProposalForm>({
     title: '',
     amountMVKtoTriggerBreakGlass: 0,
     description: '',
+    screenshots: '',
   })
-  const [validForm, setValidForm] = useState<any>({
+  const [validForm, setValidForm] = useState<ValidEmergencyGovernanceProposalForm>({
     title: false,
     amountMVKtoTriggerBreakGlass: false,
     description: false,
+    screenshots: false,
   })
-  const [formInputStatus, setFormInputStatus] = useState<any>({
+  const [formInputStatus, setFormInputStatus] = useState<EmergencyGovernanceProposalFormInputStatus>({
     title: '',
-    amountMVKtoTriggerBreakGlass: 'false',
+    amountMVKtoTriggerBreakGlass: '',
     description: '',
+    screenshots: '',
   })
 
   useEffect(() => {
@@ -42,7 +48,7 @@ export const EmergencyGovProposalModal = () => {
   const cancelCallback = () => {
     dispatch(hideExitFeeModal())
   }
-  const handleOnBlur = (formField: string) => {
+  const handleOnBlur = (e: any, formField: string) => {
     let updatedState, validityCheckResult
     switch (formField) {
       case 'TITLE':
@@ -69,18 +75,8 @@ export const EmergencyGovProposalModal = () => {
   }
 
   const submitEmergencyGovProposalCallback = () => {
-    const formIsValid = validateForm()
-    if (formIsValid) dispatch(updateProposal(form, accountPkh as any))
-  }
-
-  const validateForm = () => {
-    const { errors, errorMessage } = getFormErrors(validForm)
-    if (errors.length === 0) return true
-    else {
-      const errorTitle = 'Invalid fields'
-      dispatch(showToaster(ERROR, errorTitle, errorMessage, 3000))
-      return false
-    }
+    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
+    if (formIsValid) dispatch(submitEmergencyGovernanceProposal(form, accountPkh as any))
   }
 
   return (
