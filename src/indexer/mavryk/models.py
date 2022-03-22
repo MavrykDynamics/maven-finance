@@ -124,9 +124,10 @@ class EmergencyGovernance(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     current_emergency_record_id     = fields.BigIntField(default=0)
     next_emergency_record_id        = fields.BigIntField(default=0)
-    required_fee                    = fields.BigIntField(default=0)
+    required_fee                    = fields.FloatField(default=0)
     smvk_percentage_required        = fields.BigIntField(default=0)
-    min_smvk_required_to_vote       = fields.BigIntField(default=0)
+    min_smvk_required_to_vote       = fields.FloatField(default=0)
+    min_smvk_required_to_trigger    = fields.FloatField(default=0)
     vote_expiry_days                = fields.BigIntField(default=0)
 
     class Meta:
@@ -422,7 +423,7 @@ class GovernanceProposalRecordVote(Model):
     id                              = fields.BigIntField(pk=True)
     governance_proposal_record      = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='votes')
     voter                           = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_votes')
-    timestamp                       = fields.DatetimeField()
+    timestamp                       = fields.DatetimeField(null=True)
     round                           = fields.IntEnumField(enum_type=GovernanceRoundType)
     vote                            = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
     voting_power                    = fields.FloatField()
@@ -461,7 +462,6 @@ class GovernanceFinancialRequestRecord(Model):
     status                          = fields.IntEnumField(enum_type=GovernanceRecordStatus, default=GovernanceRecordStatus.ACTIVE)
     ready                           = fields.BooleanField()
     executed                        = fields.BooleanField()
-    expired                         = fields.BooleanField()
     token_contract_address          = fields.CharField(max_length=36)
     token_amount                    = fields.FloatField(default=0.0)
     token_name                      = fields.CharField(max_length=255)
@@ -470,9 +470,21 @@ class GovernanceFinancialRequestRecord(Model):
     approve_vote_total              = fields.FloatField(default=0.0)
     disapprove_vote_total           = fields.FloatField(default=0.0)
     smvk_percentage_for_approval    = fields.BigIntField(default=0)
+    snapshot_smvk_total_supply      = fields.FloatField(default=0.0)
     smvk_required_for_approval      = fields.FloatField(default=0.0)
     expiration_datetime             = fields.DatetimeField()
     requested_datetime              = fields.DatetimeField()
 
     class Meta:
         table = 'governance_financial_request_record'
+
+class GovernanceFinancialRequestRecordVote(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance_financial_request    = fields.ForeignKeyField('models.GovernanceFinancialRequestRecord', related_name='votes')
+    voter                           = fields.ForeignKeyField('models.SatelliteRecord', related_name='governance_financial_requests_votes')
+    timestamp                       = fields.DatetimeField(null=True)
+    vote                            = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
+    voting_power                    = fields.FloatField(default=0.0)
+
+    class Meta:
+        table = 'governance_financial_request_vote'
