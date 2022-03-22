@@ -11,6 +11,7 @@ export type AllValidFormTypes =
   | ValidProposalUpdateForm
   | ValidFinancialRequestForm
   | ValidRegisterAsSatelliteForm
+  | ValidEmergencyGovernanceProposalForm
 
 export type SubmitProposalForm = {
   title: string
@@ -82,4 +83,23 @@ export type RegisterAsSatelliteFormInputStatus = {
   description: InputStatusType
   fee: InputStatusType
   image: InputStatusType
+}
+
+export type EmergencyGovernanceProposalForm = {
+  title: string
+  amountMVKtoTriggerBreakGlass: number
+  description: string
+  screenshots: string
+}
+export type ValidEmergencyGovernanceProposalForm = {
+  title: boolean
+  amountMVKtoTriggerBreakGlass: boolean
+  description: boolean
+  screenshots: boolean
+}
+export type EmergencyGovernanceProposalFormInputStatus = {
+  title: InputStatusType
+  amountMVKtoTriggerBreakGlass: InputStatusType
+  description: InputStatusType
+  screenshots: InputStatusType
 }

@@ -7,7 +7,7 @@ import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 type StatusFlagProps = {
   text: string
-  status: ProposalStatus | undefined
+  status: ProposalStatus | StatusFlagStyle | undefined
 }
 
 export const StatusFlag = ({ text, status }: StatusFlagProps) => {
@@ -25,6 +25,10 @@ export const StatusFlag = ({ text, status }: StatusFlagProps) => {
     default:
       kind = INFO
       break
+  }
+
+  if (!Object.values(ProposalStatus).includes(status as ProposalStatus)) {
+    kind = status as StatusFlagStyle
   }
   return <StatusFlagView kind={kind} text={text} />
 }

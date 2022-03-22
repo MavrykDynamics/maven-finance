@@ -42,7 +42,7 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
 
   &.error {
     border-color: ${({ theme }) => theme.downColor};
-
+    color: ${({ theme }) => theme.downColor};
     &:focus {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.downColor}7F;
     }
@@ -50,7 +50,7 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
 
   &.success {
     border-color: ${({ theme }) => theme.upColor};
-
+    color: ${({ theme }) => theme.upColor};
     &:focus {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.upColor}7F;
     }

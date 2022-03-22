@@ -1,4 +1,6 @@
-import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
+import { AllValidFormTypes, ValidSubmitProposalForm } from './TypesAndInterfaces/Forms'
+import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
+import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
 
 const isIPFS = require('is-ipfs')
 /**
@@ -30,7 +32,7 @@ export function isValidIPFSUrl(input: string) {
 }
 
 export function isNotAllWhitespace(input: string) {
-  return !(input.length > 0 && input.replace(/\s/g, '').length === 0)
+  return !(input.length > 0 && input.replace(/\s/g, '').length === 0) && input.length > 0
 }
 
 export function isHexadecimalByteString(input: string) {
@@ -49,4 +51,14 @@ export function getFormErrors(form: AllValidFormTypes) {
   })
   errorMessage = errorMessage.substr(0, errorMessage.length - 1)
   return { errors, errorMessage: errorMessage }
+}
+
+export function validateFormAndThrowErrors(dispatch: any, validForm: AllValidFormTypes): boolean {
+  const { errors, errorMessage } = getFormErrors(validForm)
+  if (errors.length === 0) return true
+  else {
+    const errorTitle = 'Invalid fields'
+    dispatch(showToaster(ERROR, errorTitle, errorMessage, 3000))
+    return false
+  }
 }

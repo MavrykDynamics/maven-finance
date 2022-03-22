@@ -39,7 +39,7 @@ export const IPFSUploaderView = ({
 }: IPFSUploaderViewProps) => {
   let status = ipfsUploaderStatus !== undefined ? ipfsUploaderStatus : 'none'
   return (
-    <IPFSUploaderStyled>
+    <IPFSUploaderStyled id={'ipfsUploaderContainer'}>
       {title && listNumber && (
         <p>
           {listNumber}- {title}

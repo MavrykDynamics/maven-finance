@@ -10,7 +10,7 @@ query DelegationStorageQuery {
     undelegate_from_satellite_paused
     unregister_as_satellite_paused
     update_satellite_record_paused
-    satellite_records {
+    satellite_records(order_by: {active: desc}) {
       delegation_id
       description
       fee
@@ -34,7 +34,6 @@ query DelegationStorageQuery {
     }
   }
 }
-
 `
 
 export const DELEGATION_STORAGE_QUERY_NAME = 'DelegationStorageQuery'
