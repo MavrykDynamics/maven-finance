@@ -36,8 +36,6 @@ type configType is record [
 
 type storage is record [
     admin                               : address;
-    mvkTokenAddress                     : address;
-
     config                              : configType;
     mvkTokenAddress                     : address;
     
@@ -98,8 +96,7 @@ function checkSenderIsAdmin(var s : storage) : unit is
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
 block{
-  const mvkTokenAddress : address = s.mvkTokenAddress;
-  if (Tezos.sender = mvkTokenAddress) then skip
+  if (Tezos.sender = s.mvkTokenAddress) then skip
   else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
 } with unit
 
@@ -291,22 +288,10 @@ block {
     s.currentEmergencyGovernanceId := s.nextEmergencyGovernanceProposalId;
     s.nextEmergencyGovernanceProposalId := s.nextEmergencyGovernanceProposalId + 1n;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    const mvkTokenAddress : address = s.mvkTokenAddress;
-
-=======
->>>>>>> 04da85a (1) Emergency Governance changes - i) min required staked MVK to trigger ii) min required staked MVK to vote iii) transfer fee to treasury iv) storage and storage type fix v) basic tests)
-    // update temp MVK total supply
-    const setTempMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempMvkTotalSupply");    
-    const updateMvkTotalSupplyOperation : operation = Tezos.transaction(
-         (setTempMvkTotalSupplyCallback: contract(nat)),
-=======
     // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
     const setTempStakedMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setTempStakedMvkTotalSupply");    
     const updateStakedMvkTotalSupplyOperation : operation = Tezos.transaction(
          (setTempStakedMvkTotalSupplyCallback),
->>>>>>> ae8414b (Emergency Contract changes - use staked MVK supply instead of MVK supply for calculation of break glass trigger, update initial storage values)
          0tez, 
          fetchTotalStakedMvkSupply(doormanAddress)
          );
@@ -356,7 +341,10 @@ block {
     const checkIfUserHasVotedFlag : bool = Map.mem(Tezos.sender, emergencyGovernance.voters);
     if checkIfUserHasVotedFlag = False then block {
 
-        const mvkTokenAddress : address = s.mvkTokenAddress;
+        const doormanAddress : address = case s.generalContracts["doorman"] of
+            Some(_address) -> _address
+            | None -> failwith("Error. Doorman Contract is not found.")
+        end;
         
         // get user staked MVK Balance
         const voteForEmergencyControlCompleteCallback : contract(nat) = Tezos.self("%voteForEmergencyControlComplete");    

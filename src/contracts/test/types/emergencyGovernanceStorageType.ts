@@ -4,8 +4,6 @@ import { BigNumber } from "bignumber.js";
 
 export type emergencyGovernanceStorageType = {
   admin: string;
-  mvkTokenAddress: string;
-
   config: {};
   mvkTokenAddress: string;
 

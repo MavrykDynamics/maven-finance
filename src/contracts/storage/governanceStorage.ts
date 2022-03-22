@@ -36,6 +36,7 @@ const config = {
 export const governanceStorage: governanceStorageType = {
   
   admin                   : alice.pkh,
+  mvkTokenAddress         : "",
   config                  : config,
   
   whitelistContracts      : MichelsonMap.fromLiteral({}),
