@@ -150,9 +150,6 @@ type action is
 |   TogglePauseTrackFarm of (unit)
 |   TogglePauseUntrackFarm of (unit)
 
-|   PauseAllFarms of (unit)
-|   UnpauseAllFarms of (unit)
-
 |   CreateFarm of farmStorageType
 |   TrackFarm of address
 |   UntrackFarm of address
@@ -214,7 +211,17 @@ function pauseAll(var s: storage): return is
         if s.breakGlassConfig.untrackFarmIsPaused then skip
         else s.breakGlassConfig.untrackFarmIsPaused := True;
 
-    } with (noOperations, s)
+        var operations: list(operation) := nil;
+
+        for farmAddress in set s.trackedFarms 
+        block {
+            case (Tezos.get_entrypoint_opt("%pauseAll", farmAddress): option(contract(unit))) of
+                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+            |   None -> skip
+            end;
+        };
+
+    } with (operations, s)
 
 function unpauseAll(var s: storage): return is
     block {
@@ -231,7 +238,17 @@ function unpauseAll(var s: storage): return is
         if s.breakGlassConfig.untrackFarmIsPaused then s.breakGlassConfig.untrackFarmIsPaused := False
         else skip;
 
-    } with (noOperations, s)
+        var operations: list(operation) := nil;
+
+        for farmAddress in set s.trackedFarms 
+        block {
+            case (Tezos.get_entrypoint_opt("%unpauseAll", farmAddress): option(contract(unit))) of
+                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+            |   None -> skip
+            end;
+        };
+
+    } with (operations, s)
 
 function togglePauseCreateFarm(var s: storage): return is
     block {
@@ -262,40 +279,6 @@ function togglePauseTrackFarm(var s: storage): return is
         else s.breakGlassConfig.trackFarmIsPaused := True;
 
     } with (noOperations, s)
-
-function pauseAllFarms(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        var operations: list(operation) := nil;
-
-        for farmAddress in set s.trackedFarms 
-        block {
-            case (Tezos.get_entrypoint_opt("%pauseAll", farmAddress): option(contract(unit))) of
-                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-            |   None -> skip
-            end;
-        };
-
-    } with (operations, s)
-
-function unpauseAllFarms(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        var operations: list(operation) := nil;
-
-        for farmAddress in set s.trackedFarms 
-        block {
-            case (Tezos.get_entrypoint_opt("%unpauseAll", farmAddress): option(contract(unit))) of
-                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-            |   None -> skip
-            end;
-        };
-
-    } with (operations, s)
 
 ////
 // ENTRYPOINTS FUNCTIONS
@@ -472,9 +455,6 @@ function main (const action: action; var s: storage): return is
     |   TogglePauseCreateFarm (_parameters) -> togglePauseCreateFarm(s)
     |   TogglePauseTrackFarm (_parameters) -> togglePauseTrackFarm(s)
     |   TogglePauseUntrackFarm (_parameters) -> togglePauseUntrackFarm(s)
-
-    |   PauseAllFarms (_parameters) -> pauseAllFarms(s)
-    |   UnpauseAllFarms (_parameters) -> unpauseAllFarms(s)
 
     |   CreateFarm (params) -> createFarm(params, s)
     |   TrackFarm (params) -> trackFarm(params, s)
