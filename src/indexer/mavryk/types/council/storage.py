@@ -46,4 +46,5 @@ class CouncilStorage(BaseModel):
     councilActionsLedger: Dict[str, CouncilActionsLedger]
     councilMembers: List[str]
     generalContracts: Dict[str, str]
+    mvkTokenAddress: str
     whitelistContracts: Dict[str, str]

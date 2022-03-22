@@ -1,22 +1,25 @@
 
 from mavryk.types.doorman.parameter.farm_claim_complete import FarmClaimCompleteParameter
 from dipdup.context import HandlerContext
-from mavryk.types.doorman.storage import DoormanStorage
 from dipdup.models import Transaction
+from mavryk.types.doorman.storage import DoormanStorage
+from mavryk.types.doorman.parameter.farm_claim import FarmClaimParameter
 import mavryk.models as models
 
-async def on_doorman_farm_claim_complete(
+async def on_doorman_farm_claim(
     ctx: HandlerContext,
+    farm_claim: Transaction[FarmClaimParameter, DoormanStorage],
     farm_claim_complete: Transaction[FarmClaimCompleteParameter, DoormanStorage],
 ) -> None:
+    
     # Get operation values
     timestamp = farm_claim_complete.data.timestamp
-    userAddress = farm_claim_complete.parameter.address
-    userSMVKBalance = int(farm_claim_complete.storage.userStakeBalanceLedger[userAddress].balance)
+    userAddress = farm_claim.parameter.address
+    userSMVKBalance = float(farm_claim_complete.storage.userStakeBalanceLedger[userAddress].balance)
     userParticipation = float(farm_claim_complete.storage.userStakeBalanceLedger[userAddress].participationFeesPerShare)
-    farmClaim = farm_claim_complete.parameter.nat
+    farmClaim = farm_claim.parameter.nat
     doormanAddress = farm_claim_complete.data.target_address
-    doormanSMVKBalance = int(farm_claim_complete.storage.stakedMvkTotalSupply)
+    doormanSMVKBalance = float(farm_claim_complete.storage.stakedMvkTotalSupply)
     doormanAccumulated = float(farm_claim_complete.storage.accumulatedFeesPerShare)
 
     # Get doorman
@@ -37,7 +40,7 @@ async def on_doorman_farm_claim_complete(
     await user.save()
 
     # Calculate the MLI
-    mvk_total_supply = int(farm_claim_complete.data.storage['tempMvkTotalSupply'])
+    mvk_total_supply = float(farm_claim_complete.parameter.nat_0)
     smvk_total_supply = doorman.smvk_total_supply
     mli = 0.0
     if mvk_total_supply > 0.0:

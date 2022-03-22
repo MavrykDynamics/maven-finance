@@ -63,7 +63,6 @@ class FinancialRequestLedger(BaseModel):
     status: bool
     ready: bool
     executed: bool
-    expired: bool
     treasuryAddress: str
     tokenContractAddress: str
     tokenAmount: str
@@ -174,6 +173,7 @@ class GovernanceStorage(BaseModel):
     financialRequestSnapshotLedger: Dict[str, Dict[str, FinancialRequestSnapshotLedger]]
     generalContracts: Dict[str, str]
     governanceLambdaLedger: Dict[str, str]
+    mvkTokenAddress: str
     nextProposalId: str
     proposalLedger: Dict[str, ProposalLedger]
     snapshotLedger: Dict[str, SnapshotLedger]

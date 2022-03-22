@@ -10,7 +10,7 @@ async def on_mvk_origination(
 ) -> None:
     mvk_address = mvk_origination.data.originated_contract_address
     total_supply = int(mvk_origination.data.storage['totalSupply'])
-    maximum_supply = int(mvk_origination.data.storage['maximumTotalSupply'])
+    maximum_supply = int(mvk_origination.data.storage['maximumSupply'])
 
     # Save MVK in DB
     mvk = models.MVKToken(
