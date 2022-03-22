@@ -207,7 +207,6 @@ async def persist_financial_request(action):
                 statusType  = models.GovernanceRecordStatus.DROPPED
             ready                           = requestRecordStorage.ready
             executed                        = requestRecordStorage.executed
-            expired                         = requestRecordStorage.expired
             token_contract_address          = requestRecordStorage.tokenContractAddress
             token_amount                    = float(requestRecordStorage.tokenAmount)
             token_name                      = requestRecordStorage.tokenName
@@ -216,6 +215,7 @@ async def persist_financial_request(action):
             approve_vote_total              = float(requestRecordStorage.approveVoteTotal)
             disapprove_vote_total           = float(requestRecordStorage.disapproveVoteTotal)
             smvk_percentage_for_approval    = int(requestRecordStorage.stakedMvkPercentageForApproval)
+            snapshot_smvk_total_supply      = float(requestRecordStorage.snapshotStakedMvkTotalSupply)
             smvk_required_for_approval      = float(requestRecordStorage.stakedMvkRequiredForApproval)
             expiration_datetime             = parser.parse(requestRecordStorage.expiryDateTime)
             requested_datetime              = parser.parse(requestRecordStorage.requestedDateTime)
@@ -237,7 +237,6 @@ async def persist_financial_request(action):
                 status                          = statusType,
                 ready                           = ready,
                 executed                        = executed,
-                expired                         = expired,
                 token_contract_address          = token_contract_address,
                 token_amount                    = token_amount,
                 token_name                      = token_name,
@@ -246,6 +245,7 @@ async def persist_financial_request(action):
                 approve_vote_total              = approve_vote_total,
                 disapprove_vote_total           = disapprove_vote_total,
                 smvk_percentage_for_approval    = smvk_percentage_for_approval,
+                snapshot_smvk_total_supply      = snapshot_smvk_total_supply,
                 smvk_required_for_approval      = smvk_required_for_approval,
                 expiration_datetime             = expiration_datetime,
                 requested_datetime              = requested_datetime

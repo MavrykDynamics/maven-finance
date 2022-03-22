@@ -10,5 +10,5 @@ class TriggerEmergencyControlParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    string_0: str
-    string_1: str
+    title: str
+    description: str

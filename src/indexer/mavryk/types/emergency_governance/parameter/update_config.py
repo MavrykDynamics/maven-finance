@@ -12,24 +12,31 @@ class UpdateConfigActionItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinStakedMvkRequiredVote: Dict[str, Any]
+    configMinStakedMvkForTrigger: Dict[str, Any]
 
 
 class UpdateConfigActionItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configRequiredFee: Dict[str, Any]
+    configMinStakedMvkForVoting: Dict[str, Any]
 
 
 class UpdateConfigActionItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configStakedMvkPercentRequired: Dict[str, Any]
+    configRequiredFee: Dict[str, Any]
 
 
 class UpdateConfigActionItem3(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configStakedMvkPercentRequired: Dict[str, Any]
+
+
+class UpdateConfigActionItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -46,4 +53,5 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem1,
         UpdateConfigActionItem2,
         UpdateConfigActionItem3,
+        UpdateConfigActionItem4,
     ]
