@@ -75,7 +75,6 @@ export const StageOneFormView = ({
         onBlur={(e: any) => handleOnBlur(e, 'SOURCE_CODE_LINK')}
         inputStatus={formInputStatus.sourceCodeLink}
       />
-      {/*<TextEditor onChange={handleTextEditorChange} initialValue={form.description} />*/}
       <IPFSUploader
         imageIpfsUrl={form.ipfs}
         setIpfsImageUrl={(e: any) => setForm({ ...form, ipfs: e })}

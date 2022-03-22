@@ -23,6 +23,7 @@ export const SatelliteList = ({
 }: SatelliteListProps) => {
   const [allSatellites, setAllSatellites] = useState<SatelliteRecord[]>(satellitesList)
   const [filteredSatelliteList, setFilteredSatelliteList] = useState<SatelliteRecord[]>(satellitesList)
+  const [satelliteFound, setSatelliteFound] = useState<boolean | undefined>(undefined)
 
   useEffect(() => {
     setAllSatellites(satellitesList)
@@ -30,6 +31,7 @@ export const SatelliteList = ({
   }, [satellitesList, setAllSatellites, setFilteredSatelliteList])
 
   const handleSearch = (e: any) => {
+    setSatelliteFound(false)
     const searchQuery = e.target.value
     let searchResult: SatelliteRecord[] = []
     if (searchQuery !== '') {
@@ -37,7 +39,14 @@ export const SatelliteList = ({
     } else {
       searchResult = allSatellites
     }
-    setFilteredSatelliteList(searchResult)
+
+    if (searchResult.length === 0) {
+      setFilteredSatelliteList(allSatellites)
+      setSatelliteFound(false)
+    } else {
+      setSatelliteFound(true)
+      setFilteredSatelliteList(searchResult)
+    }
   }
 
   const handleSelect = (selectedOption: any) => {
@@ -76,6 +85,7 @@ export const SatelliteList = ({
       handleSelect={handleSelect}
       userStakedBalance={userStakedBalance}
       satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
+      satelliteFound={satelliteFound}
     />
   )
 }

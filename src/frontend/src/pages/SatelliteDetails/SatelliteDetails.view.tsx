@@ -24,6 +24,8 @@ import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDet
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
+import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
+import { DOWN } from '../../app/App.components/StatusFlag/StatusFlag.constants'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord | undefined
@@ -107,12 +109,18 @@ export const SatelliteDetailsView = ({
                 </SatelliteMainText>
                 <SatelliteSubText>Your delegated MVK</SatelliteSubText>
               </SatelliteTextGroup>
-              <Button
-                text="Delegate"
-                icon="man-check"
-                loading={loading}
-                onClick={() => delegateCallback(satellite.address)}
-              />
+              {satellite.active ? (
+                <Button
+                  text="Delegate"
+                  icon="man-check"
+                  loading={loading}
+                  onClick={() => delegateCallback(satellite.address)}
+                />
+              ) : (
+                <div>
+                  <StatusFlag status={DOWN} text={'INACTIVE'} />
+                </div>
+              )}
               <div>Put last voted here</div>
               <SatelliteTextGroup>
                 <SatelliteMainText>{satellite.totalDelegatedAmount}%</SatelliteMainText>
@@ -122,13 +130,17 @@ export const SatelliteDetailsView = ({
                 <SatelliteMainText>{satellite.satelliteFee}%</SatelliteMainText>
                 <SatelliteSubText>Fee</SatelliteSubText>
               </SatelliteTextGroup>
-              <Button
-                text="Undelegate"
-                icon="man-close"
-                kind="secondary"
-                loading={loading}
-                onClick={() => undelegateCallback(satellite.address)}
-              />
+              {satellite.active ? (
+                <Button
+                  text="Undelegate"
+                  icon="man-close"
+                  kind="secondary"
+                  loading={loading}
+                  onClick={() => undelegateCallback(satellite.address)}
+                />
+              ) : (
+                <div />
+              )}
             </SatelliteCardTopRow>
             <ColoredLine kind="secondary" />
             <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>

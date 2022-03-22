@@ -25,7 +25,7 @@ import {
   RegisterAsSatelliteFormInputStatus,
   ValidRegisterAsSatelliteForm,
 } from '../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isNotAllWhitespace } from '../../utils/validatorFunctions'
+import { getFormErrors, isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
@@ -108,7 +108,7 @@ export const BecomeSatelliteView = ({
   }
 
   const handleSubmit = () => {
-    const formIsValid = validateForm()
+    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) {
       if (updateSatellite) {
         updateSatelliteCallback(form)
@@ -120,16 +120,6 @@ export const BecomeSatelliteView = ({
 
   const handleUnregisterSatellite = () => {
     dispatch(unregisterAsSatellite())
-  }
-
-  const validateForm = () => {
-    const { errors, errorMessage } = getFormErrors(validForm)
-    if (errors.length === 0) return true
-    else {
-      const errorTitle = 'Invalid fields'
-      dispatch(showToaster(ERROR, errorTitle, errorMessage, 3000))
-      return false
-    }
   }
 
   return (
