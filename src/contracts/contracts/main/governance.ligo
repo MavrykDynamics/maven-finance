@@ -815,12 +815,12 @@ block {
     if s.currentRound = "voting" then block {
 
       // fetch proposal
-      const proposal : proposalRecordType = case s.proposalLedger[s.currentRoundHighestVotedProposalId] of 
+      const votingRoundProposal : proposalRecordType = case s.proposalLedger[s.currentRoundHighestVotedProposalId] of 
           Some(_proposalRecord) -> _proposalRecord
         | None -> failwith("Error. Proposal not found.")
       end;
 
-      if proposal.upvoteMvkTotal < proposal.minQuorumMvkTotal  then skip else failwith("Error. Timelock round should be triggered next instead of Proposal Round.");
+      if votingRoundProposal.upvoteMvkTotal < votingRoundProposal.minQuorumMvkTotal  then skip else failwith("Error. Timelock round should be triggered next instead of Proposal Round.");
 
     } else skip;
 
@@ -840,12 +840,12 @@ block {
       if highestVotedProposalId =/= 0n then block {
 
           // fetch proposal
-          const proposal : proposalRecordType = case s.proposalLedger[highestVotedProposalId] of 
+          const proposalRoundProposal : proposalRecordType = case s.proposalLedger[highestVotedProposalId] of 
               Some(_proposalRecord) -> _proposalRecord
             | None -> failwith("Error. Proposal not found.")
           end;
 
-          if proposal.passVoteMvkTotal < proposal.minProposalRoundVotesRequired then skip else failwith("Error. Voting round should be triggered next instead of Proposal Round.");
+          if proposalRoundProposal.passVoteMvkTotal < proposalRoundProposal.minProposalRoundVotesRequired then skip else failwith("Error. Voting round should be triggered next instead of Proposal Round.");
 
       } else skip;
       
@@ -911,7 +911,6 @@ block {
     // 4. todo: check that proposer has sent enough tez to cover the submission fee
     // 5. submit (save) proposal - note: proposer does not automatically vote pass for his proposal
     // 6. add proposal id to current round proposals map
-    s.tempFlag := Tezos.level;
 
     if s.currentRound = "proposal" then skip
         else failwith("Error. You can only make a proposal during a proposal round.");

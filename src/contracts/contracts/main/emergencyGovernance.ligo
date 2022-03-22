@@ -66,6 +66,7 @@ type triggerEmergencyControlType is [@layout:comb] record[
 ]
 
 type emergencyGovernanceAction is 
+    | SetAdmin of (address)
     | UpdateConfig of updateConfigParamsType    
     | UpdateGeneralContracts of updateGeneralContractsParams
     | SetTempStakedMvkTotalSupply of (nat)
@@ -166,6 +167,18 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
 
 // transfer tez helper function
 function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
+
+(*  set contract admin address *)
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+
+    s.admin := newAdminAddress;
+
+} with (noOperations, s)
+
 
 function setTempStakedMvkTotalSupply(const totalSupply : nat; var s : storage) is
 block {
@@ -343,7 +356,7 @@ block {
 
         operations := voteForEmergencyControlCompleteOperation # operations;
 
-    } else skip;
+    } else failwith("Error. You can only vote once for emergency governance.");
 
 } with (operations, s)
 
@@ -443,6 +456,7 @@ block {
 
 function main (const action : emergencyGovernanceAction; const s : storage) : return is 
     case action of
+        | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
         | SetTempStakedMvkTotalSupply(parameters) -> setTempStakedMvkTotalSupply(parameters, s)
