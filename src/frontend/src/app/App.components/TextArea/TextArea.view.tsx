@@ -29,7 +29,7 @@ export const TextAreaView = ({
 }: TextAreaViewProps) => {
   let status = textAreaStatus !== undefined ? textAreaStatus : 'none'
   return (
-    <TextAreaStyled>
+    <TextAreaStyled id={'textAreaContainer'}>
       {icon && (
         <TextAreaIcon>
           <use xlinkHref={`/icons/sprites.svg#${icon}`} />

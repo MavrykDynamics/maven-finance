@@ -6,7 +6,7 @@ import {
   ProposalFinancialRequestInputStatus,
   ValidFinancialRequestForm,
 } from '../../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isJsonString } from '../../../utils/validatorFunctions'
+import { getFormErrors, isJsonString, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { submitFinancialRequestData } from '../ProposalSubmission.actions'
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
@@ -39,21 +39,12 @@ export const StageThreeForm = ({ loading, accountPkh }: StageThreeFormProps) => 
   }
 
   const handleSubmitFinancialRequestData = () => {
-    const formIsValid = validateForm()
+    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) {
       dispatch(submitFinancialRequestData(form.financialData?.jsonString ?? '', accountPkh as any))
     }
   }
 
-  const validateForm = () => {
-    const { errors, errorMessage } = getFormErrors(validForm)
-    if (errors.length === 0) return true
-    else {
-      const errorTitle = 'Invalid fields'
-      dispatch(showToaster(ERROR, errorTitle, errorMessage, 3000))
-      return false
-    }
-  }
   return (
     <StageThreeFormView
       loading={loading}

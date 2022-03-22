@@ -39,50 +39,51 @@ export const getEmergencyGovernanceStorage = (accountPkh?: string) => async (dis
 export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST'
 export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT'
 export const SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR = 'SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR'
-export const submitEmergencyGovernanceProposal = (form: any) => async (dispatch: any, getState: any) => {
-  const state: State = getState()
+export const submitEmergencyGovernanceProposal =
+  (form: any, accountPkh?: string) => async (dispatch: any, getState: any) => {
+    const state: State = getState()
 
-  if (!state.wallet.ready) {
-    dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
-    return
+    if (!state.wallet.ready) {
+      dispatch(showToaster(ERROR, 'Please connect your wallet', 'Click Connect in the left menu'))
+      return
+    }
+
+    if (state.loading) {
+      dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
+      return
+    }
+
+    try {
+      const contract = await state.wallet.tezos?.wallet.at(emergencyGovernanceAddress.address)
+      console.log('contract', contract)
+      const transaction = await contract?.methods.triggerEmergencyControl(form.title, form.description).send()
+      console.log('transaction', transaction)
+
+      dispatch({
+        type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST,
+        emergencyGovernanceProposal: form,
+      })
+      dispatch(showToaster(INFO, 'Submitting emergency proposal...', 'Please wait 30s'))
+      dispatch({
+        type: HIDE_EXIT_FEE_MODAL,
+      })
+
+      const done = await transaction?.confirmation()
+      console.log('done', done)
+      dispatch(showToaster(SUCCESS, 'Emergency Proposal Submitted', 'All good :)'))
+
+      dispatch({
+        type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT,
+      })
+
+      dispatch(getMvkTokenStorage(state.wallet.accountPkh))
+      dispatch(getDoormanStorage())
+    } catch (error: any) {
+      console.error(error)
+      dispatch(showToaster(ERROR, 'Error', error.message))
+      dispatch({
+        type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR,
+        error,
+      })
+    }
   }
-
-  if (state.loading) {
-    dispatch(showToaster(ERROR, 'Cannot send transaction', 'Previous transaction still pending...'))
-    return
-  }
-
-  try {
-    const contract = await state.wallet.tezos?.wallet.at(emergencyGovernanceAddress.address)
-    console.log('contract', contract)
-    const transaction = await contract?.methods.triggerEmergencyControl(form.title, form.description).send()
-    console.log('transaction', transaction)
-
-    dispatch({
-      type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST,
-      emergencyGovernanceProposal: form,
-    })
-    dispatch(showToaster(INFO, 'Unstaking...', 'Please wait 30s'))
-    dispatch({
-      type: HIDE_EXIT_FEE_MODAL,
-    })
-
-    const done = await transaction?.confirmation()
-    console.log('done', done)
-    dispatch(showToaster(SUCCESS, 'Unstaking done', 'All good :)'))
-
-    dispatch({
-      type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT,
-    })
-
-    dispatch(getMvkTokenStorage(state.wallet.accountPkh))
-    dispatch(getDoormanStorage())
-  } catch (error: any) {
-    console.error(error)
-    dispatch(showToaster(ERROR, 'Error', error.message))
-    dispatch({
-      type: SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_ERROR,
-      error,
-    })
-  }
-}

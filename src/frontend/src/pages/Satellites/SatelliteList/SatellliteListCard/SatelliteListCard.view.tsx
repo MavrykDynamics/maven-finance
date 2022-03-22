@@ -16,6 +16,8 @@ import {
 } from './SatelliteListCard.style'
 import { RoutingButton } from '../../../../app/App.components/RoutingButton/RoutingButton.controller'
 import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
+import { StatusFlag } from '../../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { DOWN } from '../../../../app/App.components/StatusFlag/StatusFlag.constants'
 
 type SatelliteListCardViewProps = {
   satellite: SatelliteRecord
@@ -60,21 +62,24 @@ export const SatelliteListCard = ({
           </SatelliteMainText>
           <SatelliteSubText>Your delegated MVK</SatelliteSubText>
         </SatelliteTextGroup>
-        <Button
-          text="Delegate"
-          icon="man-check"
-          loading={loading}
-          onClick={() => delegateCallback(satellite.address)}
-        />
+        {satellite.active ? (
+          <Button
+            text="Delegate"
+            icon="man-check"
+            loading={loading}
+            onClick={() => delegateCallback(satellite.address)}
+          />
+        ) : (
+          <div>
+            <StatusFlag status={DOWN} text={'INACTIVE'} />
+          </div>
+        )}
         <RoutingButton
           icon="man"
           text="Profile Details"
           kind="transparent"
           pathName={`/satellite-details/${satellite.address}`}
         />
-        {/*<Link to={{ pathname: `/satellite-details/${satellite.address}` }}>*/}
-        {/*  <Button text="Profile Details" icon="man" kind="transparent" />*/}
-        {/*</Link>*/}
         <SatelliteTextGroup>
           <SatelliteMainText>
             <CommaNumber value={Number(satellite.totalDelegatedAmount)} endingText="%" />
@@ -87,13 +92,17 @@ export const SatelliteListCard = ({
           </SatelliteMainText>
           <SatelliteSubText>Fee</SatelliteSubText>
         </SatelliteTextGroup>
-        <Button
-          text="Undelegate"
-          icon="man-close"
-          kind="secondary"
-          loading={loading}
-          onClick={() => undelegateCallback(satellite.address)}
-        />
+        {satellite.active ? (
+          <Button
+            text="Undelegate"
+            icon="man-close"
+            kind="secondary"
+            loading={loading}
+            onClick={() => undelegateCallback(satellite.address)}
+          />
+        ) : (
+          <div />
+        )}
       </SatelliteCardTopRow>
       <ColoredLine kind="secondary" />
       <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>
