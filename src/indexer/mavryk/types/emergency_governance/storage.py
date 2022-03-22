@@ -12,6 +12,8 @@ class Config(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    decimals: str
+    minStakedMvkRequiredToTrigger: str
     minStakedMvkRequiredToVote: str
     requiredFee: str
     stakedMvkPercentageRequired: str
@@ -30,21 +32,21 @@ class EmergencyGovernanceLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    description: str
-    dropped: bool
+    proposerAddress: str
+    status: bool
     executed: bool
+    dropped: bool
+    title: str
+    description: str
+    voters: Dict[str, Voters]
+    totalStakedMvkVotes: str
+    stakedMvkPercentageRequired: str
+    stakedMvkRequiredForBreakGlass: str
+    startDateTime: str
+    startLevel: str
     executedDateTime: str
     executedLevel: str
     expirationDateTime: str
-    proposerAddress: str
-    stakedMvkPercentageRequired: str
-    stakedMvkRequiredForTrigger: str
-    startDateTime: str
-    startLevel: str
-    status: bool
-    title: str
-    totalStakedMvkVotes: str
-    voters: Dict[str, Voters]
 
 
 class EmergencyGovernanceStorage(BaseModel):
@@ -56,5 +58,6 @@ class EmergencyGovernanceStorage(BaseModel):
     currentEmergencyGovernanceId: str
     emergencyGovernanceLedger: Dict[str, EmergencyGovernanceLedger]
     generalContracts: Dict[str, str]
+    mvkTokenAddress: str
     nextEmergencyGovernanceProposalId: str
-    tempMvkTotalSupply: str
+    tempStakedMvkTotalSupply: str
