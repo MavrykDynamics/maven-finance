@@ -147,6 +147,11 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('vestingAddress', vesting.contract.address)
     console.log('Vesting Contract deployed at:', vesting.contract.address)
 
+    lpToken = await LPToken.originate(
+      utils.tezos,
+      lpStorage
+    );
+
     await saveContractAddress("lpTokenAddress", lpToken.contract.address)
     console.log("LP Token Contract deployed at:", lpToken.contract.address);
 
@@ -183,9 +188,6 @@ describe('Contracts Deployment for Tests', async () => {
     farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
     farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
       doorman: doorman.contract.address,
-    });
-    farmFactoryStorage.whitelistContracts = MichelsonMap.fromLiteral({
-      council: council.contract.address,
     });
     farmFactory = await FarmFactory.originate(
       utils.tezos,
@@ -256,11 +258,6 @@ describe('Contracts Deployment for Tests', async () => {
 
     await saveContractAddress('mockFa2TokenAddress', mockFa2Token.contract.address)
     console.log('Mock Fa2 Token Contract deployed at:', mockFa2Token.contract.address)
-
-    lpToken = await LPToken.originate(
-      utils.tezos,
-      lpStorage
-    );
 
     /* ---- ---- ---- ---- ---- */
 
@@ -351,10 +348,17 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Farm FA2 Contract - set whitelist contract addresses [council]')
     
 
+    // Farm Factory Contract - set contract addresses [council]
+    const setCouncilContractAddressInFarmFactoryOperation = await farmFactory.contract.methods
+      .updateWhitelistContracts('council', council.contract.address)
+      .send()
+    await setCouncilContractAddressInFarmFactoryOperation.confirmation()
+    console.log('Farm Factory Contract - set whitelist contract addresses [council]')
 
-    // Delegation Contract - set general contract addresses [governance]
-    // Delegation Contract - set whitelist contract addresses [treasury]
-    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts('governance', governance.contract.address).send()
+    // Delegation Contract - set contract addresses [governance]
+    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods
+      .updateGeneralContracts('governance', governance.contract.address)
+      .send()
     await setGovernanceContractAddressInDelegationOperation.confirmation()
     
     console.log('Delegation Contract - set general contract addresses [governance]')
