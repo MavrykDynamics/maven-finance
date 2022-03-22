@@ -14,22 +14,37 @@ import env from "../env";
 import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
 
 import doormanAddress from '../deployments/doormanAddress.json';
+import delegationAddress from '../deployments/delegationAddress.json';
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
+import councilAddress from '../deployments/councilAddress.json';
 import governanceAddress from '../deployments/governanceAddress.json';
 import emergencyGovernanceAddress from '../deployments/emergencyGovernanceAddress.json';
+import breakGlassAddress from '../deployments/breakGlassAddress.json';
+import vestingAddress from '../deployments/vestingAddress.json';
+import treasuryAddress from '../deployments/treasuryAddress.json';
 
 describe("Emergency Governance tests", async () => {
     var utils: Utils;
 
     let doormanInstance;
+    let delegationInstance;
     let mvkTokenInstance;
+    let councilInstance;
     let governanceInstance;
     let emergencyGovernanceInstance;
+    let breakGlassInstance;
+    let vestingInstance;
+    let treasuryInstance;
 
     let doormanStorage;
+    let delegationStorage;
     let mvkTokenStorage;
+    let councilStorage;
     let governanceStorage;
     let emergencyGovernanceStorage;
+    let breakGlassStorage;
+    let vestingStorage;
+    let treasuryStorage;
     
     const signerFactory = async (pk) => {
         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -42,27 +57,44 @@ describe("Emergency Governance tests", async () => {
         await utils.init(alice.sk);
 
         doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
+        delegationInstance    = await utils.tezos.contract.at(delegationAddress.address);
         mvkTokenInstance   = await utils.tezos.contract.at(mvkTokenAddress.address);
+        councilInstance   = await utils.tezos.contract.at(councilAddress.address);
         governanceInstance = await utils.tezos.contract.at(governanceAddress.address);
         emergencyGovernanceInstance    = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
+        breakGlassInstance = await utils.tezos.contract.at(breakGlassAddress.address);
+        vestingInstance = await utils.tezos.contract.at(vestingAddress.address);
+        treasuryInstance = await utils.tezos.contract.at(treasuryAddress.address);
             
         doormanStorage    = await doormanInstance.storage();
+        delegationStorage    = await delegationInstance.storage();
         mvkTokenStorage   = await mvkTokenInstance.storage();
+        councilStorage   = await councilInstance.storage();
         governanceStorage = await governanceInstance.storage();
         emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+        breakGlassStorage = await breakGlassInstance.storage();
+        vestingStorage = await vestingInstance.storage();
+        treasuryStorage = await treasuryInstance.storage();
 
         console.log('-- -- -- -- -- Emergency Governance Tests -- -- -- --')
         console.log('Doorman Contract deployed at:', doormanInstance.address);
+        console.log('Delegation Contract deployed at:', delegationInstance.address);
         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
+        console.log('Council Contract deployed at:', councilInstance.address);
         console.log('Governance Contract deployed at:', governanceInstance.address);
         console.log('Emergency Governance Contract deployed at:', emergencyGovernanceInstance.address);
+        console.log('Break Glass Contract deployed at:', breakGlassInstance.address);
+        console.log('Vesting Contract deployed at:', vestingInstance.address);
+        console.log('Treasury Contract deployed at:', treasuryInstance.address);
         console.log('Alice address: ' + alice.pkh);
         console.log('Bob address: ' + bob.pkh);
         console.log('Eve address: ' + eve.pkh);
+        console.log('-- -- -- -- -- -- -- -- --')
 
 
         // init variables
 
+        // ---------------------------------------------
         // mallory update operators - set initial staked MVK total supply of 250
         await signerFactory(mallory.sk);
         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
@@ -82,6 +114,41 @@ describe("Emergency Governance tests", async () => {
 
         const malloryStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(mallory.pkh);
         assert.equal(malloryStakedMvkBalance.balance, userStake);
+        // ---------------------------------------------
+
+
+        // ---------------------------------------------
+        // set admin of every contract to governance contract
+        await signerFactory(alice.sk);
+
+        // doorman
+        const setGovernanceAdminInDoormanContractOperation = await doormanInstance.methods.setAdmin(governanceAddress.address).send()
+        await setGovernanceAdminInDoormanContractOperation.confirmation();
+
+        // delegation
+        const setGovernanceAdminInDelegationContractOperation = await delegationInstance.methods.setAdmin(governanceAddress.address).send()
+        await setGovernanceAdminInDelegationContractOperation.confirmation();
+
+        // emergency governance
+        const setGovernanceAdminInEmergencyGovernanceContractOperation = await emergencyGovernanceInstance.methods.setAdmin(governanceAddress.address).send()
+        await setGovernanceAdminInEmergencyGovernanceContractOperation.confirmation();
+
+        // break glass
+        const setGovernanceAdminInBreakGlassContractOperation = await breakGlassInstance.methods.setAdmin(governanceAddress.address).send()
+        await setGovernanceAdminInBreakGlassContractOperation.confirmation();
+
+        // council
+        const setGovernanceAdminInCouncilContractOperation = await councilInstance.methods.setAdmin(governanceAddress.address).send()
+        await setGovernanceAdminInCouncilContractOperation.confirmation();
+
+        // vesting
+        const setGovernanceAdminInVestingContractOperation = await vestingInstance.methods.setAdmin(governanceAddress.address).send()
+        await setGovernanceAdminInVestingContractOperation.confirmation();
+
+        // treasury
+        const setGovernanceAdminInTreasuryContractOperation = await treasuryInstance.methods.setAdmin(governanceAddress.address).send()
+        await setGovernanceAdminInTreasuryContractOperation.confirmation();
+        // ---------------------------------------------
 
     });
 
@@ -465,77 +532,161 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    // it('alice can vote for emergency control (enough MVK))', async () => {
-    //     try{        
+    it('eve cannot vote for emergency control again', async () => {
+        try{        
 
-    //         await signerFactory(alice.sk);
-    //         const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1).send();
-    //         await voteForEmergencyControlOperation.confirmation();
-
-    //         const updatedEmergencyGovernanceStorage     = await emergencyGovernanceInstance.storage();
-
-    //         console.log(updatedEmergencyGovernanceStorage);
-    //         // console.log(emergencyGovernanceProposal);
+            await signerFactory(eve.sk);
+            const failVoteAgainOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1);
+            await chai.expect(failVoteAgainOperation.send()).to.be.eventually.rejected;
             
-    //     } catch (e){
-    //         console.log(e)
-    //     }
-    // });
+        } catch (e){
+            console.log(e)
+        }
+    });
 
-    // it('mallory cannot vote for emergency control (notenough MVK))', async () => {
-    //     try{        
+    it('eve cannot drop emergency control (not creator)', async () => {
+        try{        
 
-    //         await signerFactory(alice.sk);
-    //         const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1).send();
-    //         await voteForEmergencyControlOperation.confirmation();
-
-    //         const updatedEmergencyGovernanceStorage     = await emergencyGovernanceInstance.storage();
-
-    //         console.log(updatedEmergencyGovernanceStorage);
-    //         // console.log(emergencyGovernanceProposal);
+            await signerFactory(eve.sk);
+            const failDropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
+            await chai.expect(failDropEmergencyControlOperation.send()).to.be.eventually.rejected;
             
-    //     } catch (e){
-    //         console.log(e)
-    //     }
-    // });
+        } catch (e){
+            console.log(e)
+        }
+    });
 
-    // it('alice can drop emergency control', async () => {
-    //     try{        
-
-    //         const dropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance(Tezos.unit).send();
-    //         await dropEmergencyControlOperation.confirmation();
-
-    //         afterEmergencyGovernanceStorage     = await emergencyGovernanceInstance.storage();
-    //         emergencyGovernanceProposal         = await afterEmergencyGovernanceStorage.emergencyGovernanceLedger.get('1');
-
-    //         console.log(afterEmergencyGovernanceStorage);
-    //         console.log(emergencyGovernanceProposal);
+    it('alice can drop emergency control (creator)', async () => {
+        try{        
             
-    //     } catch (e){
-    //         console.log(e)
-    //     }
-    // });
+            await signerFactory(alice.sk);
+            const dropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
+            await dropEmergencyControlOperation.confirmation();
 
-    // it('bob can trigger emergency control after previous one is dropped', async () => {
-    //     try{        
+            const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
+            const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get('1');
 
-    //         await signerFactory(bob.sk);
-
-    //         beforeEmergencyGovernanceStorage     = await emergencyGovernanceInstance.storage();
-
-    //         const triggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("New Emergency By Bob", "Help me please.").send();
-    //         await triggerEmergencyControlOperation.confirmation();
+            assert.equal(emergencyGovernanceProposal.status,          false);
+            assert.equal(emergencyGovernanceProposal.dropped,         true);
+            assert.equal(emergencyGovernanceProposal.executed,        false);
             
-    //         afterEmergencyGovernanceStorage     = await emergencyGovernanceInstance.storage();
-    //         emergencyGovernanceProposal         = await afterEmergencyGovernanceStorage.emergencyGovernanceLedger.get('2');
+        } catch (e){
+            console.log(e)
+        }
+    });
 
-    //         console.log(emergencyGovernanceProposal);
+    it('alice cannot drop emergency control again', async () => {
+        try{        
+
+            await signerFactory(alice.sk);
+            const failDropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
+            await chai.expect(failDropEmergencyControlOperation.send()).to.be.eventually.rejected;
             
-    //         await signerFactory(alice.sk);
+        } catch (e){
+            console.log(e)
+        }
+    });
 
-    //     } catch (e){
-    //         console.log(e)
-    //     }
-    // });
+    it('bob can trigger emergency control after previous one is dropped', async () => {
+        try{        
+
+            await signerFactory(bob.sk);
+
+            const emergencyGovernanceTitle       = "New Emergency By Bob";
+            const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+
+            // alice triggers emergency Governance
+            const triggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+                emergencyGovernanceTitle, 
+                emergencyGovernanceDescription
+            ).send({amount : 10});
+            await triggerEmergencyControlOperation.confirmation();
+            
+            const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
+            const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get('2');
+
+            assert.equal(emergencyGovernanceProposal.title,           emergencyGovernanceTitle);
+            assert.equal(emergencyGovernanceProposal.description,     emergencyGovernanceDescription);
+            assert.equal(emergencyGovernanceProposal.status,          false);
+            assert.equal(emergencyGovernanceProposal.dropped,         false);
+            assert.equal(emergencyGovernanceProposal.executed,        false);
+            assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes,        0);
+
+        } catch (e){
+            console.log(e)
+        }
+    });
+
+    it('alice stakes more MVK, votes for emergency control, and triggers break glass', async () => {
+        try{        
+
+            const emergencyGovernanceProposalId = 2;
+
+            await signerFactory(alice.sk);
+            const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner: alice.pkh,
+                        operator: doormanAddress.address,
+                        token_id: 0,
+                    },
+                }])
+                .send()
+            await updateOperatorsOperation.confirmation();
+
+            // alice stakes another 20 MVK
+            const userStake = MVK(20);
+            const aliceStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+            await aliceStakeMvkOperation.confirmation();
+
+            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+            const aliceTotalStakedMvkBalance = MVK(30); // 10 from earlier test, 20 from here
+            assert.equal(aliceStakedMvkBalance.balance, aliceTotalStakedMvkBalance);
+
+            // alice votes for emergency control
+            const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(emergencyGovernanceProposalId).send();
+            await voteForEmergencyControlOperation.confirmation();
+
+            // check that glass has been broken
+            const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
+            const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceProposalId);
+
+            assert.equal(emergencyGovernanceProposal.status,          true);
+            assert.equal(emergencyGovernanceProposal.executed,        true);
+            assert.equal(emergencyGovernanceProposal.dropped,         false);
+            assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes, MVK(30));
+            assert.equal(emergencyGovernanceProposal.stakedMvkRequiredForBreakGlass, MVK(28));
+
+            const updatedDoormanStorage      = await doormanInstance.storage();
+            const updatedDelegationStorage   = await delegationInstance.storage();
+            const updatedCouncilStorage      = await councilInstance.storage();
+            const updatedVestingStorage      = await vestingInstance.storage();
+            const updatedTreasuryStorage     = await treasuryInstance.storage();
+            const updatedBreakGlassStorage   = await breakGlassInstance.storage();
+
+            // doorman break glass, and break glass configs
+            assert.equal(updatedDoormanStorage.admin, breakGlassAddress.address);
+            assert.equal(updatedDoormanStorage.breakGlassConfig.compoundIsPaused, true);
+            assert.equal(updatedDoormanStorage.breakGlassConfig.stakeIsPaused, true);
+            assert.equal(updatedDoormanStorage.breakGlassConfig.unstakeIsPaused, true);
+
+            // delegation break glass, and break glass configs
+            assert.equal(updatedDelegationStorage.admin, breakGlassAddress.address);
+            assert.equal(updatedDelegationStorage.breakGlassConfig.delegateToSatelliteIsPaused, true);
+            assert.equal(updatedDelegationStorage.breakGlassConfig.registerAsSatelliteIsPaused, true);
+            assert.equal(updatedDelegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused, true);
+            assert.equal(updatedDelegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused, true);
+            assert.equal(updatedDelegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused, true);
+
+            // council, vesting, treasury, break glass 
+            assert.equal(updatedCouncilStorage.admin, breakGlassAddress.address);
+            assert.equal(updatedVestingStorage.admin, breakGlassAddress.address);
+            assert.equal(updatedTreasuryStorage.admin, breakGlassAddress.address);
+            assert.equal(updatedBreakGlassStorage.admin, breakGlassAddress.address);            
+            
+        } catch (e){
+            console.log(e)
+        }
+    });
 
 });
