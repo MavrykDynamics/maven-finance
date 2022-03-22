@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 from pydantic import BaseModel, Extra
 
@@ -25,6 +25,6 @@ class FarmFactoryStorage(BaseModel):
     blocksPerMinute: str
     breakGlassConfig: BreakGlassConfig
     generalContracts: Dict[str, str]
-    pendingTrackedFarm: Optional[str]
+    mvkTokenAddress: str
     trackedFarms: List[str]
     whitelistContracts: Dict[str, str]

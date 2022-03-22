@@ -29,13 +29,6 @@ async def on_doorman_compound(
     user.smvk_balance = smvk_balance
     user.participation_fees_per_share = participation_fees_per_share
     await user.save()
-
-    # Calculate the MLI
-    mvk_total_supply = int(compound.data.storage['tempMvkTotalSupply'])
-    smvk_total_supply = doorman.smvk_total_supply
-    mli = 0.0
-    if mvk_total_supply > 0.0:
-        mli = smvk_total_supply / mvk_total_supply
     
     # Create a stake record
     stake_record = models.StakeRecord(
@@ -45,7 +38,7 @@ async def on_doorman_compound(
         final_amount=amount,
         doorman=doorman,
         from_=user,
-        mvk_loyalty_index=mli
+        mvk_loyalty_index=0.0
     )
     await stake_record.save()
 
