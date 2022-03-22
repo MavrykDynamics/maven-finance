@@ -59,5 +59,6 @@ class DelegationStorage(BaseModel):
     config: Config
     delegateLedger: Dict[str, DelegateLedger]
     generalContracts: Dict[str, str]
+    mvkTokenAddress: str
     satelliteLedger: Dict[str, SatelliteLedger]
     whitelistContracts: Dict[str, str]

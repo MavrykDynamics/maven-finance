@@ -1,18 +1,20 @@
 
-from dipdup.models import Transaction
-from mavryk.types.doorman.parameter.unstake_complete import UnstakeCompleteParameter
-from mavryk.types.doorman.storage import DoormanStorage
-from mavryk.types.mvk.storage import MvkStorage
 from mavryk.types.mvk.parameter.transfer import TransferParameter
+from mavryk.types.doorman.storage import DoormanStorage
+from dipdup.models import Transaction
 from dipdup.context import HandlerContext
+from mavryk.types.doorman.parameter.unstake import UnstakeParameter
+from mavryk.types.mvk.storage import MvkStorage
+from mavryk.types.doorman.parameter.unstake_complete import UnstakeCompleteParameter
 import mavryk.models as models
 
-async def on_doorman_unstake_complete(
+async def on_doorman_unstake(
     ctx: HandlerContext,
+    unstake: Transaction[UnstakeParameter, DoormanStorage],
     unstake_complete: Transaction[UnstakeCompleteParameter, DoormanStorage],
     transfer: Transaction[TransferParameter, MvkStorage],
 ) -> None:
-     # Get operation info
+    # Get operation info
     doorman_address = unstake_complete.data.target_address
     initiator_address = unstake_complete.data.initiator_address
     initiator_stake_balance_ledger = unstake_complete.data.storage['userStakeBalanceLedger'][initiator_address]
@@ -20,7 +22,7 @@ async def on_doorman_unstake_complete(
     mvk_balance = int(transfer.data.storage['ledger'][initiator_address])
     participation_fees_per_share = initiator_stake_balance_ledger['participationFeesPerShare']
     timestamp = unstake_complete.data.timestamp
-    desired_amount = int(unstake_complete.parameter.__root__)
+    desired_amount = int(unstake.parameter.__root__)
     final_amount = int(transfer.parameter.__root__[0].txs[0].amount)
     exit_fee = desired_amount - final_amount
     doorman = await models.Doorman.get(address=doorman_address)

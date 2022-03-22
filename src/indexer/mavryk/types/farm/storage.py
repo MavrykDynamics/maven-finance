@@ -84,6 +84,7 @@ class FarmStorage(BaseModel):
     initBlock: str
     lastBlockUpdate: str
     lpToken: LpToken
+    mvkTokenAddress: str
     open: bool
     plannedRewards: PlannedRewards
     whitelistContracts: Dict[str, str]

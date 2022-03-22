@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Optional
 
 from pydantic import BaseModel, Extra
 
@@ -36,9 +36,12 @@ class DoormanStorage(BaseModel):
     logExitFee: str
     logFinalAmount: str
     minMvkAmount: str
+    mvkTokenAddress: str
     stakedMvkTotalSupply: str
-    tempMvkMaximumTotalSupply: str
-    tempMvkTotalSupply: str
+    tempClaimAmount: Optional[str]
+    tempClaimDelegator: Optional[str]
+    tempClaimForceTransfer: Optional[bool]
+    tempUnstakeAmount: Optional[str]
     unclaimedRewards: str
     userStakeBalanceLedger: Dict[str, UserStakeBalanceLedger]
     whitelistContracts: Dict[str, str]

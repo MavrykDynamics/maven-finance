@@ -63,6 +63,7 @@ class VestingStorage(BaseModel):
     claimLedger: Dict[str, ClaimLedger]
     config: Config
     generalContracts: Dict[str, str]
+    mvkTokenAddress: str
     tempBlockLevel: str
     totalVestedAmount: str
     vesteeLedger: Dict[str, VesteeLedger]

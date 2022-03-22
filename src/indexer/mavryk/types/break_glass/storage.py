@@ -47,4 +47,5 @@ class BreakGlassStorage(BaseModel):
     developerAddress: str
     generalContracts: Dict[str, str]
     glassBroken: bool
+    mvkTokenAddress: str
     whitelistContracts: Dict[str, str]
