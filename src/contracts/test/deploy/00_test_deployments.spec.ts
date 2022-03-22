@@ -147,10 +147,59 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('vestingAddress', vesting.contract.address)
     console.log('Vesting Contract deployed at:', vesting.contract.address)
 
+    await saveContractAddress("lpTokenAddress", lpToken.contract.address)
+    console.log("LP Token Contract deployed at:", lpToken.contract.address);
+
+    farmStorage.mvkTokenAddress  = mvkToken.contract.address
+    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+      
+    farm = await Farm.originate(
+      utils.tezos,
+      farmStorage
+    );
+
+    await saveContractAddress("farmAddress", farm.contract.address)
+    console.log("FA12 Farm Contract deployed at:", farm.contract.address);
+
+    farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
+    farmStorage.lpToken.tokenStandard = {
+      fa2: ""
+    };
+    
+    farmFA2 = await Farm.originate(
+      utils.tezos,
+      farmStorage
+    );
+
+    await saveContractAddress("farmFA2Address", farmFA2.contract.address)
+    console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
+
+    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+    farmStorage.infinite = true
+    farmStorage.lpToken.tokenStandard = {
+      fa12: ""
+    };
+    
+    farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
+    farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
+      doorman: doorman.contract.address,
+    });
+    farmFactoryStorage.whitelistContracts = MichelsonMap.fromLiteral({
+      council: council.contract.address,
+    });
+    farmFactory = await FarmFactory.originate(
+      utils.tezos,
+      farmFactoryStorage
+    );
+
+    await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
+    console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
+
     councilStorage.mvkTokenAddress  = mvkToken.contract.address
     councilStorage.generalContracts = MichelsonMap.fromLiteral({
       vesting: vesting.contract.address,
       governance: governance.contract.address,
+      farmFactory: farmFactory.contract.address
     })
     councilStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh]
     council = await Council.originate(utils.tezos, councilStorage)
@@ -212,54 +261,6 @@ describe('Contracts Deployment for Tests', async () => {
       utils.tezos,
       lpStorage
     );
-
-    await saveContractAddress("lpTokenAddress", lpToken.contract.address)
-    console.log("LP Token Contract deployed at:", lpToken.contract.address);
-
-    farmStorage.mvkTokenAddress  = mvkToken.contract.address
-    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
-      
-    farm = await Farm.originate(
-      utils.tezos,
-      farmStorage
-    );
-
-    await saveContractAddress("farmAddress", farm.contract.address)
-    console.log("FA12 Farm Contract deployed at:", farm.contract.address);
-
-    farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
-    farmStorage.lpToken.tokenStandard = {
-      fa2: ""
-    };
-    
-    farmFA2 = await Farm.originate(
-      utils.tezos,
-      farmStorage
-    );
-
-    await saveContractAddress("farmFA2Address", farmFA2.contract.address)
-    console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
-
-    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
-    farmStorage.infinite = true
-    farmStorage.lpToken.tokenStandard = {
-      fa12: ""
-    };
-    
-    farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
-    farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
-      doorman: doorman.contract.address,
-    });
-    farmFactoryStorage.whitelistContracts = MichelsonMap.fromLiteral({
-      council: council.contract.address,
-    });
-    farmFactory = await FarmFactory.originate(
-      utils.tezos,
-      farmFactoryStorage
-    );
-
-    await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
-    console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
 
     /* ---- ---- ---- ---- ---- */
 

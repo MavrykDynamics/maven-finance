@@ -142,7 +142,7 @@ type action is
     SetAdmin of (address)
 |   UpdateWhitelistContracts of updateWhitelistContractsParams
 |   UpdateGeneralContracts of updateGeneralContractsParams
-|   UpdateAllBlocksPerMinute of (nat)
+|   UpdateBlocksPerMinute of (nat)
 
 |   PauseAll of (unit)
 |   UnpauseAll of (unit)
@@ -283,8 +283,8 @@ function togglePauseTrackFarm(var s: storage): return is
 ////
 // ENTRYPOINTS FUNCTIONS
 ///
-(*  UpdateAllBlocksPerMinute entrypoint *)
-function updateAllBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage): return is
+(*  UpdateBlocksPerMinute entrypoint *)
+function updateBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -448,7 +448,7 @@ function main (const action: action; var s: storage): return is
         SetAdmin (parameters) -> setAdmin(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
-    |   UpdateAllBlocksPerMinute (parameters) -> updateAllBlocksPerMinute(parameters, s)
+    |   UpdateBlocksPerMinute (parameters) -> updateBlocksPerMinute(parameters, s)
 
     |   PauseAll (_parameters) -> pauseAll(s)
     |   UnpauseAll (_parameters) -> unpauseAll(s)
