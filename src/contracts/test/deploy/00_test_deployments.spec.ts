@@ -284,13 +284,10 @@ describe('Contracts Deployment for Tests', async () => {
     await signerFactory(alice.sk);
 
     // Doorman Contract - set contract addresses [delegation, mvkToken]
-    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods
-      .updateGeneralContracts('delegation', delegation.contract.address)
-      .send()
+    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts('delegation', delegation.contract.address).send()
     await setDelegationContractAddressInDoormanOperation.confirmation()
-    const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods
-      .updateGeneralContracts('mvkToken', mvkToken.contract.address)
-      .send()
+
+    const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts('mvkToken', mvkToken.contract.address).send()
     await setMvkTokenAddressInDoormanOperation.confirmation()
     const setFarmFactoryAddressInDoormanOperation = await doorman.contract.methods
       .updateGeneralContracts("farmFactory", farmFactory.contract.address)
@@ -328,47 +325,39 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('delegation contract address set')
 
     // MVK Token Contract - set whitelist contract addresses [vesting, treasury]
-    const setWhitelistVestingContractInMvkTokenOperation = await mvkToken.contract.methods
-      .updateWhitelistContracts('vesting', vesting.contract.address)
-      .send()
+    const setWhitelistVestingContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts('vesting', vesting.contract.address).send()
     await setWhitelistVestingContractInMvkTokenOperation.confirmation()
     
-    const setWhitelistTreasuryContractInMvkTokenOperation = await mvkToken.contract.methods
-      .updateWhitelistContracts('treasury', treasury.contract.address)
-      .send()
+    const setWhitelistTreasuryContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address).send()
     await setWhitelistTreasuryContractInMvkTokenOperation.confirmation()
-    console.log('vesting contract address put in whitelist')
+    
+    console.log('MVK Token Contract - set whitelist contract addresses [vesting, treasury]')
 
-    // Governance Contract - set contract addresses [emergencyGovernance, breakGlass]
-    const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods
-      .updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address)
-      .send()
+
+    // Governance Contract - set contract addresses [emergencyGovernance, breakGlass, council]
+    const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address).send()
     await setEmergencyGovernanceContractInGovernanceOperation.confirmation()
     
-    const setBreakGlassContractInGovernanceOperation = await governance.contract.methods
-      .updateGeneralContracts('breakGlass', breakGlass.contract.address)
-      .send()
+    const setBreakGlassContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address).send()
     await setBreakGlassContractInGovernanceOperation.confirmation()
     console.log('governance contract address set')
 
     // Emergency Governance Contract - set contract addresses map [breakGlass]
-    const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods
-      .updateGeneralContracts('breakGlass', breakGlass.contract.address)
-      .send()
+    const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address).send()
     await setBreakGlassContractAddressInEmergencyGovernance.confirmation()
 
-    const setTreasuryContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods
-      .updateGeneralContracts('treasury', treasury.contract.address)
-      .send()
+    const setTreasuryContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateGeneralContracts('treasury', treasury.contract.address).send()
     await setTreasuryContractAddressInEmergencyGovernance.confirmation()
+
+    console.log('Emergency Governance Contract - set general contract addresses map [breakGlass, treasury]')
 
 
     // Vesting Contract - set whitelist contract addresses map [council]
-    const setCouncilContractAddressInVesting = await vesting.contract.methods
-      .updateWhitelistContracts('council', council.contract.address)
-      .send()
+    const setCouncilContractAddressInVesting = await vesting.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
     await setCouncilContractAddressInVesting.confirmation()
-    console.log('vesting contract address put in whitelist')
+    
+    console.log('Vesting Contract - set whitelist contract addresses map [council]')
+
 
     // Governance Setup Lambdas
     const governanceLambdaBatch = await tezos.wallet
