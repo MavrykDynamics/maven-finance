@@ -172,6 +172,8 @@ type configType is [@layout:comb] record [
 type updateConfigNewValueType is nat
 type updateGovernanceConfigActionType is 
   ConfigSuccessReward of unit
+| ConfigMinProposalRoundVotePercentage of unit
+| ConfigMinProposalRoundVotesRequired of unit
 | ConfigMinQuorumPercentage of unit
 | ConfigMinQuorumMvkTotal of unit
 | ConfigVotingPowerRatio of unit
@@ -184,6 +186,8 @@ type updateGovernanceConfigActionType is
 | ConfigBlocksPerProposalRound of unit
 | ConfigBlocksPerVotingRound of unit
 | ConfigBlocksPerTimelockRound of unit
+| ConfigFinancialRequestApprovalPercentage of unit
+| ConfigFinancialRequestDurationInDays of unit
 
 type updateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: updateConfigNewValueType; 
@@ -470,18 +474,22 @@ block {
         // set boundary - do for the rest
         s.config.successReward              := updateConfigNewValue
       }
-  | ConfigMinQuorumPercentage (_v)        -> s.config.minQuorumPercentage        := updateConfigNewValue
-  | ConfigMinQuorumMvkTotal (_v)          -> s.config.minQuorumMvkTotal          := updateConfigNewValue
-  | ConfigVotingPowerRatio (_v)           -> s.config.votingPowerRatio           := updateConfigNewValue
-  | ConfigProposalSubmissionFee (_v)      -> s.config.proposalSubmissionFee      := updateConfigNewValue
-  | ConfigMinimumStakeReqPercentage (_v)  -> s.config.minimumStakeReqPercentage  := updateConfigNewValue
-  | ConfigMaxProposalsPerDelegate (_v)    -> s.config.maxProposalsPerDelegate    := updateConfigNewValue
-  | ConfigNewBlockTimeLevel (_v)          -> s.config.newBlockTimeLevel          := updateConfigNewValue
-  | ConfigNewBlocksPerMinute (_v)         -> s.config.newBlocksPerMinute         := updateConfigNewValue
-  | ConfigBlocksPerMinute (_v)            -> s.config.blocksPerMinute            := updateConfigNewValue
-  | ConfigBlocksPerProposalRound (_v)     -> s.config.blocksPerProposalRound     := updateConfigNewValue
-  | ConfigBlocksPerVotingRound (_v)       -> s.config.blocksPerVotingRound       := updateConfigNewValue
-  | ConfigBlocksPerTimelockRound (_v)     -> s.config.blocksPerTimelockRound     := updateConfigNewValue
+  | ConfigMinProposalRoundVotePercentage (_v)         -> s.config.minProposalRoundVotePercentage          := updateConfigNewValue
+  | ConfigMinProposalRoundVotesRequired (_v)          -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
+  | ConfigMinQuorumPercentage (_v)                    -> s.config.minQuorumPercentage                     := updateConfigNewValue
+  | ConfigMinQuorumMvkTotal (_v)                      -> s.config.minQuorumMvkTotal                       := updateConfigNewValue
+  | ConfigVotingPowerRatio (_v)                       -> s.config.votingPowerRatio                        := updateConfigNewValue
+  | ConfigProposalSubmissionFee (_v)                  -> s.config.proposalSubmissionFee                   := updateConfigNewValue
+  | ConfigMinimumStakeReqPercentage (_v)              -> s.config.minimumStakeReqPercentage               := updateConfigNewValue
+  | ConfigMaxProposalsPerDelegate (_v)                -> s.config.maxProposalsPerDelegate                 := updateConfigNewValue
+  | ConfigNewBlockTimeLevel (_v)                      -> s.config.newBlockTimeLevel                       := updateConfigNewValue
+  | ConfigNewBlocksPerMinute (_v)                     -> s.config.newBlocksPerMinute                      := updateConfigNewValue
+  | ConfigBlocksPerMinute (_v)                        -> s.config.blocksPerMinute                         := updateConfigNewValue
+  | ConfigBlocksPerProposalRound (_v)                 -> s.config.blocksPerProposalRound                  := updateConfigNewValue
+  | ConfigBlocksPerVotingRound (_v)                   -> s.config.blocksPerVotingRound                    := updateConfigNewValue
+  | ConfigBlocksPerTimelockRound (_v)                 -> s.config.blocksPerTimelockRound                  := updateConfigNewValue
+  | ConfigFinancialRequestApprovalPercentage (_v)     -> s.config.financialRequestApprovalPercentage      := updateConfigNewValue
+  | ConfigFinancialRequestDurationInDays (_v)         -> s.config.financialRequestDurationInDays          := updateConfigNewValue
   end;
 
 } with (noOperations, s)
