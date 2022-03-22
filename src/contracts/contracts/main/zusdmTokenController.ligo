@@ -102,10 +102,8 @@ type registerDepositType is [@layout:comb] record [
 
 type configType is @layout:comb] record [
     collateralRatio           : nat;    // collateral ratio
-    collateralRatioDecimals   : nat;    // decimals for collateral ratio  - 3 decimals
     liquidationRatio          : nat;    // liquidation ratio
-    liquidationRatioDeciamsl  : nat;    // decimals for liquidation ratio  - 3 decimals
-    
+    decimals                  : nat;    // decimals 
 ]
 
 
@@ -114,6 +112,7 @@ type configType is @layout:comb] record [
 type controllerStorage is [@layout:comb] record [
     admin                       : address;
     config                      : configType;
+    
     whitelistTokenContracts     : whitelistTokenContractsType;      
     vaults                      : big_map(vaultHandleType, vaultType);
 
@@ -256,8 +255,8 @@ block {
     // initialise variables - vaultCollateralValue and usdmOutstanding
     var vaultCollateralValue        : nat  := 0n;
     const usdmOutstanding           : nat  = vault.usdmOutstanding;    
-    const collateralRatio           : nat  = s.config.collateralRatio;         // default 3000n: i.e. 3x
-    const collateralRatioDecimals   : nat  = s.config.collateralRatioDecimals;  // default 3n (decimals): i.e. divide by 10 ^ 3
+    const collateralRatio           : nat  = s.config.collateralRatio;  // default 3000n: i.e. 3x
+    const decimals                  : nat  = s.config.decimals;         // default 3n (decimals): i.e. divide by 10 ^ 3
 
     for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
         
@@ -295,7 +294,7 @@ block {
     const usdmOutstandingValueInXtz : nat = usdmOutstanding * usdmTokenPrice;
 
     // todo: adjust later for 300% collateral check
-    const isUnderCollaterized : bool = vaultCollateralValue < abs( (collateralRatio * usdmOutstandingValueInXtz) / (10 * collateralRatioDecimals) );
+    const isUnderCollaterized : bool = vaultCollateralValue < abs( (collateralRatio * usdmOutstandingValueInXtz) / (100000) );
     
     // const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n)); 
 
