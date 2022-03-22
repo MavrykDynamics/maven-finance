@@ -19,9 +19,7 @@ const config = {
 export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
   admin: alice.pkh,
   mvkTokenAddress: "",
-
   config: config,
-  mvkTokenAddress : zeroAddress,
 
   generalContracts: MichelsonMap.fromLiteral({}),
 

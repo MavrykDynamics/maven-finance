@@ -9,7 +9,7 @@ type userStakeBalanceRecordType is record[
     participationFeesPerShare              : nat;
     // emergencyGovernanceLastVotedTimestamp  : timestamp;
 ]
-type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
+type userStakeBalanceType is big_map(address, userStakeBalanceRecordType)
 
 type mintTokenType is (address * nat)
 type updateSatelliteBalanceParams is (address * nat * nat)
@@ -73,6 +73,8 @@ type stakeType is
   StakeAction of unit
 | UnstakeAction of unit
 
+type getTotalStakedSupplyParamsType is contract(nat)
+
 type doormanAction is 
     SetAdmin of (address)
   | UpdateMinMvkAmount of (nat)
@@ -86,6 +88,7 @@ type doormanAction is
   | TogglePauseUnstake of (unit)
   | TogglePauseCompound of (unit)
 
+  | GetTotalStakedSupply of getTotalStakedSupplyParamsType
   | GetStakedBalance of (address * contract(nat))
   | GetSatelliteBalance of getSatelliteBalanceType
   // | EmergencyGovernanceVoteCheck of emergencyGovernanceVoteCheckType
@@ -271,6 +274,10 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
 } with (noOperations, s)
+
+(*  get total staked supply *)
+function getTotalStakedSupply(const getTotalStakedSupplyParams: getTotalStakedSupplyParamsType; const s : storage) : return is
+  (list[Tezos.transaction(s.stakedMvkTotalSupply, 0tez, getTotalStakedSupplyParams)], s)
 
 (*  update configuration in the storage *)
 function updateMinMvkAmount(const newMinMvkAmount : nat; var s : storage) : return is 
