@@ -753,7 +753,7 @@ describe("FarmFactory", async () => {
             })
         });
 
-        describe('%updateAllBlocksPerMinute', function() {
+        describe('%updateBlocksPerMinute', function() {
             before("Set Alice as council contract", async () => {
                 try{
                     await signerFactory(alice.sk);
@@ -778,7 +778,7 @@ describe("FarmFactory", async () => {
                     const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
 
                     // Create an operation
-                    const updateOperation = await farmFactoryInstance.methods.updateAllBlocksPerMinute(3).send();
+                    const updateOperation = await farmFactoryInstance.methods.updateBlocksPerMinute(3).send();
                     await updateOperation.confirmation();
 
                     // Final values
@@ -816,7 +816,7 @@ describe("FarmFactory", async () => {
                     const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
 
                     // Create an operation
-                    const updateOperation = await farmFactoryInstance.methods.updateAllBlocksPerMinute(1).send();
+                    const updateOperation = await farmFactoryInstance.methods.updateBlocksPerMinute(1).send();
                     await updateOperation.confirmation();
 
                     // Final values
@@ -857,7 +857,7 @@ describe("FarmFactory", async () => {
                     const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
 
                     // Create a transaction for initiating a farm
-                    await chai.expect(farmFactoryInstance.methods.updateAllBlocksPerMinute(2).send()).to.be.rejected;
+                    await chai.expect(farmFactoryInstance.methods.updateBlocksPerMinute(2).send()).to.be.rejected;
 
                     // Final values
                     farmStorage = await farmInstance.storage();

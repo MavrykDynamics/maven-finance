@@ -161,6 +161,9 @@ type councilAction is
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
 
+    // Council actions for farm factory
+    | CouncilActionUpdateBlocksPerMin of nat
+
     // Council actions for vesting
     | CouncilActionAddVestee of councilActionAddVesteeType
     | CouncilActionRemoveVestee of address
@@ -176,6 +179,7 @@ type councilAction is
     // Council actions to Governance DAO and Treasury
     | CouncilActionRequestTokens of councilActionRequestTokensType
     | CouncilActionRequestMint of councilActionRequestMintType
+    | CouncilActionDropFinancialReq of nat
 
     | SignAction of nat                
     | FlushAction of flushActionType
@@ -205,6 +209,14 @@ function checkNoAmount(const _p : unit) : unit is
 #include "../partials/generalContractsMethod.ligo"
 
 // admin helper functions end ---------------------------------------------------------
+
+function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : contract(nat) is
+  case (Tezos.get_entrypoint_opt(
+      "%updateBlocksPerMinute",
+      contractAddress) : option(contract(nat))) of
+    Some(contr) -> contr
+  | None -> (failwith("updateBlocksPerMinutes entrypoint in Farm Factory Contract not found") : contract(nat))
+end;
 
 function sendAddVesteeParams(const contractAddress : address) : contract(councilActionAddVesteeType) is
   case (Tezos.get_entrypoint_opt(
@@ -252,6 +264,14 @@ function sendRequestMintParams(const contractAddress : address) : contract(counc
       contractAddress) : option(contract(councilActionRequestMintType))) of
     Some(contr) -> contr
   | None -> (failwith("requestMint entrypoint in Governance Contract not found") : contract(councilActionRequestMintType))
+end;
+
+function sendDropFinancialRequestParams(const contractAddress : address) : contract(nat) is
+  case (Tezos.get_entrypoint_opt(
+      "%dropFinancialRequest",
+      contractAddress) : option(contract(nat))) of
+    Some(contr) -> contr
+  | None -> (failwith("dropFinancialRequest entrypoint in Governance Contract not found") : contract(nat))
 end;
 
 
@@ -503,6 +523,47 @@ block {
 
 } with (noOperations, s)
 
+function councilActionUpdateBlocksPerMinute(const newBlockPerMinute : nat ; var s : storage) : return is 
+block {
+
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
+
+    checkSenderIsCouncilMember(s);
+
+    const addressMap : addressMapType     = map [];
+    const emptyStringMap : stringMapType  = map [];
+    const natMap : natMapType            = map [
+        ("newBlocksPerMinute"  : string) -> newBlockPerMinute;
+    ];
+
+    var councilActionRecord : councilActionRecordType := record[
+        initiator             = Tezos.sender;
+        actionType            = "updateBlocksPerMinute";
+        signers               = set[Tezos.sender];
+
+        status                = "PENDING";
+        signersCount          = 1n;
+        executed              = False;
+
+        addressMap            = addressMap;
+        stringMap             = emptyStringMap;
+        natMap                = natMap;
+
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
 
 function councilActionAddVestee(const addVestee : councilActionAddVesteeType ; var s : storage) : return is 
 block {
@@ -778,6 +839,48 @@ block {
 
 } with (noOperations, s)
 
+function councilActionDropFinancialRequest(const requestID : nat ; var s : storage) : return is 
+block {
+    
+    // Overall steps:
+    // 1. Check that sender is a council member
+    // 2. Create and save new council action record, set the sender as a signer of the action
+    // 3. Increment action counter
+
+    checkSenderIsCouncilMember(s);
+
+    const addressMap : addressMapType     = map [];
+    const stringMap : stringMapType      = map [];
+    const natMap : natMapType         = map [
+        ("requestId"           : string) -> requestID;
+    ];
+
+    var councilActionRecord : councilActionRecordType := record[
+        initiator             = Tezos.sender;
+        actionType            = "dropFinancialRequest";
+        signers               = set[Tezos.sender];
+
+        status                = "PENDING";
+        signersCount          = 1n;
+        executed              = False;
+
+        addressMap            = addressMap;
+        stringMap             = stringMap;
+        natMap                = natMap;     
+
+        startDateTime         = Tezos.now;
+        startLevel            = Tezos.level;             
+        executedDateTime      = Tezos.now;
+        executedLevel         = Tezos.level;
+        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+    ];
+    s.councilActionsLedger[s.actionCounter] := councilActionRecord; 
+
+    // increment action counter
+    s.actionCounter := s.actionCounter + 1n;
+
+} with (noOperations, s)
+
 
 function flushAction(const actionId: flushActionType; var s : storage) : return is 
 block {
@@ -878,7 +981,29 @@ block {
 
         } else skip;
 
+        // updateBlocksPerMinute action type
+        if actionType = "updateBlocksPerMinute" then block {
+            
+            // fetch params begin ---
+            const newBlocksPerMinute : nat = case _councilActionRecord.natMap["newBlocksPerMinute"] of
+                Some(_nat) -> _nat
+                | None -> failwith("Error. NewBlocksPerMinute not found.")
+            end;
+            // fetch params end ---
 
+            var farmFactoryAddress : address := case s.generalContracts["farmFactory"] of 
+                Some(_address) -> _address
+                | None -> failwith("Error. Farm Factory Contract Address not found")
+            end;
+
+            const updateBlocksPerMinuteOperation : operation = Tezos.transaction(
+                newBlocksPerMinute,
+                0tez, 
+                sendUpdateBlocksPerMinuteParams(farmFactoryAddress)
+            );
+            
+            operations := updateBlocksPerMinuteOperation # operations;
+        } else skip;
 
         // addVestee action type
         if actionType = "addVestee" then block {
@@ -1270,6 +1395,31 @@ block {
             operations := requestMintOperation # operations;
         } else skip;
 
+
+        // dropFinancialRequest action type
+        if actionType = "dropFinancialRequest" then block {
+            
+            var governanceAddress : address := case s.generalContracts["governance"] of 
+                Some(_address) -> _address
+                | None -> failwith("Error. Governance Contract Address not found")
+            end;
+
+            // fetch params begin ---
+            const requestId : nat = case _councilActionRecord.natMap["requestId"] of
+                Some(_address) -> _address
+                | None -> failwith("Error. RequestID not found.")
+            end;
+            // fetch params end ---
+
+            const dropFinancialRequestOperation : operation = Tezos.transaction(
+                requestId,
+                0tez, 
+                sendDropFinancialRequestParams(governanceAddress)
+            );
+
+            operations := dropFinancialRequestOperation # operations;
+        } else skip;
+
         // update council action record status
         _councilActionRecord.status              := "EXECUTED";
         _councilActionRecord.executed            := True;
@@ -1291,6 +1441,9 @@ function main (const action : councilAction; const s : storage) : return is
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
+        // Council actions for farm factory
+        | CouncilActionUpdateBlocksPerMin(parameters) -> councilActionUpdateBlocksPerMinute(parameters, s)
+
         // Council actions for vesting
         | CouncilActionAddVestee(parameters) -> councilActionAddVestee(parameters, s)
         | CouncilActionRemoveVestee(parameters) -> councilActionRemoveVestee(parameters, s)
@@ -1306,6 +1459,7 @@ function main (const action : councilAction; const s : storage) : return is
         // Council actions to Governance DAO and Treasury
         | CouncilActionRequestTokens(parameters) -> councilActionRequestTokens(parameters, s)
         | CouncilActionRequestMint(parameters) -> councilActionRequestMint(parameters, s)
+        | CouncilActionDropFinancialReq(parameters) -> councilActionDropFinancialRequest(parameters, s)
 
         | SignAction(parameters) -> signAction(parameters, s)
         | FlushAction(parameters) -> flushAction(parameters, s)
