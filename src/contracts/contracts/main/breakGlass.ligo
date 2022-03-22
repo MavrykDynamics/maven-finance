@@ -65,6 +65,8 @@ type flushActionType is (nat)
 
 type breakGlassAction is 
     | BreakGlass of (unit)
+    
+    | SetAdmin of (address)
     | UpdateConfig of updateConfigParamsType    
 
     // glass broken not required (updates through Governance DAO)
@@ -160,6 +162,17 @@ block {
     // check that sender is from emergency governance contract 
     checkSenderIsEmergencyGovernanceContract(s);
     s.glassBroken := True; // break glass to give council members access to protected entrypoints
+
+} with (noOperations, s)
+
+(*  set contract admin address *)
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+
+    s.admin := newAdminAddress;
 
 } with (noOperations, s)
 
@@ -758,6 +771,8 @@ block {
 function main (const action : breakGlassAction; const s : storage) : return is 
     case action of
         | BreakGlass(_parameters) -> breakGlass(s)
+
+        | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
 
         // glass broken not required
