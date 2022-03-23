@@ -1,5 +1,5 @@
 /*
- * File that constans the various global constants needed throughout the dapp
+ * File that constants the various global constants needed throughout the dapp
  */
 
 // Current PRECISION_NUMBER is 10^6
@@ -10,3 +10,5 @@ export const PRECISION_NUMBER = 1000000000 // (10^9)
 export const DECIMALS_TO_SHOW = 2
 
 export const SECONDS_PER_BLOCK = 30
+
+export const LEGACY_PRECISION_NUMBER = 1000000 // (10^6)
