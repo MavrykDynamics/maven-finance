@@ -328,16 +328,20 @@ type voteForRequestType is [@layout:comb] record [
 type governanceAction is 
     | BreakGlass of (unit)
     | SetAdmin of (address)
+    
+    // Housekeeping
     | UpdateConfig of updateConfigParamsType
-
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
+    
+    // Governance Helpers
     | UpdateActiveSatellitesMap of (unit * address)
     | SetSnapshotMvkTotalSupply of (nat)  
     | SetSnapshotStakedMvkTotalSupply of (nat)  
     | SetSatelliteVotingPowerSnapshot of (address * nat * nat)
     
+    // Governance Round
     | StartNextRound of (unit)
     | StartProposalRound of (unit)
     | Propose of newProposalType
@@ -352,9 +356,11 @@ type governanceAction is
     | ExecuteProposal of (nat)
     | DropProposal of (nat)
 
+    // Governance Lambda
     | CallGovernanceLambdaProxy of executeActionType
     | SetupLambdaFunction of setupLambdaFunctionType
 
+    // Financial Governance
     // | RequestTokens of requestTokensType
     // | RequestMint of requestMintType
     // | DropFinancialRequest of (nat)
@@ -475,8 +481,8 @@ block {
         // set boundary - do for the rest
         s.config.successReward              := updateConfigNewValue
       }
-  | ConfigMinProposalRoundVotePct (_v)         -> s.config.minProposalRoundVotePercentage          := updateConfigNewValue
-  | ConfigMinProposalRoundVotesReq (_v)          -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
+  | ConfigMinProposalRoundVotePct (_v)                -> s.config.minProposalRoundVotePercentage          := updateConfigNewValue
+  | ConfigMinProposalRoundVotesReq (_v)               -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
   | ConfigMinQuorumPercentage (_v)                    -> s.config.minQuorumPercentage                     := updateConfigNewValue
   | ConfigMinQuorumMvkTotal (_v)                      -> s.config.minQuorumMvkTotal                       := updateConfigNewValue
   | ConfigVotingPowerRatio (_v)                       -> s.config.votingPowerRatio                        := updateConfigNewValue
@@ -489,8 +495,8 @@ block {
   | ConfigBlocksPerProposalRound (_v)                 -> s.config.blocksPerProposalRound                  := updateConfigNewValue
   | ConfigBlocksPerVotingRound (_v)                   -> s.config.blocksPerVotingRound                    := updateConfigNewValue
   | ConfigBlocksPerTimelockRound (_v)                 -> s.config.blocksPerTimelockRound                  := updateConfigNewValue
-  | ConfigFinancialReqApprovalPct (_v)     -> s.config.financialRequestApprovalPercentage      := updateConfigNewValue
-  | ConfigFinancialReqDurationDays (_v)         -> s.config.financialRequestDurationInDays          := updateConfigNewValue
+  | ConfigFinancialReqApprovalPct (_v)                -> s.config.financialRequestApprovalPercentage      := updateConfigNewValue
+  | ConfigFinancialReqDurationDays (_v)               -> s.config.financialRequestDurationInDays          := updateConfigNewValue
   end;
 
 } with (noOperations, s)
@@ -2034,16 +2040,20 @@ function main (const action : governanceAction; const s : storage) : return is
     case action of
         | BreakGlass(_parameters) -> breakGlass(s)  
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
+        
+        // Housekeeping
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
-
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
+        
+        // Governance Helpers
         | UpdateActiveSatellitesMap(parameters) -> updateActiveSatellitesMap(parameters.1, s)
         | SetSnapshotMvkTotalSupply(parameters) -> setSnapshotMvkTotalSupply(parameters, s)
         | SetSnapshotStakedMvkTotalSupply(parameters) -> setSnapshotStakedMvkTotalSupply(parameters, s)
         | SetSatelliteVotingPowerSnapshot(parameters) -> setSatelliteVotingPowerSnapshot(parameters.0, parameters.1, parameters.2, s)        
   
+        // Governance Round
         | StartNextRound(_parameters) -> startNextRound(s)
         | StartProposalRound(_parameters) -> startProposalRound(s)
         | Propose(parameters) -> propose(parameters, s)
@@ -2058,9 +2068,11 @@ function main (const action : governanceAction; const s : storage) : return is
         | ExecuteProposal(parameters) -> executeProposal(parameters, s)
         | DropProposal(parameters) -> dropProposal(parameters, s)
 
+        // Governance Lambdas
         | CallGovernanceLambdaProxy(parameters) -> callGovernanceLambdaProxy(parameters, s)
         | SetupLambdaFunction(parameters) -> setupLambdaFunction(parameters, s)
 
+        // Financial Governance
         // | RequestTokens(parameters) -> requestTokens(parameters, s)
         // | RequestMint(parameters) -> requestMint(parameters, s)
         // | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
