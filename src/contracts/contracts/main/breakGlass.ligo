@@ -47,7 +47,9 @@ type actionRecordType is record [
 type actionsLedgerType is big_map(nat, actionRecordType)
 
 type storage is record [
-    admin                       : address;                   // for init of contract - needed?
+    admin                       : address;               // for init of contract - needed?
+    mvkTokenAddress             : address;
+    
     config                      : configType;
     glassBroken                 : bool;
     councilMembers              : councilMembersType;        // set of council member addresses
