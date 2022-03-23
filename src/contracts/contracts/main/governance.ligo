@@ -338,6 +338,7 @@ type governanceAction is
     | SetSnapshotStakedMvkTotalSupply of (nat)  
     | SetSatelliteVotingPowerSnapshot of (address * nat * nat)
     
+    | StartNextRound of (unit)
     | StartProposalRound of (unit)
     | Propose of newProposalType
     | ProposalRoundVote of proposalIdType
@@ -541,6 +542,34 @@ function getSatelliteSnapshotRecord (const satelliteAddress : address; const s :
     end;
 
   } with satelliteSnapshotRecord
+
+// helper function to get startProposalRound entrypoint
+function getStartProposalRoundEntrypoint(const contractAddress : address) : contract(unit) is
+  case (Tezos.get_entrypoint_opt(
+      "%startProposalRound",
+      contractAddress) : option(contract(unit))) of
+    Some(contr) -> contr
+  | None -> (failwith("StartProposalRound entrypoint in Governance Contract not found") : contract(unit))
+  end;
+
+// helper function to get startVotingRound entrypoint
+function getStartVotingRoundEntrypoint(const contractAddress : address) : contract(unit) is
+  case (Tezos.get_entrypoint_opt(
+      "%startVotingRound",
+      contractAddress) : option(contract(unit))) of
+    Some(contr) -> contr
+  | None -> (failwith("StartVotingRound entrypoint in Governance Contract not found") : contract(unit))
+  end;
+
+// helper function to get startTimelockRound entrypoint
+function getStartTimelockRoundEntrypoint(const contractAddress : address) : contract(unit) is
+  case (Tezos.get_entrypoint_opt(
+      "%startTimelockRound",
+      contractAddress) : option(contract(unit))) of
+    Some(contr) -> contr
+  | None -> (failwith("StartTimelockRound entrypoint in Governance Contract not found") : contract(unit))
+  end;
+
 
 // helper function to get MVK total supply (from mvk token contract)
 function getMvkTotalSupply(const tokenAddress : address) : contract(contract(nat)) is
@@ -791,6 +820,131 @@ block {
 
 } with (noOperations, s)
 
+
+function startNextRound(var s : storage) : return is
+block {
+
+    // check if current round has ended
+    if s.currentRound = "timelock" and Tezos.level < s.currentRoundEndLevel 
+    then failwith("Error. New proposal round can only start after the current timelock round ends.") 
+    else skip;
+
+    if s.currentRound = "voting" and Tezos.level < s.currentRoundEndLevel 
+    then failwith("Error. Current voting round has not ended yet.") 
+    else skip;
+
+    if s.currentRound = "proposal" and Tezos.level < s.currentRoundEndLevel 
+    then failwith("Error. Current proposal round has not ended yet.") 
+    else skip;
+
+    // init operations
+    var operations : list(operation) := nil;
+
+    // current round is voting round
+    if s.currentRound = "voting" then block {
+
+      // fetch proposal
+      const votingRoundProposal : proposalRecordType = case s.proposalLedger[s.currentRoundHighestVotedProposalId] of 
+          Some(_proposalRecord) -> _proposalRecord
+        | None -> failwith("Error. Proposal not found.")
+      end;
+
+      if votingRoundProposal.upvoteMvkTotal < votingRoundProposal.minQuorumMvkTotal  then block {
+
+          // voting round proposal has sufficient upvotes
+          // start timelock round
+          const startTimelockRoundOperation : operation = Tezos.transaction(
+            unit, 
+            0tez, 
+            getStartTimelockRoundEntrypoint(Tezos.self_address)
+          );
+          operations := startTimelockRoundOperation # operations;
+
+      } else block {
+
+          // voting round proposal does not have sufficient upvotes
+          // start proposal round
+          const startProposalRoundOperation : operation = Tezos.transaction(
+            unit, 
+            0tez, 
+            getStartProposalRoundEntrypoint(Tezos.self_address)
+          );
+          operations := startProposalRoundOperation # operations;
+
+      };
+
+    } else skip;
+
+    // current round is proposal round
+    if s.currentRound = "proposal" then block {
+      
+      // simple loop to get the proposal with the highest vote count in MVK 
+      var _highestVoteCounter     : nat := 0n;
+      var highestVotedProposalId  : nat := 0n;
+      for proposalId -> voteCount in map s.currentRoundProposals block {
+          if voteCount > _highestVoteCounter then block {
+              _highestVoteCounter := voteCount;
+              highestVotedProposalId := proposalId;
+          } else skip;
+      };
+
+      // check if there is a valid proposal 
+      if highestVotedProposalId =/= 0n then block {
+
+          // fetch proposal
+          const proposalRoundProposal : proposalRecordType = case s.proposalLedger[highestVotedProposalId] of 
+              Some(_proposalRecord) -> _proposalRecord
+            | None -> failwith("Error. Proposal not found.")
+          end;
+
+          if proposalRoundProposal.passVoteMvkTotal < proposalRoundProposal.minProposalRoundVotesRequired then block {
+
+            // highest voted proposal round proposal does not have enough pass votes to go on to voting round
+            // start another proposal round
+            const startProposalRoundOperation : operation = Tezos.transaction(
+              unit, 
+              0tez, 
+              getStartProposalRoundEntrypoint(Tezos.self_address)
+            );
+            operations := startProposalRoundOperation # operations; 
+
+          } else block {
+
+            // highest voted proposal round proposal has enough pass votes to go on to voting round
+            // start voting round
+            const startVotingRoundOperation : operation = Tezos.transaction(
+              unit, 
+              0tez, 
+              getStartVotingRoundEntrypoint(Tezos.self_address)
+            );
+            operations := startVotingRoundOperation # operations; 
+
+          }
+
+      } else block {
+
+        // no proposals
+        // start another proposal round
+        const startProposalRoundOperation : operation = Tezos.transaction(
+          unit, 
+          0tez, 
+          getStartProposalRoundEntrypoint(Tezos.self_address)
+        );
+        operations := startProposalRoundOperation # operations; 
+      };
+      
+    } else skip;
+
+    // timelock round
+    // start another proposal round
+    const startProposalRoundOperation : operation = Tezos.transaction(
+      unit, 
+      0tez, 
+      getStartProposalRoundEntrypoint(Tezos.self_address)
+    );
+    operations := startProposalRoundOperation # operations; 
+
+} with (operations, s)
 
 function startProposalRound(var s : storage) : return is
 block {
@@ -1890,6 +2044,7 @@ function main (const action : governanceAction; const s : storage) : return is
         | SetSnapshotStakedMvkTotalSupply(parameters) -> setSnapshotStakedMvkTotalSupply(parameters, s)
         | SetSatelliteVotingPowerSnapshot(parameters) -> setSatelliteVotingPowerSnapshot(parameters.0, parameters.1, parameters.2, s)        
   
+        | StartNextRound(_parameters) -> startNextRound(s)
         | StartProposalRound(_parameters) -> startProposalRound(s)
         | Propose(parameters) -> propose(parameters, s)
         | ProposalRoundVote(parameters) -> proposalRoundVote(parameters, s)
