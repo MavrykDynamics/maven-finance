@@ -22,7 +22,7 @@ chai.use(chaiAsPromised)
 chai.should()
 
 import env from '../../env'
-import { alice, bob, eve, mallory } from '../../scripts/sandbox/accounts'
+import { bob, alice, eve, mallory } from '../../scripts/sandbox/accounts'
 
 import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
 
@@ -85,7 +85,7 @@ describe('Contracts Deployment for Tests', async () => {
 
   before('setup', async () => {
     utils = new Utils()
-    await utils.init(alice.sk)
+    await utils.init(bob.sk)
 
     //----------------------------
     // Originate and deploy contracts
@@ -203,7 +203,7 @@ describe('Contracts Deployment for Tests', async () => {
       governance: governance.contract.address,
       farmFactory: farmFactory.contract.address
     })
-    councilStorage.councilMembers = [alice.pkh, bob.pkh, eve.pkh]
+    councilStorage.councilMembers = [bob.pkh, alice.pkh, eve.pkh]
     council = await Council.originate(utils.tezos, councilStorage)
 
     await saveContractAddress('councilAddress', council.contract.address)
@@ -218,7 +218,7 @@ describe('Contracts Deployment for Tests', async () => {
       council: council.contract.address,
       emergencyGovernance: emergencyGovernance.contract.address,
     })
-    breakGlassStorage.councilMembers = [alice.pkh, bob.pkh]
+    breakGlassStorage.councilMembers = [bob.pkh, alice.pkh]
     breakGlassStorage.whitelistContracts = MichelsonMap.fromLiteral({
       emergencyGovernance: emergencyGovernance.contract.address
     })
@@ -303,7 +303,7 @@ describe('Contracts Deployment for Tests', async () => {
         }
     ]).send()
     await updateOperatorsOperation.confirmation();
-    await signerFactory(alice.sk);
+    await signerFactory(bob.sk);
 
 
 

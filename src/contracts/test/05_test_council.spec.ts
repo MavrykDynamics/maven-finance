@@ -11,7 +11,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { alice, bob, eve, mallory, oscar, trudy } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, oscar, trudy } from "../scripts/sandbox/accounts";
 
 // import vestingAddress from '../deployments/vestingAddress.json';
 // import doormanAddress from '../deployments/doormanAddress.json';
@@ -52,7 +52,7 @@
 //     before("setup", async () => {
 
 //         utils = new Utils();
-//         await utils.init(alice.sk);
+//         await utils.init(bob.sk);
         
 //         vestingInstance    = await utils.tezos.contract.at(vestingAddress.address);
 //         doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
@@ -81,8 +81,8 @@
 //         console.log('Council Contract deployed at:', councilInstance.address);
 //         console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
 //         console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
-//         console.log('Alice address: ' + alice.pkh);
 //         console.log('Bob address: ' + bob.pkh);
+//         console.log('Alice address: ' + alice.pkh);
 //         console.log('Eve address: ' + eve.pkh);
 
 
@@ -90,10 +90,10 @@
 //         // ------------------------------------------------------------------
 //         const councilContractAddress = councilAddress.address;
 
-//         // Alice transfers 250 XTZ to Council
-//         await signerFactory(alice.sk)
-//         const aliceTransferTezToCouncilOperation = await utils.tezos.contract.transfer({ to: councilContractAddress, amount: 250});
-//         await aliceTransferTezToCouncilOperation.confirmation();
+//         // Bob transfers 250 XTZ to Council
+//         await signerFactory(bob.sk)
+//         const bobTransferTezToCouncilOperation = await utils.tezos.contract.transfer({ to: councilContractAddress, amount: 250});
+//         await bobTransferTezToCouncilOperation.confirmation();
 
 //         // Mallory transfers 250 MVK tokens to Treasury
 //         await signerFactory(mallory.sk);
@@ -143,7 +143,7 @@
 //              // init constants
 //             const actionId                  = 1;
 
-//             // Council Members: Alice, Bob, Eve
+//             // Council Members: Bob, Alice, Eve
 
 //             // params: new council member address
 //             const newCouncilMemberAddress   = mallory.pkh;
@@ -155,7 +155,7 @@
 //             assert.equal(initialCouncilMemberCount, 3);
             
 //             // Council add new council member
-//             await signerFactory(alice.sk)
+//             await signerFactory(bob.sk)
 //             const councilAddNewCouncilMemberOperation = await councilInstance.methods.councilActionAddMember(
 //                 newCouncilMemberAddress
 //                 ).send();
@@ -173,12 +173,12 @@
 //             assert.equal(councilActionAddMember.executed,         false);
 //             assert.equal(councilActionAddMember.status,           "PENDING");
 //             assert.equal(councilActionAddMember.signersCount,     1);
-//             assert.equal(councilActionAddMember.signers[0],       alice.pkh);
+//             assert.equal(councilActionAddMember.signers[0],       bob.pkh);
 
-//             // Council member 2 (bob) signs addMember action
-//             await signerFactory(bob.sk);
-//             const bobSignsAddMemberOperation = await councilInstance.methods.signAction(actionId).send();
-//             await bobSignsAddMemberOperation.confirmation();
+//             // Council member 2 (alice) signs addMember action
+//             await signerFactory(alice.sk);
+//             const aliceSignsAddMemberOperation = await councilInstance.methods.signAction(actionId).send();
+//             await aliceSignsAddMemberOperation.confirmation();
 
 //             // Council member 3 (eve) signs addMember action
 //             await signerFactory(eve.sk);
@@ -214,10 +214,10 @@
 //             // init constants
 //             const actionId                  = 2;
 
-//             // Council Members: Alice, Bob, Eve, Mallory
+//             // Council Members: Bob, Alice, Eve, Mallory
 
 //             // params: remove council member address
-//             const removedCouncilMemberAddress      = bob.pkh;
+//             const removedCouncilMemberAddress      = alice.pkh;
 
 //             const councilStorage            = await councilInstance.storage();
 //             const initialCouncilMemberCount = councilStorage.councilMembers.length;
@@ -226,7 +226,7 @@
 //             assert.equal(initialCouncilMemberCount, 4);
 
 //             // Council remove council member
-//             await signerFactory(alice.sk)
+//             await signerFactory(bob.sk)
 //             const councilRemoveCouncilMemberOperation = await councilInstance.methods.councilActionRemoveMember(
 //                 removedCouncilMemberAddress
 //                 ).send();
@@ -244,7 +244,7 @@
 //             assert.equal(councilActionRemoveMember.executed,         false);
 //             assert.equal(councilActionRemoveMember.status,           "PENDING");
 //             assert.equal(councilActionRemoveMember.signersCount,     1);
-//             assert.equal(councilActionRemoveMember.signers[0],       alice.pkh);
+//             assert.equal(councilActionRemoveMember.signers[0],       bob.pkh);
 
 //             // Council member 2 (mallory) signs removeMember action
 //             await signerFactory(mallory.sk);
@@ -284,11 +284,11 @@
 
 //             // init constants
 //             const actionId                  = 3;
-//             // Council Members: Alice, Eve, Mallory
+//             // Council Members: Bob, Eve, Mallory
 
-//             // params: change council member address (mallory to bob)
+//             // params: change council member address (mallory to alice)
 //             const oldCouncilMemberAddress      = mallory.pkh;
-//             const newCouncilMemberAddress      = bob.pkh;
+//             const newCouncilMemberAddress      = alice.pkh;
 
 //             const councilStorage            = await councilInstance.storage();
 //             const initialCouncilMemberCount = councilStorage.councilMembers.length;
@@ -297,7 +297,7 @@
 //             assert.equal(initialCouncilMemberCount, 3);
 
 //             // Council remove council member
-//             await signerFactory(alice.sk)
+//             await signerFactory(bob.sk)
 //             const councilChangeCouncilMemberOperation = await councilInstance.methods.councilActionChangeMember(
 //                 oldCouncilMemberAddress, newCouncilMemberAddress
 //                 ).send();
@@ -316,7 +316,7 @@
 //             assert.equal(councilActionChangeMember.executed,         false);
 //             assert.equal(councilActionChangeMember.status,           "PENDING");
 //             assert.equal(councilActionChangeMember.signersCount,     1);
-//             assert.equal(councilActionChangeMember.signers[0],       alice.pkh);
+//             assert.equal(councilActionChangeMember.signers[0],       bob.pkh);
 
 //             // Council member 2 (mallory) signs changeMember action
 //             await signerFactory(mallory.sk);
@@ -340,7 +340,7 @@
 
 //             // check that there are now 3 council members
 //             assert.equal(newCouncilMemberCount, 3);
-//             assert.equal(completedCouncilStorage.councilMembers[2], bob.pkh);
+//             assert.equal(completedCouncilStorage.councilMembers[2], alice.pkh);
 
 //         } catch(e){
 //             console.log(e);
@@ -359,7 +359,7 @@
 //             // init constants
 //             const actionId                  = 4;
 //             const flushActionId             = 5;
-//             // Council Members: Alice, Eve, Bob
+//             // Council Members: Bob, Eve, Alice
 
 //             // params: new council member address (mallory)
 //             const councilMemberAddress      = mallory.pkh;
@@ -371,7 +371,7 @@
 //             assert.equal(initialCouncilMemberCount, 3);
 
 //             // Council add council member
-//             await signerFactory(alice.sk)
+//             await signerFactory(bob.sk)
 //             const councilAddCouncilMemberOperation = await councilInstance.methods.councilActionAddMember(
 //                 councilMemberAddress
 //                 ).send();
@@ -389,12 +389,12 @@
 //             assert.equal(councilActionAddMember.executed,         false);
 //             assert.equal(councilActionAddMember.status,           "PENDING");
 //             assert.equal(councilActionAddMember.signersCount,     1);
-//             assert.equal(councilActionAddMember.signers[0],       alice.pkh);
+//             assert.equal(councilActionAddMember.signers[0],       bob.pkh);
 
-//             // Council member 2 (bob) signs addMember action
-//             await signerFactory(bob.sk);
-//             const bobSignsAddMemberOperation = await councilInstance.methods.signAction(actionId).send();
-//             await bobSignsAddMemberOperation.confirmation();
+//             // Council member 2 (alice) signs addMember action
+//             await signerFactory(alice.sk);
+//             const aliceSignsAddMemberOperation = await councilInstance.methods.signAction(actionId).send();
+//             await aliceSignsAddMemberOperation.confirmation();
 
 //             // Council member 3 (eve) decides to flush addMemberAction
 //             await signerFactory(eve.sk);
@@ -415,15 +415,15 @@
 //             assert.equal(councilActionFlush.signersCount,     1);
 //             assert.equal(councilActionFlush.signers[0],       eve.pkh);
 
-//             // Council member 1 (alice) decides to flush addMemberAction
-//             await signerFactory(alice.sk);
-//             const aliceSignsFlushActionOperation = await councilInstance.methods.signAction(flushActionId).send();
-//             await aliceSignsFlushActionOperation.confirmation();
-
-//             // Council member 2 (bob) decides to flush addMemberAction
-//             await signerFactory(alice.sk);
+//             // Council member 1 (bob) decides to flush addMemberAction
+//             await signerFactory(bob.sk);
 //             const bobSignsFlushActionOperation = await councilInstance.methods.signAction(flushActionId).send();
 //             await bobSignsFlushActionOperation.confirmation();
+
+//             // Council member 2 (alice) decides to flush addMemberAction
+//             await signerFactory(bob.sk);
+//             const aliceSignsFlushActionOperation = await councilInstance.methods.signAction(flushActionId).send();
+//             await aliceSignsFlushActionOperation.confirmation();
 
 //             // get updated storage
 //             const completedCouncilStorage           = await councilInstance.storage();
@@ -460,7 +460,7 @@
 //             // init constants
 //             const actionId                  = 6;
 //             const councilContractAddress    = councilAddress.address;
-//             // Council Members: Alice, Bob, Eve
+//             // Council Members: Bob, Alice, Eve
 
 //             const councilStorage            = await councilInstance.storage();
 //             const initialCouncilMemberCount = councilStorage.councilMembers.length;
@@ -475,7 +475,7 @@
 //             assert.equal(councilMockFa12Ledger.balance, 250000000);
 
 //             // Council member create transfer mock FA12 token operation
-//             await signerFactory(alice.sk)
+//             await signerFactory(bob.sk)
 //             const receiverAddress        = oscar.pkh;
 //             const tokenContractAddress   = mockFa12TokenAddress.address;
 //             const tokenAmount            = 150000000;
@@ -507,12 +507,12 @@
 //             assert.equal(councilActionTransfer.executed,         false);
 //             assert.equal(councilActionTransfer.status,           "PENDING");
 //             assert.equal(councilActionTransfer.signersCount,     1);
-//             assert.equal(councilActionTransfer.signers[0],       alice.pkh);
+//             assert.equal(councilActionTransfer.signers[0],       bob.pkh);
 
-//             // Council member 2 (bob) signs transfer action
-//             await signerFactory(bob.sk);
-//             const bobSignsTransferOperation = await councilInstance.methods.signAction(actionId).send();
-//             await bobSignsTransferOperation.confirmation();
+//             // Council member 2 (alice) signs transfer action
+//             await signerFactory(alice.sk);
+//             const aliceSignsTransferOperation = await councilInstance.methods.signAction(actionId).send();
+//             await aliceSignsTransferOperation.confirmation();
 
 //             // Council member 3 (eve) signs transfer action
 //             await signerFactory(eve.sk);
@@ -553,7 +553,7 @@
 //             // init constants
 //             const actionId                  = 7;
 //             const councilContractAddress    = councilAddress.address;
-//             // Council Members: Alice, Bob, Eve
+//             // Council Members: Bob, Alice, Eve
 
 //             const councilStorage            = await councilInstance.storage();
 //             const initialCouncilMemberCount = councilStorage.councilMembers.length;
@@ -568,7 +568,7 @@
 //             assert.equal(councilMockFa2Ledger, 250000000);
 
 //             // Council member create transfer mock FA2 token operation
-//             await signerFactory(alice.sk)
+//             await signerFactory(bob.sk)
 //             const receiverAddress        = oscar.pkh;
 //             const tokenContractAddress   = mockFa2TokenAddress.address;
 //             const tokenAmount            = 150000000;
@@ -600,12 +600,12 @@
 //             assert.equal(councilActionTransfer.executed,         false);
 //             assert.equal(councilActionTransfer.status,           "PENDING");
 //             assert.equal(councilActionTransfer.signersCount,     1);
-//             assert.equal(councilActionTransfer.signers[0],       alice.pkh);
+//             assert.equal(councilActionTransfer.signers[0],       bob.pkh);
 
-//             // Council member 2 (bob) signs transfer action
-//             await signerFactory(bob.sk);
-//             const bobSignsTransferOperation = await councilInstance.methods.signAction(actionId).send();
-//             await bobSignsTransferOperation.confirmation();
+//             // Council member 2 (alice) signs transfer action
+//             await signerFactory(alice.sk);
+//             const aliceSignsTransferOperation = await councilInstance.methods.signAction(actionId).send();
+//             await aliceSignsTransferOperation.confirmation();
 
 //             // Council member 3 (eve) signs transfer action
 //             await signerFactory(eve.sk);
@@ -646,7 +646,7 @@
 //             // init constants
 //             const actionId                  = 8;
 //             const councilContractAddress    = councilAddress.address;
-//             // Council Members: Alice, Bob, Eve
+//             // Council Members: Bob, Alice, Eve
 
 //             const councilStorage            = await councilInstance.storage();
 //             const initialCouncilMemberCount = councilStorage.councilMembers.length;
@@ -661,7 +661,7 @@
 //             assert.equal(councilMvkLedger, 250000000);
 
 //             // Council member create transfer mvk token operation
-//             await signerFactory(alice.sk)
+//             await signerFactory(bob.sk)
 //             const receiverAddress        = oscar.pkh;
 //             const tokenContractAddress   = mvkTokenAddress.address;
 //             const tokenAmount            = 150000000;
@@ -693,12 +693,12 @@
 //             assert.equal(councilActionTransfer.executed,         false);
 //             assert.equal(councilActionTransfer.status,           "PENDING");
 //             assert.equal(councilActionTransfer.signersCount,     1);
-//             assert.equal(councilActionTransfer.signers[0],       alice.pkh);
+//             assert.equal(councilActionTransfer.signers[0],       bob.pkh);
 
-//             // Council member 2 (bob) signs transfer action
-//             await signerFactory(bob.sk);
-//             const bobSignsTransferOperation = await councilInstance.methods.signAction(actionId).send();
-//             await bobSignsTransferOperation.confirmation();
+//             // Council member 2 (alice) signs transfer action
+//             await signerFactory(alice.sk);
+//             const aliceSignsTransferOperation = await councilInstance.methods.signAction(actionId).send();
+//             await aliceSignsTransferOperation.confirmation();
 
 //             // Council member 3 (eve) signs transfer action
 //             await signerFactory(eve.sk);
@@ -738,7 +738,7 @@
 //             // init constants
 //             const actionId                  = 9;
 //             const councilContractAddress    = councilAddress.address;
-//             // Council Members: Alice, Bob, Eve
+//             // Council Members: Bob, Alice, Eve
 
 //             const councilStorage            = await councilInstance.storage();
 //             const initialCouncilMemberCount = councilStorage.councilMembers.length;
@@ -754,7 +754,7 @@
 //             // console.log("oscar tez balance: "+ oscarTezBalance);
 
 //             // Council member create transfer tez operation
-//             await signerFactory(alice.sk)
+//             await signerFactory(bob.sk)
 //             const receiverAddress        = oscar.pkh;
 //             const tokenContractAddress   = zeroAddress;
 //             const tokenAmount            = 150000000;
@@ -786,12 +786,12 @@
 //             assert.equal(councilActionTransfer.executed,         false);
 //             assert.equal(councilActionTransfer.status,           "PENDING");
 //             assert.equal(councilActionTransfer.signersCount,     1);
-//             assert.equal(councilActionTransfer.signers[0],       alice.pkh);
+//             assert.equal(councilActionTransfer.signers[0],       bob.pkh);
 
-//             // Council member 2 (bob) signs transfer action
-//             await signerFactory(bob.sk);
-//             const bobSignsTransferOperation = await councilInstance.methods.signAction(actionId).send();
-//             await bobSignsTransferOperation.confirmation();
+//             // Council member 2 (alice) signs transfer action
+//             await signerFactory(alice.sk);
+//             const aliceSignsTransferOperation = await councilInstance.methods.signAction(actionId).send();
+//             await aliceSignsTransferOperation.confirmation();
 
 //             // Council member 3 (eve) signs transfer action
 //             await signerFactory(eve.sk);

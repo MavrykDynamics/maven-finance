@@ -1,6 +1,6 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
 
-const { alice } = require('../scripts/sandbox/accounts')
+const { bob } = require('../scripts/sandbox/accounts')
 
 import { delegationStorageType } from "../test/types/delegationStorageType";
 
@@ -19,7 +19,7 @@ const breakGlassConfig = {
 }
 
 export const delegationStorage: delegationStorageType = {
-  admin: alice.pkh,
+  admin: bob.pkh,
   mvkTokenAddress: "",
   
   config: config,
