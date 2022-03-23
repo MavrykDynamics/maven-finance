@@ -7,6 +7,7 @@ import {
   SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_RESULT,
 } from '../pages/EmergencyGovernance/EmergencyGovernance.actions'
 import { EmergencyGovernanceStorage } from '../utils/TypesAndInterfaces/EmergencyGovernance'
+import { getItemFromStorage } from '../utils/storage'
 
 export interface EmergencyGovernanceState {
   type?: typeof GET_EMERGENCY_GOVERNANCE_STORAGE | typeof SUBMIT_EMERGENCY_GOVERNANCE_PROPOSAL_REQUEST
@@ -16,9 +17,20 @@ export interface EmergencyGovernanceState {
   emergencyGovernanceProposal?: any
   error?: any
 }
-
+const defaultEmergencyGovernanceStorage: EmergencyGovernanceStorage = {
+  address: '',
+  config: {
+    minStakedMvkPercentageForTrigger: 0,
+    requiredFee: 0,
+    voteDuration: 0,
+    sMvkPercentageRequired: 0,
+  },
+  currentEmergencyGovernanceId: 0,
+  emergencyGovernanceLedger: [],
+  nextEmergencyGovernanceProposalId: 0,
+}
 const emergencyGovernanceDefaultState: EmergencyGovernanceState = {
-  emergencyGovernanceStorage: {},
+  emergencyGovernanceStorage: getItemFromStorage('EmergencyGovernanceStorage') || defaultEmergencyGovernanceStorage,
   emergencyGovActive: false,
   hasAcknowledgeEmergencyGovernance: false,
 }
