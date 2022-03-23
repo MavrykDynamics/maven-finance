@@ -11,7 +11,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 
 // import vestingAddress from '../deployments/vestingAddress.json';
 // import doormanAddress from '../deployments/doormanAddress.json';
@@ -45,7 +45,7 @@
 //     before("setup", async () => {
 
 //         utils = new Utils();
-//         await utils.init(alice.sk);
+//         await utils.init(bob.sk);
         
 //         vestingInstance    = await utils.tezos.contract.at(vestingAddress.address);
 //         doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
@@ -68,8 +68,8 @@
 //         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
 //         console.log('Governance Contract deployed at:', governanceInstance.address);
 //         console.log('Council Contract deployed at:', councilInstance.address);
-//         console.log('Alice address: ' + alice.pkh);
 //         console.log('Bob address: ' + bob.pkh);
+//         console.log('Alice address: ' + alice.pkh);
 //         console.log('Eve address: ' + eve.pkh);
 
 //     });
@@ -107,7 +107,7 @@
 //             assert.equal(testNewVesteeAction.status, "PENDING");
 
 //             // Council member 2 signs addVestee action
-//             await signerFactory(bob.sk);
+//             await signerFactory(alice.sk);
 //             const councilMemberSignAddVesteeOperationOne = await councilInstance.methods.signAction(actionId).send();
 //             await councilMemberSignAddVesteeOperationOne.confirmation();
 
@@ -170,7 +170,7 @@
 //             assert.equal(testNewVesteeAction.status, "PENDING");
 
 //             // Council member 2 signs addVestee action
-//             await signerFactory(bob.sk);
+//             await signerFactory(alice.sk);
 //             const councilMemberSignAddVesteeOperationOne = await councilInstance.methods.signAction(actionId).send();
 //             await councilMemberSignAddVesteeOperationOne.confirmation();
 
@@ -229,7 +229,7 @@
 //             assert.equal(testNewVesteeAction.status, "PENDING");
 
 //             // Council member 2 signs addVestee action
-//             await signerFactory(bob.sk);
+//             await signerFactory(alice.sk);
 //             const councilMemberSignAddVesteeOperationOne = await councilInstance.methods.signAction(actionId).send();
 //             await councilMemberSignAddVesteeOperationOne.confirmation();
 
@@ -268,14 +268,14 @@
 //     //         console.log('Storage test: console log checks  ----');
 //     //         console.log(vestingStorage);
 
-//     //         // Alice registers as a satellite
-//     //         const adminAddsNewVesteeOperation = await vestingInstance.methods.addVestee(bob.pkh, 500000000, 6, 24).send();
+//     //         // Bob registers as a satellite
+//     //         const adminAddsNewVesteeOperation = await vestingInstance.methods.addVestee(alice.pkh, 500000000, 6, 24).send();
 //     //         await adminAddsNewVesteeOperation.confirmation();
 
 //     //         const newVestingStorage = await vestingInstance.storage();
 //     //         console.log(newVestingStorage);
 //     //         console.log('Block Level: ' + newVestingStorage.tempBlockLevel);
-//     //         const afterVesteeLedger  = await newVestingStorage.vesteeLedger.get(bob.pkh);
+//     //         const afterVesteeLedger  = await newVestingStorage.vesteeLedger.get(alice.pkh);
 //     //         console.log(afterVesteeLedger);        
 
 //     //     } catch(e){
@@ -284,37 +284,37 @@
 
 //     // });    
 
-//     // it('bob claim vesting - zero cliff period', async () => {
+//     // it('alice claim vesting - zero cliff period', async () => {
 //     //     try{        
 
 //     //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//     //         console.log("Test: Bob claim vesting - zero cliff period") 
+//     //         console.log("Test: Alice claim vesting - zero cliff period") 
 //     //         console.log("---") // break
 
 //     //         console.log('Storage test: console log checks  ----');
 //     //         console.log(vestingStorage);
 
-//     //         const adminAddsNewVesteeOperation = await vestingInstance.methods.addVestee(bob.pkh, 500000000, 0, 24).send();
+//     //         const adminAddsNewVesteeOperation = await vestingInstance.methods.addVestee(alice.pkh, 500000000, 0, 24).send();
 //     //         await adminAddsNewVesteeOperation.confirmation();
 
-//     //         await signerFactory(bob.sk);
+//     //         await signerFactory(alice.sk);
 
-//     //         // Bob claim vesting - zero cliff
-//     //         const bobClaimsVestingBeforeCliffOperation = await vestingInstance.methods.claim();
-//     //         await chai.expect(bobClaimsVestingBeforeCliffOperation.send()).to.be.eventually.rejected;
+//     //         // Alice claim vesting - zero cliff
+//     //         const aliceClaimsVestingBeforeCliffOperation = await vestingInstance.methods.claim();
+//     //         await chai.expect(aliceClaimsVestingBeforeCliffOperation.send()).to.be.eventually.rejected;
 
 //     //         const newVestingStorage = await vestingInstance.storage();
 //     //         console.log(newVestingStorage);
 //     //         console.log('--- --- ---')
 //     //         console.log('Block Level: ' + newVestingStorage.tempBlockLevel);
 //     //         console.log('--- --- ---')
-//     //         const afterVesteeLedger  = await newVestingStorage.vesteeLedger.get(bob.pkh);
+//     //         const afterVesteeLedger  = await newVestingStorage.vesteeLedger.get(alice.pkh);
 //     //         console.log(afterVesteeLedger);   
             
 //     //         // reset state
-//     //         await signerFactory(alice.sk);     
-//     //         const removeBobVesteeOperation = await vestingInstance.methods.removeVestee(bob.pkh);
-//     //         await removeBobVesteeOperation.confirmation();
+//     //         await signerFactory(bob.sk);     
+//     //         const removeAliceVesteeOperation = await vestingInstance.methods.removeVestee(alice.pkh);
+//     //         await removeAliceVesteeOperation.confirmation();
 
 //     //     } catch(e){
 //     //         console.log(e);
@@ -327,17 +327,17 @@
 //     // mock test to check that vestee claim works with changes to vestee's MVK balance and MVK total supply
 //     // requires changes to vesting contract to arbitrarily set numberOfClaimMonths to 1n 
 //     //   (becase original logic fixes s.config.blocksPerMonth to 86400 which will skew the calculation of numberOfClaimMonths for tests)
-//     // it('bob claim vesting - zero cliff period - zero vesting period - test MVK token contract storage update', async () => {
+//     // it('alice claim vesting - zero cliff period - zero vesting period - test MVK token contract storage update', async () => {
 //     //     try{        
 
 //     //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//     //         console.log("Test: Bob claim vesting - zero cliff period -  zero vesting period - test MVK token contract storage update") 
+//     //         console.log("Test: Alice claim vesting - zero cliff period -  zero vesting period - test MVK token contract storage update") 
 //     //         console.log("---") // break
 
 //     //         console.log('Storage test: console log checks  ----');
 //     //         console.log(vestingStorage);
 
-//     //         const adminAddsNewVesteeOperation = await vestingInstance.methods.addVestee(bob.pkh, 500000000, 0, 1).send();
+//     //         const adminAddsNewVesteeOperation = await vestingInstance.methods.addVestee(alice.pkh, 500000000, 0, 1).send();
 //     //         await adminAddsNewVesteeOperation.confirmation();
 
 //     //         // random operation to simulate passing of time / block levels
@@ -350,21 +350,21 @@
 //     //         console.log('Block Level: ' + newVestingStorage.tempBlockLevel);
 //     //         console.log('--- --- ---')
 
-//     //         await signerFactory(bob.sk);
+//     //         await signerFactory(alice.sk);
 
-//     //         // Bob claim vesting - zero cliff
-//     //         const bobClaimOperation = await vestingInstance.methods.claim().send();
-//     //         await bobClaimOperation.confirmation();
+//     //         // Alice claim vesting - zero cliff
+//     //         const aliceClaimOperation = await vestingInstance.methods.claim().send();
+//     //         await aliceClaimOperation.confirmation();
             
 //     //         console.log('after claim ')
 //     //         const afterClaimVestingStorage = await vestingInstance.storage();
-//     //         const afterClaimVesteeLedger   = await afterClaimVestingStorage.vesteeLedger.get(bob.pkh);
+//     //         const afterClaimVesteeLedger   = await afterClaimVestingStorage.vesteeLedger.get(alice.pkh);
 //     //         console.log(afterClaimVesteeLedger);
 
 //     //         const newMvkTokenStorage = await mvkTokenInstance.storage();
 //     //         console.log(newMvkTokenStorage);
-//     //         const bobLedger          = await newMvkTokenStorage.ledger.get(bob.pkh);
-//     //         console.log(bobLedger);
+//     //         const aliceLedger          = await newMvkTokenStorage.ledger.get(alice.pkh);
+//     //         console.log(aliceLedger);
 
 //     //     } catch(e){
 //     //         console.log(e);

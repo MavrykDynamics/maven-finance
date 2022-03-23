@@ -2,7 +2,7 @@ import { MichelsonMap } from "@taquito/michelson-encoder";
 
 import { BigNumber } from "bignumber.js";
 
-const { alice } = require('../scripts/sandbox/accounts')
+const { bob } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from "../test/helpers/Utils";
 
@@ -19,7 +19,7 @@ const breakGlassConfig = {
 }
 
 export const treasuryStorage: treasuryStorageType = {
-  admin: alice.pkh,
+  admin: bob.pkh,
   mvkTokenAddress: "",
 
   config: config,

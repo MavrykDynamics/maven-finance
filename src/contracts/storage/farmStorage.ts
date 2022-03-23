@@ -1,6 +1,6 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
-import { alice } from '../scripts/sandbox/accounts'
+import { bob } from '../scripts/sandbox/accounts'
 import { farmStorageType } from "../test/types/farmStorageType";
 
 const totalBlocks = new BigNumber(0);
@@ -31,7 +31,7 @@ const lpToken = {
 }
 
 export const farmStorage: farmStorageType = {
-  admin: alice.pkh,
+  admin: bob.pkh,
   mvkTokenAddress: "",
   
   generalContracts: MichelsonMap.fromLiteral({}),

@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
 import { array } from 'yargs'
 
-const { alice, bob, eve, mallory } = require('../scripts/sandbox/accounts')
+const { bob, alice, eve, mallory } = require('../scripts/sandbox/accounts')
 
 import { MVK } from '../test/helpers/Utils'
 
@@ -47,8 +47,8 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 const ledger = MichelsonMap.fromLiteral({
-  [alice.pkh]: singleUserSupply,
   [bob.pkh]: singleUserSupply,
+  [alice.pkh]: singleUserSupply,
   [eve.pkh]: singleUserSupply,
   [mallory.pkh]: singleUserSupply,
 })
@@ -68,7 +68,7 @@ const token_metadata = MichelsonMap.fromLiteral({
 })
 
 export const mvkStorage: mvkStorageType = {
-  admin: alice.pkh,
+  admin: bob.pkh,
   
   generalContracts: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
