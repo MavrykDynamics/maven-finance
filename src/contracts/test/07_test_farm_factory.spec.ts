@@ -7,7 +7,7 @@ const chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);   
 chai.should();
 
-import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 
 import farmFactoryAddress from '../deployments/farmFactoryAddress.json';
 import lpTokenAddress from '../deployments/lpTokenAddress.json';
@@ -41,7 +41,7 @@ describe("FarmFactory", async () => {
 
     before("setup", async () => {
         utils = new Utils();
-        await utils.init(alice.sk);
+        await utils.init(bob.sk);
         
         farmFactoryInstance   = await utils.tezos.contract.at(farmFactoryAddress.address);
         farmFactoryStorage    = await farmFactoryInstance.storage();
@@ -58,7 +58,7 @@ describe("FarmFactory", async () => {
         lpTokenStorage    = await lpTokenInstance.storage();
         doormanStorage    = await doormanInstance.storage();
         mvkTokenStorage    = await mvkTokenInstance.storage();
-        await signerFactory(alice.sk)
+        await signerFactory(bob.sk)
     })
 
     describe('Farm Factory', function() {
@@ -100,7 +100,7 @@ describe("FarmFactory", async () => {
 
             it('Create a farm without being the admin', async () => {
                 try{
-                    await signerFactory(bob.sk)
+                    await signerFactory(alice.sk)
                     // Create a transaction for initiating a farm
                     await chai.expect(farmFactoryInstance.methods.createFarm(
                         false,
@@ -167,7 +167,7 @@ describe("FarmFactory", async () => {
             it('Check with a non-farm address', async () => {
                 try{
                     // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.checkFarmExists(bob.pkh).send();
+                    const operation = await farmFactoryInstance.methods.checkFarmExists(alice.pkh).send();
                     await operation.confirmation()
                 }catch(e){
                     assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set");
@@ -182,19 +182,19 @@ describe("FarmFactory", async () => {
                     const previousAdmin = farmFactoryStorage.admin;
 
                     // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
+                    const operation = await farmFactoryInstance.methods.setAdmin(alice.pkh).send();
                     await operation.confirmation();
 
                     // Final values
                     farmFactoryStorage = await farmFactoryInstance.storage();
 
                     // Assertion
-                    assert.strictEqual(farmFactoryStorage.admin,bob.pkh);
-                    assert.strictEqual(previousAdmin,alice.pkh);
+                    assert.strictEqual(farmFactoryStorage.admin,alice.pkh);
+                    assert.strictEqual(previousAdmin,bob.pkh);
 
                     // Reset admin
-                    await signerFactory(bob.sk);
-                    const resetOperation = await farmFactoryInstance.methods.setAdmin(alice.pkh).send();
+                    await signerFactory(alice.sk);
+                    const resetOperation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
                     await resetOperation.confirmation();
                 }catch(e){
                     console.log(e)
@@ -205,14 +205,14 @@ describe("FarmFactory", async () => {
                 try{
                     // Create a transaction for initiating a farm
                     await signerFactory(eve.sk)
-                    const operation = farmFactoryInstance.methods.setAdmin(alice.pkh);
+                    const operation = farmFactoryInstance.methods.setAdmin(bob.pkh);
                     await chai.expect(operation.send()).to.be.rejected;
 
                     // Final values
                     farmFactoryStorage = await farmFactoryInstance.storage();
 
                     // Assertion
-                    assert.strictEqual(farmFactoryStorage.admin,alice.pkh)
+                    assert.strictEqual(farmFactoryStorage.admin,bob.pkh)
                 }catch(e){
                     console.log(e)
                 }
@@ -262,7 +262,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to pause all entrypoints', async() => {
                 try{
                     // Change signer
-                    await signerFactory(bob.sk);
+                    await signerFactory(alice.sk);
 
                     // Initial values
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
@@ -329,7 +329,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to pause all entrypoints on all tracked farms', async() => {
                 try{
                     // Change signer
-                    await signerFactory(bob.sk);
+                    await signerFactory(alice.sk);
 
                     // Initial values
                     const trackedFarms = await farmFactoryStorage.trackedFarms;
@@ -406,7 +406,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to unpause all entrypoints', async() => {
                 try{
                     // Change signer
-                    await signerFactory(bob.sk);
+                    await signerFactory(alice.sk);
 
                     // Initial values
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
@@ -446,7 +446,7 @@ describe("FarmFactory", async () => {
                     const withdrawIsPaused = farmStorage.breakGlassConfig.withdrawIsPaused;
                     const claimIsPaused = farmStorage.breakGlassConfig.claimIsPaused;
 
-                    const userLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
+                    const userLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
                     const approvalsStart = await userLedgerStart.allowances.get(farmAddress);
 
                     // Create an operation
@@ -483,7 +483,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to unpause all entrypoints on all tracked farms', async() => {
                 try{
                     // Change signer
-                    await signerFactory(bob.sk);
+                    await signerFactory(alice.sk);
 
                     // Initial values
                     const trackedFarms = await farmFactoryStorage.trackedFarms;
@@ -558,7 +558,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to pause and unpause the createFarm entrypoint', async() => {
                 try{
                     // Change signer
-                    await signerFactory(bob.sk);
+                    await signerFactory(alice.sk);
 
                     // Initial values
                     const createFarmIsPaused = farmFactoryStorage.breakGlassConfig.createFarmIsPaused;
@@ -614,7 +614,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to pause and unpause the untrackFarm entrypoint', async() => {
                 try{
                     // Change signer
-                    await signerFactory(bob.sk);
+                    await signerFactory(alice.sk);
 
                     // Initial values
                     const untrackFarmIsPaused = farmFactoryStorage.breakGlassConfig.untrackFarmIsPaused;
@@ -670,7 +670,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to pause and unpause the trackFarm entrypoint', async() => {
                 try{
                     // Change signer
-                    await signerFactory(bob.sk);
+                    await signerFactory(alice.sk);
 
                     // Initial values
                     const trackFarmIsPaused = farmFactoryStorage.breakGlassConfig.trackFarmIsPaused;
@@ -709,7 +709,7 @@ describe("FarmFactory", async () => {
             it('Untrack an unexisting farm', async () => {
                 try{
                     // Create a transaction for initiating a farm
-                    const operation = await farmFactoryInstance.methods.untrackFarm(bob.pkh).send();
+                    const operation = await farmFactoryInstance.methods.untrackFarm(alice.pkh).send();
                     await operation.confirmation();
                 }catch(e){
                     assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set");
@@ -745,7 +745,7 @@ describe("FarmFactory", async () => {
             it('Non-admin should not be able to track a farm', async () => {
                 try{
                     // Create a transaction for initiating a farm
-                    await signerFactory(bob.sk);
+                    await signerFactory(alice.sk);
                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
                 }catch(e){
                     console.log(e)
@@ -754,10 +754,10 @@ describe("FarmFactory", async () => {
         });
 
         describe('%updateBlocksPerMinute', function() {
-            before("Set Alice as council contract", async () => {
+            before("Set Bob as council contract", async () => {
                 try{
-                    await signerFactory(alice.sk);
-                    const updateWhitelistContracts = await farmFactoryInstance.methods.updateWhitelistContracts('council', alice.pkh).send();
+                    await signerFactory(bob.sk);
+                    const updateWhitelistContracts = await farmFactoryInstance.methods.updateWhitelistContracts('council', bob.pkh).send();
                     await updateWhitelistContracts.confirmation()
                 } catch(e) {
                     console.log(e)
@@ -843,7 +843,7 @@ describe("FarmFactory", async () => {
             it('Non-council should not be able to update the blocksPerMinute on all tracked farms', async() => {
                 try{
                     // Change signer
-                    await signerFactory(bob.sk);
+                    await signerFactory(alice.sk);
 
                     // Initial values
                     const trackedFarms = await farmFactoryStorage.trackedFarms;
@@ -908,13 +908,13 @@ describe("FarmFactory", async () => {
                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
                     farmStorage                             = await farmInstance.storage();
 
-                     // Create a transaction for allowing farm to spend LP Token in the name of Alice
-                    const aliceLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
-                    const aliceApprovalsStart = await aliceLedgerStart.allowances.get(farmAddress);
+                     // Create a transaction for allowing farm to spend LP Token in the name of Bob
+                    const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
+                    const bobApprovalsStart = await bobLedgerStart.allowances.get(farmAddress);
 
-                    // Check Alice has no pending approvals for the farm
-                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<amountToDeposit){
-                        const allowances = aliceApprovalsStart===undefined ? amountToDeposit : Math.abs(aliceApprovalsStart - amountToDeposit);
+                    // Check Bob has no pending approvals for the farm
+                    if(bobApprovalsStart===undefined || bobApprovalsStart<amountToDeposit){
+                        const allowances = bobApprovalsStart===undefined ? amountToDeposit : Math.abs(bobApprovalsStart - amountToDeposit);
                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
                         await approveOperation.confirmation();
                     }
@@ -931,12 +931,12 @@ describe("FarmFactory", async () => {
                     doormanStorage = await doormanInstance.storage();
 
                     // Delegator's record
-                    const delegatorRecord = await farmStorage.delegators.get(alice.pkh)
+                    const delegatorRecord = await farmStorage.delegators.get(bob.pkh)
                     console.log("User's deposit in Farm Contract")
                     console.log(delegatorRecord)
 
                     // Stake's record
-                    const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
+                    const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
                     console.log("User's balance in Doorman Contract")
                     console.log(doormanRecord)
 
@@ -958,13 +958,13 @@ describe("FarmFactory", async () => {
                     const untrackOperation = await farmFactoryInstance.methods.untrackFarm(farmAddress).send();
                     await untrackOperation.confirmation();
 
-                    // Create a transaction for allowing farm to spend LP Token in the name of Alice
-                    const aliceLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
-                    const aliceApprovalsStart = await aliceLedgerStart.allowances.get(farmAddress);
+                    // Create a transaction for allowing farm to spend LP Token in the name of Bob
+                    const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
+                    const bobApprovalsStart = await bobLedgerStart.allowances.get(farmAddress);
 
-                    // Check Alice has no pending approvals for the farm
-                    if(aliceApprovalsStart===undefined || aliceApprovalsStart<amountToDeposit){
-                        const allowances = aliceApprovalsStart===undefined ? amountToDeposit : Math.abs(aliceApprovalsStart - amountToDeposit);
+                    // Check Bob has no pending approvals for the farm
+                    if(bobApprovalsStart===undefined || bobApprovalsStart<amountToDeposit){
+                        const allowances = bobApprovalsStart===undefined ? amountToDeposit : Math.abs(bobApprovalsStart - amountToDeposit);
                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
                         await approveOperation.confirmation();
                     }
@@ -981,11 +981,11 @@ describe("FarmFactory", async () => {
                     doormanStorage = await doormanInstance.storage();
 
                     // Delegator's record
-                    const delegatorRecord = await farmStorage.delegators.get(alice.pkh)
+                    const delegatorRecord = await farmStorage.delegators.get(bob.pkh)
                     console.log(delegatorRecord)
 
                     // Delegator's record
-                    const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
+                    const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
                     console.log(doormanRecord)
                 }catch(e){
                     assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set")
@@ -1017,13 +1017,13 @@ describe("FarmFactory", async () => {
             //         farmInstance                            = await utils.tezos.contract.at(farmAddress);
             //         farmStorage                             = await farmInstance.storage();
 
-            //          // Create a transaction for allowing farm to spend LP Token in the name of Alice
-            //         const aliceLedgerStart = await lpTokenStorage.ledger.get(alice.pkh);
-            //         const aliceApprovalsStart = await aliceLedgerStart.allowances.get(farmAddress);
+            //          // Create a transaction for allowing farm to spend LP Token in the name of Bob
+            //         const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
+            //         const bobApprovalsStart = await bobLedgerStart.allowances.get(farmAddress);
 
-            //         // Check Alice has no pending approvals for the farm
-            //         if(aliceApprovalsStart===undefined || aliceApprovalsStart<amountToDeposit){
-            //             const allowances = aliceApprovalsStart===undefined ? amountToDeposit : Math.abs(aliceApprovalsStart - amountToDeposit);
+            //         // Check Bob has no pending approvals for the farm
+            //         if(bobApprovalsStart===undefined || bobApprovalsStart<amountToDeposit){
+            //             const allowances = bobApprovalsStart===undefined ? amountToDeposit : Math.abs(bobApprovalsStart - amountToDeposit);
             //             const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
             //             await approveOperation.confirmation();
             //         }

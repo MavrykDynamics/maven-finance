@@ -1,7 +1,7 @@
 import { MichelsonMap } from '@taquito/michelson-encoder'
 import { BigNumber } from 'bignumber.js'
 
-const { alice, bob } = require('../scripts/sandbox/accounts')
+const { bob, alice } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from '../test/helpers/Utils'
 
@@ -35,7 +35,7 @@ const config = {
 
 export const governanceStorage: governanceStorageType = {
   
-  admin                   : alice.pkh,
+  admin                   : bob.pkh,
   mvkTokenAddress         : "",
   config                  : config,
   

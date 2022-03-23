@@ -4,7 +4,7 @@ import { BigNumber } from "bignumber.js";
 import { Buffer } from "buffer";
 import { array } from "yargs";
 
-import { alice, bob, eve, mallory } from '../scripts/sandbox/accounts'
+import { bob, alice, eve, mallory } from '../scripts/sandbox/accounts'
 
 import { zeroAddress } from "../test/helpers/Utils";
 
@@ -42,11 +42,11 @@ const metadata = MichelsonMap.fromLiteral({
   })
 
 const ledger = MichelsonMap.fromLiteral({
-    [alice.pkh]: {
+    [bob.pkh]: {
       balance: singleUserSupply,
       allowances: MichelsonMap.fromLiteral({})
     },
-    [bob.pkh]: {
+    [alice.pkh]: {
       balance: singleUserSupply,
       allowances: MichelsonMap.fromLiteral({})
     },

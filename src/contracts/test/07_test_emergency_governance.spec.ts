@@ -11,7 +11,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../env";
-import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 
 import doormanAddress from '../deployments/doormanAddress.json';
 import delegationAddress from '../deployments/delegationAddress.json';
@@ -54,7 +54,7 @@ describe("Emergency Governance tests", async () => {
     before("setup", async () => {
 
         utils = new Utils();
-        await utils.init(alice.sk);
+        await utils.init(bob.sk);
 
         doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
         delegationInstance    = await utils.tezos.contract.at(delegationAddress.address);
@@ -86,8 +86,8 @@ describe("Emergency Governance tests", async () => {
         console.log('Break Glass Contract deployed at:', breakGlassInstance.address);
         console.log('Vesting Contract deployed at:', vestingInstance.address);
         console.log('Treasury Contract deployed at:', treasuryInstance.address);
-        console.log('Alice address: ' + alice.pkh);
         console.log('Bob address: ' + bob.pkh);
+        console.log('Alice address: ' + alice.pkh);
         console.log('Eve address: ' + eve.pkh);
         console.log('-- -- -- -- -- -- -- -- --')
 
@@ -119,7 +119,7 @@ describe("Emergency Governance tests", async () => {
 
         // ---------------------------------------------
         // set admin of every contract to governance contract
-        await signerFactory(alice.sk);
+        await signerFactory(bob.sk);
 
         // doorman
         const setGovernanceAdminInDoormanContractOperation = await doormanInstance.methods.setAdmin(governanceAddress.address).send()
@@ -152,11 +152,11 @@ describe("Emergency Governance tests", async () => {
 
     });
 
-    it('alice cannot trigger emergency control (no staked MVK, no tez sent)', async () => {
+    it('bob cannot trigger emergency control (no staked MVK, no tez sent)', async () => {
         try{        
 
-            await signerFactory(alice.sk);
-            const emergencyGovernanceTitle       = "New Emergency By Alice";
+            await signerFactory(bob.sk);
+            const emergencyGovernanceTitle       = "New Emergency By Bob";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
 
             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
@@ -170,18 +170,18 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('alice cannot trigger emergency control (not enough staked MVK, enough tez sent)', async () => {
+    it('bob cannot trigger emergency control (not enough staked MVK, enough tez sent)', async () => {
         try{        
 
-            const emergencyGovernanceTitle       = "New Emergency By Alice";
+            const emergencyGovernanceTitle       = "New Emergency By Bob";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
             const minStakedMvkRequiredToTrigger  = MVK(10);
 
-            // alice update operators
+            // bob update operators
             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
             {
                 add_operator: {
-                    owner: alice.pkh,
+                    owner: bob.pkh,
                     operator: doormanAddress.address,
                     token_id: 0,
                 },
@@ -189,13 +189,13 @@ describe("Emergency Governance tests", async () => {
             .send()
             await updateOperatorsOperation.confirmation();
 
-            // alice stakes 5 MVK
+            // bob stakes 5 MVK
             const userStake = MVK(5);
-            const aliceStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-            await aliceStakeMvkOperation.confirmation();
+            const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+            await bobStakeMvkOperation.confirmation();
 
-            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-            assert.equal(aliceStakedMvkBalance.balance, userStake);
+            const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+            assert.equal(bobStakedMvkBalance.balance, userStake);
     
             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                 emergencyGovernanceTitle, 
@@ -208,18 +208,18 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('alice cannot trigger emergency control (not enough staked MVK, too much tez sent)', async () => {
+    it('bob cannot trigger emergency control (not enough staked MVK, too much tez sent)', async () => {
         try{        
 
-            const emergencyGovernanceTitle       = "New Emergency By Alice";
+            const emergencyGovernanceTitle       = "New Emergency By Bob";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
             const minStakedMvkRequiredToTrigger  = MVK(10);
 
-            // alice update operators
+            // bob update operators
             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
             {
                 add_operator: {
-                    owner: alice.pkh,
+                    owner: bob.pkh,
                     operator: doormanAddress.address,
                     token_id: 0,
                 },
@@ -228,8 +228,8 @@ describe("Emergency Governance tests", async () => {
             await updateOperatorsOperation.confirmation();
 
             const userStake = MVK(5);
-            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-            assert.equal(aliceStakedMvkBalance.balance, userStake);
+            const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+            assert.equal(bobStakedMvkBalance.balance, userStake);
     
             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                 emergencyGovernanceTitle, 
@@ -242,18 +242,18 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('alice cannot trigger emergency control (not enough staked MVK, no tez sent)', async () => {
+    it('bob cannot trigger emergency control (not enough staked MVK, no tez sent)', async () => {
         try{        
 
-            const emergencyGovernanceTitle       = "New Emergency By Alice";
+            const emergencyGovernanceTitle       = "New Emergency By Bob";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
             const minStakedMvkRequiredToTrigger  = MVK(10);
 
-            // alice stakes 5 MVK
+            // bob stakes 5 MVK
             const userStake = MVK(5);
-            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+            const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
             
-            assert.equal(aliceStakedMvkBalance.balance, userStake);
+            assert.equal(bobStakedMvkBalance.balance, userStake);
     
             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                 emergencyGovernanceTitle, 
@@ -267,18 +267,18 @@ describe("Emergency Governance tests", async () => {
     });
 
 
-    it('alice cannot trigger emergency control (enough staked MVK, no tez sent)', async () => {
+    it('bob cannot trigger emergency control (enough staked MVK, no tez sent)', async () => {
         try{        
 
-            const emergencyGovernanceTitle       = "New Emergency By Alice";
+            const emergencyGovernanceTitle       = "New Emergency By Bob";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
             const minStakedMvkRequiredToTrigger  = MVK(10);
 
-            // alice update operators
+            // bob update operators
             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
             {
                 add_operator: {
-                    owner: alice.pkh,
+                    owner: bob.pkh,
                     operator: doormanAddress.address,
                     token_id: 0,
                 },
@@ -286,13 +286,13 @@ describe("Emergency Governance tests", async () => {
             .send()
             await updateOperatorsOperation.confirmation();
 
-            // alice stakes 5 MVK
+            // bob stakes 5 MVK
             const userStake = MVK(5);
-            const aliceStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-            await aliceStakeMvkOperation.confirmation();
+            const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+            await bobStakeMvkOperation.confirmation();
 
-            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-            assert.equal(aliceStakedMvkBalance.balance, MVK(10));
+            const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+            assert.equal(bobStakedMvkBalance.balance, MVK(10));
     
             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                 emergencyGovernanceTitle, 
@@ -305,18 +305,18 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('alice cannot trigger emergency control (enough staked MVK, not enough tez sent)', async () => {
+    it('bob cannot trigger emergency control (enough staked MVK, not enough tez sent)', async () => {
         try{        
 
-            const emergencyGovernanceTitle       = "New Emergency By Alice";
+            const emergencyGovernanceTitle       = "New Emergency By Bob";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
             const minStakedMvkRequiredToTrigger  = MVK(10);
 
-            // alice update operators
+            // bob update operators
             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
             {
                 add_operator: {
-                    owner: alice.pkh,
+                    owner: bob.pkh,
                     operator: doormanAddress.address,
                     token_id: 0,
                 },
@@ -324,8 +324,8 @@ describe("Emergency Governance tests", async () => {
             .send()
             await updateOperatorsOperation.confirmation();
 
-            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-            assert.equal(aliceStakedMvkBalance.balance, MVK(10));
+            const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+            assert.equal(bobStakedMvkBalance.balance, MVK(10));
     
             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                 emergencyGovernanceTitle, 
@@ -338,18 +338,18 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('alice cannot trigger emergency control (enough staked MVK, too much tez sent)', async () => {
+    it('bob cannot trigger emergency control (enough staked MVK, too much tez sent)', async () => {
         try{        
 
-            const emergencyGovernanceTitle       = "New Emergency By Alice";
+            const emergencyGovernanceTitle       = "New Emergency By Bob";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
             const minStakedMvkRequiredToTrigger  = MVK(10);
 
-            // alice update operators
+            // bob update operators
             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
             {
                 add_operator: {
-                    owner: alice.pkh,
+                    owner: bob.pkh,
                     operator: doormanAddress.address,
                     token_id: 0,
                 },
@@ -357,8 +357,8 @@ describe("Emergency Governance tests", async () => {
             .send()
             await updateOperatorsOperation.confirmation();
 
-            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-            assert.equal(aliceStakedMvkBalance.balance, MVK(10));
+            const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+            assert.equal(bobStakedMvkBalance.balance, MVK(10));
     
             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                 emergencyGovernanceTitle, 
@@ -372,13 +372,13 @@ describe("Emergency Governance tests", async () => {
     });
 
 
-    it('alice can trigger emergency control (enough staked MVK, enough tez sent)', async () => {
+    it('bob can trigger emergency control (enough staked MVK, enough tez sent)', async () => {
         try{        
 
-            const emergencyGovernanceTitle       = "New Emergency By Alice";
+            const emergencyGovernanceTitle       = "New Emergency By Bob";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
 
-            // alice triggers emergency Governance
+            // bob triggers emergency Governance
             const triggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                 emergencyGovernanceTitle, 
                 emergencyGovernanceDescription
@@ -388,8 +388,8 @@ describe("Emergency Governance tests", async () => {
             const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
             const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get('1');
 
-            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-            assert.equal(aliceStakedMvkBalance.balance, MVK(10));
+            const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+            assert.equal(bobStakedMvkBalance.balance, MVK(10));
 
             assert.equal(emergencyGovernanceProposal.title,           emergencyGovernanceTitle);
             assert.equal(emergencyGovernanceProposal.description,     emergencyGovernanceDescription);
@@ -403,10 +403,10 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('bob cannot trigger another emergency governance at the same time (no staked MVK, no tez sent)', async () => {
+    it('alice cannot trigger another emergency governance at the same time (no staked MVK, no tez sent)', async () => {
         try{        
 
-            await signerFactory(bob.sk);
+            await signerFactory(alice.sk);
             const failTriggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("New Emergency Again", "Help please.");
             await chai.expect(failTriggerEmergencyControlOperation.send()).to.be.eventually.rejected;
             
@@ -415,16 +415,16 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('bob cannot trigger another emergency governance at the same time (enough staked MVK, enough tez sent)', async () => {
+    it('alice cannot trigger another emergency governance at the same time (enough staked MVK, enough tez sent)', async () => {
         try{        
 
-            await signerFactory(bob.sk);
+            await signerFactory(alice.sk);
 
-            // bob stakes 10 MVK
+            // alice stakes 10 MVK
             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
                 {
                     add_operator: {
-                        owner: bob.pkh,
+                        owner: alice.pkh,
                         operator: doormanAddress.address,
                         token_id: 0,
                     },
@@ -433,11 +433,11 @@ describe("Emergency Governance tests", async () => {
             await updateOperatorsOperation.confirmation();
             
             const userStake = MVK(10);
-            const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-            await bobStakeMvkOperation.confirmation();
+            const aliceStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+            await aliceStakeMvkOperation.confirmation();
 
-            const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-            assert.equal(bobStakedMvkBalance.balance, MVK(10));
+            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+            assert.equal(aliceStakedMvkBalance.balance, MVK(10));
 
             const failTriggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("New Emergency Again", "Help please.");
             await chai.expect(failTriggerEmergencyControlOperation.send({ amount : 10})).to.be.eventually.rejected;
@@ -556,10 +556,10 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('alice can drop emergency control (creator)', async () => {
+    it('bob can drop emergency control (creator)', async () => {
         try{        
             
-            await signerFactory(alice.sk);
+            await signerFactory(bob.sk);
             const dropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
             await dropEmergencyControlOperation.confirmation();
 
@@ -575,10 +575,10 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('alice cannot drop emergency control again', async () => {
+    it('bob cannot drop emergency control again', async () => {
         try{        
 
-            await signerFactory(alice.sk);
+            await signerFactory(bob.sk);
             const failDropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
             await chai.expect(failDropEmergencyControlOperation.send()).to.be.eventually.rejected;
             
@@ -587,15 +587,15 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('bob can trigger emergency control after previous one is dropped', async () => {
+    it('alice can trigger emergency control after previous one is dropped', async () => {
         try{        
 
-            await signerFactory(bob.sk);
+            await signerFactory(alice.sk);
 
-            const emergencyGovernanceTitle       = "New Emergency By Bob";
+            const emergencyGovernanceTitle       = "New Emergency By Alice";
             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
 
-            // alice triggers emergency Governance
+            // bob triggers emergency Governance
             const triggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                 emergencyGovernanceTitle, 
                 emergencyGovernanceDescription
@@ -617,16 +617,16 @@ describe("Emergency Governance tests", async () => {
         }
     });
 
-    it('alice stakes more MVK, votes for emergency control, and triggers break glass', async () => {
+    it('bob stakes more MVK, votes for emergency control, and triggers break glass', async () => {
         try{        
 
             const emergencyGovernanceProposalId = 2;
 
-            await signerFactory(alice.sk);
+            await signerFactory(bob.sk);
             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
                 {
                     add_operator: {
-                        owner: alice.pkh,
+                        owner: bob.pkh,
                         operator: doormanAddress.address,
                         token_id: 0,
                     },
@@ -634,16 +634,16 @@ describe("Emergency Governance tests", async () => {
                 .send()
             await updateOperatorsOperation.confirmation();
 
-            // alice stakes another 20 MVK
+            // bob stakes another 20 MVK
             const userStake = MVK(20);
-            const aliceStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-            await aliceStakeMvkOperation.confirmation();
+            const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+            await bobStakeMvkOperation.confirmation();
 
-            const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-            const aliceTotalStakedMvkBalance = MVK(30); // 10 from earlier test, 20 from here
-            assert.equal(aliceStakedMvkBalance.balance, aliceTotalStakedMvkBalance);
+            const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+            const bobTotalStakedMvkBalance = MVK(30); // 10 from earlier test, 20 from here
+            assert.equal(bobStakedMvkBalance.balance, bobTotalStakedMvkBalance);
 
-            // alice votes for emergency control
+            // bob votes for emergency control
             const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(emergencyGovernanceProposalId).send();
             await voteForEmergencyControlOperation.confirmation();
 
