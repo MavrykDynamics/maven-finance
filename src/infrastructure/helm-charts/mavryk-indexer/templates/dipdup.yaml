@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.12
+          image: tezosdynamics/mavryk-indexer:v0.1.0
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.0.12
+          image: tezosdynamics/mavryk-indexer:v0.1.0
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -121,34 +121,34 @@ data:
 
     contracts:
       mvk:
-        address: KT1CfB2hLU6oZpnFsuSw77aLanDEFPJjJtmW
+        address: KT1NeR6WHT4NJ7DQiquQVpiQzqFQ3feLmwy6
         typename: mvk
       doorman:
-        address: KT1NYRHupHBMDLdChrweYuKfuFTJttbWP3ua
+        address: KT19emqNgcc4hnQAMgefT5a7WvZwz8X866zN
         typename: doorman
       farm:
-        address: KT1CazyJDLTCAYp4UXzzGFtN382V5NtAofBL
+        address: KT1GAgjxjmbGJMEWTnEJRWNFYAzyE5a2EZwy
         typename: farm
       farm_factory:
-        address: KT1TDe5Jh18wiNkoKW223L6oFvd4LV88u8yi
+        address: KT1Pvxnaz5qDZyfQucsu8BytM2P8xW1jnSsG
         typename: farm_factory
       delegation:
-        address: KT1Nv9w4tShibfmyQc9hrZzwVnWZUJAgNYYn
+        address: KT1UxUjMrLhUMaSkU6TCArF32sozs2YqotR6
         typename: delegation
       vesting:
-        address: KT1Hzo5zQGSg18V1mPJ6umt7fmJq54MAF2ks
+        address: KT1KXtsN8ZctchA6xtLJVUbaZ6Zo7F4rfjSa
         typename: vesting
       emergency_governance:
-        address: KT1SeJkZ8ML8pHRHMMYhHqgtet6N3b5Snq7c
+        address: KT1BWwFdKTqNTfmyPivGgXBsF2xVt45C5Far
         typename: emergency_governance
       council:
-        address: KT1E47MwvFfSoc4CTg8PwYpN2SS6N8rdjikN
+        address: KT1WkxQfnp11thYvK27aKvKBkvVHTt8UQ8tL
         typename: council
       break_glass:
-        address: KT1J1jQ1vjYh6ke8sRjp4MMrN3S7LL72bZ8o
+        address: KT1SqAtqTS43QipPyNrpGzLqdW6722RFsw7t
         typename: break_glass
       governance:
-        address: KT19T2uG3uMu7qo8qCicD161kvhSjFYvLmTq
+        address: KT1CTNbpQ5xZeZnyGhMtMTi9Bec92LngHrtT #Previous -> KT1ADmD6sms4Kw4SzP9bbn9pjEg2ZZNKUmRF
         typename: governance
 
     datasources:
@@ -268,8 +268,10 @@ data:
               - source: doorman
                 destination: mvk
                 entrypoint: transfer
-          - callback: on_doorman_unstake_complete
+          - callback: on_doorman_unstake
             pattern:
+              - destination: doorman
+                entrypoint: unstake
               - destination: doorman
                 entrypoint: unstakeComplete
               - source: doorman
@@ -279,18 +281,16 @@ data:
             pattern:
               - destination: doorman
                 entrypoint: compound
-          - callback: on_doorman_farm_claim_complete
+          - callback: on_doorman_farm_claim
             pattern:
+              - destination: doorman
+                entrypoint: farmClaim
               - destination: doorman
                 entrypoint: farmClaimComplete
           - callback: on_doorman_update_min_mvk_amount
             pattern:
               - destination: doorman
                 entrypoint: updateMinMvkAmount
-          - callback: on_doorman_farm_claim_complete
-            pattern:
-              - destination: doorman
-                entrypoint: farmClaimComplete
           - callback: on_doorman_pause_all
             pattern:
               - destination: doorman
@@ -573,6 +573,10 @@ data:
             pattern:
               - destination: council
                 entrypoint: councilActionAddMember
+          - callback: on_council_council_action_update_blocks_per_min
+            pattern:
+              - destination: council
+                entrypoint: councilActionUpdateBlocksPerMin
           - callback: on_council_council_action_add_vestee
             pattern:
               - destination: council
@@ -597,6 +601,10 @@ data:
             pattern:
               - destination: council
                 entrypoint: councilActionRequestTokens
+          - callback: on_council_council_action_drop_financial_req
+            pattern:
+              - destination: council
+                entrypoint: councilActionDropFinancialReq
           - callback: on_council_council_action_toggle_vestee_lock
             pattern:
               - destination: council
@@ -729,23 +737,43 @@ data:
           #   pattern:
           #     - destination: governance
           #       entrypoint: dropProposal
-          # - callback: on_governance_execute_proposal
+          - callback: on_governance_execute_proposal
+            pattern:
+              - destination: governance
+                entrypoint: executeProposal
+          - callback: on_governance_setup_lambda_function
+            pattern:
+              - destination: governance
+                entrypoint: setupLambdaFunction
+          - callback: on_governance_start_timelock_round
+            pattern:
+              - destination: governance
+                entrypoint: startTimelockRound
+          - callback: on_governance_start_voting_round
+            pattern:
+              - destination: governance
+                entrypoint: startVotingRound
+          - callback: on_governance_set_satellite_voting_power_snapshot
+            pattern:
+              - destination: governance
+                entrypoint: setSatelliteVotingPowerSnapshot
+          # - callback: on_governance_request_tokens
           #   pattern:
           #     - destination: governance
-          #       entrypoint: executeProposal
-          # - callback: on_governance_setup_lambda_function
+          #       entrypoint: requestTokens
+          # - callback: on_governance_request_mint
           #   pattern:
           #     - destination: governance
-          #       entrypoint: setupLambdaFunction
-          # - callback: on_governance_start_timelock_round
+          #       entrypoint: requestMint
+          # - callback: on_governance_drop_financial_request
           #   pattern:
           #     - destination: governance
-          #       entrypoint: startTimelockRound
-          # - callback: on_governance_start_voting_round
+          #       entrypoint: dropFinancialRequest
+          # - callback: on_governance_request_staked_mvk_snapshot
           #   pattern:
           #     - destination: governance
-          #       entrypoint: startVotingRound
-          # - callback: on_governance_voting_round_vote
+          #       entrypoint: requestStakedMvkSnapshot
+          # - callback: on_governance_vote_for_request
           #   pattern:
           #     - destination: governance
-          #       entrypoint: votingRoundVote
+          #       entrypoint: voteForRequest
