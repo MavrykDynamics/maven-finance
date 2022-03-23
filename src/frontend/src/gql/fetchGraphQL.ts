@@ -12,6 +12,7 @@ import {
   MVK_TOKEN_STORAGE_QUERY_NAME,
   MVK_TOKEN_STORAGE_QUERY_VARIABLE,
 } from './queries'
+import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from './queries/getFarmStorage'
 
 async function fetchGraphQL(operationsDoc: string, operationName: string, variables: Record<string, any>) {
   // const result = await fetch(process.env.REACT_APP_GRAPHQL_API || 'https://api.mavryk.finance/v1/graphql', {
@@ -98,5 +99,6 @@ export async function getInitialData() {
       DELEGATION_STORAGE_QUERY_NAME,
       DELEGATION_STORAGE_QUERY_VARIABLE,
     ),
+    fetchFromIndexerWithPromise(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE),
   ])
 }
