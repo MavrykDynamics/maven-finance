@@ -11,6 +11,7 @@ import {
   EmergencyGovernanceStorage,
   EmergencyGovProposalVoter,
 } from './TypesAndInterfaces/EmergencyGovernance'
+import { BreakGlassActionRecord, BreakGlassActionSigner, BreakGlassStorage } from './TypesAndInterfaces/BreakGlass'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
@@ -42,6 +43,10 @@ export default function storageToTypeConverter(contract: string, storage: any): 
     case 'emergencyGovernance':
       res = convertToEmergencyGovernanceStorageType(storage)
       setItemInStorage('EmergencyGovernanceStorage', res)
+      break
+    case 'breakGlass':
+      res = convertToBreakGlassStorageType(storage)
+      setItemInStorage('BreakGlassStorage', res)
       break
   }
 
@@ -216,4 +221,64 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
   }
 
   return eGovStorage
+}
+function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
+  const actionLedger: BreakGlassActionRecord[] = [],
+    councilMembers: { address: string }[] = []
+  storage.break_glass_action_records.forEach(
+    (actionRecord: {
+      action_type: any
+      break_glass_id: any
+      executed: any
+      executed_datetime: string | number | Date
+      expiration_datetime: string | number | Date
+      id: any
+      initiator_id: any
+      start_datetime: string | number | Date
+      status: any
+      signers: any
+    }) => {
+      const signers: BreakGlassActionSigner[] = []
+      actionRecord.signers?.forEach((signer: { break_glass_action_record_id: any; id: any; signer_id: any }) => {
+        const newSigner: BreakGlassActionSigner = {
+          breakGlassActionRecordId: signer.break_glass_action_record_id,
+          id: signer.id,
+          signerId: signer.signer_id,
+        }
+        signers.push(newSigner)
+      })
+
+      const newActionRecord: BreakGlassActionRecord = {
+        actionType: actionRecord.action_type,
+        breakGlassId: actionRecord.break_glass_id,
+        executed: actionRecord.executed,
+        executedDatetime: new Date(actionRecord.executed_datetime),
+        expirationDatetime: new Date(actionRecord.expiration_datetime),
+        id: actionRecord.id,
+        initiatorId: actionRecord.initiator_id,
+        startDatetime: new Date(actionRecord.start_datetime),
+        status: actionRecord.status,
+        signers,
+      }
+
+      actionLedger.push(newActionRecord)
+    },
+  )
+  storage.council_members.forEach((member: { address: string }) => {
+    const newMember = {
+      address: member.address,
+    }
+    councilMembers.push(newMember)
+  })
+  return {
+    address: storage.address,
+    config: {
+      threshold: storage.threshold,
+      actionExpiryDuration: storage.action_expiry_days,
+    },
+    currentActionId: storage.currentActionId,
+    glassBroken: storage.glassBroken,
+    councilMembers,
+    actionLedger,
+  }
 }
