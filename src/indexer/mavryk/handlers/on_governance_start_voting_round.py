@@ -34,14 +34,16 @@ async def on_governance_start_voting_round(
     governance.current_round_end_level      = governanceCurrentRoundEndLevel
     await governance.save()
 
-    proposalRecord  = await models.GovernanceProposalRecord.get(
+    proposalRecord  = await models.GovernanceProposalRecord.get_or_none(
         id  = governanceProposalVoteID
     )
-    proposalRecord.round_highest_voted_proposal = True
-    await proposalRecord.save()
 
-    # Reset current round votes
-    currentRoundVotes   = await models.GovernanceProposalRecordVote.filter(current_round_vote=True).all()
-    for currentRoundVote in currentRoundVotes:
-        currentRoundVote.current_round_vote = False
-        await currentRoundVote.save()
+    if proposalRecord != None: 
+        proposalRecord.round_highest_voted_proposal = True
+        await proposalRecord.save()
+
+        # Reset current round votes
+        currentRoundVotes   = await models.GovernanceProposalRecordVote.filter(current_round_vote=True).all()
+        for currentRoundVote in currentRoundVotes:
+            currentRoundVote.current_round_vote = False
+            await currentRoundVote.save()
