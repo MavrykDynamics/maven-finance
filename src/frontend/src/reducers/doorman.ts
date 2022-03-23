@@ -20,7 +20,6 @@ export interface DoormanState {
   error?: any
   doormanStorage?: DoormanStorage
   totalStakedMvkSupply?: number
-  isOperator: boolean
 }
 
 const defaultStorageState = {
@@ -51,7 +50,6 @@ const doormanDefaultState: DoormanState = {
   error: undefined,
   doormanStorage: getItemFromStorage('DoormanStorage') ?? defaultStorageState,
   totalStakedMvkSupply: 0,
-  isOperator: false,
 }
 
 export function doorman(state = doormanDefaultState, action: any): DoormanState {

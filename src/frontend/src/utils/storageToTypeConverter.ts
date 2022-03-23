@@ -6,6 +6,11 @@ import { DelegateRecord, DelegationStorage, SatelliteRecord } from './TypesAndIn
 import { DoormanStorage } from './TypesAndInterfaces/Doorman'
 import { FarmStorage } from './TypesAndInterfaces/Farm'
 import { FarmFactoryStorage } from './TypesAndInterfaces/FarmFactory'
+import {
+  EmergencyGovernanceProposalRecord,
+  EmergencyGovernanceStorage,
+  EmergencyGovProposalVoter,
+} from './TypesAndInterfaces/EmergencyGovernance'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
@@ -33,6 +38,10 @@ export default function storageToTypeConverter(contract: string, storage: any): 
     case 'farmFactory':
       res = convertToFarmFactoryStorageType(storage)
       setItemInStorage('FarmFactoryStorage', res)
+      break
+    case 'emergencyGovernance':
+      res = convertToEmergencyGovernanceStorageType(storage)
+      setItemInStorage('EmergencyGovernanceStorage', res)
       break
   }
 
@@ -151,4 +160,60 @@ function convertToFarmFactoryStorageType(storage: any): FarmFactoryStorage {
     },
     trackedFarms: convertToFarmStorageType(storage.farms),
   }
+}
+function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGovernanceStorage {
+  const eGovRecords: EmergencyGovernanceProposalRecord[] = []
+  storage.emergency_governance_records.forEach((record: any) => {
+    const voters: EmergencyGovProposalVoter[] = []
+
+    record.voters?.forEach(
+      (voter: {
+        emergency_governance_record_id: any
+        id: any
+        smvk_amount: any
+        timestamp: string | number | Date
+        voter_id: any
+      }) => {
+        const newVoter: EmergencyGovProposalVoter = {
+          emergencyGovernanceRecordId: voter.emergency_governance_record_id,
+          id: voter.id,
+          sMvkAmount: voter.smvk_amount,
+          timestamp: new Date(voter.timestamp),
+          voterId: voter.voter_id,
+        }
+        voters.push(newVoter)
+      },
+    )
+    const newEGovRecord: EmergencyGovernanceProposalRecord = {
+      id: record.id,
+      title: record.title,
+      description: record.description,
+      status: record.status,
+      dropped: record.dropped,
+      executed: record.executed,
+      proposerId: record.proposer_id,
+      emergencyGovernanceId: record.emergency_governance_id,
+      startTimestamp: new Date(record.start_timestamp),
+      executedTimestamp: new Date(record.executed_timestamp),
+      expirationTimestamp: new Date(record.expiration_timestamp),
+      sMvkPercentageRequired: record.smvk_percentage_required / 100,
+      sMvkRequiredForTrigger: calcWithoutMu(record.smvk_required_for_trigger),
+      voters,
+    }
+    eGovRecords.push(newEGovRecord)
+  })
+  const eGovStorage: EmergencyGovernanceStorage = {
+    emergencyGovernanceLedger: eGovRecords,
+    address: storage.address,
+    config: {
+      minStakedMvkPercentageForTrigger: storage.min_smvk_required_to_trigger,
+      requiredFee: storage.required_fee / 100000,
+      voteDuration: storage.vote_expiry_days,
+      sMvkPercentageRequired: storage.smvk_percentage_required / 100,
+    },
+    currentEmergencyGovernanceId: storage.current_emergency_record_id,
+    nextEmergencyGovernanceProposalId: storage.next_emergency_record_id,
+  }
+
+  return eGovStorage
 }
