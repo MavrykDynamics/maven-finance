@@ -150,6 +150,8 @@ class Governance(Model):
     min_quorum_mvk_total            = fields.BigIntField(default=0)
     voting_power_ratio              = fields.BigIntField(default=0)
     proposal_submission_fee         = fields.BigIntField(default=0)
+    proposal_round_vote_percentage  = fields.BigIntField(default=0)
+    proposal_round_vote_required    = fields.BigIntField(default=0)
     minimum_stake_req_percentage    = fields.BigIntField(default=0)
     max_proposal_per_delegate       = fields.BigIntField(default=0)
     new_blocktime_level             = fields.BigIntField(default=0)

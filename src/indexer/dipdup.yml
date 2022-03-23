@@ -21,34 +21,34 @@ hasura:
 
 contracts:
   mvk:
-    address: KT1L7xijLJeDhZPZvUXTRU4UNx4vC8x1DSKP
+    address: KT19jqhCVdYUUqaRTgn5fs5GVjWr6pFnNB1C
     typename: mvk
   doorman:
-    address: KT1PyAnr8uE7kExAPUVPgsYV7xHRmLVWBPpW
+    address: KT1Go3hKHbG2NADuWBTFxrfUH7h6QXFN7Ak8
     typename: doorman
   farm:
-    address: KT19UdosWSbew4CathpokLY1vbHiezUfHPsi
+    address: KT1LE4nTaTU9sFkaqVJ6QyhvQRLATsGtYrEK
     typename: farm
   farm_factory:
-    address: KT19UoSQq1GuAzMBr6pNkHcr3unfBYUG7RZn
+    address: KT1KwbQvPEAfLki57nwxWqfqEeXMwWZigqUG
     typename: farm_factory
   delegation:
-    address: KT1G1yMMCN2AUBUDrSLkRQ117V1yK8KksFjb
+    address: KT1HHwrsvWFYK5EXG5r3B618Z1Cc6dzMe46v
     typename: delegation
   vesting:
-    address: KT1Q6CuG8HTLSDfeyJZTT2eg6hDBosRCVqN3
+    address: KT1FhhfqzyLsCbofnPcoUewSQV9LBkiEwYEG
     typename: vesting
   emergency_governance:
-    address: KT1BxUB831PE4mgmMg2VfDVFvgrLJrwWoYkR
+    address: KT1DKaeXBPg6q9TGpzu1vPnAcNmXYAkBx2LH
     typename: emergency_governance
   council:
-    address: KT1GwjtDAFGPyFWbPxSgBzmmRLkYBB8k1oS8
+    address: KT1EmVMTq25bdERkv7gVrBkt8eedA1pu1QFP
     typename: council
   break_glass:
-    address: KT1NB3CCk4i1YQb9DSy63nGxx5rovu4GeqzH
+    address: KT1JTK3fPk9X5uPBkWsNNd9513qBEr8dLzhB
     typename: break_glass
   governance:
-    address: KT1HGKDKkoXzFDAAeiePmuzzXJ9R3GopFJvG #Previous -> KT1ADmD6sms4Kw4SzP9bbn9pjEg2ZZNKUmRF
+    address: KT1W8t5QZzHjnb7CJWnVNUsn6hQ998v7Prmk #Previous -> KT1ADmD6sms4Kw4SzP9bbn9pjEg2ZZNKUmRF
     typename: governance
 
 datasources:
@@ -641,10 +641,10 @@ indexes:
         pattern:
           - destination: governance
             entrypoint: executeProposal
-      - callback: on_governance_setup_lambda_function
-        pattern:
-          - destination: governance
-            entrypoint: setupLambdaFunction
+      # - callback: on_governance_setup_lambda_function
+      #   pattern:
+      #     - destination: governance
+      #       entrypoint: setupLambdaFunction
       - callback: on_governance_start_timelock_round
         pattern:
           - destination: governance
