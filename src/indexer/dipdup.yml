@@ -21,34 +21,34 @@ hasura:
 
 contracts:
   mvk:
-    address: KT19jqhCVdYUUqaRTgn5fs5GVjWr6pFnNB1C
+    address: KT1N33EBgMNiNfMjd91aMUZ6dRK8Y9N5d5Yn
     typename: mvk
   doorman:
-    address: KT1Go3hKHbG2NADuWBTFxrfUH7h6QXFN7Ak8
+    address: KT1RJ5h1rxcuMmvzCTF41u3w8SVcQfgqtewv
     typename: doorman
   farm:
-    address: KT1LE4nTaTU9sFkaqVJ6QyhvQRLATsGtYrEK
+    address: KT1RpViENDjrcw2UJxwpdTyVdsgh3uiyxdfM
     typename: farm
   farm_factory:
-    address: KT1KwbQvPEAfLki57nwxWqfqEeXMwWZigqUG
+    address: KT1JWcwa1YG2Ysqty3HEubFmCz6ZbNVHMKZA
     typename: farm_factory
   delegation:
-    address: KT1HHwrsvWFYK5EXG5r3B618Z1Cc6dzMe46v
+    address: KT1SDtX1Lm6sv4Uunh5At7JMCANWgdHYWt7g
     typename: delegation
   vesting:
-    address: KT1FhhfqzyLsCbofnPcoUewSQV9LBkiEwYEG
+    address: KT1GxbAAHrUzzxANVYjJ2UJvt34zwv7EH9YU
     typename: vesting
   emergency_governance:
-    address: KT1DKaeXBPg6q9TGpzu1vPnAcNmXYAkBx2LH
+    address: KT1Vq8YBy2DrsiPEmDSgKd8prYMrX4RCK7ZB
     typename: emergency_governance
   council:
-    address: KT1EmVMTq25bdERkv7gVrBkt8eedA1pu1QFP
+    address: KT1L7SKCFnNrVtoVbAtjL14ajKLfp1L7MJSv
     typename: council
   break_glass:
-    address: KT1JTK3fPk9X5uPBkWsNNd9513qBEr8dLzhB
+    address: KT1CZDFdEWqWZB4C4pjMHcaaZXmEpUvHxbub
     typename: break_glass
   governance:
-    address: KT1W8t5QZzHjnb7CJWnVNUsn6hQ998v7Prmk #Previous -> KT1ADmD6sms4Kw4SzP9bbn9pjEg2ZZNKUmRF
+    address: KT1L2WDoudNJbSghhJvbfCMhgTCgUCHptRM9 #Previous -> KT1ADmD6sms4Kw4SzP9bbn9pjEg2ZZNKUmRF
     typename: governance
 
 datasources:
@@ -633,18 +633,18 @@ indexes:
         pattern:
           - destination: governance
             entrypoint: proposalRoundVote
-      - callback: on_governance_drop_proposal
-        pattern:
-          - destination: governance
-            entrypoint: dropProposal
+      # - callback: on_governance_drop_proposal
+      #   pattern:
+      #     - destination: governance
+      #       entrypoint: dropProposal
       - callback: on_governance_execute_proposal
         pattern:
           - destination: governance
             entrypoint: executeProposal
-      # - callback: on_governance_setup_lambda_function
-      #   pattern:
-      #     - destination: governance
-      #       entrypoint: setupLambdaFunction
+      - callback: on_governance_setup_lambda_function
+        pattern:
+          - destination: governance
+            entrypoint: setupLambdaFunction
       - callback: on_governance_start_timelock_round
         pattern:
           - destination: governance
