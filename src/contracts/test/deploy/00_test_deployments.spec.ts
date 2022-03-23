@@ -37,6 +37,8 @@ import { Council } from "../helpers/councilHelper";
 import { Treasury } from "../helpers/treasuryHelper";
 import { MockFa12Token } from "../helpers/mockFa12TokenHelper";
 import { MockFa2Token } from "../helpers/mockFa2TokenHelper";
+import { UsdmTokenController } from "../helpers/usdmTokenControllerHelper";
+import { Vault } from "../helpers/vaultHelper";
 
 import { doormanStorage } from "../../storage/doormanStorage";
 import { delegationStorage } from "../../storage/delegationStorage";
@@ -49,6 +51,8 @@ import { councilStorage } from "../../storage/councilStorage";
 import { treasuryStorage } from "../../storage/treasuryStorage";
 import { mockFa12TokenStorage } from "../../storage/mockFa12TokenStorage";
 import { mockFa2TokenStorage } from "../../storage/mockFa2TokenStorage";
+import { usdmTokenControllerStorage } from "../../storage/usdmTokenControllerStorage";
+import { vaultStorage } from "../../storage/vaultStorage";
 
 describe('Contracts Deployment for Tests', async () => {
   var utils: Utils
@@ -63,6 +67,8 @@ describe('Contracts Deployment for Tests', async () => {
   var treasury: Treasury
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
+  var usdmTokenController : UsdmTokenController
+  // var vault : Vault
   var tezos
   let deployedDoormanStorage
   let deployedDelegationStorage
@@ -191,6 +197,13 @@ describe('Contracts Deployment for Tests', async () => {
     );
 
     console.log("mock FA2 Token originated")
+
+    usdmTokenController = await UsdmTokenController.originate(
+      utils.tezos,
+      usdmTokenControllerStorage
+    );
+
+    console.log("USDM Token Controller originated")
 
     /* ---- ---- ---- ---- ---- */
 
