@@ -1,19 +1,29 @@
-import { MichelsonMap } from '@taquito/taquito'
-
 type BreakGlassConfig = {
   threshold: number
   actionExpiryDuration: number
-  developerAddress: string
-  emergencyGovernanceAddress: string
+}
+export type BreakGlassActionSigner = {
+  signerId: string
+  id: number
+  breakGlassActionRecordId: number
+}
+export type BreakGlassActionRecord = {
+  actionType: string
+  breakGlassId: number
+  executed: boolean
+  executedDatetime: Date
+  expirationDatetime: Date
+  id: number
+  initiatorId: string
+  startDatetime: Date
+  status: boolean
+  signers: BreakGlassActionSigner[]
 }
 export interface BreakGlassStorage {
-  admin: string
+  address: string
   config: BreakGlassConfig
-  generalContracts: MichelsonMap<string, unknown>
   glassBroken: boolean
-  councilMembers: string[]
+  councilMembers: { address: string }[]
   currentActionId: number
-  nextActionId: number
-  actionLedger: MichelsonMap<string, unknown>
-  flushLedger: MichelsonMap<string, unknown>
+  actionLedger: BreakGlassActionRecord[]
 }

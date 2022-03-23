@@ -7,6 +7,8 @@ import {
   GET_EMERGENCY_GOVERNANCE_STORAGE,
   SET_EMERGENCY_GOVERNANCE_ACTIVE,
 } from '../pages/EmergencyGovernance/EmergencyGovernance.actions'
+import { GET_BREAK_GLASS_STORAGE, SET_GLASS_BROKEN } from '../pages/BreakGlass/BreakGlass.actions'
+import { BreakGlassStorage } from '../utils/TypesAndInterfaces/BreakGlass'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -20,6 +22,7 @@ export const recaptchaRequest = () => (dispatch: any) => {
  */
 export const onStart = () => async (dispatch: any, getState: any) => {
   const res = await getInitialData()
+  console.log(res)
   const addressesStorage = storageToTypeConverter('addresses', res[0])
   const mvkTokenStorage = storageToTypeConverter('mvkToken', res[1].mvk_token[0])
   const doormanStorage = storageToTypeConverter('doorman', res[2].doorman[0])
@@ -27,11 +30,16 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const farmStorage = storageToTypeConverter('farm', res[4].farm)
   const farmFactoryStorage = storageToTypeConverter('farmFactory', res[4].farm_factory[0])
   const emergencyGovernanceStorage = storageToTypeConverter('emergencyGovernance', res[5].emergency_governance[0])
+  const breakGlassStorage = storageToTypeConverter('breakGlass', res[6].break_glass[0])
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceId
   dispatch({
     type: SET_EMERGENCY_GOVERNANCE_ACTIVE,
-    emergencyGovActive: currentEmergencyGovernanceId.toNumber() !== 0,
+    emergencyGovActive: currentEmergencyGovernanceId !== 0,
+  })
+  dispatch({
+    type: SET_GLASS_BROKEN,
+    glassBroken: breakGlassStorage.glassBroken,
   })
 
   dispatch({
@@ -58,5 +66,9 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   dispatch({
     type: GET_EMERGENCY_GOVERNANCE_STORAGE,
     emergencyGovernanceStorage: emergencyGovernanceStorage,
+  })
+  dispatch({
+    type: GET_BREAK_GLASS_STORAGE,
+    breakGlassStorage: breakGlassStorage,
   })
 }
