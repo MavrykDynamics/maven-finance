@@ -40,11 +40,6 @@ export const EmergencyGovProposalModal = () => {
     screenshots: '',
   })
 
-  useEffect(() => {
-    dispatch(getEmergencyGovernanceStorage())
-    dispatch(getBreakGlassStorage())
-  }, [dispatch, accountPkh, showing])
-
   const cancelCallback = () => {
     dispatch(hideExitFeeModal())
   }
