@@ -1,12 +1,11 @@
-import { MichelsonMap } from '@taquito/taquito'
+import { FarmStorage } from './Farm'
 
 export interface FarmFactoryStorage {
-  admin: string
-  generalContracts: MichelsonMap<string, unknown>
-  whitelistContracts: MichelsonMap<string, unknown>
+  address: string
   breakGlassConfig: {
     createFarmIsPaused: boolean
+    trackFarmIsPaused: boolean
     untrackFarmIsPaused: boolean
   }
-  trackedFarms: any[]
+  trackedFarms: FarmStorage[]
 }
