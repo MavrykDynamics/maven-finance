@@ -36,6 +36,7 @@ const config = {
 export const governanceStorage: governanceStorageType = {
   
   admin                   : alice.pkh,
+  mvkTokenAddress         : "",
   config                  : config,
   
   whitelistContracts      : MichelsonMap.fromLiteral({}),
@@ -47,7 +48,7 @@ export const governanceStorage: governanceStorageType = {
   activeSatellitesMap     : MichelsonMap.fromLiteral({}),
 
   startLevel              : new BigNumber(1),
-  nextProposalId          : new BigNumber(1), 
+  nextProposalId          : new BigNumber(1),
   cycleCounter            : new BigNumber(1),
 
   currentRound            : 'none',
