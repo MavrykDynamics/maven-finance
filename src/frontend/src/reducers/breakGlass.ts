@@ -1,13 +1,25 @@
 import { GET_BREAK_GLASS_STORAGE, SET_GLASS_BROKEN } from '../pages/BreakGlass/BreakGlass.actions'
 import { BreakGlassStorage } from '../utils/TypesAndInterfaces/BreakGlass'
+import { getItemFromStorage } from '../utils/storage'
 
 export interface BreakGlassState {
   breakGlassStorage: BreakGlassStorage | any
   glassBroken: boolean
 }
 
+const defaultBreakGlassStorage: BreakGlassStorage = {
+  actionLedger: [],
+  address: '',
+  config: {
+    threshold: 0,
+    actionExpiryDuration: 0,
+  },
+  councilMembers: [],
+  currentActionId: 0,
+  glassBroken: false,
+}
 const breakGlassDefaultState: BreakGlassState = {
-  breakGlassStorage: {},
+  breakGlassStorage: getItemFromStorage('BreakGlassStorage') || defaultBreakGlassStorage,
   glassBroken: false,
 }
 
