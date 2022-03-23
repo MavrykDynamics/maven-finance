@@ -53,6 +53,9 @@ import { Treasury } from '../helpers/treasuryHelper'
 import { TreasuryFactory } from '../helpers/treasuryFactoryHelper'
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
 import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
+import { UsdmTokenController } from "../helpers/usdmTokenControllerHelper";
+import { Vault } from "../helpers/vaultHelper";
+
 
 import { doormanStorage } from '../../storage/doormanStorage'
 import { delegationStorage } from '../../storage/delegationStorage'
@@ -70,6 +73,9 @@ import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
 import { lpStorage } from "../../storage/testLPTokenStorage";
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
+import { usdmTokenControllerStorage } from "../../storage/usdmTokenControllerStorage";
+import { vaultStorage } from "../../storage/vaultStorage";
+
 
 describe('Contracts Deployment for Tests', async () => {
   var utils: Utils
@@ -90,6 +96,8 @@ describe('Contracts Deployment for Tests', async () => {
   var lpToken: LPToken;
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
+  var usdmTokenController : UsdmTokenController
+  // var vault : Vault
   var tezos
   
 
@@ -337,6 +345,13 @@ describe('Contracts Deployment for Tests', async () => {
 
     await saveContractAddress('mockFa2TokenAddress', mockFa2Token.contract.address)
     console.log('Mock Fa2 Token Contract deployed at:', mockFa2Token.contract.address)
+
+    usdmTokenController = await UsdmTokenController.originate(
+      utils.tezos,
+      usdmTokenControllerStorage
+    );
+
+    console.log("USDM Token Controller originated")
 
     /* ---- ---- ---- ---- ---- */
 
