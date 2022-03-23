@@ -4,6 +4,8 @@ import { MichelsonMap } from '@taquito/taquito'
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { DelegateRecord, DelegationStorage, SatelliteRecord } from './TypesAndInterfaces/Delegation'
 import { DoormanStorage } from './TypesAndInterfaces/Doorman'
+import { FarmStorage } from './TypesAndInterfaces/Farm'
+import { FarmFactoryStorage } from './TypesAndInterfaces/FarmFactory'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
@@ -23,6 +25,14 @@ export default function storageToTypeConverter(contract: string, storage: any): 
     case 'delegation':
       res = convertToDelegationStorageType(storage)
       setItemInStorage('DelegationStorage', res)
+      break
+    case 'farm':
+      res = convertToFarmStorageType(storage)
+      setItemInStorage('FarmStorage', res)
+      break
+    case 'farmFactory':
+      res = convertToFarmFactoryStorageType(storage)
+      setItemInStorage('FarmFactoryStorage', res)
       break
   }
 
@@ -51,7 +61,7 @@ function convertToMvkTokenStorageType(storage: any): MvkTokenStorage {
 }
 function convertToDelegationStorageType(storage: any): DelegationStorage {
   const satelliteMap: SatelliteRecord[] = []
-  storage.satellite_records.map((item: any) => {
+  const temp = storage.satellite_records.map((item: any) => {
     const totalDelegatedAmount = item.delegation_records.reduce(
       (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
       0,
@@ -69,6 +79,7 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
       unregisteredDateTime: new Date(item.unregistered_datetime),
     }
     satelliteMap.push(newSatelliteRecord)
+    return true
   })
 
   return {
@@ -100,5 +111,44 @@ function convertToContractAddressesType(storage: any) {
     breakGlass: storage.delegation[0],
     council: storage.delegation[0],
     treasury: storage.delegation[0],
+  }
+}
+
+function convertToFarmStorageType(storage: any): FarmStorage[] {
+  const farms: FarmStorage[] = []
+  storage.forEach((farmItem: any) => {
+    const newFarm: FarmStorage = {
+      address: farmItem.address,
+      open: farmItem.open,
+      withdrawPaused: farmItem.withdraw_paused,
+      claimPaused: farmItem.claim_paused,
+      depositPaused: farmItem.deposit_paused,
+      blocksPerMinute: farmItem.blocks_per_minute,
+      farmFactoryId: farmItem.farm_factory_id,
+      infinite: farmItem.infinite,
+      initBlock: farmItem.init_block,
+      accumulatedMvkPerShare: calcWithoutMu(farmItem.accumulated_mvk_per_share),
+      lastBlockUpdate: farmItem.last_block_update,
+      lpBalance: calcWithoutMu(farmItem.lp_balance),
+      lpToken: farmItem.lp_token,
+      rewardPerBlock: calcWithoutMu(farmItem.reward_per_block),
+      rewardsFromTreasury: farmItem.rewards_from_treasury,
+      totalBlocks: farmItem.total_blocks,
+    }
+    farms.push(newFarm)
+  })
+
+  return farms
+}
+
+function convertToFarmFactoryStorageType(storage: any): FarmFactoryStorage {
+  return {
+    address: storage.address,
+    breakGlassConfig: {
+      createFarmIsPaused: storage.create_farm_paused,
+      trackFarmIsPaused: storage.track_farm_paused,
+      untrackFarmIsPaused: storage.untrack_farm_paused,
+    },
+    trackedFarms: convertToFarmStorageType(storage.farms),
   }
 }
