@@ -1,6 +1,6 @@
 
 from dipdup.context import HandlerContext
-from mavryk.types.governance.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configBlocksPerMinute, UpdateConfigActionItem1 as configBlocksPerProposalRound, UpdateConfigActionItem2 as configBlocksPerTimelockRound, UpdateConfigActionItem3 as configBlocksPerVotingRound, UpdateConfigActionItem4 as configMaxProposalsPerDelegate, UpdateConfigActionItem5 as configMinQuorumMvkTotal, UpdateConfigActionItem6 as configMinQuorumPercentage, UpdateConfigActionItem7 as configMinimumStakeReqPercentage, UpdateConfigActionItem8 as configNewBlockTimeLevel, UpdateConfigActionItem9 as configNewBlocksPerMinute, UpdateConfigActionItem10 as configProposalSubmissionFee, UpdateConfigActionItem11 as configSuccessReward, UpdateConfigActionItem12 as configVotingPowerRatio
+from mavryk.types.governance.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configBlocksPerMinute, UpdateConfigActionItem1 as configBlocksPerProposalRound, UpdateConfigActionItem2 as configBlocksPerTimelockRound, UpdateConfigActionItem3 as configBlocksPerVotingRound, UpdateConfigActionItem4 as configFinancialReqApprovalPct, UpdateConfigActionItem5 as configFinancialReqDurationDays, UpdateConfigActionItem6 as configMaxProposalsPerDelegate, UpdateConfigActionItem7 as configMinProposalRoundVotePct, UpdateConfigActionItem8 as configMinProposalRoundVotesReq, UpdateConfigActionItem9 as configMinQuorumMvkTotal, UpdateConfigActionItem10 as configMinQuorumPercentage, UpdateConfigActionItem11 as configMinimumStakeReqPercentage, UpdateConfigActionItem12 as configNewBlockTimeLevel, UpdateConfigActionItem13 as configNewBlocksPerMinute, UpdateConfigActionItem14 as configProposalSubmissionFee, UpdateConfigActionItem15 as configSuccessReward, UpdateConfigActionItem16 as configVotingPowerRatio
 from mavryk.types.governance.storage import GovernanceStorage
 from dipdup.models import Transaction
 import mavryk.models as models
@@ -44,5 +44,13 @@ async def on_governance_update_config(
         governance.success_reward                   = updatedValue
     elif updateConfigAction == configVotingPowerRatio:
         governance.voting_power_ratio               = updatedValue
+    elif updateConfigAction == configFinancialReqApprovalPct:
+        governance.financial_req_approval_percent   = updatedValue
+    elif updateConfigAction == configFinancialReqDurationDays:
+        governance.financial_req_duration_in_days   = updatedValue
+    elif updateConfigAction == configMinProposalRoundVotePct:
+        governance.proposal_round_vote_percentage   = updatedValue
+    elif updateConfigAction == configMinProposalRoundVotesReq:
+        governance.proposal_round_vote_required     = updatedValue
 
     await governance.save()

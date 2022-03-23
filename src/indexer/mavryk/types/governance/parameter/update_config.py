@@ -40,59 +40,87 @@ class UpdateConfigActionItem4(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMaxProposalsPerDelegate: Dict[str, Any]
+    configFinancialReqApprovalPct: Dict[str, Any]
 
 
 class UpdateConfigActionItem5(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinQuorumMvkTotal: Dict[str, Any]
+    configFinancialReqDurationDays: Dict[str, Any]
 
 
 class UpdateConfigActionItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinQuorumPercentage: Dict[str, Any]
+    configMaxProposalsPerDelegate: Dict[str, Any]
 
 
 class UpdateConfigActionItem7(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configMinimumStakeReqPercentage: Dict[str, Any]
+    configMinProposalRoundVotePct: Dict[str, Any]
 
 
 class UpdateConfigActionItem8(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configNewBlockTimeLevel: Dict[str, Any]
+    configMinProposalRoundVotesReq: Dict[str, Any]
 
 
 class UpdateConfigActionItem9(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configNewBlocksPerMinute: Dict[str, Any]
+    configMinQuorumMvkTotal: Dict[str, Any]
 
 
 class UpdateConfigActionItem10(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configProposalSubmissionFee: Dict[str, Any]
+    configMinQuorumPercentage: Dict[str, Any]
 
 
 class UpdateConfigActionItem11(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configSuccessReward: Dict[str, Any]
+    configMinimumStakeReqPercentage: Dict[str, Any]
 
 
 class UpdateConfigActionItem12(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configNewBlockTimeLevel: Dict[str, Any]
+
+
+class UpdateConfigActionItem13(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configNewBlocksPerMinute: Dict[str, Any]
+
+
+class UpdateConfigActionItem14(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configProposalSubmissionFee: Dict[str, Any]
+
+
+class UpdateConfigActionItem15(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configSuccessReward: Dict[str, Any]
+
+
+class UpdateConfigActionItem16(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -118,4 +146,8 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem10,
         UpdateConfigActionItem11,
         UpdateConfigActionItem12,
+        UpdateConfigActionItem13,
+        UpdateConfigActionItem14,
+        UpdateConfigActionItem15,
+        UpdateConfigActionItem16,
     ]

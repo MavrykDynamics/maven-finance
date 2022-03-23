@@ -15,6 +15,8 @@ async def on_governance_origination(
     governanceMinQuorumMvkTotal                     = int(governance_origination.storage.config.minQuorumMvkTotal)
     governanceVotingPowerRatio                      = int(governance_origination.storage.config.votingPowerRatio)
     governanceProposalSubmissionFee                 = int(governance_origination.storage.config.proposalSubmissionFee)
+    governanceProposalRoundVotePercentage           = int(governance_origination.storage.config.minProposalRoundVotePercentage)
+    governanceProposalRoundVoteRequired             = int(governance_origination.storage.config.minProposalRoundVotesRequired)
     governanceMinimumStakeReqPercentage             = int(governance_origination.storage.config.minimumStakeReqPercentage)
     governanceMaxProposalsPerDelegate               = int(governance_origination.storage.config.maxProposalsPerDelegate)
     governanceNewBlockTimeLevel                     = int(governance_origination.storage.config.newBlockTimeLevel)
@@ -43,27 +45,29 @@ async def on_governance_origination(
 
     # Create record
     governance  = models.Governance(
-        address                         = governanceAddress,
-        next_proposal_id                = governanceNextProposalID,
-        success_reward                  = governanceSuccessReward,
-        min_quorum_percentage           = governanceMinQuorumPercentage,
-        min_quorum_mvk_total            = governanceMinQuorumMvkTotal,
-        voting_power_ratio              = governanceVotingPowerRatio,
-        proposal_submission_fee         = governanceProposalSubmissionFee,
-        minimum_stake_req_percentage    = governanceMinimumStakeReqPercentage,
-        max_proposal_per_delegate       = governanceMaxProposalsPerDelegate,
-        new_blocktime_level             = governanceNewBlockTimeLevel,
-        new_block_per_minute            = governanceNewBlocksPerMinute,
-        blocks_per_minute               = governanceBlocksPerMinute,
-        blocks_per_proposal_round       = governanceBlocksPerProposalRound,
-        blocks_per_voting_round         = governanceBlocksPerVotingRound,
-        blocks_per_timelock_round       = governanceBlocksPerTimelockRound,
-        financial_req_approval_percent  = governanceFinancialRequestApprovalPercentage,
-        financial_req_duration_in_days  = governanceFinancialRequestDurationInDays,
-        start_level                     = governanceStartLevel,
-        current_round                   = governanceRoundType,
-        current_round_start_level       = governanceCurrentRoundStartLevel,
-        current_round_end_level         = governanceCurrentRoundEndLevel,
-        current_cycle_end_level         = governanceCurrentCycleEndLevel
+        address                                 = governanceAddress,
+        next_proposal_id                        = governanceNextProposalID,
+        success_reward                          = governanceSuccessReward,
+        min_quorum_percentage                   = governanceMinQuorumPercentage,
+        min_quorum_mvk_total                    = governanceMinQuorumMvkTotal,
+        voting_power_ratio                      = governanceVotingPowerRatio,
+        proposal_submission_fee                 = governanceProposalSubmissionFee,
+        proposal_round_vote_percentage          = governanceProposalRoundVotePercentage,
+        governanceProposalRoundVoteRequired     = governanceProposalRoundVoteRequired,
+        minimum_stake_req_percentage            = governanceMinimumStakeReqPercentage,
+        max_proposal_per_delegate               = governanceMaxProposalsPerDelegate,
+        new_blocktime_level                     = governanceNewBlockTimeLevel,
+        new_block_per_minute                    = governanceNewBlocksPerMinute,
+        blocks_per_minute                       = governanceBlocksPerMinute,
+        blocks_per_proposal_round               = governanceBlocksPerProposalRound,
+        blocks_per_voting_round                 = governanceBlocksPerVotingRound,
+        blocks_per_timelock_round               = governanceBlocksPerTimelockRound,
+        financial_req_approval_percent          = governanceFinancialRequestApprovalPercentage,
+        financial_req_duration_in_days          = governanceFinancialRequestDurationInDays,
+        start_level                             = governanceStartLevel,
+        current_round                           = governanceRoundType,
+        current_round_start_level               = governanceCurrentRoundStartLevel,
+        current_round_end_level                 = governanceCurrentRoundEndLevel,
+        current_cycle_end_level                 = governanceCurrentCycleEndLevel
     )
     await governance.save()
