@@ -89,8 +89,7 @@ type financialRequestRecordType is [@layout:comb] record [
     status                  : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
     ready                   : bool;                  // false on creation; set to true once snapshot of staked MVK total supply has been taken
     executed                : bool;                  // false on creation; set to true when financial request is executed successfully
-    expired                 : bool;                  // false on creation
-
+    
     treasuryAddress         : address;
     tokenContractAddress    : address; 
     tokenAmount             : nat;
@@ -173,6 +172,8 @@ type configType is [@layout:comb] record [
 type updateConfigNewValueType is nat
 type updateGovernanceConfigActionType is 
   ConfigSuccessReward of unit
+| ConfigMinProposalRoundVotePercentage of unit
+| ConfigMinProposalRoundVotesRequired of unit
 | ConfigMinQuorumPercentage of unit
 | ConfigMinQuorumMvkTotal of unit
 | ConfigVotingPowerRatio of unit
@@ -185,6 +186,8 @@ type updateGovernanceConfigActionType is
 | ConfigBlocksPerProposalRound of unit
 | ConfigBlocksPerVotingRound of unit
 | ConfigBlocksPerTimelockRound of unit
+| ConfigFinancialRequestApprovalPercentage of unit
+| ConfigFinancialRequestDurationInDays of unit
 
 type updateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: updateConfigNewValueType; 
@@ -250,6 +253,8 @@ type mintMvkAndTransferType is [@layout:comb] record [
 
 type storage is record [
     admin                       : address;
+    mvkTokenAddress             : address;
+
     config                      : configType;
 
     whitelistContracts          : whitelistContractsType;      
@@ -391,10 +396,7 @@ block{
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
 block{
-  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found.")
-  end;
+  const mvkTokenAddress : address = s.mvkTokenAddress;
   if (Tezos.sender = mvkTokenAddress) then skip
   else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
 } with unit
@@ -472,18 +474,22 @@ block {
         // set boundary - do for the rest
         s.config.successReward              := updateConfigNewValue
       }
-  | ConfigMinQuorumPercentage (_v)        -> s.config.minQuorumPercentage        := updateConfigNewValue
-  | ConfigMinQuorumMvkTotal (_v)          -> s.config.minQuorumMvkTotal          := updateConfigNewValue
-  | ConfigVotingPowerRatio (_v)           -> s.config.votingPowerRatio           := updateConfigNewValue
-  | ConfigProposalSubmissionFee (_v)      -> s.config.proposalSubmissionFee      := updateConfigNewValue
-  | ConfigMinimumStakeReqPercentage (_v)  -> s.config.minimumStakeReqPercentage  := updateConfigNewValue
-  | ConfigMaxProposalsPerDelegate (_v)    -> s.config.maxProposalsPerDelegate    := updateConfigNewValue
-  | ConfigNewBlockTimeLevel (_v)          -> s.config.newBlockTimeLevel          := updateConfigNewValue
-  | ConfigNewBlocksPerMinute (_v)         -> s.config.newBlocksPerMinute         := updateConfigNewValue
-  | ConfigBlocksPerMinute (_v)            -> s.config.blocksPerMinute            := updateConfigNewValue
-  | ConfigBlocksPerProposalRound (_v)     -> s.config.blocksPerProposalRound     := updateConfigNewValue
-  | ConfigBlocksPerVotingRound (_v)       -> s.config.blocksPerVotingRound       := updateConfigNewValue
-  | ConfigBlocksPerTimelockRound (_v)     -> s.config.blocksPerTimelockRound     := updateConfigNewValue
+  | ConfigMinProposalRoundVotePercentage (_v)         -> s.config.minProposalRoundVotePercentage          := updateConfigNewValue
+  | ConfigMinProposalRoundVotesRequired (_v)          -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
+  | ConfigMinQuorumPercentage (_v)                    -> s.config.minQuorumPercentage                     := updateConfigNewValue
+  | ConfigMinQuorumMvkTotal (_v)                      -> s.config.minQuorumMvkTotal                       := updateConfigNewValue
+  | ConfigVotingPowerRatio (_v)                       -> s.config.votingPowerRatio                        := updateConfigNewValue
+  | ConfigProposalSubmissionFee (_v)                  -> s.config.proposalSubmissionFee                   := updateConfigNewValue
+  | ConfigMinimumStakeReqPercentage (_v)              -> s.config.minimumStakeReqPercentage               := updateConfigNewValue
+  | ConfigMaxProposalsPerDelegate (_v)                -> s.config.maxProposalsPerDelegate                 := updateConfigNewValue
+  | ConfigNewBlockTimeLevel (_v)                      -> s.config.newBlockTimeLevel                       := updateConfigNewValue
+  | ConfigNewBlocksPerMinute (_v)                     -> s.config.newBlocksPerMinute                      := updateConfigNewValue
+  | ConfigBlocksPerMinute (_v)                        -> s.config.blocksPerMinute                         := updateConfigNewValue
+  | ConfigBlocksPerProposalRound (_v)                 -> s.config.blocksPerProposalRound                  := updateConfigNewValue
+  | ConfigBlocksPerVotingRound (_v)                   -> s.config.blocksPerVotingRound                    := updateConfigNewValue
+  | ConfigBlocksPerTimelockRound (_v)                 -> s.config.blocksPerTimelockRound                  := updateConfigNewValue
+  | ConfigFinancialRequestApprovalPercentage (_v)     -> s.config.financialRequestApprovalPercentage      := updateConfigNewValue
+  | ConfigFinancialRequestDurationInDays (_v)         -> s.config.financialRequestDurationInDays          := updateConfigNewValue
   end;
 
 } with (noOperations, s)
@@ -873,10 +879,7 @@ block {
       | None -> failwith("Error. Delegation Contract is not found")
     end;
 
-    const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found")
-    end;
+    const mvkTokenAddress : address = s.mvkTokenAddress;
 
     // update snapshot MVK total supply
     const setSnapshotMvkTotalSupplyCallback : contract(nat) = Tezos.self("%setSnapshotMvkTotalSupply");    
@@ -1569,10 +1572,7 @@ block {
 
 //   const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
   
-//   const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-//     Some(_address) -> _address
-//     | None -> failwith("Error. MVK Token Contract is not found")
-//   end;
+//   const mvkTokenAddress : address = s.mvkTokenAddress;
 
 //   var newFinancialRequest : financialRequestRecordType := record [
 
@@ -1581,7 +1581,6 @@ block {
 //         status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
 //         ready                = False;
 //         executed             = False;
-//         expired              = False;      
 
 //         treasuryAddress      = requestMintParams.treasuryAddress;
 //         tokenContractAddress = mvkTokenAddress;
@@ -1760,11 +1759,7 @@ block {
 //   if _financialRequest.ready     = False then failwith("Error. Financial request is not ready yet.")          else skip;
 //   if _financialRequest.executed  = True  then failwith("Error. Financial request has already been executed.") else skip;
 
-//   if Tezos.now > _financialRequest.expiryDateTime then block {
-//     _financialRequest.expired := True;
-//     s.financialRequestLedger[financialRequestId] := _financialRequest;
-//     failwith("Error. Financial request has expired");
-//   } else skip;
+//   if Tezos.now > _financialRequest.expiryDateTime then failwith("Error. Financial request has expired") else skip;
 
 //   var operations : list(operation) := nil;
 

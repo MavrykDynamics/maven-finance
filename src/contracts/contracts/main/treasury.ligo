@@ -35,14 +35,16 @@ type breakGlassConfigType is record [
 ]
 
 type storage is record [
-    admin                 : address;
-    config                : configType;
+    admin                      : address;
+    mvkTokenAddress            : address;
+
+    config                     : configType;
 
     whitelistContracts         : whitelistContractsType;
     whitelistTokenContracts    : whitelistTokenContractsType;
     generalContracts           : generalContractsType;
 
-    breakGlassConfig     : breakGlassConfigType;
+    breakGlassConfig           : breakGlassConfigType;
 ]
 
 type tezType             is unit
@@ -242,11 +244,8 @@ block {
 
     operations := transferTokenOperation # operations;
 
-    // update user's satellite balance if MVK is transferred (change in satellite's total delegated amount)
-    const mvkTokenAddress : address = case s.whitelistTokenContracts["mvk"] of
-        Some(_address) -> _address
-        | None -> failwith("Error. MVK Token Address is not found in Whitelist Token Contracts.")
-    end;
+    // update user's satellite balance if MVK is transferred
+    const mvkTokenAddress : address = s.mvkTokenAddress;
 
     const checkIfMvkToken : bool = case token of
          Tez -> False
@@ -294,10 +293,7 @@ block {
     const to_    : address   = mintMvkAndTransfer.to_;
     const amt    : nat       = mintMvkAndTransfer.amt;
 
-    const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-        Some(_address) -> _address
-        | None -> failwith("Error. MVK Token Contract is not found.")
-    end;
+    const mvkTokenAddress : address = s.mvkTokenAddress;
 
     const delegationAddress : address = case s.generalContracts["delegation"] of
       Some(_address) -> _address

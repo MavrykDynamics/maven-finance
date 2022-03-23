@@ -11,6 +11,8 @@ type tokenId is nat;
 type tokenBalance is nat;
 type operator is address
 type owner is address
+type treasury is string
+type forceTransfer is bool
 
 ////
 // STORAGE
@@ -26,15 +28,17 @@ type tokenMetadata is big_map(tokenId, tokenMetadataInfo);
 type metadata is big_map (string, bytes);
 
 type storage is record [
-    admin                 : address;
-    generalContracts      : generalContractsType;    // map of contract addresses
-    whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
-    metadata              : metadata;
-    token_metadata        : tokenMetadata;
-    totalSupply           : tokenBalance;
-    ledger                : ledger;
-    operators             : operators
-  ]
+  admin                 : address;
+
+  generalContracts      : generalContractsType;    // map of contract addresses
+  whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
+  metadata              : metadata;
+  token_metadata        : tokenMetadata;
+  totalSupply           : tokenBalance;
+  maximumSupply         : tokenBalance;
+  ledger                : ledger;
+  operators             : operators
+]
 
 ////
 // RETURN TYPES
@@ -90,23 +94,23 @@ type assertMetadataParams is [@layout:comb] record[
   hash: bytes;
 ]
 
-(* TotalSupply entrypoint inputs *)
-type getTotalSupplyParams is contract(tokenBalance)
+(* GetTotalSupply & GetMaximumSupply entrypoint inputs *)
+type getSingleSupplyParamsType is contract(tokenBalance)
+
+(* GetTotalAndMaximumSupply entrypoint inputs *)
+type getTotalAndMaximumSupplyParamsType is contract(tokenBalance * tokenBalance)
+
+(* GetDesiredMintPossibility entrypoint inputs *)
+type getDesiredMintPossibilityParams is contract(tokenBalance)
 
 (* Mint entrypoint inputs *)
 type mintParams is (owner * tokenBalance)
-
-(* Burn entrypoint inputs *)
-type burnParams is (owner * tokenBalance)
 
 (* OnStakeChange entrypoint inputs *)
 type stakeType is 
   StakeAction of unit
 | UnstakeAction of unit
 type onStakeChangeParamsType is (owner * tokenBalance * stakeType)
-
-(* UpdateMvkDoormanTotalSupply entrypoint inputs *)
-type updateMvkTotalSupplyForDoormanParams is tokenBalance
 
 ////
 // ENTRYPOINTS
@@ -116,13 +120,13 @@ type action is
 | Balance_of of balanceOfParams
 | Update_operators of updateOperatorsParams
 | AssertMetadata of assertMetadataParams
-| GetTotalSupply of getTotalSupplyParams
+| GetTotalSupply of getSingleSupplyParamsType
+| GetMaximumSupply of getSingleSupplyParamsType
+| GetTotalAndMaximumSupply of getTotalAndMaximumSupplyParamsType
 | Mint of mintParams
-| Burn of burnParams
 | OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
 | UpdateGeneralContracts of updateGeneralContractsParams
-| UpdateMvkTotalSupplyForDoorman of updateMvkTotalSupplyForDoormanParams
 
 ////
 // FUNCTIONS
@@ -136,11 +140,11 @@ function getBalance(const owner : owner; const store : storage) : tokenBalance i
 
 (* Helper function to validate *)
 function checkTokenId(const tokenId: tokenId): unit is
-  if tokenId =/= 0n then failwith("FA2_TOKEN_UNDEFINED") // TODO: Check if that's the right syntax
+  if tokenId =/= 0n then failwith("FA2_TOKEN_UNDEFINED")
   else unit
 
 function checkBalance(const spenderBalance: tokenBalance; const tokenAmount: tokenBalance): unit is
-  if spenderBalance < tokenAmount then failwith("FA2_INSUFFICIENT_BALANCE") // TODO: See if the balance is decrease correctly if the same user send tokens to multiple destinations at once 
+  if spenderBalance < tokenAmount then failwith("FA2_INSUFFICIENT_BALANCE")
   else unit
 
 function checkOwnership(const owner: owner): unit is
@@ -241,9 +245,17 @@ function balanceOf(const balanceOfParams: balanceOfParams; const store: storage)
       const operation: operation = Tezos.transaction(responses, 0tez, callback);
   } with (list[operation],store)
 
-(* TotalSupply Entrypoint *)
-function getTotalSupply(const getTotalSupplyParams: getTotalSupplyParams; const store: storage) : return is
-  (list[Tezos.transaction(store.totalSupply, 0tez, getTotalSupplyParams)], store)
+(* GetTotalSupply Entrypoint *)
+function getTotalSupply(const getSingleSupplyParams: getSingleSupplyParamsType; const store: storage) : return is
+  (list[Tezos.transaction(store.totalSupply, 0tez, getSingleSupplyParams)], store)
+
+(* GetMaximumSupply Entrypoint *)
+function getMaximumSupply(const getSingleSupplyParams: getSingleSupplyParamsType; const store: storage) : return is
+  (list[Tezos.transaction(store.maximumSupply, 0tez, getSingleSupplyParams)], store)
+
+(* GetTotalAndMaximumSupply Entrypoint *)
+function getTotalAndMaximumSupply(const getTotalAndMaximumSupplyParams: getTotalAndMaximumSupplyParamsType; const store: storage) : return is
+  (list[Tezos.transaction((store.totalSupply, store.maximumSupply), 0tez, getTotalAndMaximumSupplyParams)], store)
 
 (* Update_operators Entrypoint *)
 function addOperator(const operatorParameter: operatorParameter; const operators: operators): operators is
@@ -298,41 +310,23 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
 (* Mint Entrypoint *)
 function mint(const mintParams: mintParams; const store : storage) : return is
   block {
-    const senderAddress: owner = mintParams.0;
+    const recipientAddress: owner = mintParams.0;
     const mintedTokens: tokenBalance = mintParams.1;
 
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Tezos.sender, store) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+
+    // Check if the minted token exceed the maximumSupply defined in the storage
+    const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
+    if tempTotalSupply > store.maximumSupply then failwith("Maximum total supply of MVK exceeded") else skip;
 
     // Update sender's balance
-    const senderNewBalance: tokenBalance = getBalance(senderAddress, store) + mintedTokens;
+    const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
     const newTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
 
     // Update storage
-    const updatedLedger: ledger = Big_map.update(senderAddress, Some(senderNewBalance), store.ledger);
+    const updatedLedger: ledger = Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
-
-(* Burn Entrypoint *)
-function burn(const burnParams: burnParams; const store: storage) : return is
-  block {
-    const targetAddress: owner = burnParams.0;
-    const burnedTokens: tokenBalance = burnParams.1;
-    var targetBalance: tokenBalance := getBalance(targetAddress, store);
-
-    (* Check this call is coming from the doorman contract *)
-    checkSenderIsDoormanContract(store);
-
-    (* Balance check *)
-    checkBalance(targetBalance, burnedTokens);
-
-    (* Update sender balance *)
-    targetBalance := abs(targetBalance - burnedTokens);
-    const newTotalSupply: tokenBalance = abs(store.totalSupply - burnedTokens);
-
-    (* Update storage *)
-    const updatedLedger: ledger = Big_map.update(targetAddress, Some(targetBalance), store.ledger);
-  } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
-
 
 (* OnStakeChange Entrypoint *)
 (* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
@@ -363,32 +357,6 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const
     const updatedLedger = Big_map.update(owner, Some(ownerBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger])
 
-function updateMvkTotalSupplyForDoorman(const updateMvkTotalSupplyForDoormanParams: updateMvkTotalSupplyForDoormanParams; const store: storage): return is
-  block {
-    (* Check this call is coming from the doorman contract *)
-    checkSenderIsDoormanContract(store);
-
-    const unstakeAmount: tokenBalance = updateMvkTotalSupplyForDoormanParams;
-    const doormanAddress: address = Tezos.sender;
-
-    const setTempMvkTotalSupplyEntrypoint: contract(nat) = 
-      case (Tezos.get_entrypoint_opt("%setTempMvkTotalSupply", doormanAddress) : option(contract(nat))) of
-        Some (contr) -> contr
-      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat))
-      end;
-    const setTempMvkTotalSupplyEntrypoint_operation: operation = Tezos.transaction(store.totalSupply, 0tez, setTempMvkTotalSupplyEntrypoint);
-
-    const unstakeCompleteEntrypoint: contract(nat) =
-      case (Tezos.get_entrypoint_opt("%unstakeComplete", doormanAddress) : option(contract(nat))) of
-        Some(contr) -> contr
-      | None -> (failwith("ENTRYPOINT_NOT_FOUND"): contract(nat))
-      end;
-    const unstakeCompleteOperation: operation = Tezos.transaction(unstakeAmount, 0tez, unstakeCompleteEntrypoint);
-
-    const operations: list(operation) = list [setTempMvkTotalSupplyEntrypoint_operation; unstakeCompleteOperation];
-
-  } with (operations, store)
-
 (* Main entrypoint *)
 function main (const action : action; const store : storage) : return is
   block{
@@ -400,12 +368,15 @@ function main (const action : action; const store : storage) : return is
       | Balance_of (params) -> balanceOf(params, store)
       | Update_operators (params) -> updateOperators(params, store)
       | AssertMetadata (params) -> assertMetadata(params, store)
+
       | GetTotalSupply (params) -> getTotalSupply(params, store)
+      | GetMaximumSupply (params) -> getMaximumSupply(params, store)
+      | GetTotalAndMaximumSupply (params) -> getTotalAndMaximumSupply(params, store)
+
       | Mint (params) -> mint(params, store)
-      | Burn (params) -> burn(params, store)
       | OnStakeChange (params) -> onStakeChange(params, store)
+
       | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
-      | UpdateMvkTotalSupplyForDoorman (params) -> updateMvkTotalSupplyForDoorman(params, store)
     end
   )

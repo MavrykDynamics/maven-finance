@@ -66,6 +66,8 @@ type vesteeLedgerType is big_map(address, vesteeRecordType) // address, vestee r
 
 type storage is record [
     admin               : address;
+    mvkTokenAddress     : address;
+
     config              : configType;
 
     whitelistContracts  : whitelistContractsType;      
@@ -259,10 +261,7 @@ block {
         // get total claim amount
         const totalClaimAmount = _vestee.claimAmountPerMonth * numberOfClaimMonths;  
 
-        const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-            Some(_address) -> _address
-            | None -> failwith("Error. MVK Token Contract is not found.")
-        end;
+        const mvkTokenAddress : address = s.mvkTokenAddress;
 
         const mintSMvkTokensOperation : operation = mintTokens(
             Tezos.sender,           // to address

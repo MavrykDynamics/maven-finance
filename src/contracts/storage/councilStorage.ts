@@ -15,6 +15,8 @@ const config = {
 
 export const councilStorage: councilStorageType = {
   admin: alice.pkh,
+  mvkTokenAddress: "",
+  
   config: config,
   councilMembers: [],
 

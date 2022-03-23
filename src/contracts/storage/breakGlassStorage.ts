@@ -14,8 +14,10 @@ const config = {
 }
 
 export const breakGlassStorage: breakGlassStorageType = {
-  admin               : alice.pkh,
-  config              : config,
+  admin: alice.pkh,
+  mvkTokenAddress: "",
+
+  config: config,
   glassBroken         : false,
   councilMembers      : [],
   developerAddress    : zeroAddress,

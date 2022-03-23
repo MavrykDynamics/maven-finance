@@ -11,7 +11,6 @@ type userStakeBalanceRecordType is record[
 ]
 type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
-type burnTokenType is (address * nat)
 type mintTokenType is (address * nat)
 type updateSatelliteBalanceParams is (address * nat * nat)
 
@@ -36,25 +35,30 @@ type transfer is [@layout:comb] record[
 type transferType is list(transfer)
 
 type storage is record [
-  admin                   : address;
+  admin                     : address;
+  mvkTokenAddress           : address;
   
-  minMvkAmount            : nat;
+  minMvkAmount              : nat;
   
-  whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-  generalContracts        : generalContractsType;
+  whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
+  generalContracts          : generalContractsType;
   
-  breakGlassConfig        : breakGlassConfigType;
+  breakGlassConfig          : breakGlassConfigType;
   
-  userStakeBalanceLedger  : userStakeBalanceLedgerType;  // user staked balance ledger
+  userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
   
-  tempMvkTotalSupply      : nat; // temporary mvk total supply in circulation   
-  stakedMvkTotalSupply    : nat; // current total staked MVK
-  unclaimedRewards        : nat; // current exit fee pool rewards
+  tempUnstakeAmount         : option(nat); // temporary unstake amount for a user who wants to unstake
+  tempClaimForceTransfer    : option(bool); // temporary claim forceTransfer for a user who wants to claim from a farm
+  tempClaimDelegator        : option(address); // temporary claim delegator for a user who wants to claim from a farm
+  tempClaimAmount           : option(nat); // temporary claim amount for a user who wants to claim from a farm
 
-  logExitFee              : nat; // to be removed after testing
-  logFinalAmount          : nat; // to be removed after testing
+  stakedMvkTotalSupply      : nat; // current total staked MVK
+  unclaimedRewards          : nat; // current exit fee pool rewards
 
-  accumulatedFeesPerShare : nat;
+  logExitFee                : nat; // to be removed after testing
+  logFinalAmount            : nat; // to be removed after testing
+
+  accumulatedFeesPerShare   : nat;
 ]
 
 const noOperations : list (operation) = nil;
@@ -63,7 +67,7 @@ type return is list (operation) * storage
 type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
 type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, sMVK balance
 
-type farmClaimType is (address * nat)
+type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
 type stakeType is 
   StakeAction of unit
@@ -71,16 +75,12 @@ type stakeType is
 
 type getTotalStakedSupplyParamsType is contract(nat)
 
-type emergencyGovernanceVoteCheckCallback is contract(nat * timestamp)
-type emergencyGovernanceVoteCheckType is (address * emergencyGovernanceVoteCheckCallback)
-
 type doormanAction is 
     SetAdmin of (address)
   | UpdateMinMvkAmount of (nat)
   
   | UpdateWhitelistContracts of updateWhitelistContractsParams
   | UpdateGeneralContracts of updateGeneralContractsParams
-  | SetTempMvkTotalSupply of (nat)
 
   | PauseAll of (unit)
   | UnpauseAll of (unit)
@@ -98,7 +98,8 @@ type doormanAction is
   | UnstakeComplete of (nat)
   | Compound of (unit)
 
-  | FarmClaim of (address * nat)
+  | FarmClaim of farmClaimType
+  | FarmClaimComplete of (nat * nat)
 
 (* ---- Helper functions begin ---- *)
 
@@ -109,10 +110,7 @@ function checkSenderIsAdmin(var s : storage) : unit is
 
 function checkSenderIsMvkTokenContract(var s : storage) : unit is
 block{
-  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found.")
-  end;
+  const mvkTokenAddress : address = s.mvkTokenAddress;
   if (Tezos.sender = mvkTokenAddress) then skip
     else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
 } with unit
@@ -180,12 +178,21 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
   end;
 
 // helper function to get MVK total supply
-function updateMvkTotalSupplyForDoorman(const tokenAddress : address) : contract(nat) is
+function getMvkTotalSupplyEntrypoint(const s: storage) : contract(contract(nat)) is
   case (Tezos.get_entrypoint_opt(
-      "%updateMvkTotalSupplyForDoorman",
-      tokenAddress) : option(contract(nat))) of
+      "%getTotalSupply",
+      s.mvkTokenAddress) : option(contract(contract(nat)))) of
     Some(contr) -> contr
-  | None -> (failwith("UpdateMvkTotalSupplyForDoorman entrypoint in MVK Token Contract not found") : contract(nat))
+  | None -> (failwith("GetTotalSupply entrypoint in MVK Token Contract not found") : contract(contract(nat)))
+  end;
+
+// helper function to get MVK supplies
+function getMvkSuppliesEntrypoint(const s: storage) : contract(contract(nat * nat)) is
+  case (Tezos.get_entrypoint_opt(
+      "%getTotalAndMaximumSupply",
+      s.mvkTokenAddress) : option(contract(contract(nat * nat)))) of
+    Some(contr) -> contr
+  | None -> (failwith("GetTotalAndMaximumSupply entrypoint in MVK Token Contract not found") : contract(contract(nat * nat)))
   end;
 
 (* ---- Helper functions end ---- *)
@@ -295,30 +302,6 @@ function getStakedBalance (const userAddress : address; const contr : contract(n
 
   } with (list [transaction(userBalanceInStakeBalanceLedger, 0tz, contr)], s)
 
-(* View function that forwards the staked balance of source to a contract *)
-// function emergencyGovernanceVoteCheck (const emergencyGovernanceVoteCheckParams : emergencyGovernanceVoteCheckType; var s : storage) : return is
-//   block {
-
-//     const userAddress : address = emergencyGovernanceVoteCheckParams.0;
-
-//     const userRecordInStakeBalanceLedger : userStakeBalanceRecordType = case s.userStakeBalanceLedger[userAddress] of
-//         Some (_record) -> _record
-//       | None -> failwith("Error. User stake balance record not found.")
-//     end;
-
-//     const stakedBalance                          : nat        = userRecordInStakeBalanceLedger.balance;
-//     const emergencyGovernanceLastVotedTimestamp  : timestamp  = userRecordInStakeBalanceLedger.emergencyGovernanceLastVotedTimestamp;
-
-//     const callbackContract : emergencyGovernanceVoteCheckCallback = emergencyGovernanceVoteCheckParams.1;
-
-//     const callbackOperation : operation = Tezos.transaction(
-//       (stakedBalance, emergencyGovernanceLastVotedTimestamp),
-//       0mutez,
-//       callbackContract
-//     )
-
-//   } with (list [callbackOperation], s)
-
 (* View function that forwards the balance of satellite with satellite creation params to the delegation contract *)
 function getSatelliteBalance (const userAddress : address; const name : string; const description : string; const image : string; const satelliteFee : nat; const contr : contract(satelliteInfoType); var s : storage) : return is
   block {
@@ -420,10 +403,7 @@ block {
   if stakeAmount < s.minMvkAmount then failwith("You have to stake at least 1 MVK token.")
     else skip;
 
-  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found.")
-  end;
+  const mvkTokenAddress : address = s.mvkTokenAddress;
 
   const delegationAddress : address = case s.generalContracts["delegation"] of
       Some(_address) -> _address
@@ -512,37 +492,36 @@ block {
   const userCompound: (option(operation) * storage) = compoundUserRewards(s);
   s := userCompound.1;
 
-  const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-      Some(_address) -> _address
-      | None -> failwith("Error. MVK Token Contract is not found.")
+  // Store the unstake amount in the storage as a temp var
+  s.tempUnstakeAmount := Some (unstakeAmount);
+
+  // update temp MVK total supply and MVK maximum supply
+  const unstakeCompleteEntrypoint: contract(nat) = case (Tezos.get_entrypoint_opt("%unstakeComplete", Tezos.self_address) : option(contract(nat))) of
+    Some(contr) -> contr
+  | None -> (failwith("Unstake complete entrypoint not found"): contract(nat))
   end;
+  const unstakeCompleteOperation : operation = Tezos.transaction(unstakeCompleteEntrypoint, 0tez, getMvkTotalSupplyEntrypoint(s));
 
-  // update temp MVK total supply
-  const updateMvkTotalSupplyProxyOperation : operation = Tezos.transaction(unstakeAmount, 0tez, updateMvkTotalSupplyForDoorman(mvkTokenAddress));
-
-  // list of operations: get MVK total supply first, then get sMVK total supply (which will trigger unstake complete)
-  const operations : list(operation) = 
-    case userCompound.0 of
-      Some (o) -> list [updateMvkTotalSupplyProxyOperation; o]
-    | None -> list [updateMvkTotalSupplyProxyOperation]
-    end
+  // list of operations: get MVK total supply first, then get vMVK total supply (which will trigger unstake complete)
+  const operations : list(operation) = case userCompound.0 of
+    Some (compound) -> list [compound; unstakeCompleteOperation]
+  | None -> list [unstakeCompleteOperation]
+  end
 } with (operations, s)
 
-function setTempMvkTotalSupply(const totalSupply : nat; var s : storage) is
-block {
-  
-    // check that the call is coming from MVK Token Contract
-    checkSenderIsMvkTokenContract(s);
-    s.tempMvkTotalSupply := totalSupply;
-
-} with (noOperations, s);
-
-function unstakeComplete(const unstakeAmount: nat; var s : storage): return is
+function unstakeComplete(const mvkTotalSupply: nat; var s : storage): return is
 block {
     checkSenderIsMvkTokenContract(s);
+
+    // Get unstake amount from the storage and reset it
+    const unstakeAmount: nat  = case s.tempUnstakeAmount of
+      Some (value) -> value
+    | None -> failwith("Temp unstake amount invalid")
+    end;
+    s.tempUnstakeAmount := (None : option(nat));
 
     // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
-    const mvkLoyaltyIndex: nat = (s.stakedMvkTotalSupply * 100n * fixedPointAccuracy) / s.tempMvkTotalSupply;
+    const mvkLoyaltyIndex: nat = (s.stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
     
     // Fee calculation
     const exitFee: nat = (500n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (5n * fixedPointAccuracy));
@@ -563,7 +542,6 @@ block {
     // temp to check correct amount of exit fee and final amount in console truffle tests
     s.logExitFee := exitFee;
     s.logFinalAmount := finalUnstakeAmount;
-    // todo: split remainder of exitFee to be distributed as rewards
 
     // update user's staked balance in staked balance ledger
     var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.source] of
@@ -583,10 +561,7 @@ block {
     userBalanceInStakeBalanceLedger.balance := abs(userBalanceInStakeBalanceLedger.balance - unstakeAmount); 
     s.userStakeBalanceLedger[Tezos.source] := userBalanceInStakeBalanceLedger;
 
-    const mvkTokenAddress : address = case s.generalContracts["mvkToken"] of
-        Some(_address) -> _address
-        | None -> failwith("Error. MVK Token Contract is not found.")
-    end;
+    const mvkTokenAddress : address = s.mvkTokenAddress;
 
     const delegationAddress : address = case s.generalContracts["delegation"] of
         Some(_address) -> _address
@@ -625,8 +600,8 @@ block {
 
     // create list of operations
     const operations : list(operation) = case compoundAction.0 of
-      Some (compoundOperation) -> list[compoundOperation; transferOperation; updateSatelliteBalanceOperation]
-    | None -> list[transferOperation; updateSatelliteBalanceOperation]
+      Some (compoundOperation) -> list[updateSatelliteBalanceOperation; transferOperation; compoundOperation]
+    | None -> list[updateSatelliteBalanceOperation; transferOperation]
     end;
 
 } with (operations, s);
@@ -637,13 +612,15 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     // Get values from parameter
     const delegator: address = farmClaim.0;
     const claimAmount: nat  = farmClaim.1;
+    const forceTransfer: bool = farmClaim.2;
+
+    // Store the variables in the storage as temp variables
+    s.tempClaimAmount         := Some (claimAmount);
+    s.tempClaimDelegator      := Some (delegator);
+    s.tempClaimForceTransfer  := Some (forceTransfer);
 
     // Get farm address
     const farmAddress: address = Tezos.sender;
-
-    // Compound user rewards
-    const userCompound: (option(operation) * storage) = compoundUserRewards(s);
-    s := userCompound.1;
 
     // Check if farm address is known to the farmFactory
     const farmFactoryAddress: address = case Map.find_opt("farmFactory", s.generalContracts) of
@@ -651,38 +628,67 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
         | None -> failwith("Error. Farm Factory Contract is not found.")
     end;
     const farmFactoryContract: contract(address) = 
-      case (Tezos.get_entrypoint_opt("%checkFarm", farmFactoryAddress) : option(contract(address))) of
+      case (Tezos.get_entrypoint_opt("%checkFarmExists", farmFactoryAddress) : option(contract(address))) of
         Some(contr) -> contr
-      | None -> (failwith("CheckFarm entrypoint in Farm Factory Contract not found") : contract(address))
+      | None -> (failwith("CheckFarmExists entrypoint in Farm Factory Contract not found") : contract(address))
       end;
-    const checkFarmOperation: operation = Tezos.transaction(farmAddress, 0tez, farmFactoryContract);
+    const checkFarmExistsOperation: operation = Tezos.transaction(farmAddress, 0tez, farmFactoryContract);
+
+    // update temp MVK total supply and MVK maximum supply
+    const farmClaimCompleteEntrypoint: contract(nat * nat) = case (Tezos.get_entrypoint_opt("%farmClaimComplete", Tezos.self_address) : option(contract(nat * nat))) of
+      Some(contr) -> contr
+    | None -> (failwith("Farm claim complete entrypoint not found"): contract(nat * nat))
+    end;
+    const farmClaimCompleteOperation : operation = Tezos.transaction(farmClaimCompleteEntrypoint, 0tez, getMvkSuppliesEntrypoint(s));
+
+    // List of operation, first check the farm exists, then update the Satellite balance
+    const operations: list(operation) = list[checkFarmExistsOperation; farmClaimCompleteOperation];
+
+  } with(operations, s)
+
+function farmClaimComplete(const mvkSuppliesParam: (nat * nat); var s: storage): return is
+  block{
+    checkSenderIsMvkTokenContract(s);
+
+    // Get claim variables from the storage and reset them
+    const recipientAddress: address = case s.tempClaimDelegator of
+      Some (value) -> value
+    | None -> failwith("Temp claim delegator invalid")
+    end;
+    s.tempClaimDelegator  := (None : option(address));
+    var mintedTokens: nat := case s.tempClaimAmount of
+      Some (value) -> value
+    | None -> failwith("Temp claim amount invalid")
+    end;
+    s.tempClaimAmount  := (None : option(nat));
+    var transferedToken: nat := 0n;
+    const forceTransfer: bool = case s.tempClaimForceTransfer of
+      Some (value) -> value
+    | None -> failwith("Temp claim forceTransfer invalid")
+    end;
+    s.tempClaimForceTransfer  := (None : option(bool));
+
+    // Set the supplies variables
+    const mvkTotalSupply: nat = mvkSuppliesParam.0;
+    const mvkMaximumSupply: nat = mvkSuppliesParam.1;
+
+    // Compound user rewards
+    const userCompound: (option(operation) * storage) = compoundUserRewards(s);
+    s := userCompound.1;
 
     // Update the delegation balance
-    const delegationAddress : address = case s.generalContracts["delegation"] of
+    const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of
         Some(_address) -> _address
         | None -> failwith("Error. Delegation Contract is not found.")
     end;
     const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (delegator, claimAmount, 1n),
+      (recipientAddress, mintedTokens, 1n),
       0tez,
       updateSatelliteBalance(delegationAddress)
     );
 
-    // Mint new MVK for the doorman contract: TODO --> Check for minting limit
-    const mvkTokenAddress: address = case Map.find_opt("mvkToken", s.generalContracts) of
-        Some(_address) -> _address
-        | None -> failwith("Error. MVK Token Contract is not found.")
-    end;
-    const mintOperation: operation = Tezos.transaction((Tezos.self_address, claimAmount), 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
-
-    // List of operation, first check the farm exists, then update the Satellite balance
-    const operations: list(operation) = case userCompound.0 of
-      Some (compoundOperation) -> list[checkFarmOperation;updateSatelliteBalanceOperation;mintOperation;compoundOperation]
-    | None -> list[checkFarmOperation;updateSatelliteBalanceOperation;mintOperation]
-    end;
-
-    // update user's staked balance in staked balance ledger
-    var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[delegator] of
+    // get user's staked balance in staked balance ledger
+    var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[recipientAddress] of
       Some (_val) -> _val
     | None -> record[
         balance=0n;
@@ -690,12 +696,67 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
       ]
     end;
 
-    userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + claimAmount; 
-    s.userStakeBalanceLedger[delegator] := userBalanceInStakeBalanceLedger;
+    userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + mintedTokens; 
+    s.userStakeBalanceLedger[recipientAddress] := userBalanceInStakeBalanceLedger;
 
     // update staked MVK total supply
-    s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + claimAmount;
+    s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + mintedTokens;
 
+    // Get treasury address from name
+    const treasuryAddress: address = case Map.find_opt("farmTreasury", s.generalContracts) of
+      Some (v) -> v
+    | None -> failwith("Error. Farm treasury contract not found")
+    end;
+
+    // Check if MVK should force the transfer instead of checking the possibility of minting
+    if forceTransfer then {
+      transferedToken := mintedTokens;
+      mintedTokens := 0n;
+    }
+    else {
+      // Check if the desired minted amount will surpass the maximum total supply
+      const tempTotalSupply: nat = mvkTotalSupply + mintedTokens;
+      if tempTotalSupply > mvkMaximumSupply then {
+        transferedToken := abs(tempTotalSupply - mvkMaximumSupply);
+        mintedTokens := abs(mintedTokens - transferedToken);
+      } else skip;
+    };
+
+    // Prepare operation list
+    var operations: list(operation) := list[updateSatelliteBalanceOperation];
+
+    // Get MVK Token address
+    const mvkTokenAddress: address = Tezos.sender;
+
+    // Mint Tokens
+    if mintedTokens > 0n then {
+      const mintParam: mintTokenType = (Tezos.self_address, mintedTokens);
+      const mintOperation: operation = Tezos.transaction(mintParam, 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
+      operations := mintOperation # operations;
+    } else skip;
+
+    // Transfer from treasury
+    if transferedToken > 0n then {
+      // Check if provided treasury exists
+      const transferParam: transferType = list[
+        record[
+          from_=treasuryAddress;
+          txs=list[
+            record[
+              to_=Tezos.self_address;
+              amount=transferedToken;
+              token_id=0n;
+            ]
+          ]
+        ]
+      ];
+      const transferOperation: operation = Tezos.transaction(
+        transferParam,
+        0tez,
+        getTransferEntrypointFromTokenAddress(mvkTokenAddress)
+      );
+      operations := transferOperation # operations;
+    } else skip;
   } with(operations, s)
 
 (* Main entrypoint *)
@@ -710,7 +771,6 @@ function main (const action : doormanAction; const s : storage) : return is
 
     | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
     | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
-    | SetTempMvkTotalSupply(parameters) -> setTempMvkTotalSupply(parameters, s)
 
     | PauseAll(_parameters) -> pauseAll(s)
     | UnpauseAll(_parameters) -> unpauseAll(s)
@@ -728,6 +788,7 @@ function main (const action : doormanAction; const s : storage) : return is
     | Compound(_parameters) -> compound(s)
 
     | FarmClaim(parameters) -> farmClaim(parameters, s)
+    | FarmClaimComplete(parameters) -> farmClaimComplete(parameters, s)
     
     end
   )

@@ -3,9 +3,10 @@ import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
 export type governanceStorageType = {
-  
-  admin                   : string;
-  config                  : {};
+  admin: string;
+  mvkTokenAddress: string;
+
+  config: {};
 
   whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>;
   whitelistTokenContracts : MichelsonMap<MichelsonMapKey, unknown>;
