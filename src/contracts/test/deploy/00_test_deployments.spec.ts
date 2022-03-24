@@ -37,7 +37,10 @@ import { Council } from "../helpers/councilHelper";
 import { Treasury } from "../helpers/treasuryHelper";
 import { MockFa12Token } from "../helpers/mockFa12TokenHelper";
 import { MockFa2Token } from "../helpers/mockFa2TokenHelper";
+import { UsdmToken } from "../helpers/usdmTokenHelper";
 import { UsdmTokenController } from "../helpers/usdmTokenControllerHelper";
+import { LpTokenUsdmXtz } from "../helpers/lpTokenUsdmXtzHelper";
+import { Cfmm } from "../helpers/cfmmHelper";
 import { Vault } from "../helpers/vaultHelper";
 
 import { doormanStorage } from "../../storage/doormanStorage";
@@ -51,7 +54,11 @@ import { councilStorage } from "../../storage/councilStorage";
 import { treasuryStorage } from "../../storage/treasuryStorage";
 import { mockFa12TokenStorage } from "../../storage/mockFa12TokenStorage";
 import { mockFa2TokenStorage } from "../../storage/mockFa2TokenStorage";
+
+import { usdmTokenStorage } from "../../storage/usdmTokenStorage";
 import { usdmTokenControllerStorage } from "../../storage/usdmTokenControllerStorage";
+import { lpTokenUsdmXtzStorage } from "../../storage/lpTokenUsdmXtzStorage";
+import { cfmmStorage } from "../../storage/cfmmStorage";
 import { vaultStorage } from "../../storage/vaultStorage";
 
 describe('Contracts Deployment for Tests', async () => {
@@ -67,7 +74,10 @@ describe('Contracts Deployment for Tests', async () => {
   var treasury: Treasury
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
+  var usdmToken : UsdmToken
   var usdmTokenController : UsdmTokenController
+  var lpTokenUsdmXtz : LpTokenUsdmXtz
+  var cfmm : Cfmm
   // var vault : Vault
   var tezos
   let deployedDoormanStorage
@@ -198,12 +208,35 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("mock FA2 Token originated")
 
+    usdmToken = await UsdmToken.originate(
+      utils.tezos,
+      usdmTokenStorage
+    );
+
+    console.log("USDM Token originated")
+
     usdmTokenController = await UsdmTokenController.originate(
       utils.tezos,
       usdmTokenControllerStorage
     );
 
     console.log("USDM Token Controller originated")
+
+    cfmmStorage.usdmTokenAddress = usdmToken.contract.address;
+    cfmm = await Cfmm.originate(
+      utils.tezos,
+      cfmmStorage
+    );
+
+    console.log("CFMM originated")
+
+    lpTokenUsdmXtz = await LpTokenUsdmXtz.originate(
+      utils.tezos,
+      lpTokenUsdmXtzStorage
+    );
+
+    console.log("LP Token USDM/XTZ originated")
+
 
     /* ---- ---- ---- ---- ---- */
 
@@ -301,6 +334,11 @@ describe('Contracts Deployment for Tests', async () => {
     
     await saveContractAddress("mockFa12TokenAddress", mockFa12Token.contract.address)
     await saveContractAddress("mockFa2TokenAddress", mockFa2Token.contract.address)
+    
+    await saveContractAddress("usdmTokenAddress", usdmToken.contract.address)
+    await saveContractAddress("usdmTokenControllerAddress", usdmTokenController.contract.address)
+    await saveContractAddress("lpTokenUsdmXtz", lpTokenUsdmXtz.contract.address)
+    await saveContractAddress("cfmmAddress", cfmm.contract.address)
 
     //----------------------------
     // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
@@ -327,6 +365,11 @@ describe('Contracts Deployment for Tests', async () => {
         console.log("Treasury Contract deployed at:", treasury.contract.address);
         console.log("Mock FA12 Token Contract deployed at:", mockFa12Token.contract.address);
         console.log("Mock Fa2 Token Contract deployed at:", mockFa2Token.contract.address);
+
+        console.log("USDM Token deployed at:", usdmToken.contract.address);
+        console.log("USDM Token Controller Contract deployed at:", usdmTokenController.contract.address);
+        console.log("LP Token USDM/XTZ deployed at:", lpTokenUsdmXtz.contract.address);
+        console.log("CFMM (USDM/XTZ) Contract deployed at:", cfmm.contract.address);
 
     } catch (e){
         console.log(e);
