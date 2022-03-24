@@ -11,7 +11,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { alice, bob, eve, mallory } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
 
 // import doormanAddress from '../deployments/doormanAddress.json';
 // import delegationAddress from '../deployments/delegationAddress.json';
@@ -36,7 +36,7 @@
 //     before("setup", async () => {
 
 //         utils = new Utils();
-//         await utils.init(alice.sk);
+//         await utils.init(bob.sk);
         
 //         doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
 //         delegationInstance = await utils.tezos.contract.at(delegationAddress.address);
@@ -50,13 +50,13 @@
 //         console.log('Doorman Contract deployed at:', doormanInstance.address);
 //         console.log('Delegation Contract deployed at:', delegationInstance.address);
 //         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-//         console.log('Alice address: ' + alice.pkh);
 //         console.log('Bob address: ' + bob.pkh);
+//         console.log('Alice address: ' + alice.pkh);
 
 //     });
 
 //     beforeEach('storage', async () => {
-//         await signerFactory(alice.sk)
+//         await signerFactory(bob.sk)
 //     })
 
 //     describe("%stake", async () => {
@@ -69,7 +69,7 @@
 //                 const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
 //                     add_operator: {
-//                         owner: alice.pkh,
+//                         owner: bob.pkh,
 //                         operator: doormanAddress.address,
 //                         token_id: 0,
 //                     },
@@ -88,14 +88,14 @@
 //         it("user should not be able to stake more MVK than he has", async() => {
 //             try{
 //                 // Initial values
-//                 const userMVKBalance = parseInt(await mvkTokenStorage.ledger.get(alice.pkh));
+//                 const userMVKBalance = parseInt(await mvkTokenStorage.ledger.get(bob.pkh));
 //                 const userStake = userMVKBalance + MVK(1);
 
 //                 // Operator set
 //                 const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
 //                     add_operator: {
-//                         owner: alice.pkh,
+//                         owner: bob.pkh,
 //                         operator: doormanAddress.address,
 //                         token_id: 0,
 //                     },
@@ -115,8 +115,8 @@
 //             try{
 //                 // Initial values
 //                 const userStake = MVK(10);
-//                 const userMVKBalance = parseInt(await mvkTokenStorage.ledger.get(alice.pkh));
-//                 const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const userMVKBalance = parseInt(await mvkTokenStorage.ledger.get(bob.pkh));
+//                 const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const userStakeBalance = parseInt(userStakeLedger === undefined ? 0 : userStakeLedger.balance);
 //                 const doormanSMVKTotalSupply = parseInt(doormanStorage.stakedMvkTotalSupply);
 
@@ -124,7 +124,7 @@
 //                 const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
 //                     add_operator: {
-//                         owner: alice.pkh,
+//                         owner: bob.pkh,
 //                         operator: doormanAddress.address,
 //                         token_id: 0,
 //                     },
@@ -141,8 +141,8 @@
 //                 mvkTokenStorage = await mvkTokenInstance.storage();
 
 //                 // Final Values
-//                 const userMVKBalanceEnd = parseInt(await mvkTokenStorage.ledger.get(alice.pkh));
-//                 const userStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const userMVKBalanceEnd = parseInt(await mvkTokenStorage.ledger.get(bob.pkh));
+//                 const userStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const userStakeBalanceEnd = parseInt(userStakeLedgerEnd.balance);
 //                 const doormanSMVKTotalSupplyEnd = parseInt(doormanStorage.stakedMvkTotalSupply);
 
@@ -173,7 +173,7 @@
 //         it("user should not be able to unstake more MVK than he has staked before", async() => {
 //             try{
 //                 // Initial values
-//                 const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const userStakeBalance = parseInt(userStakeLedger === undefined ? 0 : userStakeLedger.balance);
 //                 const userUnstake = userStakeBalance +  MVK();
 
@@ -188,10 +188,10 @@
 //         it("user should not be able to unstake if he never staked", async() => {
 //             try{
 //                 // Switch signer
-//                 await signerFactory(bob.sk);
+//                 await signerFactory(alice.sk);
 
 //                 // Initial values
-//                 const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+//                 const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
 //                 const userUnstake = MVK();
 
 //                 // Assertion
@@ -208,8 +208,8 @@
 //         it("single user should be able to unstake some MVK and earn all the exit fee", async() => {
 //             try{
 //                 // Initial values
-//                 const userMVKBalance = parseInt(await mvkTokenStorage.ledger.get(alice.pkh));
-//                 const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const userMVKBalance = parseInt(await mvkTokenStorage.ledger.get(bob.pkh));
+//                 const userStakeLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const userStakeBalance = parseInt(userStakeLedger === undefined ? 0 : userStakeLedger.balance);
 //                 const mvkTotalSupply = parseInt(mvkTokenStorage.totalSupply);
 //                 const doormanSMVKTotalSupply = parseInt(doormanStorage.stakedMvkTotalSupply);
@@ -231,8 +231,8 @@
 //                 const expectedFinalAmount = userUnstake - paidFee;
 
 //                 // Final Values
-//                 const userMVKBalanceEnd = parseInt(await mvkTokenStorage.ledger.get(alice.pkh));
-//                 const userStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const userMVKBalanceEnd = parseInt(await mvkTokenStorage.ledger.get(bob.pkh));
+//                 const userStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const userStakeBalanceEnd = parseInt(userStakeLedgerEnd.balance);
 //                 const doormanSMVKTotalSupplyEnd = parseInt(doormanStorage.stakedMvkTotalSupply);
 //                 const exitFeePoolEnd = parseInt(doormanStorage.exitFeePool);
@@ -259,7 +259,7 @@
 //                 const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                     {
 //                         add_operator: {
-//                             owner: alice.pkh,
+//                             owner: bob.pkh,
 //                             operator: doormanAddress.address,
 //                             token_id: 0,
 //                         },
@@ -283,7 +283,7 @@
 //                 const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserstake).send();
 //                 await secondUserStakeOperation.confirmation();
 
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
 //                 await firstUserStakeOperation.confirmation();
 
@@ -292,7 +292,7 @@
 //                 mvkTokenStorage = await mvkTokenInstance.storage();
 
 //                 // Balances before unstaking
-//                 const secondUserStakeLedger = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const secondUserStakeLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const mvkTotalSupply = parseInt(mvkTokenStorage.totalSupply);
 //                 const doormanSMVKTotalSupply = parseInt(doormanStorage.stakedMvkTotalSupply);
 
@@ -323,7 +323,7 @@
 //                 const expectedFinalAmount = firstUserUnstake - paidFee;
 
 //                 // Final Values
-//                 const firstUserStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const firstUserStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const firstUserStakeBalanceEnd = parseInt(firstUserStakeLedgerEnd.balance);
 //                 const secondUserStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
 //                 const secondUserStakeBalanceEnd = parseInt(secondUserStakeLedgerEnd.balance);
@@ -361,7 +361,7 @@
 //                 const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                     {
 //                         add_operator: {
-//                             owner: alice.pkh,
+//                             owner: bob.pkh,
 //                             operator: doormanAddress.address,
 //                             token_id: 0,
 //                         },
@@ -382,7 +382,7 @@
 //                     await secondUpdateOperatorsOperation.confirmation();
 
 //                 // Operations
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
 //                 await firstUserStakeOperation.confirmation();
 
@@ -390,7 +390,7 @@
 //                 const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
 //                 await secondUserStakeOperation.confirmation();
                 
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
 //                 await firstUserUnstakeOperation.confirmation();
 
@@ -423,7 +423,7 @@
 //                 const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                     {
 //                         add_operator: {
-//                             owner: alice.pkh,
+//                             owner: bob.pkh,
 //                             operator: doormanAddress.address,
 //                             token_id: 0,
 //                         },
@@ -444,7 +444,7 @@
 //                     await secondUpdateOperatorsOperation.confirmation();
 
 //                 // Operations
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
 //                 await firstUserStakeOperation.confirmation();
 
@@ -452,7 +452,7 @@
 //                 const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
 //                 await secondUserStakeOperation.confirmation();
                 
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
 //                 await firstUserUnstakeOperation.confirmation();
 
@@ -461,7 +461,7 @@
 //                 await secondUserUnstakeOperation.confirmation();
 
 //                 doormanStorage = await doormanInstance.storage();
-//                 const firstUserPreCompoundLedger = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const firstUserPreCompoundLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const firstUserPreCompoundBalance = parseInt(firstUserPreCompoundLedger === undefined ? 0 : firstUserPreCompoundLedger.balance);
 
 //                 const firstUserCompoundOperation = await doormanInstance.methods.compound().send();
@@ -471,7 +471,7 @@
 //                 doormanStorage = await doormanInstance.storage();
                 
 //                 // Final values
-//                 const firstUserPostCompoundLedger = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const firstUserPostCompoundLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const firstUserPostCompoundBalance = parseInt(firstUserPostCompoundLedger === undefined ? 0 : firstUserPostCompoundLedger.balance);
 
 //                 assert.equal(firstUserPreCompoundBalance,firstUserPostCompoundBalance);
@@ -491,7 +491,7 @@
 //                 const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                     {
 //                         add_operator: {
-//                             owner: alice.pkh,
+//                             owner: bob.pkh,
 //                             operator: doormanAddress.address,
 //                             token_id: 0,
 //                         },
@@ -512,7 +512,7 @@
 //                     await secondUpdateOperatorsOperation.confirmation();
 
 //                 // Operations
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
 //                 await firstUserStakeOperation.confirmation();
 
@@ -520,7 +520,7 @@
 //                 const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
 //                 await secondUserStakeOperation.confirmation();
                 
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
 //                 await firstUserUnstakeOperation.confirmation();
 
@@ -551,7 +551,7 @@
 //         it("user should be able to compound rewards after unstaking a portion of his staked mvk", async() => {
 //             try{
 //                 // Initial values
-//                 const firstUserLedger = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const firstUserLedger = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const firstUserBalance = parseInt(firstUserLedger === undefined ? 0 : firstUserLedger.balance);
 //                 const firstUserStake = MVK(2)
 //                 const firstUserUnstake = firstUserBalance - MVK() // Unstake all but 1MVK
@@ -560,7 +560,7 @@
 //                 const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                     {
 //                         add_operator: {
-//                             owner: alice.pkh,
+//                             owner: bob.pkh,
 //                             operator: doormanAddress.address,
 //                             token_id: 0,
 //                         },
@@ -572,7 +572,7 @@
 //                 const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
 //                 await firstUserStakeOperation.confirmation();
 
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
 //                 await firstUserUnstakeOperation.confirmation();
 
@@ -581,7 +581,7 @@
                 
 //                 // Final values
 //                 const unexpectedFinalBalance = MVK();
-//                 const firstUserLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const firstUserLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
 //                 const firstUserBalanceEnd = parseInt(firstUserLedgerEnd === undefined ? 0 : firstUserLedgerEnd.balance);
 
 //                 assert.notEqual(unexpectedFinalBalance,firstUserBalanceEnd);
@@ -601,7 +601,7 @@
 //                 const firstUpdateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                     {
 //                         add_operator: {
-//                             owner: alice.pkh,
+//                             owner: bob.pkh,
 //                             operator: doormanAddress.address,
 //                             token_id: 0,
 //                         },
@@ -622,7 +622,7 @@
 //                     await secondUpdateOperatorsOperation.confirmation();
 
 //                 // Operations
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserStakeOperation = await doormanInstance.methods.stake(firstUserStake).send();
 //                 await firstUserStakeOperation.confirmation();
 
@@ -630,7 +630,7 @@
 //                 const secondUserStakeOperation = await doormanInstance.methods.stake(secondUserStake).send();
 //                 await secondUserStakeOperation.confirmation();
                 
-//                 await signerFactory(alice.sk);
+//                 await signerFactory(bob.sk);
 //                 const firstUserUnstakeOperation = await doormanInstance.methods.unstake(firstUserUnstake).send();
 //                 await firstUserUnstakeOperation.confirmation();
 
