@@ -1,10 +1,10 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
-import { alice } from '../scripts/sandbox/accounts'
+import { bob } from '../scripts/sandbox/accounts'
 import { BigNumber } from "bignumber.js";
 import { farmFactoryStorageType } from "../test/types/farmFactoryStorageType";
 
 export const farmFactoryStorage: farmFactoryStorageType = {
-  admin: alice.pkh,
+  admin: bob.pkh,
   mvkTokenAddress: "",
   
   generalContracts: MichelsonMap.fromLiteral({}),
