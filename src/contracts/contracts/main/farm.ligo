@@ -162,20 +162,17 @@ function checkSenderOrSourceIsCouncil(const s: storage): unit is
         else failwith("Only Council contract allowed");
     } with(unit)
 
-function checkSenderOrSourceIsAllowed(const s: storage): unit is
+function checkSenderIsAllowed(const s: storage): unit is
     block {
-        // First check because a farm without a factory should still be accessible
-        if Tezos.source = s.admin or Tezos.sender = s.admin then skip
+        // First check because a farm without a facory should still be accessible
+        if Tezos.sender = s.admin then skip
         else{
-            // Final check for factory
             const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of
                 Some (_address) -> _address
-            |   None -> (failwith("Only Admin or Farm Factory contract allowed and Farm factory contract not found in whitelist contracts"): address)
+            |   None -> (failwith("Only Admin or Factory contract allowed"): address)
             end;
-
-            if farmFactoryAddress = Tezos.sender then skip 
-            else failwith("Only Admin or Factory contract allowed");
-        }
+            if Tezos.sender = farmFactoryAddress then skip else failwith("Only Admin or Factory contract allowed");
+        };
     } with(unit)
 
 function checkFarmIsInit(const s: storage): unit is 
@@ -358,7 +355,7 @@ function updateUnclaimedRewards(var s: storage): storage is
 function pauseAll(var s: storage) : return is
     block {
         // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
+        checkSenderIsAllowed(s);
 
         // set all pause configs to True
         if s.breakGlassConfig.depositIsPaused then skip
@@ -375,7 +372,7 @@ function pauseAll(var s: storage) : return is
 function unpauseAll(var s : storage) : return is
     block {
         // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
+        checkSenderIsAllowed(s);
 
         // set all pause configs to False
         if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
@@ -392,7 +389,7 @@ function unpauseAll(var s : storage) : return is
 function togglePauseDeposit(var s : storage) : return is
     block {
         // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
+        checkSenderIsAllowed(s);
 
         if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
         else s.breakGlassConfig.depositIsPaused := True;
@@ -402,7 +399,7 @@ function togglePauseDeposit(var s : storage) : return is
 function togglePauseWithdraw(var s : storage) : return is
     block {
         // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
+        checkSenderIsAllowed(s);
 
         if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
         else s.breakGlassConfig.withdrawIsPaused := True;
@@ -412,7 +409,7 @@ function togglePauseWithdraw(var s : storage) : return is
 function togglePauseClaim(var s : storage) : return is
     block {
         // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
+        checkSenderIsAllowed(s);
 
         if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
         else s.breakGlassConfig.claimIsPaused := True;
@@ -433,7 +430,7 @@ block {
 function increaseRewardPerBlock(const newRewardPerBlock: nat; var s: storage) : return is
 block {
     // check that source is admin
-    checkSenderOrSourceIsAllowed(s);
+    checkSenderIsAllowed(s);
 
     // check if farm has been initiated
     checkFarmIsInit(s);
@@ -499,7 +496,7 @@ block {
 function toggleForceRewardFromTransfer(var s: storage): return is
     block {
         // check that source is admin
-        checkSenderOrSourceIsAllowed(s);
+        checkSenderIsAllowed(s);
 
         if s.forceRewardFromTransfer then s.forceRewardFromTransfer := False
         else s.forceRewardFromTransfer := True;

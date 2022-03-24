@@ -65,6 +65,11 @@ type storage is record [
     actionCounter               : nat;
 ]
 
+type councilActionUpdateBlocksPerMinType is  [@layout:comb] record [ 
+    contractAddress             : address;
+    newBlocksPerMinute          : nat;
+] 
+
 type councilActionAddVesteeType is  [@layout:comb] record [ 
     vesteeAddress               : address;
     totalAllocatedAmount        : nat;
@@ -161,8 +166,8 @@ type councilAction is
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
 
-    // Council actions for farm factory
-    | CouncilActionUpdateBlocksPerMin of nat
+    // Council actions for contracts
+    | CouncilActionUpdateBlocksPerMin of councilActionUpdateBlocksPerMinType
 
     // Council actions for vesting
     | CouncilActionAddVestee of councilActionAddVesteeType
@@ -215,7 +220,7 @@ function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : cont
       "%updateBlocksPerMinute",
       contractAddress) : option(contract(nat))) of
     Some(contr) -> contr
-  | None -> (failwith("updateBlocksPerMinutes entrypoint in Farm Factory Contract not found") : contract(nat))
+  | None -> (failwith("updateBlocksPerMinutes entrypoint in Contract not found") : contract(nat))
 end;
 
 function sendAddVesteeParams(const contractAddress : address) : contract(councilActionAddVesteeType) is
@@ -523,7 +528,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionUpdateBlocksPerMinute(const newBlockPerMinute : nat ; var s : storage) : return is 
+function councilActionUpdateBlocksPerMinute(const councilActionUpdateBlocksPerMinParam : councilActionUpdateBlocksPerMinType ; var s : storage) : return is 
 block {
 
     // Overall steps:
@@ -533,10 +538,12 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    const addressMap : addressMapType     = map [];
+    const addressMap : addressMapType     = map [
+        ("contractAddress": string) -> councilActionUpdateBlocksPerMinParam.contractAddress
+    ];
     const emptyStringMap : stringMapType  = map [];
     const natMap : natMapType            = map [
-        ("newBlocksPerMinute"  : string) -> newBlockPerMinute;
+        ("newBlocksPerMinute"  : string) -> councilActionUpdateBlocksPerMinParam.newBlocksPerMinute;
     ];
 
     var councilActionRecord : councilActionRecordType := record[
@@ -989,17 +996,16 @@ block {
                 Some(_nat) -> _nat
                 | None -> failwith("Error. NewBlocksPerMinute not found.")
             end;
-            // fetch params end ---
-
-            var farmFactoryAddress : address := case s.generalContracts["farmFactory"] of 
+            const contractAddress : address = case _councilActionRecord.addressMap["contractAddress"] of
                 Some(_address) -> _address
-                | None -> failwith("Error. Farm Factory Contract Address not found")
+                | None -> failwith("Error. ContractAddress not found.")
             end;
+            // fetch params end ---
 
             const updateBlocksPerMinuteOperation : operation = Tezos.transaction(
                 newBlocksPerMinute,
                 0tez, 
-                sendUpdateBlocksPerMinuteParams(farmFactoryAddress)
+                sendUpdateBlocksPerMinuteParams(contractAddress)
             );
             
             operations := updateBlocksPerMinuteOperation # operations;
@@ -1441,7 +1447,7 @@ function main (const action : councilAction; const s : storage) : return is
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
-        // Council actions for farm factory
+        // Council actions for contracts
         | CouncilActionUpdateBlocksPerMin(parameters) -> councilActionUpdateBlocksPerMinute(parameters, s)
 
         // Council actions for vesting
