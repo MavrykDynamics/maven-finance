@@ -15,5 +15,5 @@ export type usdmTokenControllerStorageType = {
   priceLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 
   usdmTokenAddress         : string;
-  cfmmAddresses            : MichelsonMap<MichelsonMapKey, unknown>;
+  cfmmAddressLedger        : MichelsonMap<MichelsonMapKey, unknown>;
 }

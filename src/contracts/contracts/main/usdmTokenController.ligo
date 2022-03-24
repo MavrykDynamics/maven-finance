@@ -66,7 +66,6 @@ type createVaultActionType is [@layout:comb] record [
     id                          : nat; 
     delegate                    : option(key_hash); 
     depositors                  : depositorsType;
-    tokenAmountLedger           : tokenAmountLedgerType;
 ]
 
 type withdrawFromVaultActionType is [@layout:comb] record [
@@ -105,6 +104,11 @@ type configType is [@layout:comb] record [
     decimals                  : nat;    // decimals 
 ]
 
+type getTargetActionType is [@layout:comb] record [
+    tokenName           : string;
+    callbackContract    : contract(nat);
+]
+
 
 // ----- types for entrypoint actions end -----
 
@@ -138,7 +142,7 @@ type controllerAction is
 
     | RegisterDeposit                of registerDepositType
     | MintOrBurn                     of mintOrBurnActionType
-    // | GetTarget                      of contract(nat)
+    | GetTarget                      of getTargetActionType
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * controllerStorage
@@ -154,7 +158,7 @@ const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;           
 
 
 // multi-asset vault
-// #include "vault.ligo"
+#include "u_vault.ligo"
 
 // helper functions - conversions
 function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
@@ -230,7 +234,7 @@ type createVaultFuncType is (option(key_hash) * tez * vaultStorage) -> (operatio
 const createVaultFunc : createVaultFuncType =
 [%Michelson ( {| { UNPPAIIR ;
                   CREATE_CONTRACT
-#include "../compiled/vault.tz"
+#include "../compiled/u_vault.tz"
         ;
           PAIR } |}
 : createVaultFuncType)];
@@ -962,16 +966,25 @@ block {
 
 
 (* getTarget entrypoint *)
-// function getTarget(const callbackContract : contract(nat); var s : controllerStorage) : return is 
-// block {
+function getTarget(const getTargetParams : getTargetActionType; var s : controllerStorage) : return is 
+block {
 
-//     const callbackOperation : operation = Tezos.transaction(
-//         s.target,
-//         0mutez,
-//         callbackContract
-//     );
+    // init variables
+    const tokenName          : string         = getTargetParams.tokenName;
+    const callbackContract   : contract(nat)  = getTargetParams.callbackContract;
 
-// } with (list[callbackOperation], s)
+    const target : nat = case s.targetLedger[tokenName] of
+        Some(_target) -> _target
+        | None -> failwith("Error. No target found in target ledger.")
+    end;
+
+    const callbackOperation : operation = Tezos.transaction(
+        target,
+        0mutez,
+        callbackContract
+    );
+
+} with (list[callbackOperation], s)
 
 
 
@@ -991,6 +1004,6 @@ function main (const action : controllerAction; const s : controllerStorage) : r
         | RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
 
         | MintOrBurn(parameters)                        -> mintOrBurn(parameters, s)
-        // | GetTarget(parameters)                         -> getTarget(parameters, s)
+        | GetTarget(parameters)                         -> getTarget(parameters, s)
 
     end

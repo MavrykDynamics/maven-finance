@@ -3,11 +3,11 @@ import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
-import { vaultStorageType } from "../types/vaultStorageType";
+import { cfmmStorageType } from "../types/cfmmStorageType";
 
-export class Vault {
+export class Cfmm {
     contract: Contract;
-    storage: vaultStorageType;
+    storage: cfmmStorageType;
     tezos: TezosToolkit;
   
     constructor(contract: Contract, tezos: TezosToolkit) {
@@ -16,22 +16,22 @@ export class Vault {
     }
   
     static async init(
-      vaultAddress: string,
+        cfmmAddress: string,
       tezos: TezosToolkit
-    ): Promise<Vault> {
-      return new Vault(
-        await tezos.contract.at(vaultAddress),
+    ): Promise<Cfmm> {
+      return new Cfmm(
+        await tezos.contract.at(cfmmAddress),
         tezos
       );
     }
 
     static async originate(
       tezos: TezosToolkit,
-      storage: vaultStorageType
-    ): Promise<Vault> {      
+      storage: cfmmStorageType
+    ): Promise<Cfmm> {       
 
       const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/u_vault.json`).toString()
+        fs.readFileSync(`${env.buildDir}/cfmm.json`).toString()
       );
       const operation: OriginationOperation = await tezos.contract
         .originate({
@@ -46,21 +46,11 @@ export class Vault {
   
       await confirmOperation(tezos, operation.hash);
   
-      return new Vault(
+      return new Cfmm(
         await tezos.contract.at(operation.contractAddress),
         tezos
       );
     }
-  
-    async setAdmin(newAdminAddress: string): Promise<TransactionOperation> {
-        const operation: TransactionOperation = await this.contract.methods
-          .setAdmin(newAdminAddress)
-          .send();
-    
-        await confirmOperation(this.tezos, operation.hash);
-    
-        return operation;
-      }
 
   }
   
