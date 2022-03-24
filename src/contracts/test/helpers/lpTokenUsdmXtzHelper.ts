@@ -3,11 +3,11 @@ import fs from "fs";
 
 import env from "../../env";
 import { confirmOperation } from "../../scripts/confirmation";
-import { vaultStorageType } from "../types/vaultStorageType";
+import { lpTokenUsdmXtzStorageType } from "../types/lpTokenUsdmXtzStorageType";
 
-export class Vault {
+export class LpTokenUsdmXtz {
     contract: Contract;
-    storage: vaultStorageType;
+    storage: lpTokenUsdmXtzStorageType;
     tezos: TezosToolkit;
   
     constructor(contract: Contract, tezos: TezosToolkit) {
@@ -16,22 +16,22 @@ export class Vault {
     }
   
     static async init(
-      vaultAddress: string,
+      lpTokenUsdmXtzAddress: string,
       tezos: TezosToolkit
-    ): Promise<Vault> {
-      return new Vault(
-        await tezos.contract.at(vaultAddress),
+    ): Promise<LpTokenUsdmXtz> {
+      return new LpTokenUsdmXtz(
+        await tezos.contract.at(lpTokenUsdmXtzAddress),
         tezos
       );
     }
 
     static async originate(
       tezos: TezosToolkit,
-      storage: vaultStorageType
-    ): Promise<Vault> {      
+      storage: lpTokenUsdmXtzStorageType
+    ): Promise<LpTokenUsdmXtz> {       
 
       const artifacts: any = JSON.parse(
-        fs.readFileSync(`${env.buildDir}/u_vault.json`).toString()
+        fs.readFileSync(`${env.buildDir}/lpTokenUsdmXtz.json`).toString()
       );
       const operation: OriginationOperation = await tezos.contract
         .originate({
@@ -46,21 +46,11 @@ export class Vault {
   
       await confirmOperation(tezos, operation.hash);
   
-      return new Vault(
+      return new LpTokenUsdmXtz(
         await tezos.contract.at(operation.contractAddress),
         tezos
       );
     }
-  
-    async setAdmin(newAdminAddress: string): Promise<TransactionOperation> {
-        const operation: TransactionOperation = await this.contract.methods
-          .setAdmin(newAdminAddress)
-          .send();
-    
-        await confirmOperation(this.tezos, operation.hash);
-    
-        return operation;
-      }
 
   }
   

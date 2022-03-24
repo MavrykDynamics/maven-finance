@@ -28,6 +28,6 @@ export const usdmTokenControllerStorage: usdmTokenControllerStorageType = {
   priceLedger: MichelsonMap.fromLiteral({}),
 
   usdmTokenAddress : zeroAddress,
-  cfmmAddresses: MichelsonMap.fromLiteral({}),
+  cfmmAddressLedger: MichelsonMap.fromLiteral({}),
 
 };
