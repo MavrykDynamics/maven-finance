@@ -142,16 +142,13 @@ type action is
     SetAdmin of (address)
 |   UpdateWhitelistContracts of updateWhitelistContractsParams
 |   UpdateGeneralContracts of updateGeneralContractsParams
-|   UpdateAllBlocksPerMinute of (nat)
+|   UpdateBlocksPerMinute of (nat)
 
 |   PauseAll of (unit)
 |   UnpauseAll of (unit)
 |   TogglePauseCreateFarm of (unit)
 |   TogglePauseTrackFarm of (unit)
 |   TogglePauseUntrackFarm of (unit)
-
-|   PauseAllFarms of (unit)
-|   UnpauseAllFarms of (unit)
 
 |   CreateFarm of farmStorageType
 |   TrackFarm of address
@@ -214,7 +211,17 @@ function pauseAll(var s: storage): return is
         if s.breakGlassConfig.untrackFarmIsPaused then skip
         else s.breakGlassConfig.untrackFarmIsPaused := True;
 
-    } with (noOperations, s)
+        var operations: list(operation) := nil;
+
+        for farmAddress in set s.trackedFarms 
+        block {
+            case (Tezos.get_entrypoint_opt("%pauseAll", farmAddress): option(contract(unit))) of
+                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+            |   None -> skip
+            end;
+        };
+
+    } with (operations, s)
 
 function unpauseAll(var s: storage): return is
     block {
@@ -231,7 +238,17 @@ function unpauseAll(var s: storage): return is
         if s.breakGlassConfig.untrackFarmIsPaused then s.breakGlassConfig.untrackFarmIsPaused := False
         else skip;
 
-    } with (noOperations, s)
+        var operations: list(operation) := nil;
+
+        for farmAddress in set s.trackedFarms 
+        block {
+            case (Tezos.get_entrypoint_opt("%unpauseAll", farmAddress): option(contract(unit))) of
+                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+            |   None -> skip
+            end;
+        };
+
+    } with (operations, s)
 
 function togglePauseCreateFarm(var s: storage): return is
     block {
@@ -263,45 +280,11 @@ function togglePauseTrackFarm(var s: storage): return is
 
     } with (noOperations, s)
 
-function pauseAllFarms(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        var operations: list(operation) := nil;
-
-        for farmAddress in set s.trackedFarms 
-        block {
-            case (Tezos.get_entrypoint_opt("%pauseAll", farmAddress): option(contract(unit))) of
-                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-            |   None -> skip
-            end;
-        };
-
-    } with (operations, s)
-
-function unpauseAllFarms(var s: storage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
-
-        var operations: list(operation) := nil;
-
-        for farmAddress in set s.trackedFarms 
-        block {
-            case (Tezos.get_entrypoint_opt("%unpauseAll", farmAddress): option(contract(unit))) of
-                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-            |   None -> skip
-            end;
-        };
-
-    } with (operations, s)
-
 ////
 // ENTRYPOINTS FUNCTIONS
 ///
-(*  UpdateAllBlocksPerMinute entrypoint *)
-function updateAllBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage): return is
+(*  UpdateBlocksPerMinute entrypoint *)
+function updateBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -465,16 +448,13 @@ function main (const action: action; var s: storage): return is
         SetAdmin (parameters) -> setAdmin(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
-    |   UpdateAllBlocksPerMinute (parameters) -> updateAllBlocksPerMinute(parameters, s)
+    |   UpdateBlocksPerMinute (parameters) -> updateBlocksPerMinute(parameters, s)
 
     |   PauseAll (_parameters) -> pauseAll(s)
     |   UnpauseAll (_parameters) -> unpauseAll(s)
     |   TogglePauseCreateFarm (_parameters) -> togglePauseCreateFarm(s)
     |   TogglePauseTrackFarm (_parameters) -> togglePauseTrackFarm(s)
     |   TogglePauseUntrackFarm (_parameters) -> togglePauseUntrackFarm(s)
-
-    |   PauseAllFarms (_parameters) -> pauseAllFarms(s)
-    |   UnpauseAllFarms (_parameters) -> unpauseAllFarms(s)
 
     |   CreateFarm (params) -> createFarm(params, s)
     |   TrackFarm (params) -> trackFarm(params, s)

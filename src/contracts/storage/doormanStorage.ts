@@ -1,14 +1,14 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
 
-const { alice } = require('../scripts/sandbox/accounts')
+const { bob } = require('../scripts/sandbox/accounts')
 
 import { MVK } from "../test/helpers/Utils";
 
 import { doormanStorageType } from "../test/types/doormanStorageType";
 
 export const doormanStorage: doormanStorageType = {
-  admin: alice.pkh,
+  admin: bob.pkh,
   mvkTokenAddress: "",
 
   minMvkAmount: new BigNumber(MVK(1)),
