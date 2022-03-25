@@ -147,10 +147,10 @@ function checkNoAmount(const _p : unit) : unit is
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
   case (Tezos.get_entrypoint_opt(
       "%mint",
-      token_address) : option(contract(mintTokenType))) of
+      token_address) : option(contract(mintTokenType))) of [
     Some(contr) -> contr
   | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
-  end;
+  ];
 
 (* Helper function to mint mvk/smvk tokens *)
 function mintTokens(
@@ -167,10 +167,10 @@ function mintTokens(
 function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceParams) is
   case (Tezos.get_entrypoint_opt(
       "%onStakeChange",
-      delegationAddress) : option(contract(updateSatelliteBalanceParams))) of
+      delegationAddress) : option(contract(updateSatelliteBalanceParams))) of [
     Some(contr) -> contr
   | None -> (failwith("onStakeChange entrypoint in Delegation Contract not found") : contract(updateSatelliteBalanceParams))
-  end;
+  ];
 
 
 ////
@@ -183,10 +183,10 @@ function transferFa12Token(const from_: address; const to_: address; const token
         const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
 
         const tokenContract: contract(fa12TransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of
+            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
                 Some (c) -> c
             |   None -> (failwith("Error. Transfer entrypoint not found in FA12 Token contract"): contract(fa12TransferType))
-            end;
+            ];
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenId: nat; const tokenContractAddress: address): operation is
@@ -205,10 +205,10 @@ block{
         ];
 
     const tokenContract: contract(fa2TransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of
+        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
             Some (c) -> c
         |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
-        end;
+        ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 
@@ -369,10 +369,10 @@ block {
 
     const mvkTokenAddress : address = s.mvkTokenAddress;
 
-    const delegationAddress : address = case s.generalContracts["delegation"] of
+    const delegationAddress : address = case s.generalContracts["delegation"] of [
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found.")
-    end;
+    ];
 
     const mintMvkTokensOperation : operation = mintTokens(
         to_,                // to address

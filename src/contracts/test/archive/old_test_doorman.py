@@ -175,7 +175,7 @@
 #     #     print('Test: Non-Admin set MVK contract address should fail')
 #     #     doorman_init_storage = deepcopy(doorman_initial_storage)
 #     #     with self.raisesMichelsonError(only_admin):
-#     #         self.doorman.setMvkTokenAddress(bob).interpret(storage=doorman_init_storage, sender=bob, now=int(sec_week + sec_week/2))
+#     #         self.doorman.setMvkTokenAddress(bob).interpret(storage=doorman_init_storage, sender=alice, now=int(sec_week + sec_week/2))
 
 #     # def test_admin_set_admin_to_bob_should_work(self):        
 #     #     print('Test: Admin set admin to Bob should work')
@@ -187,7 +187,7 @@
 #     #     print('Test: Non-Admin set admin to Bob should fail')
 #     #     doorman_init_storage = deepcopy(doorman_initial_storage)
 #     #     with self.raisesMichelsonError(only_admin):
-#     #         self.doorman.setAdmin(bob).interpret(storage=doorman_init_storage, sender=bob, now=int(sec_week + sec_week/2))
+#     #         self.doorman.setAdmin(bob).interpret(storage=doorman_init_storage, sender=alice, now=int(sec_week + sec_week/2))
 
 # # contract_michelson = """
 # #     parameter string;

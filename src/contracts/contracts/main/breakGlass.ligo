@@ -104,10 +104,10 @@ function checkSenderIsCouncilMember(var s : storage) : unit is
 
 function checkSenderIsEmergencyGovernanceContract(var s : storage) : unit is
 block{
-  const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of
+  const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of [
       Some(_address) -> _address
       | None -> failwith("Error. Emergency Governance Contract is not found.")
-  end;
+  ];
   if (Tezos.sender = emergencyGovernanceAddress) then skip
     else failwith("Error. Only the Emergency Governance Contract can call this entrypoint.");
 } with unit
@@ -132,28 +132,28 @@ function checkGlassIsBroken(var s : storage) : unit is
 // function pauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
 //   case (Tezos.get_entrypoint_opt(
 //       "%pauseAll",
-//       contractAddress) : option(contract(unit))) of
+//       contractAddress) : option(contract(unit))) of [
 //     Some(contr) -> contr
 //   | None -> (failwith("pauseAll entrypoint in Contract Address not found") : contract(unit))
-//   end;
+//   ];
 
 // // helper function to unpause all entrypoints in contract 
 // function unpauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
 //   case (Tezos.get_entrypoint_opt(
 //       "%unpauseAll",
-//       contractAddress) : option(contract(unit))) of
+//       contractAddress) : option(contract(unit))) of [
 //     Some(contr) -> contr
 //   | None -> (failwith("unpauseAll entrypoint in Contract Address not found") : contract(unit))
-//   end;
+//   ];
 
 // helper function to set admin entrypoints in contract 
 function setAdminInContract(const contractAddress : address) : contract(address) is
   case (Tezos.get_entrypoint_opt(
       "%setAdmin",
-      contractAddress) : option(contract(address))) of
+      contractAddress) : option(contract(address))) of [
     Some(contr) -> contr
   | None -> (failwith("setAdmin entrypoint in Contract Address not found") : contract(address))
-  end;
+  ];
 
 function breakGlass(var s : storage) : return is 
 block {
@@ -188,10 +188,10 @@ block {
   const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
-  case updateConfigAction of
+  case updateConfigAction of [
     ConfigThreshold (_v)                  -> s.config.threshold                 := updateConfigNewValue
   | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
-  end;
+  ];
 
 } with (noOperations, s)
 
@@ -578,10 +578,10 @@ block {
     
     checkSenderIsCouncilMember(s);
 
-    var _actionRecord : actionRecordType := case s.actionsLedger[actionId] of
+    var _actionRecord : actionRecordType := case s.actionsLedger[actionId] of [
         | Some(_record) -> _record
         | None -> failwith("Error. Break Glass action record not found.")
-    end;
+    ];
 
     // check if break glass action has been flushed
     if _actionRecord.status = "FLUSHED" then failwith("Error. Break Glass action has been flushed") else skip;
@@ -612,16 +612,16 @@ block {
         if actionType = "flushAction" then block {
 
             // fetch params begin ---
-            const flushedActionId : nat = case _actionRecord.natMap["actionId"] of
+            const flushedActionId : nat = case _actionRecord.natMap["actionId"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. ActionId not found.")
-            end;
+            ];
             // fetch params end ---
 
-            var flushedActionRecord : actionRecordType := case s.actionsLedger[flushedActionId] of        
+            var flushedActionRecord : actionRecordType := case s.actionsLedger[flushedActionId] of [     
                 Some(_record) -> _record
                 | None -> failwith("Error. Action not found")
-            end;
+            ];
 
             flushedActionRecord.status := "FLUSHED";
             s.actionsLedger[flushedActionId] := flushedActionRecord;
@@ -634,10 +634,10 @@ block {
         if actionType = "addCouncilMember" then block {
 
             // fetch params begin ---
-            const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of
+            const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. CouncilMemberAddress not found.")
-            end;
+            ];
             // fetch params end ---
 
             s.councilMembers := Set.add(councilMemberAddress, s.councilMembers);
@@ -648,10 +648,10 @@ block {
         // removeCouncilMember action type
         if actionType = "removeCouncilMember" then block {
             // fetch params begin ---
-            const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of
+            const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. CouncilMemberAddress not found.")
-            end;
+            ];
             // fetch params end ---
             s.councilMembers := Set.remove(councilMemberAddress, s.councilMembers);
         } else skip;
@@ -662,15 +662,15 @@ block {
         if actionType = "changeCouncilMember" then block {
 
             // fetch params begin ---
-            const oldCouncilMemberAddress : address = case _actionRecord.addressMap["oldCouncilMemberAddress"] of
+            const oldCouncilMemberAddress : address = case _actionRecord.addressMap["oldCouncilMemberAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. OldCouncilMemberAddress not found.")
-            end;
+            ];
 
-            const newCouncilMemberAddress : address = case _actionRecord.addressMap["newCouncilMemberAddress"] of
+            const newCouncilMemberAddress : address = case _actionRecord.addressMap["newCouncilMemberAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. NewCouncilMemberAddress not found.")
-            end;
+            ];
             // fetch params end ---
 
             s.councilMembers := Set.add(newCouncilMemberAddress, s.councilMembers);
@@ -682,10 +682,10 @@ block {
         // pauseAllEntrypoints action type
         if actionType = "pauseAllEntrypoints" then block {
             for _contractName -> contractAddress in map s.generalContracts block {
-                case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of
+                case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
                     Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
                 |   None -> skip
-                end;
+                ];
             };      
         } else skip;
 
@@ -694,10 +694,10 @@ block {
         // unpauseAllEntrypoints action type
         if actionType = "unpauseAllEntrypoints" then block {
             for _contractName -> contractAddress in map s.generalContracts block {
-                case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of
+                case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
                     Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
                 |   None -> skip
-                end;
+                ];
             };            
         } else skip;
 
@@ -707,15 +707,15 @@ block {
         if actionType = "setSingleContractAdmin" then block {
 
             // fetch params begin ---
-            const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of
+            const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. NewAdminAddress not found.")
-            end;
+            ];
 
-            const targetContractAddress : address = case _actionRecord.addressMap["targetContractAddress"] of
+            const targetContractAddress : address = case _actionRecord.addressMap["targetContractAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. TargetContractAddress not found.")
-            end;
+            ];
             // fetch params end ---
 
             const setSingleContractAdminOperation : operation = Tezos.transaction(
@@ -732,18 +732,18 @@ block {
         if actionType = "setAllContractsAdmin" then block {
 
             // fetch params begin ---
-            const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of
+            const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
                 Some(_address) -> _address
             |   None -> failwith("Error. NewAdminAddress not found.")
-            end;
+            ];
             // fetch params end ---
 
 
             for _contractName -> contractAddress in map s.generalContracts block {
-                case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of
+                case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
                     Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
                 |   None -> skip
-                end;
+                ];
             } 
         } else skip;
 
@@ -771,7 +771,7 @@ block {
 } with (operations, s)
 
 function main (const action : breakGlassAction; const s : storage) : return is 
-    case action of
+    case action of [
         | BreakGlass(_parameters) -> breakGlass(s)
 
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
@@ -795,4 +795,4 @@ function main (const action : breakGlassAction; const s : storage) : return is
 
         | SignAction(parameters) -> signAction(parameters, s)
         | FlushAction(parameters) -> flushAction(parameters, s)
-    end
+    ]
