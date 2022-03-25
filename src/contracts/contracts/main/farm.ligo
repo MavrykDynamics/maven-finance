@@ -153,10 +153,10 @@ function checkSenderIsAdmin(const s: storage): unit is
 
 function checkSenderOrSourceIsCouncil(const s: storage): unit is
     block {
-        const councilAddress: address = case s.whitelistContracts["council"] of
+        const councilAddress: address = case s.whitelistContracts["council"] of [
             Some (_address) -> _address
         |   None -> (failwith("Council contract not found in whitelist contracts"): address)
-        end;
+        ];
 
         if Tezos.source = councilAddress or Tezos.sender = councilAddress then skip
         else failwith("Only Council contract allowed");
@@ -167,10 +167,10 @@ function checkSenderIsAllowed(const s: storage): unit is
         // First check because a farm without a facory should still be accessible
         if Tezos.sender = s.admin then skip
         else{
-            const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of
+            const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
                 Some (_address) -> _address
             |   None -> (failwith("Only Admin or Factory contract allowed"): address)
-            end;
+            ];
             if Tezos.sender = farmFactoryAddress then skip else failwith("Only Admin or Factory contract allowed");
         };
     } with(unit)
@@ -217,10 +217,10 @@ function transferFa12Token(const from_: address; const to_: address; const token
         const transferParams: oldTransferType = (from_,(to_,tokenAmount));
 
         const tokenContract: contract(oldTransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(oldTransferType))) of
+            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(oldTransferType))) of [
                 Some (c) -> c
             |   None -> (failwith("Transfer entrypoint not found in LP Token contract"): contract(oldTransferType))
-            end;
+            ];
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
@@ -239,31 +239,31 @@ block{
         ];
 
     const tokenContract: contract(newTransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of
+        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of [
             Some (c) -> c
         |   None -> (failwith("Transfer entrypoint not found in LP Token contract"): contract(newTransferType))
-        end;
+        ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 function transferLP(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenStandard: lpStandard; const tokenContractAddress: address): operation is
-    case tokenStandard of
+    case tokenStandard of [
         Fa12 -> transferFa12Token(from_,to_,tokenAmount,tokenContractAddress)
     |   Fa2 -> transferFa2Token(from_,to_,tokenAmount,tokenId,tokenContractAddress)
-    end
+    ]
 
 function transferReward(const delegator: delegator; const tokenAmount: tokenBalance; const s: storage): operation is
     block{
         // Call farmClaim from the doorman contract
-        const doormanContractAddress: address = case Big_map.find_opt("doorman", s.generalContracts) of
+        const doormanContractAddress: address = case Big_map.find_opt("doorman", s.generalContracts) of [
             Some (a) -> a
         |   None -> (failwith("Doorman contract not found in generalContracts map"): address)
-        end;
+        ];
         
         const doormanContract: contract(farmClaimType) =
-        case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress): option(contract(farmClaimType))) of
+        case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress): option(contract(farmClaimType))) of [
             Some (c) -> c
         |   None -> (failwith("FarmClaim entrypoint not found in Doorman contract"): contract(farmClaimType))
-        end;
+        ];
 
         const farmClaimParams: farmClaimType = (delegator, tokenAmount, s.forceRewardFromTransfer);
     } with (Tezos.transaction(farmClaimParams, 0tez, doormanContract))
@@ -295,10 +295,10 @@ function updateFarmParameters(var s: storage): storage is
         const totalClaimedRewards: tokenBalance = s.claimedRewards.paid + s.claimedRewards.unpaid;
         const totalFarmRewards: tokenBalance = suspectedReward + totalClaimedRewards;
         const totalPlannedRewards: tokenBalance = s.plannedRewards.totalRewards;
-        const reward: tokenBalance = case totalFarmRewards > totalPlannedRewards and not s.infinite of
+        const reward: tokenBalance = case totalFarmRewards > totalPlannedRewards and not s.infinite of [
             True -> abs(totalPlannedRewards - totalClaimedRewards)
         |   False -> suspectedReward
-        end;
+        ];
             
         // Updates the storage
         s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
@@ -308,13 +308,13 @@ function updateFarmParameters(var s: storage): storage is
 
 function updateFarm(var s: storage): storage is
     block{
-        s := case s.lpToken.tokenBalance = 0n of
+        s := case s.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
-        |   False -> case s.lastBlockUpdate = Tezos.level or not s.open of
+        |   False -> case s.lastBlockUpdate = Tezos.level or not s.open of [
                 True -> s
             |   False -> updateFarmParameters(s)
-            end
-        end;
+            ]
+        ];
     } with(s)
 
 function updateUnclaimedRewards(var s: storage): storage is
@@ -324,10 +324,10 @@ function updateUnclaimedRewards(var s: storage): storage is
 
         // Check if sender as already a record
         var delegatorRecord: delegatorRecord :=
-            case getDelegatorDeposit(delegator, s) of
+            case getDelegatorDeposit(delegator, s) of [
                 Some (r) -> r
             |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
-            end;
+            ];
 
         // Compute delegator reward
         const accumulatedMVKPerShareStart: tokenBalance = delegatorRecord.participationMVKPerShare;
@@ -521,11 +521,10 @@ function claim(var s: storage): return is
         const delegator: delegator = Tezos.sender;
 
         // Check if sender as already a record
-        var delegatorRecord: delegatorRecord :=
-            case getDelegatorDeposit(delegator, s) of
-                Some (r) -> r
-            |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
-            end;
+        var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
+            Some (r) -> r
+        |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
+        ];
 
         const claimedRewards: tokenBalance = delegatorRecord.unclaimedRewards;
 
@@ -573,10 +572,10 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
             s := updateUnclaimedRewards(s);
 
             // Refresh delegator deposit with updated unclaimed rewards
-            delegatorRecord :=  case getDelegatorDeposit(delegator, s) of
+            delegatorRecord :=  case getDelegatorDeposit(delegator, s) of [
                 Some (_delegator) -> _delegator
             |   None -> failwith("Delegator not found")
-            end;
+            ];
             
         }
         else skip;
@@ -609,11 +608,10 @@ function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
         // Prepare to update user's unclaimedRewards if user already deposited tokens
         s := updateUnclaimedRewards(s);
 
-        var delegatorRecord: delegatorRecord := 
-            case getDelegatorDeposit(delegator, s) of
-                Some (d) -> d
-            |   None -> failwith("DELEGATOR_NOT_FOUND")
-            end;
+        var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
+            Some (d) -> d
+        |   None -> failwith("DELEGATOR_NOT_FOUND")
+        ];
 
         // Check if the delegator has enough token to withdraw
         if tokenAmount > delegatorRecord.balance then failwith("The amount withdrawn is higher than the delegator deposit") else skip;
@@ -684,7 +682,7 @@ function main (const action: entryAction; var s: storage): return is
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);
   } with(
-    case action of
+    case action of [
         SetAdmin (parameters) -> setAdmin(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
@@ -704,5 +702,5 @@ function main (const action: entryAction; var s: storage): return is
     |   Withdraw (parameters) -> withdraw(parameters, s)
     |   Claim (_parameters) -> claim(s)
     |   InitFarm (parameters) -> initFarm(parameters, s)
-    end
+    ]
   )

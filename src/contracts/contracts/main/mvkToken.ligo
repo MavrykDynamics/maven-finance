@@ -95,13 +95,13 @@ type assertMetadataParams is [@layout:comb] record[
 ]
 
 (* GetTotalSupply & GetMaximumSupply entrypoint inputs *)
-type getSingleSupplyParamsType is contract(tokenBalance)
+type getSingleSupplyParamsType is tokenBalance
 
 (* GetTotalAndMaximumSupply entrypoint inputs *)
-type getTotalAndMaximumSupplyParamsType is contract(tokenBalance * tokenBalance)
+type getTotalAndMaximumSupplyParamsType is tokenBalance * tokenBalance
 
 (* GetDesiredMintPossibility entrypoint inputs *)
-type getDesiredMintPossibilityParams is contract(tokenBalance)
+type getDesiredMintPossibilityParams is tokenBalance
 
 (* Mint entrypoint inputs *)
 type mintParams is (owner * tokenBalance)
@@ -120,9 +120,9 @@ type action is
 | Balance_of of balanceOfParams
 | Update_operators of updateOperatorsParams
 | AssertMetadata of assertMetadataParams
-| GetTotalSupply of getSingleSupplyParamsType
-| GetMaximumSupply of getSingleSupplyParamsType
-| GetTotalAndMaximumSupply of getTotalAndMaximumSupplyParamsType
+// | GetTotalSupply of unit
+// | GetMaximumSupply of unit
+// | GetTotalAndMaximumSupply of unit
 | Mint of mintParams
 | OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
@@ -133,10 +133,10 @@ type action is
 ////
 (* Helper functions *)
 function getBalance(const owner : owner; const store : storage) : tokenBalance is
-  case Big_map.find_opt(owner, store.ledger) of
+  case Big_map.find_opt(owner, store.ledger) of [
     Some (v) -> v
   | None -> 0n
-  end
+  ]
 
 (* Helper function to validate *)
 function checkTokenId(const tokenId: tokenId): unit is
@@ -156,10 +156,10 @@ function checkOperator(const owner: owner; const token_id: tokenId; const operat
   else failwith ("FA2_NOT_OPERATOR")
 
 function checkSenderIsDoormanContract(const store: storage): unit is
-  case Map.find_opt("doorman", store.generalContracts) of
+  case Map.find_opt("doorman", store.generalContracts) of [
     Some (v) -> if v =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
   | None -> failwith("DOORMAN_CONTRACT_NOT_FOUND")
-  end
+  ]
 
 function checkSenderIsAdmin(const store: storage): unit is
   if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
@@ -233,10 +233,10 @@ function balanceOf(const balanceOfParams: balanceOfParams; const store: storage)
       block{
         const requestOwner: owner = request.owner;
         const tokenBalance: tokenBalance = 
-          case Big_map.find_opt(requestOwner, store.ledger) of
+          case Big_map.find_opt(requestOwner, store.ledger) of [
             Some (b) -> b
           | None -> 0n
-          end;
+          ];
         const response: balanceOfResponse = record[request=request;balance=tokenBalance];
       } with (response);
       const requests: list(balanceOfRequest) = balanceOfParams.requests;
@@ -245,17 +245,24 @@ function balanceOf(const balanceOfParams: balanceOfParams; const store: storage)
       const operation: operation = Tezos.transaction(responses, 0tez, callback);
   } with (list[operation],store)
 
-(* GetTotalSupply Entrypoint *)
-function getTotalSupply(const getSingleSupplyParams: getSingleSupplyParamsType; const store: storage) : return is
-  (list[Tezos.transaction(store.totalSupply, 0tez, getSingleSupplyParams)], store)
+(* GetUserBalance View *)
+[@view] function getUserBalance(const user: owner; const store: storage) : tokenBalance is
+  case Big_map.find_opt(user, store.ledger) of [
+    Some (_v) -> _v
+  | None -> 0n
+  ]
 
-(* GetMaximumSupply Entrypoint *)
-function getMaximumSupply(const getSingleSupplyParams: getSingleSupplyParamsType; const store: storage) : return is
-  (list[Tezos.transaction(store.maximumSupply, 0tez, getSingleSupplyParams)], store)
+(* GetTotalSupply View *)
+[@view] function getTotalSupply(const _: unit; const store: storage) : tokenBalance is
+  store.totalSupply
 
-(* GetTotalAndMaximumSupply Entrypoint *)
-function getTotalAndMaximumSupply(const getTotalAndMaximumSupplyParams: getTotalAndMaximumSupplyParamsType; const store: storage) : return is
-  (list[Tezos.transaction((store.totalSupply, store.maximumSupply), 0tez, getTotalAndMaximumSupplyParams)], store)
+(* GetMaximumSupply View *)
+[@view] function getMaximumSupply(const _: unit; const store: storage) : tokenBalance is
+  store.maximumSupply
+
+(* GetTotalAndMaximumSupply View *)
+[@view] function getTotalAndMaximumSupply(const _: unit; const store: storage) : tokenBalance * tokenBalance is
+  (store.totalSupply, store.maximumSupply)
 
 (* Update_operators Entrypoint *)
 function addOperator(const operatorParameter: operatorParameter; const operators: operators): operators is
@@ -286,10 +293,10 @@ function updateOperators(const updateOperatorsParams: updateOperatorsParams; con
   block{
     var updatedOperators: operators := List.fold(
       function(const operators: operators; const updateOperator: updateOperator): operators is
-        case updateOperator of
+        case updateOperator of [
           Add_operator (param) -> addOperator(param, operators)
         | Remove_operator (param) -> removeOperator(param, operators)
-        end
+        ]
       ,
       updateOperatorsParams,
       store.operators
@@ -301,10 +308,10 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
   block{
     const metadataKey: string = assertMetadataParams.key;
     const metadataHash: bytes = assertMetadataParams.hash;
-    case Big_map.find_opt(metadataKey, store.metadata) of
+    case Big_map.find_opt(metadataKey, store.metadata) of [
       Some (v) -> if v =/= metadataHash then failwith("METADATA_HAS_A_WRONG_HASH") else skip
     | None -> failwith("METADATA_NOT_FOUND")
-    end
+    ]
   } with (noOperations, store)
 
 (* Mint Entrypoint *)
@@ -340,7 +347,7 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const
     const value: tokenBalance = onStakeChangeParams.1;
     const stakeType: stakeType = onStakeChangeParams.2;
 
-    case stakeType of
+    case stakeType of [
       StakeAction (_v) -> block{
         // stake -> decrease user balance in mvk ledger 
         (* Balance check *)
@@ -351,7 +358,7 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const
       // unstake -> increase user balance in mvk ledger
       // claim   -> increase user balance in mvk ledger (from vesting)
     | UnstakeAction (_v) -> ownerBalance := ownerBalance + value
-    end;
+    ];
 
     (* Update ledger *)
     const updatedLedger = Big_map.update(owner, Some(ownerBalance), store.ledger);
@@ -363,20 +370,16 @@ function main (const action : action; const store : storage) : return is
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);
   } with(
-    case action of
+    case action of [
         Transfer (params) -> transfer(params, store)
       | Balance_of (params) -> balanceOf(params, store)
       | Update_operators (params) -> updateOperators(params, store)
       | AssertMetadata (params) -> assertMetadata(params, store)
-
-      | GetTotalSupply (params) -> getTotalSupply(params, store)
-      | GetMaximumSupply (params) -> getMaximumSupply(params, store)
-      | GetTotalAndMaximumSupply (params) -> getTotalAndMaximumSupply(params, store)
 
       | Mint (params) -> mint(params, store)
       | OnStakeChange (params) -> onStakeChange(params, store)
 
       | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
-    end
+    ]
   )

@@ -23,11 +23,6 @@ export const doormanStorage: doormanStorageType = {
   },
   userStakeBalanceLedger: MichelsonMap.fromLiteral({}),
 
-  tempUnstakeAmount: null,
-  tempClaimForceTransfer: null,
-  tempClaimDelegator: null,
-  tempClaimAmount: null,
-
   stakedMvkTotalSupply: new BigNumber(0),
   unclaimedRewards: new BigNumber(0),
   

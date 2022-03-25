@@ -218,66 +218,66 @@ function checkNoAmount(const _p : unit) : unit is
 function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : contract(nat) is
   case (Tezos.get_entrypoint_opt(
       "%updateBlocksPerMinute",
-      contractAddress) : option(contract(nat))) of
+      contractAddress) : option(contract(nat))) of [
     Some(contr) -> contr
   | None -> (failwith("updateBlocksPerMinutes entrypoint in Contract not found") : contract(nat))
-end;
+];
 
 function sendAddVesteeParams(const contractAddress : address) : contract(councilActionAddVesteeType) is
   case (Tezos.get_entrypoint_opt(
       "%addVestee",
-      contractAddress) : option(contract(councilActionAddVesteeType))) of
+      contractAddress) : option(contract(councilActionAddVesteeType))) of [
     Some(contr) -> contr
   | None -> (failwith("addVestee entrypoint in Vesting Contract not found") : contract(councilActionAddVesteeType))
-end;
+];
 
 function sendRemoveVesteeParams(const contractAddress : address) : contract(address) is
   case (Tezos.get_entrypoint_opt(
       "%removeVestee",
-      contractAddress) : option(contract(address))) of
+      contractAddress) : option(contract(address))) of [
     Some(contr) -> contr
   | None -> (failwith("removeVestee entrypoint in Vesting Contract not found") : contract(address))
-end;
+];
 
 function sendUpdateVesteeParams(const contractAddress : address) : contract(councilActionUpdateVesteeType) is
 case (Tezos.get_entrypoint_opt(
     "%updateVestee",
-    contractAddress) : option(contract(councilActionUpdateVesteeType))) of
+    contractAddress) : option(contract(councilActionUpdateVesteeType))) of [
 Some(contr) -> contr
 | None -> (failwith("updateVestee entrypoint in Vesting Contract not found") : contract(councilActionUpdateVesteeType))
-end;
+];
 
 function sendToggleVesteeLockParams(const contractAddress : address) : contract(address) is
 case (Tezos.get_entrypoint_opt(
     "%toggleVesteeLock",
-    contractAddress) : option(contract(address))) of
+    contractAddress) : option(contract(address))) of [
 Some(contr) -> contr
 | None -> (failwith("toggleVesteeLock entrypoint in Vesting Contract not found") : contract(address))
-end;
+];
 
 function sendRequestTokensParams(const contractAddress : address) : contract(councilActionRequestTokensType) is
   case (Tezos.get_entrypoint_opt(
       "%requestTokens",
-      contractAddress) : option(contract(councilActionRequestTokensType))) of
+      contractAddress) : option(contract(councilActionRequestTokensType))) of [
     Some(contr) -> contr
   | None -> (failwith("requestTokens entrypoint in Governance Contract not found") : contract(councilActionRequestTokensType))
-end;
+];
 
 function sendRequestMintParams(const contractAddress : address) : contract(councilActionRequestMintType) is
   case (Tezos.get_entrypoint_opt(
       "%requestMint",
-      contractAddress) : option(contract(councilActionRequestMintType))) of
+      contractAddress) : option(contract(councilActionRequestMintType))) of [
     Some(contr) -> contr
   | None -> (failwith("requestMint entrypoint in Governance Contract not found") : contract(councilActionRequestMintType))
-end;
+];
 
 function sendDropFinancialRequestParams(const contractAddress : address) : contract(nat) is
   case (Tezos.get_entrypoint_opt(
       "%dropFinancialRequest",
-      contractAddress) : option(contract(nat))) of
+      contractAddress) : option(contract(nat))) of [
     Some(contr) -> contr
   | None -> (failwith("dropFinancialRequest entrypoint in Governance Contract not found") : contract(nat))
-end;
+];
 
 
 ////
@@ -290,10 +290,10 @@ function transferFa12Token(const from_: address; const to_: address; const token
         const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
 
         const tokenContract: contract(fa12TransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of
+            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
                 Some (c) -> c
             |   None -> (failwith("Error. Transfer entrypoint not found in FA12 Token contract"): contract(fa12TransferType))
-            end;
+            ];
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
@@ -312,10 +312,10 @@ block{
         ];
 
     const tokenContract: contract(fa2TransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of
+        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
             Some (c) -> c
         |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
-        end;
+        ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 
@@ -341,10 +341,10 @@ block {
   const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
-  case updateConfigAction of
-    ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.size(s.councilMembers) then failwith("Error. The threshold exceed the total number of council members") else s.config.threshold := updateConfigNewValue
+  case updateConfigAction of [
+    ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. The threshold exceed the total number of council members") else s.config.threshold := updateConfigNewValue
   | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
-  end;
+  ];
 
 } with (noOperations, s)
 
@@ -937,10 +937,10 @@ block {
     
     checkSenderIsCouncilMember(s);
 
-    var _councilActionRecord : councilActionRecordType := case s.councilActionsLedger[actionId] of        
+    var _councilActionRecord : councilActionRecordType := case s.councilActionsLedger[actionId] of [
         Some(_record) -> _record
         | None -> failwith("Error. Council Action not found")
-    end;
+    ];
 
     // check if council action has been flushed
     if _councilActionRecord.status = "FLUSHED" then failwith("Error. Council action has been flushed") else skip;
@@ -972,16 +972,16 @@ block {
         if actionType = "flushAction" then block {
 
             // fetch params begin ---
-            const flushedCouncilActionId : nat = case _councilActionRecord.natMap["actionId"] of
+            const flushedCouncilActionId : nat = case _councilActionRecord.natMap["actionId"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. ActionId not found.")
-            end;
+            ];
             // fetch params end ---
 
-            var flushedCouncilActionRecord : councilActionRecordType := case s.councilActionsLedger[flushedCouncilActionId] of        
+            var flushedCouncilActionRecord : councilActionRecordType := case s.councilActionsLedger[flushedCouncilActionId] of [      
                 Some(_record) -> _record
                 | None -> failwith("Error. Council Action not found")
-            end;
+            ];
 
             flushedCouncilActionRecord.status := "FLUSHED";
             s.councilActionsLedger[flushedCouncilActionId] := flushedCouncilActionRecord;
@@ -992,14 +992,14 @@ block {
         if actionType = "updateBlocksPerMinute" then block {
             
             // fetch params begin ---
-            const newBlocksPerMinute : nat = case _councilActionRecord.natMap["newBlocksPerMinute"] of
+            const newBlocksPerMinute : nat = case _councilActionRecord.natMap["newBlocksPerMinute"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. NewBlocksPerMinute not found.")
-            end;
-            const contractAddress : address = case _councilActionRecord.addressMap["contractAddress"] of
+            ];
+            const contractAddress : address = case _councilActionRecord.addressMap["contractAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. ContractAddress not found.")
-            end;
+            ];
             // fetch params end ---
 
             const updateBlocksPerMinuteOperation : operation = Tezos.transaction(
@@ -1015,25 +1015,25 @@ block {
         if actionType = "addVestee" then block {
 
             // fetch params begin ---
-            const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of
+            const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. VesteeAddress not found.")
-            end;
+            ];
 
-            const totalAllocatedAmount : nat = case _councilActionRecord.natMap["totalAllocatedAmount"] of
+            const totalAllocatedAmount : nat = case _councilActionRecord.natMap["totalAllocatedAmount"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. TotalAllocatedAmount not found.")
-            end;
+            ];
 
-            const cliffInMonths : nat = case _councilActionRecord.natMap["cliffInMonths"] of
+            const cliffInMonths : nat = case _councilActionRecord.natMap["cliffInMonths"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. CliffInMonths not found.")
-            end;
+            ];
 
-            const vestingInMonths : nat = case _councilActionRecord.natMap["vestingInMonths"] of
+            const vestingInMonths : nat = case _councilActionRecord.natMap["vestingInMonths"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. VestingInMonths not found.")
-            end;
+            ];
             // fetch params end ---
 
             const addVesteeParams : councilActionAddVesteeType = record [
@@ -1043,10 +1043,10 @@ block {
                 vestingInMonths         = vestingInMonths;
             ];
 
-            var vestingAddress : address := case s.generalContracts["vesting"] of 
+            var vestingAddress : address := case s.generalContracts["vesting"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
-            end;
+            ];
 
             const addVesteeOperation : operation = Tezos.transaction(
                 addVesteeParams,
@@ -1064,17 +1064,17 @@ block {
         if actionType = "removeVestee" then block {
 
             // fetch params begin ---
-            const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of
+            const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. VesteeAddress not found.")
-            end;
+            ];
             // fetch params end ---
 
 
-            var vestingAddress : address := case s.generalContracts["vesting"] of 
+            var vestingAddress : address := case s.generalContracts["vesting"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
-            end;
+            ];
 
             const removeVesteeOperation : operation = Tezos.transaction(
                 vesteeAddress,
@@ -1092,25 +1092,25 @@ block {
         if actionType = "updateVestee" then block {
 
             // fetch params begin ---
-            const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of
+            const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. VesteeAddress not found.")
-            end;
+            ];
 
-            const newTotalAllocatedAmount : nat = case _councilActionRecord.natMap["newTotalAllocatedAmount"] of
+            const newTotalAllocatedAmount : nat = case _councilActionRecord.natMap["newTotalAllocatedAmount"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. NewTotalAllocatedAmount not found.")
-            end;
+            ];
 
-            const newCliffInMonths : nat = case _councilActionRecord.natMap["newCliffInMonths"] of
+            const newCliffInMonths : nat = case _councilActionRecord.natMap["newCliffInMonths"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. NewCliffInMonths not found.")
-            end;
+            ];
 
-            const newVestingInMonths : nat = case _councilActionRecord.natMap["newVestingInMonths"] of
+            const newVestingInMonths : nat = case _councilActionRecord.natMap["newVestingInMonths"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. NewVestingInMonths not found.")
-            end;
+            ];
             // fetch params end ---
 
             const updateVesteeParams : councilActionUpdateVesteeType = record [
@@ -1120,10 +1120,10 @@ block {
                 newVestingInMonths          = newVestingInMonths;
             ];
 
-            var vestingAddress : address := case s.generalContracts["vesting"] of 
+            var vestingAddress : address := case s.generalContracts["vesting"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
-            end;
+            ];
 
             const updateVesteeOperation : operation = Tezos.transaction(
                 updateVesteeParams,
@@ -1141,16 +1141,16 @@ block {
         if actionType = "toggleVesteeLock" then block {
 
             // fetch params begin ---
-            const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of
+            const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. VesteeAddress not found.")
-            end;
+            ];
             // fetch end begin ---
 
-            var vestingAddress : address := case s.generalContracts["vesting"] of 
+            var vestingAddress : address := case s.generalContracts["vesting"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. Vesting Contract Address not found")
-            end;
+            ];
 
             const toggleVesteeLockOperation : operation = Tezos.transaction(
                 vesteeAddress,
@@ -1168,10 +1168,10 @@ block {
         if actionType = "addCouncilMember" then block {
 
             // fetch params begin ---
-            const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of
+            const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. CouncilMemberAddress not found.")
-            end;
+            ];
             // fetch params end ---
 
             s.councilMembers := Set.add(councilMemberAddress, s.councilMembers);
@@ -1183,10 +1183,10 @@ block {
         if actionType = "removeCouncilMember" then block {
 
             // fetch params begin ---
-            const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of
+            const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. CouncilMemberAddress not found.")
-            end;
+            ];
             // fetch params end ---
 
             s.councilMembers := Set.remove(councilMemberAddress, s.councilMembers);
@@ -1198,15 +1198,15 @@ block {
         if actionType = "changeCouncilMember" then block {
 
             // fetch params begin ---
-            const oldCouncilMemberAddress : address = case _councilActionRecord.addressMap["oldCouncilMemberAddress"] of
+            const oldCouncilMemberAddress : address = case _councilActionRecord.addressMap["oldCouncilMemberAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. OldCouncilMemberAddress not found.")
-            end;
+            ];
 
-            const newCouncilMemberAddress : address = case _councilActionRecord.addressMap["newCouncilMemberAddress"] of
+            const newCouncilMemberAddress : address = case _councilActionRecord.addressMap["newCouncilMemberAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. NewCouncilMemberAddress not found.")
-            end;
+            ];
             // fetch params end ---
 
 
@@ -1220,30 +1220,30 @@ block {
         if actionType = "transfer" then block {
 
             // fetch params begin ---
-            const receiverAddress : address = case _councilActionRecord.addressMap["receiverAddress"] of
+            const receiverAddress : address = case _councilActionRecord.addressMap["receiverAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. ReceiverAddress not found.")
-            end;
+            ];
 
-            const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of
+            const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. TokenContractAddress not found.")
-            end;
+            ];
 
-            const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of
+            const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
                 Some(_string) -> _string
                 | None -> failwith("Error. TokenType not found.")
-            end;
+            ];
 
-            const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of
+            const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. TokenAmount not found.")
-            end;
+            ];
 
-            const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of
+            const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. TokenId not found.")
-            end;
+            ];
             // fetch params end ---
 
 
@@ -1270,11 +1270,11 @@ block {
             } else skip;
             // --- --- ---
 
-            const transferTokenOperation : operation = case _tokenTransferType of 
+            const transferTokenOperation : operation = case _tokenTransferType of [ 
                 | Tez         -> transferTez((get_contract(to_) : contract(unit)), amt)
                 | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
                 | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
-            end;
+            ];
 
             operations := transferTokenOperation # operations;
 
@@ -1284,40 +1284,40 @@ block {
         if actionType = "requestTokens" then block {
 
             // fetch params begin ---
-            const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of
+            const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. TreasuryAddress not found.")
-            end;
+            ];
 
-            const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of
+            const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. TokenContractAddress not found.")
-            end;
+            ];
 
-            const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of
+            const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
                 Some(_string) -> _string
                 | None -> failwith("Error. TokenType not found.")
-            end;
+            ];
 
-            const tokenName : string = case _councilActionRecord.stringMap["tokenName"] of
+            const tokenName : string = case _councilActionRecord.stringMap["tokenName"] of [
                 Some(_string) -> _string
                 | None -> failwith("Error. TokenName not found.")
-            end;
+            ];
 
-            const purpose : string = case _councilActionRecord.stringMap["purpose"] of
+            const purpose : string = case _councilActionRecord.stringMap["purpose"] of [
                 Some(_string) -> _string
                 | None -> failwith("Error. Purpose not found.")
-            end;
+            ];
 
-            const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of
+            const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. TokenAmount not found.")
-            end;
+            ];
 
-            const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of
+            const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. TokenId not found.")
-            end;
+            ];
             // fetch params end ---
 
 
@@ -1331,10 +1331,10 @@ block {
                 purpose               = purpose;
             ];
 
-            var governanceAddress : address := case s.generalContracts["governance"] of 
+            var governanceAddress : address := case s.generalContracts["governance"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. Governance Contract Address not found")
-            end;
+            ];
 
             const requestTokensOperation : operation = Tezos.transaction(
                 requestTokensParams,
@@ -1350,37 +1350,37 @@ block {
         // requestMint action type
         if actionType = "requestMint" then block {
             
-            var governanceAddress : address := case s.generalContracts["governance"] of 
+            var governanceAddress : address := case s.generalContracts["governance"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. Governance Contract Address not found")
-            end;
+            ];
 
 
             // fetch params begin ---
-            const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of
+            const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. TreasuryAddress not found.")
-            end;
+            ];
 
-            const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of
+            const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
                 Some(_string) -> _string
                 | None -> failwith("Error. TokenType not found.")
-            end;
+            ];
 
-            const purpose : string = case _councilActionRecord.stringMap["purpose"] of
+            const purpose : string = case _councilActionRecord.stringMap["purpose"] of [
                 Some(_string) -> _string
                 | None -> failwith("Error. Purpose not found.")
-            end;
+            ];
 
-            const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of
+            const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. TokenAmount not found.")
-            end;
+            ];
 
-            const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of
+            const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
                 Some(_nat) -> _nat
                 | None -> failwith("Error. TokenId not found.")
-            end;
+            ];
             // fetch params end ---
 
 
@@ -1405,16 +1405,16 @@ block {
         // dropFinancialRequest action type
         if actionType = "dropFinancialRequest" then block {
             
-            var governanceAddress : address := case s.generalContracts["governance"] of 
+            var governanceAddress : address := case s.generalContracts["governance"] of [ 
                 Some(_address) -> _address
                 | None -> failwith("Error. Governance Contract Address not found")
-            end;
+            ];
 
             // fetch params begin ---
-            const requestId : nat = case _councilActionRecord.natMap["requestId"] of
+            const requestId : nat = case _councilActionRecord.natMap["requestId"] of [
                 Some(_address) -> _address
                 | None -> failwith("Error. RequestID not found.")
-            end;
+            ];
             // fetch params end ---
 
             const dropFinancialRequestOperation : operation = Tezos.transaction(
@@ -1440,7 +1440,7 @@ block {
 } with (operations, s)
 
 function main (const action : councilAction; const s : storage) : return is 
-    case action of
+    case action of [
         | Default(_params) -> ((nil : list(operation)), s)
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
@@ -1469,4 +1469,4 @@ function main (const action : councilAction; const s : storage) : return is
 
         | SignAction(parameters) -> signAction(parameters, s)
         | FlushAction(parameters) -> flushAction(parameters, s)
-    end
+    ]

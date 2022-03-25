@@ -13,11 +13,6 @@ export type doormanStorageType = {
   breakGlassConfig: {};
   userStakeBalanceLedger: MichelsonMap<MichelsonMapKey, unknown>;
 
-  tempUnstakeAmount: BigNumber | null;
-  tempClaimForceTransfer: boolean | null;
-  tempClaimDelegator: string | null;
-  tempClaimAmount: BigNumber | null;
-
   stakedMvkTotalSupply: BigNumber;
   unclaimedRewards: BigNumber;
   
