@@ -131,12 +131,26 @@ type action is
 ////
 // FUNCTIONS
 ////
-(* Helper functions *)
-function getBalance(const owner : owner; const store : storage) : tokenBalance is
-  case Big_map.find_opt(owner, store.ledger) of [
-    Some (v) -> v
+(* View functions *)
+(* getBalance View *)
+[@view] function getBalance(const user: owner; const store: storage) : tokenBalance is
+  case Big_map.find_opt(user, store.ledger) of [
+    Some (_v) -> _v
   | None -> 0n
   ]
+
+(* GetTotalSupply View *)
+[@view] function getTotalSupply(const _: unit; const store: storage) : tokenBalance is
+  store.totalSupply
+
+(* GetMaximumSupply View *)
+[@view] function getMaximumSupply(const _: unit; const store: storage) : tokenBalance is
+  store.maximumSupply
+
+(* GetTotalAndMaximumSupply View *)
+[@view] function getTotalAndMaximumSupply(const _: unit; const store: storage) : tokenBalance * tokenBalance is
+  (store.totalSupply, store.maximumSupply)
+
 
 (* Helper function to validate *)
 function checkTokenId(const tokenId: tokenId): unit is
@@ -244,25 +258,6 @@ function balanceOf(const balanceOfParams: balanceOfParams; const store: storage)
       const responses: list(balanceOfResponse) = List.map(retrieveBalance, requests);
       const operation: operation = Tezos.transaction(responses, 0tez, callback);
   } with (list[operation],store)
-
-(* GetUserBalance View *)
-[@view] function getUserBalance(const user: owner; const store: storage) : tokenBalance is
-  case Big_map.find_opt(user, store.ledger) of [
-    Some (_v) -> _v
-  | None -> 0n
-  ]
-
-(* GetTotalSupply View *)
-[@view] function getTotalSupply(const _: unit; const store: storage) : tokenBalance is
-  store.totalSupply
-
-(* GetMaximumSupply View *)
-[@view] function getMaximumSupply(const _: unit; const store: storage) : tokenBalance is
-  store.maximumSupply
-
-(* GetTotalAndMaximumSupply View *)
-[@view] function getTotalAndMaximumSupply(const _: unit; const store: storage) : tokenBalance * tokenBalance is
-  (store.totalSupply, store.maximumSupply)
 
 (* Update_operators Entrypoint *)
 function addOperator(const operatorParameter: operatorParameter; const operators: operators): operators is

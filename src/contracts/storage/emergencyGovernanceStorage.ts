@@ -19,13 +19,11 @@ const config = {
 export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
   admin: bob.pkh,
   config: config,
-  mvkTokenAddress : zeroAddress,
 
   generalContracts: MichelsonMap.fromLiteral({}),
 
   emergencyGovernanceLedger: MichelsonMap.fromLiteral({}),
 
-  tempStakedMvkTotalSupply: new BigNumber(0),
   currentEmergencyGovernanceId: new BigNumber(0),
   nextEmergencyGovernanceProposalId: new BigNumber(1),
 }
