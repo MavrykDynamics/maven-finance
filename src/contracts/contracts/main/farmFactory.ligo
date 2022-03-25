@@ -215,10 +215,10 @@ function pauseAll(var s: storage): return is
 
         for farmAddress in set s.trackedFarms 
         block {
-            case (Tezos.get_entrypoint_opt("%pauseAll", farmAddress): option(contract(unit))) of
+            case (Tezos.get_entrypoint_opt("%pauseAll", farmAddress): option(contract(unit))) of [
                 Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
             |   None -> skip
-            end;
+            ];
         };
 
     } with (operations, s)
@@ -242,10 +242,10 @@ function unpauseAll(var s: storage): return is
 
         for farmAddress in set s.trackedFarms 
         block {
-            case (Tezos.get_entrypoint_opt("%unpauseAll", farmAddress): option(contract(unit))) of
+            case (Tezos.get_entrypoint_opt("%unpauseAll", farmAddress): option(contract(unit))) of [
                 Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
             |   None -> skip
-            end;
+            ];
         };
 
     } with (operations, s)
@@ -293,10 +293,10 @@ function updateBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage): 
 
         for farmAddress in set s.trackedFarms 
         block {
-            case (Tezos.get_entrypoint_opt("%updateBlocksPerMinute", farmAddress): option(contract(nat))) of
+            case (Tezos.get_entrypoint_opt("%updateBlocksPerMinute", farmAddress): option(contract(nat))) of [
                 Some(contr) -> operations := Tezos.transaction(newBlocksPerMinutes, 0tez, contr) # operations
             |   None -> skip
-            end;
+            ];
         };
 
         s.blocksPerMinute := newBlocksPerMinutes;
@@ -320,20 +320,20 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
         checkCreateFarmIsNotPaused(s);
 
         // Add FarmFactory Address to whitelistContracts of created farm
-        const councilAddress: address = case s.whitelistContracts["council"] of 
+        const councilAddress: address = case s.whitelistContracts["council"] of [ 
             Some (_address) -> _address
         |   None -> failwith("Council contract not found in whitelist contracts")
-        end;
+        ];
         const farmWhitelistContract: whitelistContractsType = map[
             ("farmFactory") -> (Tezos.self_address: address);
             ("council") -> (councilAddress: address)
         ];
 
-        // Add Doorman Address to generalContracts of created farm
-        const doormanAddress: address = case s.generalContracts["doorman"] of 
+        // Add FarmFactory Address to doormanContracts of created farm
+        const doormanAddress: address = case s.generalContracts["doorman"] of [ 
             Some (_address) -> _address
         |   None -> failwith("Doorman contract not found in general contracts")
-        end;
+        ];
         const farmGeneralContracts: generalContractsType = map[
             ("doorman") -> (doormanAddress: address)
         ];
@@ -403,10 +403,10 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
 
 (* CheckFarmExists entrypoint *)
 function checkFarmExists (const farmContract: address; const s: storage): return is 
-    case Set.mem(farmContract, s.trackedFarms) of
+    case Set.mem(farmContract, s.trackedFarms) of [
         True -> (noOperations, s)
     |   False -> failwith("The provided farm contract does not exist in the trackedFarms set")
-    end
+    ]
 
 (* TrackFarm entrypoint *)
 function trackFarm (const farmContract: address; var s: storage): return is 
@@ -417,10 +417,10 @@ function trackFarm (const farmContract: address; var s: storage): return is
         // Break glass check
         checkTrackFarmIsNotPaused(s);
 
-        s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of
+        s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of [
             True -> (failwith("The provided farm contract already exists in the trackedFarms set"): set(address))
         |   False -> Set.add(farmContract, s.trackedFarms)
-        end;
+        ];
     } with(noOperations, s)
 
 (* UntrackFarm entrypoint *)
@@ -432,10 +432,10 @@ function untrackFarm (const farmContract: address; var s: storage): return is
         // Break glass check
         checkUntrackFarmIsNotPaused(s);
 
-        s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of
+        s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of [
             True -> Set.remove(farmContract, s.trackedFarms)
         |   False -> (failwith("The provided farm contract does not exist in the trackedFarms set"): set(address))
-        end;
+        ];
     } with(noOperations, s)
 
 (* Main entrypoint *)
@@ -444,7 +444,7 @@ function main (const action: action; var s: storage): return is
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);
   } with(
-    case action of
+    case action of [
         SetAdmin (parameters) -> setAdmin(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
@@ -461,5 +461,5 @@ function main (const action: action; var s: storage): return is
     |   UntrackFarm (params) -> untrackFarm(params, s)
 
     |   CheckFarmExists (params) -> checkFarmExists(params, s)
-    end
+    ]
   )

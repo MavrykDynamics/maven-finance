@@ -152,19 +152,19 @@ function checkNoAmount(const _p : unit) : unit is
 function vestingUpdateStakedBalanceInDoorman(const contractAddress : address) : contract(address * nat) is
   case (Tezos.get_entrypoint_opt(
       "%vestingUpdateStakedBalanceInDoorman",
-      contractAddress) : option(contract(address * nat))) of
+      contractAddress) : option(contract(address * nat))) of [
     Some(contr) -> contr
   | None -> (failwith("vestingUpdateStakedBalanceInDoorman entrypoint in Doorman Contract not found") : contract(address * nat))
-  end;
+  ];
 
 // helper function to get mint entrypoint from token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
   case (Tezos.get_entrypoint_opt(
       "%mint",
-      token_address) : option(contract(mintTokenType))) of
+      token_address) : option(contract(mintTokenType))) of [
     Some(contr) -> contr
   | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
-  end;
+  ];
 
 (* Helper function to mint mvk tokens *)
 function mintTokens(
@@ -198,14 +198,14 @@ block {
   const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
-  case updateConfigAction of
+  case updateConfigAction of [
     ConfigDefaultCliffPeriod (_v)        -> s.config.defaultCliffPeriod         := updateConfigNewValue
   | ConfigDefaultCooldownPeriod (_v)     -> s.config.defaultCooldownPeriod      := updateConfigNewValue
   | ConfigNewBlockTimeLevel (_v)         -> s.config.newBlockTimeLevel          := updateConfigNewValue
   | ConfigNewBlocksPerMinute (_v)        -> s.config.newBlocksPerMinute         := updateConfigNewValue
   | ConfigBlocksPerMinute (_v)           -> s.config.blocksPerMinute            := updateConfigNewValue
   | ConfigBlocksPerMonth (_v)            -> s.config.blocksPerMonth             := updateConfigNewValue
-  end;
+  ];
 
 } with (noOperations, s)
 
@@ -223,10 +223,10 @@ block {
     checkNoAmount(unit);
 
     // use _vestee and _operations so that compiling will not have warnings that variable is unused
-    var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.sender] of 
+    var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.sender] of [ 
         | Some(_record) -> _record
         | None -> failwith("Error. Vestee is not found.")
-    end;
+    ];
 
     // vestee status is not locked
     if _vestee.status = "LOCKED" then failwith("Error. Vestee is locked.")
@@ -275,7 +275,7 @@ block {
         const thirty_days    : int   = one_day * 30;
 
         var monthsRemaining  : nat   := 0n;
-        if _vestee.monthsRemaining < numberOfClaimMonths then monthsRemaining := 0n; 
+        if _vestee.monthsRemaining < numberOfClaimMonths then monthsRemaining := 0n
             else monthsRemaining := abs(_vestee.monthsRemaining - numberOfClaimMonths);
 
         _vestee.monthsRemaining          := monthsRemaining;
@@ -313,17 +313,17 @@ block {
     // 2. return vestee's total vested remainder to callback contract
     checkNoAmount(unit);
 
-    const vestee : vesteeRecordType = case s.vesteeLedger[vesteeAddress] of 
+    const vestee : vesteeRecordType = case s.vesteeLedger[vesteeAddress] of [ 
         | Some(_record) -> _record
         | None -> failwith("Error. Vestee is not found.")
-    end;
+    ];
     
-} with (list [transaction(vestee.totalRemainder, 0tz, contr)], s)
+} with (list [Tezos.transaction(vestee.totalRemainder, 0tz, contr)], s)
 
 function getTotalVested(const contr : contract(nat); var s : storage) : return is 
 block {
     checkNoAmount(unit);
-} with (list [transaction(s.totalVestedAmount, 0tz, contr)], s)
+} with (list [Tezos.transaction(s.totalVestedAmount, 0tz, contr)], s)
 
 function addVestee(const vesteeAddress : address; const totalAllocatedAmount : nat; const cliffInMonths : nat; const vestingInMonths : nat; var s : storage) : return is 
 block {
@@ -350,9 +350,9 @@ block {
     if vestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
         else skip;
 
-    var newVestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
-        | Some(_record) -> failwith("Error. Vestee already exists")
-        | None -> record [
+    var newVestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [
+            Some(_record) -> failwith("Error. Vestee already exists")
+        |   None -> record [
             
             // static variables initiated at start ----
 
@@ -386,7 +386,7 @@ block {
             lastClaimedBlock         = 0n;                                                         // block level where vestee last claimed
             lastClaimedTimestamp     = nullTimestamp;                                              // timestamp of when vestee last claimed
         ]
-    end;    
+    ];    
 
     s.vesteeLedger[vesteeAddress] := newVestee;
     
@@ -407,10 +407,10 @@ block {
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
 
-    var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
+    var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
         | Some(_record) -> _record
         | None -> failwith("Error. Vestee is not found.")
-    end;    
+    ];    
 
     remove vesteeAddress from map s.vesteeLedger;
     
@@ -431,10 +431,10 @@ block {
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
 
-    var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
+    var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
         | Some(_record) -> _record
         | None -> failwith("Error. Vestee is not found.")
-    end;    
+    ];    
 
     var newStatus : string := "newStatus";
     if vestee.status = "LOCKED" then newStatus := "ACTIVE"
@@ -466,10 +466,10 @@ block {
     if newVestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
         else skip;
 
-    var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of 
+    var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
         | Some(_record) -> _record
         | None -> failwith("Error. Vestee is not found.")
-    end;    
+    ];    
 
     const one_day        : int   = 86_400;
     const thirty_days    : int   = one_day * 30;
@@ -512,7 +512,7 @@ block {
 
 
 function main (const action : vestingAction; const s : storage) : return is 
-    case action of
+    case action of [
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
         
@@ -527,4 +527,4 @@ function main (const action : vestingAction; const s : storage) : return is
         | GetTotalVested(params) -> getTotalVested(params, s)
 
         | UpdateVestee(params) -> updateVestee(params.0, params.1, params.2, params.3, s)        
-    end
+    ]

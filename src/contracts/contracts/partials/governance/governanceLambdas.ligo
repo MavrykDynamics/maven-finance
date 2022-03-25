@@ -5,7 +5,7 @@ function callGovernanceLambda(const executeAction : executeActionType; var s : s
     checkSenderIsAdminOrSelf(s);
 
     (* ids to match governanceLambdaIndex.json - id 0 is callGovernanceLambda *)
-    const id : nat = case executeAction of
+    const id : nat = case executeAction of [
       
       (* Update Lambda Function *)    
       | UpdateLambdaFunction(_v)      -> 1n
@@ -14,18 +14,18 @@ function callGovernanceLambda(const executeAction : executeActionType; var s : s
       | UpdateGovernanceConfig(_v)    -> 2n
       | UpdateDelegationConfig(_v)    -> 3n
 
-    end;
+    ];
 
-    const lambdaBytes : bytes = case s.governanceLambdaLedger[id] of
+    const lambdaBytes : bytes = case s.governanceLambdaLedger[id] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. Governance Lambda not found.")
-    end;
+    ];
 
     // reference: type governanceLambdaFunctionType is (executeActionType * storage) -> return
-    const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceLambdaFunctionType)) of
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
       | None    -> failwith("Error. Unable to unpack Governance Lambda.")
-    end;
+    ];
   
   } with (res.0, s)
 
@@ -35,8 +35,8 @@ function updateLambdaFunction(const executeAction : executeActionType; var s : s
     
     checkSenderIsAdminOrSelf(s);
 
-    case executeAction of 
-    | UpdateLambdaFunction(params) -> {
+    case executeAction of [
+      UpdateLambdaFunction(params) -> {
 
         // assign params to constants for better code readability
         const lambdaId    = params.id;
@@ -46,7 +46,7 @@ function updateLambdaFunction(const executeAction : executeActionType; var s : s
 
         }
     | _ -> skip
-    end
+    ];
 
   } with (noOperations, s)
 
@@ -57,16 +57,16 @@ block {
 
     var operations: list(operation) := nil;
 
-    case executeAction of 
-    | UpdateGovernanceConfig(params) -> {
+    case executeAction of [
+      UpdateGovernanceConfig(params) -> {
 
         // find and get updateConfig entrypoint of governance contract
         const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
             "%updateConfig",
-            Tezos.self_address) : option(contract(nat * updateGovernanceConfigActionType))) of
+            Tezos.self_address) : option(contract(nat * updateGovernanceConfigActionType))) of [
             Some(contr) -> contr
             | None -> (failwith("updateConfig entrypoint in Governance Contract not found") : contract(nat * updateGovernanceConfigActionType))
-        end;
+        ];
 
         // assign params to constants for better code readability
         const updateConfigAction   = params.updateConfigAction;
@@ -83,7 +83,7 @@ block {
 
         }
     | _ -> skip
-    end
+    ]
 
 } with (operations, s)
 
@@ -94,22 +94,22 @@ block {
 
     var operations: list(operation) := nil;
 
-    case executeAction of 
-    | UpdateDelegationConfig(params) -> {
+    case executeAction of [
+      UpdateDelegationConfig(params) -> {
 
         // find and get delegation contract address from the generalContracts big map
-        const delegationAddress : address = case s.generalContracts["delegation"] of
+        const delegationAddress : address = case s.generalContracts["delegation"] of [
             Some(_address) -> _address
             | None -> failwith("Error. Delegation Contract is not found")
-        end;
+        ];
 
         // find and get updateConfig entrypoint of delegation contract
         const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
             "%updateConfig",
-            delegationAddress) : option(contract(nat * updateDelegationConfigActionType))) of
+            delegationAddress) : option(contract(nat * updateDelegationConfigActionType))) of [
             Some(contr) -> contr
             | None -> (failwith("updateConfig entrypoint in Delegation Contract not found") : contract(nat * updateDelegationConfigActionType))
-        end;
+        ];
 
         // assign params to constants for better code readability
         const updateConfigAction   = params.updateConfigAction;
@@ -126,7 +126,7 @@ block {
 
         }
     | _ -> skip
-    end
+    ]
 
 } with (operations, s)
 
