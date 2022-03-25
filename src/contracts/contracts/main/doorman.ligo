@@ -68,8 +68,6 @@ type stakeType is
   StakeAction of unit
 | UnstakeAction of unit
 
-type getTotalStakedSupplyParamsType is contract(nat)
-
 type doormanAction is 
     SetAdmin of (address)
   | UpdateMinMvkAmount of (nat)
@@ -83,9 +81,6 @@ type doormanAction is
   | TogglePauseUnstake of (unit)
   | TogglePauseCompound of (unit)
 
-  | GetTotalStakedSupply of getTotalStakedSupplyParamsType
-  | GetStakedBalance of (address * contract(nat))
-  | GetSatelliteBalance of getSatelliteBalanceType
   // | EmergencyGovernanceVoteCheck of emergencyGovernanceVoteCheckType
 
   | Stake of (nat)
@@ -170,24 +165,6 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
   | None -> (failwith("transfer entrypoint in Token Contract not found") : contract(transferType))
   ];
 
-// helper function to get MVK total supply
-function getMvkTotalSupplyEntrypoint(const s: storage) : contract(contract(nat)) is
-  case (Tezos.get_entrypoint_opt(
-      "%getTotalSupply",
-      s.mvkTokenAddress) : option(contract(contract(nat)))) of [
-    Some(contr) -> contr
-  | None -> (failwith("GetTotalSupply entrypoint in MVK Token Contract not found") : contract(contract(nat)))
-  ];
-
-// helper function to get MVK supplies
-function getMvkSuppliesEntrypoint(const s: storage) : contract(contract(nat * nat)) is
-  case (Tezos.get_entrypoint_opt(
-      "%getTotalAndMaximumSupply",
-      s.mvkTokenAddress) : option(contract(contract(nat * nat)))) of [
-    Some(contr) -> contr
-  | None -> (failwith("GetTotalAndMaximumSupply entrypoint in MVK Token Contract not found") : contract(contract(nat * nat)))
-  ];
-
 (* ---- Helper functions end ---- *)
 
 
@@ -269,8 +246,15 @@ block {
 } with (noOperations, s)
 
 (*  get total staked supply *)
-function getTotalStakedSupply(const getTotalStakedSupplyParams: getTotalStakedSupplyParamsType; const s : storage) : return is
-  (list[Tezos.transaction(s.stakedMvkTotalSupply, 0tez, getTotalStakedSupplyParams)], s)
+[@view] function getTotalStakedSupply(const _: unit; const s: storage) : nat is
+  s.stakedMvkTotalSupply
+
+(* View function that forwards the staked balance of source to a contract *)
+[@view] function getStakedBalance (const userAddress : address; var s : storage) : nat is
+  case s.userStakeBalanceLedger[userAddress] of [
+    Some (_val) -> _val.balance
+  | None -> 0n
+  ]
 
 (*  update configuration in the storage *)
 function updateMinMvkAmount(const newMinMvkAmount : nat; var s : storage) : return is 
@@ -284,26 +268,6 @@ block {
   s.minMvkAmount := newMinMvkAmount;
 
 } with (noOperations, s)
-
-(* View function that forwards the staked balance of source to a contract *)
-function getStakedBalance (const userAddress : address; const contr : contract(nat); var s : storage) : return is
-  block {
-    var userBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[userAddress] of [
-      Some (_val) -> _val.balance
-    | None -> 0n
-    ];
-
-  } with (list [Tezos.transaction(userBalanceInStakeBalanceLedger, 0tz, contr)], s)
-
-(* View function that forwards the balance of satellite with satellite creation params to the delegation contract *)
-function getSatelliteBalance (const userAddress : address; const name : string; const description : string; const image : string; const satelliteFee : nat; const contr : contract(satelliteInfoType); var s : storage) : return is
-  block {
-    checkSenderIsDelegationContract(s);
-    var userBalanceInStakeBalanceLedger : nat := case s.userStakeBalanceLedger[userAddress] of [
-      Some (_val) -> _val.balance
-    | None -> 0n
-    ];
-  } with (list [Tezos.transaction((name, description, image, satelliteFee, userBalanceInStakeBalanceLedger), 0tz, contr)], s)
 
 function compoundUserRewards(var s: storage): (option(operation) * storage) is 
   block{
@@ -467,7 +431,6 @@ block {
 
   // old steps - no more mint + burn used
   // 2. intercontract invocation -> update total supply for MVK and sMVK
-  // 3. unstakeComplete -> calculate exit fee, mint and burn method in smvkToken.ligo and mvkToken.ligo respectively
   
   // to be done in future
   // 4. calculate distribution of exit fee as rewards to sMVK holders
@@ -599,12 +562,14 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
         Some(_address) -> _address
         | None -> failwith("Error. Farm Factory Contract is not found.")
     ];
-    const farmFactoryContract: contract(address) = 
-      case (Tezos.get_entrypoint_opt("%checkFarmExists", farmFactoryAddress) : option(contract(address))) of [
-        Some(contr) -> contr
-      | None -> (failwith("CheckFarmExists entrypoint in Farm Factory Contract not found") : contract(address))
-      ];
-    const checkFarmExistsOperation: operation = Tezos.transaction(farmAddress, 0tez, farmFactoryContract);
+
+    const checkFarmExistsView : option (bool) = Tezos.call_view ("checkFarmExists", farmAddress, farmFactoryAddress);
+    const checkFarmExists: bool = case checkFarmExistsView of [
+      Some (value) -> value
+    | None (Unit) -> (failwith ("Error. CheckFarmExistsView View not found in the Farm factory Contract") : bool)
+    ];
+
+    if not checkFarmExists then failwith("Error. The Farm is not tracked by the Farm Factory or it does not exist.") else skip;
 
     const mvkTotalAndMaximumSupplyView : option (nat * nat) = Tezos.call_view ("getTotalAndMaximumSupply", unit, s.mvkTokenAddress);
     const mvkTotalAndMaximumSupply: (nat * nat) = case mvkTotalAndMaximumSupplyView of [
@@ -701,9 +666,6 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
       );
       operations := transferOperation # operations;
     } else skip;
-
-    operations := checkFarmExistsOperation # operations;
-
   } with(operations, s)
 
 (* Main entrypoint *)
@@ -725,10 +687,6 @@ function main (const action : doormanAction; const s : storage) : return is
     | TogglePauseUnstake(_parameters) -> togglePauseUnstake(s)
     | TogglePauseCompound(_parameters) -> togglePauseCompound(s)
 
-    | GetTotalStakedSupply(params) -> getTotalStakedSupply(params, s)
-    | GetStakedBalance(params) -> getStakedBalance(params.0, params.1, s)
-    | GetSatelliteBalance(params) -> getSatelliteBalance(params.0, params.1, params.2, params.3, params.4, params.5, s)
-    
     | Stake(parameters) -> stake(parameters, s)  
     | Unstake(parameters) -> unstake(parameters, s)
     | Compound(_parameters) -> compound(s)

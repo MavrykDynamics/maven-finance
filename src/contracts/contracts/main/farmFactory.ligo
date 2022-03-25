@@ -153,7 +153,6 @@ type action is
 |   CreateFarm of farmStorageType
 |   TrackFarm of address
 |   UntrackFarm of address
-|   CheckFarmExists of address
 
 ////
 // HELPER FUNCTIONS
@@ -310,6 +309,10 @@ block {
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
+(* CheckFarmExists view *)
+[@view] function checkFarmExists (const farmContract: address; const s: storage): bool is 
+    Set.mem(farmContract, s.trackedFarms)
+
 (* CreateFarm entrypoint *)
 function createFarm(const farmStorage: farmStorageType; var s: storage): return is 
     block{
@@ -401,13 +404,6 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
 
     } with(list[farmOrigination.0], s)
 
-(* CheckFarmExists entrypoint *)
-function checkFarmExists (const farmContract: address; const s: storage): return is 
-    case Set.mem(farmContract, s.trackedFarms) of [
-        True -> (noOperations, s)
-    |   False -> failwith("The provided farm contract does not exist in the trackedFarms set")
-    ]
-
 (* TrackFarm entrypoint *)
 function trackFarm (const farmContract: address; var s: storage): return is 
     block{
@@ -459,7 +455,5 @@ function main (const action: action; var s: storage): return is
     |   CreateFarm (params) -> createFarm(params, s)
     |   TrackFarm (params) -> trackFarm(params, s)
     |   UntrackFarm (params) -> untrackFarm(params, s)
-
-    |   CheckFarmExists (params) -> checkFarmExists(params, s)
     ]
   )
