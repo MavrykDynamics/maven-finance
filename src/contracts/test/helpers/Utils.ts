@@ -81,3 +81,8 @@ export const zeroAddress: string = 'tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg'
 export const MVK = (value: number = 1) => {
   return value * 10**parseInt(mvkTokenDecimals.decimals)
 }
+
+// Tez Formatter
+export const TEZ = (value: number = 1) => {
+  return value * 10**6
+}
