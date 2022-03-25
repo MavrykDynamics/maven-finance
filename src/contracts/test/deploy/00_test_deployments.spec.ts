@@ -362,6 +362,32 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("USDM Token originated")
 
+    usdmTokenControllerStorage.collateralTokenLedger = MichelsonMap.fromLiteral({
+      "mockFA12"  : {
+        "tokenContractAddress" : mockFa12Token.contract.address, 
+        "tokenType": {
+          "fa12" : mockFa12Token.contract.address
+        }
+      },
+      "mockFA2"   : {
+        "tokenContractAddress" : mockFa2Token.contract.address, 
+        "tokenType" : {
+          "fa2": {
+            "tokenContractAddress" : mockFa2Token.contract.address, 
+            "tokenId" : 0
+          }
+        }
+      },
+      "mvk"       : {
+        "tokenContractAddress" : mvkToken.contract.address, 
+        "tokenType" : {
+          "fa2": {
+            "tokenContractAddress" : mvkToken.contract.address, 
+            "tokenId" : 0
+          }
+        }
+      }
+    });
     usdmTokenController = await UsdmTokenController.originate(
       utils.tezos,
       usdmTokenControllerStorage
