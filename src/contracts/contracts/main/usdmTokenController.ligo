@@ -60,6 +60,11 @@ type setCfmmAddressActionType is [@layout:comb] record [
     cfmmAddress                 : address; 
 ]
 
+type updateCollateralTokenLedgerActionType is [@layout:comb] record [
+    tokenName                   : string;
+    tokenContractAddress        : address;
+    tokenType                   : tokenType;
+]
 
 type tokenAmountLedgerType is map(string, tokenAmountType)
 type createVaultActionType is [@layout:comb] record [
@@ -130,7 +135,10 @@ type controllerStorage is [@layout:comb] record [
 ]
 
 type controllerAction is 
+    | Default of unit
     | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
+    | UpdateCollateralTokenLedger    of updateCollateralTokenLedgerActionType
+
     | SetUsdmAddress                 of setUsdmAddressActionType
 
     | OnPriceAction                  of onPriceActionType
@@ -228,6 +236,48 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
     s.whitelistTokenContracts := updatedWhitelistTokenContracts
 
   } with (noOperations, s) 
+
+
+
+
+function checkInCollateralTokenLedger(const collateralTokenRecord : collateralTokenRecordType; var s : controllerStorage) : bool is 
+block {
+  var inCollateralTokenLedgerMap : bool := False;
+  for _key -> value in map s.collateralTokenLedger block {
+    if collateralTokenRecord = value then inCollateralTokenLedgerMap := True
+      else skip;
+  }  
+} with inCollateralTokenLedgerMap
+
+(* UpdateCollateralTokenLedger Entrypoint *)
+function updateCollateralTokenLedger(const updateCollateralTokenLedgerParams: updateCollateralTokenLedgerActionType; var s : controllerStorage) : return is 
+  block{
+
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    const tokenName             : string    = updateCollateralTokenLedgerParams.tokenName;
+    const tokenContractAddress  : address   = updateCollateralTokenLedgerParams.tokenContractAddress;
+    const tokenType             : tokenType = updateCollateralTokenLedgerParams.tokenType;
+    
+    const collateralTokenRecord : collateralTokenRecordType = record [
+        tokenContractAddress = tokenContractAddress;
+        tokenType            = tokenType;
+    ];
+
+    const existingToken: option(collateralTokenRecordType) = 
+      if checkInCollateralTokenLedger(collateralTokenRecord, s) then (None : option(collateralTokenRecordType)) else Some (collateralTokenRecord);
+
+    const updatedCollateralTokenLedger : collateralTokenLedgerType = 
+      Map.update(
+        tokenName, 
+        existingToken,
+        s.collateralTokenLedger
+      );
+
+    s.collateralTokenLedger := updatedCollateralTokenLedger
+
+  } with (noOperations, s) 
+
 
 // helper function to create vault 
 type createVaultFuncType is (option(key_hash) * tez * vaultStorage) -> (operation * address)
@@ -579,15 +629,29 @@ block {
 
     const initiator       : vaultOwnerType    = Tezos.sender;
 
-    // get token 
-    const _collateralToken : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
-        Some(_record) -> _record
-        | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
-    end;
+    // check if tez or token is sent
+    // if tokenName = "tez" then block {
 
-    // if tez is sent, check that Tezos amount should be the same as deposit amount
-    if tokenName = "tez" then block {
-        if mutezToNatural(Tezos.amount) =/= depositAmount then failwith("Error. Tezos amount and deposit amount do not match.") else skip;
+    //     // if tez is sent, check that Tezos amount should be the same as deposit amount
+    //     if mutezToNatural(Tezos.amount) =/= depositAmount then failwith("Error. Tezos amount and deposit amount do not match.") else skip;
+
+    // } else block {
+
+    //     // get token 
+    //     const _collateralToken : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
+    //         Some(_record) -> _record
+    //         | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+    //     end;
+    // };
+
+    if tokenName =/= "tez" then block {
+        
+        // get token 
+        const _collateralToken : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
+            Some(_record) -> _record
+            | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+        end;
+
     } else skip;
 
     // get vault
@@ -991,7 +1055,9 @@ block {
 
 function main (const action : controllerAction; const s : controllerStorage) : return is 
     case action of
+        | Default(_params) -> ((nil : list(operation)), s)
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
+        | UpdateCollateralTokenLedger(parameters)       -> updateCollateralTokenLedger(parameters, s)
         | SetUsdmAddress(parameters)                    -> setUsdmAddress(parameters, s)
 
         | OnPriceAction(parameters)                     -> onPriceAction(parameters, s)
