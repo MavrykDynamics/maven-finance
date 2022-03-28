@@ -329,7 +329,7 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             ("council") -> (councilAddress: address)
         ];
 
-        // Add FarmFactory Address to doormanContracts of created farm
+        // Add Doorman Address to generalContracts of created farm
         const doormanAddress: address = case s.generalContracts["doorman"] of 
             Some (_address) -> _address
         |   None -> failwith("Doorman contract not found in general contracts")
