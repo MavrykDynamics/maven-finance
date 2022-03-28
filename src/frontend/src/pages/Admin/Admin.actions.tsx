@@ -70,7 +70,7 @@ export const trackFarm = (accountPkh?: string) => async (dispatch: any, getState
   try {
     const contract = await state.wallet.tezos?.wallet.at(farmFactoryAddress.address)
     console.log('contract', contract)
-    const transaction = await contract?.methods.trackFarm('KT1CazyJDLTCAYp4UXzzGFtN382V5NtAofBL').send()
+    const transaction = await contract?.methods.trackFarm('KT1GAgjxjmbGJMEWTnEJRWNFYAzyE5a2EZwy').send()
     console.log('transaction', transaction)
     dispatch(showToaster(INFO, 'Tracking Farm...', 'Please wait 30s'))
     const done = await transaction?.confirmation()

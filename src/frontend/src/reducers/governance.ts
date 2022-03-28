@@ -15,12 +15,14 @@ import {
   VOTING_ROUND_VOTING_REQUEST,
   VOTING_ROUND_VOTING_RESULT,
 } from 'pages/Governance/Governance.actions'
-import { GovernanceStorage } from '../utils/TypesAndInterfaces/Governance'
+import { GovernanceConfig, GovernanceStorage } from '../utils/TypesAndInterfaces/Governance'
 import {
   PROPOSAL_UPDATE_ERROR,
   SUBMIT_FINANCIAL_DATA_REQUEST,
   PROPOSAL_UPDATE_RESULT,
 } from '../pages/ProposalSubmission/ProposalSubmission.actions'
+import { MichelsonMap } from '@taquito/taquito'
+import { getItemFromStorage } from '../utils/storage'
 
 const PROPOSAL = 'PROPOSAL',
   VOTING = 'VOTING',
@@ -35,9 +37,38 @@ export interface GovernanceState {
   vote?: number
   error?: any
 }
-
+const defaultgovernanceConfig: GovernanceConfig = {
+  blocksPerMinute: 0,
+  blocksPerProposalRound: 0,
+  blocksPerTimelockRound: 0,
+  blocksPerVotingRound: 0,
+  maxProposalsPerDelegate: 0,
+  minQuorumMvkTotal: 0,
+  minQuorumPercentage: 0,
+  minimumStakeReqPercentage: 0,
+  newBlockTimeLevel: 0,
+  newBlocksPerMinute: 0,
+  proposalSubmissionFee: 0,
+  successReward: 0,
+  votingPowerRatio: 0,
+}
+const defaultGovernanceStorage: GovernanceStorage = {
+  activeSatellitesMap: new MichelsonMap<string, Date>(),
+  address: '',
+  config: defaultgovernanceConfig,
+  currentCycleEndLevel: 0,
+  currentRound: '',
+  currentRoundEndLevel: 0,
+  currentRoundStartLevel: 0,
+  nextProposalId: 0,
+  proposalLedger: [],
+  snapshotLedger: [],
+  startLevel: 0,
+  tempFlag: 0,
+  timelockProposalId: 0,
+}
 const governanceDefaultState: GovernanceState = {
-  governanceStorage: {},
+  governanceStorage: getItemFromStorage('GovernanceStorage') || defaultGovernanceStorage,
   governancePhase: 'PROPOSAL',
 }
 
