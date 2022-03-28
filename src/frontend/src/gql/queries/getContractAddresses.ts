@@ -15,6 +15,24 @@ export const CONTRACT_ADDRESSES_QUERY = `
     farm_factory {
       address
     }
+    council {
+      address
+    }
+    break_glass {
+      address
+    }
+    emergency_governance {
+      address
+    }
+    governance {
+      address
+    }
+    treasury {
+      address
+    }
+    vesting {
+      address
+    }
   }
 `
 
