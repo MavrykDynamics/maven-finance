@@ -15,15 +15,10 @@ import { calcTimeToBlock } from '../../utils/calcFunctions'
 import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 
 export type VoteStatistics = {
-  passVotesCount: number
   passVotesMVKTotal: number
-  forVotesCount: number
   forVotesMVKTotal: number
-  againstVotesCount: number
   againstVotesMVKTotal: number
-  abstainVotesCount: number
   abstainVotesMVKTotal: number
-  unusedVotesCount: number
   unusedVotesMVKTotal: number
 }
 export const Governance = () => {
@@ -87,15 +82,10 @@ export const Governance = () => {
         status: ProposalStatus.ONGOING,
       }
   const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
-    abstainVotesCount: Number(rightSideContent?.abstainCount),
     abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
-    againstVotesCount: Number(rightSideContent?.downvoteCount),
     againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),
-    forVotesCount: Number(rightSideContent?.upvoteCount),
     forVotesMVKTotal: Number(rightSideContent?.upvoteMvkTotal),
-    passVotesCount: Number(rightSideContent?.passVoteCount),
     passVotesMVKTotal: Number(rightSideContent?.passVoteMvkTotal),
-    unusedVotesCount: 0,
     unusedVotesMVKTotal:
       mvkTokenStorage.totalSupply -
       (rightSideContent?.abstainMvkTotal + rightSideContent?.downvoteMvkTotal + rightSideContent?.upvoteMvkTotal),
@@ -133,7 +123,6 @@ export const Governance = () => {
     //TODO: Adjust for the number of votes / voting power each satellite has
     setVoteStatistics({
       ...voteStatistics,
-      passVotesCount: voteStatistics.passVotesCount + 1,
       passVotesMVKTotal: voteStatistics.passVotesMVKTotal + 1,
     })
     dispatch(proposalRoundVote(proposalId))
@@ -147,7 +136,6 @@ export const Governance = () => {
         voteType = 1
         setVoteStatistics({
           ...voteStatistics,
-          forVotesCount: voteStatistics.forVotesCount + 1,
           forVotesMVKTotal: voteStatistics.forVotesMVKTotal + 1,
         })
         break
@@ -155,7 +143,6 @@ export const Governance = () => {
         voteType = 0
         setVoteStatistics({
           ...voteStatistics,
-          againstVotesCount: voteStatistics.againstVotesCount + 1,
           againstVotesMVKTotal: voteStatistics.againstVotesMVKTotal + 1,
         })
         break
@@ -164,14 +151,12 @@ export const Governance = () => {
         voteType = 2
         setVoteStatistics({
           ...voteStatistics,
-          abstainVotesCount: voteStatistics.abstainVotesCount + 1,
           abstainVotesMVKTotal: voteStatistics.abstainVotesMVKTotal + 1,
         })
         break
     }
     setVoteStatistics({
       ...voteStatistics,
-      unusedVotesCount: voteStatistics.unusedVotesCount - 1,
       unusedVotesMVKTotal: voteStatistics.unusedVotesMVKTotal - 1,
     })
     dispatch(votingRoundVote(voteType))

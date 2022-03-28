@@ -81,16 +81,11 @@ export const GovernanceView = ({
     setSelectedProposalToShow(chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id)
     setRightSideContent(chosenProposal)
     setVoteStatistics({
-      passVotesCount: Number(chosenProposal.passVoteCount),
       passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
-      forVotesCount: Number(chosenProposal.upvoteCount),
       forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
-      againstVotesCount: Number(chosenProposal.downvoteCount),
       againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
-      abstainVotesCount: Number(chosenProposal.abstainCount),
       abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
       //TODO: Correct calculation for unused votes count
-      unusedVotesCount: Number(chosenProposal.abstainCount),
       unusedVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
     })
   }
@@ -156,7 +151,7 @@ export const GovernanceView = ({
             <div>
               <RightSideSubHeader>Proposer</RightSideSubHeader>
               <RightSideSubContent>
-                <TzAddress tzAddress={rightSideContent.proposerAddress} type={'primary'} hasIcon={true} isBold={true} />
+                <TzAddress tzAddress={rightSideContent.proposerId} type={'primary'} hasIcon={true} isBold={true} />
               </RightSideSubContent>
             </div>
             <div>
