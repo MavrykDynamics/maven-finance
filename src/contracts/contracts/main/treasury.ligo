@@ -24,27 +24,26 @@ type operator is address
 type owner is address
 type tokenId is nat;
 
-type configType is record [
+type configType is [@layout:comb] record [
     minXtzAmount      : nat;
     maxXtzAmount      : nat;
 ]
 
-type breakGlassConfigType is record [
-    transferIsPaused         : bool; 
-    mintAndTransferIsPaused  : bool;
+type breakGlassConfigType is [@layout:comb] record [
+    transferIsPaused            : bool; 
+    mintMvkAndTransferIsPaused  : bool;
 ]
 
-type storage is record [
+type storage is [@layout:comb] record [
     admin                      : address;
     mvkTokenAddress            : address;
 
     config                     : configType;
+    breakGlassConfig           : breakGlassConfigType;
 
     whitelistContracts         : whitelistContractsType;
     whitelistTokenContracts    : whitelistTokenContractsType;
     generalContracts           : generalContractsType;
-
-    breakGlassConfig           : breakGlassConfigType;
 ]
 
 type tezType             is unit
@@ -85,15 +84,24 @@ type updateConfigParamsType is [@layout:comb] record [
 ]
 
 type treasuryAction is 
-    | Default of unit
-    | SetAdmin of (address)
-    | UpdateConfig of updateConfigParamsType    
-    | UpdateWhitelistContracts of updateWhitelistContractsParams
-    | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
-    | UpdateGeneralContracts of updateGeneralContractsParams
+    | Default                        of unit
 
-    | Transfer of transferTokenType
-    | MintMvkAndTransfer of mintMvkAndTransferType
+    // Housekeeping Config Entrypoints
+    | SetAdmin                       of (address)
+    | UpdateConfig                   of updateConfigParamsType    
+    | UpdateWhitelistContracts       of updateWhitelistContractsParams
+    | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
+    | UpdateGeneralContracts         of updateGeneralContractsParams
+
+    // Pause / Break Glass Entrypoints
+    | PauseAll                       of (unit)
+    | UnpauseAll                     of (unit)
+    | TogglePauseTransfer            of (unit)
+    | TogglePauseMintMvkAndTransfer  of (unit)
+
+    // Main Entrypoints
+    | Transfer                       of transferTokenType
+    | MintMvkAndTransfer             of mintMvkAndTransferType
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -101,7 +109,21 @@ type return is list (operation) * storage
 // admin helper functions begin ---------------------------------------------------------
 function checkSenderIsAdmin(var s : storage) : unit is
     if (Tezos.sender = s.admin) then unit
-        else failwith("Only the administrator can call this entrypoint.");
+    else failwith("Only the administrator can call this entrypoint.");
+
+function checkSenderIsAllowed(const s: storage): unit is
+block {
+    // First check because a farm without a facory should still be accessible
+    if Tezos.sender = s.admin 
+    then skip
+    else{
+        const treasuryFactoryAddress: address = case s.whitelistContracts["treasuryFactory"] of
+            Some (_address) -> _address
+        |   None -> (failwith("Only Admin or Factory contract allowed"): address)
+        end;
+        if Tezos.sender = treasuryFactoryAddress then skip else failwith("Only Admin or Factory contract allowed");
+    };
+} with(unit)
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
@@ -148,36 +170,8 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
   end;
 
 
-(*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
-block {
-    
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); // check that sender is admin
-
-    s.admin := newAdminAddress;
-
-} with (noOperations, s)
-
-(*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
-block {
-
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin
-
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
-
-  case updateConfigAction of
-  | ConfigMinXtzAmount (_v)           -> s.config.minXtzAmount            := updateConfigNewValue
-  | ConfigMaxXtzAmount (_v)           -> s.config.maxXtzAmount            := updateConfigNewValue
-  end;
-
-} with (noOperations, s)
-
 ////
-// TRANSFER FUNCTIONS
+// TRANSFER HELPER FUNCTIONS
 ///
 function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
 
@@ -213,6 +207,88 @@ block{
         |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
         end;
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
+
+
+
+(*  setAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var s : storage) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    s.admin := newAdminAddress;
+
+} with (noOperations, s)
+
+(*  updateConfig entrypoint  *)
+function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  // checkSenderIsAdmin(s); // check that sender is admin
+
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+  case updateConfigAction of
+  | ConfigMinXtzAmount (_v)           -> s.config.minXtzAmount            := updateConfigNewValue
+  | ConfigMaxXtzAmount (_v)           -> s.config.maxXtzAmount            := updateConfigNewValue
+  end;
+
+} with (noOperations, s)
+
+////
+// Pause Functions
+///
+function pauseAll(var s: storage) : return is
+block {
+    // check that source is admin
+    checkSenderIsAllowed(s);
+
+    // set all pause configs to True
+    if s.breakGlassConfig.transferIsPaused then skip
+    else s.breakGlassConfig.transferIsPaused := True;
+
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then skip
+    else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
+
+} with (noOperations, s)
+
+function unpauseAll(var s : storage) : return is
+block {
+    // check that source is admin
+    checkSenderIsAllowed(s);
+
+    // set all pause configs to False
+    if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
+    else skip;
+
+} with (noOperations, s)
+
+function togglePauseTransfer(var s : storage) : return is
+block {
+    // check that source is admin
+    checkSenderIsAllowed(s);
+
+    if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
+    else s.breakGlassConfig.transferIsPaused := True;
+
+} with (noOperations, s)
+
+function togglePauseMintMvkAndTransfer(var s : storage) : return is
+block {
+    // check that source is admin
+    checkSenderIsAllowed(s);
+
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
+    else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
+
+} with (noOperations, s)
+
 
 (* transfer entrypoint *)
 // type transferTokenType is record [from_ : address; to_ : address; amt : nat; token : tokenType]
@@ -320,14 +396,22 @@ block {
 
 function main (const action : treasuryAction; const s : storage) : return is 
     case action of
-        | Default(_params) -> ((nil : list(operation)), s)
-        | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | UpdateConfig(parameters) -> updateConfig(parameters, s)
+        | Default(_params)                              -> ((nil : list(operation)), s)
         
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
-        | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
-        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
-  
-        | Transfer(parameters) -> transfer(parameters, s)
-        | MintMvkAndTransfer(parameters) -> mintMvkAndTransfer(parameters, s)
+        // Housekeeping Config Entrypoints
+        | SetAdmin(parameters)                          -> setAdmin(parameters, s)  
+        | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
+        | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
+        | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
+        | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
+
+        // Pause / Break Glass Entrypoints
+        | PauseAll (_parameters)                        -> pauseAll(s)
+        | UnpauseAll (_parameters)                      -> unpauseAll(s)
+        | TogglePauseTransfer (_parameters)             -> togglePauseTransfer(s)
+        | TogglePauseMintMvkAndTransfer (_parameters)   -> togglePauseMintMvkAndTransfer(s)
+        
+        // Main Entrypoints
+        | Transfer(parameters)                          -> transfer(parameters, s)
+        | MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
     end
