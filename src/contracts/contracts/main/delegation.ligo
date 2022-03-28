@@ -466,7 +466,7 @@ block {
       const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
       const stakedMvkBalance: nat = case stakedMvkBalanceView of [
         Some (value) -> value
-      | None (Unit) -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+      | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
       ];
 
       // Retrieve satellite account from storage
@@ -510,7 +510,7 @@ block {
     const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
     const stakedMvkBalance: nat = case stakedMvkBalanceView of [
       Some (value) -> value
-    | None (Unit) -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+    | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
     ];
 
     var emptySatelliteRecord : satelliteRecordType :=
@@ -595,26 +595,7 @@ block {
     // check that entrypoint is not paused
     checkRegisterAsSatelliteIsNotPaused(s);
 
-    const satelliteExistsFlag : bool = Big_map.mem(Tezos.source, s.satelliteLedger);
-
-    // check if satellite record exists in the satellite ledger 
-    if satelliteExistsFlag = True then block{
-
-      var satelliteRecord : satelliteRecordType := case s.satelliteLedger[Tezos.source] of [
-          None -> failwith("Satellite does not exist")  // will not be triggered
-        | Some(_val) -> _val
-      ];
-
-      // check that satellite is not already active
-      if satelliteRecord.status = 1n then failwith("Satellite already exists")
-        else skip;
-      
-      // if satellite was previously unregistered (i.e. status = 0n), then register it again by setting status as 1n
-      satelliteRecord.status := 1n;
-      s.satelliteLedger[Tezos.source] := satelliteRecord;
-
-    } else skip;
-
+    // Get user stake balance
     const doormanAddress : address = case s.generalContracts["doorman"] of [
       Some(_address) -> _address
       | None -> failwith("Error. Doorman Contract is not found")
@@ -623,28 +604,31 @@ block {
     const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
     const stakedMvkBalance: nat = case stakedMvkBalanceView of [
       Some (value) -> value
-    | None (Unit) -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+    | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
     ];
 
     // lock satellite's sMVK amount -> bond? 
     if stakedMvkBalance < s.config.minimumStakedMvkBalance then failwith("You do not have enough sMVK to meet the minimum delegate bond.")
       else skip;
 
-    // // add new satellite record
-    var newSatelliteRecord : satelliteRecordType := record[            
-            status                = 1n;
-            stakedMvkBalance      = stakedMvkBalance;
-            satelliteFee          = satelliteFee;
-            totalDelegatedAmount  = 0n;
+    const satelliteRecord: satelliteRecordType = case Big_map.find_opt(Tezos.source, s.satelliteLedger) of [
+      Some (_satellite) -> (failwith("Satellite already exists"): satelliteRecordType)
+    | None -> record[            
+          status                = 1n;
+          stakedMvkBalance      = stakedMvkBalance;
+          satelliteFee          = satelliteFee;
+          totalDelegatedAmount  = 0n;
 
-            name                  = name;
-            description           = description;
-            image                 = image;
-            
-            registeredDateTime    = Tezos.now;
-        ];
+          name                  = name;
+          description           = description;
+          image                 = image;
+          
+          registeredDateTime    = Tezos.now;
+      ]
+    ];
 
-    s.satelliteLedger[Tezos.source] := newSatelliteRecord;
+    // Update satellite's record
+    s.satelliteLedger[Tezos.source] := satelliteRecord;
 
     const governanceAddress : address = case s.generalContracts["governance"] of [
       Some(_address) -> _address
