@@ -16,7 +16,7 @@ export const Farms = () => {
 
   useEffect(() => {
     dispatch(getFarmStorage())
-    dispatch(getFarmFactoryStorage())
+    // dispatch(getFarmFactoryStorage())
   }, [dispatch])
 
   return (
