@@ -1,6 +1,7 @@
 import { getInitialData } from '../gql/fetchGraphQL'
-import { GET_DOORMAN_STORAGE, GET_MVK_TOKEN_STORAGE } from '../pages/Doorman/Doorman.actions'
 import storageToTypeConverter from '../utils/storageToTypeConverter'
+
+import { GET_DOORMAN_STORAGE, GET_MVK_TOKEN_STORAGE } from '../pages/Doorman/Doorman.actions'
 import { GET_DELEGATION_STORAGE } from '../pages/Satellites/Satellites.actions'
 import { GET_FARM_FACTORY_STORAGE, GET_FARM_STORAGE } from '../pages/Farms/Farms.actions'
 import {
@@ -8,7 +9,12 @@ import {
   SET_EMERGENCY_GOVERNANCE_ACTIVE,
 } from '../pages/EmergencyGovernance/EmergencyGovernance.actions'
 import { GET_BREAK_GLASS_STORAGE, SET_GLASS_BROKEN } from '../pages/BreakGlass/BreakGlass.actions'
-import { BreakGlassStorage } from '../utils/TypesAndInterfaces/BreakGlass'
+import { GET_COUNCIL_STORAGE, GET_VESTING_STORAGE } from '../pages/Treasury/Treasury.actions'
+import {
+  GET_GOVERNANCE_STORAGE,
+  SET_GOVERNANCE_PHASE,
+  SET_PAST_PROPOSALS,
+} from '../pages/Governance/Governance.actions'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -31,6 +37,9 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const farmFactoryStorage = storageToTypeConverter('farmFactory', res[4].farm_factory[0])
   const emergencyGovernanceStorage = storageToTypeConverter('emergencyGovernance', res[5].emergency_governance[0])
   const breakGlassStorage = storageToTypeConverter('breakGlass', res[6].break_glass[0])
+  const councilStorage = storageToTypeConverter('council', res[7].council[0])
+  const vestingStorage = storageToTypeConverter('vesting', res[8].vesting[0])
+  const governanceStorage = storageToTypeConverter('governance', res[9])
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceId
   dispatch({
@@ -42,6 +51,24 @@ export const onStart = () => async (dispatch: any, getState: any) => {
     glassBroken: breakGlassStorage.glassBroken,
   })
 
+  let govPhase
+  switch (governanceStorage.currentRound) {
+    case 'proposal':
+      govPhase = 'PROPOSAL'
+      break
+    case 'voting':
+      govPhase = 'VOTING'
+      break
+    default:
+      govPhase = 'TIME_LOCK'
+      break
+  }
+  dispatch({
+    type: SET_GOVERNANCE_PHASE,
+    phase: govPhase,
+  })
+
+  //dispatching all the different actions into the redux
   dispatch({
     type: GET_DOORMAN_STORAGE,
     storage: doormanStorage,
@@ -71,4 +98,18 @@ export const onStart = () => async (dispatch: any, getState: any) => {
     type: GET_BREAK_GLASS_STORAGE,
     breakGlassStorage: breakGlassStorage,
   })
+  dispatch({
+    type: GET_COUNCIL_STORAGE,
+    councilStorage: councilStorage,
+  })
+  dispatch({
+    type: GET_VESTING_STORAGE,
+    vestingStorage: vestingStorage,
+  })
+  dispatch({
+    type: GET_GOVERNANCE_STORAGE,
+    governanceStorage: governanceStorage,
+  })
+
+  dispatch({ type: SET_PAST_PROPOSALS, pastProposals: governanceStorage.proposalLedger })
 }

@@ -1,4 +1,4 @@
-import { ProposalRecordType, ProposalStatus } from '../../utils/TypesAndInterfaces/Governance'
+import { ProposalRecordType, ProposalStatus, ProposalVote } from '../../utils/TypesAndInterfaces/Governance'
 
 export const MOCK_ONGOING_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
   [
@@ -6,8 +6,7 @@ export const MOCK_ONGOING_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 0,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Grant Program V2',
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
@@ -20,21 +19,16 @@ export const MOCK_ONGOING_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -42,6 +36,13 @@ export const MOCK_ONGOING_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.ONGOING,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
 ])
@@ -51,9 +52,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 0,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
-
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
       title: 'Grant Program V5',
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
       description:
@@ -65,21 +64,16 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -87,6 +81,13 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -94,8 +95,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 1,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'DeFi Education Fund',
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
@@ -109,21 +109,16 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -131,6 +126,12 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -138,8 +139,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 2,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Retroactive Proxy Contract',
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44822368000000000000000000)',
@@ -153,21 +153,16 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -175,6 +170,13 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -182,8 +184,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 3,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Grant Program',
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44822368000000000000000000)',
@@ -197,21 +198,16 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -219,6 +215,13 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -226,12 +229,9 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 4,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Lorem Ipsum',
-
-      votedMVK: 60,
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
       description:
         'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old..',
@@ -243,21 +243,16 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -265,6 +260,13 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -272,8 +274,7 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 5,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Lorem Ipsum',
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
@@ -287,21 +288,15 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
-
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -309,6 +304,13 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -316,12 +318,9 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 6,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Lorem Ipsum',
-
-      votedMVK: 43,
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
       description:
         'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old..',
@@ -333,21 +332,15 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
-
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -355,6 +348,13 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -362,12 +362,10 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 7,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Lorem Ipsum',
 
-      votedMVK: 67,
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
       description:
         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
@@ -379,21 +377,15 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -401,6 +393,13 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -408,11 +407,9 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 8,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Lorem Ipsum',
-
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
       description:
         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
@@ -424,21 +421,14 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
-
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -446,6 +436,13 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -453,11 +450,9 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 9,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Lorem Ipsum',
-
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
       description:
         'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old..',
@@ -469,21 +464,14 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
-
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -491,6 +479,13 @@ export const MOCK_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.DISCOVERY,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
 ])
@@ -501,8 +496,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 5066393,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: 'Grant Program V3',
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
@@ -516,21 +510,14 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: true,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
-
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -538,6 +525,13 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.EXECUTED,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -545,8 +539,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 8856085,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       title: "Shalom Le'Yisroel",
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
@@ -560,21 +553,15 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: true,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
-
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
@@ -582,6 +569,13 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       currentCycleStartLevel: 591444,
 
       status: ProposalStatus.EXECUTED,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -589,8 +583,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
     {
       id: 2360559,
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       status: ProposalStatus.EXECUTED,
       title: 'Retroactive Proxy Contract',
@@ -606,26 +599,27 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: true,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
-
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -634,8 +628,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       id: 6387127,
       title: 'Grant Program',
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       status: ProposalStatus.EXECUTED,
 
@@ -649,27 +642,28 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       successReward: 1235,
       executed: true,
       locked: false,
-
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -678,8 +672,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       id: 9037195,
       title: 'Lorem Ipsum',
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       status: ProposalStatus.DEFEATED,
 
@@ -694,26 +687,28 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -722,8 +717,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       id: 9326707,
       title: 'Lorem Ipsum',
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       status: ProposalStatus.DEFEATED,
 
@@ -738,26 +732,27 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: false,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
-
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
   [
@@ -766,8 +761,7 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       id: 9390352,
       title: 'Lorem Ipsum',
 
-      proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-      proposalMetadata: {},
+      proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
       status: ProposalStatus.EXECUTED,
       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
@@ -781,26 +775,28 @@ export const MOCK_PAST_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
       executed: true,
       locked: false,
 
-      passVoteCount: 0,
       passVoteMvkTotal: 0,
-      passVotersMap: {},
 
-      upvoteCount: 14,
       upvoteMvkTotal: 4898123,
-      abstainCount: 5,
       abstainMvkTotal: 50000,
-      downvoteCount: 3,
       downvoteMvkTotal: 340998,
-      voters: {},
+      votes: new Map<string, ProposalVote>(),
 
       minQuorumMvkTotal: 5000000,
       minQuorumPercentage: 64.89,
-      quorumCount: 0,
+
       quorumMvkTotal: 0,
       startDateTime: new Date(),
 
       currentCycleEndLevel: 626004,
       currentCycleStartLevel: 591444,
+
+      minProposalRoundVoteRequirement: 0,
+      minProposalRoundVotePercentage: 0,
+      currentRoundProposal: '0',
+      roundHighestVotedProposal: '0',
+      cycle: 0,
+      timelockProposal: '',
     },
   ],
 ])
