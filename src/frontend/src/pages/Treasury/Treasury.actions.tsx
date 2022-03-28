@@ -3,6 +3,16 @@ import treasuryAddress from '../../deployments/councilAddress.json'
 import councilAddress from '../../deployments/councilAddress.json'
 import vestingAddress from '../../deployments/vestingAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
+import { fetchFromIndexer } from '../../gql/fetchGraphQL'
+import {
+  COUNCIL_STORAGE_QUERY,
+  COUNCIL_STORAGE_QUERY_NAME,
+  COUNCIL_STORAGE_QUERY_VARIABLE,
+  EMERGENCY_GOVERNANCE_STORAGE_QUERY,
+  EMERGENCY_GOVERNANCE_STORAGE_QUERY_NAME,
+  EMERGENCY_GOVERNANCE_STORAGE_QUERY_VARIABLE,
+} from '../../gql/queries'
+import storageToTypeConverter from '../../utils/storageToTypeConverter'
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
 export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -36,18 +46,24 @@ export const getCouncilStorage = (accountPkh?: string) => async (dispatch: any, 
   //   dispatch(showToaster(ERROR, 'Public address not found', 'Make sure your wallet is connected'))
   //   return
   // }
-  const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(councilAddress.address)
-    : await new TezosToolkit(
-        (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(councilAddress.address)
-
-  const storage = await (contract as any).storage()
-  console.log('Printing out Council storage:\n', storage)
+  // const contract = accountPkh
+  //   ? await state.wallet.tezos?.wallet.at(councilAddress.address)
+  //   : await new TezosToolkit(
+  //       (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
+  //     ).contract.at(councilAddress.address)
+  //
+  // const storage = await (contract as any).storage()
+  // console.log('Printing out Council storage:\n', storage)
+  const storage = await fetchFromIndexer(
+    COUNCIL_STORAGE_QUERY,
+    COUNCIL_STORAGE_QUERY_NAME,
+    COUNCIL_STORAGE_QUERY_VARIABLE,
+  )
+  const convertedStorage = storageToTypeConverter('council', storage.council[0])
 
   dispatch({
     type: GET_COUNCIL_STORAGE,
-    councilStorage: storage,
+    councilStorage: convertedStorage,
   })
 }
 

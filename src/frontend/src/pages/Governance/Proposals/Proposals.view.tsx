@@ -34,7 +34,7 @@ export const ProposalsView = ({
                 <h4>{value.title}</h4>
               </ProposalItemLeftSide>
               <div>
-                {isProposalPhase && <CommaNumber value={value.votedMVK || 0} endingText={'voted MVK'} />}
+                {isProposalPhase && <CommaNumber value={value.passVoteMvkTotal || 0} endingText={'voted MVK'} />}
                 {!isProposalPhase && <StatusFlag text={value?.status} status={value.status} />}
               </div>
             </ProposalListItem>

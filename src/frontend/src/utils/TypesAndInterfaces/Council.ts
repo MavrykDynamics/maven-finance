@@ -1,17 +1,30 @@
-import { MichelsonMap } from '@taquito/taquito'
+type CouncilConfig = {
+  threshold: number
+  actionExpiryDays: number
+}
+
+export type CouncilActionSigner = {
+  signerId: string
+  id: number
+  breakGlassActionRecordId: number
+}
+export type CouncilActionRecord = {
+  actionType: string
+  councilId: number
+  executed: boolean
+  executedDatetime: Date
+  expirationDatetime: Date
+  id: number
+  initiatorId: string
+  startDatetime: Date
+  status: boolean
+  signers: CouncilActionSigner[]
+}
 
 export interface CouncilStorage {
-  admin: string
-  config: {
-    actionExpiryBlockLevels: number
-    actionExpiryDays: number
-    threshold: number
-  }
-  councilMembers: string[]
-  whitelistContracts: MichelsonMap<string, unknown>
-  generalContracts: MichelsonMap<string, unknown>
-  councilActionsLedger: MichelsonMap<number, unknown>
-  thresholdSigners: number
+  address: string
+  config: CouncilConfig
+  councilMembers: { address: string }[]
+  councilActionsLedger: CouncilActionRecord[]
   actionCounter: number
-  tempString: string
 }
