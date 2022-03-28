@@ -698,16 +698,10 @@ block {
     // checkSenderIsDoormanContract(s);
     if checkInWhitelistContracts(Tezos.sender, s) then skip else failwith("Error. Sender is not in whitelisted contracts.");
 
-    const userIsSatelliteFlag : bool = Big_map.mem(userAddress, s.satelliteLedger);
+    var satelliteRecord: satelliteRecordType := Big_map.find_opt(userAddress, s.satelliteLedger);
 
     // check if user is a satellite
-    if userIsSatelliteFlag = True then block{
-
-        // Retrieve satellite account from storage 
-        var satelliteRecord : satelliteRecordType := case s.satelliteLedger[userAddress] of [
-            Some(_val) -> _val
-            | None -> failwith("Satellite does not exist")
-        ];
+    if not satelliteRecord = (None : satelliteRecordType) then block{
 
         var totalMvkBalance : nat := satelliteRecord.stakedMvkBalance;
 
@@ -736,15 +730,9 @@ block {
         // user is not a satellite 
         
         // check if user has delegated to a satellite
-        const userHasDelegatedToSatelliteFlag : bool = Big_map.mem(userAddress, s.delegateLedger);
+        delegateRecord := Big_map.find_opt(userAddress, s.delegateLedger);
 
-        if userHasDelegatedToSatelliteFlag = True then block {
-
-            // Retrieve delegate record from storage 
-            var delegateRecord : delegateRecordType := case s.delegateLedger[userAddress] of [
-                Some(_val) -> _val
-                | None -> failwith("Delegate does not exist") // failwith should not be reached based on prior if conditions
-            ];
+        if delegateRecord = (None : delegateRecordType) then block {
             
             // Retrieve satellite account from storage             
             var satelliteRecord : satelliteRecordType := case s.satelliteLedger[delegateRecord.satelliteAddress] of [
