@@ -192,11 +192,10 @@ block {
             | Tez(_tez) -> block {
                 
                 // create register deposit params
-                const tokenName : string = "tez";
                 const registerDepositParams : registerDepositType = record [
                     handle          = s.handle;
                     amount          = mutezToNatural(Tezos.amount); 
-                    tokenName       = tokenName;
+                    tokenName       = "tez";
                 ];
                 
                 // create register deposit operation
