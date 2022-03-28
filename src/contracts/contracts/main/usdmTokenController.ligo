@@ -66,6 +66,10 @@ type updateCollateralTokenLedgerActionType is [@layout:comb] record [
     tokenType                   : tokenType;
 ]
 
+type updateVaultTokenAddressesActionType is [@layout:comb] record [
+    handle                      : vaultHandleType; 
+]
+
 type tokenAmountLedgerType is map(string, tokenAmountType)
 type createVaultActionType is [@layout:comb] record [
     id                          : nat; 
@@ -240,6 +244,8 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
 
 
 
+
+
 function checkInCollateralTokenLedger(const collateralTokenRecord : collateralTokenRecordType; var s : controllerStorage) : bool is 
 block {
   var inCollateralTokenLedgerMap : bool := False;
@@ -248,6 +254,7 @@ block {
       else skip;
   }  
 } with inCollateralTokenLedgerMap
+
 
 (* UpdateCollateralTokenLedger Entrypoint *)
 function updateCollateralTokenLedger(const updateCollateralTokenLedgerParams: updateCollateralTokenLedgerActionType; var s : controllerStorage) : return is 
@@ -278,6 +285,7 @@ function updateCollateralTokenLedger(const updateCollateralTokenLedgerParams: up
 
   } with (noOperations, s) 
 
+  
 
 // helper function to create vault 
 type createVaultFuncType is (option(key_hash) * tez * vaultStorage) -> (operation * address)
@@ -298,6 +306,8 @@ block {
         | None -> failwith("Error. Vault not found.")
     end;
 } with vault
+
+
 
 // helper function to check if vault is under collaterized
 function isUnderCollaterized(const vault : vaultType; var s : controllerStorage) : bool is 
@@ -1058,6 +1068,7 @@ function main (const action : controllerAction; const s : controllerStorage) : r
         | Default(_params) -> ((nil : list(operation)), s)
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
         | UpdateCollateralTokenLedger(parameters)       -> updateCollateralTokenLedger(parameters, s)
+
         | SetUsdmAddress(parameters)                    -> setUsdmAddress(parameters, s)
 
         | OnPriceAction(parameters)                     -> onPriceAction(parameters, s)
