@@ -49,6 +49,11 @@ function checkSenderIsAdmin(var s : vaultStorage) : unit is
   if (Tezos.sender = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
+function checkNoAmount(const _p : unit) : unit is
+  if (Tezos.amount = 0tez) then unit
+  else failwith("Error. There should be no tez sent.");
+
+
 // helper function to get registerDeposit entrypoint
 function registerDepositInTokenController(const contractAddress : address) : contract(tokenControllerDepositType) is
   case (Tezos.get_entrypoint_opt(
@@ -59,6 +64,18 @@ function registerDepositInTokenController(const contractAddress : address) : con
   end;
 
 
+// temp solution - find better way to register valid token deposits
+function vaultUpdateCollateralTokens(const vaultUpdateCollateralTokensParams : vaultUpdateCollateralTokensActionType; var s : vaultStorage) : vaultReturn is 
+block {
+    
+    // check sender is admin
+
+    const tokenContractAddress  : address  = vaultUpdateCollateralTokensParams.tokenContractAddress;
+    const tokenName             : string   = vaultUpdateCollateralTokensParams.tokenName;
+
+    s.collateralTokenAddresses[tokenContractAddress] := tokenName;
+
+} with (noOperations, s)
 
 (* VaultWithdraw Entrypoint *)
 function vaultWithdraw(const vaultWithdrawParams : vaultWithdrawType; var s : vaultStorage) : vaultReturn is 
@@ -131,10 +148,11 @@ block {
     if isOwnerCheck = True or isAbleToDeposit = True then block {
 
         // deposit operation
-        const from_  : address    = vaultDepositParams.from_;
-        const to_    : address    = vaultDepositParams.to_;
-        const amt    : nat        = vaultDepositParams.amt;
-        const token  : tokenType  = vaultDepositParams.token;
+        const from_      : address    = vaultDepositParams.from_;
+        const to_        : address    = vaultDepositParams.to_;
+        const amt        : nat        = vaultDepositParams.amt;
+        const token      : tokenType  = vaultDepositParams.token;
+        // const tokenName  : string  = vaultDepositParams.tokenName;
 
         if to_ =/= s.admin then failwith("Error. Deposit address should be admin.") else skip;
 
@@ -145,12 +163,21 @@ block {
                 const transferOperation : operation = transferTez( (get_contract(to_) : contract(unit)), amt );
             } with transferOperation
             | Fa12(token) -> block {
+
+                checkNoAmount(Unit);
+
+                // collateral token check done in USDM Token Controller in registerDepositOperation
+
                 // check collateral token contract address exists in map of collateralTokenAddresses
                 const validTokenCollateralAddress : bool = Map.mem(token, s.collateralTokenAddresses);
                 if validTokenCollateralAddress then skip else failwith("Error. Token address is not a valid collateral token address.");
                 const transferOperation : operation = transferFa12Token(from_, to_, amt, token)
             } with transferOperation
             | Fa2(token)  -> block{
+
+                checkNoAmount(Unit);
+                // collateral token check done in USDM Token Controller in registerDepositOperation
+
                 // check collateral token contract address exists in map of collateralTokenAddresses
                 const validTokenCollateralAddress : bool = Map.mem(token.tokenContractAddress, s.collateralTokenAddresses);
                 if validTokenCollateralAddress then skip else failwith("Error. Token address is not a valid collateral token address.");
@@ -165,11 +192,10 @@ block {
             | Tez(_tez) -> block {
                 
                 // create register deposit params
-                const tokenName : string = "tez";
                 const registerDepositParams : registerDepositType = record [
                     handle          = s.handle;
                     amount          = mutezToNatural(Tezos.amount); 
-                    tokenName       = tokenName;
+                    tokenName       = "tez";
                 ];
                 
                 // create register deposit operation
@@ -262,6 +288,7 @@ block {
 
 function main (const vaultAction : vaultActionType; const s : vaultStorage) : vaultReturn is 
     case vaultAction of
+        | VaultUpdateCollateralTokens(parameters)   -> vaultUpdateCollateralTokens(parameters, s)
         | VaultDelegateTez(parameters)   -> vaultDelegateTez(parameters, s)
         | VaultWithdraw(parameters)      -> vaultWithdraw(parameters, s)
         | VaultDeposit(parameters)      -> vaultDeposit(parameters, s)
