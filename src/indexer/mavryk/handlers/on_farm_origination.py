@@ -23,28 +23,29 @@ async def on_farm_origination(
     farmWithdrawPaused = farm_origination.storage.breakGlassConfig.withdrawIsPaused
     farmClaimPaused = farm_origination.storage.breakGlassConfig.claimIsPaused
     farmRewardFromTreasury = farm_origination.storage.forceRewardFromTransfer
-    farmFactory = None
+
+    # Create farm object
+    farm, _ = await models.Farm.get_or_create(
+        address = farmAddress
+    )
+    farm.lp_token                        = farmLPTokenAddress
+    farm.lp_balance                      = farmLPBalance
+    farm.open                            = farmOpen
+    farm.rewards_from_treasury           = farmRewardFromTreasury
+    farm.init_block                      = farmInitBlock
+    farm.last_block_update               = farmLastBlockUpdate
+    farm.accumulated_mvk_per_share       = farmAccumulatedMvkPerShare
+    farm.total_blocks                    = farmTotalBlocks
+    farm.reward_per_block                = farmRewardPerBlock
+    farm.blocks_per_minute               = farmBlocksPerMinute
+    farm.infinite                        = farmInfinite
+    farm.deposit_paused                  = farmDepositPaused
+    farm.withdraw_paused                 = farmWithdrawPaused
+    farm.claim_paused                    = farmClaimPaused
+
     if 'farmFactory' in farm_origination.storage.whitelistContracts:
         farmFactoryAddress = farm_origination.storage.whitelistContracts['farmFactory']
         farmFactory = await models.FarmFactory.get_or_none(address=farmFactoryAddress)
-
-    # Create farm object
-    farm = models.Farm(
-        address                         = farmAddress,
-        lp_token                        = farmLPTokenAddress,
-        lp_balance                      = farmLPBalance,
-        open                            = farmOpen,
-        rewards_from_treasury           = farmRewardFromTreasury,
-        init_block                      = farmInitBlock,
-        last_block_update               = farmLastBlockUpdate,
-        accumulated_mvk_per_share       = farmAccumulatedMvkPerShare,
-        total_blocks                    = farmTotalBlocks,
-        reward_per_block                = farmRewardPerBlock,
-        blocks_per_minute               = farmBlocksPerMinute,
-        infinite                        = farmInfinite,
-        deposit_paused                  = farmDepositPaused,
-        withdraw_paused                 = farmWithdrawPaused,
-        claim_paused                    = farmClaimPaused,
-        farm_factory                    = farmFactory
-    )
+        farm.farm_factory                = farmFactory
+    
     await farm.save()
