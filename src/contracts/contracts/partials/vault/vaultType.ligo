@@ -49,7 +49,15 @@ type vaultDelegateTezType is option(key_hash)
 
 type vaultWithdrawType is transferTokenType
 
-type vaultDepositType  is transferTokenType
+type vaultDepositType is transferTokenType
+// type vaultDepositType  is [@layout:comb] record [
+//     from_           : address;
+//     to_             : address;
+//     amt             : nat;
+//     token           : tokenType;
+//     // tokenName       : string;
+// ]
+
 type tokenControllerDepositType is [@layout:comb] record [
     handle      : vaultHandleType; 
     amount      : nat;
@@ -62,20 +70,26 @@ type registerDepositType is [@layout:comb] record [
     tokenName       : string;   // name of collateral: tez, token name A, token name B
 ]
 
+type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
+    tokenContractAddress  : address;
+    tokenName             : string;
+]
+
 type collateralTokenAddressesType is map(address, string) // token collateral address : name of token collateral
 
 type vaultStorage is record [
     admin                            : address;                               // vault admin contract
     handle                           : vaultHandleType;                       // owner of the vault
     depositors                       : depositorsType;                        // users who can deposit into the vault    
-    collateralTokenAddresses         : collateralTokenAddressesType;     // token collateral address : name of token collateral
+    collateralTokenAddresses         : collateralTokenAddressesType;          // token collateral address : name of token collateral
 ]
 
 type vaultActionType is 
-  | VaultDelegateTez       of vaultDelegateTezType
-  | VaultWithdraw          of vaultWithdrawType
-  | VaultDeposit           of vaultDepositType 
-  | VaultEditDepositor     of editDepositorType
+  | VaultUpdateCollateralTokens of vaultUpdateCollateralTokensActionType
+  | VaultDelegateTez            of vaultDelegateTezType
+  | VaultWithdraw               of vaultWithdrawType
+  | VaultDeposit                of vaultDepositType 
+  | VaultEditDepositor          of editDepositorType
   
 const noOperations : list (operation) = nil;
 type vaultReturn is list (operation) * vaultStorage
