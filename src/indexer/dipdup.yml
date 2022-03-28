@@ -212,67 +212,67 @@ indexes:
           - destination: doorman
             entrypoint: togglePauseCompound
   # Farm contract indexes
-  farm:
-    kind: operation
-    datasource: tzkt
-    types:
-      - origination
-      - transaction
-    contracts:
-      - farm
-    handlers:
-      - callback: on_farm_origination
-        pattern:
-          - type: origination
-            originated_contract: farm
-      - callback: on_farm_init_farm
-        pattern:
-          - destination: farm
-            entrypoint: initFarm
-      - callback: on_farm_deposit
-        pattern:
-          - destination: farm
-            entrypoint: deposit
-      - callback: on_farm_withdraw
-        pattern:
-          - destination: farm
-            entrypoint: withdraw
-      - callback: on_farm_claim
-        pattern:
-          - destination: farm
-            entrypoint: claim
-      - callback: on_farm_close_farm
-        pattern:
-          - destination: farm
-            entrypoint: closeFarm
-      - callback: on_farm_increase_reward_per_block
-        pattern:
-          - destination: farm
-            entrypoint: increaseRewardPerBlock
-      - callback: on_farm_toggle_force_reward_from_transfer
-        pattern:
-          - destination: farm
-            entrypoint: toggleForceRewardFromTransfer
-      - callback: on_farm_pause_all
-        pattern:
-          - destination: farm
-            entrypoint: pauseAll
-      - callback: on_farm_unpause_all
-        pattern:
-          - destination: farm
-            entrypoint: unpauseAll
-      - callback: on_farm_toggle_pause_deposit
-        pattern:
-          - destination: farm
-            entrypoint: togglePauseDeposit
-      - callback: on_farm_toggle_pause_withdraw
-        pattern:
-          - destination: farm
-            entrypoint: togglePauseWithdraw
-      - callback: on_farm_toggle_pause_claim
-        pattern:
-          - destination: farm
-            entrypoint: togglePauseClaim
+  # farm:
+  #   kind: operation
+  #   datasource: tzkt
+  #   types:
+  #     - origination
+  #     - transaction
+  #   contracts:
+  #     - farm
+  #   handlers:
+  #     - callback: on_farm_origination
+  #       pattern:
+  #         - type: origination
+  #           originated_contract: farm
+  #     - callback: on_farm_init_farm
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: initFarm
+  #     - callback: on_farm_deposit
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: deposit
+  #     - callback: on_farm_withdraw
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: withdraw
+  #     - callback: on_farm_claim
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: claim
+  #     - callback: on_farm_close_farm
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: closeFarm
+  #     - callback: on_farm_increase_reward_per_block
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: increaseRewardPerBlock
+  #     - callback: on_farm_toggle_force_reward_from_transfer
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: toggleForceRewardFromTransfer
+  #     - callback: on_farm_pause_all
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: pauseAll
+  #     - callback: on_farm_unpause_all
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: unpauseAll
+  #     - callback: on_farm_toggle_pause_deposit
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: togglePauseDeposit
+  #     - callback: on_farm_toggle_pause_withdraw
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: togglePauseWithdraw
+  #     - callback: on_farm_toggle_pause_claim
+  #       pattern:
+  #         - destination: farm
+  #           entrypoint: togglePauseClaim
   # Farm Factory contract indexes
   farm_factory:
     kind: operation
