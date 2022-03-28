@@ -16,6 +16,15 @@ async def on_farm_factory_track_farm(
 
     # Index farm if it does not exist in the db yet
     if trackedFarm is None and farmIndexedContract is None:
+        # Prepare farm
+        farmFactoryAddress  = track_farm.data.target_address
+        farmFactory         = await models.FarmFactory.get(address=farmFactoryAddress)
+        farm, _             = await models.Farm.get_or_create(
+            address = trackedFarmAddress
+        )
+        farm.farm_factory   = farmFactory
+        await farm.save()
+
         # Create a contract and index it
         await ctx.add_contract(
             name=trackedFarmAddress + 'contract',
