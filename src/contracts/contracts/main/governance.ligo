@@ -2052,12 +2052,8 @@ function main (const action : governanceAction; const s : storage) : return is
         | SetSnapshotStakedMvkTotalSupply(parameters) -> setSnapshotStakedMvkTotalSupply(parameters, s)
         | SetSatelliteVotingPowerSnapshot(parameters) -> setSatelliteVotingPowerSnapshot(parameters.0, parameters.1, parameters.2, s)        
   
-<<<<<<< HEAD
         // Governance Round
-        | StartNextRound(_parameters) -> startNextRound(s)
-=======
         // | StartNextRound(_parameters) -> startNextRound(s)
->>>>>>> 4ee9303 (Governance contract first tests (B) fixed)
         | StartProposalRound(_parameters) -> startProposalRound(s)
         | Propose(parameters) -> propose(parameters, s)
         | ProposalRoundVote(parameters) -> proposalRoundVote(parameters, s)
