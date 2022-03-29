@@ -45,13 +45,12 @@ export const governanceStorage: governanceStorageType = {
 
   proposalLedger          : MichelsonMap.fromLiteral({}),
   snapshotLedger          : MichelsonMap.fromLiteral({}),
-  activeSatellitesMap     : MichelsonMap.fromLiteral({}),
 
   startLevel              : new BigNumber(1),
   nextProposalId          : new BigNumber(1),
   cycleCounter            : new BigNumber(1),
 
-  currentRound            : 'none',
+  currentRound            : { proposal: null },
   currentRoundStartLevel  : new BigNumber(1),
   currentRoundEndLevel    : new BigNumber(14401),
   currentCycleEndLevel    : new BigNumber(28801),

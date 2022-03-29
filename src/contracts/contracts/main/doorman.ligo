@@ -451,7 +451,7 @@ block {
   const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
   const mvkTotalSupply: nat = case mvkTotalSupplyView of [
     Some (value) -> value
-  | None (Unit) -> (failwith ("Error. GetTotalSupply View not found in the MVK Token Contract") : nat)
+  | None -> (failwith ("Error. GetTotalSupply View not found in the MVK Token Contract") : nat)
   ];
 
   // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
@@ -566,7 +566,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     const checkFarmExistsView : option (bool) = Tezos.call_view ("checkFarmExists", farmAddress, farmFactoryAddress);
     const checkFarmExists: bool = case checkFarmExistsView of [
       Some (value) -> value
-    | None (Unit) -> (failwith ("Error. CheckFarmExistsView View not found in the Farm factory Contract") : bool)
+    | None -> (failwith ("Error. CheckFarmExistsView View not found in the Farm factory Contract") : bool)
     ];
 
     if not checkFarmExists then failwith("Error. The Farm is not tracked by the Farm Factory or it does not exist.") else skip;
@@ -574,7 +574,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     const mvkTotalAndMaximumSupplyView : option (nat * nat) = Tezos.call_view ("getTotalAndMaximumSupply", unit, s.mvkTokenAddress);
     const mvkTotalAndMaximumSupply: (nat * nat) = case mvkTotalAndMaximumSupplyView of [
       Some (totalSupply, maximumSupply) -> (totalSupply, maximumSupply)
-    | None (Unit) -> (failwith ("Error. GetTotalAndMaximumSupply View not found in the MVK Token Contract") : nat * nat)
+    | None -> (failwith ("Error. GetTotalAndMaximumSupply View not found in the MVK Token Contract") : nat * nat)
     ];
 
     // Set the supplies variables
@@ -635,7 +635,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     var operations: list(operation) := list[updateSatelliteBalanceOperation];
 
     // Get MVK Token address
-    const mvkTokenAddress: address = Tezos.sender;
+    const mvkTokenAddress: address = s.mvkTokenAddress;
 
     // Mint Tokens
     if claimAmount > 0n then {

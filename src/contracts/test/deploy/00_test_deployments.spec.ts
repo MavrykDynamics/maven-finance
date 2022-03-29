@@ -158,35 +158,39 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress("lpTokenAddress", lpToken.contract.address)
     console.log("LP Token Contract deployed at:", lpToken.contract.address);
 
-    // farmStorage.mvkTokenAddress  = mvkToken.contract.address
-    // farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+    farmStorage.mvkTokenAddress  = mvkToken.contract.address
+    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+    farmStorage.tokenPair = {
+      token0Address: "KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb",
+      token1Address: "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"
+    }
       
-    // farm = await Farm.originate(
-    //   utils.tezos,
-    //   farmStorage
-    // );
+    farm = await Farm.originate(
+      utils.tezos,
+      farmStorage
+    );
 
-    // await saveContractAddress("farmAddress", farm.contract.address)
-    // console.log("FA12 Farm Contract deployed at:", farm.contract.address);
+    await saveContractAddress("farmAddress", farm.contract.address)
+    console.log("FA12 Farm Contract deployed at:", farm.contract.address);
 
-    // farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
-    // farmStorage.lpToken.tokenStandard = {
-    //   fa2: ""
-    // };
-    
-    // farmFA2 = await Farm.originate(
-    //   utils.tezos,
-    //   farmStorage
-    // );
+    farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
+    farmStorage.lpToken.tokenStandard = {
+      fa2: ""
+    };
+     
+    farmFA2 = await Farm.originate(
+      utils.tezos,
+      farmStorage
+    );
 
-    // await saveContractAddress("farmFA2Address", farmFA2.contract.address)
-    // console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
+    await saveContractAddress("farmFA2Address", farmFA2.contract.address)
+    console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
 
-    // farmStorage.lpToken.tokenAddress = lpToken.contract.address;
-    // farmStorage.infinite = true
-    // farmStorage.lpToken.tokenStandard = {
-    //   fa12: ""
-    // };
+    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+    farmStorage.infinite = true
+    farmStorage.lpToken.tokenStandard = {
+      fa12: ""
+    };
     
     // farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
     // farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
