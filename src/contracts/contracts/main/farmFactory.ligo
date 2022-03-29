@@ -46,6 +46,11 @@ type farmBreakGlassConfigType is [@layout:comb] record [
     claimIsPaused          : bool;
 ]
 
+type farmTokenPairType is [@layout:comb] record[
+    token0Address: address;
+    token1Address: address;
+]
+
 type farmStorage is record[
     admin                   : address;
     mvkTokenAddress         : address;
@@ -61,6 +66,7 @@ type farmStorage is record[
     plannedRewards          : plannedRewards;
     delegators              : big_map(delegator, delegatorRecord);
     lpToken                 : lpToken;
+    tokenPair               : farmTokenPairType;
     open                    : bool;
     init                    : bool;
     infinite                : bool;
@@ -84,6 +90,7 @@ type farmStorageType is [@layout:comb] record[
     forceRewardFromTransfer : bool;
     infinite                : bool;
     plannedRewards          : farmPlannedRewards;
+    tokenPair               : farmTokenPairType;
     lpToken                 : farmLpToken;
 ]
 
@@ -385,6 +392,7 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             plannedRewards          = farmPlannedRewards;
             delegators              = farmDelegators;
             lpToken                 = farmLPToken;
+            tokenPair               = farmStorage.tokenPair;
             open                    = True ;
             init                    = True;
             infinite                = farmInfinite;

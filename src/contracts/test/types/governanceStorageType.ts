@@ -14,13 +14,12 @@ export type governanceStorageType = {
 
   proposalLedger          : MichelsonMap<MichelsonMapKey, unknown>;
   snapshotLedger          : MichelsonMap<MichelsonMapKey, unknown>;
-  activeSatellitesMap     : MichelsonMap<MichelsonMapKey, unknown>;
 
   startLevel              : BigNumber;
   nextProposalId          : BigNumber;
   cycleCounter            : BigNumber;
 
-  currentRound            : string;
+  currentRound            : any;
   currentRoundStartLevel  : BigNumber;
   currentRoundEndLevel    : BigNumber;
   currentCycleEndLevel    : BigNumber;

@@ -1,5 +1,6 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
 import { BigNumber } from "bignumber.js";
+
 import { bob } from '../scripts/sandbox/accounts'
 import { farmStorageType } from "../test/types/farmStorageType";
 
@@ -29,6 +30,10 @@ const lpToken = {
   tokenStandard: lpTokenStandard,
   tokenBalance: new BigNumber(0)
 }
+const tokenPair = {
+  token0Address: "",
+  token1Address: ""
+}
 
 export const farmStorage: farmStorageType = {
   admin: bob.pkh,
@@ -49,6 +54,7 @@ export const farmStorage: farmStorageType = {
   plannedRewards: plannedRewards,
   delegators: MichelsonMap.fromLiteral({}),
   lpToken: lpToken,
+  tokenPair: tokenPair,
   open: false,
   init: false,
   infinite: false,

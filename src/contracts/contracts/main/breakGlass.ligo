@@ -128,24 +128,6 @@ function checkGlassIsBroken(var s : storage) : unit is
 
 // admin helper functions end ---------------------------------------------------------
 
-// helper function to pause all entrypoints in contract 
-// function pauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
-//   case (Tezos.get_entrypoint_opt(
-//       "%pauseAll",
-//       contractAddress) : option(contract(unit))) of [
-//     Some(contr) -> contr
-//   | None -> (failwith("pauseAll entrypoint in Contract Address not found") : contract(unit))
-//   ];
-
-// // helper function to unpause all entrypoints in contract 
-// function unpauseAllEntrypointsInContract(const contractAddress : address) : contract(unit) is
-//   case (Tezos.get_entrypoint_opt(
-//       "%unpauseAll",
-//       contractAddress) : option(contract(unit))) of [
-//     Some(contr) -> contr
-//   | None -> (failwith("unpauseAll entrypoint in Contract Address not found") : contract(unit))
-//   ];
-
 // helper function to set admin entrypoints in contract 
 function setAdminInContract(const contractAddress : address) : contract(address) is
   case (Tezos.get_entrypoint_opt(
@@ -183,7 +165,7 @@ function updateConfig(const updateConfigParams : updateConfigParamsType; var s :
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin
+  checkSenderIsAdmin(s); // check that sender is admin
 
   const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
