@@ -9,3 +9,4 @@ compiled/*.tz
 # Webstorm IDE
 ./.idea
 **/.idea/**
+.VSCodeCounter/
