@@ -49,10 +49,13 @@ async def on_governance_propose(
     governanceNextProposalID    = int(propose.storage.nextProposalId)
 
     # Proposal record
-    proposer, _ = await models.MavrykUser.get_or_create(
+    user, _ = await models.MavrykUser.get_or_create(
         address = proposerAddress
     )
-    await proposer.save()
+    await user.save()
+    proposer    = await models.SatelliteRecord.get(
+        user    = user 
+    )
 
     proposalRecord              = models.GovernanceProposalRecord(
         id                              = governance.next_proposal_id,

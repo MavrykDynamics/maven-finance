@@ -40,7 +40,7 @@ async def on_governance_proposal_round_vote(
         )
         
         voteRecord          = models.GovernanceProposalRecordVote(
-            voter                       = voter,
+            voter                       = satelliteRecord,
             governance_proposal_record  = proposal
         )
         if proposalID == proposal_round_vote.parameter.__root__:
