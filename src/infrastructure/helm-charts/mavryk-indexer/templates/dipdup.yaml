@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.1.1
+          image: tezosdynamics/mavryk-indexer:v0.1.2
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.hangzhou2net.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.1.1
+          image: tezosdynamics/mavryk-indexer:v0.1.2
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
