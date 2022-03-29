@@ -109,7 +109,6 @@ type councilActionRequestMintType is [@layout:comb] record [
     treasuryAddress  : address;  // treasury address
     tokenAmount      : nat;      // MVK token amount requested
     tokenType        : string;   // "XTZ", "FA12", "FA2"
-    tokenId          : nat;        
     purpose          : string;   // financial request purpose
 ]
 
@@ -817,7 +816,6 @@ block {
     ];
     const natMap : natMapType         = map [
         ("tokenAmount"           : string) -> councilActionRequestMintParams.tokenAmount;
-        ("tokenId"               : string) -> councilActionRequestMintParams.tokenId;
     ];
 
     var councilActionRecord : councilActionRecordType := record[
@@ -1376,18 +1374,12 @@ block {
                 Some(_nat) -> _nat
                 | None -> failwith("Error. TokenAmount not found.")
             ];
-
-            const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
-                Some(_nat) -> _nat
-                | None -> failwith("Error. TokenId not found.")
-            ];
             // fetch params end ---
 
 
             const requestMintParams : councilActionRequestMintType = record[
                 tokenAmount      = tokenAmount;
                 tokenType        = tokenType;
-                tokenId          = tokenId;
                 treasuryAddress  = treasuryAddress;
                 purpose          = purpose;
             ];

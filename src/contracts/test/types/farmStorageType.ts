@@ -26,6 +26,10 @@ export type farmStorageType = {
     totalRewards: BigNumber;
   }
   delegators: MichelsonMap<MichelsonMapKey, unknown>;
+  tokenPair: {
+    token0Address: String;
+    token1Address: String;
+  }
   lpToken: {
     tokenAddress: String;
     tokenId: BigNumber;

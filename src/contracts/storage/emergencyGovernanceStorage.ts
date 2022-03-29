@@ -8,7 +8,7 @@ import { MVK, zeroAddress } from "../test/helpers/Utils";
 import { emergencyGovernanceStorageType } from '../test/types/emergencyGovernanceStorageType'
 
 const config = {
-  decimals : 5,
+  decimals : 4,
   voteExpiryDays: 3,
   requiredFee: 10000000,
   stakedMvkPercentageRequired: 10000,

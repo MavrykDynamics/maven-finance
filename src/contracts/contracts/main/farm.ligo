@@ -39,6 +39,10 @@ type lpToken is [@layout:comb] record[
     tokenStandard: lpStandard;
     tokenBalance: tokenBalance;
 ]
+type tokenPairType is [@layout:comb] record[
+    token0Address: address;
+    token1Address: address;
+]
 
 type breakGlassConfigType is [@layout:comb] record [
     depositIsPaused         : bool;
@@ -61,6 +65,7 @@ type storage is record[
     plannedRewards          : plannedRewards;
     delegators              : big_map(delegator, delegatorRecord);
     lpToken                 : lpToken;
+    tokenPair               : tokenPairType;
     open                    : bool;
     init                    : bool;
     infinite                : bool;
