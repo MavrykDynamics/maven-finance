@@ -90,10 +90,10 @@
 //         // ------------------------------------------------------------------
 //         const councilContractAddress = councilAddress.address;
 
-//         // Bob transfers 250 XTZ to Council
-//         await signerFactory(bob.sk)
-//         const bobTransferTezToCouncilOperation = await utils.tezos.contract.transfer({ to: councilContractAddress, amount: 250});
-//         await bobTransferTezToCouncilOperation.confirmation();
+//         // Alice transfers 250 XTZ to Council
+//         await signerFactory(alice.sk)
+//         const aliceTransferTezToCouncilOperation = await utils.tezos.contract.transfer({ to: councilContractAddress, amount: 250});
+//         await aliceTransferTezToCouncilOperation.confirmation();
 
 //         // Mallory transfers 250 MVK tokens to Treasury
 //         await signerFactory(mallory.sk);
