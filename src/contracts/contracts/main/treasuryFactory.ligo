@@ -70,13 +70,12 @@ type storage is record[
     admin                      : address;
     mvkTokenAddress            : address;
 
+    trackedTreasuries          : set(address);
+    breakGlassConfig           : breakGlassConfigType;
+
     whitelistContracts         : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     whitelistTokenContracts    : whitelistTokenContractsType;
     generalContracts           : generalContractsType;
-
-    breakGlassConfig           : breakGlassConfigType;
-
-    trackedTreasuries          : set(address);
 ]
 
 ////

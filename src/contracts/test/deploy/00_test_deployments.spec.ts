@@ -38,6 +38,7 @@ import { Farm } from "../helpers/farmHelper";
 import { FarmFactory } from "../helpers/farmFactoryHelper";
 import { LPToken } from "../helpers/testLPHelper";
 import { Treasury } from '../helpers/treasuryHelper'
+import { TreasuryFactory } from '../helpers/treasuryFactoryHelper'
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
 import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
 
@@ -50,6 +51,7 @@ import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceSto
 import { vestingStorage } from '../../storage/vestingStorage'
 import { councilStorage } from '../../storage/councilStorage'
 import { treasuryStorage } from '../../storage/treasuryStorage'
+import { treasuryFactoryStorage } from '../../storage/treasuryFactoryStorage'
 import { farmStorage } from "../../storage/farmStorage";
 import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
 import { lpStorage } from "../../storage/testLPTokenStorage";
@@ -67,6 +69,7 @@ describe('Contracts Deployment for Tests', async () => {
   var vesting: Vesting
   var council: Council
   var treasury: Treasury
+  var treasuryFactory: TreasuryFactory
   var farm: Farm;
   var farmFA2: Farm;
   var farmFactory: FarmFactory;
@@ -155,53 +158,53 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress("lpTokenAddress", lpToken.contract.address)
     console.log("LP Token Contract deployed at:", lpToken.contract.address);
 
-    farmStorage.mvkTokenAddress  = mvkToken.contract.address
-    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+    // farmStorage.mvkTokenAddress  = mvkToken.contract.address
+    // farmStorage.lpToken.tokenAddress = lpToken.contract.address;
       
-    farm = await Farm.originate(
-      utils.tezos,
-      farmStorage
-    );
+    // farm = await Farm.originate(
+    //   utils.tezos,
+    //   farmStorage
+    // );
 
-    await saveContractAddress("farmAddress", farm.contract.address)
-    console.log("FA12 Farm Contract deployed at:", farm.contract.address);
+    // await saveContractAddress("farmAddress", farm.contract.address)
+    // console.log("FA12 Farm Contract deployed at:", farm.contract.address);
 
-    farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
-    farmStorage.lpToken.tokenStandard = {
-      fa2: ""
-    };
+    // farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
+    // farmStorage.lpToken.tokenStandard = {
+    //   fa2: ""
+    // };
     
-    farmFA2 = await Farm.originate(
-      utils.tezos,
-      farmStorage
-    );
+    // farmFA2 = await Farm.originate(
+    //   utils.tezos,
+    //   farmStorage
+    // );
 
-    await saveContractAddress("farmFA2Address", farmFA2.contract.address)
-    console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
+    // await saveContractAddress("farmFA2Address", farmFA2.contract.address)
+    // console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
 
-    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
-    farmStorage.infinite = true
-    farmStorage.lpToken.tokenStandard = {
-      fa12: ""
-    };
+    // farmStorage.lpToken.tokenAddress = lpToken.contract.address;
+    // farmStorage.infinite = true
+    // farmStorage.lpToken.tokenStandard = {
+    //   fa12: ""
+    // };
     
-    farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
-    farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
-      doorman: doorman.contract.address,
-    });
-    farmFactory = await FarmFactory.originate(
-      utils.tezos,
-      farmFactoryStorage
-    );
+    // farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
+    // farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
+    //   doorman: doorman.contract.address,
+    // });
+    // farmFactory = await FarmFactory.originate(
+    //   utils.tezos,
+    //   farmFactoryStorage
+    // );
 
-    await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
-    console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
+    // await saveContractAddress("farmFactoryAddress", farmFactory.contract.address)
+    // console.log("Farm Factory Contract deployed at:", farmFactory.contract.address);
 
     councilStorage.mvkTokenAddress  = mvkToken.contract.address
     councilStorage.generalContracts = MichelsonMap.fromLiteral({
       vesting: vesting.contract.address,
       governance: governance.contract.address,
-      farmFactory: farmFactory.contract.address
+      // farmFactory: farmFactory.contract.address
     })
     councilStorage.councilMembers = [bob.pkh, alice.pkh, eve.pkh]
     council = await Council.originate(utils.tezos, councilStorage)
@@ -240,8 +243,26 @@ describe('Contracts Deployment for Tests', async () => {
     })
     treasury = await Treasury.originate(utils.tezos, treasuryStorage)
 
-    await saveContractAddress('treasury', treasury.contract.address)
+    await saveContractAddress('treasuryAddress', treasury.contract.address)
     console.log('Treasury Contract deployed at:', treasury.contract.address)
+
+
+    treasuryFactoryStorage.mvkTokenAddress  = mvkToken.contract.address
+    treasuryFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
+      "mvkToken"     : mvkToken.contract.address,
+      "delegation"   : delegation.contract.address,
+    });
+    treasuryFactoryStorage.whitelistContracts = MichelsonMap.fromLiteral({
+      governance: governance.contract.address,
+    })
+    treasuryFactoryStorage.whitelistTokenContracts = MichelsonMap.fromLiteral({
+      mvk       : mvkToken.contract.address,
+    })
+    treasuryFactory = await TreasuryFactory.originate(utils.tezos, treasuryFactoryStorage)
+
+    await saveContractAddress('treasuryFactoryAddress', treasuryFactory.contract.address)
+    console.log('Treasury Factory Contract deployed at:', treasuryFactory.contract.address)
+
 
     mockFa12Token = await MockFa12Token.originate(
       utils.tezos,
@@ -314,63 +335,60 @@ describe('Contracts Deployment for Tests', async () => {
     const setMvkTokenAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts('mvkToken', mvkToken.contract.address).send()
     await setMvkTokenAddressInDoormanOperation.confirmation()
     
-    const setFarmFactoryAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("farmFactory", farmFactory.contract.address).send();
-    await setFarmFactoryAddressInDoormanOperation.confirmation();
+    // const setFarmFactoryAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("farmFactory", farmFactory.contract.address).send();
+    // await setFarmFactoryAddressInDoormanOperation.confirmation();
     
     console.log('Doorman Contract - set general contract addresses [delegation, mvkToken, farmFactory]')
 
 
 
-    // Farm Contract - set general contract addresses [doorman]
-    // Farm Contract - set whitelist contract addresses [council] 
-    const setDoormanContractAddressInFarmOperation = await farm.contract.methods.updateGeneralContracts('doorman', doorman.contract.address).send()
-    await setDoormanContractAddressInFarmOperation.confirmation()
+    // Farm FA12 Contract - set general contract addresses [doorman]
+    // Farm FA12 Contract - set whitelist contract addresses [council] 
+    // const setDoormanContractAddressInFarmOperation = await farm.contract.methods.updateGeneralContracts('doorman', doorman.contract.address).send()
+    // await setDoormanContractAddressInFarmOperation.confirmation()
+        
+    // const setCouncilContractAddressInFarmFA12Operation = await farm.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
+    // await setCouncilContractAddressInFarmFA12Operation.confirmation()
     
-    console.log('Farm Contract - set general contract addresses [doorman]')
-    
-    const setCouncilContractAddressInFarmFA12Operation = await farm.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
-    await setCouncilContractAddressInFarmFA12Operation.confirmation()
-    
-    console.log('Farm Contract - set whitelist contract addresses [council]')
+    // console.log('Farm Contract - set general contract addresses [doorman]')
+    // console.log('Farm Contract - set whitelist contract addresses [council]')
 
 
 
-    // Farm Contract - set general contract addresses [doorman]
-    // Farm Contract - set whitelist contract addresses [council]
-    const setDoormanContractAddressInFarmFA2Operation = await farmFA2.contract.methods.updateGeneralContracts('doorman', doorman.contract.address).send()
-    await setDoormanContractAddressInFarmFA2Operation.confirmation()
+    // Farm FA2 Contract - set general contract addresses [doorman]
+    // Farm FA2 Contract - set whitelist contract addresses [council]
+    // const setDoormanContractAddressInFarmFA2Operation = await farmFA2.contract.methods.updateGeneralContracts('doorman', doorman.contract.address).send()
+    // await setDoormanContractAddressInFarmFA2Operation.confirmation()
     
-    console.log('Farm FA2 Contract - set general contract addresses [doorman]')
+    // const setCouncilContractAddressInFarmFA2Operation = await farmFA2.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
+    // await setCouncilContractAddressInFarmFA2Operation.confirmation()
     
-    const setCouncilContractAddressInFarmFA2Operation = await farmFA2.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
-    await setCouncilContractAddressInFarmFA2Operation.confirmation()
-    
-    console.log('Farm FA2 Contract - set whitelist contract addresses [council]')
+    // console.log('Farm FA2 Contract - set general contract addresses [doorman]')
+    // console.log('Farm FA2 Contract - set whitelist contract addresses [council]')
     
 
-    // Farm Factory Contract - set contract addresses [council]
-    const setCouncilContractAddressInFarmFactoryOperation = await farmFactory.contract.methods
-      .updateWhitelistContracts('council', council.contract.address)
-      .send()
-    await setCouncilContractAddressInFarmFactoryOperation.confirmation()
-    console.log('Farm Factory Contract - set whitelist contract addresses [council]')
 
-    // Delegation Contract - set contract addresses [governance]
-    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods
-      .updateGeneralContracts('governance', governance.contract.address)
-      .send()
+    // Farm Factory Contract - set whitelist contract addresses [council]
+    // const setCouncilContractAddressInFarmFactoryOperation = await farmFactory.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
+    // await setCouncilContractAddressInFarmFactoryOperation.confirmation()
+    // console.log('Farm Factory Contract - set whitelist contract addresses [council]')
+
+
+
+    // Delegation Contract - set general contract addresses [governance]
+    // Delegation Contract - set whitelist contract addresses [treasury]
+    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts('governance', governance.contract.address).send()
     await setGovernanceContractAddressInDelegationOperation.confirmation()
-    
-    console.log('Delegation Contract - set general contract addresses [governance]')
 
     const setWhitelistTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address).send()  
     await setWhitelistTreasuryContractAddressInDelegationOperation.confirmation()
     
+    console.log('Delegation Contract - set general contract addresses [governance]')
     console.log('Delegation Contract - set whitelist contract addresses [treasury]')
 
 
 
-    // Governance Contract - set contract addresses [emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory]
+    // Governance Contract - set contract addresses [emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
     const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address).send()
     await setEmergencyGovernanceContractInGovernanceOperation.confirmation()
     
@@ -386,10 +404,13 @@ describe('Contracts Deployment for Tests', async () => {
     const setTreasuryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('treasury', treasury.contract.address).send()
     await setTreasuryContractInGovernanceOperation.confirmation()
 
-    const setFarmFactoryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('farmFactory', farmFactory.contract.address).send()
-    await setFarmFactoryContractInGovernanceOperation.confirmation()
-    
-    console.log('Governance Contract - set general contract addresses [emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory]')
+    // const setFarmFactoryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('farmFactory', farmFactory.contract.address).send()
+    // await setFarmFactoryContractInGovernanceOperation.confirmation()
+
+    const setTreasuryFactoryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('treasuryFactory', treasuryFactory.contract.address).send()
+    await setTreasuryFactoryContractInGovernanceOperation.confirmation()
+
+    console.log('Governance Contract - set general contract addresses [emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]')
 
 
 
