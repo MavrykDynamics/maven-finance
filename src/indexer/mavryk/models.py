@@ -383,7 +383,7 @@ class BreakGlassActionRecordParameter(Model):
 
 class GovernanceProposalRecord(Model):
     id                              = fields.BigIntField(pk=True)
-    proposer                        = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_proposer')
+    proposer                        = fields.ForeignKeyField('models.SatelliteRecord', related_name='governance_proposal_records_proposer')
     status                          = fields.IntEnumField(enum_type=GovernanceRecordStatus)
     title                           = fields.CharField(max_length=255)
     description                     = fields.CharField(max_length=255)
@@ -424,7 +424,7 @@ class GovernanceProposalRecordMetadata(Model):
 class GovernanceProposalRecordVote(Model):
     id                              = fields.BigIntField(pk=True)
     governance_proposal_record      = fields.ForeignKeyField('models.GovernanceProposalRecord', related_name='votes')
-    voter                           = fields.ForeignKeyField('models.MavrykUser', related_name='governance_proposal_records_votes')
+    voter                           = fields.ForeignKeyField('models.SatelliteRecord', related_name='governance_proposal_records_votes')
     timestamp                       = fields.DatetimeField(null=True)
     round                           = fields.IntEnumField(enum_type=GovernanceRoundType)
     vote                            = fields.IntEnumField(enum_type=GovernanceVoteType, default=GovernanceVoteType.YAY)
@@ -445,7 +445,7 @@ class GovernanceLambdaRecord(Model):
 class GovernanceSatelliteSnapshotRecord(Model):
     id                              = fields.BigIntField(pk=True)
     governance                      = fields.ForeignKeyField('models.Governance', related_name='governance_satellite_snapshot_records')
-    satellite                       = fields.ForeignKeyField('models.SatelliteRecord', related_name='governance_satellite_snapshot_records')
+    satellite                       = fields.ForeignKeyField('models.SatelliteRecord', related_name='governance_satellite_snapshot_records_votes')
     total_mvk_balance               = fields.FloatField(default=0.0)
     total_delegated_amount          = fields.FloatField(default=0.0)
     total_voting_power              = fields.FloatField(default=0.0)
