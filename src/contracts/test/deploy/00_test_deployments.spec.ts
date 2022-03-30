@@ -159,8 +159,8 @@ describe('Contracts Deployment for Tests', async () => {
     console.log("LP Token Contract deployed at:", lpToken.contract.address);
 
     farmStorage.mvkTokenAddress  = mvkToken.contract.address
-    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
-    farmStorage.tokenPair = {
+    farmStorage.config.lpToken.tokenAddress = lpToken.contract.address;
+    farmStorage.config.tokenPair = {
       token0Address: "KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb",
       token1Address: "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"
     }
@@ -173,8 +173,8 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress("farmAddress", farm.contract.address)
     console.log("FA12 Farm Contract deployed at:", farm.contract.address);
 
-    farmStorage.lpToken.tokenAddress = mvkToken.contract.address;
-    farmStorage.lpToken.tokenStandard = {
+    farmStorage.config.lpToken.tokenAddress = mvkToken.contract.address;
+    farmStorage.config.lpToken.tokenStandard = {
       fa2: ""
     };
      
@@ -186,9 +186,9 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress("farmFA2Address", farmFA2.contract.address)
     console.log("FA2 Farm Contract deployed at:", farmFA2.contract.address);
 
-    farmStorage.lpToken.tokenAddress = lpToken.contract.address;
-    farmStorage.infinite = true
-    farmStorage.lpToken.tokenStandard = {
+    farmStorage.config.lpToken.tokenAddress = lpToken.contract.address;
+    farmStorage.config.infinite = true
+    farmStorage.config.lpToken.tokenStandard = {
       fa12: ""
     };
     
