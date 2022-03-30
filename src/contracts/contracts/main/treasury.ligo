@@ -24,11 +24,6 @@ type operator is address
 type owner is address
 type tokenId is nat;
 
-type configType is [@layout:comb] record [
-    minXtzAmount      : nat;
-    maxXtzAmount      : nat;
-]
-
 type breakGlassConfigType is [@layout:comb] record [
     transferIsPaused            : bool; 
     mintMvkAndTransferIsPaused  : bool;
@@ -38,7 +33,6 @@ type storage is [@layout:comb] record [
     admin                      : address;
     mvkTokenAddress            : address;
 
-    config                     : configType;
     breakGlassConfig           : breakGlassConfigType;
 
     whitelistContracts         : whitelistContractsType;
@@ -74,21 +68,13 @@ type mintMvkAndTransferType is [@layout:comb] record [
 
 type updateSatelliteBalanceParams is (address * nat * nat)
 
-type updateConfigNewValueType is nat
-type updateConfigActionType is 
-| ConfigMinXtzAmount of unit
-| ConfigMaxXtzAmount of unit
-type updateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: updateConfigNewValueType; 
-  updateConfigAction: updateConfigActionType;
-]
+
 
 type treasuryAction is 
     | Default                        of unit
 
     // Housekeeping Config Entrypoints
     | SetAdmin                       of (address)
-    | UpdateConfig                   of updateConfigParamsType    
     | UpdateWhitelistContracts       of updateWhitelistContractsParams
     | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts         of updateGeneralContractsParams
@@ -221,22 +207,6 @@ block {
 
 } with (noOperations, s)
 
-(*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
-block {
-
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin
-
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
-
-  case updateConfigAction of
-  | ConfigMinXtzAmount (_v)           -> s.config.minXtzAmount            := updateConfigNewValue
-  | ConfigMaxXtzAmount (_v)           -> s.config.maxXtzAmount            := updateConfigNewValue
-  end;
-
-} with (noOperations, s)
 
 ////
 // Pause Functions
@@ -400,7 +370,6 @@ function main (const action : treasuryAction; const s : storage) : return is
         
         // Housekeeping Config Entrypoints
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)  
-        | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
