@@ -1269,7 +1269,10 @@ block {
             // --- --- ---
 
             const transferTokenOperation : operation = case _tokenTransferType of [ 
-                | Tez         -> transferTez((get_contract(to_) : contract(unit)), amt)
+                | Tez         -> case (Tezos.get_contract_opt(to_): option(contract(unit))) of [
+                    Some (_contract) -> transferTez(_contract, amt)
+                |   None -> failwith("Error. Contract not found at given address. Cannot transfer XTZ")
+                ]
                 | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
                 | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
             ];

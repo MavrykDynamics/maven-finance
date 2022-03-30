@@ -87,12 +87,12 @@ describe("FarmFactory", async () => {
                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
                     farmStorage                             = await farmInstance.storage();
 
-                    assert.strictEqual(farmStorage.lpToken.tokenAddress, lpTokenAddress.address);
-                    assert.equal(farmStorage.lpToken.tokenId, 0);
-                    assert.equal(farmStorage.lpToken.tokenBalance, 0);
-                    assert.equal(Object.keys(farmStorage.lpToken.tokenStandard)[0], "fa12");
-                    assert.equal(farmStorage.plannedRewards.currentRewardPerBlock, 100);
-                    assert.equal(farmStorage.plannedRewards.totalBlocks, 12000);
+                    assert.strictEqual(farmStorage.config.lpToken.tokenAddress, lpTokenAddress.address);
+                    assert.equal(farmStorage.config.lpToken.tokenId, 0);
+                    assert.equal(farmStorage.config.lpToken.tokenBalance, 0);
+                    assert.equal(Object.keys(farmStorage.config.lpToken.tokenStandard)[0], "fa12");
+                    assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
+                    assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
                     assert.equal(farmStorage.open, true);
                     assert.equal(farmStorage.init, true);
                 }catch(e){
@@ -144,12 +144,12 @@ describe("FarmFactory", async () => {
                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
                     farmStorage                             = await farmInstance.storage();
 
-                    assert.strictEqual(farmStorage.lpToken.tokenAddress, lpTokenAddress.address);
-                    assert.equal(farmStorage.lpToken.tokenId, 0);
-                    assert.equal(farmStorage.lpToken.tokenBalance, 0);
-                    assert.equal(Object.keys(farmStorage.lpToken.tokenStandard)[0], "fa12");
-                    assert.equal(farmStorage.plannedRewards.currentRewardPerBlock, 100);
-                    assert.equal(farmStorage.plannedRewards.totalBlocks, 12000);
+                    assert.strictEqual(farmStorage.config.lpToken.tokenAddress, lpTokenAddress.address);
+                    assert.equal(farmStorage.config.lpToken.tokenId, 0);
+                    assert.equal(farmStorage.config.lpToken.tokenBalance, 0);
+                    assert.equal(Object.keys(farmStorage.config.lpToken.tokenStandard)[0], "fa12");
+                    assert.equal(farmStorage.config.plannedRewards.currentRewardPerBlock, 100);
+                    assert.equal(farmStorage.config.plannedRewards.totalBlocks, 12000);
                     assert.equal(farmStorage.open, true);
                     assert.equal(farmStorage.init, true);
                 }catch(e){
@@ -692,10 +692,10 @@ describe("FarmFactory", async () => {
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
-                    const blockPerMinutes = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlock = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocks = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewards = farmStorage.plannedRewards.totalRewards;
+                    const blockPerMinutes = farmStorage.config.blocksPerMinute;
+                    const currentRewardPerBlock = farmStorage.config.plannedRewards.currentRewardPerBlock;
+                    const totalBlocks = farmStorage.config.plannedRewards.totalBlocks;
+                    const totalRewards = farmStorage.config.plannedRewards.totalRewards;
                     const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
 
                     // Create an operation
@@ -704,10 +704,10 @@ describe("FarmFactory", async () => {
 
                     // Final values
                     farmStorage = await farmInstance.storage();
-                    const blockPerMinutesEnd = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlockEnd = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocksEnd = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewardsEnd = farmStorage.plannedRewards.totalRewards;
+                    const blockPerMinutesEnd = farmStorage.config.blocksPerMinute;
+                    const currentRewardPerBlockEnd = farmStorage.config.plannedRewards.currentRewardPerBlock;
+                    const totalBlocksEnd = farmStorage.config.plannedRewards.totalBlocks;
+                    const totalRewardsEnd = farmStorage.config.plannedRewards.totalRewards;
 
                     farmFactoryStorage = await farmFactoryInstance.storage();
                     const factoryBlockPerMinutesEnd = farmFactoryStorage.blocksPerMinute;
@@ -730,10 +730,10 @@ describe("FarmFactory", async () => {
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
-                    const blockPerMinutes = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlock = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocks = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewards = farmStorage.plannedRewards.totalRewards;
+                    const blockPerMinutes = farmStorage.config.blocksPerMinute;
+                    const currentRewardPerBlock = farmStorage.config.plannedRewards.currentRewardPerBlock;
+                    const totalBlocks = farmStorage.config.plannedRewards.totalBlocks;
+                    const totalRewards = farmStorage.config.plannedRewards.totalRewards;
                     const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
 
                     // Create an operation
@@ -742,10 +742,10 @@ describe("FarmFactory", async () => {
 
                     // Final values
                     farmStorage = await farmInstance.storage();
-                    const blockPerMinutesEnd = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlockEnd = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocksEnd = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewardsEnd = farmStorage.plannedRewards.totalRewards;
+                    const blockPerMinutesEnd = farmStorage.config.blocksPerMinute;
+                    const currentRewardPerBlockEnd = farmStorage.config.plannedRewards.currentRewardPerBlock;
+                    const totalBlocksEnd = farmStorage.config.plannedRewards.totalBlocks;
+                    const totalRewardsEnd = farmStorage.config.plannedRewards.totalRewards;
 
                     farmFactoryStorage = await farmFactoryInstance.storage();
                     const factoryBlockPerMinutesEnd = farmFactoryStorage.blocksPerMinute;
@@ -771,10 +771,10 @@ describe("FarmFactory", async () => {
                     const farmAddress = trackedFarms[0]
                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
                     var farmStorage: farmStorageType = await farmInstance.storage();
-                    const blockPerMinutes = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlock = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocks = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewards = farmStorage.plannedRewards.totalRewards;
+                    const blockPerMinutes = farmStorage.config.blocksPerMinute;
+                    const currentRewardPerBlock = farmStorage.config.plannedRewards.currentRewardPerBlock;
+                    const totalBlocks = farmStorage.config.plannedRewards.totalBlocks;
+                    const totalRewards = farmStorage.config.plannedRewards.totalRewards;
                     const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
 
                     // Create a transaction for initiating a farm
@@ -782,10 +782,10 @@ describe("FarmFactory", async () => {
 
                     // Final values
                     farmStorage = await farmInstance.storage();
-                    const blockPerMinutesEnd = farmStorage.blocksPerMinute;
-                    const currentRewardPerBlockEnd = farmStorage.plannedRewards.currentRewardPerBlock;
-                    const totalBlocksEnd = farmStorage.plannedRewards.totalBlocks;
-                    const totalRewardsEnd = farmStorage.plannedRewards.totalRewards;
+                    const blockPerMinutesEnd = farmStorage.config.blocksPerMinute;
+                    const currentRewardPerBlockEnd = farmStorage.config.plannedRewards.currentRewardPerBlock;
+                    const totalBlocksEnd = farmStorage.config.plannedRewards.totalBlocks;
+                    const totalRewardsEnd = farmStorage.config.plannedRewards.totalRewards;
                     const factoryBlockPerMinutesEnd = farmFactoryStorage.blocksPerMinute;
                     
                     // Assertion

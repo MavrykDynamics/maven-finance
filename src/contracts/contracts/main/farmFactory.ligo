@@ -51,9 +51,20 @@ type farmTokenPairType is [@layout:comb] record[
     token1Address: address;
 ]
 
+type farmConfigType is record [
+    lpToken                     : lpToken;
+    tokenPair                   : farmTokenPairType;
+    infinite                    : bool;
+    forceRewardFromTransfer     : bool;
+    blocksPerMinute             : nat;
+    plannedRewards              : plannedRewards;
+]
+
 type farmStorage is record[
     admin                   : address;
     mvkTokenAddress         : address;
+        
+    config                  : farmConfigType;
     
     whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts        : generalContractsType;
@@ -63,16 +74,10 @@ type farmStorage is record[
     lastBlockUpdate         : nat;
     accumulatedMVKPerShare  : tokenBalance;
     claimedRewards          : claimedRewards;
-    plannedRewards          : plannedRewards;
     delegators              : big_map(delegator, delegatorRecord);
-    lpToken                 : lpToken;
-    tokenPair               : farmTokenPairType;
     open                    : bool;
     init                    : bool;
-    infinite                : bool;
-    forceRewardFromTransfer : bool;
     initBlock               : nat;
-    blocksPerMinute         : nat;
 ]
 
 type farmLpToken is [@layout:comb] record [
@@ -373,6 +378,14 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             withdrawIsPaused=False;
             claimIsPaused=False;
         ];
+        const farmConfig: farmConfigType = record[
+            lpToken=farmLPToken;
+            tokenPair=farmStorage.tokenPair;
+            infinite=farmInfinite;
+            forceRewardFromTransfer=farmForceRewardFromTransfer;
+            blocksPerMinute=s.blocksPerMinute;
+            plannedRewards=farmPlannedRewards;
+        ];
 
         // Check wether the farm is infinite or its total blocks has been set
         if not farmInfinite and farmStorage.plannedRewards.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
@@ -381,6 +394,9 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
         const originatedFarmStorage: farmStorage = record[
             admin                   = s.admin; // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
             mvkTokenAddress         = s.mvkTokenAddress;
+            
+            config                  = farmConfig;
+            
             whitelistContracts      = farmWhitelistContract;      // whitelist of contracts that can access restricted entrypoints
             generalContracts        = farmGeneralContracts;
 
@@ -389,16 +405,10 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
             lastBlockUpdate         = Tezos.level;
             accumulatedMVKPerShare  = 0n;
             claimedRewards          = farmClaimedRewards;
-            plannedRewards          = farmPlannedRewards;
             delegators              = farmDelegators;
-            lpToken                 = farmLPToken;
-            tokenPair               = farmStorage.tokenPair;
             open                    = True ;
             init                    = True;
-            infinite                = farmInfinite;
-            forceRewardFromTransfer = farmForceRewardFromTransfer;
             initBlock               = Tezos.level;
-            blocksPerMinute         = s.blocksPerMinute;
         ];
 
         // Do we want to send tez to the farm contract?
