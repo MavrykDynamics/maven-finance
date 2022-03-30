@@ -107,11 +107,9 @@ type vestingAction is
     | UpdateConfig of updateConfigParamsType    
 
     | Claim of (unit)
-    | GetVesteeBalance of (address * contract(nat))
     
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
-    | GetTotalVested of contract(nat)
     
     | AddVestee of (addVesteeType)
     | RemoveVestee of (address)
@@ -193,7 +191,7 @@ function updateConfig(const updateConfigParams : updateConfigParamsType; var s :
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin
+  checkSenderIsAdmin(s); // check that sender is admin
 
   const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
@@ -306,24 +304,16 @@ block {
 
 } with (_operations, s)
 
-function getVesteeBalance(const vesteeAddress : address; const contr : contract(nat); var s : storage) : return is 
-block {
-    // Steps Overview:
-    // 1. check if vestee address exists in vestee ledger
-    // 2. return vestee's total vested remainder to callback contract
-    checkNoAmount(unit);
-
-    const vestee : vesteeRecordType = case s.vesteeLedger[vesteeAddress] of [ 
-        | Some(_record) -> _record
-        | None -> failwith("Error. Vestee is not found.")
+(* View functions to get the totalRemainder for the vestee *)
+[@view] function getVesteeBalance(const vesteeAddress : address; var s : storage) : nat is 
+    case s.vesteeLedger[vesteeAddress] of [ 
+        | Some(_record) -> _record.totalRemainder
+        | None -> failwith("Error. Vestee not found.")
     ];
-    
-} with (list [Tezos.transaction(vestee.totalRemainder, 0tz, contr)], s)
 
-function getTotalVested(const contr : contract(nat); var s : storage) : return is 
-block {
-    checkNoAmount(unit);
-} with (list [Tezos.transaction(s.totalVestedAmount, 0tz, contr)], s)
+(* View functions to get the total vested amount *)
+[@view] function getTotalVested(const _ : unit; var s : storage) : nat is 
+    s.totalVestedAmount
 
 function addVestee(const vesteeAddress : address; const totalAllocatedAmount : nat; const cliffInMonths : nat; const vestingInMonths : nat; var s : storage) : return is 
 block {
@@ -356,8 +346,8 @@ block {
             
             // static variables initiated at start ----
 
-            totalAllocatedAmount = totalAllocatedAmount;                      // totalAllocatedAmount should be in mu (10^6)
-            claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;    // totalAllocatedAmount should be in mu (10^6)
+            totalAllocatedAmount = totalAllocatedAmount;                      // totalAllocatedAmount should be in (10^9)
+            claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;    // totalAllocatedAmount should be in (10^9)
             
             startBlock           = Tezos.level;                 // date/time of start in block levels
             startTimestamp       = Tezos.now;                   // date/time start of when 
@@ -523,8 +513,6 @@ function main (const action : vestingAction; const s : storage) : return is
         | AddVestee(params) -> addVestee(params.0, params.1, params.2, params.3, s)
         | RemoveVestee(params) -> removeVestee(params, s)
         | ToggleVesteeLock(params) -> toggleVesteeLock(params, s)
-        | GetVesteeBalance(params) -> getVesteeBalance(params.0, params.1, s)
-        | GetTotalVested(params) -> getTotalVested(params, s)
 
         | UpdateVestee(params) -> updateVestee(params.0, params.1, params.2, params.3, s)        
     ]

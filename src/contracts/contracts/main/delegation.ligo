@@ -162,22 +162,16 @@ function checkNoAmount(const _p : unit) : unit is
 // admin helper functions end -----------------------------------------------------------------------------------
 
 (* View function that forwards the satellite voting power to the Governance or other contract *)
-[@view] function getSatelliteVotingPower(const satelliteAddress : address; var s : storage) : (nat * nat) is
-  case s.satelliteLedger[satelliteAddress] of [
-      None -> failwith("Satellite not found")
-    | Some(instance) -> (instance.stakedMvkBalance, instance.totalDelegatedAmount)
-  ];
-
 [@view] function getSatelliteOpt(const satelliteAddress: address; var s : storage) : option(satelliteRecordType) is
   s.satelliteLedger[satelliteAddress]
 
-[@view] function getActiveSatellites(const _: unit; var s : storage) : set(address) is
+[@view] function getActiveSatellites(const _: unit; var s : storage) : map(address, satelliteRecordType) is
   block {
-    var activeSatellites: set(address) := Set.empty; 
-    function findActiveSatellite(const activeSatellites: set(address); const satellite: address * satelliteRecordType): set(address) is
-      if satellite.1.status = 1n then Set.add(satellite.0, activeSatellites)
+    var activeSatellites: map(address, satelliteRecordType) := Map.empty; 
+    function findActiveSatellite(const activeSatellites: map(address, satelliteRecordType); const satellite: address * satelliteRecordType): map(address, satelliteRecordType) is
+      if satellite.1.status = 1n then Map.add(satellite.0, satellite.1, activeSatellites)
       else activeSatellites;
-    var activeSatellites: set(address) := Map.fold(findActiveSatellite, s.satelliteLedger, activeSatellites)
+    var activeSatellites: map(address, satelliteRecordType) := Map.fold(findActiveSatellite, s.satelliteLedger, activeSatellites)
   } with(activeSatellites)
 
 // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
