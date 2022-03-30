@@ -18,7 +18,6 @@ const config = {
 
 export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
   admin: bob.pkh,
-  mvkTokenAddress: "",
   config: config,
   mvkTokenAddress : zeroAddress,
 
