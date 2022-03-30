@@ -38,6 +38,15 @@ const tokenPair = {
 export const farmStorage: farmStorageType = {
   admin: bob.pkh,
   mvkTokenAddress: "",
+
+  config: {
+    lpToken: lpToken,
+    tokenPair: tokenPair,
+    infinite: false,
+    forceRewardFromTransfer: false,
+    blocksPerMinute: new BigNumber(2),
+    plannedRewards: plannedRewards,
+  },
   
   generalContracts: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
@@ -51,14 +60,8 @@ export const farmStorage: farmStorageType = {
   lastBlockUpdate: new BigNumber(0),
   accumulatedMVKPerShare: new BigNumber(0),
   claimedRewards: claimedRewards,
-  plannedRewards: plannedRewards,
   delegators: MichelsonMap.fromLiteral({}),
-  lpToken: lpToken,
-  tokenPair: tokenPair,
   open: false,
   init: false,
-  infinite: false,
-  forceRewardFromTransfer: false,
-  initBlock: new BigNumber(0),
-  blocksPerMinute: new BigNumber(2)
+  initBlock: new BigNumber(0)
 };

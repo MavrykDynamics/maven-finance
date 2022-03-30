@@ -50,9 +50,20 @@ type breakGlassConfigType is [@layout:comb] record [
     claimIsPaused           : bool;
 ]
 
+type configType is record [
+    lpToken                     : lpToken;
+    tokenPair                   : tokenPairType;
+    infinite                    : bool;
+    forceRewardFromTransfer     : bool;
+    blocksPerMinute             : nat;
+    plannedRewards              : plannedRewards;
+]
+
 type storage is record[
     admin                   : address;
     mvkTokenAddress         : address;
+
+    config                  : configType;
 
     whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts        : generalContractsType;
@@ -62,16 +73,10 @@ type storage is record[
     lastBlockUpdate         : nat;
     accumulatedMVKPerShare  : tokenBalance;
     claimedRewards          : claimedRewards;
-    plannedRewards          : plannedRewards;
     delegators              : big_map(delegator, delegatorRecord);
-    lpToken                 : lpToken;
-    tokenPair               : tokenPairType;
     open                    : bool;
     init                    : bool;
-    infinite                : bool;
-    forceRewardFromTransfer : bool; // If True, the claimed rewards will be transfered from the farmTreasury account
     initBlock               : nat;
-    blocksPerMinute         : nat; // Needs to match the current Tezos block per minute
 ]
 
 ////
@@ -110,17 +115,27 @@ type initFarmParamsType is [@layout:comb] record[
 (* doorman's farmClaim entrypoint inputs *)
 type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
+(* updateConfig entrypoint inputs *)
+type updateConfigNewValueType is nat
+type updateConfigActionType is 
+  ConfigForceRewardFromTransfer of unit
+| ConfigRewardPerBlock of unit
+type updateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: updateConfigNewValueType; 
+  updateConfigAction: updateConfigActionType;
+]
+
 ////
 // ENTRYPOINTS
 ////
 type entryAction is
     SetAdmin of (address)
+|   UpdateConfig of updateConfigParamsType
+
 |   UpdateWhitelistContracts of updateWhitelistContractsParams
 |   UpdateGeneralContracts of updateGeneralContractsParams
 
 |   UpdateBlocksPerMinute of (nat)
-|   IncreaseRewardPerBlock of (nat)
-|   ToggleForceRewardFromTransfer of (bool)
 |   CloseFarm of (unit)
 
 |   PauseAll of (unit)
@@ -270,7 +285,7 @@ function transferReward(const delegator: delegator; const tokenAmount: tokenBala
         |   None -> (failwith("FarmClaim entrypoint not found in Doorman contract"): contract(farmClaimType))
         ];
 
-        const farmClaimParams: farmClaimType = (delegator, tokenAmount, s.forceRewardFromTransfer);
+        const farmClaimParams: farmClaimType = (delegator, tokenAmount, s.config.forceRewardFromTransfer);
     } with (Tezos.transaction(farmClaimParams, 0tez, doormanContract))
 
 ////
@@ -279,8 +294,8 @@ function transferReward(const delegator: delegator; const tokenAmount: tokenBala
 function updateBlock(var s: storage): storage is
     block{
         // Close farm is totalBlocks duration has been exceeded
-        const lastBlock: nat = s.plannedRewards.totalBlocks + s.initBlock;
-        s.open := Tezos.level <= lastBlock or s.infinite;
+        const lastBlock: nat = s.config.plannedRewards.totalBlocks + s.initBlock;
+        s.open := Tezos.level <= lastBlock or s.config.infinite;
 
         // Update lastBlockUpdate in storage
         s.lastBlockUpdate := Tezos.level;
@@ -291,7 +306,7 @@ function updateFarmParameters(var s: storage): storage is
     block{
         // Compute the potential reward of this block
         const multiplier: nat = abs(Tezos.level - s.lastBlockUpdate);
-        const suspectedReward: tokenBalance = multiplier * s.plannedRewards.currentRewardPerBlock;
+        const suspectedReward: tokenBalance = multiplier * s.config.plannedRewards.currentRewardPerBlock;
 
         // This check is necessary in case the farm unpaid reward was not updated for a long time
         // and the outstandingReward grew to such a big number that it exceeds the planned rewards.
@@ -299,21 +314,21 @@ function updateFarmParameters(var s: storage): storage is
         // the account.
         const totalClaimedRewards: tokenBalance = s.claimedRewards.paid + s.claimedRewards.unpaid;
         const totalFarmRewards: tokenBalance = suspectedReward + totalClaimedRewards;
-        const totalPlannedRewards: tokenBalance = s.plannedRewards.totalRewards;
-        const reward: tokenBalance = case totalFarmRewards > totalPlannedRewards and not s.infinite of [
+        const totalPlannedRewards: tokenBalance = s.config.plannedRewards.totalRewards;
+        const reward: tokenBalance = case totalFarmRewards > totalPlannedRewards and not s.config.infinite of [
             True -> abs(totalPlannedRewards - totalClaimedRewards)
         |   False -> suspectedReward
         ];
             
         // Updates the storage
         s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
-        s.accumulatedMVKPerShare := s.accumulatedMVKPerShare + ((reward * fixedPointAccuracy) / s.lpToken.tokenBalance);
+        s.accumulatedMVKPerShare := s.accumulatedMVKPerShare + ((reward * fixedPointAccuracy) / s.config.lpToken.tokenBalance);
         s := updateBlock(s);
     } with(s)
 
 function updateFarm(var s: storage): storage is
     block{
-        s := case s.lpToken.tokenBalance = 0n of [
+        s := case s.config.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
         |   False -> case s.lastBlockUpdate = Tezos.level or not s.open of [
                 True -> s
@@ -431,30 +446,42 @@ block {
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
-(*  IncreaseRewards entrypoint *)
-function increaseRewardPerBlock(const newRewardPerBlock: nat; var s: storage) : return is
+(*  update contract config *)
+function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
 block {
-    // check that source is admin
-    checkSenderIsAllowed(s);
+  checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
-    // check if farm has been initiated
-    checkFarmIsInit(s);
+  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
-    // update storage
-    s := updateFarm(s);
+  case updateConfigAction of [
+    ConfigForceRewardFromTransfer (_v)  -> block {
+        if updateConfigNewValue =/= 1n and updateConfigNewValue =/= 0n then failwith("Configuration value error") else skip;
+        s.config.forceRewardFromTransfer    := updateConfigNewValue = 1n;
+    }
+  | ConfigRewardPerBlock (_v)          -> block {
+        // check if farm has been initiated
+        checkFarmIsInit(s);
 
-    // Check new reward per block
-    const currentRewardPerBlock: nat = s.plannedRewards.currentRewardPerBlock;
-    if currentRewardPerBlock > newRewardPerBlock then failwith("The new reward per block must be higher than the previous one.") else skip;
+        checkFarmIsInit(s);
 
-    // Calculate new total rewards
-    const totalClaimedRewards: nat = s.claimedRewards.unpaid+s.claimedRewards.paid;
-    const remainingBlocks: nat = abs((s.initBlock + s.plannedRewards.totalBlocks) - s.lastBlockUpdate);
-    const newTotalRewards: nat = totalClaimedRewards + remainingBlocks * newRewardPerBlock;
+        // update storage
+        s := updateFarm(s);
 
-    // Update storage
-    s.plannedRewards.currentRewardPerBlock := newRewardPerBlock;
-    s.plannedRewards.totalRewards := newTotalRewards;
+        // Check new reward per block
+        const currentRewardPerBlock: nat = s.config.plannedRewards.currentRewardPerBlock;
+        if currentRewardPerBlock > updateConfigNewValue then failwith("The new reward per block must be higher than the previous one.") else skip;
+
+        // Calculate new total rewards
+        const totalClaimedRewards: nat = s.claimedRewards.unpaid+s.claimedRewards.paid;
+        const remainingBlocks: nat = abs((s.initBlock + s.config.plannedRewards.totalBlocks) - s.lastBlockUpdate);
+        const newTotalRewards: nat = totalClaimedRewards + remainingBlocks * updateConfigNewValue;
+
+        // Update storage
+        s.config.plannedRewards.currentRewardPerBlock := updateConfigNewValue;
+        s.config.plannedRewards.totalRewards := newTotalRewards;
+  }
+  ];
 
 } with (noOperations, s)
 
@@ -474,39 +501,28 @@ block {
     if blocksPerMinute > 0n then skip else failwith("The new block per minute should be greater than zero");
 
     var newcurrentRewardPerBlock: nat := 0n;
-    if s.infinite then {
-        newcurrentRewardPerBlock := s.blocksPerMinute * s.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / blocksPerMinute;
+    if s.config.infinite then {
+        newcurrentRewardPerBlock := s.config.blocksPerMinute * s.config.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / blocksPerMinute;
     }
     else {
         // Unclaimed rewards
-        const totalUnclaimedRewards: nat = abs(s.plannedRewards.totalRewards - (s.claimedRewards.unpaid+s.claimedRewards.paid));
+        const totalUnclaimedRewards: nat = abs(s.config.plannedRewards.totalRewards - (s.claimedRewards.unpaid+s.claimedRewards.paid));
 
         // Updates rewards and total blocks accordingly
-        const blocksPerMinuteRatio: nat = s.blocksPerMinute * fixedPointAccuracy / blocksPerMinute;
-        const newTotalBlocks: nat = (s.plannedRewards.totalBlocks * fixedPointAccuracy) / blocksPerMinuteRatio;
+        const blocksPerMinuteRatio: nat = s.config.blocksPerMinute * fixedPointAccuracy / blocksPerMinute;
+        const newTotalBlocks: nat = (s.config.plannedRewards.totalBlocks * fixedPointAccuracy) / blocksPerMinuteRatio;
         const remainingBlocks: nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
         newcurrentRewardPerBlock := (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
         
         // Update storage
-        s.plannedRewards.totalBlocks := newTotalBlocks;
+        s.config.plannedRewards.totalBlocks := newTotalBlocks;
     };
 
     // Update storage
-    s.blocksPerMinute := blocksPerMinute;
-    s.plannedRewards.currentRewardPerBlock := (newcurrentRewardPerBlock/fixedPointAccuracy);
+    s.config.blocksPerMinute := blocksPerMinute;
+    s.config.plannedRewards.currentRewardPerBlock := (newcurrentRewardPerBlock/fixedPointAccuracy);
 
 } with (noOperations, s)
-
-(* ToggleForceRewardFromTransfer Entrypoint *)
-function toggleForceRewardFromTransfer(var s: storage): return is
-    block {
-        // check that source is admin
-        checkSenderIsAllowed(s);
-
-        if s.forceRewardFromTransfer then s.forceRewardFromTransfer := False
-        else s.forceRewardFromTransfer := True;
-
-    } with (noOperations, s)
 
 (* Claim Entrypoint *)
 function claim(var s: storage): return is
@@ -589,11 +605,11 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
         delegatorRecord.balance := delegatorRecord.balance + tokenAmount;
 
         // Update delegators Big_map and farmTokenBalance
-        s.lpToken.tokenBalance := s.lpToken.tokenBalance + tokenAmount;
+        s.config.lpToken.tokenBalance := s.config.lpToken.tokenBalance + tokenAmount;
         s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
 
         // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
-        const operation: operation = transferLP(delegator, Tezos.self_address, tokenAmount, s.lpToken.tokenId, s.lpToken.tokenStandard, s.lpToken.tokenAddress);
+        const operation: operation = transferLP(delegator, Tezos.self_address, tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
     } with(list[operation], s)
 
 (* Withdraw Entrypoint *)
@@ -624,17 +640,17 @@ function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
         s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
 
         // Check if the farm has enough token
-        if tokenAmount > s.lpToken.tokenBalance then failwith("The amount withdrawn is higher than the farm lp balance") else skip;
-        s.lpToken.tokenBalance := abs(s.lpToken.tokenBalance - tokenAmount);
+        if tokenAmount > s.config.lpToken.tokenBalance then failwith("The amount withdrawn is higher than the farm lp balance") else skip;
+        s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - tokenAmount);
         
         // Transfer LP tokens to the user from the farm balance in the LP Contract
         const operation: operation = transferLP(
             Tezos.self_address,
             delegator,
             tokenAmount,
-            s.lpToken.tokenId, 
-            s.lpToken.tokenStandard,
-            s.lpToken.tokenAddress
+            s.config.lpToken.tokenId, 
+            s.config.lpToken.tokenStandard,
+            s.config.lpToken.tokenAddress
         );
     } with(list[operation], s)
 
@@ -671,12 +687,12 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: storage): re
         // Update storage
         s := updateFarm(s);
         s.initBlock := Tezos.level;
-        s.infinite := initFarmParams.infinite;
-        s.forceRewardFromTransfer := initFarmParams.forceRewardFromTransfer;
-        s.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
-        s.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
-        s.plannedRewards.totalRewards := s.plannedRewards.currentRewardPerBlock * s.plannedRewards.totalBlocks;
-        s.blocksPerMinute := initFarmParams.blocksPerMinute;
+        s.config.infinite := initFarmParams.infinite;
+        s.config.forceRewardFromTransfer := initFarmParams.forceRewardFromTransfer;
+        s.config.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
+        s.config.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
+        s.config.plannedRewards.totalRewards := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
+        s.config.blocksPerMinute := initFarmParams.blocksPerMinute;
         s.open := True ;
         s.init := True ;
     } with (noOperations, s)
@@ -689,12 +705,11 @@ function main (const action: entryAction; var s: storage): return is
   } with(
     case action of [
         SetAdmin (parameters) -> setAdmin(parameters, s)
+    |   UpdateConfig (parameters) -> updateConfig(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
 
     |   UpdateBlocksPerMinute (parameters) -> updateBlocksPerMinute(parameters, s)
-    |   IncreaseRewardPerBlock (parameters) -> increaseRewardPerBlock(parameters, s)
-    |   ToggleForceRewardFromTransfer (_parameters) -> toggleForceRewardFromTransfer(s)
     |   CloseFarm (_parameters) -> closeFarm(s)
 
     |   PauseAll (_parameters) -> pauseAll(s)
