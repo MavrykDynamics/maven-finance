@@ -350,9 +350,6 @@ type governanceAction is
     | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
     
-    // Governance Helpers
-    | SetSnapshotStakedMvkTotalSupply of (nat)  
-    
     | StartNextRound of (unit)
     // | StartProposalRound of (unit)
     | Propose of newProposalType
@@ -667,17 +664,6 @@ block {
 
 } with (noOperations, s)
 
-// set temp staked MVK total supply
-function setSnapshotStakedMvkTotalSupply(const totalSupply : nat; var s : storage) is
-block {
-    
-    checkNoAmount(Unit);                    // should not receive any tez amount
-    checkSenderIsDoormanContract(s);        // check this call is coming from the Doorman contract
-
-    s.snapshotStakedMvkTotalSupply := totalSupply;
-
-} with (noOperations, s)
-
 // housekeeping functions end: --
 
 function breakGlass(var s : storage) : return is 
@@ -846,9 +832,9 @@ function setupProposalRound(var s: storage): storage is
     var emptyVotesMap     : map(address, nat) := map [];
 
     s.currentRound                         := (Proposal : roundType);
-    s.currentBlocksPerProposalRound        := s.config.blocksPerProposalRound
-    s.currentBlocksPerVotingRound          := s.config.blocksPerVotingRound
-    s.currentBlocksPerTimelockRound        := s.config.blocksPerTimelockRound
+    s.currentBlocksPerProposalRound        := s.config.blocksPerProposalRound;
+    s.currentBlocksPerVotingRound          := s.config.blocksPerVotingRound;
+    s.currentBlocksPerTimelockRound        := s.config.blocksPerTimelockRound;
     s.currentRoundStartLevel               := Tezos.level;
     s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
     s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
@@ -958,7 +944,7 @@ block {
       else
         // Start proposal
         s := setupProposalRound(s)
-    | None -> failwith("Error. Highest voted proposal not found.")
+    | None -> s := setupProposalRound(s) //failwith("Error. Highest voted proposal not found.")
     ]
   | Voting -> case currentRoundHighestVotedProposal of [
       Some (proposal) -> block{
@@ -2061,10 +2047,7 @@ function main (const action : governanceAction; const s : storage) : return is
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
-        
-        // Governance Helpers
-        | SetSnapshotStakedMvkTotalSupply(parameters) -> setSnapshotStakedMvkTotalSupply(parameters, s)
-  
+
         | StartNextRound(_parameters) -> startNextRound(s)
         // | StartProposalRound(_parameters) -> startProposalRound(s)
         | Propose(parameters) -> propose(parameters, s)
