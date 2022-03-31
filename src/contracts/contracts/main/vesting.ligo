@@ -11,12 +11,6 @@ type blockLevel is nat;
 type configType is record [
     defaultCliffPeriod           : nat;   // 6 months in block levels -> 2880 * 30 * 6 = 518,400
     defaultCooldownPeriod        : nat;   // 1 month in block level -> 2880 * 30 = 86400
-    
-    newBlockTimeLevel            : nat;  // block level where new blocksPerMinute takes effect -> if none, use blocksPerMinute (old); if exists, check block levels, then use newBlocksPerMinute if current block level exceeds block level, if not use old blocksPerMinute
-    newBlocksPerMinute           : nat;  // new blocks per minute 
-    
-    blocksPerMinute              : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
-    blocksPerMonth               : nat;  // for convenience: blocks per month - to help with calculation for cliff/cooldown periods
 ]
 
 type claimRecordType is record [
@@ -34,16 +28,13 @@ type vesteeRecordType is record [
     totalAllocatedAmount     : nat;             // total amount allocated to vestee
     claimAmountPerMonth      : nat;             // amount to be claimed each month: claimAmountPerMonth = (totalAllocatedAmount / vestingMonths)
 
-    startBlock               : blockLevel;      // date/time of start in block levels
     startTimestamp           : timestamp;       // date/time start of when 
 
     vestingMonths            : nat;             // number of months of vesting for total allocaed amount
     cliffMonths              : nat;             // number of months for cliff before vestee can claim
 
-    endCliffBlock            : blockLevel;      // calculated end of cliff duration in block levels based on dateTimeStart
     endCliffDateTime         : timestamp;       // calculated end of cliff duration in timestamp based on dateTimeStart
     
-    endVestingBlock          : blockLevel;      // calculated end of vesting duration in block levels based on dateTimeStart
     endVestingDateTime       : timestamp;       // calculated end of vesting duration in timestamp based on dateTimeStart
 
     status                   : string;          // status of vestee: "ACTIVE", "LOCKED"
@@ -56,10 +47,8 @@ type vesteeRecordType is record [
     monthsClaimed            : nat;             // claimed number of months   
     monthsRemaining          : nat;             // remaining number of months   
     
-    nextRedemptionBlock      : blockLevel;      // block level where vestee will be able to claim again - calculated at start: nextRedemptionBlock = (block level of time start * cliff months * blocks per month)
     nextRedemptionTimestamp  : timestamp;       // timestamp of when vestee will be able to claim again
 
-    lastClaimedBlock         : blockLevel;      // block level where vestee last claimed
     lastClaimedTimestamp     : timestamp;       // timestamp of when vestee last claimed
 ] 
 type vesteeLedgerType is big_map(address, vesteeRecordType) // address, vestee record
@@ -93,10 +82,6 @@ type updateConfigNewValueType is nat
 type updateConfigActionType is 
   ConfigDefaultCliffPeriod of unit
 | ConfigDefaultCooldownPeriod of unit
-| ConfigNewBlockTimeLevel of unit
-| ConfigNewBlocksPerMinute of unit
-| ConfigBlocksPerMinute of unit
-| ConfigBlocksPerMonth of unit
 type updateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: updateConfigNewValueType; 
   updateConfigAction: updateConfigActionType;
@@ -116,8 +101,9 @@ type vestingAction is
     | ToggleVesteeLock of (address)
     | UpdateVestee of (updateVesteeType)
 
-const noOperations : list (operation) = nil;
-const nullTimestamp : timestamp = ("2000-01-01T00:00:00Z" : timestamp);
+const noOperations   : list (operation) = nil;
+const one_day        : int              = 86_400;
+const thirty_days    : int              = one_day * 30;
 type return is list (operation) * storage
 
 (* ---- Helper functions begin ---- *)
@@ -199,10 +185,6 @@ block {
   case updateConfigAction of [
     ConfigDefaultCliffPeriod (_v)        -> s.config.defaultCliffPeriod         := updateConfigNewValue
   | ConfigDefaultCooldownPeriod (_v)     -> s.config.defaultCooldownPeriod      := updateConfigNewValue
-  | ConfigNewBlockTimeLevel (_v)         -> s.config.newBlockTimeLevel          := updateConfigNewValue
-  | ConfigNewBlocksPerMinute (_v)        -> s.config.newBlocksPerMinute         := updateConfigNewValue
-  | ConfigBlocksPerMinute (_v)           -> s.config.blocksPerMinute            := updateConfigNewValue
-  | ConfigBlocksPerMonth (_v)            -> s.config.blocksPerMonth             := updateConfigNewValue
   ];
 
 } with (noOperations, s)
@@ -230,28 +212,14 @@ block {
     if _vestee.status = "LOCKED" then failwith("Error. Vestee is locked.")
       else skip;
 
-    const blockLevelCheck  : bool = Tezos.level > _vestee.nextRedemptionBlock;
     const timestampCheck   : bool = Tezos.now > _vestee.nextRedemptionTimestamp;
-
-    const claimCheck : bool = timestampCheck and blockLevelCheck = True;
     
     var _operations : list(operation) := nil;
 
-    if claimCheck then block {
+    if timestampCheck then block {
 
         // calculate claim amount based on last redemption - calculate how many months has passed since last redemption if any
-        var numberOfClaimMonths : nat := 0n;
-        
-        // at least one month needs to pass before the first claim (e.g. for edge case vestee with 0 cliff months and 1 vesting months)
-        if _vestee.lastClaimedBlock = 0n then block {
-            const blockLevelsSinceStart   = abs(Tezos.level - _vestee.startBlock);
-            numberOfClaimMonths           := blockLevelsSinceStart / s.config.blocksPerMonth;
-        } else skip;
-        
-        if _vestee.lastClaimedBlock > 0n then block {
-            const blockLevelsSinceLastClaim  = abs(Tezos.level - _vestee.lastClaimedBlock);
-            numberOfClaimMonths              := blockLevelsSinceLastClaim / s.config.blocksPerMonth;
-        } else skip;
+        var numberOfClaimMonths : nat := abs(abs(Tezos.now - _vestee.lastClaimedTimestamp) / thirty_days);
     
         // temp: for testing that mint inter-contract call works 
         // const numberOfClaimMonths : nat = 1n;
@@ -268,9 +236,6 @@ block {
         ); 
 
         _operations := mintSMvkTokensOperation # _operations;
-        
-        const one_day        : int   = 86_400;
-        const thirty_days    : int   = one_day * 30;
 
         var monthsRemaining  : nat   := 0n;
         if _vestee.monthsRemaining < numberOfClaimMonths then monthsRemaining := 0n
@@ -282,10 +247,7 @@ block {
         _vestee.monthsClaimed            := monthsClaimed;
 
         // use vestee start period to calculate next redemption period
-        _vestee.nextRedemptionBlock      := _vestee.startBlock + (monthsClaimed * s.config.blocksPerMonth) + s.config.blocksPerMonth; 
         _vestee.nextRedemptionTimestamp  := _vestee.startTimestamp + (monthsClaimed * thirty_days) + thirty_days;
-
-        _vestee.lastClaimedBlock         := Tezos.level;  // current block level 
         _vestee.lastClaimedTimestamp     := Tezos.now;    // current timestamp
 
         _vestee.totalClaimed             := _vestee.totalClaimed + totalClaimAmount;  
@@ -333,9 +295,6 @@ block {
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
 
-    const one_day        : int   = 86_400;
-    const thirty_days    : int   = one_day * 30;
-
     // check for div by 0 error
     if vestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
         else skip;
@@ -349,16 +308,13 @@ block {
             totalAllocatedAmount = totalAllocatedAmount;                      // totalAllocatedAmount should be in (10^9)
             claimAmountPerMonth  = totalAllocatedAmount / vestingInMonths;    // totalAllocatedAmount should be in (10^9)
             
-            startBlock           = Tezos.level;                 // date/time of start in block levels
             startTimestamp       = Tezos.now;                   // date/time start of when 
 
             vestingMonths        = vestingInMonths;             // number of months of vesting for total allocaed amount
             cliffMonths          = cliffInMonths;               // number of months for cliff before vestee can claim
 
-            endCliffBlock        = Tezos.level + (cliffInMonths * s.config.blocksPerMonth);    // calculated end of cliff duration in block levels based on dateTimeStart
             endCliffDateTime     = Tezos.now + (cliffInMonths * thirty_days);                  // calculated end of cliff duration in timestamp based on dateTimeStart
             
-            endVestingBlock      = Tezos.level + (vestingInMonths * s.config.blocksPerMonth);  // calculated end of vesting duration in timestamp based on dateTimeStart
             endVestingDateTime   = Tezos.now + (vestingInMonths * thirty_days);                // calculated end of vesting duration in timestamp based on dateTimeStart
 
             // updateable variables on claim ----------
@@ -371,10 +327,8 @@ block {
             monthsClaimed            = 0n;                               // claimed number of months   
             monthsRemaining          = vestingInMonths;                  // remaining number of months   
             
-            nextRedemptionBlock      = Tezos.level + (cliffInMonths * s.config.blocksPerMonth);    //  block level where vestee will be able to claim again (same as end of cliff block)
             nextRedemptionTimestamp  = Tezos.now + (cliffInMonths * thirty_days);                  // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
-            lastClaimedBlock         = 0n;                                                         // block level where vestee last claimed
-            lastClaimedTimestamp     = nullTimestamp;                                              // timestamp of when vestee last claimed
+            lastClaimedTimestamp     = Tezos.now;                                              // timestamp of when vestee last claimed
         ]
     ];    
 
@@ -459,10 +413,7 @@ block {
     var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
         | Some(_record) -> _record
         | None -> failwith("Error. Vestee is not found.")
-    ];    
-
-    const one_day        : int   = 86_400;
-    const thirty_days    : int   = one_day * 30;
+    ];
     
     vestee.totalAllocatedAmount  := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
 
@@ -477,10 +428,8 @@ block {
     vestee.vestingMonths        := newVestingInMonths;
     vestee.monthsRemaining      := newMonthsRemaining;
 
-    vestee.endCliffBlock        := vestee.startBlock + (newCliffInMonths * s.config.blocksPerMonth);        // calculated end of new cliff duration in block levels based on dateTimeStart
     vestee.endCliffDateTime     := vestee.startTimestamp + (newCliffInMonths * thirty_days);                // calculated end of new cliff duration in timestamp based on dateTimeStart
             
-    vestee.endVestingBlock      := vestee.startBlock + (newVestingInMonths * s.config.blocksPerMonth);      // calculated end of new vesting duration in timestamp based on dateTimeStart
     vestee.endVestingDateTime   := vestee.startTimestamp + (newVestingInMonths * thirty_days);              // calculated end of new vesting duration in timestamp based on dateTimeStart
 
     // todo bugfix: check that new cliff in months is different from old cliff in months
@@ -488,11 +437,9 @@ block {
     // calculate next redemption block based on new cliff months and whether vestee has made a claim 
     if newCliffInMonths <= vestee.monthsClaimed then block {
         // no changes to vestee next redemption period
-        vestee.nextRedemptionBlock      := vestee.startBlock + (vestee.monthsClaimed * s.config.blocksPerMonth) + s.config.blocksPerMonth;    //  block level where vestee will be able to claim again (same as end of cliff block)
         vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (vestee.monthsClaimed * thirty_days) + thirty_days;            // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
     } else block {
         // cliff has been adjusted upwards, requiring vestee to wait for cliff period to end again before he can start to claim
-        vestee.nextRedemptionBlock      := vestee.startBlock + (newCliffInMonths * s.config.blocksPerMonth);    //  block level where vestee will be able to claim again (same as end of cliff block)
         vestee.nextRedemptionTimestamp  := vestee.startTimestamp + (newCliffInMonths * thirty_days);            // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
     };
 
