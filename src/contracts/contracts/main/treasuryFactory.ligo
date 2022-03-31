@@ -19,10 +19,7 @@
 ////
 // MICHELSON Treasury TYPES
 ////
-type treasuryConfigType is [@layout:comb] record[
-    minXtzAmount      : nat;
-    maxXtzAmount      : nat;
-]
+
 type treasuryBreakGlassConfigType is [@layout:comb] record [
     transferIsPaused            : bool; 
     mintMvkAndTransferIsPaused  : bool;
@@ -32,7 +29,6 @@ type treasuryStorageType is [@layout:comb] record[
     admin                        : address;
     mvkTokenAddress              : address;
 
-    config                       : treasuryConfigType;
     breakGlassConfig             : treasuryBreakGlassConfigType;
     
     whitelistContracts           : whitelistContractsType;      
@@ -42,8 +38,6 @@ type treasuryStorageType is [@layout:comb] record[
 
 
 type createTreasuryActionType is [@layout:comb] record[
-    minXtzAmount                : nat;
-    maxXtzAmount                : nat;
     transferIsPaused            : bool; 
     mintMvkAndTransferIsPaused  : bool;
 ]
@@ -258,8 +252,6 @@ function createTreasury(const createTreasuryParams: createTreasuryActionType; va
         // Break glass check
         checkCreateTreasuryIsNotPaused(s);
 
-        const minXtzAmount                : nat   = createTreasuryParams.minXtzAmount;
-        const maxXtzAmount                : nat   = createTreasuryParams.maxXtzAmount;
         const transferIsPaused            : bool  = createTreasuryParams.transferIsPaused;
         const mintMvkAndTransferIsPaused  : bool  = createTreasuryParams.mintMvkAndTransferIsPaused;
 
@@ -272,11 +264,6 @@ function createTreasury(const createTreasuryParams: createTreasuryActionType; va
         const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
 
         const treasuryGeneralContracts : generalContractsType = map[];
-        
-        const treasuryConfig: treasuryConfigType = record[
-            minXtzAmount      = minXtzAmount;
-            maxXtzAmount      = maxXtzAmount;
-        ];
 
         const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
             transferIsPaused           = transferIsPaused;
@@ -287,7 +274,6 @@ function createTreasury(const createTreasuryParams: createTreasuryActionType; va
             admin                   = s.admin;                    // admin will be the governance contract
             mvkTokenAddress         = s.mvkTokenAddress;
 
-            config                  = treasuryConfig;
             breakGlassConfig        = treasuryBreakGlassConfig;
 
             whitelistContracts        = treasuryWhitelistContracts;      // whitelist of contracts that can access restricted entrypoints
