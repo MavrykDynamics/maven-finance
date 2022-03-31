@@ -7,11 +7,12 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
-type tokenBalance is nat
+type tokenAmountType   is nat
+
 type transferDestination is [@layout:comb] record[
-  to_: address;
-  token_id: nat;
-  amount: tokenBalance;
+  to_       : address;
+  token_id  : nat;
+  amount    : tokenAmountType;
 ]
 type transfer is [@layout:comb] record[
   from_: address;
@@ -29,16 +30,6 @@ type breakGlassConfigType is [@layout:comb] record [
     mintMvkAndTransferIsPaused  : bool;
 ]
 
-type storage is [@layout:comb] record [
-    admin                      : address;
-    mvkTokenAddress            : address;
-
-    breakGlassConfig           : breakGlassConfigType;
-
-    whitelistContracts         : whitelistContractsType;
-    whitelistTokenContracts    : whitelistTokenContractsType;
-    generalContracts           : generalContractsType;
-]
 
 type tezType             is unit
 type fa12TokenType       is address
@@ -55,18 +46,44 @@ type tokenType       is
 type transferTokenType is [@layout:comb] record [
     from_           : address;
     to_             : address;
-    amt             : nat;
+    amt             : tokenAmountType;
     token           : tokenType;
 ]
 
+type transferDestinationType is [@layout:comb] record[
+  to_       : address;
+  token     : tokenType;
+  amount    : tokenAmountType;
+]
+// type transferActionType is [@layout:comb] record[
+//   txs       : list(transferDestinationType);
+// ]
+
+// type transferActionRecordType is [@layout:comb] record[
+//   txs       : list(transferDestinationType);
+// ]
+type transferActionType is list(transferDestinationType);
+
 type mintTokenType is (address * nat)
-type mintMvkAndTransferType is [@layout:comb] record [
+type mintMvkAndTransferActionType is [@layout:comb] record [
     to_             : address;
     amt             : nat;
 ]
 
 
 type updateSatelliteBalanceParams is (address * nat * nat)
+
+
+type storage is [@layout:comb] record [
+    admin                      : address;
+    mvkTokenAddress            : address;
+
+    breakGlassConfig           : breakGlassConfigType;
+
+    whitelistContracts         : whitelistContractsType;
+    whitelistTokenContracts    : whitelistTokenContractsType;
+    generalContracts           : generalContractsType;
+]
 
 
 
@@ -86,8 +103,8 @@ type treasuryAction is
     | TogglePauseMintMvkAndTransfer  of (unit)
 
     // Main Entrypoints
-    | Transfer                       of transferTokenType
-    | MintMvkAndTransfer             of mintMvkAndTransferType
+    | Transfer                       of transferActionType
+    | MintMvkAndTransfer             of mintMvkAndTransferActionType
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
@@ -161,7 +178,7 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
 ///
 function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
 
-function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenContractAddress: address): operation is
+function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenContractAddress: address): operation is
     block{
         const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
 
@@ -172,7 +189,7 @@ function transferFa12Token(const from_: address; const to_: address; const token
             end;
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenBalance; const tokenId: nat; const tokenContractAddress: address): operation is
+function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenId: nat; const tokenContractAddress: address): operation is
 block{
     const transferParams: fa2TransferType = list[
             record[
@@ -262,7 +279,7 @@ block {
 
 (* transfer entrypoint *)
 // type transferTokenType is record [from_ : address; to_ : address; amt : nat; token : tokenType]
-function transfer(const transferToken : transferTokenType ; var s : storage) : return is 
+function transfer(const transferTokenParams : transferActionType; var s : storage) : return is 
 block {
     
     // Steps Overview:
@@ -275,53 +292,64 @@ block {
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
 
-    var operations : list(operation) := nil;
-
-    const from_  : address    = transferToken.from_;
-    const to_    : address    = transferToken.to_;
-    const amt    : nat        = transferToken.amt;
-    const token  : tokenType  = transferToken.token;
-
-    const transferTokenOperation : operation = case token of 
-        | Tez         -> transferTez((get_contract(to_) : contract(unit)), amt)
-        | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
-        | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+    // const txs : list(transferDestinationType)   = transferTokenParams.txs;
+    const txs : list(transferDestinationType)   = transferTokenParams;
+    
+    const delegationAddress : address = case s.generalContracts["delegation"] of
+        Some(_address) -> _address
+        | None -> failwith("Error. Delegation Contract is not found.")
     end;
-
-    operations := transferTokenOperation # operations;
-
-    // update user's satellite balance if MVK is transferred
+    
     const mvkTokenAddress : address = s.mvkTokenAddress;
 
-    const checkIfMvkToken : bool = case token of
-         Tez -> False
-        | Fa12(_token) -> False
-        | Fa2(token) -> block {
-                var mvkBool : bool := False;
-                if token.tokenContractAddress = mvkTokenAddress then mvkBool := True else mvkBool := False;                
-            } with mvkBool        
-    end;
+    function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
+    block {
 
-    if checkIfMvkToken = True then block {
-        const delegationAddress : address = case s.generalContracts["delegation"] of
-            Some(_address) -> _address
-            | None -> failwith("Error. Delegation Contract is not found.")
+        const token        : tokenType        = destination.token;
+        const to_          : owner            = destination.to_;
+        const amt          : tokenAmountType  = destination.amount;
+        const from_        : address          = Tezos.self_address; // treasury
+        
+        const transferTokenOperation : operation = case token of 
+            | Tez         -> transferTez((get_contract(to_) : contract(unit)), amt)
+            | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
+            | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
         end;
 
-        const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-            (to_, amt, 1n),
-            0mutez,
-            updateSatelliteBalance(delegationAddress)
-        );
+        accumulator := transferTokenOperation # accumulator;
 
-        operations := updateSatelliteBalanceOperation # operations;
-    } else skip;    
+        // update user's satellite balance if MVK is transferred
+        const checkIfMvkToken : bool = case token of
+              Tez -> False
+            | Fa12(_token) -> False
+            | Fa2(token) -> block {
+                    var mvkBool : bool := False;
+                    if token.tokenContractAddress = mvkTokenAddress then mvkBool := True else mvkBool := False;                
+                } with mvkBool        
+        end;
+
+        if checkIfMvkToken = True then block {
+            
+            const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+                (to_, amt, 1n),
+                0mutez,
+                updateSatelliteBalance(delegationAddress)
+            );
+
+            accumulator := updateSatelliteBalanceOperation # accumulator;
+
+        } else skip;    
+
+    } with accumulator;
+
+    const emptyOperation : list(operation) = list[];
+    const operations : list(operation) = List.fold(transferAccumulator, txs, emptyOperation);
 
 } with (operations, s)
 
 (* mint and transfer entrypoint *)
 // type mintAndTransferType is record [to_ : address; amt : nat;]
-function mintMvkAndTransfer(const mintMvkAndTransfer : mintMvkAndTransferType ; var s : storage) : return is 
+function mintMvkAndTransfer(const mintMvkAndTransfer : mintMvkAndTransferActionType ; var s : storage) : return is 
 block {
     
     // Steps Overview:
