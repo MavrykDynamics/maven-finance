@@ -107,7 +107,6 @@ type financialRequestRecordType is [@layout:comb] record [
     requesterAddress        : address;
     requestType             : string;                // "MINT" or "TRANSFER"
     status                  : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
-    ready                   : bool;                  // false on creation; set to true once snapshot of staked MVK total supply has been taken
     executed                : bool;                  // false on creation; set to true when financial request is executed successfully
     
     treasuryAddress         : address;
@@ -196,8 +195,6 @@ type updateGovernanceConfigActionType is
 | ConfigMinimumStakeReqPercentage of unit
 | ConfigMaxProposalsPerDelegate of unit
 | ConfigNewBlockTimeLevel of unit
-| ConfigNewBlocksPerMinute of unit
-| ConfigBlocksPerMinute of unit
 | ConfigBlocksPerProposalRound of unit
 | ConfigBlocksPerVotingRound of unit
 | ConfigBlocksPerTimelockRound of unit
@@ -288,6 +285,9 @@ type storage is record [
     
     // current round state variables - will be flushed periodically
     currentRound                : roundType;          // proposal, voting, timelock
+    currentBlocksPerProposalRound      : nat;  // to determine duration of proposal round
+    currentBlocksPerVotingRound        : nat;  // to determine duration of voting round
+    currentBlocksPerTimelockRound      : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
     currentRoundStartLevel      : nat;                // current round starting block level
     currentRoundEndLevel        : nat;                // current round ending block level
     currentCycleEndLevel        : nat;                // current cycle (proposal + voting) ending block level 
@@ -499,8 +499,6 @@ block {
   | ConfigMinimumStakeReqPercentage (_v)              -> s.config.minimumStakeReqPercentage               := updateConfigNewValue
   | ConfigMaxProposalsPerDelegate (_v)                -> s.config.maxProposalsPerDelegate                 := updateConfigNewValue
   | ConfigNewBlockTimeLevel (_v)                      -> s.config.newBlockTimeLevel                       := updateConfigNewValue
-  | ConfigNewBlocksPerMinute (_v)                     -> s.config.newBlocksPerMinute                      := updateConfigNewValue
-  | ConfigBlocksPerMinute (_v)                        -> s.config.blocksPerMinute                         := updateConfigNewValue
   | ConfigBlocksPerProposalRound (_v)                 -> s.config.blocksPerProposalRound                  := updateConfigNewValue
   | ConfigBlocksPerVotingRound (_v)                   -> s.config.blocksPerVotingRound                    := updateConfigNewValue
   | ConfigBlocksPerTimelockRound (_v)                 -> s.config.blocksPerTimelockRound                  := updateConfigNewValue
@@ -848,6 +846,9 @@ function setupProposalRound(var s: storage): storage is
     var emptyVotesMap     : map(address, nat) := map [];
 
     s.currentRound                         := (Proposal : roundType);
+    s.currentBlocksPerProposalRound        := s.config.blocksPerProposalRound
+    s.currentBlocksPerVotingRound          := s.config.blocksPerVotingRound
+    s.currentBlocksPerTimelockRound        := s.config.blocksPerTimelockRound
     s.currentRoundStartLevel               := Tezos.level;
     s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
     s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
@@ -905,7 +906,7 @@ function setupVotingRound(const highestVotedProposalId: nat; var s: storage): st
     // boundaries fixed to the start and end of the cycle (calculated at start of proposal round)
     s.currentRound               := (Voting : roundType);
     s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
-    s.currentRoundEndLevel       := s.currentRoundEndLevel + s.config.blocksPerVotingRound;
+    s.currentRoundEndLevel       := s.currentRoundEndLevel + s.currentBlocksPerVotingRound;
 
     s.timelockProposalId         := 0n;                  // flush proposal id in timelock - reset to 0
 
@@ -1747,7 +1748,6 @@ block {
     requesterAddress     = Tezos.sender;
     requestType          = "TRANSFER";
     status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-    ready                = True;
     executed             = False;
 
     treasuryAddress      = requestTokensParams.treasuryAddress;
@@ -1836,7 +1836,6 @@ block {
         requesterAddress     = Tezos.sender;
         requestType          = "MINT";
         status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-        ready                = False;
         executed             = False;
 
         treasuryAddress      = requestMintParams.treasuryAddress;
@@ -1937,7 +1936,6 @@ block {
   ];
 
   if _financialRequest.status    = False then failwith("Error. Financial request has been dropped.")          else skip;
-  if _financialRequest.ready     = False then failwith("Error. Financial request is not ready yet.")          else skip;
   if _financialRequest.executed  = True  then failwith("Error. Financial request has already been executed.") else skip;
 
   if Tezos.now > _financialRequest.expiryDateTime then failwith("Error. Financial request has expired") else skip;
