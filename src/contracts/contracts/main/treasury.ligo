@@ -116,7 +116,7 @@ function checkSenderIsAdmin(var s : storage) : unit is
 
 function checkSenderIsAllowed(const s: storage): unit is
 block {
-    // First check because a farm without a facory should still be accessible
+    // First check because a treasury without a factory should still be accessible
     if Tezos.sender = s.admin 
     then skip
     else{
@@ -230,7 +230,7 @@ block {
 ///
 function pauseAll(var s: storage) : return is
 block {
-    // check that source is admin
+    // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
 
     // set all pause configs to True
@@ -244,7 +244,7 @@ block {
 
 function unpauseAll(var s : storage) : return is
 block {
-    // check that source is admin
+    // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
 
     // set all pause configs to False
@@ -258,7 +258,7 @@ block {
 
 function togglePauseTransfer(var s : storage) : return is
 block {
-    // check that source is admin
+    // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
 
     if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
@@ -268,7 +268,7 @@ block {
 
 function togglePauseMintMvkAndTransfer(var s : storage) : return is
 block {
-    // check that source is admin
+    // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
 
     if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
