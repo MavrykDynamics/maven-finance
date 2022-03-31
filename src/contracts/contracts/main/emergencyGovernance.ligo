@@ -180,10 +180,8 @@ block {
         | None -> failwith("Error. Treasury Contract is not found.")
     ];
 
-    const transferFeeToTreasuryOperation : operation = case (Tezos.get_contract_opt(treasuryAddress): option(contract(unit))) of [
-        Some (_contract) -> transferTez(_contract, mutezToNatural(Tezos.amount))
-    |   None -> failwith("Error. Contract not found at given address. Cannot transfer XTZ")
-    ];
+    const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address. Cannot transfer XTZ");
+    const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, mutezToNatural(Tezos.amount));
 
     // check if user has sufficient staked MVK to trigger emergency control
     const doormanAddress : address = case s.generalContracts["doorman"] of [
