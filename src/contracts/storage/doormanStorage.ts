@@ -7,9 +7,26 @@ import { MVK } from "../test/helpers/Utils";
 
 import { doormanStorageType } from "../test/types/doormanStorageType";
 
+const metadata = MichelsonMap.fromLiteral({
+  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+  data: Buffer.from(
+    JSON.stringify({
+      name: 'MAVRYK Doorman Contract',
+      version: 'v1.0.0',
+      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+      source: {
+        tools: ['Ligo', 'Flextesa'],
+        location: 'https://ligolang.org/',
+      },
+    }),
+    'ascii',
+  ).toString('hex'),
+})
+
 export const doormanStorage: doormanStorageType = {
   admin: bob.pkh,
   mvkTokenAddress: "",
+  metadata: metadata,
 
   minMvkAmount: new BigNumber(MVK(1)),
 

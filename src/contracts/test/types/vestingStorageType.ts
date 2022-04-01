@@ -4,6 +4,7 @@ import { BigNumber } from "bignumber.js";
 export type vestingStorageType = {
   admin  : string;
   mvkTokenAddress: string;
+  metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
   config : {};
 

@@ -1,3 +1,6 @@
+// MvkToken types for transfer
+#include "../partials/types/mvkTokenTypes.ligo"
+
 type trusted is address;
 type amt is nat;
 type token_id is nat;

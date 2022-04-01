@@ -1,3 +1,6 @@
+// MvkToken types for transfer
+#include "../partials/types/mvkTokenTypes.ligo"
+
 ////
 // COMMON TYPES
 ////

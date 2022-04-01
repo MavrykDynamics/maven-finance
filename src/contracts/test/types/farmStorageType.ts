@@ -4,7 +4,8 @@ import { BigNumber } from "bignumber.js";
 export type farmStorageType = {
   admin: string;
   mvkTokenAddress: string;
-  
+  metadata: MichelsonMap<MichelsonMapKey, unknown>;
+
   config: {
     lpToken: {
       tokenAddress: String;
