@@ -1,43 +1,14 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-type voteType is (nat * timestamp)              // mvk amount, timestamp
-type voterMapType is map (address, voteType)
-type emergencyGovernanceRecordType is [@layout:comb] record [
-    proposerAddress                  : address;
-    status                           : bool;   
-    executed                         : bool;
-    dropped                          : bool;
-
-    title                            : string;
-    description                      : string;   
-    voters                           : voterMapType; 
-    totalStakedMvkVotes              : nat;              
-    stakedMvkPercentageRequired      : nat;              // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
-    stakedMvkRequiredForBreakGlass   : nat;              // capture state of min staked MVK vote required
-    
-    startDateTime                    : timestamp;
-    startLevel                       : nat;              // block level of submission, used to order proposals
-    executedDateTime                 : timestamp;        // will follow startDateTime and be updated when executed
-    executedLevel                    : nat;              // will follow startLevel and be updated when executed
-    expirationDateTime               : timestamp;
-]
-
-type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType)
-
-type configType is record [
-    decimals                         : nat;   // decimals used for percentages
-    voteExpiryDays                   : nat;   // track time by tezos blocks - e.g. 2 days 
-    requiredFee                      : nat;   // fee for triggering emergency control - e.g. 100 tez -> change to MVK 
-    stakedMvkPercentageRequired      : nat;   // minimum staked MVK percentage amount required to activate break glass 
-    minStakedMvkRequiredToVote       : nat;   // minimum staked MVK balance of user required to vote for emergency governance
-    minStakedMvkRequiredToTrigger    : nat;   // minimum staked MVK balance of user to trigger emergency governance
-]
+// EmergencyGovernance types
+#include "../partials/types/emergencyGovernanceTypes.ligo"
 
 type storage is record [
     admin                               : address;
-    config                              : configType;
+    config                              : emergencyConfigType;
     mvkTokenAddress                     : address;
+    metadata                            : metadata;
     
     generalContracts                    : generalContractsType;
 
@@ -47,26 +18,9 @@ type storage is record [
     nextEmergencyGovernanceProposalId   : nat;
 ]
 
-type updateConfigNewValueType is nat
-type updateConfigActionType is 
-  ConfigVoteExpiryDays of unit
-| ConfigRequiredFee of unit
-| ConfigStakedMvkPercentRequired of unit
-| ConfigMinStakedMvkForVoting of unit
-| ConfigMinStakedMvkForTrigger of unit
-type updateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue  : updateConfigNewValueType; 
-  updateConfigAction    : updateConfigActionType;
-]
-
-type triggerEmergencyControlType is [@layout:comb] record[
-  title        : string;
-  description  : string;
-]
-
 type emergencyGovernanceAction is 
 | SetAdmin of (address)
-| UpdateConfig of updateConfigParamsType    
+| UpdateConfig of emergencyUpdateConfigParamsType    
 | UpdateGeneralContracts of updateGeneralContractsParams
 
 | TriggerEmergencyControl of triggerEmergencyControlType
@@ -75,8 +29,6 @@ type emergencyGovernanceAction is
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
-
-
 
 // basic helper functions begin ---------------------------------------------------------
 const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address);
@@ -140,14 +92,14 @@ block {
 } with (noOperations, s)
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType; var s : storage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   // checkSenderIsAdmin(s); // check that sender is admin
 
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+  const updateConfigAction    : emergencyUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : emergencyUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of [
     ConfigVoteExpiryDays (_v)                     -> s.config.voteExpiryDays                  := updateConfigNewValue

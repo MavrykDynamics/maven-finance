@@ -4,28 +4,8 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-////
-// COMMON TYPES
-////
-type tokenId is nat;
-type tokenBalance is nat;
-type operator is address
-type owner is address
-type treasury is string
-type forceTransfer is bool
-
-////
-// STORAGE
-////
-type tokenMetadataInfo is record [
-  token_id          : tokenId;
-  token_info        : map(string, bytes);
-]
-type ledger is big_map(address, tokenBalance);
-type operators is big_map((owner * operator * nat), unit)
-
-type tokenMetadata is big_map(tokenId, tokenMetadataInfo);
-type metadata is big_map (string, bytes);
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/types/mvkTokenTypes.ligo"
 
 type storage is record [
   admin                 : address;
@@ -41,92 +21,25 @@ type storage is record [
 ]
 
 ////
+// ENTRYPOINTS
+////
+type action is
+  Transfer of transferType
+| Balance_of of balanceOfParams
+| Update_operators of updateOperatorsParams
+| AssertMetadata of assertMetadataParams
+| Mint of mintParams
+| OnStakeChange of onStakeChangeParamsType
+| UpdateWhitelistContracts of updateWhitelistContractsParams
+| UpdateGeneralContracts of updateGeneralContractsParams
+
+////
 // RETURN TYPES
 ////
 (* define return for readability *)
 type return is list (operation) * storage
 (* define noop for readability *)
 const noOperations : list (operation) = nil;
-
-////
-// INPUTS
-////
-(* Transfer entrypoint inputs *)
-type transferDestination is [@layout:comb] record[
-  to_: address;
-  token_id: tokenId;
-  amount: tokenBalance;
-]
-type transfer is [@layout:comb] record[
-  from_: address;
-  txs: list(transferDestination);
-]
-type transferParams is list(transfer)
-
-(* Balance_of entrypoint inputs *)
-type balanceOfRequest is [@layout:comb] record[
-  owner: owner;
-  token_id: tokenId;
-]
-type balanceOfResponse is [@layout:comb] record[
-  request: balanceOfRequest;
-  balance: tokenBalance;
-]
-type balanceOfParams is [@layout:comb] record[
-  requests: list(balanceOfRequest);
-  callback: contract(list(balanceOfResponse));
-]
-
-(* Update_operators entrypoint inputs *)
-type operatorParameter is [@layout:comb] record[
-  owner: owner;
-  operator: operator;
-  token_id: tokenId;
-]
-type updateOperator is 
-  Add_operator of operatorParameter
-| Remove_operator of operatorParameter
-type updateOperatorsParams is list(updateOperator)
-
-(* AssertMetadata entrypoint inputs *)
-type assertMetadataParams is [@layout:comb] record[
-  key: string;
-  hash: bytes;
-]
-
-(* GetTotalSupply & GetMaximumSupply entrypoint inputs *)
-type getSingleSupplyParamsType is tokenBalance
-
-(* GetTotalAndMaximumSupply entrypoint inputs *)
-type getTotalAndMaximumSupplyParamsType is tokenBalance * tokenBalance
-
-(* GetDesiredMintPossibility entrypoint inputs *)
-type getDesiredMintPossibilityParams is tokenBalance
-
-(* Mint entrypoint inputs *)
-type mintParams is (owner * tokenBalance)
-
-(* OnStakeChange entrypoint inputs *)
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
-type onStakeChangeParamsType is (owner * tokenBalance * stakeType)
-
-////
-// ENTRYPOINTS
-////
-type action is
-  Transfer of transferParams
-| Balance_of of balanceOfParams
-| Update_operators of updateOperatorsParams
-| AssertMetadata of assertMetadataParams
-// | GetTotalSupply of unit
-// | GetMaximumSupply of unit
-// | GetTotalAndMaximumSupply of unit
-| Mint of mintParams
-| OnStakeChange of onStakeChangeParamsType
-| UpdateWhitelistContracts of updateWhitelistContractsParams
-| UpdateGeneralContracts of updateGeneralContractsParams
 
 ////
 // FUNCTIONS
@@ -197,7 +110,7 @@ function mergeOperations(const first: list (operation); const second: list (oper
     second
   )
 
-function transfer(const transferParams: transferParams; const store: storage): return is
+function transfer(const transferType: transferType; const store: storage): return is
   block{
     function makeTransfer(const account: return; const transferParam: transfer) : return is
       block {
@@ -238,7 +151,7 @@ function transfer(const transferParams: transferParams; const store: storage): r
           const updatedOperations: list(operation) = (nil: list(operation));
           const updatedStorage: storage = List.fold(transferTokens, txs, account.1);
       } with (mergeOperations(updatedOperations,account.0), updatedStorage)
-  } with List.fold(makeTransfer, transferParams, ((nil: list(operation)), store))
+  } with List.fold(makeTransfer, transferType, ((nil: list(operation)), store))
 
 (* Balance_of Entrypoint *)
 function balanceOf(const balanceOfParams: balanceOfParams; const store: storage) : return is

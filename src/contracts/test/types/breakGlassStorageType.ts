@@ -5,7 +5,8 @@ import { BigNumber } from "bignumber.js";
 export type breakGlassStorageType = {
   admin: string;
   mvkTokenAddress: string;
-  
+  metadata: MichelsonMap<MichelsonMapKey, unknown>;
+
   config: {};
   glassBroken         : boolean;
   councilMembers      : Array<string>;

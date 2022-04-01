@@ -33,10 +33,23 @@ const config = {
     financialRequestDurationInDays     : 3
 }
 
+const metadata = MichelsonMap.fromLiteral({
+  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+  data: Buffer.from(
+    JSON.stringify({
+      name: 'MAVRYK Governance Contract',
+      version: 'v1.0.0',
+      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+    }),
+    'ascii',
+  ).toString('hex'),
+})
+
 export const governanceStorage: governanceStorageType = {
   
   admin                   : bob.pkh,
   mvkTokenAddress         : "",
+  metadata                : metadata,
   config                  : config,
   
   whitelistContracts      : MichelsonMap.fromLiteral({}),
@@ -51,6 +64,9 @@ export const governanceStorage: governanceStorageType = {
   cycleCounter            : new BigNumber(1),
 
   currentRound            : { proposal: null },
+  currentBlocksPerProposalRound :  new BigNumber(0),
+  currentBlocksPerVotingRound   :  new BigNumber(0),
+  currentBlocksPerTimelockRound :  new BigNumber(0),
   currentRoundStartLevel  : new BigNumber(1),
   currentRoundEndLevel    : new BigNumber(14401),
   currentCycleEndLevel    : new BigNumber(28801),
