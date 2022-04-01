@@ -1,17 +1,7 @@
 
-// define types of cash for cfmm
-
-#define CASH_IS_TEZ
-//#define CASH_IS_FA2
-//#define CASH_IS_FA12
-
-
-(* If the token uses the fa2 standard *)
-//#define TOKEN_IS_FA2
+// todo: add support for baking
 (* To support baking *)
 //#define HAS_BAKER
-(* To push prices to some consumer contract once per block *)
-//#define ORACLE
 
 type ownerAddressType   is address;
 
@@ -44,36 +34,36 @@ type getBalanceParamsType is address * contract(nat)
 
 
 type fa12ApproveType is (address * nat)
-type transferDestination is [@layout:comb] record[
-  to_       : address;
-  token_id  : nat;
-  amount    : tokenAmountType;
-]
-type transfer is [@layout:comb] record[
-  from_     : address;
-  txs       : list(transferDestination);
-]
-type fa2TransferType  is list(transfer)
+// type transferDestination is [@layout:comb] record[
+//   to_       : address;
+//   token_id  : nat;
+//   amount    : tokenAmountType;
+// ]
+// type transfer is [@layout:comb] record[
+//   from_     : address;
+//   txs       : list(transferDestination);
+// ]
+// type fa2TransferType  is list(transfer)
 type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
 
-type tezType             is unit
-type fa12TokenType       is address
-type fa2TokenType        is [@layout:comb] record [
-  tokenContractAddress    : address;
-  tokenId                 : nat;
-]
+// type tezType             is unit
+// type fa12TokenType       is address
+// type fa2TokenType        is [@layout:comb] record [
+//   tokenContractAddress    : address;
+//   tokenId                 : nat;
+// ]
 
-type tokenType       is
-| Tez                     of tezType         // unit
-| Fa12                    of fa12TokenType   // address
-| Fa2                     of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
+// type tokenType       is
+// | Tez                     of tezType         // unit
+// | Fa12                    of fa12TokenType   // address
+// | Fa2                     of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
 
-type transferTokenType is [@layout:comb] record [
-    from_           : address;
-    to_             : address;
-    amt             : nat;
-    token           : tokenType;
-]
+// type transferTokenType is [@layout:comb] record [
+//     from_           : address;
+//     to_             : address;
+//     amt             : nat;
+//     token           : tokenType;
+// ]
 
 // ----- transfer types end -----
 
@@ -101,15 +91,9 @@ type removeLiquidityActionType is [@layout:comb] record [
 ]
 
 type cashToTokenActionType is [@layout:comb] record [
-
     deadline                : timestamp;
     minTokensBought         : nat;
-    [@annot:to] to_         : address;
-
-#if !CASH_IS_TEZ
-    cashSold                : nat;
-#endif
-    
+    [@annot:to] to_         : address;    
 ]
 
 type tokenToCashActionType is [@layout:comb] record [
@@ -151,35 +135,26 @@ type ctezToToken is [@layout:comb] record [
     deadline            : timestamp ; 
 ]
 
-
-type updateFa2PoolType is list (balanceOfResponseType)
 type updateFa12PoolType is nat
-
-type updateFa12CashPoolInternalActionType is updateFa12PoolType
-type updateFa2CashPoolInternalActionType is updateFa2PoolType
-
 type updateFa12TokenPoolInternalActionType is updateFa12PoolType
-type updateFa2TokenPoolInternalActionType is updateFa2PoolType
-
 
 // ----- types for entrypoint actions end -----
 
 type cfmmStorage is [@layout:comb] record [
     admin                   : address;
     
-    cashTokenAddress        : address;  // if cash is not tez
-    cashTokenId             : nat;      // if cash is FA2
-    cashPool                : nat;
+    // Cash Details
+    cashPool                : nat;      // no cashTokenAddress or cashTokenId as cash is Tez
     
-    lpTokenAddress          : address;
-    lpTokensTotal           : nat;
-    pendingPoolUpdates      : nat;
-    
+    // Token Details - no token id as token is FA12
     tokenName               : string;
     tokenAddress            : address;
     tokenPool               : nat;
-    
-    tokenId                 : nat;      // if token is FA2
+
+    // LP Token Details
+    lpTokenAddress          : address;
+    lpTokensTotal           : nat;
+    pendingPoolUpdates      : nat;
 
     // for oracle
     lastOracleUpdate        : timestamp;
@@ -201,13 +176,8 @@ type cfmmAction is
     | TokenToCash                   of tokenToCashActionType
     | TokenToToken                  of tokenToTokenActionType
 
-    // if cash is not tez
     | UpdatePools                   of unit
-    | UpdateFa12CashPoolInternal    of updateFa12CashPoolInternalActionType
-    | UpdateFa2CashPoolInternal     of updateFa2CashPoolInternalActionType
-    
     | UpdateFa12TokenPoolInternal   of updateFa12TokenPoolInternalActionType
-    | UpdateFa2TokenPoolInternal    of updateFa2TokenPoolInternalActionType
     
 const noOperations : list (operation) = nil;
 type return is list (operation) * cfmmStorage
@@ -233,11 +203,6 @@ function ceildiv(const numerator : nat; const denominator : nat) is abs( (- nume
 function checkSenderIsAdmin(var s : cfmmStorage) : unit is
   if (Tezos.sender = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
-
-// helper function - check sender is from cash token address
-function checkSenderIsCashTokenAddress(var s : cfmmStorage) : unit is
-  if (Tezos.sender = s.cashTokenAddress) then unit
-  else failwith("Error. Sender must be from the cash token address.");
 
 // helper function - check sender is from token address
 function checkSenderIsTokenAddress(var s : cfmmStorage) : unit is
@@ -288,24 +253,13 @@ function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : 
 
 
 
-// helper function to get balance_of entrypoint from FA2 Token contract
-function getFa2TokenBalanceOfEntrypoint(const tokenContractAddress : address) : contract(balanceOfParamsType) is
-  case (Tezos.get_entrypoint_opt(
-      "%balance_of",
-      tokenContractAddress) : option(contract(balanceOfParamsType))) of
-    Some(contr) -> contr
-  | None -> (failwith("Error. Balance_of entrypoint in FA2 Token contract not found") : contract(balanceOfParamsType))
-  end;
-
-
-
-// helper function to get balance_of entrypoint from FA2 Token contract
+// helper function to get balance_of entrypoint from FA12 Token contract
 function getFa12TokenBalanceOfEntrypoint(const tokenContractAddress : address) : contract(getBalanceParamsType) is
   case (Tezos.get_entrypoint_opt(
       "%getBalance",
       tokenContractAddress) : option(contract(getBalanceParamsType))) of
     Some(contr) -> contr
-  | None -> (failwith("Error. GetBalance entrypoint in FA2 Token contract not found") : contract(getBalanceParamsType))
+  | None -> (failwith("Error. GetBalance entrypoint in FA12 Token contract not found") : contract(getBalanceParamsType))
   end;
 
 
@@ -317,39 +271,6 @@ function getUpdateFa12TokenPoolInternalEntrypoint(const contractAddress : addres
       contractAddress) : option(contract(updateFa12TokenPoolInternalActionType))) of
     Some(contr) -> contr
   | None -> (failwith("Error. UpdateFa12TokenPoolInternal entrypoint in contract not found") : contract(updateFa12TokenPoolInternalActionType))
-  end;
-
-
-
-// helper function to get updateFa2TokenPoolInternal entrypoint from self address
-function getUpdateFa2TokenPoolInternalEntrypoint(const contractAddress : address) : contract(updateFa2TokenPoolInternalActionType) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateFa2TokenPoolInternal",
-      contractAddress) : option(contract(updateFa2TokenPoolInternalActionType))) of
-    Some(contr) -> contr
-  | None -> (failwith("Error. UpdateFa2TokenPoolInternal entrypoint in contract not found") : contract(updateFa2TokenPoolInternalActionType))
-  end;
-
-
-
-// helper function to get updateFa2CashPoolInternal entrypoint from self address
-function getUpdateFa12CashPoolInternalEntrypoint(const contractAddress : address) : contract(updateFa12CashPoolInternalActionType) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateFa12CashPoolInternal",
-      contractAddress) : option(contract(updateFa12CashPoolInternalActionType))) of
-    Some(contr) -> contr
-  | None -> (failwith("Error. UpdateFa2CashPoolInternal entrypoint in contract not found") : contract(updateFa12CashPoolInternalActionType))
-  end;
-
-
-
-// helper function to get updateFa2CashPoolInternal entrypoint from self address
-function getUpdateFa2CashPoolInternalEntrypoint(const contractAddress : address) : contract(list(balanceOfResponseType)) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateFa2CashPoolInternal",
-      contractAddress) : option(contract(list(balanceOfResponseType)))) of
-    Some(contr) -> contr
-  | None -> (failwith("Error. UpdateFa2CashPoolInternal entrypoint in contract not found") : contract(list(balanceOfResponseType)))
   end;
 
 
@@ -403,28 +324,6 @@ function transferFa12Token(const from_: address; const to_: address; const token
             end;
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
-function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenId: nat; const tokenContractAddress: address): operation is
-block{
-    const transferParams: fa2TransferType = list[
-            record[
-                from_ = from_;
-                txs = list[
-                    record[
-                        to_      = to_;
-                        token_id = tokenId;
-                        amount   = tokenAmount;
-                    ]
-                ]
-            ]
-        ];
-
-    const tokenContract: contract(fa2TransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of
-            Some (c) -> c
-        |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
-        end;
-} with (Tezos.transaction(transferParams, 0tez, tokenContract))
-
 function mintOrBurnLpToken(const target : address; const quantity : int; var s : cfmmStorage) : operation is 
 block {
 
@@ -439,14 +338,6 @@ block {
 
 // helper function to update FA12 Token Pool Type
 function updateFa12PoolInternal(const poolUpdate : updateFa12PoolType) : nat is poolUpdate
-
-// helper function to update FA2 Token Pool Type
-(* We trust the FA2 to provide the expected balance. there are no BFS shenanigans to worry about unless the token contract misbehaves. *)
-function updateFa2PoolInternal(const poolUpdateParams : updateFa2PoolType) : nat is 
-    case poolUpdateParams of [
-        nil -> failwith("Error. Invalid FA2 balance response.")
-        | x # _xs -> x.balance
-    ]
 
 
 function onPriceAction(const onPriceActionParams : onPriceActionType; var s : cfmmStorage) : operation is 
@@ -464,19 +355,11 @@ block {
 function default(var s : cfmmStorage) : return is 
 block {
 
-#if CASH_IS_TEZ
-
     // check no pending pool updates
     checkNoPendingPoolUpdates(s);
 
     const newCashPoolAmount : nat = s.cashPool + mutezToNatural(Tezos.amount);
     s.cashPool := newCashPoolAmount;
-
-#else
-
-    failwith("Error. Tez deposits are not accepted.");
-
-#endif
 
 } with (noOperations, s)
 
@@ -518,15 +401,9 @@ block {
     const maxTokensDeposited  : nat                 = addLiquidityParams.maxTokensDeposited;
     const minLpTokensMinted   : nat                 = addLiquidityParams.minLpTokensMinted;
     const owner               : address             = addLiquidityParams.owner; 
-    var operations            : list(operation)    := nil;
 
-#if !CASH_IS_TEZ
-    const cashDeposited       : nat                 = addLiquidityParams.cashDeposited; 
-#endif
-
-#if CASH_IS_TEZ
     const cashDeposited       : nat                 = mutezToNatural(Tezos.amount);
-#endif
+    var operations            : list(operation)    := nil;
 
     // check no pending pool updates
     checkNoPendingPoolUpdates(s);
@@ -555,34 +432,17 @@ block {
     s.cashPool         := cashPool      + cashDeposited; 
 
     // send token from sender to cfmm
-    const sendTokenToCfmmOperation : operation = transferFa2Token(
+    const sendTokenToCfmmOperation : operation = transferFa12Token(
         Tezos.sender,           // from_
         Tezos.self_address,     // to_
         tokensDeposited,        // token amount
-        s.tokenId,              // token id
         s.tokenAddress          // token contract address
     );
     operations := sendTokenToCfmmOperation # operations;
 
-#if CASH_IS_TEZ
-
     // send tez from sender to cfmm
     const sendTezToCfmmOperation : operation = transferTez( (get_contract(Tezos.self_address) : contract(unit)), cashDeposited);
     operations := sendTezToCfmmOperation # operations;
-
-#else
-
-    // assuming cash is FA2 token - can add another case for FA12 token in future
-    const sendCashFa2TokenOperation : operation = transferFa2Token(
-        Tezos.sender,           // from_
-        Tezos.self_address,     // to_
-        cashDeposited,          // token amount
-        s.cashTokenId,          // token id
-        s.cashTokenAddress      // token contract address
-    );
-    operations := sendCashFa2TokenOperation # operations;
-
-#endif
 
     // mint LP Tokens and send to sender
     const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(owner, int(lpTokensMinted), s);
@@ -644,34 +504,17 @@ block {
     operations := burnLpTokenOperation # operations;
 
     // send withdrawn tokens to sender 
-    const withdrawnTokensToSenderOperation : operation = transferFa2Token(
+    const withdrawnTokensToSenderOperation : operation = transferFa12Token(
         Tezos.self_address,     // from_
         Tezos.sender,           // to_
         tokensWithdrawn,        // token amount
-        s.tokenId,              // token id
         s.tokenAddress          // token contract address
     );
     operations := withdrawnTokensToSenderOperation # operations;
 
-
-#if CASH_IS_TEZ
-
+    // withdraw tez to sender
     const withdrawTezToSenderOperation : operation = transferTez( (get_contract(recipient) : contract(unit)), cashWithdrawn);
     operations := withdrawTezToSenderOperation # operations;
-
-#else
-
-    // assuming cash is FA2 token - can add another case for FA12 token in future
-    const withdrawCashTokenToSenderOperation : operation = transferFa2Token(
-        Tezos.self_address,     // from_
-        recipient,              // to_
-        cashWithdrawn,          // token amount
-        s.cashTokenId,          // token id
-        s.cashTokenAddress      // token contract address
-    );
-    operations := withdrawCashTokenToSenderOperation # operations;
-
-#endif
 
     // update storage with new totals
     s.cashPool       := newCashPool;
@@ -709,13 +552,9 @@ block {
     
     const minTokensBought       : nat                 = cashToTokenParams.minTokensBought;
     const recipient             : address             = cashToTokenParams.to_; 
-    var operations              : list(operation)    := nil;
-
-#if CASH_IS_TEZ
     const cashSold              : nat                 = mutezToNatural(Tezos.amount);
-#else
-    const cashSold              : nat                 = cashToTokenParams.cashSold;  // if cash is not tez
-#endif
+
+    var operations              : list(operation)    := nil;
 
     // check no pending pool updates
     checkNoPendingPoolUpdates(s);
@@ -738,21 +577,11 @@ block {
     s.cashPool   := newCashPool;
     s.tokenPool  := newTokenPool;
 
-
-//     todo: should be a transfer op for cash as a FA12 or FA2 token
-//
-// #if !CASH_IS_TEZ
-//     const transferTezFromSenderToCfmmOperation : operation = transferTez( (get_contract(Tezos.self_address) : contract(unit)), cashSold );
-//     operations := transferTezFromSenderToCfmmOperation # operations;
-// #endif
-
-    // assuming tokens is FA2 token - can add another case for FA12 token in future
     // send tokens_withdrawn from exchange to sender
-    const withdrawTokensOperation : operation = transferFa2Token(
+    const withdrawTokensOperation : operation = transferFa12Token(
         Tezos.self_address,     // from_
         recipient,              // to_
         tokensBought,           // token amount
-        s.tokenId,              // token id
         s.tokenAddress          // token contract address
     );
     operations := withdrawTokensOperation # operations;
@@ -799,35 +628,18 @@ block {
     const cashBought : nat = (tokensSold * constFee * cashPool) / (tokenPool * constFeeDenom + (tokensSold * constFee));
     if cashBought < minCashBought then failwith("Error. Cash bought must be greater than or equal to min cash bought.") else skip;
 
-    // assuming tokens is FA2 token - can add another case for FA12 token in future
     // send tokens_sold from sender to cfmm
-    const sendSoldTokensToCfmmOperation : operation = transferFa2Token(
+    const sendSoldTokensToCfmmOperation : operation = transferFa12Token(
         Tezos.sender,           // from_
         Tezos.self_address,     // to_
         tokensSold,             // token amount
-        s.tokenId,              // token id
         s.tokenAddress          // token contract address
     );
     operations := sendSoldTokensToCfmmOperation # operations;
 
-
-#if CASH_IS_TEZ
+    // send cashBought from cfmm to sender
     const transferTezFromCfmmToSenderOperation : operation = transferTez( (get_contract(recipient) : contract(unit) ), cashBought );
     operations := transferTezFromCfmmToSenderOperation # operations;
-#else
-
-    // assuming cash is FA2 token - can add another case for FA12 token in future
-    // send cashBought from cfmm to sender
-    const sendCashBoughtFromCfmmToSenderOperation : operation = transferFa2Token(
-        Tezos.self_address,     // from_
-        recipient,              // to_
-        cashBought,             // token amount
-        s.cashTokenId,          // token id
-        s.cashTokenAddress      // token contract address
-    );
-    operations := sendCashBoughtFromCfmmToSenderOperation # operations;
-
-#endif
 
     if cashBought > cashPool then failwith("Error. Cash pool minus cash bought is negative.") else skip;
     const newCashPool   : nat = abs(cashPool - cashBought);
@@ -846,7 +658,6 @@ block {
         const onPriceActionUpdateUsdmOperation : operation = onPriceAction(onPriceActionParams, s);
         operations := onPriceActionUpdateUsdmOperation # operations;
     }
-
 
 } with (operations, s)
 
@@ -888,8 +699,7 @@ block {
     s.cashPool   := newCashPool;
     s.tokenPool  := newTokenPool;    
 
-#if CASH_IS_TEZ
-
+    // cash is tez
     const sendCashToOutputCfmmContractParams : cashToTokenActionType = record [
         minTokensBought = minTokensBought;
         deadline        = deadline;
@@ -902,51 +712,11 @@ block {
     );
     operations := sendCashToOutputCfmmContractOperation # operations;
 
-
-#else
-
-#if CASH_IS_FA12
-
-    // FA12 Token - set allowance to 0 first
-    const outputCfmmContractSetApproveFa12ToZeroOperation : operation = Tezos.transaction(
-        (outputCfmmContract, 0n),
-        0mutez,
-        getFa12ApproveEntrypoint(s.cashTokenAddress)
-    );
-    operations := outputCfmmContractSetApproveFa12ToZeroOperation # operations;
-
-    // FA12 Token - set allowance to cashBought amount
-    const outputCfmmContractApproveFa12Operation : operation = Tezos.transaction(
-        (outputCfmmContract, cashBought),
-        0mutez,
-        getFa12ApproveEntrypoint(s.cashTokenAddress)
-    );
-    operations := outputCfmmContractApproveFa12Operation # operations;
-
-#else
-
-#endif
-
-    const sendCashTokensToOutputCfmmContractParams : cashToTokenActionType = record [
-        minTokensBought = minTokensBought;
-        deadline        = deadline;
-        to_             = recipient;
-        cashSold        = cashBought;
-    ];
-    const sendCashTokensToOutputCfmmContractOperation : operation = Tezos.transaction(
-        sendCashTokensToOutputCfmmContractParams, 
-        0mutez,
-        getCashToTokenOutputCfmmEntrypoint(outputCfmmContract)
-    );
-    operations := sendCashTokensToOutputCfmmContractOperation # operations;
-
-#endif
-
-    const acceptTokensFromSenderOperation : operation = transferFa2Token(
+    // accept tokens from sender
+    const acceptTokensFromSenderOperation : operation = transferFa12Token(
         Tezos.sender,           // from_
         Tezos.self_address,     // to_
         tokensSold,             // token amount
-        s.tokenId,              // token id
         s.tokenAddress          // token contract address
     );
     operations := acceptTokensFromSenderOperation # operations;
@@ -966,8 +736,6 @@ block {
 
 
 
-
-
 (* updatePools entrypoint *)
 function updatePools(var s : cfmmStorage) : return is 
 block {
@@ -981,29 +749,6 @@ block {
     // init variables
     var operations : list(operation) := nil;    
 
-#if TOKEN_IS_FA2
-
-    // Token is FA2
-    const balanceOfRequestRecord : balanceOfRequestType = record [
-        owner     = Tezos.self_address;
-        token_id  = s.tokenId;
-    ];
-    var balanceOfRequests : list(balanceOfRequestType) := nil;
-    balanceOfRequests := balanceOfRequestRecord # balanceOfRequests;
-    
-    const getFa2TokenBalanceParams : balanceOfParamsType = record [
-        requests = balanceOfRequests;
-        callback = getUpdateFa2TokenPoolInternalEntrypoint(Tezos.self_address);
-    ];
-    const getFa2TokenBalanceOperation : operation = Tezos.transaction(
-        getFa2TokenBalanceParams,
-        0mutez,
-        getFa2TokenBalanceOfEntrypoint(s.tokenAddress)
-    ); 
-    operations := getFa2TokenBalanceOperation # operations;
-
-#else
-
     // Token is FA12
     const getFa12TokenBalanceOperation : operation = Tezos.transaction(
         ( Tezos.self_address , getUpdateFa12TokenPoolInternalEntrypoint(Tezos.self_address)),
@@ -1012,83 +757,16 @@ block {
     ); 
     operations := getFa12TokenBalanceOperation # operations;
 
-#endif
-
-
-#if CASH_IS_FA12
-
-    // Cash is FA12
-    const getCashFa12TokenBalanceOperation : operation = Tezos.transaction(
-        ( Tezos.self_address , getUpdateCashPoolInternalEntrypoint(Tezos.self_address)),
-        0mutez,
-        getFa12TokenBalanceOfEntrypoint(s.tokenAddress)
-    ); 
-    operations := getCashFa12TokenBalanceOperation # operations;
-
-#else
-
-    // Cash is FA2
-    const getCashFa2TokenBalanceRequest : balanceOfRequestType = record [
-        owner     = Tezos.self_address;
-        token_id  = s.cashTokenId;
-    ];
-    const getCashFa2TokenBalanceParams : balanceOfParamsType = record [
-        requests = list [getCashFa2TokenBalanceRequest];
-        callback = getUpdateFa2CashPoolInternalEntrypoint(Tezos.self_address);
-    ];
-    const getCashFa2TokenBalanceOperation : operation = Tezos.transaction(
-        getCashFa2TokenBalanceParams,
-        0mutez,
-        getFa2TokenBalanceOfEntrypoint(s.tokenAddress)
-    ); 
-    operations := getCashFa2TokenBalanceOperation # operations;
-
-#endif
-
-#if CASH_IS_TEZ
+    // set pending pool updates
     const pendingPoolUpdates : nat = 1n;
-#else
-    const pendingPoolUpdates : nat = 2n;
-#endif
-
     s.pendingPoolUpdates := pendingPoolUpdates;
 
 } with (operations, s)
 
 
-// #if !CASH_IS_TEZ
-function updateFa2CashPoolInternal(const updateFa2CashPoolInternalParams : updateFa2CashPoolInternalActionType; var s : cfmmStorage) : return is 
-block {
-
-    // check no pending pool updates
-    checkNoPendingPoolUpdates(s);
-
-    // check that sender is from the cash token address
-    checkSenderIsCashTokenAddress(s);
-
-    s.cashPool            := updateFa2PoolInternal(updateFa2CashPoolInternalParams);
-    s.pendingPoolUpdates  := abs(s.pendingPoolUpdates - 1n);
-
-} with (noOperations, s)
-
-function updateFa12CashPoolInternal(const updateFa12CashPoolInternalParams : updateFa12CashPoolInternalActionType; var s : cfmmStorage) : return is 
-block {
-
-    // check no pending pool updates
-    checkNoPendingPoolUpdates(s);
-
-    // check that sender is from the cash token address
-    checkSenderIsCashTokenAddress(s);
-
-    s.cashPool             := updateFa12PoolInternal(updateFa12CashPoolInternalParams);
-    s.pendingPoolUpdates   := abs(s.pendingPoolUpdates - 1n);
-
-} with (noOperations, s)
-
-// #endif
 
 
-
+(* updateFa12TokenPoolInternal entrypoint *)
 function updateFa12TokenPoolInternal(const updateFa12TokenPoolInternalParams : updateFa12TokenPoolInternalActionType; var s : cfmmStorage) : return is 
 block {
     
@@ -1103,19 +781,6 @@ block {
 
 } with (noOperations, s)
 
-function updateFa2TokenPoolInternal(const updateFa2TokenPoolInternalParams : updateFa2TokenPoolInternalActionType; var s : cfmmStorage) : return is 
-block {
-    
-     // check no pending pool updates
-    checkNoPendingPoolUpdates(s);
-
-    // check that sender is from the token address
-    checkSenderIsTokenAddress(s);
-
-    s.tokenPool            := updateFa2PoolInternal(updateFa2TokenPoolInternalParams);
-    s.pendingPoolUpdates   := abs(s.pendingPoolUpdates - 1n);
-    
-} with (noOperations, s)
 
 
 function main (const action : cfmmAction; const s : cfmmStorage) : return is 
@@ -1133,10 +798,6 @@ function main (const action : cfmmAction; const s : cfmmStorage) : return is
         | RemoveLiquidity(parameters)               -> removeLiquidity(parameters, s)
         
         | UpdatePools(_parameters)                  -> updatePools(s)
-        
-        | UpdateFa12CashPoolInternal(parameters)    -> updateFa12CashPoolInternal(parameters, s)
-        | UpdateFa2CashPoolInternal(parameters)     -> updateFa2CashPoolInternal(parameters, s)
         | UpdateFa12TokenPoolInternal(parameters)   -> updateFa12TokenPoolInternal(parameters, s)
-        | UpdateFa2TokenPoolInternal(parameters)    -> updateFa2TokenPoolInternal(parameters, s)
         
     end
