@@ -4,6 +4,7 @@ import { BigNumber } from 'bignumber.js'
 export type treasuryFactoryStorageType = {
   admin: string;
   mvkTokenAddress: string;
+  metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
   trackedTreasuries: Array<unknown>;
   breakGlassConfig: {};

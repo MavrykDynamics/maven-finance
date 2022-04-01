@@ -7,268 +7,19 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
-type proposalIdType is nat 
+// MvkToken types for transfer
+#include "../partials/types/mvkTokenTypes.ligo"
 
-// record for satellites
-type satelliteRecordType is record [
-    status                : nat;        // active: 1; inactive: 0; 
-    stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
-    satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
-    totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
-    
-    name                  : string;     // string for name
-    description           : string;     // string for description
-    image                 : string;     // ipfs hash
-    
-    registeredDateTime    : timestamp;  
+// Delegation Type for updateConfig
+#include "../partials/types/delegationTypes.ligo"
 
-    // bondSufficiency       : nat;        // bond sufficiency flag - set to 1 if satellite has enough bond; set to 0 if satellite has not enough bond (over-delegated) when checked on governance action    
-]
-
-// Stores all voter data during proposal round
-type proposalRoundVoteType is (nat * timestamp)           // total voting power (MVK) * timestamp
-type passVotersMapType is map (address, proposalRoundVoteType)
-
-// Stores all voter data during voting round
-type voteForProposalChoiceType is 
-  Yay of unit
-| Nay of unit
-| Abstain of unit
-type votingRoundVoteType is (nat * timestamp * voteForProposalChoiceType)       // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
-type votersMapType is map (address, votingRoundVoteType)
-
-type newProposalType is [@layout:comb] record [
-  title         : string;
-  description   : string;
-  invoice       : string; // IPFS file
-  sourceCode    : string; 
-]        
-type proposalMetadataType is map (string, bytes)   
-
-// action title: change governance config successReward to 100000 MVK, params in bytes
-// action title: change delegation config xxx to xxx , params in bytes
-
-type proposalRecordType is [@layout:comb] record [
-    
-    proposerAddress      : address;
-    proposalMetadata     : proposalMetadataType;
-
-    status               : string;                  // status - "ACTIVE", "DROPPED"
-    title                : string;                  // title
-    description          : string;                  // description
-    invoice              : string;                  // ipfs hash of invoice file
-    sourceCode           : string;                  // link to github / repo
-
-    successReward        : nat;                     // log of successful proposal reward for voters - may change over time
-    executed             : bool;                    // true / false
-    locked               : bool;                    // true / false
-    
-    passVoteCount        : nat;                     // proposal round: pass votes count - number of satellites
-    passVoteMvkTotal     : nat;                     // proposal round pass vote total mvk from satellites who voted pass
-    passVotersMap        : passVotersMapType;       // proposal round ledger
-
-    minProposalRoundVotePercentage  : nat;          // min vote percentage of total MVK supply required to pass proposal round
-    minProposalRoundVotesRequired   : nat;          // min staked MVK votes required for proposal round to pass
-
-    upvoteCount          : nat;                     // voting round: upvotes count - number of satellites
-    upvoteMvkTotal       : nat;                     // voting round: upvotes MVK total
-    downvoteCount        : nat;                     // voting round: downvotes count - number of satellites
-    downvoteMvkTotal     : nat;                     // voting round: downvotes MVK total
-    abstainCount         : nat;                     // voting round: abstain count - number of satellites
-    abstainMvkTotal      : nat;                     // voting round: abstain MVK total
-    voters               : votersMapType;           // voting round ledger
-
-    minQuorumPercentage  : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
-    minQuorumMvkTotal    : nat;                     // log of min quorum in MVK - capture state at this point
-    quorumCount          : nat;                     // log of turnout for voting round - number of satellites who voted
-    quorumMvkTotal       : nat;                     // log of total positive votes in MVK 
-    startDateTime        : timestamp;               // log of when the proposal was proposed
-
-    cycle                    : nat;                 // log of cycle that proposal belongs to
-    currentCycleStartLevel   : nat;                 // log of current cycle starting block level
-    currentCycleEndLevel     : nat;                 // log of current cycle end block level
-]
-type proposalLedgerType is big_map (nat, proposalRecordType);
-
-type requestIdType is nat; 
-// Stores all voter data for financial requests
-type financialRequestVoteChoiceType is 
-  Approve of unit
-| Disapprove of unit
-type financialRequestVoteType is [@layout:comb] record [
-  vote              : financialRequestVoteChoiceType;
-  totalVotingPower  : nat; 
-  timeVoted         : timestamp;
-] 
-type financialRequestVotersMapType is map (address, financialRequestVoteType)
-
-type financialRequestRecordType is [@layout:comb] record [
-
-    requesterAddress        : address;
-    requestType             : string;                // "MINT" or "TRANSFER"
-    status                  : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
-    executed                : bool;                  // false on creation; set to true when financial request is executed successfully
-    
-    treasuryAddress         : address;
-    tokenContractAddress    : address; 
-    tokenAmount             : nat;
-    tokenName               : string; 
-    tokenType               : string;
-    tokenId                 : nat;
-    requestPurpose          : string;
-
-    voters                  : financialRequestVotersMapType; 
-    approveVoteTotal        : nat;
-    disapproveVoteTotal     : nat;
-
-    snapshotStakedMvkTotalSupply       : nat;
-    stakedMvkPercentageForApproval     : nat; 
-    stakedMvkRequiredForApproval       : nat; 
-
-    requestedDateTime       : timestamp;               // log of when the request was submitted
-    expiryDateTime          : timestamp;               
-]
-type financialRequestLedgerType is big_map (nat, financialRequestRecordType);
-
-type financialRequestSnapshotRecordType is [@layout:comb] record [
-    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this cycle
-    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
-    totalVotingPower          : nat;      // log calculated total voting power 
-]
-type financialRequestSnapshotMapType is map (address, financialRequestSnapshotRecordType)
-type financialRequestSnapshotLedgerType is big_map (requestIdType, financialRequestSnapshotMapType);
-type requestSatelliteSnapshotType is  [@layout:comb] record [
-    satelliteAddress      : address;
-    requestId             : nat; 
-    stakedMvkBalance      : nat; 
-    totalDelegatedAmount  : nat; 
-]
-
-// snapshot will be valid for current cycle only (proposal + voting rounds)
-type snapshotRecordType is [@layout:comb] record [
-    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this cycle
-    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
-    totalVotingPower          : nat;      // log calculated total voting power 
-    currentCycleStartLevel    : nat;      // log of current cycle starting block level
-    currentCycleEndLevel      : nat;      // log of when cycle (proposal + voting) will end
-]
-type snapshotLedgerType is big_map (address, snapshotRecordType);
-
-type configType is [@layout:comb] record [
-    
-    successReward               : nat;  // incentive reward for successful proposal
-
-    minProposalRoundVotePercentage  : nat; // percentage of staked MVK votes required to pass proposal round
-    minProposalRoundVotesRequired   : nat; // amount of staked MVK votes required to pass proposal round
-
-    minQuorumPercentage         : nat;  // minimum quorum percentage to be achieved (in MVK)
-    minQuorumMvkTotal           : nat;  // minimum quorum in MVK
-    
-    votingPowerRatio            : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
-    proposalSubmissionFee       : nat;  // e.g. 10 tez per submitted proposal
-    minimumStakeReqPercentage   : nat;  // minimum amount of MVK required in percentage of total staked MVK supply (e.g. 0.01%)
-    maxProposalsPerDelegate     : nat;  // number of active proposals delegate can have at any given time
-    
-    newBlockTimeLevel           : nat;  // block level where new blocksPerMinute takes effect -> if none, use blocksPerMinute (old); if exists, check block levels, then use newBlocksPerMinute if current block level exceeds block level, if not use old blocksPerMinute
-    newBlocksPerMinute          : nat;  // new blocks per minute 
-    blocksPerMinute             : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
-    
-    blocksPerProposalRound      : nat;  // to determine duration of proposal round
-    blocksPerVotingRound        : nat;  // to determine duration of voting round
-    blocksPerTimelockRound      : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
-
-    financialRequestApprovalPercentage  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
-    financialRequestDurationInDays      : nat;  // duration of final request before expiry
-    
-]
-
-// update config types
-type updateConfigNewValueType is nat
-type updateGovernanceConfigActionType is 
-  ConfigSuccessReward of unit
-| ConfigMinProposalRoundVotePct of unit
-| ConfigMinProposalRoundVotesReq of unit
-| ConfigMinQuorumPercentage of unit
-| ConfigMinQuorumMvkTotal of unit
-| ConfigVotingPowerRatio of unit
-| ConfigProposalSubmissionFee of unit
-| ConfigMinimumStakeReqPercentage of unit
-| ConfigMaxProposalsPerDelegate of unit
-| ConfigNewBlockTimeLevel of unit
-| ConfigBlocksPerProposalRound of unit
-| ConfigBlocksPerVotingRound of unit
-| ConfigBlocksPerTimelockRound of unit
-| ConfigFinancialReqApprovalPct of unit
-| ConfigFinancialReqDurationDays of unit
-
-type updateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: updateConfigNewValueType; 
-  updateConfigAction: updateGovernanceConfigActionType;
-]
-
-type updateDelegationConfigActionType is 
-  ConfigMinimumStakedMvkBalance of unit
-| ConfigDelegationRatio of unit
-| ConfigMaxSatellites of unit
-
-// execute action variant types - start test with 2 variant action types
-// type updateGovernanceConfigType is (nat * updateGovernanceConfigActionType); // unit: type updateConfigParamsType is (updateConfigActionType * updateConfigNewValueType)
-type updateGovernanceConfigType is [@layout:comb] record [
-  updateConfigNewValue: nat;
-  updateConfigAction: updateGovernanceConfigActionType
-]
-
-// type updateDelegationConfigType is (nat * updateDelegationConfigActionType);
-type updateDelegationConfigType is [@layout:comb] record [
-  updateConfigNewValue: nat;
-  updateConfigAction: updateDelegationConfigActionType
-]
-
-type setupLambdaFunctionType is [@layout:comb] record [
-  id          : nat;
-  func_bytes  : bytes;
-]
-type updateLambdaFunctionType is setupLambdaFunctionType
-type governanceLambdaLedgerType is big_map(nat, bytes)
-
-
-type executeActionParamsType is 
-  UpdateLambdaFunction of updateLambdaFunctionType
-| UpdateGovernanceConfig of updateGovernanceConfigType
-| UpdateDelegationConfig of updateDelegationConfigType
-type executeActionType is (executeActionParamsType)
-
-type tezType             is unit
-type fa12TokenType       is address
-type fa2TokenType        is [@layout:comb] record [
-  tokenContractAddress    : address;
-  tokenId                 : nat;
-]
-type tokenType       is
-| Tez                     of tezType         // unit
-| Fa12                    of fa12TokenType   // address
-| Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
-
-type transferTokenType is [@layout:comb] record [
-    from_           : address;
-    to_             : address;
-    amt             : nat;
-    token           : tokenType;
-]
-type mintTokenType is (address * nat)
-type mintMvkAndTransferType is [@layout:comb] record [
-    to_             : address;
-    amt             : nat;
-]
-
-type roundType       is
-| Proposal                  of unit
-| Voting                    of unit
-| Timelock                  of unit
+// Governance Type
+#include "../partials/types/governanceTypes.ligo"
 
 type storage is record [
     admin                       : address;
     mvkTokenAddress             : address;
+    metadata                    : metadata;
 
     config                      : configType;
 
@@ -309,43 +60,12 @@ type storage is record [
     tempFlag : nat;     // test variable - currently used to show block levels per transaction
 ]
 
-const noOperations : list (operation) = nil;
-type return is list (operation) * storage
-type governanceLambdaFunctionType is (executeActionType * storage) -> return
-
-type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
-
-type requestTokensType is [@layout:comb] record [
-    treasuryAddress       : address;  // treasury address
-    tokenContractAddress  : address;  // token contract address
-    tokenName             : string;   // token name should be in whitelist token contracts map in governance contract
-    tokenAmount           : nat;      // token amount requested
-    tokenType             : string;   
-    tokenId               : nat;      // token amount requested
-    purpose               : string;   // financial request purpose
-]
-
-type requestMintType is [@layout:comb] record [
-    treasuryAddress       : address;  // treasury address
-    tokenAmount           : nat;      // MVK token amount requested
-    tokenType             : string;
-    purpose               : string;   // financial request purpose
-]
-
-type voteForRequestChoiceType is 
-  Approve of unit
-| Disapprove of unit
-type voteForRequestType is [@layout:comb] record [
-    requestId        : nat;
-    vote             : voteForRequestChoiceType;
-]
-
 type governanceAction is 
     | BreakGlass of (unit)
     | SetAdmin of (address)
     
     // Housekeeping
-    | UpdateConfig of updateConfigParamsType
+    | UpdateConfig of governanceUpdateConfigParamsType
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
@@ -373,6 +93,10 @@ type governanceAction is
     // | RequestMint of requestMintType
     // | DropFinancialRequest of (nat)
     // | VoteForRequest of voteForRequestType
+
+const noOperations : list (operation) = nil;
+type return is list (operation) * storage
+type governanceLambdaFunctionType is (executeActionType * storage) -> return
 
 // admin helper functions begin --
 function checkSenderIsAdmin(var s : storage) : unit is
@@ -473,14 +197,14 @@ block {
 // Governance Lambdas: e.g. updateGovernanceConfig, updateDelegationConfig
 #include "../partials/governance/governanceLambdas.ligo"
 
-function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : governanceUpdateConfigParamsType; var s : storage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   checkSenderIsAdminOrSelf(s); // check that sender is admin
 
-  const updateConfigAction    : updateGovernanceConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : updateConfigNewValueType           = updateConfigParams.updateConfigNewValue;
+  const updateConfigAction    : governanceUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : governanceUpdateConfigNewValueType           = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of [
     ConfigSuccessReward (_v)              -> {
@@ -1182,13 +906,29 @@ block {
     // save proposal to proposalLedger
     s.proposalLedger[s.nextProposalId] := newProposalRecord;
 
+    // Add data on creation
+    var operations: list(operation) := nil;
+    case newProposal.metadata of [
+      Some (_metadataMap) -> block{
+        for name -> data in map _metadataMap block {
+          const addUpdateProposalData : contract(addUpdateProposalDataType) = Tezos.self("%addUpdateProposalData");
+          operations := Tezos.transaction(
+            (s.nextProposalId, name, data),
+            0tez, 
+            addUpdateProposalData
+          ) # operations;
+        }
+      }
+    | None -> skip
+    ];
+
     // add proposal id to current round proposals and initialise with zero positive votes in MVK 
     s.currentRoundProposals[s.nextProposalId] := 0n;
 
     // increment next proposal id
     s.nextProposalId := s.nextProposalId + 1n;
 
-} with (noOperations, s)
+} with (operations, s)
 
 (* AddUpdateProposalData Entrypoint *)
 // type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes

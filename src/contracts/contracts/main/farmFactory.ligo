@@ -7,129 +7,25 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-////
-// COMMON TYPES
-////
-type delegator is address
-type tokenBalance is nat
+// Farm Types
+#include "../partials/types/farmTypes.ligo"
 
-////
-// MICHELSON FARM TYPES
-////
-type delegatorRecord is [@layout:comb] record[
-    balance: tokenBalance;
-    participationMVKPerShare: tokenBalance;
-    unclaimedRewards: tokenBalance;
-]
-type claimedRewards is [@layout:comb] record[
-    unpaid: tokenBalance;
-    paid: tokenBalance;
-]
-type plannedRewards is [@layout:comb] record[
-    totalBlocks: nat;
-    currentRewardPerBlock: tokenBalance;
-    totalRewards: tokenBalance;
-]
-type lpStandard is
-    Fa12 of unit
-|   Fa2 of unit
-type lpToken is [@layout:comb] record[
-    tokenAddress: address;
-    tokenId: nat;
-    tokenStandard: lpStandard;
-    tokenBalance: tokenBalance;
-]
-
-type farmBreakGlassConfigType is [@layout:comb] record [
-    depositIsPaused        : bool;
-    withdrawIsPaused       : bool;
-    claimIsPaused          : bool;
-]
-
-type farmTokenPairType is [@layout:comb] record[
-    token0Address: address;
-    token1Address: address;
-]
-
-type farmConfigType is record [
-    lpToken                     : lpToken;
-    tokenPair                   : farmTokenPairType;
-    infinite                    : bool;
-    forceRewardFromTransfer     : bool;
-    blocksPerMinute             : nat;
-    plannedRewards              : plannedRewards;
-]
-
-type farmStorage is record[
-    admin                   : address;
-    mvkTokenAddress         : address;
-        
-    config                  : farmConfigType;
-    
-    whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    generalContracts        : generalContractsType;
-
-    breakGlassConfig        : farmBreakGlassConfigType;
-
-    lastBlockUpdate         : nat;
-    accumulatedMVKPerShare  : tokenBalance;
-    claimedRewards          : claimedRewards;
-    delegators              : big_map(delegator, delegatorRecord);
-    open                    : bool;
-    init                    : bool;
-    initBlock               : nat;
-]
-
-type farmLpToken is [@layout:comb] record [
-    tokenAddress   : address;
-    tokenId        : nat;
-    tokenStandard  : lpStandard;
-]
-
-type farmPlannedRewards is [@layout:comb] record [
-    totalBlocks: nat;
-    currentRewardPerBlock: tokenBalance;
-]
-
-type farmStorageType is [@layout:comb] record[
-    forceRewardFromTransfer : bool;
-    infinite                : bool;
-    plannedRewards          : farmPlannedRewards;
-    tokenPair               : farmTokenPairType;
-    lpToken                 : farmLpToken;
-]
-
-type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
-const createFarmFunc: createFarmFuncType =
-[%Michelson ( {| { UNPPAIIR ;
-                  CREATE_CONTRACT
-#include "../compiled/farm.tz"
-        ;
-          PAIR } |}
-: createFarmFuncType)];
-
-type initFarmParamsType is record[
-    totalBlocks: nat;
-    currentRewardPerBlock: nat;
-]
+// FarmFactory Types
+#include "../partials/types/farmFactoryTypes.ligo"
 
 ////
 // STORAGE
 ////
-type breakGlassConfigType is record [
-    createFarmIsPaused     : bool;
-    trackFarmIsPaused      : bool;
-    untrackFarmIsPaused    : bool;
-]
 
 type storage is record[
     admin                  : address;
     mvkTokenAddress        : address;
+    metadata               : metadata;
 
     whitelistContracts     : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts       : generalContractsType;
 
-    breakGlassConfig       : breakGlassConfigType;
+    breakGlassConfig       : farmFactoryBreakGlassConfigType;
 
     trackedFarms           : set(address);
     blocksPerMinute        : nat;
@@ -380,12 +276,36 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
         ];
         const farmConfig: farmConfigType = record[
             lpToken=farmLPToken;
-            tokenPair=farmStorage.tokenPair;
             infinite=farmInfinite;
             forceRewardFromTransfer=farmForceRewardFromTransfer;
             blocksPerMinute=s.blocksPerMinute;
             plannedRewards=farmPlannedRewards;
         ];
+
+        // Prepare Farm Metadata
+        const farmMetadataDescription: string = "MAVRYK Farm Contract";
+        const farmMetadataVersion: string = "v1.0.0";
+        const farmMetadataLPAddress: address = farmLPToken.tokenAddress;
+        const farmMetadataLPOrigin: string = farmStorage.lpTokenOrigin;
+        const farmMetadataToken0Symbol: string = farmStorage.tokenPair.token0.symbol;
+        const farmMetadataToken1Symbol: string = farmStorage.tokenPair.token1.symbol ;
+        const farmMetadataName: string = "MAVRYK " ^ farmMetadataToken0Symbol ^ "-" ^ farmMetadataToken1Symbol ^ " Farm";
+        const farmMetadataAuthors: string = "MAVRYK Dev Team <contact@mavryk.finance>";
+        const farmMetadataPlain: farmMetadataType = record[
+            name                    = farmMetadataName;
+            description             = farmMetadataDescription;
+            version                 = farmMetadataVersion;
+            liquidityPairToken      = record[
+                tokenAddress        = farmMetadataLPAddress;
+                origin              = farmMetadataLPOrigin;
+                token0              = farmStorage.tokenPair.token0;
+                token1              = farmStorage.tokenPair.token1;
+            ];
+            authors                 = farmMetadataAuthors;
+        ];
+        const farmMetadata: metadata = Big_map.literal (list [
+            ("", Bytes.pack(farmMetadataPlain));
+        ]);
 
         // Check wether the farm is infinite or its total blocks has been set
         if not farmInfinite and farmStorage.plannedRewards.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
@@ -394,7 +314,8 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
         const originatedFarmStorage: farmStorage = record[
             admin                   = s.admin; // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
             mvkTokenAddress         = s.mvkTokenAddress;
-            
+            metadata                = farmMetadata;
+
             config                  = farmConfig;
             
             whitelistContracts      = farmWhitelistContract;      // whitelist of contracts that can access restricted entrypoints

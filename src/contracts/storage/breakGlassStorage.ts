@@ -13,9 +13,22 @@ const config = {
     actionExpiryDays           : 3,
 }
 
+const metadata = MichelsonMap.fromLiteral({
+  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+  data: Buffer.from(
+    JSON.stringify({
+      name: 'MAVRYK Break Glass Contract',
+      version: 'v1.0.0',
+      authors: ['MAVRYK Dev Team <contact@mavryk.finance>']
+    }),
+    'ascii',
+  ).toString('hex'),
+})
+
 export const breakGlassStorage: breakGlassStorageType = {
   admin: bob.pkh,
   mvkTokenAddress: "",
+  metadata: metadata,
 
   config: config,
   glassBroken         : false,

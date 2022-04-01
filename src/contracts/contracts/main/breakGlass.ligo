@@ -4,53 +4,15 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-type configType is record [
-    threshold                   : nat;                 // min number of council members who need to agree on action
-    actionExpiryDays            : nat;                 // action expiry in number of days
-]
-
-type councilMembersType is set(address)
-type signersType is set(address)
-
-type updateConfigNewValueType is nat
-type updateConfigActionType is 
-  ConfigThreshold of unit
-| ConfigActionExpiryDays of unit
-type updateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue  : updateConfigNewValueType; 
-  updateConfigAction    : updateConfigActionType;
-]
-
-type addressMapType   is map(string, address);
-type natMapType       is map(string, nat);
-
-type actionRecordType is record [
-    
-    initiator                  : address;          // address of action initiator
-    status                     : string;           // PENDING / FLUSHED / EXECUTED / EXPIRED
-    actionType                 : string;           // record action type - e.g. pauseAll, unpauseAll, updateMultiSig, removeBreakGlassControl
-    executed                   : bool;             // boolean of whether action has been executed
-
-    signers                    : signersType;      // set of signers
-    signersCount               : nat;              // total number of signers
-
-    addressMap                 : addressMapType;
-    natMap                     : natMapType;
-
-    startDateTime              : timestamp;       // timestamp of when action was initiated
-    startLevel                 : nat;             // block level of when action was initiated           
-    executedDateTime           : timestamp;       // will follow startDateTime and be updated when executed
-    executedLevel              : nat;             // will follow startLevel and be updated when executed
-    expirationDateTime         : timestamp;       // timestamp of when action will expire
-    
-]
-type actionsLedgerType is big_map(nat, actionRecordType)
+// BreakGlass Types
+#include "../partials/types/breakGlassTypes.ligo"
 
 type storage is record [
     admin                       : address;               // for init of contract - needed?
     mvkTokenAddress             : address;
+    metadata                    : metadata;
     
-    config                      : configType;
+    config                      : breakGlassConfigType;
     glassBroken                 : bool;
     councilMembers              : councilMembersType;        // set of council member addresses
     developerAddress            : address;                   // developer address
@@ -62,14 +24,11 @@ type storage is record [
     actionCounter               : nat;
 ]
 
-type signActionType is (nat)
-type flushActionType is (nat)
-
 type breakGlassAction is 
     | BreakGlass of (unit)
     
     | SetAdmin of (address)
-    | UpdateConfig of updateConfigParamsType    
+    | UpdateConfig of breakGlassUpdateConfigParamsType    
 
     // glass broken not required (updates through Governance DAO)
     | UpdateWhitelistContracts of updateWhitelistContractsParams
@@ -161,14 +120,14 @@ block {
 } with (noOperations, s)
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var s : storage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   checkSenderIsAdmin(s); // check that sender is admin
 
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+  const updateConfigAction    : breakGlassUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : breakGlassUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of [
     ConfigThreshold (_v)                  -> s.config.threshold                 := updateConfigNewValue

@@ -4,46 +4,23 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-type userStakeBalanceRecordType is record[
-    balance                                : nat;
-    participationFeesPerShare              : nat;
-    // emergencyGovernanceLastVotedTimestamp  : timestamp;
-]
-type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
+// Doorman types
+#include "../partials/types/doormanTypes.ligo"
 
-type mintTokenType is (address * nat)
-type updateSatelliteBalanceParams is (address * nat * nat)
-
-type breakGlassConfigType is record [
-    stakeIsPaused           : bool;
-    unstakeIsPaused         : bool;
-    compoundIsPaused        : bool;
-]
-
-const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
-
-(* Transfer entrypoint inputs for FA2 *)
-type transferDestination is [@layout:comb] record[
-  to_: address;
-  token_id: nat;
-  amount: nat;
-]
-type transfer is [@layout:comb] record[
-  from_: address;
-  txs: list(transferDestination);
-]
-type transferType is list(transfer)
+// MvkToken types for transfer
+#include "../partials/types/mvkTokenTypes.ligo"
 
 type storage is record [
   admin                     : address;
   mvkTokenAddress           : address;
+  metadata                  : metadata;
   
   minMvkAmount              : nat;
   
   whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
   generalContracts          : generalContractsType;
   
-  breakGlassConfig          : breakGlassConfigType;
+  breakGlassConfig          : doormanBreakGlassConfigType;
   
   userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
 
@@ -58,15 +35,6 @@ type storage is record [
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * storage
-
-type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
-type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, sMVK balance
-
-type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
-
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
 
 type doormanAction is 
     SetAdmin of (address)
@@ -139,12 +107,12 @@ function checkCompoundIsNotPaused(var s : storage) : unit is
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to get mint entrypoint from token address
-function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
+function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintParams) is
   case (Tezos.get_entrypoint_opt(
       "%mint",
-      token_address) : option(contract(mintTokenType))) of [
+      token_address) : option(contract(mintParams))) of [
     Some(contr) -> contr
-  | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
+  | None -> (failwith("Mint entrypoint not found") : contract(mintParams))
   ];
 
 // helper function to update satellite's balance
@@ -639,7 +607,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
 
     // Mint Tokens
     if claimAmount > 0n then {
-      const mintParam: mintTokenType = (Tezos.self_address, claimAmount);
+      const mintParam: mintParams = (Tezos.self_address, claimAmount);
       const mintOperation: operation = Tezos.transaction(mintParam, 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
       operations := mintOperation # operations;
     } else skip;

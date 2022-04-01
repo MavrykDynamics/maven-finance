@@ -17,9 +17,22 @@ const config = {
   blocksPerMonth: 86400,
 }
 
+const metadata = MichelsonMap.fromLiteral({
+  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+  data: Buffer.from(
+    JSON.stringify({
+      name: 'MAVRYK Vesting Contract',
+      version: 'v1.0.0',
+      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+    }),
+    'ascii',
+  ).toString('hex'),
+})
+
 export const vestingStorage: vestingStorageType = {
   admin: bob.pkh,
   mvkTokenAddress: "",
+  metadata: metadata,
 
   config: config,
 

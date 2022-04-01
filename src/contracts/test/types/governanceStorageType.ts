@@ -5,6 +5,7 @@ import { BigNumber } from "bignumber.js";
 export type governanceStorageType = {
   admin: string;
   mvkTokenAddress: string;
+  metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
   config: {};
 
@@ -20,6 +21,9 @@ export type governanceStorageType = {
   cycleCounter            : BigNumber;
 
   currentRound            : any;
+  currentBlocksPerProposalRound     : BigNumber;
+  currentBlocksPerVotingRound       : BigNumber;
+  currentBlocksPerTimelockRound     : BigNumber;
   currentRoundStartLevel  : BigNumber;
   currentRoundEndLevel    : BigNumber;
   currentCycleEndLevel    : BigNumber;

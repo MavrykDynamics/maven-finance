@@ -10,62 +10,25 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
-////
-// COMMON TYPES
-////
-// type delegator is address
-// type tokenBalance is nat
+// Treasury types
+#include "../partials/types/mvkTokenTypes.ligo"
 
-////
-// MICHELSON Treasury TYPES
-////
+// Treasury types
+#include "../partials/types/treasuryTypes.ligo"
 
-type treasuryBreakGlassConfigType is [@layout:comb] record [
-    transferIsPaused            : bool; 
-    mintMvkAndTransferIsPaused  : bool;
-]
-
-type treasuryStorageType is [@layout:comb] record[
-    admin                        : address;
-    mvkTokenAddress              : address;
-
-    breakGlassConfig             : treasuryBreakGlassConfigType;
-    
-    whitelistContracts           : whitelistContractsType;      
-    whitelistTokenContracts      : whitelistTokenContractsType;      
-    generalContracts             : generalContractsType;
-]
-
-
-type createTreasuryActionType is [@layout:comb] record[
-    transferIsPaused            : bool; 
-    mintMvkAndTransferIsPaused  : bool;
-]
-
-type createTreasuryFuncType is (option(key_hash) * tez * treasuryStorageType) -> (operation * address)
-const createTreasuryFunc: createTreasuryFuncType =
-[%Michelson ( {| { UNPPAIIR ;
-                  CREATE_CONTRACT
-#include "../compiled/treasury.tz"
-        ;
-          PAIR } |}
-: createTreasuryFuncType)];
+// Treasury factory types
+#include "../partials/types/treasuryFactoryTypes.ligo"
 
 ////
 // STORAGE
 ////
-type breakGlassConfigType is record [
-    createTreasuryIsPaused     : bool;
-    trackTreasuryIsPaused      : bool;
-    untrackTreasuryIsPaused    : bool;
-]
-
 type storage is record[
     admin                      : address;
     mvkTokenAddress            : address;
+    metadata                   : metadata;
 
     trackedTreasuries          : set(address);
-    breakGlassConfig           : breakGlassConfigType;
+    breakGlassConfig           : treasuryFactoryBreakGlassConfigType;
 
     whitelistContracts         : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     whitelistTokenContracts    : whitelistTokenContractsType;
@@ -79,10 +42,6 @@ type storage is record[
 type return is list (operation) * storage
 (* define noop for readability *)
 const noOperations: list (operation) = nil;
-
-////
-// INPUTS
-////
 
 ////
 // ENTRYPOINTS
@@ -102,7 +61,6 @@ type treasuryFactoryAction is
     |   CreateTreasury of createTreasuryActionType
     |   TrackTreasury of address
     |   UntrackTreasury of address
-    |   CheckTreasuryExists of address
 
 ////
 // HELPER FUNCTIONS
@@ -167,10 +125,10 @@ function pauseAll(var s: storage): return is
 
         for treasuryAddress in set s.trackedTreasuries
         block {
-            case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress): option(contract(unit))) of
+            case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress): option(contract(unit))) of [
                 Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
             |   None -> skip
-            end;
+            ];
         };
 
     } with (operations, s)
@@ -194,10 +152,10 @@ function unpauseAll(var s: storage): return is
 
         for treasuryAddress in set s.trackedTreasuries
         block {
-            case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress): option(contract(unit))) of
+            case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress): option(contract(unit))) of [
                 Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
             |   None -> skip
-            end;
+            ];
         };
 
     } with (operations, s)
@@ -273,6 +231,7 @@ function createTreasury(const createTreasuryParams: createTreasuryActionType; va
         const originatedTreasuryStorage : treasuryStorageType = record[
             admin                   = s.admin;                    // admin will be the governance contract
             mvkTokenAddress         = s.mvkTokenAddress;
+            metadata                = (Big_map.empty: metadata);
 
             breakGlassConfig        = treasuryBreakGlassConfig;
 
@@ -292,12 +251,9 @@ function createTreasury(const createTreasuryParams: createTreasuryActionType; va
 
     } with(list[treasuryOrigination.0], s)
 
-(* CheckTreasuryExists entrypoint *)
-function checkTreasuryExists (const treasuryContract: address; const s: storage): return is 
-    case Set.mem(treasuryContract, s.trackedTreasuries) of
-        True -> (noOperations, s)
-    |   False -> failwith("Error. The provided treasury contract does not exist in the trackedTreasuries set")
-    end
+(* CheckTreasuryExists view *)
+[@view] function checkTreasuryExists (const treasuryContract: address; const s: storage): bool is 
+    Set.mem(treasuryContract, s.trackedTreasuries)
 
 (* TrackTreasury entrypoint *)
 function trackTreasury (const treasuryContract: address; var s: storage): return is 
@@ -308,10 +264,10 @@ function trackTreasury (const treasuryContract: address; var s: storage): return
         // Break glass check
         checkTrackTreasuryIsNotPaused(s);
 
-        s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of
+        s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
             True -> (failwith("Error. The provided treasury contract already exists in the trackedTreasuries set"): set(address))
         |   False -> Set.add(treasuryContract, s.trackedTreasuries)
-        end;
+        ];
 
     } with(noOperations, s)
 
@@ -324,10 +280,10 @@ function untrackTreasury (const treasuryContract: address; var s: storage): retu
         // Break glass check
         checkUntrackTreasuryIsNotPaused(s);
 
-        s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of
+        s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
             True -> Set.remove(treasuryContract, s.trackedTreasuries)
         |   False -> (failwith("Error. The provided treasury contract does not exist in the trackedTreasuries set"): set(address))
-        end;
+        ];
     } with(noOperations, s)
 
 (* Main entrypoint *)
@@ -336,10 +292,10 @@ function main (const action: treasuryFactoryAction; var s: storage): return is
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);
   } with(
-    case action of
+    case action of [
         SetAdmin (parameters) -> setAdmin(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
-    |   UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
+    |   UpdateWhitelistTokenContracts (parameters) -> updateWhitelistTokenContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
     
     |   PauseAll (_parameters) -> pauseAll(s)
@@ -351,7 +307,5 @@ function main (const action: treasuryFactoryAction; var s: storage): return is
     |   CreateTreasury (params) -> createTreasury(params, s)
     |   TrackTreasury (params) -> trackTreasury(params, s)
     |   UntrackTreasury (params) -> untrackTreasury(params, s)
-
-    |   CheckTreasuryExists (params) -> checkTreasuryExists(params, s)
-    end
+    ]
   )

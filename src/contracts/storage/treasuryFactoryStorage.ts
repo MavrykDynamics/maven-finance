@@ -15,9 +15,22 @@ const breakGlassConfig = {
     untrackTreasuryIsPaused  : false
 }
 
+const metadata = MichelsonMap.fromLiteral({
+  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+  data: Buffer.from(
+    JSON.stringify({
+      name: 'MAVRYK Treasury Factory Contract',
+      version: 'v1.0.0',
+      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+    }),
+    'ascii',
+  ).toString('hex'),
+})
+
 export const treasuryFactoryStorage: treasuryFactoryStorageType = {
   admin: bob.pkh,
   mvkTokenAddress: "",
+  metadata: metadata,
 
   trackedTreasuries: [],
   breakGlassConfig : breakGlassConfig,
