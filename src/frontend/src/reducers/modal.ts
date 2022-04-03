@@ -1,6 +1,8 @@
 import { SHOW_MODAL, HIDE_MODAL } from 'app/App.components/Modal/Modal.actions'
+import { ModalKind } from '../app/App.components/Modal/Modal.constants'
 
 export interface ModalState {
+  kind?: ModalKind
   showing: boolean
 }
 
@@ -12,6 +14,7 @@ export function modal(state = modalDefaultState, action: any): ModalState {
   switch (action.type) {
     case SHOW_MODAL: {
       return {
+        kind: action.kind,
         showing: true,
       }
     }

@@ -8,7 +8,7 @@ export interface PreferencesState {
 }
 
 const preferencesDefaultState: PreferencesState = {
-  darkThemeEnabled: getItemFromStorage('theme') || false,
+  darkThemeEnabled: getItemFromStorage('theme') || true,
 }
 
 export function preferences(state = preferencesDefaultState, action: any): PreferencesState {

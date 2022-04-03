@@ -31,13 +31,14 @@ export const InputView = ({
 }: InputViewProps) => {
   let status = inputStatus !== undefined ? inputStatus : 'none'
   return (
-    <InputStyled>
+    <InputStyled id={'inputStyled'}>
       {icon && (
         <InputIcon>
           <use xlinkHref={`/icons/sprites.svg#${icon}`} />
         </InputIcon>
       )}
       <InputComponent
+        id={'inputComponent'}
         type={type}
         name={name}
         className={status}

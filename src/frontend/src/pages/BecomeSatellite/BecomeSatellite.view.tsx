@@ -1,8 +1,6 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
-import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
-import { ERROR } from 'app/App.components/Toaster/Toaster.constants'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Page } from 'styles'
@@ -25,7 +23,7 @@ import {
   RegisterAsSatelliteFormInputStatus,
   ValidRegisterAsSatelliteForm,
 } from '../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
+import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
 
 type BecomeSatelliteViewProps = {
   loading: boolean

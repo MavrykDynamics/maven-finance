@@ -14,6 +14,7 @@ type ButtonViewProps = {
   type?: ButtonTypes
   loading: boolean
   glassBroken?: boolean
+  disabled?: boolean
 }
 
 export const ButtonView = ({
@@ -26,6 +27,7 @@ export const ButtonView = ({
   type,
   loading,
   glassBroken,
+  disabled,
 }: ButtonViewProps) => {
   let buttonClasses = kind
   if (clicked) buttonClasses += ' clicked'
@@ -33,6 +35,10 @@ export const ButtonView = ({
   if (glassBroken) {
     buttonClasses += ' glassBroken'
     kind += ' glassBroken'
+  }
+  if (disabled) {
+    buttonClasses += ' disabled'
+    kind += ' disabled'
   }
   return (
     <ButtonStyled
@@ -42,7 +48,7 @@ export const ButtonView = ({
         onClick && onClick()
       }}
       type={type}
-      disabled={glassBroken}
+      disabled={glassBroken || disabled}
     >
       <ButtonText>
         {loading ? (

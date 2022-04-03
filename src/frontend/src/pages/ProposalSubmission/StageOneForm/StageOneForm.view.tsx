@@ -2,16 +2,11 @@ import {
   FormSubTitle,
   FormTitleContainer,
   FormTitleAndFeeContainer,
-  ProposalSubmissionInvoiceImage,
-  UploaderFileSelector,
-  UploadIcon,
-  UploadIconContainer,
   FormButtonContainer,
 } from '../ProposalSubmission.style'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { SubmitProposalFormInputStatus, SubmitProposalForm } from '../../../utils/TypesAndInterfaces/Forms'
-import { Ref } from 'react'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 
 type StageOneFormViewProps = {

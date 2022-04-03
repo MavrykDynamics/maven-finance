@@ -63,3 +63,31 @@ export const WalletNotConnectedButton = styled.div<{ theme: MavrykTheme }>`
     font-weight: 600;
   }
 `
+
+export const SimpleConnectedButton = styled.div<{ theme: MavrykTheme }>`
+  margin: 0 auto;
+  height: 50px;
+  cursor: pointer;
+  background: ${({ theme }) => theme.containerColor};
+  color: ${({ theme }) => theme.textColor};
+  border-color: ${({ theme }) => theme.textColor};
+  text-align: center;
+  font-weight: bold;
+  line-height: 50px;
+  font-size: 12px;
+
+  > svg {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    margin: 14px 9px 13px 8px;
+    stroke: ${({ theme }) => theme.textColor};
+    vertical-align: top;
+  }
+
+  > div {
+    display: inline-block;
+    margin-right: 9px;
+    font-weight: 600;
+  }
+`
