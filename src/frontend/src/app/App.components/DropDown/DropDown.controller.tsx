@@ -17,7 +17,7 @@ type DropDownProps = {
   clickOnDropDown: () => void
   clickOnItem: (value: string) => void
   isOpen: boolean
-  itemSelected: string
+  itemSelected: string | undefined
 }
 
 export const DropDown = ({

@@ -1,14 +1,32 @@
-import { GET_FARM_STORAGE } from '../pages/Farms/Farms.actions'
+import {
+  DEPOSIT_ERROR,
+  DEPOSIT_REQUEST,
+  DEPOSIT_RESULT,
+  GET_FARM_STORAGE,
+  HARVEST_ERROR,
+  HARVEST_REQUEST,
+  HARVEST_RESULT,
+  WITHDRAW_ERROR,
+  WITHDRAW_REQUEST,
+  WITHDRAW_RESULT,
+} from '../pages/Farms/Farms.actions'
 import { FarmStorage } from '../utils/TypesAndInterfaces/Farm'
 import { getItemFromStorage } from '../utils/storage'
+import { UNSTAKE } from './doorman'
 
 export interface FarmState {
+  type?: typeof HARVEST | typeof DEPOSIT | typeof WITHDRAW | undefined
   farmStorage: FarmStorage[] | any
+  amount?: number
+  error?: undefined
 }
-
+export const HARVEST = 'HARVEST',
+  DEPOSIT = 'DEPOSIT',
+  WITHDRAW = 'WITHDRAW'
 const defaultFarmStorage: FarmStorage[] = []
 const farmDefaultState: FarmState = {
   farmStorage: getItemFromStorage('FarmStorage') || defaultFarmStorage,
+  amount: 0,
 }
 
 export function farm(state = farmDefaultState, action: any): FarmState {
@@ -17,6 +35,59 @@ export function farm(state = farmDefaultState, action: any): FarmState {
       return {
         ...state,
         farmStorage: action.farmStorage,
+      }
+    case HARVEST_REQUEST:
+      return {
+        ...state,
+        type: HARVEST,
+      }
+    case HARVEST_RESULT:
+      return {
+        ...state,
+        type: HARVEST,
+      }
+    case HARVEST_ERROR:
+      return {
+        ...state,
+        type: HARVEST,
+        amount: 0,
+        error: action.error,
+      }
+    case DEPOSIT_REQUEST:
+      return {
+        ...state,
+        type: DEPOSIT,
+        amount: action.amount,
+      }
+    case DEPOSIT_RESULT:
+      return {
+        ...state,
+        type: DEPOSIT,
+      }
+    case DEPOSIT_ERROR:
+      return {
+        ...state,
+        type: DEPOSIT,
+        amount: 0,
+        error: action.error,
+      }
+    case WITHDRAW_REQUEST:
+      return {
+        ...state,
+        type: WITHDRAW,
+        amount: action.amount,
+      }
+    case WITHDRAW_RESULT:
+      return {
+        ...state,
+        type: WITHDRAW,
+      }
+    case WITHDRAW_ERROR:
+      return {
+        ...state,
+        type: WITHDRAW,
+        amount: 0,
+        error: action.error,
       }
     default:
       return state

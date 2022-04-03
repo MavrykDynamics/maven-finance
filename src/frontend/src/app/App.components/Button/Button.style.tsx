@@ -30,7 +30,7 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     animation-fill-mode: forwards;
   }
 
-  &.primary {
+  &.primary:not(.disabled) {
     color: ${({ theme }) => theme.backgroundColor};
     background-color: ${({ theme }) => theme.primaryColor};
   }

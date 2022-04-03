@@ -11,6 +11,7 @@ import {
 import * as React from 'react'
 import { GovernancePhase } from '../../../reducers/governance'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { GOV_PROPOSAL_SUBMISSION_FORM } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.constants'
 
 export type PropSubmissionTopBarViewProps = {
   loading: boolean
@@ -36,7 +37,7 @@ export const PropSubmissionTopBarView = ({
         <>
           <PropSubTopBarTabsContainer>
             <PropSubTopBarTabsText>Submission Process:</PropSubTopBarTabsText>
-            <SlidingTabButtons onClick={handleTabChange} />
+            <SlidingTabButtons onClick={handleTabChange} type={GOV_PROPOSAL_SUBMISSION_FORM} />
           </PropSubTopBarTabsContainer>
 
           <PropSubTopBarTimeContainer>

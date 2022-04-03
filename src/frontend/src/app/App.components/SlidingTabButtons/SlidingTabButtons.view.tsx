@@ -1,74 +1,74 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
-import { TABS, SlidingTabButtonStyle, SlidingTabButtonTypes, PRIMARY } from './SlidingTabButtons.constants'
+import { SlidingTabButtonStyle, PRIMARY } from './SlidingTabButtons.constants'
 import { ButtonLoadingIcon, ButtonStyled, ButtonText, SlidingTabButtonsStyled } from './SlidingTabButtons.style'
-import { Ref, useEffect, useRef, useState } from 'react'
+import { Ref, useEffect, useState } from 'react'
+import { TabItem } from './SlidingTabButtons.controller'
 
 type SlidingTabButtonViewProps = {
   kind?: SlidingTabButtonStyle
   onClick?: (val?: any) => void
-  clickCallback: () => void
+  clickCallback: (tabId: number) => void
   clicked: boolean
-  type?: SlidingTabButtonTypes
+  tabValues: TabItem[]
   loading: boolean
 }
 
-export const SlidingTabButtonsView = ({ kind, onClick, clickCallback, type, loading }: SlidingTabButtonViewProps) => {
-  const firstButtonRef = useRef(),
-    secondButtonRef = useRef(),
-    thirdButtonRef = useRef()
-  const [buttonActiveStatus, setButtonActiveStatus] = useState({
-    buttonOne: true,
-    buttonTwo: false,
-    buttonThree: false,
-  })
+export const SlidingTabButtonsView = ({
+  kind,
+  onClick,
+  clickCallback,
+  tabValues,
+  loading,
+}: SlidingTabButtonViewProps) => {
   let generalClasses = kind ?? ''
 
   const handleButtonClick = (tabId: number) => {
-    switch (tabId) {
-      case 1:
-        setButtonActiveStatus({ buttonOne: true, buttonTwo: false, buttonThree: false })
-        break
-      case 2:
-        setButtonActiveStatus({ buttonOne: false, buttonTwo: true, buttonThree: false })
-        break
-      case 3:
-        setButtonActiveStatus({ buttonOne: false, buttonTwo: false, buttonThree: true })
-        break
-    }
     if (onClick) onClick(tabId)
-    clickCallback()
+    clickCallback(tabId)
   }
   return (
     <SlidingTabButtonsStyled>
-      <TabButton
-        buttonRef={firstButtonRef}
-        text={'Stage 1'}
-        buttonId={1}
-        onClick={handleButtonClick}
-        generalClasses={generalClasses}
-        buttonActiveStatus={buttonActiveStatus.buttonOne}
-        loading={loading}
-      />
-      <TabButton
-        buttonRef={secondButtonRef}
-        text={'Stage 2'}
-        buttonId={2}
-        onClick={handleButtonClick}
-        generalClasses={generalClasses}
-        buttonActiveStatus={buttonActiveStatus.buttonTwo}
-        loading={loading}
-      />
-      <TabButton
-        buttonRef={thirdButtonRef}
-        text={'Stage 3'}
-        buttonId={3}
-        onClick={handleButtonClick}
-        generalClasses={generalClasses}
-        buttonActiveStatus={buttonActiveStatus.buttonThree}
-        loading={loading}
-      />
+      {tabValues.map((tabItem, index) => (
+        <TabButton
+          buttonRef={tabItem.ref}
+          text={tabItem.text}
+          buttonId={tabItem.id}
+          onClick={handleButtonClick}
+          generalClasses={generalClasses}
+          buttonActiveStatus={tabItem.active}
+          loading={loading}
+        />
+      ))}
+
+      {/*<TabButton*/}
+      {/*  buttonRef={firstButtonRef}*/}
+      {/*  text={'Stage 1'}*/}
+      {/*  buttonId={1}*/}
+      {/*  onClick={handleButtonClick}*/}
+      {/*  generalClasses={generalClasses}*/}
+      {/*  buttonActiveStatus={buttonActiveStatus.buttonOne}*/}
+      {/*  loading={loading}*/}
+      {/*/>*/}
+      {/*<TabButton*/}
+      {/*  buttonRef={secondButtonRef}*/}
+      {/*  text={'Stage 2'}*/}
+      {/*  buttonId={2}*/}
+      {/*  onClick={handleButtonClick}*/}
+      {/*  generalClasses={generalClasses}*/}
+      {/*  buttonActiveStatus={buttonActiveStatus.buttonTwo}*/}
+      {/*  loading={loading}*/}
+      {/*/>*/}
+      {/*<TabButton*/}
+      {/*  buttonRef={thirdButtonRef}*/}
+      {/*  text={'Stage 3'}*/}
+      {/*  buttonId={3}*/}
+      {/*  onClick={handleButtonClick}*/}
+      {/*  generalClasses={generalClasses}*/}
+      {/*  buttonActiveStatus={buttonActiveStatus.buttonThree}*/}
+      {/*  loading={loading}*/}
+      {/*/>*/}
     </SlidingTabButtonsStyled>
   )
 }
@@ -96,7 +96,7 @@ const TabButton = ({
   const [buttonClasses, setButtonClasses] = useState(generalClasses)
 
   useEffect(() => {
-    if (text === 'Stage 1' && buttonActiveStatus) {
+    if ((text === 'Stage 1' || text === 'LIVE') && buttonActiveStatus) {
       setButtonClasses((buttonClasses) => buttonClasses + ' clicked')
     }
   }, [buttonActiveStatus, text])
@@ -114,7 +114,13 @@ const TabButton = ({
     onClick(buttonId)
   }
   return (
-    <ButtonStyled ref={buttonRef} className={buttonClasses} buttonActive={buttonActiveStatus} onClick={_onClick}>
+    <ButtonStyled
+      key={buttonId}
+      ref={buttonRef}
+      className={buttonClasses}
+      buttonActive={buttonActiveStatus}
+      onClick={_onClick}
+    >
       <ButtonText>
         {loading ? (
           <>
@@ -142,6 +148,5 @@ SlidingTabButtonsView.propTypes = {
 
 SlidingTabButtonsView.defaultProps = {
   kind: PRIMARY,
-  type: TABS,
   loading: false,
 }

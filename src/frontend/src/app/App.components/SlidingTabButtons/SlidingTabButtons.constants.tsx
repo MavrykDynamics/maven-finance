@@ -1,7 +1,6 @@
-export const TABS = 'tabs'
-export const SUBMIT = 'submit'
-export const RESET = 'reset'
-export type SlidingTabButtonTypes = 'tabs' | 'submit' | 'reset' | undefined
+export const GOV_PROPOSAL_SUBMISSION_FORM = 'GovProposalSubmissionForm'
+export const FARMS = 'Farms'
+export type SlidingTabButtonTypes = 'GovProposalSubmissionForm' | 'Farms' | undefined
 
 export const PRIMARY = 'primary'
 export const SECONDARY = 'secondary'

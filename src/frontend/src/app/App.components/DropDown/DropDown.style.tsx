@@ -2,7 +2,8 @@ import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const DropDownStyled = styled.div`
-  width: 10.5em;
+  width: 100%;
+  min-width: max-content;
   margin: 0 auto;
 `
 
@@ -11,7 +12,7 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   display: block;
   position: relative;
   height: 40px;
-  padding: 12px 16px 12px 40px;
+  padding: 12px 16px 12px 16px;
   border-width: 1px;
   border-style: solid;
   border-color: ${({ theme }) => theme.borderColor};
@@ -21,14 +22,17 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.backgroundColor};
 `
 
-export const DropDownListContainer = styled.div``
+export const DropDownListContainer = styled.div`
+  position: fixed;
+  width: 100%;
+`
 
 export const DropDownList = styled.ul<{ theme: MavrykTheme }>`
-  width: 100%;
+  width: max-content;
   display: block;
   position: relative;
-  height: 150px;
-  padding: 12px 16px 12px 40px;
+  height: min-content;
+  padding: 12px 16px 12px 16px;
   border-width: 1px;
   border-style: solid;
   border-color: ${({ theme }) => theme.borderColor};

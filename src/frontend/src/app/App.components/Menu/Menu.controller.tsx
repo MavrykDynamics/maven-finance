@@ -5,9 +5,6 @@ import { State } from 'reducers'
 import { getHeadData } from './Menu.actions'
 
 import { MenuView } from './Menu.view'
-import { getGovernanceStorage } from '../../../pages/Governance/Governance.actions'
-import { getDelegationStorage } from '../../../pages/Satellites/Satellites.actions'
-import { getEmergencyGovernanceStorage } from '../../../pages/EmergencyGovernance/EmergencyGovernance.actions'
 
 export const Menu = () => {
   const dispatch = useDispatch()
@@ -20,20 +17,10 @@ export const Menu = () => {
       dispatch(getMvkTokenStorage(accountPkh))
     }
     GetHeadData()
-    // GetChainData()
   }, [dispatch, accountPkh])
 
-  // setInterval(GetHeadData, 30000)
-  // setInterval(GetChainData, 60000)
   async function GetHeadData() {
     dispatch(getHeadData())
-  }
-  async function GetChainData() {
-    return (dispatch: any) => {
-      dispatch(getGovernanceStorage())
-      dispatch(getEmergencyGovernanceStorage())
-      dispatch(getDelegationStorage())
-    }
   }
 
   return <MenuView loading={loading} accountPkh={accountPkh} ready={ready} />

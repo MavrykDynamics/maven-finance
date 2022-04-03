@@ -16,7 +16,7 @@ type DropDownViewProps = {
   clickItem: (value: string) => void
   errorMessage?: string
   isOpen: boolean
-  itemSelected: string
+  itemSelected: string | undefined
   items: readonly string[]
 }
 
@@ -43,10 +43,10 @@ export const DropDownView = ({
           onClick()
         }}
       >
-        {itemSelected}
+        {itemSelected !== undefined ? itemSelected : placeholder}
       </DropDownMenu>
       {isOpen && (
-        <DropDownListContainer>
+        <DropDownListContainer id={'dropDownListContainer'}>
           <DropDownList>
             {items.map((value, index) => {
               return (
@@ -75,7 +75,7 @@ DropDownView.propTypes = {
 
 DropDownView.defaultProps = {
   icon: undefined,
-  placeholder: undefined,
+  placeholder: 'Sort by...',
   name: undefined,
   value: undefined,
   inputStatus: undefined,

@@ -1,5 +1,4 @@
 import styled from 'styled-components/macro'
-import { backgroundColor } from 'styles'
 import { MavrykTheme } from './interfaces'
 
 export const ModalStyled = styled.div<{ showing: boolean }>`

@@ -29,6 +29,7 @@ export const BecomeSatellite = () => {
           satelliteFee: '',
           active: false,
           mvkBalance: '',
+          sMvkBalance: '',
           totalDelegatedAmount: '',
           registeredDateTime: new Date(),
           unregisteredDateTime: null,

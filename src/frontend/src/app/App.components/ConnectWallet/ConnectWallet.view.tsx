@@ -1,6 +1,11 @@
 import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 import * as React from 'react'
-import { ConnectWalletStyled, WalletConnectedButton, WalletNotConnectedButton } from './ConnectWallet.style'
+import {
+  ConnectWalletStyled,
+  SimpleConnectedButton,
+  WalletConnectedButton,
+  WalletNotConnectedButton,
+} from './ConnectWallet.style'
 
 type ConnectWalletViewProps = {
   type?: string | null
@@ -14,6 +19,7 @@ type ConnectWalletViewProps = {
 }
 
 export const ConnectWalletView = ({
+  type,
   loading,
   wallet,
   ready,
@@ -23,11 +29,11 @@ export const ConnectWalletView = ({
   handleNewConnect,
 }: ConnectWalletViewProps) => {
   return (
-    <ConnectWalletStyled>
+    <ConnectWalletStyled id={'connectWalletButton'}>
       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
       {wallet ? (
         <>
-          {ready && (
+          {ready && type !== 'simpleButton' && (
             <WalletConnectedButton>
               <p>
                 {accountPkh
@@ -59,5 +65,15 @@ export const NoWalletConnectedButton = ({ handleConnect }: { handleConnect: () =
       </svg>
       <div>Connect wallet</div>
     </WalletNotConnectedButton>
+  )
+}
+export const SimpleConnectButtonNoAddress = ({ handleConnect }: { handleConnect: () => void }) => {
+  return (
+    <SimpleConnectedButton onClick={handleConnect}>
+      <svg>
+        <use xlinkHref="/icons/sprites.svg#wallet" />
+      </svg>
+      <div>Connect wallet</div>
+    </SimpleConnectedButton>
   )
 }

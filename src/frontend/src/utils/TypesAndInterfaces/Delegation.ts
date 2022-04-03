@@ -1,4 +1,68 @@
 import { MichelsonMap } from '@taquito/taquito'
+import { FinancialRequestVote, ProposalStatus, ProposalVote } from './Governance'
+
+export interface SatelliteProposalVotingHistory extends ProposalVote {
+  requestData: {
+    id: number
+
+    proposerId: string
+    status: ProposalStatus // status - "ACTIVE", "DROPPED"
+    title: string // title
+    description: string // description
+    invoice: string // ipfs hash of invoice file
+    successReward: number // log of successful proposal reward for voters - may change over time
+    startDateTime: Date // log of when the proposal was proposed
+    executed: boolean // true / false
+    locked: boolean // true / false   For updating of the proposal metadata
+    timelockProposal: any
+
+    passVoteMvkTotal: number // proposal round pass vote total mvk from satellites who voted pass
+    upvoteMvkTotal: number // voting round: upvotes MVK total
+    downvoteMvkTotal: number // voting round: downvotes MVK total
+    abstainMvkTotal: number // voting round: abstain MVK total
+    votes: Map<string, ProposalVote>
+
+    minProposalRoundVoteRequirement: number
+    minProposalRoundVotePercentage: number
+    minQuorumPercentage: number // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
+    minQuorumMvkTotal: number // log of min quorum in MVK - capture state at this point
+    quorumMvkTotal: number // log of total positive votes in MVK
+
+    currentRoundProposal: string
+    currentCycleStartLevel: number // log of current cycle starting block level
+    currentCycleEndLevel: number // log of current cycle end block level
+  }
+}
+
+export interface SatelliteFinancialRequestVotingHistory extends FinancialRequestVote {
+  requestData: {
+    id: string
+    governanceId: string
+    treasuryId: string
+    executed: boolean
+    ready: boolean
+    status: string | boolean
+
+    requesterId: string
+    requestPurpose: string
+    requestType: string
+    smvkPercentageForApproval: number
+    smvkRequiredForApproval: number
+
+    approveVoteTotal: number
+    disapproveVoteTotal: number
+
+    requestedDatetime: Date
+    expirationDatetime: Date
+
+    tokenContractAddress: string
+    tokenId: string
+    tokenAmount: number
+    tokenName: string
+
+    snapshotsMvkTotalSupply: number
+  }
+}
 
 export interface SatelliteRecord {
   address: string
@@ -8,9 +72,12 @@ export interface SatelliteRecord {
   satelliteFee: string | number
   active: boolean
   mvkBalance: string
+  sMvkBalance: string
   totalDelegatedAmount: string
   registeredDateTime: Date
   unregisteredDateTime: Date | null
+  proposalVotingHistory?: SatelliteProposalVotingHistory[]
+  financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
 }
 export type DelegationConfig = {
   maxSatellites: string

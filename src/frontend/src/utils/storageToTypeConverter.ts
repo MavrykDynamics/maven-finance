@@ -2,7 +2,13 @@ import { setItemInStorage } from './storage'
 import { calcWithoutMu } from './calcFunctions'
 import { MichelsonMap } from '@taquito/taquito'
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
-import { DelegateRecord, DelegationStorage, SatelliteRecord } from './TypesAndInterfaces/Delegation'
+import {
+  DelegateRecord,
+  DelegationStorage,
+  SatelliteFinancialRequestVotingHistory,
+  SatelliteProposalVotingHistory,
+  SatelliteRecord,
+} from './TypesAndInterfaces/Delegation'
 import { DoormanStorage } from './TypesAndInterfaces/Doorman'
 import { FarmStorage } from './TypesAndInterfaces/Farm'
 import { FarmFactoryStorage } from './TypesAndInterfaces/FarmFactory'
@@ -117,17 +123,72 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
       (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
       0,
     )
+    const proposalVotingHistory: SatelliteProposalVotingHistory[] = [],
+      financialRequestsVotes: SatelliteFinancialRequestVotingHistory[] = []
+
+    item.governance_proposal_records_votes.forEach(
+      (vote: {
+        id: any
+        current_round_vote: any
+        governance_proposal_record_id: any
+        round: any
+        timestamp: string | number | Date
+        vote: any
+        voter_id: any
+        voting_power: string
+        governance_proposal_record: any
+      }) => {
+        const newRequestVote: SatelliteProposalVotingHistory = {
+          id: vote.id,
+          currentRoundVote: vote.current_round_vote,
+          governanceProposalRecordId: vote.governance_proposal_record_id,
+          round: vote.round,
+          timestamp: new Date(vote.timestamp),
+          vote: vote.vote,
+          voterId: vote.voter_id,
+          votingPower: calcWithoutMu(vote.voting_power),
+          requestData: vote.governance_proposal_record,
+        }
+        proposalVotingHistory.push(newRequestVote)
+      },
+    )
+    item.governance_financial_requests_votes.forEach(
+      (vote: {
+        id: any
+        governance_financial_request_id: any
+        round: any
+        timestamp: string | number | Date
+        vote: any
+        voter_id: any
+        voting_power: string
+        governance_financial_request: any
+      }) => {
+        const newRequestVote: SatelliteFinancialRequestVotingHistory = {
+          id: vote.id,
+          governanceFinancialRequestId: vote.governance_financial_request_id,
+          timestamp: new Date(vote.timestamp),
+          vote: vote.vote,
+          voterId: vote.voter_id,
+          votingPower: calcWithoutMu(vote.voting_power),
+          requestData: vote.governance_financial_request,
+        }
+        financialRequestsVotes.push(newRequestVote)
+      },
+    )
     const newSatelliteRecord: SatelliteRecord = {
       address: item.user_id,
       description: item.description,
       image: item.image,
-      mvkBalance: '0',
+      mvkBalance: String(calcWithoutMu(item.user.mvk_balance)),
+      sMvkBalance: String(calcWithoutMu(item.user.smvk_balance)),
       name: item.name,
       registeredDateTime: new Date(item.registered_datetime),
       satelliteFee: calcWithoutMu(item.fee),
       active: item.active,
       totalDelegatedAmount: String(calcWithoutMu(totalDelegatedAmount)),
       unregisteredDateTime: new Date(item.unregistered_datetime),
+      proposalVotingHistory,
+      financialRequestsVotes,
     }
     satelliteMap.push(newSatelliteRecord)
     return true
@@ -384,23 +445,19 @@ function convertToVestingStorageType(storage: any): VestingStorage {
 function convertToGovernanceStorageType({
   governance,
   governance_financial_request_record,
-  governance_lambda_record,
   governance_proposal_record,
-  governance_proposal_record_metadata,
   governance_satellite_snapshot_record,
 }: {
   governance: any
   governance_financial_request_record: any
-  governance_lambda_record: any
   governance_proposal_record: any
-  governance_proposal_record_metadata: any
   governance_satellite_snapshot_record: any
 }): GovernanceStorage {
   const financialRequestRecords = convertGovernanceFinancialRequestRecordToInterface(
     governance_financial_request_record,
   )
   const proposalLedger = convertGovernanceProposalRecordToInterface(governance_proposal_record)
-  const satelliteSnapshotLedger = convertGovernanceSatelliteSnapsotRecordsToInterface(
+  const satelliteSnapshotLedger = convertGovernanceSatelliteSnapshotRecordsToInterface(
     governance_satellite_snapshot_record,
   )
   return {
@@ -566,7 +623,7 @@ function convertGovernanceProposalVoteToInterface(
   return proposalVotes
 }
 
-function convertGovernanceSatelliteSnapsotRecordsToInterface(
+function convertGovernanceSatelliteSnapshotRecordsToInterface(
   governance_satellite_snapshot_record: {
     id: any
     governance_id: any

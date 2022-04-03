@@ -1,6 +1,4 @@
 import styled from 'styled-components/macro'
-
-import { primaryColor, textColor, backgroundColor, subTextColor } from '../../../styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const ColoredLineStyled = styled.hr<{ theme: MavrykTheme }>`
