@@ -11,9 +11,9 @@ import { lpTokenUsdmXtzStorageType } from '../test/types/lpTokenUsdmXtzStorageTy
 
 export const lpTokenUsdmXtzDecimals = 6
 
-const totalSupply      = 1000000000
-const initialSupply    = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
-const singleUserSupply = new BigNumber(totalSupply / 4)
+const totalSupply      = 0
+const initialSupply    = new BigNumber(totalSupply)       // 0 LP Tokens
+const singleUserSupply = new BigNumber(totalSupply / 4)   // 0 LP Tokens
 
 const metadata = MichelsonMap.fromLiteral({
   '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -44,12 +44,7 @@ const metadata = MichelsonMap.fromLiteral({
   ).toString('hex'),
 })
 
-const ledger = MichelsonMap.fromLiteral({
-  [alice.pkh]: singleUserSupply,
-  [bob.pkh]: singleUserSupply,
-  [eve.pkh]: singleUserSupply,
-  [mallory.pkh]: singleUserSupply,
-})
+const ledger = MichelsonMap.fromLiteral({})
 
 const token_metadata = MichelsonMap.fromLiteral({
   0: {
@@ -66,13 +61,13 @@ const token_metadata = MichelsonMap.fromLiteral({
 })
 
 export const lpTokenUsdmXtzStorage: lpTokenUsdmXtzStorageType = {
-  admin: alice.pkh,
+  admin           : alice.pkh,
 
-  metadata: metadata,
-  token_metadata: token_metadata,
+  metadata        : metadata,
+  token_metadata  : token_metadata,
 
-  totalSupply: initialSupply,
+  totalSupply     : initialSupply,
 
-  ledger: ledger,
-  operators: MichelsonMap.fromLiteral({}),
+  ledger          : ledger,
+  operators       : MichelsonMap.fromLiteral({}),
 }

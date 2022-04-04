@@ -41,6 +41,7 @@ import { UsdmToken } from "../helpers/usdmTokenHelper";
 import { UsdmTokenController } from "../helpers/usdmTokenControllerHelper";
 import { LpTokenUsdmXtz } from "../helpers/lpTokenUsdmXtzHelper";
 import { Cfmm } from "../helpers/cfmmHelper";
+import { CfmmTezFa2Token } from "../helpers/cfmmTezFa2TokenHelper";
 import { Vault } from "../helpers/vaultHelper";
 
 import { doormanStorage } from "../../storage/doormanStorage";
@@ -59,6 +60,7 @@ import { usdmTokenStorage } from "../../storage/usdmTokenStorage";
 import { usdmTokenControllerStorage } from "../../storage/usdmTokenControllerStorage";
 import { lpTokenUsdmXtzStorage } from "../../storage/lpTokenUsdmXtzStorage";
 import { cfmmStorage } from "../../storage/cfmmStorage";
+import { cfmmTezFa2TokenStorage } from "../../storage/cfmmTezFa2TokenStorage";
 import { vaultStorage } from "../../storage/vaultStorage";
 
 describe('Contracts Deployment for Tests', async () => {
@@ -78,6 +80,7 @@ describe('Contracts Deployment for Tests', async () => {
   var usdmTokenController : UsdmTokenController
   var lpTokenUsdmXtz : LpTokenUsdmXtz
   var cfmm : Cfmm
+  var cfmmTezFa2Token : CfmmTezFa2Token
   // var vault : Vault
   var tezos
   let deployedDoormanStorage
@@ -111,6 +114,8 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('delegation contract originated')
 
+
+
     mvkStorage.generalContracts = MichelsonMap.fromLiteral({
       doorman: doorman.contract.address,
     })
@@ -121,6 +126,8 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('MVK token contract originated')
 
+
+
     governanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation" : delegation.contract.address,
       "mvkToken"   : mvkToken.contract.address,
@@ -130,6 +137,8 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('governance contract originated')
 
+    
+
     emergencyGovernanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"   : mvkToken.contract.address,
       "doorman"    : doorman.contract.address,
@@ -138,6 +147,8 @@ describe('Contracts Deployment for Tests', async () => {
     emergencyGovernance = await EmergencyGovernance.originate(utils.tezos,emergencyGovernanceStorage);
 
     console.log('emergency governance contract originated')
+
+
 
     vestingStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"   : mvkToken.contract.address,
@@ -149,6 +160,8 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("vesting contract originated")
 
+
+
     councilStorage.generalContracts = MichelsonMap.fromLiteral({
       vesting: vesting.contract.address,
       governance: governance.contract.address,
@@ -157,6 +170,8 @@ describe('Contracts Deployment for Tests', async () => {
     council = await Council.originate(utils.tezos, councilStorage)
 
     console.log('council contract originated')
+
+
 
     breakGlassStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"            : mvkToken.contract.address,
@@ -177,6 +192,8 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("break glass contract originated")
 
+
+
     treasuryStorage.generalContracts = MichelsonMap.fromLiteral({
       "mvkToken"     : mvkToken.contract.address,
       "delegation"   : delegation.contract.address,
@@ -194,12 +211,16 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('treasury contract originated')
 
+
+
     mockFa12Token = await MockFa12Token.originate(
       utils.tezos,
       mockFa12TokenStorage
     );
 
     console.log("mock FA12 Token originated")
+
+
 
     mockFa2Token = await MockFa2Token.originate(
       utils.tezos,
@@ -208,12 +229,16 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("mock FA2 Token originated")
 
+
+
     usdmToken = await UsdmToken.originate(
       utils.tezos,
       usdmTokenStorage
     );
 
     console.log("USDM Token originated")
+
+
 
     usdmTokenControllerStorage.collateralTokenLedger = MichelsonMap.fromLiteral({
       "mockFA12"  : {
@@ -248,13 +273,13 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("USDM Token Controller originated")
 
-    cfmmStorage.usdmTokenAddress = usdmToken.contract.address;
-    cfmm = await Cfmm.originate(
-      utils.tezos,
-      cfmmStorage
-    );
+    // cfmmStorage.usdmTokenAddress = usdmToken.contract.address;
+    // cfmm = await Cfmm.originate(
+    //   utils.tezos,
+    //   cfmmStorage
+    // );
 
-    console.log("CFMM originated")
+    // console.log("CFMM originated")
 
     lpTokenUsdmXtz = await LpTokenUsdmXtz.originate(
       utils.tezos,
@@ -262,6 +287,17 @@ describe('Contracts Deployment for Tests', async () => {
     );
 
     console.log("LP Token USDM/XTZ originated")
+
+    cfmmTezFa2TokenStorage.usdmTokenAddress = usdmToken.contract.address;
+    cfmmTezFa2TokenStorage.lpTokenAddress   = lpTokenUsdmXtz.contract.address;
+    cfmmTezFa2TokenStorage.tokenName        = "usdm";
+    cfmmTezFa2TokenStorage.tokenAddress     = usdmToken.contract.address;
+    cfmmTezFa2Token = await CfmmTezFa2Token.originate(
+      utils.tezos,
+      cfmmTezFa2TokenStorage
+    );
+
+    console.log("CFMM (XTZ/USDM) originated")
 
 
     /* ---- ---- ---- ---- ---- */
@@ -371,8 +407,9 @@ describe('Contracts Deployment for Tests', async () => {
     
     await saveContractAddress("usdmTokenAddress", usdmToken.contract.address)
     await saveContractAddress("usdmTokenControllerAddress", usdmTokenController.contract.address)
-    await saveContractAddress("lpTokenUsdmXtz", lpTokenUsdmXtz.contract.address)
-    await saveContractAddress("cfmmAddress", cfmm.contract.address)
+    await saveContractAddress("lpTokenUsdmXtzTokenAddress", lpTokenUsdmXtz.contract.address)
+    // await saveContractAddress("cfmmAddress", cfmm.contract.address)
+    await saveContractAddress("cfmmTezFa2TokenAddress", cfmmTezFa2Token.contract.address)
 
     //----------------------------
     // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
@@ -402,8 +439,9 @@ describe('Contracts Deployment for Tests', async () => {
 
         console.log("USDM Token deployed at:", usdmToken.contract.address);
         console.log("USDM Token Controller Contract deployed at:", usdmTokenController.contract.address);
-        console.log("LP Token USDM/XTZ deployed at:", lpTokenUsdmXtz.contract.address);
-        console.log("CFMM (USDM/XTZ) Contract deployed at:", cfmm.contract.address);
+        console.log("LP Token XTZ/USDM deployed at:", lpTokenUsdmXtz.contract.address);
+        // console.log("CFMM (USDM/XTZ) Contract deployed at:", cfmm.contract.address);
+        console.log("CFMM (XTZ/USDM) Contract deployed at:", cfmmTezFa2Token.contract.address);
 
     } catch (e){
         console.log(e);
