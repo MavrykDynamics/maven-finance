@@ -36,7 +36,7 @@
     "compile-lambdas": "ts-node scripts/cli.ts compile-lambda -j contracts/partials/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo",
     "compile-lambda-parameters": "ts-node scripts/cli.ts compile-lambda-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",    
     
-    "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 300000",
+    "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 600000",
     "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=hangzhounet ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 900000",
     "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 900000",
     "test-full": "yarn compile && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
