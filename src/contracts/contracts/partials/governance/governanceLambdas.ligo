@@ -1,5 +1,5 @@
 (* CallGovernanceLambda lambda *)
-function callGovernanceLambda(const executeAction : executeActionType; var s : storage) : return is
+function callGovernanceLambda(const executeAction : executeActionType; var s : governanceStorage) : return is
   block {
     
     checkSenderIsAdminOrSelf(s);
@@ -21,7 +21,7 @@ function callGovernanceLambda(const executeAction : executeActionType; var s : s
       | None     -> failwith("Error. Governance Lambda not found.")
     ];
 
-    // reference: type governanceLambdaFunctionType is (executeActionType * storage) -> return
+    // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
       | None    -> failwith("Error. Unable to unpack Governance Lambda.")
@@ -30,7 +30,7 @@ function callGovernanceLambda(const executeAction : executeActionType; var s : s
   } with (res.0, s)
 
 (* updateLambdaFunction lambda *)
-function updateLambdaFunction(const executeAction : executeActionType; var s : storage) : return is
+function updateLambdaFunction(const executeAction : executeActionType; var s : governanceStorage) : return is
   block {
     
     checkSenderIsAdminOrSelf(s);
@@ -50,7 +50,7 @@ function updateLambdaFunction(const executeAction : executeActionType; var s : s
 
   } with (noOperations, s)
 
-function updateGovernanceConfig(const executeAction : executeActionType; var s : storage) : return is 
+function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceStorage) : return is 
 block {
 
     checkSenderIsAdminOrSelf(s);
@@ -87,7 +87,7 @@ block {
 
 } with (operations, s)
 
-function updateDelegationConfig(const executeAction : executeActionType; var s : storage) : return is 
+function updateDelegationConfig(const executeAction : executeActionType; var s : governanceStorage) : return is 
 block {
 
     checkSenderIsAdminOrSelf(s);

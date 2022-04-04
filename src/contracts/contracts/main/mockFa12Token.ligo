@@ -1,3 +1,9 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
+
 // MvkToken types for transfer
 #include "../partials/types/mvkTokenTypes.ligo"
 

@@ -138,3 +138,18 @@ type councilActionChangeMemberType is [@layout:comb] record [
     oldCouncilMemberAddress           : address;
     newCouncilMemberAddress           : address;
 ]
+
+type councilStorage is [@layout:comb] record [
+    admin                       : address;
+    mvkTokenAddress             : address;
+    metadata                    : metadata;
+
+    config                      : councilConfigType;
+    councilMembers              : councilMembersType;  // set of council member addresses
+    
+    whitelistContracts          : whitelistContractsType;      
+    generalContracts            : generalContractsType;
+
+    councilActionsLedger        : councilActionsLedgerType; 
+    actionCounter               : nat;
+]

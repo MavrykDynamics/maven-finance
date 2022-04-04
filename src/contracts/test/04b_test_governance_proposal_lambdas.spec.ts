@@ -321,7 +321,7 @@
 //     });
 
 //     it('bob and alice can vote for her proposal during the voting round', async () => {
-//         try{        
+//         try{
 
 //             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
 //             console.log("Test: bob and alice can vote for her proposal during the voting round") 

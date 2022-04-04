@@ -67,9 +67,9 @@ export const governanceStorage: governanceStorageType = {
   currentBlocksPerProposalRound :  new BigNumber(0),
   currentBlocksPerVotingRound   :  new BigNumber(0),
   currentBlocksPerTimelockRound :  new BigNumber(0),
-  currentRoundStartLevel  : new BigNumber(1),
-  currentRoundEndLevel    : new BigNumber(14401),
-  currentCycleEndLevel    : new BigNumber(28801),
+  currentRoundStartLevel  : new BigNumber(0),
+  currentRoundEndLevel    : new BigNumber(0),
+  currentCycleEndLevel    : new BigNumber(0),
   currentRoundProposals   : MichelsonMap.fromLiteral({}),
   currentRoundVotes       : MichelsonMap.fromLiteral({}),
 

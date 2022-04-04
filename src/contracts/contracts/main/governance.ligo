@@ -16,50 +16,6 @@
 // Governance Type
 #include "../partials/types/governanceTypes.ligo"
 
-type storage is record [
-    admin                       : address;
-    mvkTokenAddress             : address;
-    metadata                    : metadata;
-
-    config                      : configType;
-
-    whitelistContracts          : whitelistContractsType;      
-    whitelistTokenContracts     : whitelistTokenContractsType;      
-    generalContracts            : generalContractsType; 
-    
-    proposalLedger              : proposalLedgerType;
-    snapshotLedger              : snapshotLedgerType;
-
-    startLevel                  : nat;                // use Tezos.level as start level
-    nextProposalId              : nat;                // counter of next proposal id
-    cycleCounter                : nat;                // counter of current cycle 
-    
-    // current round state variables - will be flushed periodically
-    currentRound                : roundType;          // proposal, voting, timelock
-    currentBlocksPerProposalRound      : nat;  // to determine duration of proposal round
-    currentBlocksPerVotingRound        : nat;  // to determine duration of voting round
-    currentBlocksPerTimelockRound      : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
-    currentRoundStartLevel      : nat;                // current round starting block level
-    currentRoundEndLevel        : nat;                // current round ending block level
-    currentCycleEndLevel        : nat;                // current cycle (proposal + voting) ending block level 
-    currentRoundProposals       : map(nat, nat);      // proposal id, total positive votes in MVK
-    currentRoundVotes           : map(address, nat);  // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-
-    currentRoundHighestVotedProposalId  : nat;        // set to 0 if there is no proposal currently, if not set to proposal id
-    timelockProposalId                  : nat;        // set to 0 if there is proposal in timelock, if not set to proposal id
-
-    snapshotMvkTotalSupply         : nat;             // snapshot of total MVK supply - for quorum calculation use
-    snapshotStakedMvkTotalSupply   : nat;             // snapshot of total staked MVK supply - for financial request decision making 
-
-    financialRequestLedger             : financialRequestLedgerType;
-    financialRequestSnapshotLedger     : financialRequestSnapshotLedgerType;
-    financialRequestCounter            : nat;
-
-    governanceLambdaLedger      : governanceLambdaLedgerType;
-
-    tempFlag : nat;     // test variable - currently used to show block levels per transaction
-]
-
 type governanceAction is 
     | BreakGlass of (unit)
     | SetAdmin of (address)
@@ -95,11 +51,12 @@ type governanceAction is
     // | VoteForRequest of voteForRequestType
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
-type governanceLambdaFunctionType is (executeActionType * storage) -> return
+const maxRoundDuration: nat = 20_160n; // One week with blockTime = 30sec
+type return is list (operation) * governanceStorage
+type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
 
 // admin helper functions begin --
-function checkSenderIsAdmin(var s : storage) : unit is
+function checkSenderIsAdmin(var s : governanceStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Error. Only the administrator can call this entrypoint.");
 
@@ -107,11 +64,11 @@ function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.sender = Tezos.self_address) then unit
     else failwith("Error. Only the governance contract can call this entrypoint.");
 
-function checkSenderIsAdminOrSelf(var s : storage) : unit is
+function checkSenderIsAdminOrSelf(var s : governanceStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = Tezos.self_address) then unit
     else failwith("Error. Only the administrator or governance contract can call this entrypoint.");
 
-function checkSenderIsDelegationContract(var s : storage) : unit is
+function checkSenderIsDelegationContract(var s : governanceStorage) : unit is
 block{
   const delegationAddress : address = case s.generalContracts["delegation"] of [
       Some(_address) -> _address
@@ -121,7 +78,7 @@ block{
   else failwith("Error. Only the Delegation Contract can call this entrypoint.");
 } with unit
 
-function checkSenderIsDoormanContract(var s : storage) : unit is
+function checkSenderIsDoormanContract(var s : governanceStorage) : unit is
 block{
   const doormanAddress : address = case s.generalContracts["doorman"] of [
       Some(_address) -> _address
@@ -131,14 +88,14 @@ block{
   else failwith("Error. Only the Doorman Contract can call this entrypoint.");
 } with unit
 
-function checkSenderIsMvkTokenContract(var s : storage) : unit is
+function checkSenderIsMvkTokenContract(var s : governanceStorage) : unit is
 block{
   const mvkTokenAddress : address = s.mvkTokenAddress;
   if (Tezos.sender = mvkTokenAddress) then skip
   else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
 } with unit
 
-function checkSenderIsCouncilContract(var s : storage) : unit is
+function checkSenderIsCouncilContract(var s : governanceStorage) : unit is
 block{
   const councilAddress : address = case s.generalContracts["council"] of [
       Some(_address) -> _address
@@ -148,7 +105,7 @@ block{
   else failwith("Error. Only the Council Contract can call this entrypoint.");
 } with unit
 
-function checkSenderIsEmergencyGovernanceContract(var s : storage) : unit is
+function checkSenderIsEmergencyGovernanceContract(var s : governanceStorage) : unit is
 block{
   const emergencyGovernanceAddress : address = case s.generalContracts["emergencyGovernance"] of [
       Some(_address) -> _address
@@ -185,11 +142,35 @@ block {
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
+
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
 #include "../partials/whitelistTokenContractsMethod.ligo"
+
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: governanceStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+  } with (noOperations, s)
 
 // Governance Lambda Methods: callGovernanceLambda, setupLambdaFunction
 #include "../partials/governance/governanceLambdaMethods.ligo"
@@ -197,7 +178,7 @@ block {
 // Governance Lambdas: e.g. updateGovernanceConfig, updateDelegationConfig
 #include "../partials/governance/governanceLambdas.ligo"
 
-function updateConfig(const updateConfigParams : governanceUpdateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : governanceUpdateConfigParamsType; var s : governanceStorage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -211,19 +192,19 @@ block {
         // set boundary - do for the rest
         s.config.successReward              := updateConfigNewValue
       }
-  | ConfigMinProposalRoundVotePct (_v)                -> s.config.minProposalRoundVotePercentage          := updateConfigNewValue
+  | ConfigMinProposalRoundVotePct (_v)                -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minProposalRoundVotePercentage := updateConfigNewValue
   | ConfigMinProposalRoundVotesReq (_v)               -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
-  | ConfigMinQuorumPercentage (_v)                    -> s.config.minQuorumPercentage                     := updateConfigNewValue
+  | ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minQuorumPercentage                     := updateConfigNewValue
   | ConfigMinQuorumMvkTotal (_v)                      -> s.config.minQuorumMvkTotal                       := updateConfigNewValue
-  | ConfigVotingPowerRatio (_v)                       -> s.config.votingPowerRatio                        := updateConfigNewValue
+  | ConfigVotingPowerRatio (_v)                       -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.votingPowerRatio                        := updateConfigNewValue
   | ConfigProposalSubmissionFee (_v)                  -> s.config.proposalSubmissionFee                   := updateConfigNewValue
-  | ConfigMinimumStakeReqPercentage (_v)              -> s.config.minimumStakeReqPercentage               := updateConfigNewValue
+  | ConfigMinimumStakeReqPercentage (_v)              -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minimumStakeReqPercentage               := updateConfigNewValue
   | ConfigMaxProposalsPerDelegate (_v)                -> s.config.maxProposalsPerDelegate                 := updateConfigNewValue
-  | ConfigNewBlockTimeLevel (_v)                      -> s.config.newBlockTimeLevel                       := updateConfigNewValue
-  | ConfigBlocksPerProposalRound (_v)                 -> s.config.blocksPerProposalRound                  := updateConfigNewValue
-  | ConfigBlocksPerVotingRound (_v)                   -> s.config.blocksPerVotingRound                    := updateConfigNewValue
-  | ConfigBlocksPerTimelockRound (_v)                 -> s.config.blocksPerTimelockRound                  := updateConfigNewValue
-  | ConfigFinancialReqApprovalPct (_v)                -> s.config.financialRequestApprovalPercentage      := updateConfigNewValue
+  | ConfigNewBlockTimeLevel (_v)                      -> if updateConfigNewValue < Tezos.level then failwith("Error. This config value must be greater than the current level") else s.config.newBlockTimeLevel                       := updateConfigNewValue
+  | ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith("Error. The duration of this round cannot exceed the maximum round duration") else s.config.blocksPerProposalRound                  := updateConfigNewValue
+  | ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith("Error. The duration of this round cannot exceed the maximum round duration") else s.config.blocksPerVotingRound                    := updateConfigNewValue
+  | ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith("Error. The duration of this round cannot exceed the maximum round duration") else s.config.blocksPerTimelockRound                  := updateConfigNewValue
+  | ConfigFinancialReqApprovalPct (_v)                -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.financialRequestApprovalPercentage      := updateConfigNewValue
   | ConfigFinancialReqDurationDays (_v)               -> s.config.financialRequestDurationInDays          := updateConfigNewValue
   ];
 
@@ -240,7 +221,7 @@ function sendOperationToGovernanceLambda(const _p : unit) : contract(executeActi
   ];
 
 // helper function to get satellite snapshot 
-function getSatelliteSnapshotRecord (const satelliteAddress : address; const s : storage) : snapshotRecordType is
+function getSatelliteSnapshotRecord (const satelliteAddress : address; const s : governanceStorage) : snapshotRecordType is
   block {
     var satelliteSnapshotRecord : snapshotRecordType :=
       record [
@@ -379,7 +360,7 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 // housekeeping functions begin: --
 
 (*  set contract admin address *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : governanceStorage) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -390,7 +371,7 @@ block {
 
 // housekeeping functions end: --
 
-function breakGlass(var s : storage) : return is 
+function breakGlass(var s : governanceStorage) : return is 
 block {
     // Steps Overview:
     // 1. set admin to breakglass address in major contracts (doorman, delegation etc)
@@ -424,7 +405,7 @@ block {
     
 } with (operations, s)
 
-// function startNextRound(var s : storage) : return is
+// function startNextRound(var s : governanceStorage) : return is
 // block {
 
 //     // check if current round has ended
@@ -549,7 +530,7 @@ block {
 
 // } with (operations, s)
 
-function setupProposalRound(var s: storage): storage is
+function setupProposalRound(var s: governanceStorage): governanceStorage is
   block {
     // reset state variables
     var emptyProposalMap  : map(nat, nat)     := map [];
@@ -590,7 +571,7 @@ function setupProposalRound(var s: storage): storage is
       const mvkBalance: nat = satellite.stakedMvkBalance;
       const totalDelegatedAmount: nat = satellite.totalDelegatedAmount;
 
-      // create or retrieve satellite snapshot from snapshotLedger in storage
+      // create or retrieve satellite snapshot from snapshotLedger in governanceStorage
       var satelliteSnapshotRecord : snapshotRecordType := getSatelliteSnapshotRecord(satelliteAddress, s);
 
       // calculate total voting power 
@@ -611,7 +592,7 @@ function setupProposalRound(var s: storage): storage is
     }
   } with (s)
 
-function setupVotingRound(const highestVotedProposalId: nat; var s: storage): storage is
+function setupVotingRound(const highestVotedProposalId: nat; var s: governanceStorage): governanceStorage is
   block {
     // boundaries fixed to the start and end of the cycle (calculated at start of proposal round)
     s.currentRound               := (Voting : roundType);
@@ -628,7 +609,7 @@ function setupVotingRound(const highestVotedProposalId: nat; var s: storage): st
     s.currentRoundVotes := emptyCurrentRoundVotes;
   } with (s)
 
-function setupTimelockRound(var s: storage): storage is
+function setupTimelockRound(var s: governanceStorage): governanceStorage is
   block {
     // boundaries remain fixed to the start and end of the cycle (calculated at start of proposal round)
     s.currentRound               := (Timelock : roundType);
@@ -639,16 +620,15 @@ function setupTimelockRound(var s: storage): storage is
     s.timelockProposalId         := s.currentRoundHighestVotedProposalId;
   } with (s)
 
-function startNextRound(var s : storage) : return is
+function startNextRound(var s : governanceStorage) : return is
 block {
   // Current round is not ended
-  if Tezos.level < s.currentRoundEndLevel 
+  if Tezos.level < s.currentRoundEndLevel
   then failwith("Error. The current round has not ended yet.") 
   else skip;
 
   // Get current variables
   const currentRoundHighestVotedProposal: option(proposalRecordType) = Big_map.find_opt(s.currentRoundHighestVotedProposalId, s.proposalLedger);
-  // const timelockProposal: option(proposalRecordType) = Big_map.find_opt(s.timelockProposalId, s.proposalLedger);
   var _highestVoteCounter     : nat := 0n;
   var highestVotedProposalId  : nat := 0n;
   for proposalId -> voteCount in map s.currentRoundProposals block {
@@ -689,7 +669,7 @@ block {
   ];
 } with (noOperations, s)
 
-// function startProposalRound(var s : storage) : return is
+// function startProposalRound(var s : governanceStorage) : return is
 // block {
     
 //     // Steps Overview:
@@ -795,7 +775,7 @@ block {
 //       const mvkBalance: nat = satellite.stakedMvkBalance;
 //       const totalDelegatedAmount: nat = satellite.totalDelegatedAmount;
 
-//       // create or retrieve satellite snapshot from snapshotLedger in storage
+//       // create or retrieve satellite snapshot from snapshotLedger in governanceStorage
 //       var satelliteSnapshotRecord : snapshotRecordType := getSatelliteSnapshotRecord(satelliteAddress, s);
 
 //       // calculate total voting power 
@@ -818,7 +798,7 @@ block {
 // } with (operations, s)
 
 (* Propose Entrypoint *)
-function propose(const newProposal : newProposalType ; var s : storage) : return is 
+function propose(const newProposal : newProposalType ; var s : governanceStorage) : return is 
 block {
     // Steps Overview:
     // 1. verify that the current round is a governance proposal round
@@ -839,7 +819,7 @@ block {
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found")
     ];
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", unit, delegationAddress);
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
     case satelliteOptView of [
       Some (value) -> case value of [
           Some (_satellite) -> skip
@@ -932,7 +912,7 @@ block {
 
 (* AddUpdateProposalData Entrypoint *)
 // type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
-function addUpdateProposalData(const proposalData : addUpdateProposalDataType; var s : storage) : return is 
+function addUpdateProposalData(const proposalData : addUpdateProposalDataType; var s : governanceStorage) : return is 
 block {
 
     if s.currentRound = (Proposal : roundType) then skip
@@ -952,7 +932,7 @@ block {
       else skip;
 
     // check that sender is the creator of the proposal 
-    if proposalRecord.proposerAddress =/= Tezos.sender then failwith("Error. Only the proposer can add or update data.")
+    if proposalRecord.proposerAddress =/= Tezos.source then failwith("Error. Only the proposer can add or update data.")
       else skip;
 
     // Add or update data to proposal
@@ -964,7 +944,7 @@ block {
 } with (noOperations, s)
 
 
-function lockProposal(const proposalId : nat; var s : storage) : return is 
+function lockProposal(const proposalId : nat; var s : governanceStorage) : return is 
 block {
 
   if s.currentRound = (Proposal : roundType) then skip
@@ -989,7 +969,7 @@ block {
 } with (noOperations, s)
 
 (* ProposalRoundVote Entrypoint *)
-function proposalRoundVote(const proposalId : nat; var s : storage) : return is 
+function proposalRoundVote(const proposalId : nat; var s : governanceStorage) : return is 
 block {
     // Steps Overview:
     // 1. verify that current round is a proposal round
@@ -1008,7 +988,7 @@ block {
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found")
     ];
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", unit, delegationAddress);
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
     case satelliteOptView of [
       Some (value) -> case value of [
           Some (_satellite) -> skip
@@ -1109,7 +1089,7 @@ block {
 } with (noOperations, s)
 
 (* StartVotingRound Entrypoint *)
-// function startVotingRound(var s : storage) : return is
+// function startVotingRound(var s : governanceStorage) : return is
 // block {
     
 //     // Steps Overview:
@@ -1181,7 +1161,7 @@ block {
 // } with (operations, s)
 
 // (* VotingRoundVote Entrypoint *)
-function votingRoundVote(const voteType : voteForProposalChoiceType; var s : storage) : return is 
+function votingRoundVote(const voteType : voteForProposalChoiceType; var s : governanceStorage) : return is 
 block {
     // Steps Overview:
     // 1. verify that round is a voting round
@@ -1203,7 +1183,7 @@ block {
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found")
     ];
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", unit, delegationAddress);
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
     case satelliteOptView of [
       Some (value) -> case value of [
           Some (_satellite) -> skip
@@ -1277,7 +1257,7 @@ block {
 } with (noOperations, s)
 
 (* StartTimelockRound Entrypoint *)
-// function startTimelockRound(var s : storage) : return is
+// function startTimelockRound(var s : governanceStorage) : return is
 // block {
     
 //     // Steps Overview:
@@ -1317,7 +1297,7 @@ block {
 // } with (operations, s)
 
 (* ExecuteProposal Entrypoint *)
-function executeProposal(var s : storage) : return is 
+function executeProposal(var s : governanceStorage) : return is 
 block {
     // Steps Overview: 
     // 1. verify that user is a satellite and can execute proposal
@@ -1375,7 +1355,7 @@ block {
 } with (operations, s)
 
 (* DropProposal Entrypoint *)
-function dropProposal(const proposalId : nat; var s : storage) : return is 
+function dropProposal(const proposalId : nat; var s : governanceStorage) : return is 
 block {
     // Steps Overview: 
     // 1. verify that proposal is in the current round / cycle
@@ -1387,7 +1367,7 @@ block {
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found")
     ];
-    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", unit, delegationAddress);
+    const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
     case satelliteOptView of [
       Some (value) -> case value of [
           Some (_satellite) -> skip
@@ -1417,7 +1397,7 @@ block {
     
 } with (noOperations, s)
 
-function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; var s : storage) : storage is 
+function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; var s : governanceStorage) : governanceStorage is 
 block {
     // init variables
     const financialRequestId    : nat     = satelliteSnapshot.requestId;
@@ -1450,7 +1430,7 @@ block {
 
 } with (s)
 
-function requestTokens(const requestTokensParams : requestTokensType; var s : storage) : return is 
+function requestTokens(const requestTokensParams : requestTokensType; var s : governanceStorage) : return is 
 block {
   
   checkSenderIsCouncilContract(s);
@@ -1535,7 +1515,7 @@ block {
 
 } with (noOperations, s)
 
-function requestMint(const requestMintParams : requestMintType; var s : storage) : return is 
+function requestMint(const requestMintParams : requestMintType; var s : governanceStorage) : return is 
 block {
   
   checkSenderIsCouncilContract(s);
@@ -1622,7 +1602,7 @@ block {
 
 } with (noOperations, s)
 
-function dropFinancialRequest(const requestId : nat; var s : storage) : return is 
+function dropFinancialRequest(const requestId : nat; var s : governanceStorage) : return is 
 block {
 
   checkSenderIsCouncilContract(s);
@@ -1637,7 +1617,7 @@ block {
 
 } with (noOperations, s);
 
-function voteForRequest(const voteForRequest : voteForRequestType; var s : storage) : return is 
+function voteForRequest(const voteForRequest : voteForRequestType; var s : governanceStorage) : return is 
 block {
   
   // check if satellite exists in the active satellites map
@@ -1645,7 +1625,7 @@ block {
     Some(_address) -> _address
     | None -> failwith("Error. Delegation Contract is not found")
   ];
-  const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", unit, delegationAddress);
+  const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
   case satelliteOptView of [
     Some (value) -> case value of [
         Some (_satellite) -> skip
@@ -1777,7 +1757,7 @@ block {
 } with (operations, s)
 
 
-function main (const action : governanceAction; const s : storage) : return is 
+function main (const action : governanceAction; const s : governanceStorage) : return is 
     case action of [
         | BreakGlass(_parameters) -> breakGlass(s)  
         | SetAdmin(parameters) -> setAdmin(parameters, s)  

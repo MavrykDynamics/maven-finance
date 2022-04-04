@@ -49,3 +49,17 @@ type triggerEmergencyControlType is [@layout:comb] record[
 ]
 
 type metadata is big_map (string, bytes);
+
+type emergencyGovernanceStorage is [@layout:comb] record [
+    admin                               : address;
+    config                              : emergencyConfigType;
+    mvkTokenAddress                     : address;
+    metadata                            : metadata;
+    
+    generalContracts                    : generalContractsType;
+
+    emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
+    
+    currentEmergencyGovernanceId        : nat;
+    nextEmergencyGovernanceProposalId   : nat;
+]

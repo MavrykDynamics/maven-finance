@@ -7,23 +7,6 @@
 // BreakGlass Types
 #include "../partials/types/breakGlassTypes.ligo"
 
-type storage is record [
-    admin                       : address;               // for init of contract - needed?
-    mvkTokenAddress             : address;
-    metadata                    : metadata;
-    
-    config                      : breakGlassConfigType;
-    glassBroken                 : bool;
-    councilMembers              : councilMembersType;        // set of council member addresses
-    developerAddress            : address;                   // developer address
-
-    whitelistContracts          : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
-    generalContracts            : generalContractsType;      // map of all contract addresses (e.g. doorman, delegation, vesting)
-    
-    actionsLedger               : actionsLedgerType;         // record of past actions taken by council members
-    actionCounter               : nat;
-]
-
 type breakGlassAction is 
     | BreakGlass of (unit)
     
@@ -50,18 +33,18 @@ type breakGlassAction is
     | FlushAction of flushActionType
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * breakGlassStorage
 
 // admin helper functions begin ---------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
+function checkSenderIsAdmin(var s : breakGlassStorage) : unit is
     if (Tezos.sender = s.admin) then unit
         else failwith("Only the administrator can call this entrypoint.");
 
-function checkSenderIsCouncilMember(var s : storage) : unit is
+function checkSenderIsCouncilMember(var s : breakGlassStorage) : unit is
     if Set.mem(Tezos.sender, s.councilMembers) then unit 
         else failwith("Only council members can call this entrypoint.");
 
-function checkSenderIsEmergencyGovernanceContract(var s : storage) : unit is
+function checkSenderIsEmergencyGovernanceContract(var s : breakGlassStorage) : unit is
 block{
   const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of [
       Some(_address) -> _address
@@ -75,16 +58,39 @@ function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
       else failwith("This entrypoint should not receive any tez.");
 
-function checkGlassIsBroken(var s : storage) : unit is
+function checkGlassIsBroken(var s : breakGlassStorage) : unit is
     if s.glassBroken = True then unit
       else failwith("Error. Glass has not been broken");
 
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: breakGlassStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: breakGlassStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
+
+(* Transfer Entrypoint *)
+function mergeOperations(const first: list (operation); const second: list (operation)) : list (operation) is 
+  List.fold( 
+    function(const operations: list(operation); const operation: operation): list(operation) is operation # operations,
+    first,
+    second
+  )
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to set admin entrypoints in contract 
@@ -96,7 +102,7 @@ function setAdminInContract(const contractAddress : address) : contract(address)
   | None -> (failwith("setAdmin entrypoint in Contract Address not found") : contract(address))
   ];
 
-function breakGlass(var s : storage) : return is 
+function breakGlass(var s : breakGlassStorage) : return is 
 block {
     // Steps Overview:
     // 1. set contract admins to breakglass address - should be done in emergency governance?
@@ -109,7 +115,7 @@ block {
 } with (noOperations, s)
 
 (*  set contract admin address *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : breakGlassStorage) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -120,7 +126,7 @@ block {
 } with (noOperations, s)
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var s : breakGlassStorage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -136,7 +142,7 @@ block {
 
 } with (noOperations, s)
 
-function addCouncilMember(const councilMemberAddress : address; var s : storage) : return is 
+function addCouncilMember(const councilMemberAddress : address; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -177,7 +183,7 @@ block {
 
 } with (noOperations, s)
 
-function removeCouncilMember(const councilMemberAddress : address; var s : storage) : return is 
+function removeCouncilMember(const councilMemberAddress : address; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -218,7 +224,7 @@ block {
 
 } with (noOperations, s)
 
-function changeCouncilMember(const oldCouncilMemberAddress : address; const newCouncilMemberAddress : address; var s : storage) : return is 
+function changeCouncilMember(const oldCouncilMemberAddress : address; const newCouncilMemberAddress : address; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -260,7 +266,7 @@ block {
 
 } with (noOperations, s)
 
-function flushAction(const actionId: flushActionType; var s : storage) : return is 
+function flushAction(const actionId: flushActionType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -301,7 +307,7 @@ block {
 
 } with (noOperations, s)
 
-function pauseAllEntrypoints(var s : storage) : return is
+function pauseAllEntrypoints(var s : breakGlassStorage) : return is
 block {
 
     // Overall steps:
@@ -342,7 +348,7 @@ block {
 
 } with (noOperations, s)
 
-function unpauseAllEntrypoints(var s : storage) : return is
+function unpauseAllEntrypoints(var s : breakGlassStorage) : return is
 block {
 
     // Overall steps:
@@ -383,7 +389,7 @@ block {
 
 } with (noOperations, s)
 
-function setSingleContractAdmin(const newAdminAddress : address; const targetContractAddress : address; var s : storage) : return is 
+function setSingleContractAdmin(const newAdminAddress : address; const targetContractAddress : address; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -427,7 +433,7 @@ block {
 
 } with (noOperations, s)
 
-function setAllContractsAdmin(const newAdminAddress : address; var s : storage) : return is 
+function setAllContractsAdmin(const newAdminAddress : address; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -471,7 +477,7 @@ block {
 } with (noOperations, s)
 
 
-function removeBreakGlassControl(var s : storage) : return is 
+function removeBreakGlassControl(var s : breakGlassStorage) : return is 
 block {
 
 
@@ -514,7 +520,7 @@ block {
 } with (noOperations, s)
 
 
-function signAction(const actionId: nat; var s : storage) : return is 
+function signAction(const actionId: nat; var s : breakGlassStorage) : return is 
 block {
     
     checkSenderIsCouncilMember(s);
@@ -711,7 +717,7 @@ block {
 
 } with (operations, s)
 
-function main (const action : breakGlassAction; const s : storage) : return is 
+function main (const action : breakGlassAction; const s : breakGlassStorage) : return is 
     case action of [
         | BreakGlass(_parameters) -> breakGlass(s)
 

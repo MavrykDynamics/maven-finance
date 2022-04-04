@@ -7,21 +7,6 @@
 // Delegation Type
 #include "../partials/types/delegationTypes.ligo"
 
-type storage is record [
-    admin                : address;
-    mvkTokenAddress      : address;
-    metadata             : metadata;
-    
-    config               : delegationConfigType;
-
-    whitelistContracts   : whitelistContractsType;      
-    generalContracts     : generalContractsType;
-
-    breakGlassConfig     : delegationBreakGlassConfigType;
-    delegateLedger       : delegateLedgerType;
-    satelliteLedger      : satelliteLedgerType;
-]
-
 type delegationAction is 
     | SetAdmin of (address)
     | UpdateConfig of delegationUpdateConfigParamsType
@@ -47,10 +32,10 @@ type delegationAction is
     | OnStakeChange of onStakeChangeParams
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * delegationStorage
 
 // admin helper functions begin ---------------------------------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
+function checkSenderIsAdmin(var s : delegationStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
@@ -58,15 +43,15 @@ function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.sender = Tezos.self_address) then unit
     else failwith("Only this contract can call this entrypoint.");
 
-function checkSenderIsSatellite(var s : storage) : unit is 
+function checkSenderIsSatellite(var s : delegationStorage) : unit is 
   if (Map.mem(Tezos.sender, s.satelliteLedger)) then unit
   else failwith("Error. Sender is not a satellite.");
 
-function checkSenderIsNotSatellite(var s : storage) : unit is 
+function checkSenderIsNotSatellite(var s : delegationStorage) : unit is 
   if (Map.mem(Tezos.sender, s.satelliteLedger)) then failwith("Error. Sender is a satellite.")
   else unit;
 
-function checkSenderIsDoormanContract(var s : storage) : unit is
+function checkSenderIsDoormanContract(var s : delegationStorage) : unit is
 block{
   const doormanAddress : address = case s.generalContracts["doorman"] of [
       Some(_address) -> _address
@@ -76,7 +61,7 @@ block{
   else failwith("Error. Only the Doorman Contract can call this entrypoint.");
 } with unit
 
-function checkSenderIsGovernanceContract(var s : storage) : unit is
+function checkSenderIsGovernanceContract(var s : delegationStorage) : unit is
 block{
   const governanceAddress : address = case s.generalContracts["governance"] of [
       Some(_address) -> _address
@@ -93,16 +78,32 @@ function checkNoAmount(const _p : unit) : unit is
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: delegationStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: delegationStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 // admin helper functions end -----------------------------------------------------------------------------------
 
 (* View function that forwards the satellite voting power to the Governance or other contract *)
-[@view] function getSatelliteOpt(const satelliteAddress: address; var s : storage) : option(satelliteRecordType) is
+[@view] function getSatelliteOpt(const satelliteAddress: address; var s : delegationStorage) : option(satelliteRecordType) is
   s.satelliteLedger[satelliteAddress]
 
-[@view] function getActiveSatellites(const _: unit; var s : storage) : map(address, satelliteRecordType) is
+[@view] function getActiveSatellites(const _: unit; var s : delegationStorage) : map(address, satelliteRecordType) is
   block {
     var activeSatellites: map(address, satelliteRecordType) := Map.empty; 
     function findActiveSatellite(const activeSatellites: map(address, satelliteRecordType); const satellite: address * satelliteRecordType): map(address, satelliteRecordType) is
@@ -112,23 +113,23 @@ function checkNoAmount(const _p : unit) : unit is
   } with(activeSatellites)
 
 // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
-function checkDelegateToSatelliteIsNotPaused(var s : storage) : unit is
+function checkDelegateToSatelliteIsNotPaused(var s : delegationStorage) : unit is
     if s.breakGlassConfig.delegateToSatelliteIsPaused then failwith("DelegateToSatellite entrypoint is paused.")
     else unit;
 
-function checkUndelegateFromSatelliteIsNotPaused(var s : storage) : unit is
+function checkUndelegateFromSatelliteIsNotPaused(var s : delegationStorage) : unit is
     if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith("UndelegateFromSatellite entrypoint is paused.")
     else unit;
 
-  function checkRegisterAsSatelliteIsNotPaused(var s : storage) : unit is
+  function checkRegisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
     if s.breakGlassConfig.registerAsSatelliteIsPaused then failwith("RegisterAsSatellite entrypoint is paused.")
     else unit;
 
-  function checkUnregisterAsSatelliteIsNotPaused(var s : storage) : unit is
+  function checkUnregisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
     if s.breakGlassConfig.unregisterAsSatelliteIsPaused then failwith("UnregisterAsSatellite entrypoint is paused.")
     else unit;
   
-  function checkUpdateSatelliteRecordIsNotPaused(var s : storage) : unit is
+  function checkUpdateSatelliteRecordIsNotPaused(var s : delegationStorage) : unit is
     if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith("UpdateSatelliteRecord entrypoint is paused.")
     else unit;
 // break glass: checkIsNotPaused helper functions end -----------------------------------------------------------
@@ -136,7 +137,7 @@ function checkUndelegateFromSatelliteIsNotPaused(var s : storage) : unit is
 // helper functions begin: --------------------------------------------------------------------------------------
 
 // helper function to get satellite 
-function getSatelliteRecord (const satelliteAddress : address; const s : storage) : satelliteRecordType is
+function getSatelliteRecord (const satelliteAddress : address; const s : delegationStorage) : satelliteRecordType is
   block {
     var satelliteRecord : satelliteRecordType :=
       record [
@@ -159,7 +160,7 @@ function getSatelliteRecord (const satelliteAddress : address; const s : storage
   } with satelliteRecord
 
 // helper function to get user delegate
-function getDelegateRecord (const userAddress : address; const s : storage) : delegateRecordType is
+function getDelegateRecord (const userAddress : address; const s : delegationStorage) : delegateRecordType is
   block {
     var delegateRecord : delegateRecordType :=
       record [
@@ -174,7 +175,7 @@ function getDelegateRecord (const userAddress : address; const s : storage) : de
   } with delegateRecord
 
   // helper function to get user delegate
-function getOrCreateDelegateRecord (const userAddress : address; const s : storage) : delegateRecordType is
+function getOrCreateDelegateRecord (const userAddress : address; const s : delegationStorage) : delegateRecordType is
   block {
     var delegateRecord : delegateRecordType :=
       record [
@@ -193,7 +194,7 @@ function getOrCreateDelegateRecord (const userAddress : address; const s : stora
 // housekeeping functions begin: --------------------------------------------------------------------------------
 
 (*  set contract admin address *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : delegationStorage) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -204,7 +205,7 @@ block {
 } with (noOperations, s)
 
 
-function updateConfig(const updateConfigParams : delegationUpdateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : delegationUpdateConfigParamsType; var s : delegationStorage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -223,14 +224,14 @@ block {
 
 
 // break glass toggle entrypoints begin ---------------------------------------------------------
-function togglePauseDelegateToSatellite(var s : storage) : return is
+function togglePauseDelegateToSatellite(var s : delegationStorage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
       else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
 } with (noOperations, s)
 
-function togglePauseUndelegateSatellite(var s : storage) : return is
+function togglePauseUndelegateSatellite(var s : delegationStorage) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin
@@ -240,7 +241,7 @@ block {
 
 } with (noOperations, s)
 
-function togglePauseRegisterSatellite(var s : storage) : return is
+function togglePauseRegisterSatellite(var s : delegationStorage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
@@ -249,7 +250,7 @@ block {
 } with (noOperations, s)
 
 // note: togglePauseUnregisterAsSatellite is too long and exceeds max length of 32 characters so togglePauseUnregisterSatellite is used instead
-function togglePauseUnregisterSatellite(var s : storage) : return is
+function togglePauseUnregisterSatellite(var s : delegationStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -260,7 +261,7 @@ block {
 } with (noOperations, s)
 
 // note: togglePauseUpdateSatelliteRecord is too long and exceeds max length of 32 characters so togglePauseUpdateSatellite is used instead
-function togglePauseUpdateSatellite(var s : storage) : return is
+function togglePauseUpdateSatellite(var s : delegationStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -270,7 +271,7 @@ block {
 
 } with (noOperations, s)
 
-function pauseAll(var s : storage) : return is
+function pauseAll(var s : delegationStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -294,7 +295,7 @@ block {
 
 } with (noOperations, s)
 
-function unpauseAll(var s : storage) : return is
+function unpauseAll(var s : delegationStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -321,7 +322,7 @@ block {
 
 // housekeeping functions end: --------------------------------------------------------------------------------
 
-function delegateToSatellite(const satelliteAddress : address; var s : storage) : return is 
+function delegateToSatellite(const satelliteAddress : address; var s : delegationStorage) : return is 
 block {
 
     // Overall steps:
@@ -403,20 +404,20 @@ block {
       | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
       ];
 
-      // Retrieve satellite account from storage
+      // Retrieve satellite account from delegationStorage
       var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
 
       // update satellite totalDelegatedAmount balance
       satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
       
-      // update satellite ledger storage with new balance
+      // update satellite ledger delegationStorage with new balance
       s.satelliteLedger[satelliteAddress] := satelliteRecord;
 
     }
 
 } with (operations, s)
 
-function undelegateFromSatellite(var s : storage) : return is
+function undelegateFromSatellite(var s : delegationStorage) : return is
 block {
 
     // Overall steps:
@@ -476,7 +477,7 @@ block {
         // update satellite totalDelegatedAmount balance
         _satelliteRecord.totalDelegatedAmount := abs(_satelliteRecord.totalDelegatedAmount - stakedMvkBalance); 
         
-        // update satellite ledger storage with new balance
+        // update satellite ledger delegationStorage with new balance
         s.satelliteLedger[_delegateRecord.satelliteAddress] := _satelliteRecord;
 
     } else skip;
@@ -486,7 +487,7 @@ block {
 
 } with (noOperations, s)
 
-function updateSatelliteRecord(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : storage) : return is
+function updateSatelliteRecord(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : delegationStorage) : return is
 block {
 
     // Overall steps:
@@ -507,12 +508,12 @@ block {
     satelliteRecord.image          := image;   
     satelliteRecord.satelliteFee   := satelliteFee;        
     
-    // update satellite ledger storage with new information
+    // update satellite ledger delegationStorage with new information
     s.satelliteLedger[Tezos.sender] := satelliteRecord;
 
 } with (noOperations, s)
 
-function registerAsSatellite(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : storage) : return is 
+function registerAsSatellite(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : delegationStorage) : return is 
 block {
     
     // Overall steps: 
@@ -566,7 +567,7 @@ block {
 
 } with (noOperations, s)
 
-function unregisterAsSatellite(var s : storage) : return is
+function unregisterAsSatellite(var s : delegationStorage) : return is
 block {
     // Overall steps:
     // 1. check if satellite exists in satelliteLedger
@@ -588,7 +589,7 @@ block {
 
 } with (noOperations, s)
 
-function onStakeChange(const userAddress : address; const stakeAmount : nat; const stakeType : nat; var s : storage) : return is 
+function onStakeChange(const userAddress : address; const stakeAmount : nat; const stakeType : nat; var s : delegationStorage) : return is 
 block {
 
     // Overall steps:
@@ -602,7 +603,7 @@ block {
 
     // check sender is Doorman Contract or Treasury Contract
     // checkSenderIsDoormanContract(s);
-    if checkInWhitelistContracts(Tezos.sender, s) then skip else failwith("Error. Sender is not in whitelisted contracts.");
+    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
 
     var satelliteRecord: option(satelliteRecordType) := Map.find_opt(userAddress, s.satelliteLedger);
 
@@ -639,7 +640,7 @@ block {
         case delegateRecord of [
           Some (_delegator) -> block {
 
-            // Retrieve satellite account from storage
+            // Retrieve satellite account from delegationStorage
             case Map.find_opt(_delegator.satelliteAddress, s.satelliteLedger) of [
               Some (_delegatedSatellite) -> block{
                 var satellite: satelliteRecordType := _delegatedSatellite;
@@ -678,7 +679,7 @@ block {
     ];
 } with (operations, s)
 
-function main (const action : delegationAction; const s : storage) : return is 
+function main (const action : delegationAction; const s : delegationStorage) : return is 
     case action of [    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
