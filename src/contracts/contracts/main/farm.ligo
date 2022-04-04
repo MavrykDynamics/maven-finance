@@ -11,35 +11,10 @@
 #include "../partials/types/farmTypes.ligo"
 
 ////
-// STORAGE
-////
-
-type storage is record[
-    admin                   : address;
-    mvkTokenAddress         : address;
-    metadata                : metadata;
-
-    config                  : farmConfigType;
-
-    whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    generalContracts        : generalContractsType;
-
-    breakGlassConfig        : farmBreakGlassConfigType;
-
-    lastBlockUpdate         : nat;
-    accumulatedMVKPerShare  : tokenBalance;
-    claimedRewards          : claimedRewards;
-    delegators              : big_map(delegator, delegatorRecord);
-    open                    : bool;
-    init                    : bool;
-    initBlock               : nat;
-]
-
-////
 // RETURN TYPES
 ////
 (* define return for readability *)
-type return is list (operation) * storage
+type return is list (operation) * farmStorage
 (* define noop for readability *)
 const noOperations : list (operation) = nil;
 
@@ -77,7 +52,7 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // HELPER FUNCTIONS
 ///
 (* Getters and Setters *)
-function getDelegatorDeposit(const delegator: delegator; const s: storage): option(delegatorRecord) is
+function getDelegatorDeposit(const delegator: delegator; const s: farmStorage): option(delegatorRecord) is
     Big_map.find_opt(delegator, s.delegators)
 
 (* Checks functions *)
@@ -85,11 +60,11 @@ function checkNoAmount(const _p: unit): unit is
   if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
   else unit
 
-function checkSenderIsAdmin(const s: storage): unit is
+function checkSenderIsAdmin(const s: farmStorage): unit is
   if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
-function checkSenderOrSourceIsCouncil(const s: storage): unit is
+function checkSenderOrSourceIsCouncil(const s: farmStorage): unit is
     block {
         const councilAddress: address = case s.whitelistContracts["council"] of [
             Some (_address) -> _address
@@ -100,7 +75,7 @@ function checkSenderOrSourceIsCouncil(const s: storage): unit is
         else failwith("Only Council contract allowed");
     } with(unit)
 
-function checkSenderIsAllowed(const s: storage): unit is
+function checkSenderIsAllowed(const s: farmStorage): unit is
     block {
         // First check because a farm without a facory should still be accessible
         if Tezos.sender = s.admin then skip
@@ -113,11 +88,11 @@ function checkSenderIsAllowed(const s: storage): unit is
         };
     } with(unit)
 
-function checkFarmIsInit(const s: storage): unit is 
+function checkFarmIsInit(const s: farmStorage): unit is 
   if not s.init then failwith("This farm has not yet been initiated")
   else unit
 
-function checkFarmIsOpen(const s: storage): unit is 
+function checkFarmIsOpen(const s: farmStorage): unit is 
   if not s.open then failwith("This farm is closed")
   else unit
 
@@ -126,15 +101,15 @@ function checkFarmIsOpen(const s: storage): unit is
 ////
 
 // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
-function checkDepositIsNotPaused(var s : storage) : unit is
+function checkDepositIsNotPaused(var s : farmStorage) : unit is
     if s.breakGlassConfig.depositIsPaused then failwith("Deposit entrypoint is paused.")
     else unit;
 
-function checkWithdrawIsNotPaused(var s : storage) : unit is
+function checkWithdrawIsNotPaused(var s : farmStorage) : unit is
     if s.breakGlassConfig.withdrawIsPaused then failwith("Withdraw entrypoint is paused.")
     else unit;
 
-function checkClaimIsNotPaused(var s : storage) : unit is
+function checkClaimIsNotPaused(var s : farmStorage) : unit is
     if s.breakGlassConfig.claimIsPaused then failwith("Claim entrypoint is paused.")
     else unit;
 
@@ -144,8 +119,24 @@ function checkClaimIsNotPaused(var s : storage) : unit is
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: farmStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: farmStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 ////
 // TRANSFER FUNCTIONS
@@ -189,7 +180,7 @@ function transferLP(const from_: address; const to_: address; const tokenAmount:
     |   Fa2 -> transferFa2Token(from_,to_,tokenAmount,tokenId,tokenContractAddress)
     ]
 
-function transferReward(const delegator: delegator; const tokenAmount: tokenBalance; const s: storage): operation is
+function transferReward(const delegator: delegator; const tokenAmount: tokenBalance; const s: farmStorage): operation is
     block{
         // Call farmClaim from the doorman contract
         const doormanContractAddress: address = case Big_map.find_opt("doorman", s.generalContracts) of [
@@ -209,18 +200,18 @@ function transferReward(const delegator: delegator; const tokenAmount: tokenBala
 ////
 // UPDATE FARM FUNCTIONS
 ///
-function updateBlock(var s: storage): storage is
+function updateBlock(var s: farmStorage): farmStorage is
     block{
         // Close farm is totalBlocks duration has been exceeded
         const lastBlock: nat = s.config.plannedRewards.totalBlocks + s.initBlock;
         s.open := Tezos.level <= lastBlock or s.config.infinite;
 
-        // Update lastBlockUpdate in storage
+        // Update lastBlockUpdate in farmStorage
         s.lastBlockUpdate := Tezos.level;
     }
     with(s)
 
-function updateFarmParameters(var s: storage): storage is
+function updateFarmParameters(var s: farmStorage): farmStorage is
     block{
         // Compute the potential reward of this block
         const multiplier: nat = abs(Tezos.level - s.lastBlockUpdate);
@@ -238,13 +229,13 @@ function updateFarmParameters(var s: storage): storage is
         |   False -> suspectedReward
         ];
             
-        // Updates the storage
+        // Updates the farmStorage
         s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
         s.accumulatedMVKPerShare := s.accumulatedMVKPerShare + ((reward * fixedPointAccuracy) / s.config.lpToken.tokenBalance);
         s := updateBlock(s);
     } with(s)
 
-function updateFarm(var s: storage): storage is
+function updateFarm(var s: farmStorage): farmStorage is
     block{
         s := case s.config.lpToken.tokenBalance = 0n of [
             True -> updateBlock(s)
@@ -255,7 +246,7 @@ function updateFarm(var s: storage): storage is
         ];
     } with(s)
 
-function updateUnclaimedRewards(var s: storage): storage is
+function updateUnclaimedRewards(var s: farmStorage): farmStorage is
     block{
         // Get delegator
         const delegator: delegator = Tezos.sender;
@@ -274,7 +265,7 @@ function updateUnclaimedRewards(var s: storage): storage is
         const currentMVKPerShare = abs(accumulatedMVKPerShareEnd - accumulatedMVKPerShareStart);
         const delegatorReward = (currentMVKPerShare * delegatorRecord.balance) / fixedPointAccuracy;
 
-        // Update paid and unpaid rewards in storage
+        // Update paid and unpaid rewards in farmStorage
         if delegatorReward > s.claimedRewards.unpaid then failwith("The delegator reward is higher than the total unpaid reward") else skip;
         s.claimedRewards := record[
             unpaid=abs(s.claimedRewards.unpaid - delegatorReward);
@@ -290,7 +281,7 @@ function updateUnclaimedRewards(var s: storage): storage is
 ////
 // BREAK GLASS FUNCTIONS
 ///
-function pauseAll(var s: storage) : return is
+function pauseAll(var s: farmStorage) : return is
     block {
         // check that source is admin
         checkSenderIsAllowed(s);
@@ -307,7 +298,7 @@ function pauseAll(var s: storage) : return is
 
     } with (noOperations, s)
 
-function unpauseAll(var s : storage) : return is
+function unpauseAll(var s : farmStorage) : return is
     block {
         // check that source is admin
         checkSenderIsAllowed(s);
@@ -324,7 +315,7 @@ function unpauseAll(var s : storage) : return is
 
     } with (noOperations, s)
 
-function togglePauseDeposit(var s : storage) : return is
+function togglePauseDeposit(var s : farmStorage) : return is
     block {
         // check that source is admin
         checkSenderIsAllowed(s);
@@ -334,7 +325,7 @@ function togglePauseDeposit(var s : storage) : return is
 
     } with (noOperations, s)
 
-function togglePauseWithdraw(var s : storage) : return is
+function togglePauseWithdraw(var s : farmStorage) : return is
     block {
         // check that source is admin
         checkSenderIsAllowed(s);
@@ -344,7 +335,7 @@ function togglePauseWithdraw(var s : storage) : return is
 
     } with (noOperations, s)
 
-function togglePauseClaim(var s : storage) : return is
+function togglePauseClaim(var s : farmStorage) : return is
     block {
         // check that source is admin
         checkSenderIsAllowed(s);
@@ -358,14 +349,14 @@ function togglePauseClaim(var s : storage) : return is
 // ENTRYPOINTS FUNCTIONS
 ///
 (*  set contract admin address *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : farmStorage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
 (*  update contract config *)
-function updateConfig(const updateConfigParams : farmUpdateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : farmUpdateConfigParamsType; var s : farmStorage) : return is 
 block {
   checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
@@ -383,7 +374,7 @@ block {
 
         checkFarmIsInit(s);
 
-        // update storage
+        // update farmStorage
         s := updateFarm(s);
 
         // Check new reward per block
@@ -395,7 +386,7 @@ block {
         const remainingBlocks: nat = abs((s.initBlock + s.config.plannedRewards.totalBlocks) - s.lastBlockUpdate);
         const newTotalRewards: nat = totalClaimedRewards + remainingBlocks * updateConfigNewValue;
 
-        // Update storage
+        // Update farmStorage
         s.config.plannedRewards.currentRewardPerBlock := updateConfigNewValue;
         s.config.plannedRewards.totalRewards := newTotalRewards;
   }
@@ -404,7 +395,7 @@ block {
 } with (noOperations, s)
 
 (*  UpdateBlocksPerMinute entrypoint *)
-function updateBlocksPerMinute(const blocksPerMinute: nat; var s: storage) : return is
+function updateBlocksPerMinute(const blocksPerMinute: nat; var s: farmStorage) : return is
 block {
     // check that source is admin or factory
     checkSenderOrSourceIsCouncil(s);
@@ -412,7 +403,7 @@ block {
     // check if farm has been initiated
     checkFarmIsInit(s);
 
-    // update storage
+    // update farmStorage
     s := updateFarm(s);
 
     // Check new blocksPerMinute
@@ -432,18 +423,18 @@ block {
         const remainingBlocks: nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
         newcurrentRewardPerBlock := (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
         
-        // Update storage
+        // Update farmStorage
         s.config.plannedRewards.totalBlocks := newTotalBlocks;
     };
 
-    // Update storage
+    // Update farmStorage
     s.config.blocksPerMinute := blocksPerMinute;
     s.config.plannedRewards.currentRewardPerBlock := (newcurrentRewardPerBlock/fixedPointAccuracy);
 
 } with (noOperations, s)
 
 (* Claim Entrypoint *)
-function claim(var s: storage): return is
+function claim(var s: farmStorage): return is
     block{
         // break glass check
         checkClaimIsNotPaused(s);
@@ -451,7 +442,7 @@ function claim(var s: storage): return is
         // Check if farm has started
         checkFarmIsInit(s);
 
-        // Update pool storage
+        // Update pool farmStorage
         s := updateFarm(s);
 
         // Update user's unclaimed rewards
@@ -478,7 +469,7 @@ function claim(var s: storage): return is
     } with(list[operation], s)
 
 (* Deposit Entrypoint *)
-function deposit(const tokenAmount: tokenBalance; var s: storage): return is
+function deposit(const tokenAmount: tokenBalance; var s: farmStorage): return is
     block{
         // break glass check
         checkDepositIsNotPaused(s);
@@ -486,7 +477,7 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
         // Check if farm has started
         checkFarmIsInit(s);
 
-        // Update pool storage
+        // Update pool farmStorage
         s := updateFarm(s);
 
         // Check if farm is closed or not
@@ -531,7 +522,7 @@ function deposit(const tokenAmount: tokenBalance; var s: storage): return is
     } with(list[operation], s)
 
 (* Withdraw Entrypoint *)
-function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
+function withdraw(const tokenAmount: tokenBalance; var s: farmStorage): return is
     block{
         // break glass check
         checkWithdrawIsNotPaused(s);
@@ -539,7 +530,7 @@ function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
         // Check if farm has started
         checkFarmIsInit(s);
 
-        // Update pool storage
+        // Update pool farmStorage
         s := updateFarm(s);
 
         const delegator: delegator = Tezos.sender;
@@ -573,7 +564,7 @@ function withdraw(const tokenAmount: tokenBalance; var s: storage): return is
     } with(list[operation], s)
 
 (* CloseFarm Entrypoint *)
-function closeFarm (var s: storage): return is
+function closeFarm (var s: farmStorage): return is
     block{
         // Check sender is admin
         checkSenderIsAdmin(s);
@@ -588,7 +579,7 @@ function closeFarm (var s: storage): return is
     } with (noOperations, s)
 
 (* InitFarm Entrypoint *)
-function initFarm (const initFarmParams: initFarmParamsType; var s: storage): return is
+function initFarm (const initFarmParams: initFarmParamsType; var s: farmStorage): return is
     block{
         // Check if sender is admin
         checkSenderIsAdmin(s);
@@ -602,7 +593,7 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: storage): re
         // Check wether the farm is infinite or its total blocks has been set
         if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
         
-        // Update storage
+        // Update farmStorage
         s := updateFarm(s);
         s.initBlock := Tezos.level;
         s.config.infinite := initFarmParams.infinite;
@@ -616,7 +607,7 @@ function initFarm (const initFarmParams: initFarmParamsType; var s: storage): re
     } with (noOperations, s)
 
 (* Main entrypoint *)
-function main (const action: entryAction; var s: storage): return is
+function main (const action: entryAction; var s: farmStorage): return is
   block{
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);

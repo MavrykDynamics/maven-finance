@@ -4,20 +4,6 @@
 // EmergencyGovernance types
 #include "../partials/types/emergencyGovernanceTypes.ligo"
 
-type storage is record [
-    admin                               : address;
-    config                              : emergencyConfigType;
-    mvkTokenAddress                     : address;
-    metadata                            : metadata;
-    
-    generalContracts                    : generalContractsType;
-
-    emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
-    
-    currentEmergencyGovernanceId        : nat;
-    nextEmergencyGovernanceProposalId   : nat;
-]
-
 type emergencyGovernanceAction is 
 | SetAdmin of (address)
 | UpdateConfig of emergencyUpdateConfigParamsType    
@@ -28,7 +14,7 @@ type emergencyGovernanceAction is
 | DropEmergencyGovernance of (unit)
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * emergencyGovernanceStorage
 
 // basic helper functions begin ---------------------------------------------------------
 const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address);
@@ -38,17 +24,17 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 
 
 // admin helper functions begin ---------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
+function checkSenderIsAdmin(var s : emergencyGovernanceStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
-function checkSenderIsMvkTokenContract(var s : storage) : unit is
+function checkSenderIsMvkTokenContract(var s : emergencyGovernanceStorage) : unit is
 block{
   if (Tezos.sender = s.mvkTokenAddress) then skip
   else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
 } with unit
 
-function checkSenderIsDoormanContract(var s : storage) : unit is
+function checkSenderIsDoormanContract(var s : emergencyGovernanceStorage) : unit is
 block{
   const doormanAddress : address = case s.generalContracts["doorman"] of [
       Some(_address) -> _address
@@ -64,6 +50,14 @@ function checkNoAmount(const _p : unit) : unit is
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: emergencyGovernanceStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 // admin helper functions end ---------------------------------------------------------
 
@@ -81,7 +75,7 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
 function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
 
 (*  set contract admin address *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : emergencyGovernanceStorage) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -92,7 +86,7 @@ block {
 } with (noOperations, s)
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType; var s : emergencyGovernanceStorage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -111,7 +105,7 @@ block {
 
 } with (noOperations, s)
 
-function triggerEmergencyControl(const triggerEmergencyControlParams : triggerEmergencyControlType; var s : storage) : return is 
+function triggerEmergencyControl(const triggerEmergencyControlParams : triggerEmergencyControlType; var s : emergencyGovernanceStorage) : return is 
 block {
 
     // Steps Overview:
@@ -194,7 +188,7 @@ block {
 
 } with (operations, s)
 
-function voteForEmergencyControl(var s : storage) : return is 
+function voteForEmergencyControl(var s : emergencyGovernanceStorage) : return is 
 block {
     // Steps Overview:
     // 1. check that emergency governance exist in the emergency governance ledger, and is currently active, and can be voted on
@@ -283,7 +277,7 @@ block {
 
 } with (operations, s)
  
-function dropEmergencyGovernance(var s : storage) : return is 
+function dropEmergencyGovernance(var s : emergencyGovernanceStorage) : return is 
 block {
 
     // Steps Overview:
@@ -311,7 +305,7 @@ block {
 
 } with (noOperations, s)
 
-function main (const action : emergencyGovernanceAction; const s : storage) : return is 
+function main (const action : emergencyGovernanceAction; const s : emergencyGovernanceStorage) : return is 
     case action of [
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)

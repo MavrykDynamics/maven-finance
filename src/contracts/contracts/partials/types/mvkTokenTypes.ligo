@@ -85,3 +85,15 @@ type stakeType is
   StakeAction of unit
 | UnstakeAction of unit
 type onStakeChangeParamsType is (owner * tokenBalance * stakeType)
+
+type mvkTokenStorage is record [
+  admin                 : address;
+  generalContracts      : generalContractsType;    // map of contract addresses
+  whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
+  metadata              : metadata;
+  token_metadata        : tokenMetadata;
+  totalSupply           : tokenBalance;
+  maximumSupply         : tokenBalance;
+  ledger                : ledger;
+  operators             : operators
+]

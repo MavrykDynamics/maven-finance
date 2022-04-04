@@ -271,3 +271,47 @@ type voteForRequestType is [@layout:comb] record [
     requestId        : nat;
     vote             : voteForRequestChoiceType;
 ]
+
+type governanceStorage is [@layout:comb] record [
+    admin                       : address;
+    mvkTokenAddress             : address;
+    metadata                    : metadata;
+
+    config                      : configType;
+
+    whitelistContracts          : whitelistContractsType;      
+    whitelistTokenContracts     : whitelistTokenContractsType;      
+    generalContracts            : generalContractsType; 
+    
+    proposalLedger              : proposalLedgerType;
+    snapshotLedger              : snapshotLedgerType;
+
+    startLevel                  : nat;                // use Tezos.level as start level
+    nextProposalId              : nat;                // counter of next proposal id
+    cycleCounter                : nat;                // counter of current cycle 
+    
+    // current round state variables - will be flushed periodically
+    currentRound                : roundType;          // proposal, voting, timelock
+    currentBlocksPerProposalRound      : nat;  // to determine duration of proposal round
+    currentBlocksPerVotingRound        : nat;  // to determine duration of voting round
+    currentBlocksPerTimelockRound      : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+    currentRoundStartLevel      : nat;                // current round starting block level
+    currentRoundEndLevel        : nat;                // current round ending block level
+    currentCycleEndLevel        : nat;                // current cycle (proposal + voting) ending block level 
+    currentRoundProposals       : map(nat, nat);      // proposal id, total positive votes in MVK
+    currentRoundVotes           : map(address, nat);  // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
+
+    currentRoundHighestVotedProposalId  : nat;        // set to 0 if there is no proposal currently, if not set to proposal id
+    timelockProposalId                  : nat;        // set to 0 if there is proposal in timelock, if not set to proposal id
+
+    snapshotMvkTotalSupply         : nat;             // snapshot of total MVK supply - for quorum calculation use
+    snapshotStakedMvkTotalSupply   : nat;             // snapshot of total staked MVK supply - for financial request decision making 
+
+    financialRequestLedger             : financialRequestLedgerType;
+    financialRequestSnapshotLedger     : financialRequestSnapshotLedgerType;
+    financialRequestCounter            : nat;
+
+    governanceLambdaLedger      : governanceLambdaLedgerType;
+
+    tempFlag : nat;     // test variable - currently used to show block levels per transaction
+]
