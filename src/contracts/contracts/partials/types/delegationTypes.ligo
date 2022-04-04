@@ -65,3 +65,18 @@ type delegationUpdateConfigParamsType is [@layout:comb] record [
 ]
 
 type metadata is big_map (string, bytes);
+
+type delegationStorage is [@layout:comb] record [
+    admin                : address;
+    mvkTokenAddress      : address;
+    metadata             : metadata;
+    
+    config               : delegationConfigType;
+
+    whitelistContracts   : whitelistContractsType;      
+    generalContracts     : generalContractsType;
+
+    breakGlassConfig     : delegationBreakGlassConfigType;
+    delegateLedger       : delegateLedgerType;
+    satelliteLedger      : satelliteLedgerType;
+]

@@ -13,18 +13,6 @@
 // Treasury Types
 #include "../partials/types/treasuryTypes.ligo"
 
-type storage is [@layout:comb] record [
-    admin                      : address;
-    mvkTokenAddress            : address;
-    metadata                   : metadata;
-    
-    breakGlassConfig           : treasuryBreakGlassConfigType;
-
-    whitelistContracts         : whitelistContractsType;
-    whitelistTokenContracts    : whitelistTokenContractsType;
-    generalContracts           : generalContractsType;
-]
-
 type treasuryAction is 
     | Default                        of unit
 
@@ -45,14 +33,14 @@ type treasuryAction is
     | MintMvkAndTransfer             of mintMvkAndTransferType
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * treasuryStorage
 
 // admin helper functions begin ---------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
+function checkSenderIsAdmin(var s : treasuryStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
-function checkSenderIsAllowed(const s: storage): unit is
+function checkSenderIsAllowed(const s: treasuryStorage): unit is
 block {
     // First check because a treasury without a factory should still be accessible
     if Tezos.sender = s.admin 
@@ -73,11 +61,35 @@ function checkNoAmount(const _p : unit) : unit is
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: treasuryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
+
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
 #include "../partials/whitelistTokenContractsMethod.ligo"
+
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+  } with (noOperations, s)
 
 // admin helper functions end ---------------------------------------------------------
 
@@ -152,7 +164,7 @@ block{
 
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : treasuryStorage) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -166,7 +178,7 @@ block {
 ////
 // Pause Functions
 ///
-function pauseAll(var s: storage) : return is
+function pauseAll(var s: treasuryStorage) : return is
 block {
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
@@ -180,7 +192,7 @@ block {
 
 } with (noOperations, s)
 
-function unpauseAll(var s : storage) : return is
+function unpauseAll(var s : treasuryStorage) : return is
 block {
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
@@ -194,7 +206,7 @@ block {
 
 } with (noOperations, s)
 
-function togglePauseTransfer(var s : storage) : return is
+function togglePauseTransfer(var s : treasuryStorage) : return is
 block {
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
@@ -204,7 +216,7 @@ block {
 
 } with (noOperations, s)
 
-function togglePauseMintMvkAndTransfer(var s : storage) : return is
+function togglePauseMintMvkAndTransfer(var s : treasuryStorage) : return is
 block {
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
@@ -217,7 +229,7 @@ block {
 
 (* transfer entrypoint *)
 // type transferTokenType is record [from_ : address; to_ : address; amt : nat; token : tokenType]
-function transfer(const transferTokenParams : transferActionType; var s : storage) : return is 
+function transfer(const transferTokenParams : transferActionType; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
@@ -225,7 +237,7 @@ block {
     // 2. Send transfer operation from Treasury account to user account
     // 3. Update user's satellite details in Delegation contract
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
@@ -287,7 +299,7 @@ block {
 
 (* mint and transfer entrypoint *)
 // type mintAndTransferType is record [to_ : address; amt : nat;]
-function mintMvkAndTransfer(const mintMvkAndTransfer : mintMvkAndTransferType ; var s : storage) : return is 
+function mintMvkAndTransfer(const mintMvkAndTransfer : mintMvkAndTransferType ; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
@@ -295,7 +307,7 @@ block {
     // 2. Send mint operation to MVK Token Contract
     // 3. Update user's satellite details in Delegation contract
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
@@ -330,7 +342,7 @@ block {
 } with (operations, s)
 
 
-function main (const action : treasuryAction; const s : storage) : return is 
+function main (const action : treasuryAction; const s : treasuryStorage) : return is 
     case action of [
         | Default(_params)                              -> ((nil : list(operation)), s)
         

@@ -7,19 +7,6 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/types/mvkTokenTypes.ligo"
 
-type storage is record [
-  admin                 : address;
-
-  generalContracts      : generalContractsType;    // map of contract addresses
-  whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
-  metadata              : metadata;
-  token_metadata        : tokenMetadata;
-  totalSupply           : tokenBalance;
-  maximumSupply         : tokenBalance;
-  ledger                : ledger;
-  operators             : operators
-]
-
 ////
 // ENTRYPOINTS
 ////
@@ -37,7 +24,7 @@ type action is
 // RETURN TYPES
 ////
 (* define return for readability *)
-type return is list (operation) * storage
+type return is list (operation) * mvkTokenStorage
 (* define noop for readability *)
 const noOperations : list (operation) = nil;
 
@@ -46,22 +33,22 @@ const noOperations : list (operation) = nil;
 ////
 (* View functions *)
 (* getBalance View *)
-[@view] function getBalance(const user: owner; const store: storage) : tokenBalance is
+[@view] function getBalance(const user: owner; const store: mvkTokenStorage) : tokenBalance is
   case Big_map.find_opt(user, store.ledger) of [
     Some (_v) -> _v
   | None -> 0n
   ]
 
 (* GetTotalSupply View *)
-[@view] function getTotalSupply(const _: unit; const store: storage) : tokenBalance is
+[@view] function getTotalSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
   store.totalSupply
 
 (* GetMaximumSupply View *)
-[@view] function getMaximumSupply(const _: unit; const store: storage) : tokenBalance is
+[@view] function getMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
   store.maximumSupply
 
 (* GetTotalAndMaximumSupply View *)
-[@view] function getTotalAndMaximumSupply(const _: unit; const store: storage) : tokenBalance * tokenBalance is
+[@view] function getTotalAndMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance * tokenBalance is
   (store.totalSupply, store.maximumSupply)
 
 
@@ -82,13 +69,13 @@ function checkOperator(const owner: owner; const token_id: tokenId; const operat
   if owner = Tezos.sender or Big_map.mem((owner, Tezos.sender, token_id), operators) then unit
   else failwith ("FA2_NOT_OPERATOR")
 
-function checkSenderIsDoormanContract(const store: storage): unit is
+function checkSenderIsDoormanContract(const store: mvkTokenStorage): unit is
   case Map.find_opt("doorman", store.generalContracts) of [
     Some (v) -> if v =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
   | None -> failwith("DOORMAN_CONTRACT_NOT_FOUND")
   ]
 
-function checkSenderIsAdmin(const store: storage): unit is
+function checkSenderIsAdmin(const store: mvkTokenStorage): unit is
   if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
@@ -99,8 +86,24 @@ function checkNoAmount(const _p: unit): unit is
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: mvkTokenStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: mvkTokenStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 (* Transfer Entrypoint *)
 function mergeOperations(const first: list (operation); const second: list (operation)) : list (operation) is 
@@ -110,14 +113,14 @@ function mergeOperations(const first: list (operation); const second: list (oper
     second
   )
 
-function transfer(const transferType: transferType; const store: storage): return is
+function transfer(const transferType: transferType; const store: mvkTokenStorage): return is
   block{
     function makeTransfer(const account: return; const transferParam: transfer) : return is
       block {
         const owner: owner = transferParam.from_;
         const txs: list(transferDestination) = transferParam.txs;
         
-        function transferTokens(const accumulator: storage; const destination: transferDestination): storage is
+        function transferTokens(const accumulator: mvkTokenStorage; const destination: transferDestination): mvkTokenStorage is
           block {
             const tokenId: tokenId = destination.token_id;
             const tokenAmount: tokenBalance = destination.amount;
@@ -149,12 +152,12 @@ function transfer(const transferType: transferType; const store: storage): retur
           } with accumulator with record[ledger=updatedLedger];
 
           const updatedOperations: list(operation) = (nil: list(operation));
-          const updatedStorage: storage = List.fold(transferTokens, txs, account.1);
+          const updatedStorage: mvkTokenStorage = List.fold(transferTokens, txs, account.1);
       } with (mergeOperations(updatedOperations,account.0), updatedStorage)
   } with List.fold(makeTransfer, transferType, ((nil: list(operation)), store))
 
 (* Balance_of Entrypoint *)
-function balanceOf(const balanceOfParams: balanceOfParams; const store: storage) : return is
+function balanceOf(const balanceOfParams: balanceOfParams; const store: mvkTokenStorage) : return is
   block{
     function retrieveBalance(const request: balanceOfRequest): balanceOfResponse is
       block{
@@ -197,7 +200,7 @@ function removeOperator(const operatorParameter: operatorParameter; const operat
     const operatorKey: (owner * operator * tokenId) = (owner, operator, tokenId)
   } with(Big_map.remove(operatorKey, operators))
 
-function updateOperators(const updateOperatorsParams: updateOperatorsParams; const store: storage) : return is
+function updateOperators(const updateOperatorsParams: updateOperatorsParams; const store: mvkTokenStorage) : return is
   block{
     var updatedOperators: operators := List.fold(
       function(const operators: operators; const updateOperator: updateOperator): operators is
@@ -212,7 +215,7 @@ function updateOperators(const updateOperatorsParams: updateOperatorsParams; con
   } with(noOperations,store with record[operators=updatedOperators])
 
 (* AssertMetadata Entrypoint *)
-function assertMetadata(const assertMetadataParams: assertMetadataParams; const store: storage): return is
+function assertMetadata(const assertMetadataParams: assertMetadataParams; const store: mvkTokenStorage): return is
   block{
     const metadataKey: string = assertMetadataParams.key;
     const metadataHash: bytes = assertMetadataParams.hash;
@@ -223,15 +226,15 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
   } with (noOperations, store)
 
 (* Mint Entrypoint *)
-function mint(const mintParams: mintParams; const store : storage) : return is
+function mint(const mintParams: mintParams; const store : mvkTokenStorage) : return is
   block {
     const recipientAddress: owner = mintParams.0;
     const mintedTokens: tokenBalance = mintParams.1;
 
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, store) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
-    // Check if the minted token exceed the maximumSupply defined in the storage
+    // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorage
     const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
     if tempTotalSupply > store.maximumSupply then failwith("Maximum total supply of MVK exceeded") else skip;
 
@@ -239,16 +242,16 @@ function mint(const mintParams: mintParams; const store : storage) : return is
     const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
     const newTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
 
-    // Update storage
+    // Update mvkTokenStorage
     const updatedLedger: ledger = Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
 
 (* OnStakeChange Entrypoint *)
 (* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
-function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const store: storage): return is
+function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const store: mvkTokenStorage): return is
   block{
     // check sender is from doorman contract or vesting contract
-    if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
     
     const owner: owner = onStakeChangeParams.0;
     var ownerBalance: tokenBalance := getBalance(owner, store);
@@ -273,7 +276,7 @@ function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const
   } with (noOperations, store with record[ledger=updatedLedger])
 
 (* Main entrypoint *)
-function main (const action : action; const store : storage) : return is
+function main (const action : action; const store : mvkTokenStorage) : return is
   block{
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);

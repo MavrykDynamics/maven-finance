@@ -62,3 +62,21 @@ type updateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: updateConfigNewValueType; 
   updateConfigAction: updateConfigActionType;
 ]
+
+type vestingStorage is [@layout:comb] record [
+    admin               : address;
+    mvkTokenAddress     : address;
+    metadata            : metadata;
+
+    config              : configType;
+
+    whitelistContracts  : whitelistContractsType;      
+    generalContracts    : generalContractsType;
+
+    claimLedger         : claimLedgerType;
+    vesteeLedger        : vesteeLedgerType;
+
+    totalVestedAmount   : nat;          // record of how much has been vested so far
+
+    tempBlockLevel      : nat; 
+]

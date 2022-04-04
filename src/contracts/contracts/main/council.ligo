@@ -10,21 +10,6 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/types/councilTypes.ligo"
 
-type storage is record [
-    admin                       : address;
-    mvkTokenAddress             : address;
-    metadata                    : metadata;
-
-    config                      : councilConfigType;
-    councilMembers              : councilMembersType;  // set of council member addresses
-    
-    whitelistContracts          : whitelistContractsType;      
-    generalContracts            : generalContractsType;
-
-    councilActionsLedger        : councilActionsLedgerType; 
-    actionCounter               : nat;
-]
-
 type councilAction is 
     | Default of unit
     | SetAdmin of address
@@ -57,16 +42,16 @@ type councilAction is
     | FlushAction of flushActionType
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * councilStorage
 
 // consideration: may need a lambda function to be able to send calls to future unspecified entrypoints if needed
 
 // admin helper functions begin ---------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
+function checkSenderIsAdmin(var s : councilStorage) : unit is
     if (Tezos.sender = s.admin) then unit
         else failwith("Only the administrator can call this entrypoint.");
 
-function checkSenderIsCouncilMember(var s : storage) : unit is
+function checkSenderIsCouncilMember(var s : councilStorage) : unit is
     if Set.mem(Tezos.sender, s.councilMembers) then unit 
         else failwith("Only council members can call this entrypoint.");
 
@@ -77,8 +62,24 @@ function checkNoAmount(const _p : unit) : unit is
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: councilStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: councilStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 // admin helper functions end ---------------------------------------------------------
 
@@ -191,7 +192,7 @@ block{
 ///
 
 (*  set contract admin address *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : councilStorage) : return is
 block {
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
@@ -199,7 +200,7 @@ block {
 } with (noOperations, s)
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : councilUpdateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : councilUpdateConfigParamsType; var s : councilStorage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -219,7 +220,7 @@ block {
 // Council Action Entrypoints
 ///
 
-function councilActionAddMember(const newCouncilMemberAddress : address ; var s : storage) : return is 
+function councilActionAddMember(const newCouncilMemberAddress : address ; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -261,7 +262,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionRemoveMember(const councilMemberAddress : address ; var s : storage) : return is 
+function councilActionRemoveMember(const councilMemberAddress : address ; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -303,7 +304,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionChangeMember(const councilActionChangeMemberParams : councilActionChangeMemberType; var s : storage) : return is 
+function councilActionChangeMember(const councilActionChangeMemberParams : councilActionChangeMemberType; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -346,7 +347,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionTransfer(const councilActionTransferParams : councilActionTransferType; var s : storage) : return is 
+function councilActionTransfer(const councilActionTransferParams : councilActionTransferType; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -395,7 +396,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionUpdateBlocksPerMinute(const councilActionUpdateBlocksPerMinParam : councilActionUpdateBlocksPerMinType ; var s : storage) : return is 
+function councilActionUpdateBlocksPerMinute(const councilActionUpdateBlocksPerMinParam : councilActionUpdateBlocksPerMinType ; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -439,7 +440,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionAddVestee(const addVestee : councilActionAddVesteeType ; var s : storage) : return is 
+function councilActionAddVestee(const addVestee : councilActionAddVesteeType ; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -485,7 +486,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionRemoveVestee(const vesteeAddress : address ; var s : storage) : return is 
+function councilActionRemoveVestee(const vesteeAddress : address ; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -527,7 +528,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionUpdateVestee(const updateVestee : councilActionUpdateVesteeType; var s : storage) : return is 
+function councilActionUpdateVestee(const updateVestee : councilActionUpdateVesteeType; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -573,7 +574,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionToggleVesteeLock(const vesteeAddress : address ; var s : storage) : return is 
+function councilActionToggleVesteeLock(const vesteeAddress : address ; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -615,7 +616,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionRequestTokens(const councilActionRequestTokensParams : councilActionRequestTokensType ; var s : storage) : return is 
+function councilActionRequestTokens(const councilActionRequestTokensParams : councilActionRequestTokensType ; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -665,7 +666,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionRequestMint(const councilActionRequestMintParams : councilActionRequestMintType ; var s : storage) : return is 
+function councilActionRequestMint(const councilActionRequestMintParams : councilActionRequestMintType ; var s : councilStorage) : return is 
 block {
     
     // Overall steps:
@@ -712,7 +713,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionDropFinancialRequest(const requestID : nat ; var s : storage) : return is 
+function councilActionDropFinancialRequest(const requestID : nat ; var s : councilStorage) : return is 
 block {
     
     // Overall steps:
@@ -755,7 +756,7 @@ block {
 } with (noOperations, s)
 
 
-function flushAction(const actionId: flushActionType; var s : storage) : return is 
+function flushAction(const actionId: flushActionType; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -797,8 +798,8 @@ block {
 
 } with (noOperations, s)
 
-// function signAction(const actionId: nat; const voteType: nat; var s : storage) : return is 
-function signAction(const actionId: nat; var s : storage) : return is 
+// function signAction(const actionId: nat; const voteType: nat; var s : councilStorage) : return is 
+function signAction(const actionId: nat; var s : councilStorage) : return is 
 block {
     
     checkSenderIsCouncilMember(s);
@@ -1299,7 +1300,7 @@ block {
 
 } with (operations, s)
 
-function main (const action : councilAction; const s : storage) : return is 
+function main (const action : councilAction; const s : councilStorage) : return is 
     case action of [
         | Default(_params) -> ((nil : list(operation)), s)
         | SetAdmin(parameters) -> setAdmin(parameters, s)  

@@ -46,3 +46,15 @@ type transferDestinationType is [@layout:comb] record[
 type transferActionType is list(transferDestinationType);
 
 type updateSatelliteBalanceParams is (address * nat * nat)
+
+type treasuryStorage is [@layout:comb] record [
+    admin                      : address;
+    mvkTokenAddress            : address;
+    metadata                   : metadata;
+    
+    breakGlassConfig           : treasuryBreakGlassConfigType;
+
+    whitelistContracts         : whitelistContractsType;
+    whitelistTokenContracts    : whitelistTokenContractsType;
+    generalContracts           : generalContractsType;
+]

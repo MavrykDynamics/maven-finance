@@ -17,7 +17,7 @@
 // STORAGE
 ////
 
-type storage is record[
+type farmFactoryStorage is record[
     admin                  : address;
     mvkTokenAddress        : address;
     metadata               : metadata;
@@ -35,7 +35,7 @@ type storage is record[
 // RETURN TYPES
 ////
 (* define return for readability *)
-type return is list (operation) * storage
+type return is list (operation) * farmFactoryStorage
 (* define noop for readability *)
 const noOperations: list (operation) = nil;
 
@@ -70,7 +70,7 @@ function checkNoAmount(const _p: unit): unit is
   if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
   else unit
 
-function checkSenderIsAdmin(const s: storage): unit is
+function checkSenderIsAdmin(const s: farmFactoryStorage): unit is
   if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
@@ -79,15 +79,15 @@ function checkSenderIsAdmin(const s: storage): unit is
 ////
 
 // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
-function checkCreateFarmIsNotPaused(var s : storage) : unit is
+function checkCreateFarmIsNotPaused(var s : farmFactoryStorage) : unit is
     if s.breakGlassConfig.createFarmIsPaused then failwith("CreateFarm entrypoint is paused.")
     else unit;
 
-function checkTrackFarmIsNotPaused(var s : storage) : unit is
+function checkTrackFarmIsNotPaused(var s : farmFactoryStorage) : unit is
     if s.breakGlassConfig.trackFarmIsPaused then failwith("TrackFarm entrypoint is paused.")
     else unit;
 
-function checkUntrackFarmIsNotPaused(var s : storage) : unit is
+function checkUntrackFarmIsNotPaused(var s : farmFactoryStorage) : unit is
     if s.breakGlassConfig.untrackFarmIsPaused then failwith("UntrackFarm entrypoint is paused.")
     else unit;
 
@@ -97,13 +97,29 @@ function checkUntrackFarmIsNotPaused(var s : storage) : unit is
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: farmFactoryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: farmFactoryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 ////
 // BREAK GLASS FUNCTIONS
 ///
-function pauseAll(var s: storage): return is
+function pauseAll(var s: farmFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -130,7 +146,7 @@ function pauseAll(var s: storage): return is
 
     } with (operations, s)
 
-function unpauseAll(var s: storage): return is
+function unpauseAll(var s: farmFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -157,7 +173,7 @@ function unpauseAll(var s: storage): return is
 
     } with (operations, s)
 
-function togglePauseCreateFarm(var s: storage): return is
+function togglePauseCreateFarm(var s: farmFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -167,7 +183,7 @@ function togglePauseCreateFarm(var s: storage): return is
 
     } with (noOperations, s)
 
-function togglePauseUntrackFarm(var s: storage): return is
+function togglePauseUntrackFarm(var s: farmFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -177,7 +193,7 @@ function togglePauseUntrackFarm(var s: storage): return is
 
     } with (noOperations, s)
 
-function togglePauseTrackFarm(var s: storage): return is
+function togglePauseTrackFarm(var s: farmFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -191,7 +207,7 @@ function togglePauseTrackFarm(var s: storage): return is
 // ENTRYPOINTS FUNCTIONS
 ///
 (*  UpdateBlocksPerMinute entrypoint *)
-function updateBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage): return is
+function updateBlocksPerMinute(const newBlocksPerMinutes: nat; var s: farmFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -211,18 +227,18 @@ function updateBlocksPerMinute(const newBlocksPerMinutes: nat; var s: storage): 
     } with (operations, s)
 
 (*  set contract admin address *)
-function setAdmin(const newAdminAddress: address; var s: storage): return is
+function setAdmin(const newAdminAddress: address; var s: farmFactoryStorage): return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
 (* CheckFarmExists view *)
-[@view] function checkFarmExists (const farmContract: address; const s: storage): bool is 
+[@view] function checkFarmExists (const farmContract: address; const s: farmFactoryStorage): bool is 
     Set.mem(farmContract, s.trackedFarms)
 
 (* CreateFarm entrypoint *)
-function createFarm(const farmStorage: farmStorageType; var s: storage): return is 
+function createFarm(const farmStorage: farmStorageType; var s: farmFactoryStorage): return is 
     block{
         // Check if Sender is admin
         checkSenderIsAdmin(s);
@@ -344,7 +360,7 @@ function createFarm(const farmStorage: farmStorageType; var s: storage): return 
     } with(list[farmOrigination.0], s)
 
 (* TrackFarm entrypoint *)
-function trackFarm (const farmContract: address; var s: storage): return is 
+function trackFarm (const farmContract: address; var s: farmFactoryStorage): return is 
     block{
         // Check if Sender is admin
         checkSenderIsAdmin(s);
@@ -359,7 +375,7 @@ function trackFarm (const farmContract: address; var s: storage): return is
     } with(noOperations, s)
 
 (* UntrackFarm entrypoint *)
-function untrackFarm (const farmContract: address; var s: storage): return is 
+function untrackFarm (const farmContract: address; var s: farmFactoryStorage): return is 
     block{
         // Check if Sender is admin
         checkSenderIsAdmin(s);
@@ -374,7 +390,7 @@ function untrackFarm (const farmContract: address; var s: storage): return is
     } with(noOperations, s)
 
 (* Main entrypoint *)
-function main (const action: action; var s: storage): return is
+function main (const action: action; var s: farmFactoryStorage): return is
   block{
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);

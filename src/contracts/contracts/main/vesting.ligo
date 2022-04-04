@@ -10,24 +10,6 @@
 // Vesting types
 #include "../partials/types/vestingTypes.ligo"
 
-type storage is record [
-    admin               : address;
-    mvkTokenAddress     : address;
-    metadata            : metadata;
-
-    config              : configType;
-
-    whitelistContracts  : whitelistContractsType;      
-    generalContracts    : generalContractsType;
-
-    claimLedger         : claimLedgerType;
-    vesteeLedger        : vesteeLedgerType;
-
-    totalVestedAmount   : nat;          // record of how much has been vested so far
-
-    tempBlockLevel      : nat; 
-]
-
 type vestingAction is 
     | SetAdmin of (address)
     | UpdateConfig of updateConfigParamsType    
@@ -45,20 +27,20 @@ type vestingAction is
 const noOperations   : list (operation) = nil;
 const one_day        : int              = 86_400;
 const thirty_days    : int              = one_day * 30;
-type return is list (operation) * storage
+type return is list (operation) * vestingStorage
 
 (* ---- Helper functions begin ---- *)
 
 // admin helper functions begin ---------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
+function checkSenderIsAdmin(var s : vestingStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
-// function checkSenderIsCouncil(var s : storage) : unit is
+// function checkSenderIsCouncil(var s : vestingStorage) : unit is
 //     if (Tezos.sender = s.councilAddress) then unit
 //     else failwith("Only the council contract can call this entrypoint.");
 
-// function checkSenderIsAdminOrCouncil(var s : storage) : unit is
+// function checkSenderIsAdminOrCouncil(var s : vestingStorage) : unit is
 //     if (Tezos.sender = s.admin or Tezos.sender = s.councilAddress) then unit
 //     else failwith("Only the administrator or council contract can call this entrypoint.");
 
@@ -70,8 +52,24 @@ function checkNoAmount(const _p : unit) : unit is
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: vestingStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: vestingStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 // helper function to update user's staked balance in doorman contract after vesting
 function vestingUpdateStakedBalanceInDoorman(const contractAddress : address) : contract(address * nat) is
@@ -103,7 +101,7 @@ function mintTokens(
   );
 
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : vestingStorage) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -114,7 +112,7 @@ block {
 } with (noOperations, s)
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : updateConfigParamsType; var s : storage) : return is 
+function updateConfig(const updateConfigParams : updateConfigParamsType; var s : vestingStorage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -131,14 +129,14 @@ block {
 } with (noOperations, s)
 
 
-function claim(var s : storage) : return is 
+function claim(var s : vestingStorage) : return is 
 block {
     // Steps Overview:
     // 1. Check if vestee exists in record
     // 2. Check if vestee is able to claim (current block level > vestee next redemption block)
     // 3. Calculate total claim amount based on when vestee last claimed 
     // 4. Send operations to mint new MVK tokens and update user's balance in MVK ledger
-    // 5. Update vestee records in storage
+    // 5. Update vestee records in vestingStorage
 
     s.tempBlockLevel := Tezos.level;
     checkNoAmount(unit);
@@ -208,17 +206,17 @@ block {
 } with (_operations, s)
 
 (* View functions to get the totalRemainder for the vestee *)
-[@view] function getVesteeBalance(const vesteeAddress : address; var s : storage) : nat is 
+[@view] function getVesteeBalance(const vesteeAddress : address; var s : vestingStorage) : nat is 
     case s.vesteeLedger[vesteeAddress] of [ 
         | Some(_record) -> _record.totalRemainder
         | None -> failwith("Error. Vestee not found.")
     ];
 
 (* View functions to get the total vested amount *)
-[@view] function getTotalVested(const _ : unit; var s : storage) : nat is 
+[@view] function getTotalVested(const _ : unit; var s : vestingStorage) : nat is 
     s.totalVestedAmount
 
-function addVestee(const vesteeAddress : address; const totalAllocatedAmount : nat; const cliffInMonths : nat; const vestingInMonths : nat; var s : storage) : return is 
+function addVestee(const vesteeAddress : address; const totalAllocatedAmount : nat; const cliffInMonths : nat; const vestingInMonths : nat; var s : vestingStorage) : return is 
 block {
 
     // Steps Overview:
@@ -231,7 +229,7 @@ block {
     // checkSenderIsAdmin(s);
 
     // check sender is from council contract
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
@@ -277,7 +275,7 @@ block {
     
 } with (noOperations, s)
 
-function removeVestee(const vesteeAddress : address; var s : storage) : return is 
+function removeVestee(const vesteeAddress : address; var s : vestingStorage) : return is 
 block {
 
     // Steps Overview:
@@ -287,7 +285,7 @@ block {
     // checkSenderIsAdmin(s);
     checkNoAmount(unit);
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
@@ -301,7 +299,7 @@ block {
     
 } with (noOperations, s)
 
-function toggleVesteeLock(const vesteeAddress : address; var s : storage) : return is 
+function toggleVesteeLock(const vesteeAddress : address; var s : vestingStorage) : return is 
 block {
 
     // Steps Overview:
@@ -311,7 +309,7 @@ block {
     // checkSenderIsAdmin(s);
     checkNoAmount(unit);
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
@@ -331,7 +329,7 @@ block {
 } with (noOperations, s)
 
 
-function updateVestee(const vesteeAddress : address; const newTotalAllocatedAmount : nat; const newCliffInMonths : nat; const newVestingInMonths : nat; var s : storage) : return is
+function updateVestee(const vesteeAddress : address; const newTotalAllocatedAmount : nat; const newCliffInMonths : nat; const newVestingInMonths : nat; var s : vestingStorage) : return is
 block {
 
     // Steps Overview:
@@ -342,7 +340,7 @@ block {
     checkNoAmount(unit);
 
     // check sender is from council contract
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
     if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
@@ -389,7 +387,7 @@ block {
 } with (noOperations, s)
 
 
-function main (const action : vestingAction; const s : storage) : return is 
+function main (const action : vestingAction; const s : vestingStorage) : return is 
     case action of [
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)

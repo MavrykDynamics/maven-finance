@@ -10,31 +10,8 @@
 // MvkToken types for transfer
 #include "../partials/types/mvkTokenTypes.ligo"
 
-type storage is record [
-  admin                     : address;
-  mvkTokenAddress           : address;
-  metadata                  : metadata;
-  
-  minMvkAmount              : nat;
-  
-  whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-  generalContracts          : generalContractsType;
-  
-  breakGlassConfig          : doormanBreakGlassConfigType;
-  
-  userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
-
-  stakedMvkTotalSupply      : nat; // current total staked MVK
-  unclaimedRewards          : nat; // current exit fee pool rewards
-
-  logExitFee                : nat; // to be removed after testing
-  logFinalAmount            : nat; // to be removed after testing
-
-  accumulatedFeesPerShare   : nat;
-]
-
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * doormanStorage
 
 type doormanAction is 
     SetAdmin of (address)
@@ -60,18 +37,18 @@ type doormanAction is
 (* ---- Helper functions begin ---- *)
 
 // admin helper functions begin ---------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
+function checkSenderIsAdmin(var s : doormanStorage) : unit is
   if (Tezos.sender = s.admin) then unit
     else failwith("Error. Only the administrator can call this entrypoint.");
 
-function checkSenderIsMvkTokenContract(var s : storage) : unit is
+function checkSenderIsMvkTokenContract(var s : doormanStorage) : unit is
 block{
   const mvkTokenAddress : address = s.mvkTokenAddress;
   if (Tezos.sender = mvkTokenAddress) then skip
     else failwith("Error. Only the MVK Token Contract can call this entrypoint.");
 } with unit
 
-function checkSenderIsDelegationContract(var s : storage) : unit is
+function checkSenderIsDelegationContract(var s : doormanStorage) : unit is
 block{
   const delegationAddress : address = case s.generalContracts["delegation"] of [
       Some(_address) -> _address
@@ -86,23 +63,39 @@ function checkNoAmount(const _p : unit) : unit is
     else failwith("This entrypoint should not receive any tez.");
 
 // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
-function checkStakeIsNotPaused(var s : storage) : unit is
+function checkStakeIsNotPaused(var s : doormanStorage) : unit is
   if s.breakGlassConfig.stakeIsPaused then failwith("Stake entrypoint is paused.")
     else unit;
 
-function checkUnstakeIsNotPaused(var s : storage) : unit is
+function checkUnstakeIsNotPaused(var s : doormanStorage) : unit is
   if s.breakGlassConfig.unstakeIsPaused then failwith("Unstake entrypoint is paused.")
     else unit;
 
-function checkCompoundIsNotPaused(var s : storage) : unit is
+function checkCompoundIsNotPaused(var s : doormanStorage) : unit is
   if s.breakGlassConfig.compoundIsPaused then failwith("Compound entrypoint is paused.")
     else unit;
 
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: doormanStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: doormanStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 // admin helper functions end ---------------------------------------------------------
 
@@ -138,7 +131,7 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
 
 // break glass toggle entrypoints begin ---------------------------------------------------------
 
-function pauseAll(var s : storage) : return is
+function pauseAll(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -156,7 +149,7 @@ block {
 
 } with (noOperations, s)
 
-function unpauseAll(var s : storage) : return is
+function unpauseAll(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -173,7 +166,7 @@ block {
 
 } with (noOperations, s)
 
-function togglePauseStake(var s : storage) : return is
+function togglePauseStake(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -183,7 +176,7 @@ block {
 
 } with (noOperations, s)
 
-function togglePauseUnstake(var s : storage) : return is
+function togglePauseUnstake(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -193,7 +186,7 @@ block {
 
 } with (noOperations, s)
 
-function togglePauseCompound(var s : storage) : return is
+function togglePauseCompound(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -207,25 +200,25 @@ block {
 
 
 (*  set contract admin address *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : doormanStorage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
 (*  get total staked supply *)
-[@view] function getTotalStakedSupply(const _: unit; const s: storage) : nat is
+[@view] function getTotalStakedSupply(const _: unit; const s: doormanStorage) : nat is
   s.stakedMvkTotalSupply
 
 (* View function that forwards the staked balance of source to a contract *)
-[@view] function getStakedBalance (const userAddress : address; var s : storage) : nat is
+[@view] function getStakedBalance (const userAddress : address; var s : doormanStorage) : nat is
   case s.userStakeBalanceLedger[userAddress] of [
     Some (_val) -> _val.balance
   | None -> 0n
   ]
 
-(*  update configuration in the storage *)
-function updateMinMvkAmount(const newMinMvkAmount : nat; var s : storage) : return is 
+(*  update configuration in the doormanStorage *)
+function updateMinMvkAmount(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
 block {
   // check that sender is admin (i.e. Governance DAO contract address)
   checkSenderIsAdmin(s);
@@ -237,7 +230,7 @@ block {
 
 } with (noOperations, s)
 
-function compoundUserRewards(var s: storage): (option(operation) * storage) is 
+function compoundUserRewards(var s: doormanStorage): (option(operation) * doormanStorage) is 
   block{
     // Get User
     const user: address = Tezos.source;
@@ -284,17 +277,17 @@ function compoundUserRewards(var s: storage): (option(operation) * storage) is
     // Set the user's participationFeesPerShare 
     userRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
 
-    // Update the storage
+    // Update the doormanStorage
     s.userStakeBalanceLedger := Big_map.update(user, Some (userRecord), s.userStakeBalanceLedger);
   } with (operation, s)
 
-function compound(var s: storage): return is
+function compound(var s: doormanStorage): return is
   block{
     // Check if compound is paused
     checkCompoundIsNotPaused(s);
 
     // Compound rewards
-    const userCompound: (option(operation) * storage) = compoundUserRewards(s);
+    const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
     s := userCompound.1;
     const operations: list(operation) = case userCompound.0 of [
       Some (compoundOperation) -> list[compoundOperation]
@@ -303,7 +296,7 @@ function compound(var s: storage): return is
 
   } with (operations, s)
 
-function stake(const stakeAmount : nat; var s : storage) : return is
+function stake(const stakeAmount : nat; var s : doormanStorage) : return is
 block {
 
   // Steps Overview
@@ -321,11 +314,11 @@ block {
   checkStakeIsNotPaused(s);
 
   // Compound user rewards
-  const userCompound: (option(operation) * storage) = compoundUserRewards(s);
+  const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
   s := userCompound.1;
 
   // 1. verify that user is staking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
-  if stakeAmount < s.minMvkAmount then failwith("You have to stake at least 1 MVK token.")
+  if stakeAmount < s.minMvkAmount then failwith("You have to stake more MVK.")
     else skip;
 
   const mvkTokenAddress : address = s.mvkTokenAddress;
@@ -385,7 +378,7 @@ block {
 } with (operations, s)
 
 
-function unstake(const unstakeAmount : nat; var s : storage) : return is
+function unstake(const unstakeAmount : nat; var s : doormanStorage) : return is
 block {
   // Steps Overview
   // 1. verify that user is unstaking more than 0 sMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
@@ -413,7 +406,7 @@ block {
     else skip;
 
   // Compound user rewards
-  const firstCompound: (option(operation) * storage) = compoundUserRewards(s);
+  const firstCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
   s := firstCompound.1;
 
   const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
@@ -497,7 +490,7 @@ block {
   );
 
   // Compound with the user new rewards if he still have sMVK after unstaking
-  const secondCompound: (option(operation) * storage) = compoundUserRewards(s);
+  const secondCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
   s := secondCompound.1;
 
   // create list of operations
@@ -514,7 +507,7 @@ block {
 } with (operations, s)
 
 (* Farm Claim entrypoint *)
-function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
+function farmClaim(const farmClaim: farmClaimType; var s: doormanStorage): return is
   block{
     // Get values from parameter
     const delegator: address = farmClaim.0;
@@ -550,7 +543,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
     const mvkMaximumSupply: nat = mvkTotalAndMaximumSupply.1;
 
     // Compound user rewards
-    const userCompound: (option(operation) * storage) = compoundUserRewards(s);
+    const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
     s := userCompound.1;
 
     // Update the delegation balance
@@ -637,7 +630,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: storage): return is
   } with(operations, s)
 
 (* Main entrypoint *)
-function main (const action : doormanAction; const s : storage) : return is
+function main (const action : doormanAction; const s : doormanStorage) : return is
   block {
     // entrypoint should not receive any tez amount
     checkNoAmount(Unit);

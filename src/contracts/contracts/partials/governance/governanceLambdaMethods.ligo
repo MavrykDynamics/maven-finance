@@ -1,5 +1,5 @@
 (* CallGovernanceLambda Entrypoint *)
-function callGovernanceLambdaProxy(const executeAction : executeActionType; var s : storage) : return is
+function callGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceStorage) : return is
   block {
     
     checkSenderIsAdminOrSelf(s);
@@ -9,7 +9,7 @@ function callGovernanceLambdaProxy(const executeAction : executeActionType; var 
       | None     -> failwith("Error. Call Governance Lambda not found.")
     ];
 
-    // reference: type governanceLambdaFunctionType is (executeActionType * storage) -> return
+    // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
     const res : return = case (Bytes.unpack(governanceLambdaBytes) : option(governanceLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
       | None    -> failwith("Error. Unable to unpack CallGovernanceLambda.")
@@ -18,7 +18,7 @@ function callGovernanceLambdaProxy(const executeAction : executeActionType; var 
   } with (res.0, s)
 
 (* SetupLambdaFunction Entrypoint *)
-function setupLambdaFunction(const params : setupLambdaFunctionType; var s : storage) : return is
+function setupLambdaFunction(const params : setupLambdaFunctionType; var s : governanceStorage) : return is
   block {
 
     checkSenderIsAdminOrSelf(s);

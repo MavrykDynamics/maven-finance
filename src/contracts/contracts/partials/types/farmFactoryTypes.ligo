@@ -51,27 +51,6 @@ type farmMetadataType is record[
     authors                 : string;
 ]
 
-type farmStorage is record[
-    admin                   : address;
-    mvkTokenAddress         : address;
-    metadata                : metadata;
-    
-    config                  : farmConfigType;
-    
-    whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    generalContracts        : generalContractsType;
-
-    breakGlassConfig        : farmBreakGlassConfigType;
-
-    lastBlockUpdate         : nat;
-    accumulatedMVKPerShare  : tokenBalance;
-    claimedRewards          : claimedRewards;
-    delegators              : big_map(delegator, delegatorRecord);
-    open                    : bool;
-    init                    : bool;
-    initBlock               : nat;
-]
-
 type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
 const createFarmFunc: createFarmFuncType =
 [%Michelson ( {| { UNPPAIIR ;
@@ -90,4 +69,22 @@ type farmFactoryBreakGlassConfigType is record [
     createFarmIsPaused     : bool;
     trackFarmIsPaused      : bool;
     untrackFarmIsPaused    : bool;
+]
+
+////
+// STORAGE
+////
+
+type farmFactoryStorage is [@layout:comb] record[
+    admin                  : address;
+    mvkTokenAddress        : address;
+    metadata               : metadata;
+
+    whitelistContracts     : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
+    generalContracts       : generalContractsType;
+
+    breakGlassConfig       : farmFactoryBreakGlassConfigType;
+
+    trackedFarms           : set(address);
+    blocksPerMinute        : nat;
 ]

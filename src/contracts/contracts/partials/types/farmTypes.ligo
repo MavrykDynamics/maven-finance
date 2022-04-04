@@ -82,3 +82,28 @@ type farmUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: farmUpdateConfigNewValueType; 
   updateConfigAction: farmUpdateConfigActionType;
 ]
+
+////
+// STORAGE
+////
+
+type farmStorage is [@layout:comb] record[
+    admin                   : address;
+    mvkTokenAddress         : address;
+    metadata                : metadata;
+
+    config                  : farmConfigType;
+
+    whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
+    generalContracts        : generalContractsType;
+
+    breakGlassConfig        : farmBreakGlassConfigType;
+
+    lastBlockUpdate         : nat;
+    accumulatedMVKPerShare  : tokenBalance;
+    claimedRewards          : claimedRewards;
+    delegators              : big_map(delegator, delegatorRecord);
+    open                    : bool;
+    init                    : bool;
+    initBlock               : nat;
+]

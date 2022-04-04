@@ -20,26 +20,10 @@
 #include "../partials/types/treasuryFactoryTypes.ligo"
 
 ////
-// STORAGE
-////
-type storage is record[
-    admin                      : address;
-    mvkTokenAddress            : address;
-    metadata                   : metadata;
-
-    trackedTreasuries          : set(address);
-    breakGlassConfig           : treasuryFactoryBreakGlassConfigType;
-
-    whitelistContracts         : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    whitelistTokenContracts    : whitelistTokenContractsType;
-    generalContracts           : generalContractsType;
-]
-
-////
 // RETURN TYPES
 ////
 (* define return for readability *)
-type return is list (operation) * storage
+type return is list (operation) * treasuryFactoryStorage
 (* define noop for readability *)
 const noOperations: list (operation) = nil;
 
@@ -70,7 +54,7 @@ function checkNoAmount(const _p: unit): unit is
   if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
   else unit
 
-function checkSenderIsAdmin(const s: storage): unit is
+function checkSenderIsAdmin(const s: treasuryFactoryStorage): unit is
   if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
@@ -79,15 +63,15 @@ function checkSenderIsAdmin(const s: storage): unit is
 ////
 
 // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
-function checkCreateTreasuryIsNotPaused(var s : storage) : unit is
+function checkCreateTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
     if s.breakGlassConfig.createTreasuryIsPaused then failwith("Error. CreateTreasury entrypoint is paused.")
     else unit;
 
-function checkTrackTreasuryIsNotPaused(var s : storage) : unit is
+function checkTrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
     if s.breakGlassConfig.trackTreasuryIsPaused then failwith("TrackTreasury entrypoint is paused.")
     else unit;
 
-function checkUntrackTreasuryIsNotPaused(var s : storage) : unit is
+function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
     if s.breakGlassConfig.untrackTreasuryIsPaused then failwith("UntrackTreasury entrypoint is paused.")
     else unit;
 
@@ -97,16 +81,40 @@ function checkUntrackTreasuryIsNotPaused(var s : storage) : unit is
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryFactoryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: treasuryFactoryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
 #include "../partials/whitelistTokenContractsMethod.ligo"
 
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryFactoryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+  } with (noOperations, s)
+
 ////
 // BREAK GLASS FUNCTIONS
 ///
-function pauseAll(var s: storage): return is
+function pauseAll(var s: treasuryFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -133,7 +141,7 @@ function pauseAll(var s: storage): return is
 
     } with (operations, s)
 
-function unpauseAll(var s: storage): return is
+function unpauseAll(var s: treasuryFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -160,7 +168,7 @@ function unpauseAll(var s: storage): return is
 
     } with (operations, s)
 
-function togglePauseCreateTreasury(var s: storage): return is
+function togglePauseCreateTreasury(var s: treasuryFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -170,7 +178,7 @@ function togglePauseCreateTreasury(var s: storage): return is
 
     } with (noOperations, s)
 
-function togglePauseUntrackTreasury(var s: storage): return is
+function togglePauseUntrackTreasury(var s: treasuryFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -180,7 +188,7 @@ function togglePauseUntrackTreasury(var s: storage): return is
 
     } with (noOperations, s)
 
-function togglePauseTrackTreasury(var s: storage): return is
+function togglePauseTrackTreasury(var s: treasuryFactoryStorage): return is
     block {
         // check that sender is admin
         checkSenderIsAdmin(s);
@@ -195,14 +203,14 @@ function togglePauseTrackTreasury(var s: storage): return is
 ///
 
 (*  set contract admin address *)
-function setAdmin(const newAdminAddress: address; var s: storage): return is
+function setAdmin(const newAdminAddress: address; var s: treasuryFactoryStorage): return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
 (* CreateTreasury entrypoint *)
-function createTreasury(const createTreasuryParams: createTreasuryActionType; var s: storage): return is 
+function createTreasury(const createTreasuryParams: createTreasuryActionType; var s: treasuryFactoryStorage): return is 
     block{
         // Check if Sender is admin
         checkSenderIsAdmin(s);
@@ -228,7 +236,7 @@ function createTreasury(const createTreasuryParams: createTreasuryActionType; va
             mintMvkAndTransferIsPaused = mintMvkAndTransferIsPaused;
         ];
 
-        const originatedTreasuryStorage : treasuryStorageType = record[
+        const originatedTreasuryStorage : treasuryStorage = record[
             admin                   = s.admin;                    // admin will be the governance contract
             mvkTokenAddress         = s.mvkTokenAddress;
             metadata                = (Big_map.empty: metadata);
@@ -252,11 +260,11 @@ function createTreasury(const createTreasuryParams: createTreasuryActionType; va
     } with(list[treasuryOrigination.0], s)
 
 (* CheckTreasuryExists view *)
-[@view] function checkTreasuryExists (const treasuryContract: address; const s: storage): bool is 
+[@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorage): bool is 
     Set.mem(treasuryContract, s.trackedTreasuries)
 
 (* TrackTreasury entrypoint *)
-function trackTreasury (const treasuryContract: address; var s: storage): return is 
+function trackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
     block{
         // Check if Sender is admin
         checkSenderIsAdmin(s);
@@ -272,7 +280,7 @@ function trackTreasury (const treasuryContract: address; var s: storage): return
     } with(noOperations, s)
 
 (* UntrackTreasury entrypoint *)
-function untrackTreasury (const treasuryContract: address; var s: storage): return is 
+function untrackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
     block{
         // Check if Sender is admin
         checkSenderIsAdmin(s);
@@ -287,7 +295,7 @@ function untrackTreasury (const treasuryContract: address; var s: storage): retu
     } with(noOperations, s)
 
 (* Main entrypoint *)
-function main (const action: treasuryFactoryAction; var s: storage): return is
+function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorage): return is
   block{
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);
