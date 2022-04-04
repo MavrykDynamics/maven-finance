@@ -378,7 +378,7 @@ function getFa12ApproveEntrypoint(const tokenContractAddress : address) : contra
 
 
 // helper function to update USDM contract on price action
-function getOnPriceActionInUsdMEntrypoint(const tokenContractAddress : address) : contract(onPriceActionType) is
+function getOnPriceActionInUsdmEntrypoint(const tokenContractAddress : address) : contract(onPriceActionType) is
   case (Tezos.get_entrypoint_opt(
       "%onPriceAction",
       tokenContractAddress) : option(contract(onPriceActionType))) of
@@ -454,7 +454,7 @@ block {
     const updateConsumerOperation : operation = Tezos.transaction(
         onPriceActionParams,
         0mutez,
-        getOnPriceActionInUsdMEntrypoint(s.usdmTokenAddress)
+        getOnPriceActionInUsdmEntrypoint(s.usdmTokenAddress)
     );
 } with (updateConsumerOperation)
 

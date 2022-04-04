@@ -1,11 +1,3 @@
-
-(* If the token uses the fa2 standard *)
-//#define TOKEN_IS_FA2
-
-// todo: add support for baking
-(* To support baking *)
-//#define HAS_BAKER
-
 type ownerAddressType   is address;
 
 type tokenBalanceType   is nat;
@@ -106,26 +98,31 @@ type onPriceActionType is [@layout:comb] record [
 
 
 // for ctez / USDM
-type tezToToken is [@layout:comb] record [ 
-    outputCfmmContract  : address ;     (* other cfmm contract *)
-    minTokensBought     : nat ;         (* minimum amount of tokens bought *)
-    [@annot:to] to_     : address ;     (* where to send the output tokens *)    
-    deadline            : timestamp ;   (* time before which the request must be completed *)
-]
+// type tezToToken is [@layout:comb] record [ 
+//     outputCfmmContract  : address ;     (* other cfmm contract *)
+//     minTokensBought     : nat ;         (* minimum amount of tokens bought *)
+//     [@annot:to] to_     : address ;     (* where to send the output tokens *)    
+//     deadline            : timestamp ;   (* time before which the request must be completed *)
+// ]
 
-type ctezToToken is [@layout:comb] record [ 
-    [@annot:to] to_     : address ;     (* where to send the tokens *)
-    minTokensBought     : nat ;         (* minimum amount of tokens that must be bought *)
-    cashSold            : nat ;
-    deadline            : timestamp ; 
-]
+// type ctezToToken is [@layout:comb] record [ 
+//     minTokensBought     : nat ;         (* minimum amount of tokens that must be bought *)
+//     cashSold            : nat ;
+//     [@annot:to] to_     : address ;     (* where to send the tokens *)
+//     deadline            : timestamp ; 
+// ]
 
+type configType is record [
+    fee            : nat;   // cfmm fee 
+    treasuryFee    : nat;   // treasury fee
+]
 
 
 // ----- types for entrypoint actions end -----
 
 type cfmmStorage is [@layout:comb] record [
     admin                   : address;
+    config                  : configType;
     
     // Cash Details
     cashPool                : nat;      // no cashTokenAddress or cashTokenId as cash is Tez
@@ -143,16 +140,18 @@ type cfmmStorage is [@layout:comb] record [
 
     // for oracle
     lastOracleUpdate        : timestamp;
-    consumerEntrypoint      : address;
-
     usdmTokenAddress        : address;
+
+    // treasury
+    treasuryAddress         : address;
 ]
 
 type cfmmAction is 
     | Default                       of unit
-    | SetAdmin                      of (address)
+    | SetAdmin                      of address
     | SetBaker                      of setBakerActionType
     | SetLpTokenAddress             of address 
+    | SetTreasuryAddress            of address
 
     | AddLiquidity                  of addLiquidityActionType
     | RemoveLiquidity               of removeLiquidityActionType 
@@ -161,7 +160,6 @@ type cfmmAction is
     | TokenToCash                   of tokenToCashActionType
     | TokenToToken                  of tokenToTokenActionType
 
-    // if cash is not tez
     | UpdatePools                   of unit
     | UpdateFa2TokenPoolInternal    of updateFa2TokenPoolInternalActionType
     
@@ -173,7 +171,7 @@ type return is list (operation) * cfmmStorage
 
 const zeroAddress           : address  = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 const fixedPointAccuracy    : nat      = 1_000_000_000_000_000_000_000_000n // 10^24 - // for use in division
-const constFee              : nat      = 9995n;  // 0.05% fee
+// const constFee              : nat      = 9995n;  // 0.05% fee
 const constFeeDenom         : nat      = 10000n;
 
 // ----- constants end -----
@@ -273,7 +271,7 @@ function getCashToTokenOutputCfmmEntrypoint(const contractAddress : address) : c
 
 
 // helper function to update USDM contract on price action
-function getOnPriceActionInUsdMEntrypoint(const tokenContractAddress : address) : contract(onPriceActionType) is
+function getOnPriceActionInUsdmEntrypoint(const tokenContractAddress : address) : contract(onPriceActionType) is
   case (Tezos.get_entrypoint_opt(
       "%onPriceAction",
       tokenContractAddress) : option(contract(onPriceActionType))) of
@@ -332,12 +330,12 @@ function updateFa2PoolInternal(const poolUpdateParams : updateFa2PoolType) : nat
 
 function onPriceAction(const onPriceActionParams : onPriceActionType; var s : cfmmStorage) : operation is 
 block {
-    const updateConsumerOperation : operation = Tezos.transaction(
+    const onPriceActionOperation : operation = Tezos.transaction(
         onPriceActionParams,
         0mutez,
-        getOnPriceActionInUsdMEntrypoint(s.usdmTokenAddress)
+        getOnPriceActionInUsdmEntrypoint(s.usdmTokenAddress)
     );
-} with (updateConsumerOperation)
+} with (onPriceActionOperation)
 
 
 // ------ Helper Functions end ------
@@ -378,6 +376,17 @@ block {
     const delegateOperation : operation = Tezos.set_delegate(setBakerParams.baker);
 
 } with (list[delegateOperation], s)
+
+
+
+
+(*  setTreasuryAddress entrypoint *)
+function setTreasuryAddress(const newTreasuryAddress : address; var s : cfmmStorage) : return is
+block {
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    s.treasuryAddress := newTreasuryAddress;
+} with (noOperations, s)
 
 
 
@@ -555,6 +564,9 @@ block {
     // check deadline has not passed
     checkDeadlineHasNotPassed(deadline);
 
+    // set const fee based on config values
+    const constFee : nat = abs(constFeeDenom - s.config.fee -s.config.treasuryFee);
+
     (* We don't check that xtzPool > 0, because that is impossible unless all liquidity has been removed. *)
     const cashPool   : nat = s.cashPool;
     const tokenPool  : nat = s.tokenPool;
@@ -614,6 +626,9 @@ block {
 
     // check that no tez is sent
     checkNoAmount(Unit);
+
+    // set const fee based on config values
+    const constFee : nat = abs(constFeeDenom - s.config.fee -s.config.treasuryFee);
 
     (* We don't check that tokenPool > 0, because that is impossible unless all liquidity has been removed. *)
     const cashPool   : nat = s.cashPool;
@@ -681,6 +696,9 @@ block {
     // check that no tez is sent
     checkNoAmount(Unit);
 
+    // set const fee based on config values
+    const constFee : nat = abs(constFeeDenom - s.config.fee -s.config.treasuryFee);
+
     (* We don't check that tokenPool > 0, because that is impossible unless all liquidity has been removed. *)
     const cashPool   : nat = s.cashPool;
     const tokenPool  : nat = s.tokenPool;
@@ -729,8 +747,6 @@ block {
     }
 
 } with (operations, s)
-
-
 
 
 
@@ -796,6 +812,7 @@ function main (const action : cfmmAction; const s : cfmmStorage) : return is
         | SetAdmin(parameters)                      -> setAdmin(parameters, s)
         | SetBaker(parameters)                      -> setBaker(parameters, s)
         | SetLpTokenAddress(parameters)             -> setLpTokenAddress(parameters, s)
+        | SetTreasuryAddress(parameters)            -> setTreasuryAddress(parameters, s)
 
         | CashToToken(parameters)                   -> cashToToken(parameters, s)
         | TokenToCash(parameters)                   -> tokenToCash(parameters, s)
