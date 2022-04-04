@@ -1,8 +1,3 @@
-
-// todo: add support for baking
-(* To support baking *)
-//#define HAS_BAKER
-
 type ownerAddressType   is address;
 
 type tokenBalanceType   is nat;
@@ -32,38 +27,8 @@ type getBalanceParamsType is address * contract(nat)
 
 // ----- transfer types begin -----
 
-
 type fa12ApproveType is (address * nat)
-// type transferDestination is [@layout:comb] record[
-//   to_       : address;
-//   token_id  : nat;
-//   amount    : tokenAmountType;
-// ]
-// type transfer is [@layout:comb] record[
-//   from_     : address;
-//   txs       : list(transferDestination);
-// ]
-// type fa2TransferType  is list(transfer)
 type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
-
-// type tezType             is unit
-// type fa12TokenType       is address
-// type fa2TokenType        is [@layout:comb] record [
-//   tokenContractAddress    : address;
-//   tokenId                 : nat;
-// ]
-
-// type tokenType       is
-// | Tez                     of tezType         // unit
-// | Fa12                    of fa12TokenType   // address
-// | Fa2                     of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
-
-// type transferTokenType is [@layout:comb] record [
-//     from_           : address;
-//     to_             : address;
-//     amt             : nat;
-//     token           : tokenType;
-// ]
 
 // ----- transfer types end -----
 
@@ -121,19 +86,19 @@ type onPriceActionType is [@layout:comb] record [
 
 
 // for ctez / USDM
-type tezToToken is [@layout:comb] record [ 
-    outputCfmmContract  : address ;     (* other cfmm contract *)
-    minTokensBought     : nat ;         (* minimum amount of tokens bought *)
-    [@annot:to] to_     : address ;     (* where to send the output tokens *)    
-    deadline            : timestamp ;   (* time before which the request must be completed *)
-]
+// type tezToToken is [@layout:comb] record [ 
+//     outputCfmmContract  : address ;     (* other cfmm contract *)
+//     minTokensBought     : nat ;         (* minimum amount of tokens bought *)
+//     [@annot:to] to_     : address ;     (* where to send the output tokens *)    
+//     deadline            : timestamp ;   (* time before which the request must be completed *)
+// ]
 
-type ctezToToken is [@layout:comb] record [ 
-    [@annot:to] to_     : address ;     (* where to send the tokens *)
-    minTokensBought     : nat ;         (* minimum amount of tokens that must be bought *)
-    cashSold            : nat ;
-    deadline            : timestamp ; 
-]
+// type ctezToToken is [@layout:comb] record [ 
+//     [@annot:to] to_     : address ;     (* where to send the tokens *)
+//     minTokensBought     : nat ;         (* minimum amount of tokens that must be bought *)
+//     cashSold            : nat ;
+//     deadline            : timestamp ; 
+// ]
 
 type updateFa12PoolType is nat
 type updateFa12TokenPoolInternalActionType is updateFa12PoolType
@@ -158,16 +123,18 @@ type cfmmStorage is [@layout:comb] record [
 
     // for oracle
     lastOracleUpdate        : timestamp;
-    consumerEntrypoint      : address;
-
     usdmTokenAddress        : address;
+
+    // treasury
+    treasuryAddress         : address;
 ]
 
 type cfmmAction is 
     | Default                       of unit
-    | SetAdmin                      of (address)
+    | SetAdmin                      of address
     | SetBaker                      of setBakerActionType
     | SetLpTokenAddress             of address 
+    | SetTreasuryAddress            of address 
 
     | AddLiquidity                  of addLiquidityActionType
     | RemoveLiquidity               of removeLiquidityActionType 
@@ -299,7 +266,7 @@ function getFa12ApproveEntrypoint(const tokenContractAddress : address) : contra
 
 
 // helper function to update USDM contract on price action
-function getOnPriceActionInUsdMEntrypoint(const tokenContractAddress : address) : contract(onPriceActionType) is
+function getOnPriceActionInUsdmEntrypoint(const tokenContractAddress : address) : contract(onPriceActionType) is
   case (Tezos.get_entrypoint_opt(
       "%onPriceAction",
       tokenContractAddress) : option(contract(onPriceActionType))) of
@@ -342,12 +309,12 @@ function updateFa12PoolInternal(const poolUpdate : updateFa12PoolType) : nat is 
 
 function onPriceAction(const onPriceActionParams : onPriceActionType; var s : cfmmStorage) : operation is 
 block {
-    const updateConsumerOperation : operation = Tezos.transaction(
+    const onPriceActionOperation : operation = Tezos.transaction(
         onPriceActionParams,
         0mutez,
-        getOnPriceActionInUsdMEntrypoint(s.usdmTokenAddress)
+        getOnPriceActionInUsdmEntrypoint(s.usdmTokenAddress)
     );
-} with (updateConsumerOperation)
+} with (onPriceActionOperation)
 
 
 // ------ Helper Functions end ------
@@ -388,6 +355,17 @@ block {
     const delegateOperation : operation = Tezos.set_delegate(setBakerParams.baker);
 
 } with (list[delegateOperation], s)
+
+
+
+
+(*  setTreasuryAddress entrypoint *)
+function setTreasuryAddress(const newTreasuryAddress : address; var s : cfmmStorage) : return is
+block {
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    s.treasuryAddress := newTreasuryAddress;
+} with (noOperations, s)
 
 
 
@@ -789,6 +767,7 @@ function main (const action : cfmmAction; const s : cfmmStorage) : return is
         | SetAdmin(parameters)                      -> setAdmin(parameters, s)
         | SetBaker(parameters)                      -> setBaker(parameters, s)
         | SetLpTokenAddress(parameters)             -> setLpTokenAddress(parameters, s)
+        | SetTreasuryAddress(parameters)            -> setTreasuryAddress(parameters, s)
 
         | CashToToken(parameters)                   -> cashToToken(parameters, s)
         | TokenToCash(parameters)                   -> tokenToCash(parameters, s)

@@ -15,19 +15,23 @@ const config = {
 }
 
 export const usdmTokenControllerStorage: usdmTokenControllerStorageType = {
-  admin: alice.pkh,
-  config: config,
+  admin                       : alice.pkh,
+  config                      : config,
 
-  whitelistTokenContracts : MichelsonMap.fromLiteral({}),
-  vaults: MichelsonMap.fromLiteral({}),
+  whitelistTokenContracts     : MichelsonMap.fromLiteral({}),
+  
+  vaults                      : MichelsonMap.fromLiteral({}),
+  vaultCounter                : new BigNumber(1),
+  vaultLedger                 : MichelsonMap.fromLiteral({}),
+  ownerLedger                 : MichelsonMap.fromLiteral({}),
 
-  targetLedger: MichelsonMap.fromLiteral({}),
-  driftLedger: MichelsonMap.fromLiteral({}),
-  lastDriftUpdateLedger: MichelsonMap.fromLiteral({}),
-  collateralTokenLedger: MichelsonMap.fromLiteral({}),
-  priceLedger: MichelsonMap.fromLiteral({}),
+  targetLedger                : MichelsonMap.fromLiteral({}),
+  driftLedger                 : MichelsonMap.fromLiteral({}),
+  lastDriftUpdateLedger       : MichelsonMap.fromLiteral({}),
+  collateralTokenLedger       : MichelsonMap.fromLiteral({}),
+  priceLedger                 : MichelsonMap.fromLiteral({}),
 
-  usdmTokenAddress : zeroAddress,
-  cfmmAddressLedger: MichelsonMap.fromLiteral({}),
+  usdmTokenAddress            : zeroAddress,
+  cfmmAddressLedger           : MichelsonMap.fromLiteral({}),
 
 };
