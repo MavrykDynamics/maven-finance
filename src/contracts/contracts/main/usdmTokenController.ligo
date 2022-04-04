@@ -33,13 +33,19 @@ type collateralTokenLedgerType is map(string, collateralTokenRecordType)
 
 type vaultType is [@layout:comb] record [
     address                     : address;
-    collateralBalanceLedger     : collateralBalanceLedgerType;     // tez/token balance
-    usdmOutstanding             : usdmAmountType;                  // nat 
+    collateralBalanceLedger     : collateralBalanceLedgerType;           // tez/token balance
+    usdmOutstanding             : usdmAmountType;                        // nat 
     collateralTokenAddresses         : collateralTokenAddressesType;     // token collateral address : name of token collateral
     // markedForLiquidation        : bool;                            // marked for liquidation
     // timeMarkedForLiquidation    : timestamp;                       // time marked for liquidation
 ]
 
+// owner types
+type ownerVaultSetType              is set(vaultIdType)                     // set of vault ids belonging to the owner 
+type ownerLedgerType                is big_map(address, ownerVaultSetType)  // big map of owners, and the corresponding vaults they own
+type vaultLedgerType                is big_map(vaultIdType, bool);
+
+// price and token types
 type targetLedgerType               is map(string, nat)
 type driftLedgerType                is map(string, int)
 type lastDriftUpdateLedgerType      is map(string, timestamp)
@@ -72,7 +78,6 @@ type updateVaultTokenAddressesActionType is [@layout:comb] record [
 
 type tokenAmountLedgerType is map(string, tokenAmountType)
 type createVaultActionType is [@layout:comb] record [
-    id                          : nat; 
     delegate                    : option(key_hash); 
     depositors                  : depositorsType;
 ]
@@ -125,16 +130,21 @@ type controllerStorage is [@layout:comb] record [
     admin                       : address;
     config                      : configType;
     
+    usdmTokenAddress            : address;                // USDM token contract address
     whitelistTokenContracts     : whitelistTokenContractsType;      
-    vaults                      : big_map(vaultHandleType, vaultType);
 
+    // vaults and owners
+    vaults                      : big_map(vaultHandleType, vaultType);
+    vaultCounter                : vaultIdType;      // nat
+    vaultLedger                 : vaultLedgerType;  // used to check if vault id is in use already
+    ownerLedger                 : ownerLedgerType;
+
+    // price, tokens and cfmm
     targetLedger                : targetLedgerType;
     driftLedger                 : driftLedgerType;
     lastDriftUpdateLedger       : lastDriftUpdateLedgerType;
     collateralTokenLedger       : collateralTokenLedgerType;
     priceLedger                 : priceLedgerType;
-
-    usdmTokenAddress            : address;            // USDM token contract address
     cfmmAddressLedger           : cfmmAddressLedgerType;  // map of CFMM addresss providing the price feed
 ]
 
@@ -449,9 +459,17 @@ block {
 function createVault(const createParams : createVaultActionType ; var s : controllerStorage) : return is 
 block {
     
+    // change from ctez with inclusion of a vault counter
+    
+    // get vault counter
+    const newVaultId : vaultIdType = s.vaultCounter;
+    
+    // check if vault id already exists
+    if Big_map.mem(newVaultId, s.vaultLedger) then failwith("Error. Vault Id already exists.") else skip;
+    
     // make vault handle
     const handle : vaultHandleType = record [
-        id     = createParams.id;
+        id     = newVaultId;
         owner  = Tezos.sender;
     ];
 
@@ -512,6 +530,10 @@ block {
         s.vaults := Big_map.update(handle, Some(vault), s.vaults);
 
     };
+
+    // increment vault counter and add vault id to vaultLedger
+    s.vaultLedger[vaultId] := True;
+    s.vaultCounter         := s.vaultCounter + 1n;
 
 } with (operations, s)
 
