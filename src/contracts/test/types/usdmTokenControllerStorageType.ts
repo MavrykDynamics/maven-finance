@@ -6,8 +6,14 @@ export type usdmTokenControllerStorageType = {
   config: {};
 
   whitelistTokenContracts  : MichelsonMap<MichelsonMapKey, unknown>;
-  vaults                   : MichelsonMap<MichelsonMapKey, unknown>;
 
+  // vaults and owners
+  vaults                   : MichelsonMap<MichelsonMapKey, unknown>;
+  vaultCounter             : BigNumber;
+  vaultLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+  ownerLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+
+  // price and tokens
   targetLedger             : MichelsonMap<MichelsonMapKey, unknown>;
   driftLedger              : MichelsonMap<MichelsonMapKey, unknown>;
   lastDriftUpdateLedger    : MichelsonMap<MichelsonMapKey, unknown>;

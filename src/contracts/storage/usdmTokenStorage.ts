@@ -10,7 +10,7 @@ import { usdmTokenStorageType } from '../test/types/usdm/usdmTokenStorageType'
 
 export const usdmTokenDecimals = 6
 
-const totalSupply      = 1000000000
+const totalSupply      = 10000000000
 const initialSupply    = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 4)
 
@@ -65,13 +65,13 @@ const token_metadata = MichelsonMap.fromLiteral({
 })
 
 export const usdmTokenStorage: usdmTokenStorageType = {
-  admin: alice.pkh,
+  admin           : alice.pkh,
 
-  metadata: metadata,
-  token_metadata: token_metadata,
+  metadata        : metadata,
+  token_metadata  : token_metadata,
 
-  totalSupply: initialSupply,
+  totalSupply     : initialSupply,
 
-  ledger: ledger,
-  operators: MichelsonMap.fromLiteral({}),
+  ledger          : ledger,
+  operators       : MichelsonMap.fromLiteral({}),
 }
