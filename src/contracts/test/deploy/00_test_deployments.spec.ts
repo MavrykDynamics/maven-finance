@@ -906,6 +906,11 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('Emergency Governance Contract - set general contract addresses map [breakGlass, treasury]')
 
+    const setCfmmContractAddressInLpTokenUsdmXtzOperation = await lpTokenUsdmXtz.contract.methods
+      .updateWhitelistContracts("cfmm", cfmmTezFa2Token.contract.address)
+      .send();  
+    await setCfmmContractAddressInLpTokenUsdmXtzOperation.confirmation();
+    console.log('cfmm contract address set in LP Token (USDM/XTZ) whitelist')
 
 
     // Vesting Contract - set whitelist contract addresses map [council]
