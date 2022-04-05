@@ -4,6 +4,7 @@ function callGovernanceLambdaProxy(const executeAction : executeActionType; var 
     
     checkSenderIsAdminOrSelf(s);
 
+    // get callGovernanceLambda method in governanceLambdaLedger
     const governanceLambdaBytes : bytes = case s.governanceLambdaLedger[0n] of
       | Some(_v) -> _v
       | None     -> failwith("Error. Call Governance Lambda not found.")
