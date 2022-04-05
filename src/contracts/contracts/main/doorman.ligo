@@ -4,11 +4,17 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
+#include "../partials/whitelistTokenContractsType.ligo"
+
 // Doorman types
 #include "../partials/types/doormanTypes.ligo"
 
 // MvkToken types for transfer
 #include "../partials/types/mvkTokenTypes.ligo"
+
+// Treasury types for farmClaim
+#include "../partials/types/treasuryTypes.ligo"
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * doormanStorage
@@ -99,15 +105,6 @@ function updateGeneralContracts(const updateGeneralContractsParams: updateGenera
 
 // admin helper functions end ---------------------------------------------------------
 
-// helper function to get mint entrypoint from token address
-function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintParams) is
-  case (Tezos.get_entrypoint_opt(
-      "%mint",
-      token_address) : option(contract(mintParams))) of [
-    Some(contr) -> contr
-  | None -> (failwith("Mint entrypoint not found") : contract(mintParams))
-  ];
-
 // helper function to update satellite's balance
 function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceParams) is
   case (Tezos.get_entrypoint_opt(
@@ -124,6 +121,24 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
       tokenAddress) : option(contract(transferType))) of [
     Some(contr) -> contr
   | None -> (failwith("transfer entrypoint in Token Contract not found") : contract(transferType))
+  ];
+
+// helper function to send transfer operation to treasury
+function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
+  case (Tezos.get_entrypoint_opt(
+      "%transfer",
+      contractAddress) : option(contract(transferActionType))) of [
+    Some(contr) -> contr
+  | None -> (failwith("Error. Transfer entrypoint in Treasury Contract not found") : contract(transferActionType))
+  ];
+
+// helper function to send mint MVK and transfer operation to treasury
+function sendMintMvkAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvkAndTransferType) is
+  case (Tezos.get_entrypoint_opt(
+      "%mintMvkAndTransfer",
+      contractAddress) : option(contract(mintMvkAndTransferType))) of [
+    Some(contr) -> contr
+  | None -> (failwith("Error. MintMvkAndTransfer entrypoint in Treasury Contract not found") : contract(mintMvkAndTransferType))
   ];
 
 (* ---- Helper functions end ---- *)
@@ -600,30 +615,37 @@ function farmClaim(const farmClaim: farmClaimType; var s: doormanStorage): retur
 
     // Mint Tokens
     if claimAmount > 0n then {
-      const mintParam: mintParams = (Tezos.self_address, claimAmount);
-      const mintOperation: operation = Tezos.transaction(mintParam, 0tez, getMintEntrypointFromTokenAddress(mvkTokenAddress));
+      const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
+        to_  = Tezos.self_address;
+        amt  = claimAmount;
+      ];
+
+      const mintOperation : operation = Tezos.transaction(
+        mintMvkAndTransferTokenParams, 
+        0tez, 
+        sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
+      );
       operations := mintOperation # operations;
     } else skip;
 
     // Transfer from treasury
     if transferedToken > 0n then {
       // Check if provided treasury exists
-      const transferParam: transferType = list[
+      const transferParam: transferActionType = list[
         record[
-          from_=treasuryAddress;
-          txs=list[
-            record[
-              to_=Tezos.self_address;
-              amount=transferedToken;
-              token_id=0n;
-            ]
-          ]
+          to_=Tezos.self_address;
+          token=Fa2 (record[
+            tokenContractAddress=mvkTokenAddress;
+            tokenId=0n;
+          ]);
+          amount=transferedToken;
         ]
       ];
+
       const transferOperation: operation = Tezos.transaction(
         transferParam,
         0tez,
-        getTransferEntrypointFromTokenAddress(mvkTokenAddress)
+        sendTransferOperationToTreasury(treasuryAddress)
       );
       operations := transferOperation # operations;
     } else skip;

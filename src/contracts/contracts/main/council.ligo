@@ -681,7 +681,6 @@ block {
     ];
     const stringMap : stringMapType      = map [
         ("purpose"               : string) -> councilActionRequestMintParams.purpose; 
-        ("tokenType"             : string) -> "FA2";  
     ];
     const natMap : natMapType         = map [
         ("tokenAmount"           : string) -> councilActionRequestMintParams.tokenAmount;
@@ -1229,11 +1228,6 @@ block {
                 | None -> failwith("Error. TreasuryAddress not found.")
             ];
 
-            const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
-                Some(_string) -> _string
-                | None -> failwith("Error. TokenType not found.")
-            ];
-
             const purpose : string = case _councilActionRecord.stringMap["purpose"] of [
                 Some(_string) -> _string
                 | None -> failwith("Error. Purpose not found.")
@@ -1245,10 +1239,8 @@ block {
             ];
             // fetch params end ---
 
-
             const requestMintParams : councilActionRequestMintType = record[
                 tokenAmount      = tokenAmount;
-                tokenType        = tokenType;
                 treasuryAddress  = treasuryAddress;
                 purpose          = purpose;
             ];

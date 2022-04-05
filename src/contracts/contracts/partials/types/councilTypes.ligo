@@ -90,7 +90,6 @@ type councilActionRequestTokensType is [@layout:comb] record [
 type councilActionRequestMintType is [@layout:comb] record [
     treasuryAddress  : address;  // treasury address
     tokenAmount      : nat;      // MVK token amount requested
-    tokenType        : string;   // "XTZ", "FA12", "FA2"
     purpose          : string;   // financial request purpose
 ]
 
@@ -117,13 +116,6 @@ type tokenType       is
 | Tez                     of tezType         // unit
 | Fa12                    of fa12TokenType   // address
 | Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
-
-type transferTokenType is [@layout:comb] record [
-    from_           : address;
-    to_             : address;
-    amt             : nat;
-    token           : tokenType;
-]
 
 type councilActionTransferType is [@layout:comb] record [
     receiverAddress       : address;       // receiver address

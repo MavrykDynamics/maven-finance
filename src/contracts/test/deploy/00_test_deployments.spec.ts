@@ -9,7 +9,7 @@ const {
 } = require("@taquito/taquito")
 const { InMemorySigner, importKey } = require("@taquito/signer");
 import assert, { ok, rejects, strictEqual } from "assert";
-import { Utils, zeroAddress } from "../helpers/Utils";
+import { MVK, Utils, zeroAddress } from "../helpers/Utils";
 import fs from "fs";
 import { confirmOperation } from "../../scripts/confirmation";
 const saveContractAddress = require("../../helpers/saveContractAddress")
@@ -240,6 +240,7 @@ describe('Contracts Deployment for Tests', async () => {
     });
     treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
       governance: governance.contract.address,
+      doorman: doorman.contract.address
     })
     treasuryStorage.whitelistTokenContracts = MichelsonMap.fromLiteral({
       mvk       : mvkToken.contract.address,
@@ -309,27 +310,27 @@ describe('Contracts Deployment for Tests', async () => {
     await setWhitelistTreasuryContractInMvkTokenOperation.confirmation()
 
     console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
-
-
     
     // Doorman Contract - set whitelist contract address [farmTreasury]
-    const updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", eve.pkh).send();
+    const updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
     await updateGeneralContractsOperation.confirmation();
-    // Give operator access to treasury for MVK Token Contract
-    await signerFactory(eve.sk); //TODO: Treasury should be able to update their operators directly from their contracts
-    const updateOperatorsOperation = await mvkToken.contract.methods.update_operators([
+    
+    // Send MVK to treasury contract (TODO: keep?)
+    const transferToTreasury = await mvkToken.contract.methods
+      .transfer([
         {
-            add_operator: {
-                owner: eve.pkh,
-                operator: doorman.contract.address,
-                token_id: 0
-            }
-        }
-    ]).send()
-    await updateOperatorsOperation.confirmation();
-    await signerFactory(bob.sk);
-
-
+          from_: bob.pkh,
+          txs: [
+            {
+              to_: treasury.contract.address,
+              token_id: 0,
+              amount: MVK(200),
+            },
+          ],
+        },
+      ])
+      .send()
+    await transferToTreasury.confirmation()
 
     // Doorman Contract - set general contract addresses [delegation, mvkToken, farmFactory]
     const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts('delegation', delegation.contract.address).send()

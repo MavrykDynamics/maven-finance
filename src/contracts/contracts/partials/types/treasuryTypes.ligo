@@ -25,13 +25,6 @@ type tokenType       is
 | Fa12                    of fa12TokenType   // address
 | Fa2                     of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
 
-type transferTokenType is [@layout:comb] record [
-    from_           : address;
-    to_             : address;
-    amt             : tokenAmountType;
-    token           : tokenType;
-]
-
 type mintMvkAndTransferType is [@layout:comb] record [
     to_             : address;
     amt             : nat;
