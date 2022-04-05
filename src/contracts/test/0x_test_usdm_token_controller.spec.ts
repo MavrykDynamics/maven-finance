@@ -1319,13 +1319,31 @@ describe("USDM Token Controller tests", async () => {
             const aliceUsdmXtzLpTokenBalance    = await lpTokenUsdmXtzStorage.ledger.get(alice.pkh);
             assert.equal(aliceUsdmXtzLpTokenBalance, undefined);
 
+            const cfmmXtzUsdmStorage            = await cfmmTezFa2TokenInstance.storage();
+            const initialCashPool               = cfmmXtzUsdmStorage.cashPool;
+            const initialTokenPool              = cfmmXtzUsdmStorage.tokenPool;
+            const initialLpTokensTotal          = cfmmXtzUsdmStorage.lpTokensTotal;
+
             // init parameters - assume 1 XTZ = 4 USDM i.e. 1 xtz = $4 USD
             const cashDeposited       = 25000000;          // 25 XTZ
-            const deadline            = new Date(Date.now() + (10 * 60));
+            const deadline            = new Date(Date.now() + (600 * 60));
             const maxTokensDeposited  = 100000000;        // 100 USDM Tokens
             const minLpTokensMinted   = 25000000;         // 25 LP Tokens
             const owner               = alice.pkh;        // alice
 
+            // USDM Token: add cfmm as operator for alice
+            const updateOperatorsOperation = await usdmTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner: alice.pkh,
+                        operator: cfmmTezFa2TokenAddress.address,
+                        token_id: 0,
+                    },
+                }])
+                .send()
+            await updateOperatorsOperation.confirmation();
+
+            // user (alice) adds liquidity to cfmm
             const aliceAddsLiquidityOperation = await cfmmTezFa2TokenInstance.methods.addLiquidity(
                 cashDeposited,
                 deadline,
@@ -1333,20 +1351,30 @@ describe("USDM Token Controller tests", async () => {
                 minLpTokensMinted,
                 owner
             ).send({ mutez : true, amount: cashDeposited })
+            await aliceAddsLiquidityOperation.confirmation();
 
             const updatedLpTokenUsdmXtzStorage         = await lpTokenUsdmXtzInstance.storage();
             const updatedAliceUsdmXtzLpTokenBalance    = await updatedLpTokenUsdmXtzStorage.ledger.get(alice.pkh);
 
             const updatedCfmmXtzUsdmStorage            = await cfmmTezFa2TokenInstance.storage();
+            const updatedCashPool                      = updatedCfmmXtzUsdmStorage.cashPool;
+            const updatedTokenPool                     = updatedCfmmXtzUsdmStorage.tokenPool;
+            const updatedLpTokensTotal                 = updatedCfmmXtzUsdmStorage.lpTokensTotal;
 
-            console.log("--- --- --- --- --- --- --- --- --- ---");
-            console.log("updated after adding liquidity");
-            console.log("--- --- --- --- --- --- --- --- --- ---");
-            console.log(updatedLpTokenUsdmXtzStorage);
-            console.log(updatedAliceUsdmXtzLpTokenBalance);
+            // check that alice has received LP tokens 
+            assert.equal(updatedAliceUsdmXtzLpTokenBalance, minLpTokensMinted); // 25000000 i.e. 25 LP Tokens
 
-            console.log(updatedCfmmXtzUsdmStorage);
+            // check CFMM pool
+            assert.equal(updatedCashPool, initialCashPool.toNumber() + cashDeposited);
+            assert.equal(updatedTokenPool, initialTokenPool.toNumber() + maxTokensDeposited);
+            assert.equal(updatedLpTokensTotal, initialLpTokensTotal.toNumber() + minLpTokensMinted);
 
+            // console.log("--- --- --- --- --- --- --- --- --- ---");
+            // console.log("updated after adding liquidity");
+            // console.log("--- --- --- --- --- --- --- --- --- ---");
+            // console.log(updatedLpTokenUsdmXtzStorage);
+            // console.log(updatedAliceUsdmXtzLpTokenBalance);
+            // console.log(updatedCfmmXtzUsdmStorage);
         });
 
 

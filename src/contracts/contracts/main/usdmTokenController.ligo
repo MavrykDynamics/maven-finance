@@ -532,8 +532,8 @@ block {
     };
 
     // increment vault counter and add vault id to vaultLedger
-    s.vaultLedger[vaultId] := True;
-    s.vaultCounter         := s.vaultCounter + 1n;
+    s.vaultLedger[newVaultId] := True;
+    s.vaultCounter            := s.vaultCounter + 1n;
 
 } with (operations, s)
 
