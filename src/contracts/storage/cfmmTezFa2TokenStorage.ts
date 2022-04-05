@@ -25,7 +25,7 @@ export const cfmmTezFa2TokenStorage: cfmmTezFa2TokenStorageType = {
     tokenId             : new BigNumber(0),
 
     lpTokenAddress      : zeroAddress,
-    lpTokensTotal       : new BigNumber(1),
+    lpTokensTotal       : new BigNumber(500000000),   // init lp tokens to 500 (1:4 ratio - 1 XTZ to 4 USDM)
     pendingPoolUpdates  : new BigNumber(0),
 
     lastOracleUpdate    : new Date(),

@@ -404,7 +404,6 @@ block {
     const cashDeposited       : nat                 = mutezToNatural(Tezos.amount);
     var operations            : list(operation)    := nil;
 
-
     // check no pending pool updates
     checkNoPendingPoolUpdates(s);
 
@@ -442,8 +441,8 @@ block {
     operations := sendTokenToCfmmOperation # operations;
 
     // send tez from sender to cfmm
-    const sendTezToCfmmOperation : operation = transferTez( (get_contract(Tezos.self_address) : contract(unit)), cashDeposited);
-    operations := sendTezToCfmmOperation # operations;
+    // const sendTezToCfmmOperation : operation = transferTez( (get_contract(Tezos.self_address) : contract(unit)), cashDeposited);
+    // operations := sendTezToCfmmOperation # operations;
 
     // mint LP Tokens and send to sender
     const mintLpTokensTokensOperation : operation = mintOrBurnLpToken(owner, int(lpTokensMinted), s);
