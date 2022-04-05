@@ -11,8 +11,8 @@ import { lpTokenUsdmXtzStorageType } from '../test/types/lpTokenUsdmXtzStorageTy
 
 export const lpTokenUsdmXtzDecimals = 6
 
-const totalSupply      = 0
-const initialSupply    = new BigNumber(totalSupply)       // 0 LP Tokens
+const totalSupply      = 500000000                        // 500 LP Tokens
+const initialSupply    = new BigNumber(totalSupply)       // 500 LP Tokens
 const singleUserSupply = new BigNumber(totalSupply / 4)   // 0 LP Tokens
 
 const metadata = MichelsonMap.fromLiteral({
@@ -61,13 +61,13 @@ const token_metadata = MichelsonMap.fromLiteral({
 })
 
 export const lpTokenUsdmXtzStorage: lpTokenUsdmXtzStorageType = {
-  admin           : alice.pkh,
+  admin               : alice.pkh,
+  metadata            : metadata,
+  token_metadata      : token_metadata,
+  totalSupply         : initialSupply,
 
-  metadata        : metadata,
-  token_metadata  : token_metadata,
+  whitelistContracts  : MichelsonMap.fromLiteral({}),
 
-  totalSupply     : initialSupply,
-
-  ledger          : ledger,
-  operators       : MichelsonMap.fromLiteral({}),
+  ledger              : ledger,
+  operators           : MichelsonMap.fromLiteral({}),
 }

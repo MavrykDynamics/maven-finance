@@ -1,8 +1,12 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
 ////
 // COMMON TYPES
 ////
 type tokenId is nat;
 type tokenBalance is nat;
+type quantityType is int;
 type operator is address
 type owner is address
 
@@ -23,9 +27,13 @@ type storage is record [
     admin                 : address;
     metadata              : metadata;
     token_metadata        : tokenMetadata;
+    totalSupply           : tokenBalance;
+    
+    whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / mintOrBurn entrypoints
+
     ledger                : ledger;
     operators             : operators;
-    totalSupply           : tokenBalance;
+    
   ]
 
 ////
@@ -91,17 +99,25 @@ type mintParams is (owner * tokenBalance)
 (* Burn entrypoint inputs *)
 type burnParams is (owner * tokenBalance)
 
+(* MintOrBurn entrypoint *)
+type mintOrBurnParams is [@layout:comb] record [
+    quantity  : int;
+    target    : address;
+]
+
 ////
 // ENTRYPOINTS
 ////
 type action is
-  Transfer of transferParams
-| Balance_of of balanceOfParams
-| Update_operators of updateOperatorsParams
-| AssertMetadata of assertMetadataParams
-| GetTotalSupply of getTotalSupplyParams
-| Mint of mintParams
-| Burn of burnParams
+  Transfer                  of transferParams
+| Balance_of                of balanceOfParams
+| Update_operators          of updateOperatorsParams
+| AssertMetadata            of assertMetadataParams
+| GetTotalSupply            of getTotalSupplyParams
+| UpdateWhitelistContracts  of updateWhitelistContractsParams
+| MintOrBurn                of mintOrBurnParams
+| Mint                      of mintParams
+| Burn                      of burnParams
 
 ////
 // FUNCTIONS
@@ -137,6 +153,9 @@ function checkSenderIsAdmin(const store: storage): unit is
 function checkNoAmount(const _p: unit): unit is
   if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
   else unit
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
 
 (* Transfer Entrypoint *)
 function mergeOperations(const first: list (operation); const second: list (operation)) : list (operation) is 
@@ -262,10 +281,55 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
     end
   } with (noOperations, store)
 
+(* MintOrBurn Entrypoint *)
+function mintOrBurn(const mintOrBurnParams: mintOrBurnParams; var store : storage) : return is
+block {
+
+  // check sender is from cfmm contract
+  if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+
+  const quantity        : int      = mintOrBurnParams.quantity;
+  const targetAddress   : address  = mintOrBurnParams.target;
+
+  if quantity < 0 then block {
+    // burn LP Token
+
+    // get target balance
+    var targetBalance : tokenBalance := getBalance(targetAddress, store);
+
+    (* Balance check *)
+    checkBalance(targetBalance, abs(quantity));
+
+    (* Update target balance *)
+    targetBalance := abs(targetBalance - quantity);
+    const newTotalSupply : tokenBalance = abs(store.totalSupply - quantity);
+
+    (* Update storage *)
+    const updatedLedger : ledger = Big_map.update(targetAddress, Some(targetBalance), store.ledger);
+
+    store.ledger       := updatedLedger;
+    store.totalSupply  := newTotalSupply;
+
+  } else block {
+    // mint LP Token
+
+    // Update target's balance
+    const targetNewBalance  : tokenBalance = getBalance(targetAddress, store) + abs(quantity);
+    const newTotalSupply    : tokenBalance = store.totalSupply + abs(quantity);
+
+    // Update storage
+    const updatedLedger     : ledger = Big_map.update(targetAddress, Some(targetNewBalance), store.ledger);
+  
+    store.ledger       := updatedLedger;
+    store.totalSupply  := newTotalSupply;
+  };
+
+} with (noOperations, store)
+
 (* Mint Entrypoint *)
 function mint(const mintParams: mintParams; const store : storage) : return is
   block {
-    const senderAddress: owner = mintParams.0;
+    const senderAddress: owner       = mintParams.0;
     const mintedTokens: tokenBalance = mintParams.1;
 
     // Update sender's balance
@@ -279,7 +343,7 @@ function mint(const mintParams: mintParams; const store : storage) : return is
 (* Burn Entrypoint *)
 function burn(const burnParams: burnParams; const store: storage) : return is
   block {
-    const targetAddress: owner = burnParams.0;
+    const targetAddress: owner       = burnParams.0;
     const burnedTokens: tokenBalance = burnParams.1;
     var targetBalance: tokenBalance := getBalance(targetAddress, store);
 
@@ -302,12 +366,14 @@ function main (const action : action; const store : storage) : return is
     checkNoAmount(Unit);
   } with(
     case action of
-        Transfer (params) -> transfer(params, store)
-      | Balance_of (params) -> balanceOf(params, store)
-      | Update_operators (params) -> updateOperators(params, store)
-      | AssertMetadata (params) -> assertMetadata(params, store)
-      | GetTotalSupply (params) -> getTotalSupply(params, store)
-      | Mint (params) -> mint(params, store)
-      | Burn (params) -> burn(params, store)
+        Transfer (params)                  -> transfer(params, store)
+      | Balance_of (params)                -> balanceOf(params, store)
+      | Update_operators (params)          -> updateOperators(params, store)
+      | AssertMetadata (params)            -> assertMetadata(params, store)
+      | GetTotalSupply (params)            -> getTotalSupply(params, store)
+      | UpdateWhitelistContracts (params)  -> updateWhitelistContracts(params, store)
+      | MintOrBurn(params)                 -> mintOrBurn(params, store)
+      | Mint (params)                      -> mint(params, store)
+      | Burn (params)                      -> burn(params, store)
     end
   )
