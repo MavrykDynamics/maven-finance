@@ -162,8 +162,6 @@ type configType is [@layout:comb] record [
     minimumStakeReqPercentage   : nat;  // minimum amount of MVK required in percentage of total staked MVK supply (e.g. 0.01%)
     maxProposalsPerDelegate     : nat;  // number of active proposals delegate can have at any given time
     
-    newBlockTimeLevel           : nat;  // block level where new blocksPerMinute takes effect -> if none, use blocksPerMinute (old); if exists, check block levels, then use newBlocksPerMinute if current block level exceeds block level, if not use old blocksPerMinute
-    newBlocksPerMinute          : nat;  // new blocks per minute 
     blocksPerMinute             : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
     
     blocksPerProposalRound      : nat;  // to determine duration of proposal round
@@ -187,7 +185,6 @@ type governanceUpdateConfigActionType is
 | ConfigProposalSubmissionFee of unit
 | ConfigMinimumStakeReqPercentage of unit
 | ConfigMaxProposalsPerDelegate of unit
-| ConfigNewBlockTimeLevel of unit
 | ConfigBlocksPerProposalRound of unit
 | ConfigBlocksPerVotingRound of unit
 | ConfigBlocksPerTimelockRound of unit
@@ -231,17 +228,6 @@ type tokenType       is
 | Fa12                    of fa12TokenType   // address
 | Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
 
-type transferTokenType is [@layout:comb] record [
-    from_           : address;
-    to_             : address;
-    amt             : nat;
-    token           : tokenType;
-]
-type mintMvkAndTransferType is [@layout:comb] record [
-    to_             : address;
-    amt             : nat;
-]
-
 type roundType       is
 | Proposal                  of unit
 | Voting                    of unit
@@ -260,7 +246,6 @@ type requestTokensType is [@layout:comb] record [
 type requestMintType is [@layout:comb] record [
     treasuryAddress       : address;  // treasury address
     tokenAmount           : nat;      // MVK token amount requested
-    tokenType             : string;
     purpose               : string;   // financial request purpose
 ]
 

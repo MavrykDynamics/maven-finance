@@ -13,6 +13,9 @@
 // Delegation Type for updateConfig
 #include "../partials/types/delegationTypes.ligo"
 
+// Treasury Type for mint and transfers
+#include "../partials/types/treasuryTypes.ligo"
+
 // Governance Type
 #include "../partials/types/governanceTypes.ligo"
 
@@ -26,29 +29,26 @@ type governanceAction is
     | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
     
-    | StartNextRound of (unit)
-    // | StartProposalRound of (unit)
+    // | StartNextRound of option(bool)
     | Propose of newProposalType
     | ProposalRoundVote of proposalIdType
     | AddUpdateProposalData of addUpdateProposalDataType
     | LockProposal of proposalIdType  
     
-    // | StartVotingRound of (unit)
     | VotingRoundVote of (voteForProposalChoiceType)
     
-    // | StartTimelockRound of (unit)
     | ExecuteProposal of (unit)
-    | DropProposal of (nat)
+    // | DropProposal of (nat)
 
     // Governance Lambda
     | CallGovernanceLambdaProxy of executeActionType
     | SetupLambdaFunction of setupLambdaFunctionType
 
     // Financial Governance
-    // | RequestTokens of requestTokensType
-    // | RequestMint of requestMintType
-    // | DropFinancialRequest of (nat)
-    // | VoteForRequest of voteForRequestType
+    | RequestTokens of requestTokensType
+    | RequestMint of requestMintType
+    | DropFinancialRequest of (nat)
+    | VoteForRequest of voteForRequestType
 
 const noOperations : list (operation) = nil;
 const maxRoundDuration: nat = 20_160n; // One week with blockTime = 30sec
@@ -200,7 +200,6 @@ block {
   | ConfigProposalSubmissionFee (_v)                  -> s.config.proposalSubmissionFee                   := updateConfigNewValue
   | ConfigMinimumStakeReqPercentage (_v)              -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minimumStakeReqPercentage               := updateConfigNewValue
   | ConfigMaxProposalsPerDelegate (_v)                -> s.config.maxProposalsPerDelegate                 := updateConfigNewValue
-  | ConfigNewBlockTimeLevel (_v)                      -> if updateConfigNewValue < Tezos.level then failwith("Error. This config value must be greater than the current level") else s.config.newBlockTimeLevel                       := updateConfigNewValue
   | ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith("Error. The duration of this round cannot exceed the maximum round duration") else s.config.blocksPerProposalRound                  := updateConfigNewValue
   | ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith("Error. The duration of this round cannot exceed the maximum round duration") else s.config.blocksPerVotingRound                    := updateConfigNewValue
   | ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith("Error. The duration of this round cannot exceed the maximum round duration") else s.config.blocksPerTimelockRound                  := updateConfigNewValue
@@ -239,40 +238,13 @@ function getSatelliteSnapshotRecord (const satelliteAddress : address; const s :
 
   } with satelliteSnapshotRecord
 
-// helper function to get startProposalRound entrypoint
-function getStartProposalRoundEntrypoint(const contractAddress : address) : contract(unit) is
-  case (Tezos.get_entrypoint_opt(
-      "%startProposalRound",
-      contractAddress) : option(contract(unit))) of [
-    Some(contr) -> contr
-  | None -> (failwith("StartProposalRound entrypoint in Governance Contract not found") : contract(unit))
-  ];
-
-// helper function to get startVotingRound entrypoint
-function getStartVotingRoundEntrypoint(const contractAddress : address) : contract(unit) is
-  case (Tezos.get_entrypoint_opt(
-      "%startVotingRound",
-      contractAddress) : option(contract(unit))) of [
-    Some(contr) -> contr
-  | None -> (failwith("StartVotingRound entrypoint in Governance Contract not found") : contract(unit))
-  ];
-
-// helper function to get startTimelockRound entrypoint
-function getStartTimelockRoundEntrypoint(const contractAddress : address) : contract(unit) is
-  case (Tezos.get_entrypoint_opt(
-      "%startTimelockRound",
-      contractAddress) : option(contract(unit))) of [
-    Some(contr) -> contr
-  | None -> (failwith("StartTimelockRound entrypoint in Governance Contract not found") : contract(unit))
-  ];
-
 // helper function to send transfer operation to treasury
-function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferTokenType) is
+function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
   case (Tezos.get_entrypoint_opt(
       "%transfer",
-      contractAddress) : option(contract(transferTokenType))) of [
+      contractAddress) : option(contract(transferActionType))) of [
     Some(contr) -> contr
-  | None -> (failwith("Error. Transfer entrypoint in Treasury Contract not found") : contract(transferTokenType))
+  | None -> (failwith("Error. Transfer entrypoint in Treasury Contract not found") : contract(transferActionType))
   ];
 
 // helper function to send mint MVK and transfer operation to treasury
@@ -405,131 +377,6 @@ block {
     
 } with (operations, s)
 
-// function startNextRound(var s : governanceStorage) : return is
-// block {
-
-//     // check if current round has ended
-//     if s.currentRound = "timelock" and Tezos.level < s.currentRoundEndLevel 
-//     then failwith("Error. New proposal round can only start after the current timelock round ends.") 
-//     else skip;
-
-//     if s.currentRound = "voting" and Tezos.level < s.currentRoundEndLevel 
-//     then failwith("Error. Current voting round has not ended yet.") 
-//     else skip;
-
-//     if s.currentRound = "proposal" and Tezos.level < s.currentRoundEndLevel 
-//     then failwith("Error. Current proposal round has not ended yet.") 
-//     else skip;
-
-//     // init operations
-//     var operations : list(operation) := nil;
-
-//     // current round is voting round
-//     if s.currentRound = "voting" then block {
-
-//       // fetch proposal
-//       const votingRoundProposal : proposalRecordType = case s.proposalLedger[s.currentRoundHighestVotedProposalId] of [ 
-//           Some(_proposalRecord) -> _proposalRecord
-//         | None -> failwith("Error. Proposal not found.")
-//       ];
-
-//       if votingRoundProposal.upvoteMvkTotal < votingRoundProposal.minQuorumMvkTotal  then block {
-
-//           // voting round proposal has sufficient upvotes
-//           // start timelock round
-//           const startTimelockRoundOperation : operation = Tezos.transaction(
-//             unit, 
-//             0tez, 
-//             getStartTimelockRoundEntrypoint(Tezos.self_address)
-//           );
-//           operations := startTimelockRoundOperation # operations;
-
-//       } else block {
-
-//           // voting round proposal does not have sufficient upvotes
-//           // start proposal round
-//           const startProposalRoundOperation : operation = Tezos.transaction(
-//             unit, 
-//             0tez, 
-//             getStartProposalRoundEntrypoint(Tezos.self_address)
-//           );
-//           operations := startProposalRoundOperation # operations;
-
-//       };
-
-//     } else skip;
-
-//     // current round is proposal round
-//     if s.currentRound = "proposal" then block {
-      
-//       // simple loop to get the proposal with the highest vote count in MVK 
-//       var _highestVoteCounter     : nat := 0n;
-//       var highestVotedProposalId  : nat := 0n;
-//       for proposalId -> voteCount in map s.currentRoundProposals block {
-//           if voteCount > _highestVoteCounter then block {
-//               _highestVoteCounter := voteCount;
-//               highestVotedProposalId := proposalId;
-//           } else skip;
-//       };
-
-//       // check if there is a valid proposal 
-//       if highestVotedProposalId =/= 0n then block {
-
-//           // fetch proposal
-//           const proposalRoundProposal : proposalRecordType = case s.proposalLedger[highestVotedProposalId] of [ 
-//               Some(_proposalRecord) -> _proposalRecord
-//             | None -> failwith("Error. Proposal not found.")
-//           ];
-
-//           if proposalRoundProposal.passVoteMvkTotal < proposalRoundProposal.minProposalRoundVotesRequired then block {
-
-//             // highest voted proposal round proposal does not have enough pass votes to go on to voting round
-//             // start another proposal round
-//             const startProposalRoundOperation : operation = Tezos.transaction(
-//               unit, 
-//               0tez, 
-//               getStartProposalRoundEntrypoint(Tezos.self_address)
-//             );
-//             operations := startProposalRoundOperation # operations; 
-
-//           } else block {
-
-//             // highest voted proposal round proposal has enough pass votes to go on to voting round
-//             // start voting round
-//             const startVotingRoundOperation : operation = Tezos.transaction(
-//               unit, 
-//               0tez, 
-//               getStartVotingRoundEntrypoint(Tezos.self_address)
-//             );
-//             operations := startVotingRoundOperation # operations; 
-
-//           }
-
-//       } else block {
-
-//         // no proposals
-//         // start another proposal round
-//         const startProposalRoundOperation : operation = Tezos.transaction(
-//           unit, 
-//           0tez, 
-//           getStartProposalRoundEntrypoint(Tezos.self_address)
-//         );
-//         operations := startProposalRoundOperation # operations; 
-//       };
-      
-//     } else skip;
-
-//     // timelock round
-//     // start another proposal round
-//     const startProposalRoundOperation : operation = Tezos.transaction(
-//       unit, 
-//       0tez, 
-//       getStartProposalRoundEntrypoint(Tezos.self_address)
-//     );
-//     operations := startProposalRoundOperation # operations; 
-
-// } with (operations, s)
-
 function setupProposalRound(var s: governanceStorage): governanceStorage is
   block {
     // reset state variables
@@ -620,7 +467,7 @@ function setupTimelockRound(var s: governanceStorage): governanceStorage is
     s.timelockProposalId         := s.currentRoundHighestVotedProposalId;
   } with (s)
 
-function startNextRound(var s : governanceStorage) : return is
+function startNextRound(const executePastProposal: option(bool); var s : governanceStorage) : return is
 block {
   // Current round is not ended
   if Tezos.level < s.currentRoundEndLevel
@@ -638,6 +485,13 @@ block {
       } else skip;
   };
   const proposalRoundProposal: option(proposalRecordType) = Big_map.find_opt(highestVotedProposalId, s.proposalLedger);
+
+  // Execute past proposal if parameter set to true
+  var operations: list(operation) := nil;
+  case executePastProposal of [
+    Some (_execute) -> if s.timelockProposalId =/= 0n and _execute then operations := Tezos.transaction((unit), 0tez, (Tezos.self("%executeProposal"): contract(unit))) # operations else skip
+  | None -> skip
+  ];
 
   // Switch depending on current round
   case s.currentRound of [
@@ -667,135 +521,7 @@ block {
       s := setupProposalRound(s);
     }
   ];
-} with (noOperations, s)
-
-// function startProposalRound(var s : governanceStorage) : return is
-// block {
-    
-//     // Steps Overview:
-//     // 1. verify sender is admin 
-//     // 2. reset currentRoundHighestVotedProposalId
-//     // 3. update currentRound, currentRoundStartLevel, currentRoundEndLevel
-//     // 4. flush maps - currentRoundProposals, currentRoundVoters
-//     // 5. take snapshot of satellite's MVK and update snapshotLedger
-//     // 6. take snapshot of MVK total supply 
-
-//     // sender can be anyone with staked MVK - at least 1
-
-//     // current round is timelock round
-//     if s.currentRound = "timelock" and Tezos.level < s.currentRoundEndLevel 
-//     then failwith("Error. New proposal round can only start after the current timelock round ends.") 
-//     else skip;
-
-//     if s.currentRound = "voting" and Tezos.level < s.currentRoundEndLevel 
-//     then failwith("Error. Current voting round has not ended yet.") 
-//     else skip;
-
-//     if s.currentRound = "proposal" and Tezos.level < s.currentRoundEndLevel 
-//     then failwith("Error. Current proposal round has not ended yet.") 
-//     else skip;
-
-//     if s.currentRound = "voting" then block {
-
-//       // fetch proposal
-//       const votingRoundProposal : proposalRecordType = case s.proposalLedger[s.currentRoundHighestVotedProposalId] of [
-//           Some(_proposalRecord) -> _proposalRecord
-//         | None -> failwith("Error. Proposal not found.")
-//       ];
-
-//       if votingRoundProposal.upvoteMvkTotal < votingRoundProposal.minQuorumMvkTotal then skip else failwith("Error. Timelock round should be triggered next instead of Proposal Round.");
-
-//     } else skip;
-
-//     if s.currentRound = "proposal" then block {
-      
-//       // simple loop to get the proposal with the highest vote count in MVK 
-//       var _highestVoteCounter     : nat := 0n;
-//       var highestVotedProposalId  : nat := 0n;
-//       for proposalId -> voteCount in map s.currentRoundProposals block {
-//           if voteCount > _highestVoteCounter then block {
-//               _highestVoteCounter := voteCount;
-//               highestVotedProposalId := proposalId;
-//           } else skip;
-//       };
-
-//       // check if there is a valid proposal 
-//       if highestVotedProposalId =/= 0n then block {
-
-//           // fetch proposal
-//           const proposalRoundProposal : proposalRecordType = case s.proposalLedger[highestVotedProposalId] of [ 
-//               Some(_proposalRecord) -> _proposalRecord
-//             | None -> failwith("Error. Proposal not found.")
-//           ];
-
-//           if proposalRoundProposal.passVoteMvkTotal < proposalRoundProposal.minProposalRoundVotesRequired then skip else failwith("Error. Voting round should be triggered next instead of Proposal Round.");
-
-//       } else skip;
-      
-//     } else skip;
-
-//     // conditions fulfilled to start another proposal round
-
-//     // init variables
-//     var operations : list(operation) := nil;
-
-//     // reset state variables
-//     var emptyProposalMap  : map(nat, nat)     := map [];
-//     var emptyVotesMap     : map(address, nat) := map [];
-
-//     s.currentRound                         := "proposal";
-//     s.currentRoundStartLevel               := Tezos.level;
-//     s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
-//     s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
-//     s.currentRoundProposals                := emptyProposalMap;    // flush proposals
-//     s.currentRoundVotes                    := emptyVotesMap;       // flush voters
-//     s.currentRoundHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
-
-//     const delegationAddress : address = case s.generalContracts["delegation"] of [
-//       Some(_address) -> _address
-//       | None -> failwith("Error. Delegation Contract is not found")
-//     ];
-
-//     // update snapshot MVK total supply
-//     const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
-//     s.snapshotMvkTotalSupply := case mvkTotalSupplyView of [
-//       Some (value) -> value
-//     | None -> (failwith ("Error. GetTotalSupply View not found in the MVK Token Contract") : nat)
-//     ];
-
-//     // Get active satellites from the delegation contract and loop through them
-//     const activeSatellitesView : option (map(address,satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
-//     const activeSatellites: map(address,satelliteRecordType) = case activeSatellitesView of [
-//       Some (value) -> value
-//     | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
-//     ];
-
-//     for satelliteAddress -> satellite in map activeSatellites block {
-
-//       const mvkBalance: nat = satellite.stakedMvkBalance;
-//       const totalDelegatedAmount: nat = satellite.totalDelegatedAmount;
-
-//       // create or retrieve satellite snapshot from snapshotLedger in governanceStorage
-//       var satelliteSnapshotRecord : snapshotRecordType := getSatelliteSnapshotRecord(satelliteAddress, s);
-
-//       // calculate total voting power 
-//       const maxTotalVotingPower = abs(mvkBalance * 10000 / s.config.votingPowerRatio);
-//       const mvkBalanceAndTotalDelegatedAmount = mvkBalance + totalDelegatedAmount; 
-//       var totalVotingPower : nat := 0n;
-//       if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-//         else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
-
-//       // update satellite snapshot record
-//       satelliteSnapshotRecord.totalMvkBalance         := mvkBalance; 
-//       satelliteSnapshotRecord.totalDelegatedAmount    := totalDelegatedAmount; 
-//       satelliteSnapshotRecord.totalVotingPower        := totalVotingPower;
-//       satelliteSnapshotRecord.currentCycleStartLevel  := s.currentRoundStartLevel; 
-//       satelliteSnapshotRecord.currentCycleEndLevel    := s.currentCycleEndLevel; 
-
-//       s.snapshotLedger[satelliteAddress] := satelliteSnapshotRecord;
-//     } 
-
-// } with (operations, s)
+} with (operations, s)
 
 (* Propose Entrypoint *)
 function propose(const newProposal : newProposalType ; var s : governanceStorage) : return is 
@@ -1088,78 +814,6 @@ block {
 
 } with (noOperations, s)
 
-(* StartVotingRound Entrypoint *)
-// function startVotingRound(var s : governanceStorage) : return is
-// block {
-    
-//     // Steps Overview:
-//     // 1. verify sender is admin
-//     // 2. set current round from "proposal" to "voting", and reset current round start level and end level - current round duration should be equal to current cycle end level minus timelock duration
-//     // 3a. get ids of current proposals, and select the proposal with highest vote
-//     // 3b. if there is no proposal, restart proposal round
-
-//     // init variables
-//     var operations : list(operation) := nil;
-
-//     // anyone can start voting round
-
-//     // check rounds logic
-//     if s.currentRound = "timelock" then failwith("Error. You cannot start a voting round from the timelock round.") else skip;
-//     if s.currentRound = "voting" then failwith("Error. You are already in the voting round.") else skip;
-//     if s.currentRound = "proposal" and Tezos.level < s.currentRoundEndLevel then failwith("Error. The proposal round has not ended yet.") else skip;
-
-//     // simple loop to get the proposal with the highest vote count in MVK 
-//     var _highestVoteCounter     : nat := 0n;
-//     var highestVotedProposalId  : nat := 0n;
-//     for proposalId -> voteCount in map s.currentRoundProposals block {
-//         if voteCount > _highestVoteCounter then block {
-//              _highestVoteCounter := voteCount;
-//              highestVotedProposalId := proposalId;
-//         } else skip;
-//     };
-
-//     // check if there is a valid proposal to be moved to the voting round
-//     if highestVotedProposalId =/= 0n then block {
-
-//         // fetch proposal
-//         const proposal : proposalRecordType = case s.proposalLedger[highestVotedProposalId] of [ 
-//             Some(_proposalRecord) -> _proposalRecord
-//           | None -> failwith("Error. Proposal not found.")
-//         ];
-
-//         if proposal.passVoteMvkTotal < proposal.minProposalRoundVotesRequired then block {
-            
-//             // restart - another proposal round
-//             const restartProposalRoundOperation : operation = restartProposalRoundOperation(Unit);
-//             operations := restartProposalRoundOperation # operations;
-
-//         } else block {
-
-//           // boundaries fixed to the start and end of the cycle (calculated at start of proposal round)
-//           s.currentRound               := "voting";
-//           s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
-//           s.currentRoundEndLevel       := s.currentRoundEndLevel + s.config.blocksPerVotingRound;
-
-//           s.timelockProposalId         := 0n;                  // flush proposal id in timelock - reset to 0
-
-//           // set the current round highest voted proposal id
-//           s.currentRoundHighestVotedProposalId := highestVotedProposalId;
-
-//           // flush current round votes - to prepare for voting round
-//           const emptyCurrentRoundVotes : map(address, nat) = map[];
-//           s.currentRoundVotes := emptyCurrentRoundVotes;
-
-//         }
-
-//     } else block {
-
-//         // restart - another proposal round
-//         const restartProposalRoundOperation : operation = restartProposalRoundOperation(Unit);
-//         operations := restartProposalRoundOperation # operations;
-//     }
-
-// } with (operations, s)
-
 // (* VotingRoundVote Entrypoint *)
 function votingRoundVote(const voteType : voteForProposalChoiceType; var s : governanceStorage) : return is 
 block {
@@ -1256,46 +910,6 @@ block {
 
 } with (noOperations, s)
 
-(* StartTimelockRound Entrypoint *)
-// function startTimelockRound(var s : governanceStorage) : return is
-// block {
-    
-//     // Steps Overview:
-//     // 1. verify sender is admin
-//     // 2. set current round from "voting" to "timelock", and set current round start level and end level 
-//     // 3. set timelockProposalId to currentRoundHighestVotedProposalId
-    
-//     // init variables
-//     var operations : list(operation) := nil;
-
-//     // check rounds logic
-//     if s.currentRound = "timelock" then failwith("Error. You are already in the timelock round.") else skip;
-//     if s.currentRound = "proposal" then failwith("Error. You cannot start a timelock round from the proposal round.") else skip;
-//     if s.currentRound = "voting" then block {
-
-//         // fetch proposal from voting round
-//         const proposal : proposalRecordType = case s.proposalLedger[s.currentRoundHighestVotedProposalId] of [ 
-//             Some(_proposalRecord) -> _proposalRecord
-//           | None -> failwith("Error. Proposal not found.")
-//         ];
-
-//         if proposal.upvoteMvkTotal < proposal.minQuorumMvkTotal then block {
-            
-//             // restart - another proposal round
-//             const restartProposalRoundOperation : operation = restartProposalRoundOperation(Unit);
-//             operations := restartProposalRoundOperation # operations;
-            
-//         } else block {
-
-           
-
-//         };
-
-//     } else failwith("Error. Current round is not valid.");
-
-
-// } with (operations, s)
-
 (* ExecuteProposal Entrypoint *)
 function executeProposal(var s : governanceStorage) : return is 
 block {
@@ -1303,10 +917,6 @@ block {
     // 1. verify that user is a satellite and can execute proposal
     // 2. verify that proposal can be executed
     // 3. execute proposal - list of operations to run
-
-    // to be confirmed: who should execute the proposal? originator/admin/anyone? 
-    // checkSenderIsSelf(Unit);
-    checkSenderIsAdminOrSelf(s);
 
     // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
     if s.currentRound = (Timelock : roundType) or s.currentRound = (Voting : roundType) then failwith("Error. Proposal can only be executed after timelock period ends.")
@@ -1441,14 +1051,21 @@ block {
     Some(_address) -> _address
     | None -> failwith("Error. Doorman Contract is not found")
   ];
+  const delegationAddress : address = case s.generalContracts["delegation"] of [
+    Some(_address) -> _address
+    | None -> failwith("Error. Delegation Contract is not found")
+  ];
 
-  const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
+  const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
   s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
     Some (value) -> value
-  | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+  | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
   ];
 
   const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+
+  if requestTokensParams.tokenType = "FA12" or requestTokensParams.tokenType = "FA2" or requestTokensParams.tokenType = "TEZ" then skip
+    else failwith("Error. Provided tokenType is invalid. Can only be TEZ/FA12/FA2");
 
   var newFinancialRequest : financialRequestRecordType := record [
     requesterAddress     = Tezos.sender;
@@ -1488,12 +1105,6 @@ block {
     // increment financial request counter
     s.financialRequestCounter := financialRequestId + 1n;
 
-    // set snapshot of satellites for financial request
-    const delegationAddress : address = case s.generalContracts["delegation"] of [
-      Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found")
-    ];
-
     // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
     const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
     const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
@@ -1528,11 +1139,15 @@ block {
     Some(_address) -> _address
     | None -> failwith("Error. Doorman Contract is not found")
   ];
+  const delegationAddress : address = case s.generalContracts["delegation"] of [
+    Some(_address) -> _address
+    | None -> failwith("Error. Delegation Contract is not found")
+  ];
 
-  const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
+  const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
   s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
     Some (value) -> value
-  | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+  | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
   ];
 
   const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
@@ -1548,7 +1163,7 @@ block {
         tokenContractAddress = mvkTokenAddress;
         tokenAmount          = requestMintParams.tokenAmount;
         tokenName            = "MVK"; 
-        tokenType            = requestMintParams.tokenType;
+        tokenType            = "FA2";
         tokenId              = 0n;
         requestPurpose       = requestMintParams.purpose;
         voters               = emptyFinancialRequestVotersMap;
@@ -1575,12 +1190,6 @@ block {
     // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
     const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
     s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
-
-    // set snapshot of satellites for financial request
-    const delegationAddress : address = case s.generalContracts["delegation"] of [
-      Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found")
-    ];
 
     // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
     const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
@@ -1611,6 +1220,10 @@ block {
     Some(_request) -> _request
     | None -> failwith("Error. Financial request not found. ")
   ];
+
+  if financialRequest.executed then failwith("Error. This financial request has already been executed, it cannot be dropped") else skip;
+
+  if Tezos.now > financialRequest.expiryDateTime then failwith("Error. Financial request has expired") else skip;
 
   financialRequest.status := False;
   s.financialRequestLedger[requestId] := financialRequest;
@@ -1662,6 +1275,17 @@ block {
   const voteType         : voteForRequestChoiceType  = voteForRequest.vote;
   const totalVotingPower : nat                       = satelliteSnapshotRecord.totalVotingPower;
 
+  // Remove previous vote if user already voted
+  case _financialRequest.voters[Tezos.sender] of [
+    Some (_voteRecord) -> case _voteRecord.vote of [
+      Approve(_v) -> if _voteRecord.totalVotingPower > _financialRequest.approveVoteTotal then failwith("Error. Calculation error when changing a vote") else
+        _financialRequest.approveVoteTotal := abs(_financialRequest.approveVoteTotal - _voteRecord.totalVotingPower)
+    | Disapprove(_v) ->  if _voteRecord.totalVotingPower > _financialRequest.disapproveVoteTotal then failwith("Error. Calculation error when changing a vote") else
+        _financialRequest.disapproveVoteTotal := abs(_financialRequest.disapproveVoteTotal - _voteRecord.totalVotingPower)
+    ]
+  | None -> skip
+  ];
+
   const newVoteRecord : financialRequestVoteType     = record [
       vote             = voteType;
       totalVotingPower = totalVotingPower;
@@ -1669,7 +1293,6 @@ block {
   ];
 
   _financialRequest.voters[Tezos.sender] := newVoteRecord;
-  s.financialRequestLedger[financialRequestId] := _financialRequest;
 
   // Satellite cast vote and send request to Treasury if enough votes have been gathered
   case voteType of [
@@ -1707,11 +1330,12 @@ block {
             } else skip;
             // --- --- ---
 
-            const transferTokenParams : transferTokenType = record [
-              from_      = treasuryAddress;
-              to_        = councilAddress;
-              amt        = _financialRequest.tokenAmount;
-              token      = _tokenTransferType;
+            const transferTokenParams : transferActionType = list[
+              record [
+                to_        = councilAddress;
+                token      = _tokenTransferType;
+                amount     = _financialRequest.tokenAmount;
+              ]
             ];
 
             const treasuryTransferOperation : operation = Tezos.transaction(
@@ -1768,27 +1392,24 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
-        | StartNextRound(_parameters) -> startNextRound(s)
-        // | StartProposalRound(_parameters) -> startProposalRound(s)
+        // | StartNextRound(parameters) -> startNextRound(parameters, s)
         | Propose(parameters) -> propose(parameters, s)
         | ProposalRoundVote(parameters) -> proposalRoundVote(parameters, s)
         | AddUpdateProposalData(parameters) -> addUpdateProposalData(parameters, s)
         | LockProposal(parameters) -> lockProposal(parameters, s)
 
-        // | StartVotingRound(_parameters) -> startVotingRound(s)        
         | VotingRoundVote(parameters) -> votingRoundVote(parameters, s)
         
-        // | StartTimelockRound(_parameters) -> startTimelockRound(s)        
         | ExecuteProposal(_parameters) -> executeProposal(s)
-        | DropProposal(parameters) -> dropProposal(parameters, s)
+        // | DropProposal(parameters) -> dropProposal(parameters, s)
 
         // Governance Lambdas
         | CallGovernanceLambdaProxy(parameters) -> callGovernanceLambdaProxy(parameters, s)
         | SetupLambdaFunction(parameters) -> setupLambdaFunction(parameters, s)
 
         // Financial Governance
-        // | RequestTokens(parameters) -> requestTokens(parameters, s)
-        // | RequestMint(parameters) -> requestMint(parameters, s)
-        // | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
-        // | VoteForRequest(parameters) -> voteForRequest(parameters, s)
+        | RequestTokens(parameters) -> requestTokens(parameters, s)
+        | RequestMint(parameters) -> requestMint(parameters, s)
+        | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
+        | VoteForRequest(parameters) -> voteForRequest(parameters, s)
     ]
