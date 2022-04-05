@@ -58,6 +58,19 @@ function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
         else failwith("This entrypoint should not receive any tez.");
 
+////
+// BREAK GLASS CHECKS
+////
+
+// break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
+function checkTransferIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.transferIsPaused then failwith("Transfer entrypoint is paused.")
+    else unit;
+
+function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith("MintMvkAndTransfer entrypoint is paused.")
+    else unit;
+
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
@@ -161,8 +174,6 @@ block{
         ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
-
-
 (*  setAdmin entrypoint *)
 function setAdmin(const newAdminAddress : address; var s : treasuryStorage) : return is
 block {
@@ -228,7 +239,6 @@ block {
 
 
 (* transfer entrypoint *)
-// type transferTokenType is record [from_ : address; to_ : address; amt : nat; token : tokenType]
 function transfer(const transferTokenParams : transferActionType; var s : treasuryStorage) : return is 
 block {
     
@@ -237,10 +247,11 @@ block {
     // 2. Send transfer operation from Treasury account to user account
     // 3. Update user's satellite details in Delegation contract
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
-
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
+
+    // break glass check
+    checkTransferIsNotPaused(s);
 
     // const txs : list(transferDestinationType)   = transferTokenParams.txs;
     const txs : list(transferDestinationType)   = transferTokenParams;
@@ -307,9 +318,10 @@ block {
     // 2. Send mint operation to MVK Token Contract
     // 3. Update user's satellite details in Delegation contract
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
+    // break glass check
+    checkMintMvkAndTransferIsNotPaused(s);
 
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
 
     var operations : list(operation) := nil;
