@@ -370,6 +370,12 @@ describe('Contracts Deployment for Tests', async () => {
     await setCouncilContractAddressInVesting.confirmation()
     console.log('vesting contract address put in whitelist')
 
+    const setCfmmContractAddressInLpTokenUsdmXtzOperation = await lpTokenUsdmXtz.contract.methods
+      .updateWhitelistContracts("cfmm", cfmmTezFa2Token.contract.address)
+      .send();  
+    await setCfmmContractAddressInLpTokenUsdmXtzOperation.confirmation();
+    console.log('cfmm contract address set in LP Token (USDM/XTZ) whitelist')
+
     // Governance Setup Lambdas
     const governanceLambdaBatch = await tezos.wallet
       .batch()
