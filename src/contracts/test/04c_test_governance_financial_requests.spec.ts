@@ -548,7 +548,7 @@ describe("Governance tests", async () => {
                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
                 // check that council now has 1100 MVK in its account (1000 from first test (mint) + 100 from second test (transfer))
-                const newTokenAmount = initialCouncilBalance + MVK(100);
+                const newTokenAmount = initialCouncilBalance.toNumber() + MVK(100);
                 assert.equal(councilMvkLedger.toNumber(), newTokenAmount);
     
             } catch(e){
@@ -1388,7 +1388,9 @@ describe("Governance tests", async () => {
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
                 var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;
+                const governanceRequestID      = governanceStorage.financialRequestCounter;            
+                mvkTokenStorage                = await mvkTokenInstance.storage();
+                const councilMvkLedgerInit     = await mvkTokenStorage.ledger.get(councilContractAddress);
 
                 // request mint params
                 const treasury              = treasuryAddress.address;
@@ -1450,9 +1452,6 @@ describe("Governance tests", async () => {
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
 
-                console.log(governanceStorage.snapshotStakedMvkTotalSupply)
-                console.log(governanceStorage.config.financialRequestApprovalPercentage)
-
                 // check details of financial request
                 assert.equal(governanceFinancialRequestLedger.requesterAddress,               councilContractAddress);
                 assert.equal(governanceFinancialRequestLedger.requestType,                    "MINT");
@@ -1493,7 +1492,7 @@ describe("Governance tests", async () => {
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
                 const updatedGovernanceStorage                         = await governanceInstance.storage();        
                 const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestCounter);            
-                const mvkTokenStorage                                  = await mvkTokenInstance.storage();
+                mvkTokenStorage                                        = await mvkTokenInstance.storage();
                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 
                 // check that financial request has been executed
@@ -1503,7 +1502,7 @@ describe("Governance tests", async () => {
                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
                 // check that council now has 1000 MVK in its account
-                assert.equal(councilMvkLedger.toNumber(), tokenAmount);
+                assert.equal(councilMvkLedger.toNumber(), councilMvkLedgerInit.toNumber() + tokenAmount);
 
                 // Try to vote for the request again
                 await signerFactory(alice.sk);
@@ -1583,9 +1582,6 @@ describe("Governance tests", async () => {
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
-
-                console.log(governanceStorage.snapshotStakedMvkTotalSupply)
-                console.log(governanceStorage.config.financialRequestApprovalPercentage)
 
                 // check details of financial request
                 assert.equal(governanceFinancialRequestLedger.requesterAddress,               councilContractAddress);
@@ -1725,9 +1721,6 @@ describe("Governance tests", async () => {
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
-
-                console.log(governanceStorage.snapshotStakedMvkTotalSupply)
-                console.log(governanceStorage.config.financialRequestApprovalPercentage)
 
                 // check details of financial request
                 assert.equal(governanceFinancialRequestLedger.requesterAddress,               councilContractAddress);
@@ -1907,9 +1900,8 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestTokensSigned.executed,      true);
                 assert.equal(councilActionsRequestTokensSigned.status,        "EXECUTED");
                 
-                const financialRequestCounter                  = councilActionId;
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestCounter);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
+                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(governanceRequestID);
+                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
                 const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
@@ -1955,7 +1947,7 @@ describe("Governance tests", async () => {
 
                 // get updated storage
                 const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(governanceRequestID);            
 
                 const mockFa12TokenStorage                             = await mockFa12TokenInstance.storage();
                 const councilMockFa12Ledger                            = await mockFa12TokenStorage.ledger.get(councilContractAddress);
@@ -2046,9 +2038,8 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const financialRequestCounter                  = councilActionId;
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestCounter);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
+                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(governanceRequestID);
+                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
                 const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
@@ -2094,7 +2085,7 @@ describe("Governance tests", async () => {
 
                 // get updated storage
                 const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(governanceRequestID);            
 
                 const mockFa2TokenStorage                              = await mockFa2TokenInstance.storage();
                 const councilMockFa2Ledger                             = await mockFa2TokenStorage.ledger.get(councilAddress.address);
@@ -2187,9 +2178,8 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const financialRequestCounter                  = councilActionId;
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestCounter);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
+                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(governanceRequestID);
+                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
                 const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
@@ -2262,7 +2252,9 @@ describe("Governance tests", async () => {
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
                 var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;
+                const governanceRequestID      = governanceStorage.financialRequestCounter;            
+                var mvkTokenStorage            = await mvkTokenInstance.storage();
+                const councilMvkLedgerInit     = await mvkTokenStorage.ledger.get(councilContractAddress);
 
                 // request mint params
                 const treasury              = treasuryAddress.address;
@@ -2324,9 +2316,6 @@ describe("Governance tests", async () => {
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
 
-                console.log(governanceStorage.snapshotStakedMvkTotalSupply)
-                console.log(governanceStorage.config.financialRequestApprovalPercentage)
-
                 // check details of financial request
                 assert.equal(governanceFinancialRequestLedger.requesterAddress,               councilContractAddress);
                 assert.equal(governanceFinancialRequestLedger.requestType,                    "MINT");
@@ -2367,7 +2356,7 @@ describe("Governance tests", async () => {
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
                 const updatedGovernanceStorage                         = await governanceInstance.storage();        
                 const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestCounter);            
-                const mvkTokenStorage                                  = await mvkTokenInstance.storage();
+                mvkTokenStorage                                        = await mvkTokenInstance.storage();
                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 
                 // check that financial request has been executed
@@ -2377,7 +2366,7 @@ describe("Governance tests", async () => {
                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
                 // check that council now has 1000 MVK in its account
-                assert.equal(councilMvkLedger.toNumber(), tokenAmount);
+                assert.equal(councilMvkLedger.toNumber(), councilMvkLedgerInit.toNumber() + tokenAmount);
             } catch(e){
                 console.log(e);
             } 
