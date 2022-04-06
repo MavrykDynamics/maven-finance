@@ -284,6 +284,7 @@ type governanceStorage is [@layout:comb] record [
     currentRoundEndLevel        : nat;                // current round ending block level
     currentCycleEndLevel        : nat;                // current cycle (proposal + voting) ending block level 
     currentRoundProposals       : map(nat, nat);      // proposal id, total positive votes in MVK
+    currentRoundProposers       : map(address, set(nat));  // proposer, 
     currentRoundVotes           : map(address, nat);  // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
 
     currentRoundHighestVotedProposalId  : nat;        // set to 0 if there is no proposal currently, if not set to proposal id
