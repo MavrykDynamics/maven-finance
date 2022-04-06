@@ -209,14 +209,14 @@ function updateConfig(const updateConfigParams : delegationUpdateConfigParamsTyp
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+  checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
   const updateConfigAction    : delegationUpdateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : delegationUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of [
-    ConfigDelegationRatio (_v)         -> s.config.delegationRatio          := updateConfigNewValue
-  | ConfigMinimumStakedMvkBalance (_v) -> s.config.minimumStakedMvkBalance  := updateConfigNewValue
+    ConfigDelegationRatio (_v)         -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.delegationRatio          := updateConfigNewValue
+  | ConfigMinimumStakedMvkBalance (_v) -> if updateConfigNewValue < 100_000_000n then failwith("Error. This config value cannot go below 0.1SMVK") else s.config.minimumStakedMvkBalance  := updateConfigNewValue
   | ConfigMaxSatellites (_v)           -> s.config.maxSatellites            := updateConfigNewValue
   ];
 
@@ -496,6 +496,8 @@ block {
     
     // entrypoint should not receive any tez amount
     checkNoAmount(Unit);
+
+    checkUpdateSatelliteRecordIsNotPaused(s);
 
     var satelliteRecord : satelliteRecordType := case s.satelliteLedger[Tezos.sender] of [
          Some(_val) -> _val
