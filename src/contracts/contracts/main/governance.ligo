@@ -29,7 +29,7 @@ type governanceAction is
     | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
     
-    // | StartNextRound of option(bool)
+    | StartNextRound of bool
     | Propose of newProposalType
     | ProposalRoundVote of proposalIdType
     | AddUpdateProposalData of addUpdateProposalDataType
@@ -38,17 +38,17 @@ type governanceAction is
     | VotingRoundVote of (voteForProposalChoiceType)
     
     | ExecuteProposal of (unit)
-    // | DropProposal of (nat)
+    | DropProposal of (nat)
 
     // Governance Lambda
     | CallGovernanceLambdaProxy of executeActionType
     | SetupLambdaFunction of setupLambdaFunctionType
 
     // Financial Governance
-    | RequestTokens of requestTokensType
-    | RequestMint of requestMintType
-    | DropFinancialRequest of (nat)
-    | VoteForRequest of voteForRequestType
+    // | RequestTokens of requestTokensType
+    // | RequestMint of requestMintType
+    // | DropFinancialRequest of (nat)
+    // | VoteForRequest of voteForRequestType
 
 const noOperations : list (operation) = nil;
 const maxRoundDuration: nat = 20_160n; // One week with blockTime = 30sec
@@ -380,8 +380,9 @@ block {
 function setupProposalRound(var s: governanceStorage): governanceStorage is
   block {
     // reset state variables
-    var emptyProposalMap  : map(nat, nat)     := map [];
-    var emptyVotesMap     : map(address, nat) := map [];
+    var emptyProposalMap  : map(nat, nat)           := map [];
+    var emptyVotesMap     : map(address, nat)       := map [];
+    var emptyProposerMap  : map(address, set(nat))  := map [];
 
     s.currentRound                         := (Proposal : roundType);
     s.currentBlocksPerProposalRound        := s.config.blocksPerProposalRound;
@@ -391,6 +392,7 @@ function setupProposalRound(var s: governanceStorage): governanceStorage is
     s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
     s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
     s.currentRoundProposals                := emptyProposalMap;    // flush proposals
+    s.currentRoundProposers                := emptyProposerMap;    // flush proposals
     s.currentRoundVotes                    := emptyVotesMap;       // flush voters
     s.currentRoundHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
 
@@ -467,7 +469,7 @@ function setupTimelockRound(var s: governanceStorage): governanceStorage is
     s.timelockProposalId         := s.currentRoundHighestVotedProposalId;
   } with (s)
 
-function startNextRound(const executePastProposal: option(bool); var s : governanceStorage) : return is
+function startNextRound(const executePastProposal: bool; var s : governanceStorage) : return is
 block {
   // Current round is not ended
   if Tezos.level < s.currentRoundEndLevel
@@ -488,10 +490,6 @@ block {
 
   // Execute past proposal if parameter set to true
   var operations: list(operation) := nil;
-  case executePastProposal of [
-    Some (_execute) -> if s.timelockProposalId =/= 0n and _execute then operations := Tezos.transaction((unit), 0tez, (Tezos.self("%executeProposal"): contract(unit))) # operations else skip
-  | None -> skip
-  ];
 
   // Switch depending on current round
   case s.currentRound of [
@@ -519,6 +517,7 @@ block {
   | Timelock -> block {
       // Start proposal
       s := setupProposalRound(s);
+      if s.timelockProposalId =/= 0n and executePastProposal then operations := Tezos.transaction((unit), 0tez, (Tezos.self("%executeProposal"): contract(unit))) # operations else skip;
     }
   ];
 } with (operations, s)
@@ -569,6 +568,14 @@ block {
     const emptyVotersMap      : votersMapType         = map [];
     const proposalMetadata    : proposalMetadataType  = map [];
 
+    var proposerProposals   : set(nat)             := case s.currentRoundProposers[Tezos.sender] of [
+      Some (_proposals) -> _proposals
+    | None -> Set.empty
+    ];
+
+    if Set.cardinal(proposerProposals) < s.config.maxProposalsPerDelegate then skip
+      else failwith("Error. You cannot propose during this cycle anymore");
+
     var newProposalRecord : proposalRecordType := record [
         proposerAddress         = Tezos.sender;
         proposalMetadata        = proposalMetadata;
@@ -611,6 +618,10 @@ block {
 
     // save proposal to proposalLedger
     s.proposalLedger[s.nextProposalId] := newProposalRecord;
+
+    // save proposer proposals
+    proposerProposals                     := Set.add(s.nextProposalId, proposerProposals);
+    s.currentRoundProposers[Tezos.sender] := proposerProposals;
 
     // Add data on creation
     var operations: list(operation) := nil;
@@ -919,7 +930,7 @@ block {
     // 3. execute proposal - list of operations to run
 
     // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-    if s.currentRound = (Timelock : roundType) or s.currentRound = (Voting : roundType) then failwith("Error. Proposal can only be executed after timelock period ends.")
+    if (s.currentRound = (Timelock : roundType) and Tezos.sender =/= Tezos.self_address) or s.currentRound = (Voting : roundType) then failwith("Error. Proposal can only be executed after timelock period ends if executed manually.")
       else skip;
 
     // check that there is a highest voted proposal in the current round
@@ -932,6 +943,10 @@ block {
     ];
 
     if proposal.executed = True then failwith("Error. Proposal has already been executed")
+      else skip;
+
+    // verify that proposal is active and has not been dropped
+    if proposal.status = "DROPPED" then failwith("Error: Proposal has been dropped.")
       else skip;
 
     // check that there is at least one proposal metadata to execute
@@ -1003,6 +1018,10 @@ block {
     if _proposal.proposerAddress = Tezos.sender then block {
         _proposal.status               := "DROPPED";
         s.proposalLedger[proposalId]   := _proposal;
+
+        // If timelock or voting round, restart the cycle
+        if s.currentRound = (Voting : roundType) or s.currentRound = (Timelock : roundType) 
+          then s := setupProposalRound(s) else skip;
     } else failwith("Error: You are not allowed to drop this proposal.")
     
 } with (noOperations, s)
@@ -1392,7 +1411,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
-        // | StartNextRound(parameters) -> startNextRound(parameters, s)
+        | StartNextRound(parameters) -> startNextRound(parameters, s)
         | Propose(parameters) -> propose(parameters, s)
         | ProposalRoundVote(parameters) -> proposalRoundVote(parameters, s)
         | AddUpdateProposalData(parameters) -> addUpdateProposalData(parameters, s)
@@ -1401,15 +1420,15 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | VotingRoundVote(parameters) -> votingRoundVote(parameters, s)
         
         | ExecuteProposal(_parameters) -> executeProposal(s)
-        // | DropProposal(parameters) -> dropProposal(parameters, s)
+        | DropProposal(parameters) -> dropProposal(parameters, s)
 
         // Governance Lambdas
         | CallGovernanceLambdaProxy(parameters) -> callGovernanceLambdaProxy(parameters, s)
         | SetupLambdaFunction(parameters) -> setupLambdaFunction(parameters, s)
 
         // Financial Governance
-        | RequestTokens(parameters) -> requestTokens(parameters, s)
-        | RequestMint(parameters) -> requestMint(parameters, s)
-        | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
-        | VoteForRequest(parameters) -> voteForRequest(parameters, s)
+        // | RequestTokens(parameters) -> requestTokens(parameters, s)
+        // | RequestMint(parameters) -> requestMint(parameters, s)
+        // | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
+        // | VoteForRequest(parameters) -> voteForRequest(parameters, s)
     ]
