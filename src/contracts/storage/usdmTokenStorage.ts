@@ -65,13 +65,13 @@ const token_metadata = MichelsonMap.fromLiteral({
 })
 
 export const usdmTokenStorage: usdmTokenStorageType = {
-  admin           : alice.pkh,
+  admin               : alice.pkh,
+  metadata            : metadata,
+  token_metadata      : token_metadata,
+  totalSupply         : initialSupply,
 
-  metadata        : metadata,
-  token_metadata  : token_metadata,
+  whitelistContracts  : MichelsonMap.fromLiteral({}),
 
-  totalSupply     : initialSupply,
-
-  ledger          : ledger,
-  operators       : MichelsonMap.fromLiteral({}),
+  ledger              : ledger,
+  operators           : MichelsonMap.fromLiteral({}),
 }

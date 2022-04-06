@@ -14,21 +14,21 @@ const config = {
 
 export const cfmmTezFa2TokenStorage: cfmmTezFa2TokenStorageType = {
 
-    admin               : bob.pkh,
-    config              : config,
+    admin                         : bob.pkh,
+    config                        : config,
   
-    cashPool            : new BigNumber(0),
+    cashPool                      : new BigNumber(0),
 
-    tokenName           : "",
-    tokenAddress        : zeroAddress,
-    tokenPool           : new BigNumber(2000000000),  // init token pool to 2000 USDM tokens
-    tokenId             : new BigNumber(0),
+    tokenName                     : "",
+    tokenAddress                  : zeroAddress,
+    tokenPool                     : new BigNumber(2000000000),  // init token pool to 2000 USDM tokens
+    tokenId                       : new BigNumber(0),
 
-    lpTokenAddress      : zeroAddress,
-    lpTokensTotal       : new BigNumber(500000000),   // init lp tokens to 500 (1:4 ratio - 1 XTZ to 4 USDM)
-    pendingPoolUpdates  : new BigNumber(0),
+    lpTokenAddress                : zeroAddress,
+    lpTokensTotal                 : new BigNumber(500000000),   // init lp tokens to 500 (1:4 ratio - 1 XTZ to 4 USDM)
+    pendingPoolUpdates            : new BigNumber(0),
 
-    lastOracleUpdate    : new Date(),
-    usdmTokenAddress    : zeroAddress,
-    treasuryAddress     : zeroAddress
+    lastOracleUpdate              : new Date(),
+    usdmTokenControllerAddress    : zeroAddress,
+    treasuryAddress               : zeroAddress
 }
