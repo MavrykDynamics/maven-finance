@@ -288,7 +288,7 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("LP Token USDM/XTZ originated")
 
-    cfmmTezFa2TokenStorage.usdmTokenAddress = usdmToken.contract.address;
+    cfmmTezFa2TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
     cfmmTezFa2TokenStorage.lpTokenAddress   = lpTokenUsdmXtz.contract.address;
     cfmmTezFa2TokenStorage.tokenName        = "usdm";
     cfmmTezFa2TokenStorage.tokenAddress     = usdmToken.contract.address;
@@ -370,11 +370,21 @@ describe('Contracts Deployment for Tests', async () => {
     await setCouncilContractAddressInVesting.confirmation()
     console.log('vesting contract address put in whitelist')
 
+    
+    
     const setCfmmContractAddressInLpTokenUsdmXtzOperation = await lpTokenUsdmXtz.contract.methods
       .updateWhitelistContracts("cfmm", cfmmTezFa2Token.contract.address)
       .send();  
     await setCfmmContractAddressInLpTokenUsdmXtzOperation.confirmation();
-    console.log('cfmm contract address set in LP Token (USDM/XTZ) whitelist')
+    console.log('cfmm (XTZ/USDM) contract address set in LP Token (USDM/XTZ) whitelist')
+
+    const setCfmmContractAddressInUsdmTokenControllerOperation = await usdmTokenController.contract.methods
+      .updateCfmmAddressLedger("usdm", cfmmTezFa2Token.contract.address)
+      .send();  
+    await setCfmmContractAddressInUsdmTokenControllerOperation.confirmation();
+    console.log('cfmm (XTZ/USDM) contract address set in USDM Token Controller CFMM Address Ledger')
+
+
 
     // Governance Setup Lambdas
     const governanceLambdaBatch = await tezos.wallet
