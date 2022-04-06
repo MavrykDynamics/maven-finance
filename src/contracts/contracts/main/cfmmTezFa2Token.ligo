@@ -121,29 +121,29 @@ type configType is record [
 // ----- types for entrypoint actions end -----
 
 type cfmmStorage is [@layout:comb] record [
-    admin                   : address;
-    config                  : configType;
+    admin                       : address;
+    config                      : configType;
     
     // Cash Details
-    cashPool                : nat;      // no cashTokenAddress or cashTokenId as cash is Tez
+    cashPool                    : nat;      // no cashTokenAddress or cashTokenId as cash is Tez
     
     // Token Details
-    tokenName               : string;
-    tokenAddress            : address;
-    tokenId                 : nat;      // if token is FA2
-    tokenPool               : nat;
+    tokenName                   : string;
+    tokenAddress                : address;
+    tokenId                     : nat;      // if token is FA2
+    tokenPool                   : nat;
 
     // LP Token Details
-    lpTokenAddress          : address;
-    lpTokensTotal           : nat;
-    pendingPoolUpdates      : nat;
+    lpTokenAddress              : address;
+    lpTokensTotal               : nat;
+    pendingPoolUpdates          : nat;
 
     // for oracle
-    lastOracleUpdate        : timestamp;
-    usdmTokenAddress        : address;
+    lastOracleUpdate            : timestamp;
+    usdmTokenControllerAddress  : address;
 
     // treasury
-    treasuryAddress         : address;
+    treasuryAddress             : address;
 ]
 
 type cfmmAction is 
@@ -270,13 +270,13 @@ function getCashToTokenOutputCfmmEntrypoint(const contractAddress : address) : c
 
 
 
-// helper function to update USDM contract on price action
-function getOnPriceActionInUsdmEntrypoint(const tokenContractAddress : address) : contract(onPriceActionType) is
+// helper function to update USDM Token Controller contract on price action
+function getOnPriceActionEntrypoint(const contractAddress : address) : contract(onPriceActionType) is
   case (Tezos.get_entrypoint_opt(
       "%onPriceAction",
-      tokenContractAddress) : option(contract(onPriceActionType))) of
+      contractAddress) : option(contract(onPriceActionType))) of
     Some(contr) -> contr
-  | None -> (failwith("Error. OnPriceAction entrypoint in token contract not found") : contract(onPriceActionType))
+  | None -> (failwith("Error. OnPriceAction entrypoint in contract not found") : contract(onPriceActionType))
   end;
 
 
@@ -333,9 +333,9 @@ block {
     const onPriceActionOperation : operation = Tezos.transaction(
         onPriceActionParams,
         0mutez,
-        getOnPriceActionInUsdmEntrypoint(s.usdmTokenAddress)
+        getOnPriceActionEntrypoint(s.usdmTokenControllerAddress)
     );
-} with (onPriceActionOperation)
+} with onPriceActionOperation
 
 
 // ------ Helper Functions end ------
@@ -563,7 +563,7 @@ block {
     // check deadline has not passed
     checkDeadlineHasNotPassed(deadline);
 
-    // set const fee based on config values
+    // set const fee based on config values constFee = (10,000 - 3 - 2) = 9995 
     const constFee : nat = abs(constFeeDenom - s.config.fee -s.config.treasuryFee);
 
     (* We don't check that xtzPool > 0, because that is impossible unless all liquidity has been removed. *)
@@ -597,8 +597,15 @@ block {
         tokenAmount = newTokenPool;
     ];
     if s.lastOracleUpdate = Tezos.now then skip else block {
-        const onPriceActionUpdateUsdmOperation : operation = onPriceAction(onPriceActionParams, s);
-        operations := onPriceActionUpdateUsdmOperation # operations;
+        // const onPriceActionUpdateUsdmOperation : operation = onPriceAction(onPriceActionParams, s);
+        // operations := onPriceActionUpdateUsdmOperation # operations;
+
+        const onPriceActionOperation : operation = Tezos.transaction(
+            onPriceActionParams,
+            0mutez,
+            getOnPriceActionEntrypoint(s.usdmTokenControllerAddress)
+        );
+        operations := onPriceActionOperation # operations;
     }
 
 } with (operations, s)

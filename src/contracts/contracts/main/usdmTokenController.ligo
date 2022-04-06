@@ -61,10 +61,11 @@ type setUsdmAddressActionType is [@layout:comb] record [
     usdmTokenAddress            : address; 
 ]
 
-type setCfmmAddressActionType is [@layout:comb] record [
+type updateCfmmAddressLedgerActionType is [@layout:comb] record [
     tokenName                   : string;
-    cfmmAddress                 : address; 
+    cfmmAddress                 : address;
 ]
+
 
 type updateCollateralTokenLedgerActionType is [@layout:comb] record [
     tokenName                   : string;
@@ -100,7 +101,7 @@ type mintOrBurnActionType is [@layout:comb] record [
     quantity    : int;
 ]
 
-type onPriceActionType is record [ 
+type onPriceActionType is [@layout:comb] record [ 
     tokenName     : string;
     cashAmount    : nat; 
     tokenAmount   : nat; 
@@ -152,6 +153,7 @@ type controllerAction is
     | Default of unit
     | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
     | UpdateCollateralTokenLedger    of updateCollateralTokenLedgerActionType
+    | UpdateCfmmAddressLedger        of updateCfmmAddressLedgerActionType
 
     | SetUsdmAddress                 of setUsdmAddressActionType
 
@@ -248,6 +250,40 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
       );
 
     s.whitelistTokenContracts := updatedWhitelistTokenContracts
+
+  } with (noOperations, s) 
+
+
+  // CFMM Address Ledger
+function checkInCfmmAddressLedger(const cfmmAddress : address; var s : controllerStorage) : bool is 
+block {
+  var inCfmmAddressLedgerMap : bool := False;
+  for _key -> value in map s.cfmmAddressLedger block {
+    if cfmmAddress = value then inCfmmAddressLedgerMap := True
+      else skip;
+  }  
+} with inCfmmAddressLedgerMap
+
+(* UpdateWhitelistTokenContracts Entrypoint *)
+function updateCfmmAddressLedger(const updateCfmmAddressLedgerParams: updateCfmmAddressLedgerActionType; var s : controllerStorage) : return is 
+  block{
+
+    checkSenderIsAdmin(s); // check that sender is admin
+
+    const tokenName     : string  = updateCfmmAddressLedgerParams.tokenName;
+    const cfmmAddress   : address = updateCfmmAddressLedgerParams.cfmmAddress;
+    
+    const existingAddress: option(address) = 
+      if checkInCfmmAddressLedger(cfmmAddress, s) then (None : option(address)) else Some (cfmmAddress);
+
+    const updatedCfmmAddressLedger: whitelistTokenContractsType = 
+      Map.update(
+        tokenName, 
+        existingAddress,
+        s.cfmmAddressLedger
+      );
+
+    s.cfmmAddressLedger := updatedCfmmAddressLedger
 
   } with (noOperations, s) 
 
@@ -413,7 +449,7 @@ block {
 
     var lastDriftUpdate : timestamp := case s.lastDriftUpdateLedger[tokenName] of 
           Some(_timestamp) -> _timestamp
-        | None -> failwith("Error. LastDriftUpdate not found for this pair.")
+        | None -> Tezos.now - 300           // if no drift update is found for token, set to 5 minutes ago
     end;
 
     // check that last drift update is before current time
@@ -901,120 +937,6 @@ block {
 } with (operations, s)
 
 
-// // (* liquidateVault entrypoint *)
-// // function liquidateVault(const liquidateParams : liquidateVaultActionType; var s : controllerStorage) : return is 
-// // block {
-    
-// //     // init variables for convenience
-// //     const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
-// //     const usdmQuantity      : nat                     = liquidateParams.usdmQuantity;
-// //     const tokenName         : string                  = liquidateParams.tokenName;
-
-// //     const recipient         : contract(unit)          = liquidateParams.to_;
-// //     const initiator         : initiatorAddressType    = Tezos.sender;
-    
-// //     const target            : nat                     = s.target; 
-// //     var operations          : list(operation)        := nil;
-
-// //     // get vault
-// //     var _vault : vaultType := getVault(vaultHandle, s);
-
-// //     // check if vault is under collaterized
-// //     if isUnderCollaterized(_vault, s) then skip else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
-
-// //     // check if there is sufficient usdmOutstanding, and calculate remaining usdm after liquidation
-// //     if usdmQuantity > _vault.usdmOutstanding then failwith("Error. Cannot burn more than outstanding amount of USDM in vault.") else skip;
-// //     const remainingUsdm : usdmAmountType = abs(_vault.usdmOutstanding - usdmQuantity);
-
-// //     // get token collateral balance in vault, fail if none found
-// //     var vaultTokenCollateralBalance : nat := case _vault.collateralBalanceLedger[tokenName] of
-// //           Some(_balance) -> _balance
-// //         | None -> failwith("Error. Vault does not have this token as its collateral.")
-// //     end;
-
-// //     // get collateral token record - with token contract address and token type
-// //     const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
-// //           Some(_collateralTokenRecord) -> _collateralTokenRecord
-// //         | None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
-// //     end;
-
-
-// //     // todo: fix extracted balance amount
-// //     (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
-// //     const extractedBalance  : nat = (usdmQuantity * target * fixedPointAccuracy) / (31n * fixedPointAccuracy); // double check maths
-
-// //     // calculate new vault collateral balance
-// //     const newCollateralBalance : nat = abs(vaultTokenCollateralBalance - extractedBalance);
-
-// //     // send collateral to initiator of liquidation: pattern match withdraw operation based on token type
-// //     const initiatorTakeCollateralOperation : operation = case collateralTokenRecord.tokenType of
-// //         Tez(_tez) -> block {
-            
-// //             const withdrawTezOperationParams : vaultWithdrawType = record [
-// //                 from_ = vault.address;
-// //                 to_   = recipient; 
-// //                 amt   = extractedBalance;
-// //                 token = _tez;
-// //             ];
-// //             const withdrawTezOperation : operation = Tezos.transaction(
-// //                 withdrawTezOperationParams,
-// //                 0mutez,
-// //                 getVaultWithdrawEntrypoint(vault.address)
-// //             );
-
-// //         } with withdrawTezOperation
-// //         | FA12(_token) -> block {
-
-// //             const withdrawFa12OperationParams : vaultWithdrawType = record [
-// //                 from_ = vault.address;
-// //                 to_   = recipient; 
-// //                 amt   = extractedBalance;
-// //                 token = _token;
-// //             ];
-// //             const withdrawFa12Operation : operation = Tezos.transaction(
-// //                 withdrawTezOperationParams,
-// //                 0mutez,
-// //                 getVaultWithdrawEntrypoint(vault.address)
-// //             );
-
-// //         } with withdrawFa12Operation
-// //         | FA2(_token) -> block {
-
-// //             const withdrawFa2OperationParams : vaultWithdrawType = record [
-// //                 from_ = vault.address;
-// //                 to_   = recipient; 
-// //                 amt   = extractedBalance;
-// //                 token = _token;
-// //             ];
-// //             const withdrawFa2Operation : operation = Tezos.transaction(
-// //                 withdrawTezOperationParams,
-// //                 0mutez,
-// //                 getVaultWithdrawEntrypoint(vault.address)
-// //             );
-
-// //         } with withdrawFa2Operation
-// //     end;
-
-// //     operations := initiatorTakeCollateralOperation # operations;
-
-// //     // operation to burn USDM
-// //     const burnUsdmOperationParams : mintOrBurnParamsType = (-usdmQuantity, initiator);
-// //     const burnUsdmOperation : operation = Tezos.transaction(
-// //         burnUsdmOperationParams,
-// //         0mutez,
-// //         getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
-// //     );
-// //     operations := burnUsdmOperation # operations;
-
-// //     // save and update new usdmOutstanding and balance for collateral token
-// //     _vault.usdmOutstanding                    := remainingUsdm;
-// //     _vault.collateralBalanceLedger[tokenName] := newCollateralBalance;
-// //     s.vaults[vaultHandle]                     := _vault;
-
-// // } with (operations, s)
-
-
-
 
 (* mintOrBurn entrypoint *)
 function mintOrBurn(const mintOrBurnParams : mintOrBurnActionType; var s : controllerStorage) : return is 
@@ -1037,8 +959,8 @@ block {
 
     // check if quantity to burn exceeds vault's usdmOutstanding
     if vault.usdmOutstanding + quantity < 0 then failwith("Error. Cannot burn more than outstanding amount of USDM.") else skip;
-    const newusdmOutstanding : usdmAmountType = abs(vault.usdmOutstanding + quantity); 
-    vault.usdmOutstanding := newusdmOutstanding;
+    const newUsdmOutstanding : usdmAmountType = abs(vault.usdmOutstanding + quantity); 
+    vault.usdmOutstanding := newUsdmOutstanding;
     s.vaults[vaultHandle] := vault;
 
     // check if vault is undercollaterized; if it is not, then create and send mintOrBurn operation to USDM Token Contract
@@ -1090,6 +1012,7 @@ function main (const action : controllerAction; const s : controllerStorage) : r
         | Default(_params) -> ((nil : list(operation)), s)
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
         | UpdateCollateralTokenLedger(parameters)       -> updateCollateralTokenLedger(parameters, s)
+        | UpdateCfmmAddressLedger(parameters)           -> updateCfmmAddressLedger(parameters, s)
 
         | SetUsdmAddress(parameters)                    -> setUsdmAddress(parameters, s)
 
