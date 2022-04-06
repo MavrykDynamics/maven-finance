@@ -3,22 +3,22 @@ import { BigNumber } from 'bignumber.js'
 
 export type cfmmTezFa2TokenStorageType = {
 
-  admin : string
-  config: {}
+  admin                         : string
+  config                        : {}
   
-  cashPool: BigNumber
+  cashPool                      : BigNumber
 
-  tokenName : string
-  tokenAddress : string
-  tokenPool: BigNumber
-  tokenId : BigNumber
+  tokenName                     : string
+  tokenAddress                  : string
+  tokenPool                     : BigNumber
+  tokenId                       : BigNumber
 
-  lpTokenAddress: string
-  lpTokensTotal : BigNumber
-  pendingPoolUpdates: BigNumber
+  lpTokenAddress                : string
+  lpTokensTotal                 : BigNumber
+  pendingPoolUpdates            : BigNumber
 
-  lastOracleUpdate : Date
-  usdmTokenAddress : string
-  treasuryAddress : string
+  lastOracleUpdate              : Date
+  usdmTokenControllerAddress    : string
+  treasuryAddress               : string
   
 }
