@@ -175,7 +175,7 @@ type return is list (operation) * controllerStorage
 // ----- constants begin -----
 
 const zeroAddress            : address  = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
-const fixedPointAccuracy     : nat      = 1_000_000_000_000_000_000_000_000n;  // 10^24     - // for use in division
+const fixedPointAccuracy     : nat      = 1_000_000_000_000_000_000_000_000n;   // 10^24     - // for use in division
 const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;           // 10^18    - // for use in division with tez
 
 // ----- constants end -----
