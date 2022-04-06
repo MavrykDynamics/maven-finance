@@ -1369,6 +1369,7 @@ describe("USDM Token Controller tests", async () => {
 
             const usdmStorage         = await usdmTokenInstance.storage();
             const aliceUsdmBalance    = await usdmStorage.ledger.get(alice.pkh);
+            const usdmTokenControllerStorage         = await usdmTokenControllerInstance.storage();
             
             const cfmmStorage         = await cfmmTezFa2TokenInstance.storage();
 
@@ -1377,6 +1378,7 @@ describe("USDM Token Controller tests", async () => {
             console.log("--- --- --- --- --- --- --- --- --- ---");
             console.log("initial alice usdm balance: " + aliceUsdmBalance);
             console.log(cfmmStorage);
+            console.log(usdmTokenControllerStorage);
             
             // user (alice) swap cash (XTZ) for token (USDM)
             const aliceSwapsCashForTokenOperation = await cfmmTezFa2TokenInstance.methods.cashToToken(

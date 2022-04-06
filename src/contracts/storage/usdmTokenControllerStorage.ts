@@ -14,6 +14,14 @@ const config = {
     decimals                  : 3,       // decimals 
 }
 
+const targetLedger = MichelsonMap.fromLiteral({
+  "usdm": 10 ** 24
+})
+
+const driftLedger = MichelsonMap.fromLiteral({
+  "usdm": 0
+})
+
 export const usdmTokenControllerStorage: usdmTokenControllerStorageType = {
   admin                       : alice.pkh,
   config                      : config,
@@ -25,8 +33,8 @@ export const usdmTokenControllerStorage: usdmTokenControllerStorageType = {
   vaultLedger                 : MichelsonMap.fromLiteral({}),
   ownerLedger                 : MichelsonMap.fromLiteral({}),
 
-  targetLedger                : MichelsonMap.fromLiteral({}),
-  driftLedger                 : MichelsonMap.fromLiteral({}),
+  targetLedger                : targetLedger,
+  driftLedger                 : driftLedger,
   lastDriftUpdateLedger       : MichelsonMap.fromLiteral({}),
   collateralTokenLedger       : MichelsonMap.fromLiteral({}),
   priceLedger                 : MichelsonMap.fromLiteral({}),
