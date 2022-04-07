@@ -19,6 +19,7 @@
 // import lpAddress from '../deployments/lpTokenAddress.json';
 // import mvkAddress from '../deployments/mvkTokenAddress.json';
 // import doormanAddress from '../deployments/doormanAddress.json';
+// import treasuryAddress from '../deployments/treasuryAddress.json';
 
 // describe("Farm", async () => {
 //     var utils: Utils;
@@ -34,6 +35,9 @@
 
 //     let farmFactoryInstance;
 //     let farmFactoryStorage;
+
+//     let treasuryInstance;
+//     let treasuryStorage;
 
 //     let farmBlockStart;
 //     let farmBlockEnd;
@@ -62,6 +66,8 @@
 //         mvkTokenStorage    = await mvkTokenInstance.storage();
 //         lpTokenInstance = await utils.tezos.contract.at(lpAddress.address);
 //         lpTokenStorage    = await lpTokenInstance.storage();
+//         treasuryInstance    = await utils.tezos.contract.at(treasuryAddress.address);
+//         treasuryStorage    = await treasuryInstance.storage();
 
 //         // Make farm factory track the farm
 //         if(!farmFactoryStorage.trackedFarms.includes(farmAddress.address)){
@@ -422,7 +428,7 @@
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplyFirstUpdate = parseInt(mvkTokenStorage.totalSupply);
 //                     doormanBalanceFirstUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
-//                     treasuryFirstUpdate = parseInt(await mvkTokenStorage.ledger.get(eve.pkh));
+//                     treasuryFirstUpdate = parseInt(await mvkTokenStorage.ledger.get(treasuryAddress.address));
 //                 })
 
 //                 // Toggle to transfer
@@ -443,7 +449,7 @@
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplySecondUpdate = parseInt(mvkTokenStorage.totalSupply);
 //                     doormanBalanceSecondUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
-//                     treasurySecondUpdate = parseInt(await mvkTokenStorage.ledger.get(eve.pkh));
+//                     treasurySecondUpdate = parseInt(await mvkTokenStorage.ledger.get(treasuryAddress.address));
 //                 })
 
 //                 // Toggle to mint 
@@ -464,7 +470,7 @@
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplyThirdUpdate = parseInt(mvkTokenStorage.totalSupply);
 //                     doormanBalanceThirdUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
-//                     treasuryThirdUpdate = parseInt(await mvkTokenStorage.ledger.get(eve.pkh));
+//                     treasuryThirdUpdate = parseInt(await mvkTokenStorage.ledger.get(treasuryAddress.address));
 //                 })
 
 //                 assert.notEqual(mvkTotalSupply,mvkTotalSupplyFirstUpdate);
