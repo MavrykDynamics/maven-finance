@@ -280,7 +280,7 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
       // update satellite balance if user is delegated to a satellite
       operation := Some (
         Tezos.transaction(
-          (Tezos.source, userRewards, 1n),
+          (Tezos.source, userRewards, (StakeAction : stakeType)),
           0tez,
           updateSatelliteBalance(delegationAddress)
         )
@@ -363,7 +363,7 @@ block {
   );
 
   const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-    (Tezos.sender, stakeAmount, 1n),
+    (Tezos.sender, stakeAmount, (StakeAction : stakeType)),
     0tez,
     updateSatelliteBalance(delegationAddress)
   );
@@ -499,7 +499,7 @@ block {
 
   // update satellite balance if user is delegated to a satellite
   const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-    (Tezos.source, unstakeAmount, 0n),
+    (Tezos.source, unstakeAmount, (UnstakeAction : stakeType)),
     0tez,
     updateSatelliteBalance(delegationAddress)
   );
@@ -567,7 +567,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: doormanStorage): retur
         | None -> failwith("Error. Delegation Contract is not found.")
     ];
     const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (delegator, claimAmount, 1n),
+      (delegator, claimAmount, (StakeAction : stakeType)),
       0tez,
       updateSatelliteBalance(delegationAddress)
     );
