@@ -4,7 +4,7 @@ import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
 import { array } from 'yargs'
 
-const { bob, alice, eve, mallory } = require('../scripts/sandbox/accounts')
+const { bob, alice, eve, mallory, oscar } = require('../scripts/sandbox/accounts')
 
 import { MVK } from '../test/helpers/Utils'
 
@@ -15,7 +15,7 @@ export const mvkTokenDecimals = 9
 const totalSupply = MVK(100000)
 const maximumSupply = MVK(10**9)
 const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
-const singleUserSupply = new BigNumber(totalSupply / 4)
+const singleUserSupply = new BigNumber(totalSupply / 5)
 
 const metadata = MichelsonMap.fromLiteral({
   '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -51,6 +51,7 @@ const ledger = MichelsonMap.fromLiteral({
   [alice.pkh]: singleUserSupply,
   [eve.pkh]: singleUserSupply,
   [mallory.pkh]: singleUserSupply,
+  [oscar.pkh]: singleUserSupply
 })
 
 const token_metadata = MichelsonMap.fromLiteral({

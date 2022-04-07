@@ -196,8 +196,6 @@ function getOrCreateDelegateRecord (const userAddress : address; const s : deleg
 (*  set contract admin address *)
 function setAdmin(const newAdminAddress : address; var s : delegationStorage) : return is
 block {
-    
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
     s.admin := newAdminAddress;
@@ -208,7 +206,6 @@ block {
 function updateConfig(const updateConfigParams : delegationUpdateConfigParamsType; var s : delegationStorage) : return is 
 block {
 
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
   const updateConfigAction    : delegationUpdateConfigActionType   = updateConfigParams.updateConfigAction;
@@ -331,9 +328,6 @@ block {
     // 3. save new user delegate record
     // 4. update satellite total delegated amount
 
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
-
     // check that entrypoint is not paused
     checkDelegateToSatelliteIsNotPaused(s);
 
@@ -359,7 +353,7 @@ block {
     // check if user is delegated to a satellite or not
     if Big_map.mem(Tezos.source, s.delegateLedger) then block {
       // user is already delegated to a satellite 
-      var delegateRecord : delegateRecordType := case s.delegateLedger[Tezos.sender] of [
+      var delegateRecord : delegateRecordType := case s.delegateLedger[Tezos.source] of [
           Some(_delegateRecord) -> _delegateRecord
         | None -> failwith("Delegate Record does not exist") // failwith should not be reached as conditional check is already cleared
       ];
@@ -370,15 +364,6 @@ block {
       if previousSatellite = satelliteAddress then failwith("You are already delegated to this satellite")
         else skip;
 
-      const undelegateFromSatellite : contract(unit) = Tezos.self("%undelegateFromSatellite");
-      const undelegateFromSatelliteOperation : operation = Tezos.transaction(
-        (unit),
-        0tez, 
-        undelegateFromSatellite
-      );
-
-      operations  := undelegateFromSatelliteOperation # operations;
-
       const delegateFromSatellite : contract(address) = Tezos.self("%delegateToSatellite");
       const delegateFromSatelliteOperation : operation = Tezos.transaction(
         (satelliteAddress),
@@ -387,6 +372,15 @@ block {
       );
 
       operations  := delegateFromSatelliteOperation # operations;
+
+      const undelegateFromSatellite : contract(unit) = Tezos.self("%undelegateFromSatellite");
+      const undelegateFromSatelliteOperation : operation = Tezos.transaction(
+        (unit),
+        0tez, 
+        undelegateFromSatellite
+      );
+
+      operations  := undelegateFromSatelliteOperation # operations;
 
     } else block {
       
@@ -425,9 +419,6 @@ block {
     // 2. callback to doorman contract to fetch sMVK balance
     // 3a. if satellite exists, update satellite record with new balance and remove user from delegateLedger
     // 3b. if satellite does not exist, remove user from delegateLedger
-    
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
 
     // check that entrypoint is not paused
     checkUndelegateFromSatelliteIsNotPaused(s);
@@ -493,9 +484,6 @@ block {
     // Overall steps:
     // 1. check if sender's address exists in satelliteLedger
     // 2. update satellite records
-    
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
 
     checkUpdateSatelliteRecordIsNotPaused(s);
 
@@ -525,9 +513,6 @@ block {
     // 4. add new satellite record and save to satelliteLedger
 
     // add the satellite fields here
-
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
 
     // check that entrypoint is not paused
     checkRegisterAsSatelliteIsNotPaused(s);
@@ -575,9 +560,6 @@ block {
     // 1. check if satellite exists in satelliteLedger
     // 2. remove satellite address from satelliteLedger
 
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
-
     // check that entrypoint is not paused
     checkUnregisterAsSatelliteIsNotPaused(s);
 
@@ -591,7 +573,7 @@ block {
 
 } with (noOperations, s)
 
-function onStakeChange(const userAddress : address; const stakeAmount : nat; const stakeType : nat; var s : delegationStorage) : return is 
+function onStakeChange(const userAddress : address; const stakeAmount : nat; const stakeTypeParam : stakeType; var s : delegationStorage) : return is 
 block {
 
     // Overall steps:
@@ -600,89 +582,71 @@ block {
     // 2b. if user is not a satellite, update satellite's total delegated amount depending on stakeAmount and stakeType
     // Note: stakeType 1n to increase, stakeType 0n to decrease
 
-    // entrypoint should not receive any tez amount
-    checkNoAmount(Unit);
-
     // check sender is Doorman Contract or Treasury Contract
     // checkSenderIsDoormanContract(s);
     if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
 
-    var satelliteRecord: option(satelliteRecordType) := Map.find_opt(userAddress, s.satelliteLedger);
+    const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
 
     var operations: list(operation) := nil;
 
     // check if user is a satellite
-    case satelliteRecord of [
-      Some (_satellite) -> block {
-        var satellite: satelliteRecordType := _satellite;
-        var totalMvkBalance : nat := satellite.stakedMvkBalance;
-        if stakeType = 1n then totalMvkBalance := totalMvkBalance + stakeAmount
-          else skip;
-        // check that stakeAmount is less than totalDelegatedAmount (so that totalMvkBalance will not be negative)
-        if stakeType = 0n then block{
-            if stakeAmount > totalMvkBalance then failwith("Error: stakeAmount is larger than satellite's total mvk balance.")
-              else skip;        
+    if userIsSatellite then block {
+      var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
+        Some (_satellite) -> _satellite
+        | None -> failwith("Error: satellite record not found.")
+      ];
 
-            totalMvkBalance := abs(totalMvkBalance - stakeAmount);
+      case stakeTypeParam of [
+        StakeAction -> satelliteRecord.stakedMvkBalance := satelliteRecord.stakedMvkBalance + stakeAmount
+      | UnstakeAction -> 
+          if stakeAmount > satelliteRecord.stakedMvkBalance then failwith("Error: stakeAmount is larger than satellite's total mvk balance.")
+            else if abs(satelliteRecord.stakedMvkBalance - stakeAmount) < s.config.minimumStakedMvkBalance then failwith("Error: unstaking would exceed satellite minimum mvk balance.")
+            else satelliteRecord.stakedMvkBalance := abs(satelliteRecord.stakedMvkBalance - stakeAmount)
+      ];
 
-            // check that total bond amount after unstaking will not be less than the minimum satellite bond
-            if totalMvkBalance < s.config.minimumStakedMvkBalance then failwith("Error: unstaking would exceed satellite minimum mvk balance.")
-              else skip;
-
-        } else skip;
-
-        // save satellite record
-        satellite.stakedMvkBalance := totalMvkBalance; 
-        s.satelliteLedger[userAddress] := satellite;
-      }
-    | None -> block {
-        // check if user has delegated to a satellite
-        var delegateRecord: option(delegateRecordType) := Big_map.find_opt(userAddress, s.delegateLedger);
-
-        case delegateRecord of [
-          Some (_delegator) -> block {
-
-            // Retrieve satellite account from delegationStorage
-            case Map.find_opt(_delegator.satelliteAddress, s.satelliteLedger) of [
-              Some (_delegatedSatellite) -> block{
-                var satellite: satelliteRecordType := _delegatedSatellite;
-                var totalDelegatedAmount : nat := satellite.totalDelegatedAmount;
-
-                if stakeType = 1n then totalDelegatedAmount := totalDelegatedAmount + stakeAmount
-                  else skip;
-
-                // check that stakeAmount is less than totalDelegatedAmount (so that totalDelegatedAmount will not be negative)
-                if stakeType = 0n then block{
-                    if stakeAmount > totalDelegatedAmount then failwith("Error: stakeAmount is larger than satellite's total delegated amount.")
-                    else skip;
-
-                    totalDelegatedAmount := abs(totalDelegatedAmount - stakeAmount);
-
-                } else skip;
-
-                // // save satellite record
-                satellite.totalDelegatedAmount := totalDelegatedAmount; 
-                s.satelliteLedger[_delegator.satelliteAddress] := satellite; 
-              }
-            | None -> {
-              // Force user to undelegate
-              const undelegateFromSatellite : contract(unit) = Tezos.self("%undelegateFromSatellite");
-              operations := Tezos.transaction(
-                (unit),
-                0tez, 
-                undelegateFromSatellite
-              ) # operations;
-            }
-            ]
-          }
-        | None -> skip
-        ];
+      // Save satellite
+      s.satelliteLedger := Map.update(userAddress, Some(satelliteRecord), s.satelliteLedger);
     }
-    ];
+    else block {
+      // check if user has delegated to a satellite
+      const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
+      if userIsDelegator then block {
+        // Retrieve satellite account from delegationStorage
+        var delegatorRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
+          Some (_delegate) -> _delegate
+        | None -> failwith("Error: delegate record not found.")
+        ];
+
+        const userHasActiveSatellite: bool = Map.mem(delegatorRecord.satelliteAddress, s.satelliteLedger);
+        if userHasActiveSatellite then block {
+          var userSatellite: satelliteRecordType := case Map.find_opt(delegatorRecord.satelliteAddress, s.satelliteLedger) of [
+            Some (_delegatedSatellite) -> _delegatedSatellite
+          | None -> failwith("Error: satellite record not found.")
+          ];
+
+          case stakeTypeParam of [
+            StakeAction -> userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
+          | UnstakeAction ->
+              if stakeAmount > userSatellite.totalDelegatedAmount then failwith("Error: stakeAmount is larger than satellite's total delegated amount.")
+              else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount)
+          ];
+
+          // Save satellite
+          s.satelliteLedger := Map.update(delegatorRecord.satelliteAddress, Some(userSatellite), s.satelliteLedger);
+        } 
+        // Force User to undelegate if it does not have an active satellite anymore
+        else operations := Tezos.transaction((unit), 0tez, (Tezos.self("%undelegateFromSatellite"): contract(unit))) # operations;
+      }
+      else skip
+    }
 } with (operations, s)
 
 function main (const action : delegationAction; const s : delegationStorage) : return is 
-    case action of [    
+  block{
+    // Check sender sent no XTZ
+    checkNoAmount(unit);
+  } with (case action of [    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
 
@@ -705,4 +669,4 @@ function main (const action : delegationAction; const s : delegationStorage) : r
 
         | UpdateSatelliteRecord(parameters) -> updateSatelliteRecord(parameters.0, parameters.1, parameters.2, parameters.3, s)
         | OnStakeChange(parameters) -> onStakeChange(parameters.0, parameters.1, parameters.2, s)    
-    ]
+    ])

@@ -292,7 +292,7 @@ block {
         if checkIfMvkToken = True then block {
             
             const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-                (to_, amt, 1n),
+                (to_, amt, (StakeAction : stakeType)),
                 0mutez,
                 updateSatelliteBalance(delegationAddress)
             );
@@ -343,7 +343,7 @@ block {
     ); 
 
     const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-        (to_, amt, 1n),
+        (to_, amt, (StakeAction : stakeType)),
         0mutez,
         updateSatelliteBalance(delegationAddress)
     );
