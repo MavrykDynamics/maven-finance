@@ -1,4 +1,7 @@
-type onStakeChangeParams is (address * nat * nat)
+type stakeType is 
+  StakeAction of unit
+| UnstakeAction of unit
+type onStakeChangeParams is (address * nat * stakeType)
 type updateSatelliteRecordParams is (string * string * string * nat)
 
 // record for users choosing satellites 

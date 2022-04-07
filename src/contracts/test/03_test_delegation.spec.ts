@@ -11,7 +11,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../env";
-import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, oscar } from "../scripts/sandbox/accounts";
 
 import doormanAddress from '../deployments/doormanAddress.json';
 import delegationAddress from '../deployments/delegationAddress.json';
@@ -451,7 +451,8 @@ describe("Delegation tests", async () => {
                 await updateConfigOperation.confirmation();
 
                 // init values
-                const userStake               = MVK(100);
+                await signerFactory(mallory.sk)
+                const userStake               = MVK(1);
                 const doormanContractAddress  = doormanAddress.address;
                 const satelliteName           = "New Satellite (Eve)";
                 const satelliteDescription    = "New Satellite Description (Eve)";
@@ -462,7 +463,7 @@ describe("Delegation tests", async () => {
                 const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
                 {
                     add_operator: {
-                        owner    : bob.pkh,
+                        owner    : mallory.pkh,
                         operator : doormanContractAddress,
                         token_id : 0,
                     },
@@ -484,7 +485,8 @@ describe("Delegation tests", async () => {
                     ).send()
                 ).to.be.rejected;
 
-                // Reset 
+                // Reset
+                await signerFactory(bob.sk)
                 updateConfigOperation = await delegationInstance.methods.updateConfig(MVK(0.5),"configMinimumStakedMvkBalance").send();
                 await updateConfigOperation.confirmation();
             } catch(e){
@@ -591,6 +593,537 @@ describe("Delegation tests", async () => {
                 console.log(e);
             } 
         });
+    });
+
+    describe("%updateSatelliteRecord", async () => {
+        beforeEach("Set signer to satellite", async () => {
+            await signerFactory(eve.sk)
+        });
+
+        it('Satellite should be able to call this entrypoint and update its record', async () => {
+            try{
+                // init values
+                const userStake                 = MVK(100);
+                delegationStorage               = await delegationInstance.storage();
+                const satelliteRecord           = await delegationStorage.satelliteLedger.get(eve.pkh);
+                const satelliteName             = satelliteRecord.name;
+                const satelliteDescription      = satelliteRecord.description;
+                const satelliteImage            = satelliteRecord.image;
+                const satelliteFee              = satelliteRecord.satelliteFee;
+
+
+                const updatedSatelliteName           = "Updated Satellite (Eve)";
+                const updatedSatelliteDescription    = "Updated Satellite Description (Eve)";
+                const updatedSatelliteImage          = "https://placeholder.com/300";
+                const updatedSatelliteFee            = "500";
+
+                // Bob registers as a satellite
+                const updateOperation = await delegationInstance.methods
+                    .updateSatelliteRecord(
+                        updatedSatelliteName, 
+                        updatedSatelliteDescription, 
+                        updatedSatelliteImage, 
+                        updatedSatelliteFee
+                    ).send();
+                await updateOperation.confirmation();
+
+                // Check state after registering as satellite
+                delegationStorage               = await delegationInstance.storage();
+                const updatedSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+                
+                // Bob's satellite details
+                assert.strictEqual(updatedSatelliteRecord.name,                   updatedSatelliteName);
+                assert.strictEqual(updatedSatelliteRecord.description,            updatedSatelliteDescription);
+                assert.equal(updatedSatelliteRecord.satelliteFee,           updatedSatelliteFee);
+                assert.strictEqual(updatedSatelliteRecord.image,   updatedSatelliteImage);
+                assert.notStrictEqual(updatedSatelliteRecord.name,                   satelliteName);
+                assert.notStrictEqual(updatedSatelliteRecord.description,            satelliteDescription);
+                assert.notEqual(updatedSatelliteRecord.satelliteFee,           satelliteFee);
+                assert.strictEqual(updatedSatelliteRecord.image,   satelliteImage);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Non-satellite should not be able to call this entrypoint', async () => {
+            try{
+                // init values
+                await signerFactory(mallory.sk);
+                const updatedSatelliteName          = "New Satellite (Eve)";
+                const updatedSatelliteDescription   = "New Satellite Description (Eve)";
+                const updatedSatelliteImage         = "https://placeholder.com/300";
+                const updatedSatelliteFee           = "500";
+
+                // Bob registers as a satellite
+                await chai.expect(delegationInstance.methods
+                    .updateSatelliteRecord(
+                        updatedSatelliteName, 
+                        updatedSatelliteDescription, 
+                        updatedSatelliteImage, 
+                        updatedSatelliteFee
+                    ).send()
+                ).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Satellite should not be able to call this entrypoint if the entrypoint is pause', async () => {
+            try{
+                // Initial Values
+                delegationStorage       = await delegationInstance.storage();
+                const isPausedStart     = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
+                const updatedSatelliteName          = "New Satellite (Eve)";
+                const updatedSatelliteDescription   = "New Satellite Description (Eve)";
+                const updatedSatelliteImage         = "https://placeholder.com/300";
+                const updatedSatelliteFee           = "500";
+
+                // Operation
+                await signerFactory(bob.sk)
+                var togglePauseOperation = await delegationInstance.methods.togglePauseUpdateSatellite().send();
+                await togglePauseOperation.confirmation();
+
+                // Final values
+                delegationStorage       = await delegationInstance.storage();
+                const isPausedEnd       = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
+
+                await signerFactory(eve.sk)
+                await chai.expect(delegationInstance.methods
+                    .updateSatelliteRecord(
+                        updatedSatelliteName, 
+                        updatedSatelliteDescription, 
+                        updatedSatelliteImage, 
+                        updatedSatelliteFee
+                    ).send()
+                ).to.be.rejected;
+
+                // Reset admin
+                await signerFactory(bob.sk)
+                var togglePauseOperation = await delegationInstance.methods.togglePauseUpdateSatellite().send();
+                await togglePauseOperation.confirmation();
+
+                // Assertions
+                assert.equal(isPausedStart, false);
+                assert.equal(isPausedEnd, true);
+            } catch(e){
+                console.log(e);
+            }
+        });
+    });
+
+    describe("%delegateToSatellite", async () => {
+        beforeEach("Set signer to user", async () => {
+            await signerFactory(alice.sk)
+        });
+
+        it('Satellite should not be able to call this entrypoint', async () => {
+            try{
+                // init values
+                await signerFactory(eve.sk);
+                const stakeAmount   = MVK(10);
+
+                // Operation
+                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : eve.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+    
+                const stakeAmountOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                await stakeAmountOperation.confirmation();
+    
+                await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+
+                // Final values
+                delegationStorage   = await delegationInstance.storage();
+                const delegateRecord     = await delegationStorage.delegateLedger.get(eve.pkh)
+                assert.strictEqual(delegateRecord, undefined)
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should not be able to call this entrypoint if it is paused', async () => {
+            try{
+                // Initial Values
+                delegationStorage       = await delegationInstance.storage();
+                const isPausedStart     = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
+                const stakeAmount       = MVK(10);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : bob.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+    
+                const stakeAmountOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                await stakeAmountOperation.confirmation();
+                
+                // Operation
+                var togglePauseOperation = await delegationInstance.methods.togglePauseDelegateToSatellite().send();
+                await togglePauseOperation.confirmation();
+
+                // Final values
+                delegationStorage       = await delegationInstance.storage();
+                const isPausedEnd       = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
+
+                await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+
+                // Reset admin
+                var togglePauseOperation = await delegationInstance.methods.togglePauseDelegateToSatellite().send();
+                await togglePauseOperation.confirmation();
+
+                // Assertions
+                assert.equal(isPausedStart, false);
+                assert.equal(isPausedEnd, true);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should be able to call this entrypoint and delegate his SMVK to a provided satellite', async () => {
+            try{
+                // Initial Values
+                delegationStorage       = await delegationInstance.storage();
+                const stakeAmount       = MVK(10);
+
+                // Operation
+                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : alice.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+    
+                const stakeAmountOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                await stakeAmountOperation.confirmation();
+
+                const delegationOperation   = await delegationInstance.methods.delegateToSatellite(eve.pkh).send();
+                await delegationOperation.confirmation();
+
+                // Final values
+                delegationStorage           = await delegationInstance.storage();
+                doormanStorage              = await doormanInstance.storage();
+                const stakeRecord           = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+                const delegateRecord        = await delegationStorage.delegateLedger.get(alice.pkh);
+                const satelliteRecord       = await delegationStorage.satelliteLedger.get(eve.pkh);
+                assert.strictEqual(delegateRecord.satelliteAddress, eve.pkh)
+                assert.equal(satelliteRecord.totalDelegatedAmount.toNumber(), stakeRecord.balance.toNumber())
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should not be able to delegate to the same satellite twice', async () => {
+            try{
+                await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should not be able to call the entrypoint if the contract doesn’t have the doorman contract in the generalContracts map', async () => {
+            try{
+                // Update generalContracts
+                await signerFactory(bob.sk)
+                var updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+                await updateOperation.confirmation();
+
+                // Initial values
+                const userStake = MVK(10);
+                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : bob.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+    
+                const stakeAmountOperation = await doormanInstance.methods.stake(userStake).send();
+                await stakeAmountOperation.confirmation();
+
+                await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+
+                // Reset operation
+                await signerFactory(bob.sk)
+                var updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+                await updateOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should not be able to call this entrypoint if the provided satellite does not exist', async () => {
+            try{
+                // Initial values
+                const userStake = MVK(10);
+                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : alice.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+    
+                const stakeAmountOperation = await doormanInstance.methods.stake(userStake).send();
+                await stakeAmountOperation.confirmation();
+
+                await chai.expect(delegationInstance.methods.delegateToSatellite(mallory.pkh).send()).to.be.rejected;
+
+                // Final values
+                delegationStorage           = await delegationInstance.storage();
+                doormanStorage              = await doormanInstance.storage();
+                const satelliteRecord       = await delegationStorage.satelliteLedger.get(mallory.pkh);
+                assert.strictEqual(satelliteRecord, undefined);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+
+        it('User should be able to call this entrypoint and redelegate his SMVK if he wants to change satellite', async () => {
+            try{
+                // Register a new satellite
+                await signerFactory(oscar.sk);
+
+                // init values
+                const userStake               = MVK(100);
+                const doormanContractAddress  = doormanAddress.address;
+                const satelliteName           = "New Satellite (Oscar)";
+                const satelliteDescription    = "New Satellite Description (Oscar)";
+                const satelliteImage          = "https://placeholder.com/300";
+                const satelliteFee            = "800";
+
+                // Bob assigns doorman contract as an operator
+                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : oscar.pkh,
+                        operator : doormanContractAddress,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+
+                // Bob stake 100 MVK tokens
+                const stakeAmountOperation = await doormanInstance.methods.stake(userStake).send();
+                await stakeAmountOperation.confirmation();
+
+                // Check state before registering as satellite
+                const beforeDelegationLedgerBob  = await delegationStorage.satelliteLedger.get(oscar.pkh);        // should return null or undefined
+                const beforeBobStakedBalance     = await doormanStorage.userStakeBalanceLedger.get(oscar.pkh);    // 100 MVK
+                assert.equal(beforeDelegationLedgerBob,       null);
+                assert.equal(beforeBobStakedBalance.balance,  userStake);
+
+                // Registers as a satellite
+                const registerAsSatelliteOperation = await delegationInstance.methods
+                    .registerAsSatellite(
+                        satelliteName, 
+                        satelliteDescription, 
+                        satelliteImage, 
+                        satelliteFee
+                    ).send();
+                await registerAsSatelliteOperation.confirmation();
+
+                // Check state after registering as satellite
+                delegationStorage               = await delegationInstance.storage();
+                const afterDelegationLedgerBob  = await delegationStorage.satelliteLedger.get(oscar.pkh);         // should return bob's satellite record
+                const afterBobStakedBalance     = await doormanStorage.userStakeBalanceLedger.get(oscar.pkh);     // 100 MVK
+                
+                // Bob's satellite details
+                assert.equal(afterDelegationLedgerBob.name,                   satelliteName);
+                assert.equal(afterDelegationLedgerBob.description,            satelliteDescription);
+                assert.equal(afterDelegationLedgerBob.stakedMvkBalance,       userStake);
+                assert.equal(afterDelegationLedgerBob.satelliteFee,           satelliteFee);
+                assert.equal(afterDelegationLedgerBob.totalDelegatedAmount,   0);
+                assert.equal(afterDelegationLedgerBob.status,                 1);
+
+                // Bob's staked balance remains the same
+                assert.equal(afterBobStakedBalance.balance, userStake);
+
+                // Alice redelegate to Oscar
+                await signerFactory(alice.sk)
+                delegationStorage               = await delegationInstance.storage();
+                const previousDelegation        = await delegationStorage.delegateLedger.get(alice.pkh);
+                const userDelegation            = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+                const previousSatellite         = previousDelegation.satelliteAddress;
+
+                const satelliteRecord           = await delegationStorage.satelliteLedger.get(previousSatellite);
+                const previousDelegatedAmount   = satelliteRecord.totalDelegatedAmount;
+
+                const redelegateOperation       = await delegationInstance.methods.delegateToSatellite(oscar.pkh).send();
+                await redelegateOperation.confirmation();
+                
+                delegationStorage               = await delegationInstance.storage();
+                const newSatelliteRecord        = await delegationStorage.satelliteLedger.get(oscar.pkh);
+                const updatedOldSatelliteLedger = await delegationStorage.satelliteLedger.get(previousSatellite);
+                const updatedOldDelegatedAmount = updatedOldSatelliteLedger.totalDelegatedAmount;
+                const newDelegation             = await delegationStorage.delegateLedger.get(alice.pkh);
+
+                assert.strictEqual(newDelegation.satelliteAddress, oscar.pkh)
+                assert.equal(updatedOldDelegatedAmount.toNumber(), previousDelegatedAmount.toNumber() - userDelegation.balance.toNumber());
+                assert.equal(newSatelliteRecord.totalDelegatedAmount.toNumber(), userDelegation.balance.toNumber());
+            } catch(e){
+                console.log(e);
+            }
+        });
+    })
+
+    describe("%undelegateSatellite", async () => {
+        beforeEach("Set signer to user", async () => {
+            await signerFactory(alice.sk)
+        });
+
+        it('Satellite should not be able to call this entrypoint', async () => {
+            try{
+                // init values
+                await signerFactory(eve.sk);
+
+                // Operation
+                await chai.expect(delegationInstance.methods.undelegateFromSatellite(eve.pkh).send()).to.be.rejected;
+
+                // Final values
+                delegationStorage           = await delegationInstance.storage();
+                const delegateRecord        = await delegationStorage.delegateLedger.get(eve.pkh)
+                assert.strictEqual(delegateRecord, undefined)
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should not be able to call this entrypoint if it is pause', async () => {
+            try{
+                // Initial Value
+                await signerFactory(bob.sk)
+                delegationStorage       = await delegationInstance.storage();
+                const isPausedStart     = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
+
+                // Operation
+                var togglePauseOperation = await delegationInstance.methods.togglePauseUndelegateSatellite().send();
+                await togglePauseOperation.confirmation();
+
+                // Final values
+                delegationStorage       = await delegationInstance.storage();
+                const isPausedEnd       = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
+
+                await signerFactory(eve.sk);
+                await chai.expect(delegationInstance.methods.undelegateFromSatellite().send()).to.be.rejected;
+
+                // Reset admin
+                await signerFactory(bob.sk)
+                var togglePauseOperation = await delegationInstance.methods.togglePauseUndelegateSatellite().send();
+                await togglePauseOperation.confirmation();
+
+                // Assertions
+                assert.equal(isPausedStart, false);
+                assert.equal(isPausedEnd, true);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should not be able to undelegate if he never delegated before', async () => {
+            try{
+                // Register a new user
+                await signerFactory(mallory.sk)
+                delegationStorage       = await delegationInstance.storage();
+                const stakeAmount       = MVK(10);
+
+                // Operation
+                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : mallory.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+    
+                const stakeAmountOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                await stakeAmountOperation.confirmation();
+
+                await chai.expect(delegationInstance.methods.undelegateFromSatellite(eve.pkh).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should not be able to call this entrypoint if the provided satellite does not exist', async () => {
+            try{
+                await chai.expect(delegationInstance.methods.delegateToSatellite(bob.pkh).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should not be able to call the entrypoint if the contract doesn’t have the doorman contract in the generalContracts map', async () => {
+            try{
+                // Update generalContracts
+                await signerFactory(bob.sk)
+                var updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+                await updateOperation.confirmation();
+
+                // Initial values
+                await signerFactory(alice.sk);
+                await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+
+                // Reset operation
+                await signerFactory(bob.sk)
+                var updateOperation = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send()
+                await updateOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('User should be able to call this entrypoint and undelegate his SMVK from a provided satellite', async () => {
+            try{
+                // Register a new user
+                delegationStorage           = await delegationInstance.storage();
+                const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(oscar.pkh);
+                const initDelegateRecord    = await delegationStorage.delegateLedger.get(alice.pkh);
+
+                // Operation
+                const delegationOperation   = await delegationInstance.methods.undelegateFromSatellite(eve.pkh).send();
+                await delegationOperation.confirmation();
+
+                // Final Values
+                delegationStorage       = await delegationInstance.storage();
+                const satelliteRecord   = await delegationStorage.satelliteLedger.get(oscar.pkh);
+                const delegateRecord    = await delegationStorage.delegateLedger.get(alice.pkh);
+
+                // Assertions
+                assert.strictEqual(delegateRecord, undefined);
+                assert.notEqual(initSatelliteRecord.totalDelegatedAmount, satelliteRecord.totalDelegatedAmount);
+            } catch(e){
+                console.log(e);
+            }
+        })
     })
 
     describe("%togglePauseDelegateToSatellite", async () => {
@@ -602,6 +1135,22 @@ describe("Delegation tests", async () => {
                 // Initial Values
                 delegationStorage       = await delegationInstance.storage();
                 const isPausedStart     = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
+                const stakeAmount   = MVK(10);
+
+                // Operation
+                const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : bob.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
+    
+                const stakeAmountOperation = await doormanInstance.methods.stake(stakeAmount).send();
+                await stakeAmountOperation.confirmation();
 
                 // Operation
                 var togglePauseOperation = await delegationInstance.methods.togglePauseDelegateToSatellite().send();
@@ -729,9 +1278,16 @@ describe("Delegation tests", async () => {
     })
 
     describe("%togglePauseUnregisterSatellite", async () => {
+        before("Alice delegates to Eve's Satellite", async () => {
+            await signerFactory(alice.sk)
+            const delegateOperation = await delegationInstance.methods.delegateToSatellite(eve.pkh).send();
+            await delegateOperation.confirmation();
+        });
+
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
         });
+
         it('Admin should be able to call the entrypoint and pause or unpause the registerSatellite entrypoint', async () => {
             try{
                 // Initial Values
@@ -770,6 +1326,222 @@ describe("Delegation tests", async () => {
             }
         });
     })
+
+    describe("%togglePauseUpdateSatellite", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+        it('Admin should be able to call the entrypoint and pause or unpause the updateSatellite entrypoint', async () => {
+            try{
+                // Initial Values
+                delegationStorage       = await delegationInstance.storage();
+                const isPausedStart     = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
+                const updatedSatelliteName          = "New Satellite (Eve)";
+                const updatedSatelliteDescription   = "New Satellite Description (Eve)";
+                const updatedSatelliteImage         = "https://placeholder.com/300";
+                const updatedSatelliteFee           = "500";
+
+                // Operation
+                var togglePauseOperation = await delegationInstance.methods.togglePauseUpdateSatellite().send();
+                await togglePauseOperation.confirmation();
+
+                // Final values
+                delegationStorage       = await delegationInstance.storage();
+                const isPausedEnd       = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
+
+                await chai.expect(delegationInstance.methods
+                    .updateSatelliteRecord(
+                        updatedSatelliteName, 
+                        updatedSatelliteDescription, 
+                        updatedSatelliteImage, 
+                        updatedSatelliteFee
+                    ).send()
+                ).to.be.rejected;
+
+                // Reset admin
+                var togglePauseOperation = await delegationInstance.methods.togglePauseUpdateSatellite().send();
+                await togglePauseOperation.confirmation();
+
+                // Assertions
+                assert.equal(isPausedStart, false);
+                assert.equal(isPausedEnd, true);
+            } catch(e){
+                console.log(e);
+            }
+        });
+        it('Non-admin should not be able to call the entrypoint', async () => {
+            try{
+                await signerFactory(alice.sk);
+                await chai.expect(delegationInstance.methods.togglePauseUpdateSatellite().send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+    })
+
+    describe("%pauseAll", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin should be able to call the entrypoint and pause all entrypoints in the contract', async () => {
+            try{
+                // Initial Values
+                delegationStorage       = await delegationInstance.storage();
+                for (let [key, value] of Object.entries(delegationStorage.breakGlassConfig)){
+                    assert.equal(value, false);
+                }
+
+                // Operation
+                var pauseOperation = await delegationInstance.methods.pauseAll().send();
+                await pauseOperation.confirmation();
+
+                // Final values
+                delegationStorage       = await delegationInstance.storage();
+                for (let [key, value] of Object.entries(delegationStorage.breakGlassConfig)){
+                    assert.equal(value, true);
+                }
+            } catch(e){
+                console.log(e);
+            }
+        });
+        it('Non-admin should not be able to call the entrypoint', async () => {
+            try{
+                await signerFactory(alice.sk);
+                await chai.expect(delegationInstance.methods.pauseAll().send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+    })
+
+    describe("%unpauseAll", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+
+        it('Admin should be able to call the entrypoint and unpause all entrypoints in the contract', async () => {
+            try{
+                // Initial Values
+                delegationStorage       = await delegationInstance.storage();
+                for (let [key, value] of Object.entries(delegationStorage.breakGlassConfig)){
+                    assert.equal(value, true);
+                }
+
+                // Operation
+                var pauseOperation = await delegationInstance.methods.unpauseAll().send();
+                await pauseOperation.confirmation();
+
+                // Final values
+                delegationStorage       = await delegationInstance.storage();
+                for (let [key, value] of Object.entries(delegationStorage.breakGlassConfig)){
+                    assert.equal(value, false);
+                }
+            } catch(e){
+                console.log(e);
+            }
+        });
+        it('Non-admin should not be able to call the entrypoint', async () => {
+            try{
+                await signerFactory(alice.sk);
+                await chai.expect(delegationInstance.methods.unpauseAll().send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+    })
+
+    describe("%onStakeChange", async () => {
+        before("Set Bob as whitelist contract and make Alice unregister", async () => {
+            // Operation
+            await signerFactory(bob.sk)
+            const updateWhitelistOperation  = await delegationInstance.methods.updateWhitelistContracts("alice", alice.pkh).send();
+            await updateWhitelistOperation.confirmation();
+        });
+
+        beforeEach("Set signer to whitelist", async () => {
+            await signerFactory(alice.sk)
+        });
+
+        it('Non-whitelist contracts should not be able to call the entrypoint', async () => {
+            try{
+                // Initial values
+                await signerFactory(bob.sk)
+                const stakeAmount   = MVK(5);
+                const stakeAddress  = eve.pkh;
+                const stakeType     = "stakeAction";
+
+                await chai.expect(delegationInstance.methods.onStakeChange(stakeAddress, stakeAmount, stakeType).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Whitelist contract should be able to call this entrypoint', async () => {
+            try{
+                // Initial values
+                const stakeAmount       = MVK(5);
+                const stakeAddress      = alice.pkh;
+                const stakeType         = "stakeAction";
+                delegationStorage       = await delegationInstance.storage();
+                const oldDelegateRecord = await delegationStorage.delegateLedger.get(stakeAddress);
+                const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh);
+                
+                const onStakeOperation  = await delegationInstance.methods.onStakeChange(stakeAddress, stakeAmount, stakeType).send();
+                await onStakeOperation.confirmation();
+
+                // Final values
+                delegationStorage           = await delegationInstance.storage();
+                const delegateRecord        = await delegationStorage.delegateLedger.get(stakeAddress);
+                const newSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+
+                // Assertions
+                assert.equal(satelliteRecord.totalDelegatedAmount.toNumber() + stakeAmount, newSatelliteRecord.totalDelegatedAmount.toNumber());
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Whitelist contract should be able to call this entrypoint and user should auto undelegate from a unexisting satellite', async () => {
+            try{
+                // Initial values
+                const stakeAmount           = MVK(5);
+                const stakeAddress          = alice.pkh;
+                const stakeType             = "stakeAction";
+                delegationStorage           = await delegationInstance.storage();
+                const oldSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+                const oldDelegateRecord     = await delegationStorage.delegateLedger.get(stakeAddress);
+
+                // Operation
+                await signerFactory(eve.sk);
+                const unregisterOperation   = await delegationInstance.methods.unregisterAsSatellite().send();
+                await unregisterOperation.confirmation()
+
+                await signerFactory(alice.sk)
+                const onStakeOperation  = await delegationInstance.methods.onStakeChange(stakeAddress, stakeAmount, stakeType).send();
+                await onStakeOperation.confirmation();
+
+                // Final values
+                delegationStorage           = await delegationInstance.storage();
+                const newSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+                const newDelegateRecord     = await delegationStorage.delegateLedger.get(stakeAddress);
+
+                // Assertions
+                assert.notStrictEqual(oldSatelliteRecord, undefined)
+                assert.notStrictEqual(oldDelegateRecord, undefined)
+                assert.strictEqual(newSatelliteRecord, undefined)
+                assert.strictEqual(newDelegateRecord, undefined)
+            } catch(e){
+                console.log(e);
+            }
+        });
+    })
+
+
+    describe("Extra tests", async () => {
+        
+    })
+
 
     // it('bob cannot register twice as a satellite', async () => {
     //     try{        

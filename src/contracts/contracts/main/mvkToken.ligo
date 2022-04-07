@@ -16,7 +16,7 @@ type action is
 | Update_operators of updateOperatorsParams
 | AssertMetadata of assertMetadataParams
 | Mint of mintParams
-| OnStakeChange of onStakeChangeParamsType
+// | OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
 | UpdateGeneralContracts of updateGeneralContractsParams
 
@@ -248,32 +248,32 @@ function mint(const mintParams: mintParams; const store : mvkTokenStorage) : ret
 
 (* OnStakeChange Entrypoint *)
 (* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
-function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const store: mvkTokenStorage): return is
-  block{
-    // check sender is from doorman contract or vesting contract
-    if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+// function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const store: mvkTokenStorage): return is
+//   block{
+//     // check sender is from doorman contract or vesting contract
+//     if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
     
-    const owner: owner = onStakeChangeParams.0;
-    var ownerBalance: tokenBalance := getBalance(owner, store);
-    const value: tokenBalance = onStakeChangeParams.1;
-    const stakeType: stakeType = onStakeChangeParams.2;
+//     const owner: owner = onStakeChangeParams.0;
+//     var ownerBalance: tokenBalance := getBalance(owner, store);
+//     const value: tokenBalance = onStakeChangeParams.1;
+//     const stakeType: stakeType = onStakeChangeParams.2;
 
-    case stakeType of [
-      StakeAction (_v) -> block{
-        // stake -> decrease user balance in mvk ledger 
-        (* Balance check *)
-        checkBalance(ownerBalance, value);
-        (* Update sender balance *)
-        ownerBalance := abs(ownerBalance - value);
-      }
-      // unstake -> increase user balance in mvk ledger
-      // claim   -> increase user balance in mvk ledger (from vesting)
-    | UnstakeAction (_v) -> ownerBalance := ownerBalance + value
-    ];
+//     case stakeType of [
+//       StakeAction (_v) -> block{
+//         // stake -> decrease user balance in mvk ledger 
+//         (* Balance check *)
+//         checkBalance(ownerBalance, value);
+//         (* Update sender balance *)
+//         ownerBalance := abs(ownerBalance - value);
+//       }
+//       // unstake -> increase user balance in mvk ledger
+//       // claim   -> increase user balance in mvk ledger (from vesting)
+//     | UnstakeAction (_v) -> ownerBalance := ownerBalance + value
+//     ];
 
-    (* Update ledger *)
-    const updatedLedger = Big_map.update(owner, Some(ownerBalance), store.ledger);
-  } with (noOperations, store with record[ledger=updatedLedger])
+//     (* Update ledger *)
+//     const updatedLedger = Big_map.update(owner, Some(ownerBalance), store.ledger);
+//   } with (noOperations, store with record[ledger=updatedLedger])
 
 (* Main entrypoint *)
 function main (const action : action; const store : mvkTokenStorage) : return is
@@ -288,7 +288,7 @@ function main (const action : action; const store : mvkTokenStorage) : return is
       | AssertMetadata (params) -> assertMetadata(params, store)
 
       | Mint (params) -> mint(params, store)
-      | OnStakeChange (params) -> onStakeChange(params, store)
+      // | OnStakeChange (params) -> onStakeChange(params, store)
 
       | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
