@@ -42,4 +42,6 @@ export const usdmTokenControllerStorage: usdmTokenControllerStorageType = {
   usdmTokenAddress            : zeroAddress,
   cfmmAddressLedger           : MichelsonMap.fromLiteral({}),
 
+  tempValue                   : new BigNumber(0)
+
 };

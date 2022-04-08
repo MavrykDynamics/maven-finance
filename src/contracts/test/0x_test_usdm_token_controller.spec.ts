@@ -1378,7 +1378,7 @@ describe("USDM Token Controller tests", async () => {
             console.log("--- --- --- --- --- --- --- --- --- ---");
             console.log("initial alice usdm balance: " + aliceUsdmBalance);
             console.log(cfmmStorage);
-            console.log(usdmTokenControllerStorage);
+            // console.log(usdmTokenControllerStorage);
             
             // user (alice) swap cash (XTZ) for token (USDM)
             const aliceSwapsCashForTokenOperation = await cfmmTezFa2TokenInstance.methods.cashToToken(
@@ -1390,11 +1390,18 @@ describe("USDM Token Controller tests", async () => {
 
             const updatedUsdmStorage         = await usdmTokenInstance.storage();
             const updatedAliceUsdmBalance    = await updatedUsdmStorage.ledger.get(alice.pkh);
+            const updatedUsdmTokenControllerStorage = await usdmTokenControllerInstance.storage();
+            const priceLedger = await updatedUsdmTokenControllerStorage.priceLedger.get("usdm");
+            const updatedCfmmStorage         = await cfmmTezFa2TokenInstance.storage();
 
             console.log("--- --- --- --- --- --- --- --- --- ---");
             console.log("updated");
             console.log("--- --- --- --- --- --- --- --- --- ---");
             console.log("updated alice usdm balance: " + updatedAliceUsdmBalance);
+            console.log("total minted: " + (updatedAliceUsdmBalance.toNumber() - aliceUsdmBalance.toNumber()));
+            console.log(updatedCfmmStorage);
+            // console.log(updatedUsdmTokenControllerStorage);
+            // console.log(priceLedger);
 
         });
 
@@ -1414,15 +1421,7 @@ describe("USDM Token Controller tests", async () => {
     //         await signerFactory(eve.sk);
     //         const vaultId            = 1;
     //         const vaultOwner         = eve.pkh;
-    //         const quantityToMint     = 10000000; // 10 USDM Tokens
-
-    //         const usdmTokenControllerStorage     = await usdmTokenControllerInstance.storage();
-
-    //         const mintUsdmTokensFromVaultOperation = await usdmTokenControllerInstance.methods.mintOrBurn(
-    //             vaultId,        // vault Id
-    //             quantityToMint  // USDM Tokens quantity to mint
-    //         ).send();
-    //         await mintUsdmTokensFromVaultOperation.confirmation();
+    //         const quantityToMint     = 5000000; // 5 USDM Tokens
 
     //         // create vault handle
     //         const vaultHandle = {
@@ -1430,12 +1429,90 @@ describe("USDM Token Controller tests", async () => {
     //             "owner"  : vaultOwner
     //         };
 
+    //         const usdmTokenControllerStorage     = await usdmTokenControllerInstance.storage();
+    //         const vault                          = await usdmTokenControllerStorage.vaults.get(vaultHandle);
+    //         const collateralBalanceLedger        = await vault.collateralBalanceLedger;
+
+    //         const usdmStorage         = await usdmTokenInstance.storage();
+    //         const eveUsdmBalance      = await usdmStorage.ledger.get(alice.pkh);
+
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log("before minting USDM Tokens");
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log(usdmTokenControllerStorage);
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log("vault collateral value: " + usdmTokenControllerStorage.tempValue);
+
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log(vault);
+
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log(collateralBalanceLedger);
+
+    //         const mintUsdmTokensFromVaultOperation = await usdmTokenControllerInstance.methods.mintOrBurn(
+    //             vaultId,        // vault Id
+    //             quantityToMint  // USDM Tokens quantity to mint
+    //         ).send();
+    //         await mintUsdmTokensFromVaultOperation.confirmation();            
+
     //         const updatedUsdmTokenControllerStorage = await usdmTokenControllerInstance.storage();
     //         const updatedVault                      = await updatedUsdmTokenControllerStorage.vaults.get(vaultHandle);
+    //         const updatedCollateralBalanceLedger    = await updatedVault.collateralBalanceLedger;
 
+    //         const updatedUsdmStorage         = await usdmTokenInstance.storage();
+    //         const updatedEveUsdmBalance      = await usdmStorage.ledger.get(alice.pkh);
+
+    //         // assert.equal(updatedEveUsdmBalance, eveUsdmBalance.toNumber() + quantityToMint);
 
     //         console.log("--- --- --- --- --- --- --- --- --- ---");
     //         console.log("updated after minting USDM Tokens");
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log(updatedUsdmTokenControllerStorage);
+    //         console.log(updatedVault);
+
+    //     });
+
+    //     it('user (eve) is able to burn USDM tokens from her vault', async () => {
+    
+    //         // init variables
+    //         await signerFactory(eve.sk);
+    //         const vaultId            = 1;
+    //         const vaultOwner         = eve.pkh;
+    //         const quantityToBurn     = -3000000; // 3 USDM Tokens
+
+    //         // create vault handle
+    //         const vaultHandle = {
+    //             "id"     : vaultId,
+    //             "owner"  : vaultOwner
+    //         };
+
+    //         const usdmTokenControllerStorage     = await usdmTokenControllerInstance.storage();
+    //         const vault                          = await usdmTokenControllerStorage.vaults.get(vaultHandle);
+    //         const collateralBalanceLedger        = await vault.collateralBalanceLedger;
+
+    //         const usdmStorage         = await usdmTokenInstance.storage();
+    //         const eveUsdmBalance      = await usdmStorage.ledger.get(alice.pkh);
+
+    //         const mintUsdmTokensFromVaultOperation = await usdmTokenControllerInstance.methods.mintOrBurn(
+    //             vaultId,        // vault Id
+    //             quantityToBurn  // USDM Tokens quantity to burn
+    //         ).send();
+    //         await mintUsdmTokensFromVaultOperation.confirmation();            
+
+    //         const updatedUsdmTokenControllerStorage = await usdmTokenControllerInstance.storage();
+    //         const updatedVault                      = await updatedUsdmTokenControllerStorage.vaults.get(vaultHandle);
+    //         const updatedCollateralBalanceLedger    = await updatedVault.collateralBalanceLedger;
+
+    //         const updatedUsdmStorage         = await usdmTokenInstance.storage();
+    //         const updatedEveUsdmBalance      = await usdmStorage.ledger.get(alice.pkh);
+
+    //         // assert.equal(updatedEveUsdmBalance, eveUsdmBalance.toNumber() + quantityToMint);
+
+    //         console.log("--- --- --- --- --- --- --- --- --- ---");
+    //         console.log("updated after burning USDM Tokens");
     //         console.log("--- --- --- --- --- --- --- --- --- ---");
     //         console.log(updatedUsdmTokenControllerStorage);
     //         console.log(updatedVault);

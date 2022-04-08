@@ -15,7 +15,10 @@ type tokenContractAddressType    is address;
 
 type collateralNameType          is string;
 
-type mintOrBurnParamsType is (int * address);
+type mintOrBurnParamsType is [@layout:comb] record [
+    quantity  : int;
+    target    : address;
+];
 
 // ----- general types end -----
 
@@ -147,6 +150,8 @@ type controllerStorage is [@layout:comb] record [
     collateralTokenLedger       : collateralTokenLedgerType;
     priceLedger                 : priceLedgerType;
     cfmmAddressLedger           : cfmmAddressLedgerType;  // map of CFMM addresss providing the price feed
+
+    tempValue                   : nat;
 ]
 
 type controllerAction is 
@@ -154,18 +159,15 @@ type controllerAction is
     | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
     | UpdateCollateralTokenLedger    of updateCollateralTokenLedgerActionType
     | UpdateCfmmAddressLedger        of updateCfmmAddressLedgerActionType
-
     | SetUsdmAddress                 of setUsdmAddressActionType
 
-    | OnPriceAction                  of onPriceActionType
-
     | CreateVault                    of createVaultActionType
-    | WithdrawFromVault              of withdrawFromVaultActionType
-    
     | LiquidateVault                 of liquidateVaultActionType
-
+    | WithdrawFromVault              of withdrawFromVaultActionType
     | RegisterDeposit                of registerDepositType
     | MintOrBurn                     of mintOrBurnActionType
+    
+    | OnPriceAction                  of onPriceActionType
     | GetTarget                      of getTargetActionType
 
 const noOperations : list (operation) = nil;
@@ -211,7 +213,7 @@ function getVaultDelegateTezEntrypoint(const vaultAddress : address) : contract(
   | None -> (failwith("Error. vaultDelegateTez entrypoint in vault not found") : contract(vaultDelegateTezType))
   end;
 
-// helper function to get mintOrBurn entrypoint from USDM contract
+// helper function to get mintOrBurn entrypoint from USDM Token contract
 function getUsdmMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
   case (Tezos.get_entrypoint_opt(
       "%mintOrBurn",
@@ -361,8 +363,9 @@ block {
     
     // initialise variables - vaultCollateralValue and usdmOutstanding
     var vaultCollateralValue        : nat  := 0n;
-    const usdmOutstanding           : nat  = vault.usdmOutstanding;    
-    const collateralRatio           : nat  = s.config.collateralRatio;  // default 3000n: i.e. 3x
+    // const usdmOutstanding           : nat  = vault.usdmOutstanding;    
+    // const collateralRatio           : nat  = s.config.collateralRatio;  // default 3000n: i.e. 3x
+
     // const decimals                  : nat  = s.config.decimals;         // default 3n (decimals): i.e. divide by 10 ^ 3
 
     for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
@@ -377,31 +380,48 @@ block {
             
         } else block {
 
+            // // get price of token in xtz
+            // const tokenPrice : nat = case s.priceLedger[tokenName] of 
+            //     Some(_price) -> _price
+            //     | None -> failwith("Error. Price not found for token.")
+            // end;
+
+            // // calculate value of collateral balance
+            // const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
+
+            // // increment vault collateral value
+            // vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
+
+
             // get price of token in xtz
-            const tokenPrice : nat = case s.priceLedger[tokenName] of 
-                Some(_price) -> _price
-                | None -> failwith("Error. Price not found for token.")
+            case s.priceLedger[tokenName] of 
+                Some(_price) -> block {
+
+                    // calculate value of collateral balance
+                    const tokenValueInXtz : nat = tokenBalance * _price; 
+
+                    // increment vault collateral value
+                    vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
+                }
+                | None -> skip // if there is no price set for collateral token yet
             end;
-
-            // calculate value of collateral balance
-            const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
-
-            // increment vault collateral value
-            vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
 
         };
     };
 
-    // get price of USDM in xtz
-    const usdmTokenPrice : nat = case s.priceLedger["usdm"] of 
-        Some(_price) -> _price
-        | None -> failwith("Error. Price not found for USDM Token.")
-    end;
+    s.tempValue := vaultCollateralValue;
 
-    const usdmOutstandingValueInXtz : nat = usdmOutstanding * usdmTokenPrice;
+    // get price of USDM in xtz
+    // const usdmTokenPrice : nat = case s.priceLedger["usdm"] of 
+    //     Some(_price) -> _price
+    //     | None -> failwith("Error. Price not found for USDM Token.")
+    // end;
+
+    // const usdmOutstandingValueInXtz : nat = usdmOutstanding * usdmTokenPrice;
 
     // todo: adjust later for 300% collateral check
-    const isUnderCollaterized : bool = vaultCollateralValue < abs( (collateralRatio * usdmOutstandingValueInXtz) / (100000) );
+    // const isUnderCollaterized : bool = vaultCollateralValue < abs( (collateralRatio * usdmOutstandingValueInXtz) / (100000) );
+    const isUnderCollaterized : bool = False;
     
     // const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n)); 
 
@@ -922,7 +942,10 @@ block {
     };
 
     // operation to burn USDM
-    const burnUsdmOperationParams : mintOrBurnParamsType = (-usdmQuantity, initiator);
+    const burnUsdmOperationParams : mintOrBurnParamsType = record [
+        quantity = -usdmQuantity;
+        target   = initiator;
+    ];
     const burnUsdmOperation : operation = Tezos.transaction(
         burnUsdmOperationParams,
         0mutez,
@@ -968,7 +991,11 @@ block {
     else block {
 
         // create and send mintOrBurn operation to USDM Token Contract
-        const usdmMintOrBurnParams : mintOrBurnParamsType = (quantity, initiator);
+        // const usdmMintOrBurnParams : mintOrBurnParamsType = (quantity, initiator);
+        const usdmMintOrBurnParams : mintOrBurnParamsType = record [
+            quantity = quantity;
+            target   = initiator;
+        ];
         const mintOrBurnOperation : operation = Tezos.transaction(
             usdmMintOrBurnParams,
             0mutez,
@@ -1013,19 +1040,15 @@ function main (const action : controllerAction; const s : controllerStorage) : r
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
         | UpdateCollateralTokenLedger(parameters)       -> updateCollateralTokenLedger(parameters, s)
         | UpdateCfmmAddressLedger(parameters)           -> updateCfmmAddressLedger(parameters, s)
-
         | SetUsdmAddress(parameters)                    -> setUsdmAddress(parameters, s)
 
-        | OnPriceAction(parameters)                     -> onPriceAction(parameters, s)
-
         | CreateVault(parameters)                       -> createVault(parameters, s)
-        | WithdrawFromVault(parameters)                 -> withdrawFromVault(parameters, s)
-        
         | LiquidateVault(parameters)                    -> liquidateVault(parameters, s)
-        
         | RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
-
+        | WithdrawFromVault(parameters)                 -> withdrawFromVault(parameters, s)
         | MintOrBurn(parameters)                        -> mintOrBurn(parameters, s)
+
+        | OnPriceAction(parameters)                     -> onPriceAction(parameters, s)
         | GetTarget(parameters)                         -> getTarget(parameters, s)
 
     end
