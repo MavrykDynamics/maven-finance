@@ -3422,7 +3422,7 @@
 //                 // Trigger emergency governance and breakGlass
 //                 var updateConfigOperation       = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
 //                 await updateConfigOperation.confirmation();
-//                 updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFee").send();
+//                 updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
 //                 await updateConfigOperation.confirmation();
 //                 const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
 //                     "Test emergency governance", 
@@ -3475,7 +3475,7 @@
 
 //                 var updateConfigOperation       = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
 //                 await updateConfigOperation.confirmation();
-//                 updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFee").send();
+//                 updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
 //                 await updateConfigOperation.confirmation();
 
 //                 for (let entry of generalContracts){

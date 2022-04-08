@@ -582,6 +582,8 @@ block {
     // 2b. if user is not a satellite, update satellite's total delegated amount depending on stakeAmount and stakeType
     // Note: stakeType 1n to increase, stakeType 0n to decrease
 
+    // TODO : CHECK FOR SMVK 
+
     // check sender is Doorman Contract or Treasury Contract
     // checkSenderIsDoormanContract(s);
     if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
@@ -609,8 +611,10 @@ block {
       s.satelliteLedger := Map.update(userAddress, Some(satelliteRecord), s.satelliteLedger);
     }
     else block {
+
       // check if user has delegated to a satellite
       const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
+      
       if userIsDelegator then block {
         // Retrieve satellite account from delegationStorage
         var delegatorRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [

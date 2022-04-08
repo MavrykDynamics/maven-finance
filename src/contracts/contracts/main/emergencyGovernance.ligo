@@ -18,10 +18,7 @@ type return is list (operation) * emergencyGovernanceStorage
 
 // basic helper functions begin ---------------------------------------------------------
 const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address);
-function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
-function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 // basic helper functions end ---------------------------------------------------------
-
 
 // admin helper functions begin ---------------------------------------------------------
 function checkSenderIsAdmin(var s : emergencyGovernanceStorage) : unit is
@@ -72,7 +69,7 @@ function triggerBreakGlass(const contractAddress : address) : contract(unit) is
 
 
 // transfer tez helper function
-function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
+function transferTez(const to_ : contract(unit); const amt : tez) : operation is Tezos.transaction(unit, amt, to_)
 
 (*  set contract admin address *)
 function setAdmin(const newAdminAddress : address; var s : emergencyGovernanceStorage) : return is
@@ -90,17 +87,17 @@ function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-  // checkSenderIsAdmin(s); // check that sender is admin
+  checkSenderIsAdmin(s); // check that sender is admin
 
   const updateConfigAction    : emergencyUpdateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : emergencyUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of [
     ConfigVoteExpiryDays (_v)                     -> s.config.voteExpiryDays                  := updateConfigNewValue
-  | ConfigRequiredFee (_v)                        -> s.config.requiredFee                     := updateConfigNewValue
-  | ConfigStakedMvkPercentRequired (_v)           -> s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
-  | ConfigMinStakedMvkForVoting (_v)              -> s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
-  | ConfigMinStakedMvkForTrigger (_v)             -> s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
+  | ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mutez
+  | ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
+  | ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 100_000_000n then failwith("Error. This config value cannot go below 0.1SMVK") else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
+  | ConfigMinStakedMvkForTrigger (_v)             -> if updateConfigNewValue < 100_000_000n then failwith("Error. This config value cannot go below 0.1SMVK") else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
   ];
 
 } with (noOperations, s)
@@ -117,7 +114,7 @@ block {
     else failwith("Error. There is a emergency control governance in process.");
 
     // check if tez sent is equal to the required fee
-    if mutezToNatural(Tezos.amount) =/= s.config.requiredFee 
+    if Tezos.amount =/= s.config.requiredFeeMutez 
     then failwith("Error. Tez sent is not equal to required fee to trigger emergency governance.") 
     else skip;
 
@@ -127,7 +124,7 @@ block {
     ];
 
     const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address. Cannot transfer XTZ");
-    const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, mutezToNatural(Tezos.amount));
+    const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
 
     // check if user has sufficient staked MVK to trigger emergency control
     const doormanAddress : address = case s.generalContracts["doorman"] of [
@@ -161,7 +158,6 @@ block {
     const emptyVotersMap : voterMapType = map[];
     var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
         proposerAddress                  = Tezos.sender;
-        status                           = False;
         executed                         = False;
         dropped                          = False;
 
@@ -263,7 +259,6 @@ block {
             );
 
         // update emergency governance record
-        _emergencyGovernance.status              := True;
         _emergencyGovernance.executed            := True;
         _emergencyGovernance.executedDateTime    := Tezos.now;
         _emergencyGovernance.executedLevel       := Tezos.level;
@@ -294,6 +289,9 @@ block {
         | None -> failwith("Error. Emergency governance record not found.")
         | Some(_instance) -> _instance
     ];
+
+    if emergencyGovernance.executed then failwith("Error: This emergency governance proposal has been executed.")
+      else skip;
 
     if emergencyGovernance.proposerAddress =/= Tezos.sender then failwith("Error: You do not have permission to drop this emergency governance.")
       else skip;
