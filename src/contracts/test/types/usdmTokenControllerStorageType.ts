@@ -22,4 +22,6 @@ export type usdmTokenControllerStorageType = {
 
   usdmTokenAddress         : string;
   cfmmAddressLedger        : MichelsonMap<MichelsonMapKey, unknown>;
+
+  tempValue                : BigNumber;
 }
