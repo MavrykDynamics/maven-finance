@@ -71,6 +71,10 @@ type farmFactoryBreakGlassConfigType is record [
     untrackFarmIsPaused    : bool;
 ]
 
+type farmFactoryConfigType is record [
+    blocksPerMinute             : nat;
+]
+
 ////
 // STORAGE
 ////
@@ -80,11 +84,12 @@ type farmFactoryStorage is [@layout:comb] record[
     mvkTokenAddress        : address;
     metadata               : metadata;
 
+    config                 : farmFactoryConfigType;
+
     whitelistContracts     : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     generalContracts       : generalContractsType;
 
     breakGlassConfig       : farmFactoryBreakGlassConfigType;
 
     trackedFarms           : set(address);
-    blocksPerMinute        : nat;
 ]

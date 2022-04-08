@@ -10,7 +10,7 @@ import { emergencyGovernanceStorageType } from '../test/types/emergencyGovernanc
 const config = {
   decimals : 4,
   voteExpiryDays: 3,
-  requiredFee: 10000000,
+  requiredFeeMutez: 10000000,
   stakedMvkPercentageRequired: 10000,
   minStakedMvkRequiredToVote: MVK(5),
   minStakedMvkRequiredToTrigger: MVK(10)
