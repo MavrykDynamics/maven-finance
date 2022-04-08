@@ -266,6 +266,7 @@ describe('Contracts Deployment for Tests', async () => {
         }
       }
     });
+    usdmTokenControllerStorage.usdmTokenAddress = usdmToken.contract.address;
     usdmTokenController = await UsdmTokenController.originate(
       utils.tezos,
       usdmTokenControllerStorage
@@ -383,6 +384,12 @@ describe('Contracts Deployment for Tests', async () => {
       .send();  
     await setCfmmContractAddressInUsdmTokenControllerOperation.confirmation();
     console.log('cfmm (XTZ/USDM) contract address set in USDM Token Controller CFMM Address Ledger')
+
+    const setUsdmTokenControllerInUsdmTokenWhitelistOperation = await usdmToken.contract.methods
+      .updateWhitelistContracts("controller", usdmTokenController.contract.address)
+      .send();  
+    await setUsdmTokenControllerInUsdmTokenWhitelistOperation.confirmation();
+    console.log('USDM Token Controller set in USDM Token whitelist')
 
 
 
