@@ -117,8 +117,6 @@ block {
 (*  set contract admin address *)
 function setAdmin(const newAdminAddress : address; var s : breakGlassStorage) : return is
 block {
-    
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
     s.admin := newAdminAddress;
@@ -128,15 +126,13 @@ block {
 (*  updateConfig entrypoint  *)
 function updateConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var s : breakGlassStorage) : return is 
 block {
-
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   checkSenderIsAdmin(s); // check that sender is admin
 
   const updateConfigAction    : breakGlassUpdateConfigActionType   = updateConfigParams.updateConfigAction;
   const updateConfigNewValue  : breakGlassUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of [
-    ConfigThreshold (_v)                  -> s.config.threshold                 := updateConfigNewValue
+    ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
   | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
   ];
 
@@ -151,6 +147,10 @@ block {
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
+
+    // Check if new council member is already in the council
+    if Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+    else skip;
 
     const addressMap : addressMapType     = map [
         ("councilMemberAddress" : string) -> councilMemberAddress;
@@ -193,6 +193,14 @@ block {
 
     checkSenderIsCouncilMember(s);
 
+    // Check if council member is in the council
+    if not Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+    else skip;
+
+    // Check if removing the council member won't impact the threshold
+    if (abs(Set.cardinal(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+    else skip;
+
     const addressMap : addressMapType     = map [
         ("councilMemberAddress"         : string) -> councilMemberAddress;
     ];
@@ -233,6 +241,14 @@ block {
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
+
+    // Check if new council member is already in the council
+    if Set.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+    else skip;
+
+    // Check if old council member is in the council
+    if not Set.mem(oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+    else skip;
 
     const addressMap : addressMapType     = map [
         ("oldCouncilMemberAddress"         : string) -> oldCouncilMemberAddress;
@@ -718,28 +734,32 @@ block {
 } with (operations, s)
 
 function main (const action : breakGlassAction; const s : breakGlassStorage) : return is 
-    case action of [
-        | BreakGlass(_parameters) -> breakGlass(s)
+    block {
+        checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    } with(
+        case action of [
+            | BreakGlass(_parameters) -> breakGlass(s)
 
-        | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | UpdateConfig(parameters) -> updateConfig(parameters, s)
+            | SetAdmin(parameters) -> setAdmin(parameters, s)  
+            | UpdateConfig(parameters) -> updateConfig(parameters, s)
 
-        // glass broken not required
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
-        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
+            // glass broken not required
+            | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+            | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
-        // Internal control of council members
-        | AddCouncilMember(parameters) -> addCouncilMember(parameters, s)
-        | RemoveCouncilMember(parameters) -> removeCouncilMember(parameters, s)
-        | ChangeCouncilMember(parameters) -> changeCouncilMember(parameters.0, parameters.1, s)
-        
-        // glass broken required
-        | SetSingleContractAdmin(parameters) -> setSingleContractAdmin(parameters.0, parameters.1, s)
-        | SetAllContractsAdmin(parameters) -> setAllContractsAdmin(parameters, s)
-        | PauseAllEntrypoints(_parameters) -> pauseAllEntrypoints(s)
-        | UnpauseAllEntrypoints(_parameters) -> unpauseAllEntrypoints(s)
-        | RemoveBreakGlassControl(_parameters) -> removeBreakGlassControl(s)
+            // Internal control of council members
+            | AddCouncilMember(parameters) -> addCouncilMember(parameters, s)
+            | RemoveCouncilMember(parameters) -> removeCouncilMember(parameters, s)
+            | ChangeCouncilMember(parameters) -> changeCouncilMember(parameters.0, parameters.1, s)
+            
+            // glass broken required
+            | SetSingleContractAdmin(parameters) -> setSingleContractAdmin(parameters.0, parameters.1, s)
+            | SetAllContractsAdmin(parameters) -> setAllContractsAdmin(parameters, s)
+            | PauseAllEntrypoints(_parameters) -> pauseAllEntrypoints(s)
+            | UnpauseAllEntrypoints(_parameters) -> unpauseAllEntrypoints(s)
+            | RemoveBreakGlassControl(_parameters) -> removeBreakGlassControl(s)
 
-        | SignAction(parameters) -> signAction(parameters, s)
-        | FlushAction(parameters) -> flushAction(parameters, s)
-    ]
+            | SignAction(parameters) -> signAction(parameters, s)
+            | FlushAction(parameters) -> flushAction(parameters, s)
+        ]
+    )

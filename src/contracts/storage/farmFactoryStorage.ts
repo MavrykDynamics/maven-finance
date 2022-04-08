@@ -19,6 +19,7 @@ export const farmFactoryStorage: farmFactoryStorageType = {
   admin: bob.pkh,
   mvkTokenAddress: "",
   metadata: metadata,
+  config: new BigNumber(2),
   
   generalContracts: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
@@ -29,6 +30,5 @@ export const farmFactoryStorage: farmFactoryStorageType = {
     untrackFarmIsPaused: false,
   },
 
-  trackedFarms: [],
-  blocksPerMinute: new BigNumber(2)
+  trackedFarms: []
 };

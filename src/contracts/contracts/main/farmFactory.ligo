@@ -14,24 +14,6 @@
 #include "../partials/types/farmFactoryTypes.ligo"
 
 ////
-// STORAGE
-////
-
-type farmFactoryStorage is record[
-    admin                  : address;
-    mvkTokenAddress        : address;
-    metadata               : metadata;
-
-    whitelistContracts     : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    generalContracts       : generalContractsType;
-
-    breakGlassConfig       : farmFactoryBreakGlassConfigType;
-
-    trackedFarms           : set(address);
-    blocksPerMinute        : nat;
-]
-
-////
 // RETURN TYPES
 ////
 (* define return for readability *)
@@ -222,7 +204,7 @@ function updateBlocksPerMinute(const newBlocksPerMinutes: nat; var s: farmFactor
             ];
         };
 
-        s.blocksPerMinute := newBlocksPerMinutes;
+        s.config.blocksPerMinute := newBlocksPerMinutes;
 
     } with (operations, s)
 
@@ -294,7 +276,7 @@ function createFarm(const farmStorage: farmStorageType; var s: farmFactoryStorag
             lpToken=farmLPToken;
             infinite=farmInfinite;
             forceRewardFromTransfer=farmForceRewardFromTransfer;
-            blocksPerMinute=s.blocksPerMinute;
+            blocksPerMinute=s.config.blocksPerMinute;
             plannedRewards=farmPlannedRewards;
         ];
 
