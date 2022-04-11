@@ -210,7 +210,7 @@ block {
   const updateConfigNewValue  : councilUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of [
-    ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. The threshold exceed the total number of council members") else s.config.threshold := updateConfigNewValue
+    ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold := updateConfigNewValue
   | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
   ];
 
