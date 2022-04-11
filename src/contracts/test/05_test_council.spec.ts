@@ -133,6 +133,145 @@
 
 //     });
 
+//     describe("%setAdmin", async () => {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+//         it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
+//             try{
+//                 // Initial Values
+//                 councilStorage = await councilInstance.storage();
+//                 const currentAdmin = councilStorage.admin;
+
+//                 // Operation
+//                 const setAdminOperation = await councilInstance.methods.setAdmin(alice.pkh).send();
+//                 await setAdminOperation.confirmation();
+
+//                 // Final values
+//                 councilStorage = await councilInstance.storage();
+//                 const newAdmin = councilStorage.admin;
+
+//                 // reset admin
+//                 await signerFactory(alice.sk);
+//                 const resetAdminOperation = await councilInstance.methods.setAdmin(bob.pkh).send();
+//                 await resetAdminOperation.confirmation();
+
+//                 // Assertions
+//                 assert.notStrictEqual(newAdmin, currentAdmin);
+//                 assert.strictEqual(newAdmin, alice.pkh);
+//                 assert.strictEqual(currentAdmin, bob.pkh);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 await signerFactory(alice.sk);
+//                 councilStorage = await councilInstance.storage();
+//                 const currentAdmin = councilStorage.admin;
+
+//                 // Operation
+//                 await chai.expect(councilInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
+
+//                 // Final values
+//                 councilStorage = await councilInstance.storage();
+//                 const newAdmin = councilStorage.admin;
+
+//                 // Assertions
+//                 assert.strictEqual(newAdmin, currentAdmin);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     });
+
+
+//     describe("%updateConfig", async () => {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+
+//         it('Admin should be able to call the entrypoint and configure the signer threshold', async () => {
+//             try{
+//                 // Initial Values
+//                 councilStorage = await councilInstance.storage();
+//                 const newConfigValue = 1;
+
+//                 // Operation
+//                 const updateConfigOperation = await councilInstance.methods.updateConfig(newConfigValue,"configThreshold").send();
+//                 await updateConfigOperation.confirmation();
+
+//                 // Final values
+//                 councilStorage = await councilInstance.storage();
+//                 const updateConfigValue = councilStorage.config.threshold;
+
+//                 // Assertions
+//                 assert.equal(updateConfigValue, newConfigValue);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Admin should not be able to call the entrypoint and configure the signer threshold if it is greater than the amount of members in the council', async () => {
+//             try{
+//                 // Initial Values
+//                 councilStorage = await councilInstance.storage();
+//                 const currentConfigValue = councilStorage.config.threshold;
+//                 const newConfigValue = 999
+
+//                 // Operation
+//                 await chai.expect(councilInstance.methods.updateConfig(newConfigValue,"configThreshold").send()).to.be.rejected;
+
+//                 // Final values
+//                 councilStorage = await councilInstance.storage();
+//                 const updateConfigValue = councilStorage.config.threshold;
+
+//                 // Assertions
+//                 assert.notEqual(newConfigValue, currentConfigValue);
+//                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Admin should be able to call the entrypoint and configure the action expiry in days', async () => {
+//             try{
+//                 // Initial Values
+//                 councilStorage = await councilInstance.storage();
+//                 const newConfigValue = 1;
+
+//                 // Operation
+//                 const updateConfigOperation = await councilInstance.methods.updateConfig(newConfigValue,"configActionExpiryDays").send();
+//                 await updateConfigOperation.confirmation();
+
+//                 // Final values
+//                 councilStorage = await councilInstance.storage();
+//                 const updateConfigValue = councilStorage.config.actionExpiryDays;
+
+//                 // Assertions
+//                 assert.equal(updateConfigValue, newConfigValue);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+    
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 councilStorage = await councilInstance.storage();
+//                 const newConfigValue = 1;
+
+//                 // Operation
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(councilInstance.methods.updateConfig(newConfigValue,"configThreshold").send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
+
 //     it('council can add a new council member', async () => {
 //         try{        
 
@@ -823,9 +962,5 @@
 //             console.log(e);
 //         } 
 
-//     });    
-
-
-//     // todo: non-council member cannot create action or sign action
-
+//     });
 // });

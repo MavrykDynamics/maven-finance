@@ -359,6 +359,9 @@ block {
 
     var operations : list(operation) := nil;
 
+    // Set self admin to breakGlass
+    s.admin := _breakGlassAddress;
+
     for _contractName -> contractAddress in map s.generalContracts block {
         
         // 1. first, trigger pauseAll entrypoint in contract 
