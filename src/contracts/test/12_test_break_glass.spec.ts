@@ -11,7 +11,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../env";
-import { bob, alice, eve, mallory, oscar } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan } from "../scripts/sandbox/accounts";
 
 import doormanAddress from '../deployments/doormanAddress.json';
 import delegationAddress from '../deployments/delegationAddress.json';
@@ -201,7 +201,7 @@ describe("Break Glass tests", async () => {
                 try{
                     // Initial Values
                     breakGlassStorage = await breakGlassInstance.storage();
-                    const newConfigValue = 0;
+                    const newConfigValue = 1;
 
                     // Operation
                     const updateConfigOperation = await breakGlassInstance.methods.updateConfig(newConfigValue,"configActionExpiryDays").send();
@@ -356,7 +356,7 @@ describe("Break Glass tests", async () => {
 
                     // Reset threshold
                     await signerFactory(bob.sk);
-                    updateConfigOperation = await breakGlassInstance.methods.updateConfig(1,"configThreshold").send();
+                    updateConfigOperation = await breakGlassInstance.methods.updateConfig(2,"configThreshold").send();
                     await updateConfigOperation.confirmation();
                 } catch(e){
                     console.log(e);
@@ -473,6 +473,134 @@ describe("Break Glass tests", async () => {
             });
         })
 
+        describe("%setSingleContractAdmin", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should not be able to access this entrypoint if glass was not broken', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const newAdmin          = oscar.pkh;
+                    const targetContract    = doormanAddress.address;
+                    const glassBroken       = breakGlassStorage.glassBroken;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+                    assert.equal(glassBroken, false);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        });
+
+        describe("%setAllContractsAdmin", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should not be able to access this entrypoint if glass was not broken', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const newAdmin          = oscar.pkh;
+                    const glassBroken       = breakGlassStorage.glassBroken;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
+                    assert.equal(glassBroken, false);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        });
+
+        describe("%pauseAllEntrypoints", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should not be able to access this entrypoint if glass was not broken', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const glassBroken       = breakGlassStorage.glassBroken;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.pauseAllEntrypoints().send()).to.be.rejected;
+                    assert.equal(glassBroken, false);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        });
+
+        describe("%unpauseAllEntrypoints", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should not be able to access this entrypoint if glass was not broken', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const glassBroken       = breakGlassStorage.glassBroken;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.unpauseAllEntrypoints().send()).to.be.rejected;
+                    assert.equal(glassBroken, false);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        });
+
+        describe("%removeBreakGlassControl", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should not be able to access this entrypoint if glass was not broken', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const glassBroken       = breakGlassStorage.glassBroken;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.removeBreakGlassControl().send()).to.be.rejected;
+                    assert.equal(glassBroken, false);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        });
+
+        describe("%setAllContractsAdmin", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should not be able to access this entrypoint if glass was not broken', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const newAdmin          = oscar.pkh;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        });
+
         describe("%breakGlass", async () => {
             beforeEach("Set signer to council member", async () => {
                 await signerFactory(alice.sk)
@@ -498,10 +626,13 @@ describe("Break Glass tests", async () => {
                     await signerFactory(bob.sk);
                     governanceStorage             = await governanceInstance.storage();
                     var generalContracts          = governanceStorage.generalContracts.entries();
-                    var updateConfigOperation       = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
+                    var updateConfigOperation     = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
                     await updateConfigOperation.confirmation();
-                    updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
+                    updateConfigOperation         = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
                     await updateConfigOperation.confirmation();
+
+                    var setAdminOperation         = await governanceInstance.methods.setAdmin(governanceAddress.address).send();
+                    await setAdminOperation.confirmation();
 
                     for (let entry of generalContracts){
                         // Get contract storage
@@ -510,7 +641,7 @@ describe("Break Glass tests", async () => {
 
                         // Check admin
                         if(storage.hasOwnProperty('admin') && storage.admin!==governanceAddress.address && storage.admin!==breakGlassAddress.address){
-                            var setAdminOperation   = await contract.methods.setAdmin(governanceAddress.address).send();
+                            setAdminOperation   = await contract.methods.setAdmin(governanceAddress.address).send();
                             await setAdminOperation.confirmation()
                         }
                     }
@@ -552,10 +683,1567 @@ describe("Break Glass tests", async () => {
                     console.log(e);
                 }
             });
-        })
-    })
+        });
+
+
+        // describe("%signAction", async () => {
+
+        //     beforeEach("Set signer to council member", async () => {
+        //         await signerFactory(alice.sk)
+        //     });
+
+        //     it('pauseAllEntrypoints --> should fail if glass not broken', async () => {
+        //         try{
+        //             // Initial Values
+        //             breakGlassStorage       = await breakGlassInstance.storage();
+        //             const nextActionID      = breakGlassStorage.actionCounter;
+
+        //             // Operation
+        //             const newActionOperation = await breakGlassInstance.methods.pauseAllEntrypoints().send();
+        //             await newActionOperation.confirmation();
+
+        //             // Final values
+        //             breakGlassStorage   = await breakGlassInstance.storage();
+        //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+        //             const actionSigner  = action.signers.includes(alice.pkh)
+
+        //             // Assertions
+        //             assert.strictEqual(action.initiator, alice.pkh);
+        //             assert.strictEqual(action.status, "PENDING");
+        //             assert.strictEqual(action.actionType, "pauseAllEntrypoints");
+        //             assert.equal(action.executed, false);
+        //             assert.equal(actionSigner, true);
+        //             assert.equal(action.signersCount, 1);
+        //             assert.equal(breakGlassStorage.glassBroken, true);
+
+        //             // Operation
+        //             await signerFactory(eve.sk);
+        //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+        //         } catch(e){
+        //             console.log(e);
+        //         }
+        //     });
+
+        //     it('unpauseAllEntrypoints --> should fail if glass not broken', async () => {
+        //         try{
+        //             // Initial Values
+        //             breakGlassStorage       = await breakGlassInstance.storage();
+        //             const nextActionID      = breakGlassStorage.actionCounter;
+
+        //             // Operation
+        //             const newActionOperation = await breakGlassInstance.methods.unpauseAllEntrypoints().send();
+        //             await newActionOperation.confirmation();
+
+        //             // Final values
+        //             breakGlassStorage   = await breakGlassInstance.storage();
+        //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+        //             const actionSigner  = action.signers.includes(alice.pkh)
+
+        //             // Assertions
+        //             assert.strictEqual(action.initiator, alice.pkh);
+        //             assert.strictEqual(action.status, "PENDING");
+        //             assert.strictEqual(action.actionType, "unpauseAllEntrypoints");
+        //             assert.equal(action.executed, false);
+        //             assert.equal(actionSigner, true);
+        //             assert.equal(action.signersCount, 1);
+        //             assert.equal(breakGlassStorage.glassBroken, true);
+
+        //             // Operation
+        //             await signerFactory(eve.sk);
+        //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+        //         } catch(e){
+        //             console.log(e);
+        //         }
+        //     });
+
+        //     it('setSingleContractAdmin --> should fail if glass not broken', async () => {
+        //         try{
+        //             // Initial Values
+        //             breakGlassStorage       = await breakGlassInstance.storage();
+        //             const nextActionID      = breakGlassStorage.actionCounter;
+        //             const newAdmin          = oscar.pkh;
+        //             const targetContract    = doormanAddress.address;
+
+        //             // Operation
+        //             const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+        //             await newActionOperation.confirmation();
+
+        //             // Final values
+        //             breakGlassStorage   = await breakGlassInstance.storage();
+        //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+        //             const actionSigner  = action.signers.includes(alice.pkh)
+        //             const addressMap    = await action.addressMap;
+
+        //             // Assertions
+        //             assert.strictEqual(action.initiator, alice.pkh);
+        //             assert.strictEqual(action.status, "PENDING");
+        //             assert.strictEqual(action.actionType, "setSingleContractAdmin");
+        //             assert.equal(action.executed, false);
+        //             assert.equal(actionSigner, true);
+        //             assert.equal(action.signersCount, 1);
+        //             assert.equal(addressMap.get("newAdminAddress"), newAdmin);
+        //             assert.equal(addressMap.get("targetContractAddress"), targetContract);
+        //             assert.equal(breakGlassStorage.glassBroken, true);
+
+        //             // Operation
+        //             await signerFactory(eve.sk);
+        //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+        //         } catch(e){
+        //             console.log(e);
+        //         }
+        //     });
+
+        //     it('setAllContractAdmin --> should fail if glass not broken', async () => {
+        //         try{
+        //             // Initial Values
+        //             breakGlassStorage       = await breakGlassInstance.storage();
+        //             const nextActionID      = breakGlassStorage.actionCounter;
+        //             const newAdmin          = bob.pkh;
+
+        //             // Operation
+        //             const newActionOperation = await breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send();
+        //             await newActionOperation.confirmation();
+
+        //             // Final values
+        //             breakGlassStorage   = await breakGlassInstance.storage();
+        //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+        //             const actionSigner  = action.signers.includes(alice.pkh)
+        //             const addressMap    = await action.addressMap;
+
+        //             // Assertions
+        //             assert.strictEqual(action.initiator, alice.pkh);
+        //             assert.strictEqual(action.status, "PENDING");
+        //             assert.strictEqual(action.actionType, "setAllContractsAdmin");
+        //             assert.equal(action.executed, false);
+        //             assert.equal(actionSigner, true);
+        //             assert.equal(action.signersCount, 1);
+        //             assert.equal(addressMap.get("newAdminAddress"), newAdmin);
+        //             assert.equal(breakGlassStorage.glassBroken, true);
+
+        //             // Operation
+        //             await signerFactory(eve.sk);
+        //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+        //         } catch(e){
+        //             console.log(e);
+        //         }
+        //     });
+
+        //     it('removeBreakGlassControl --> should fail if glass not broken', async () => {
+        //         try{
+        //             // Initial Values
+        //             breakGlassStorage       = await breakGlassInstance.storage();
+        //             const nextActionID      = breakGlassStorage.actionCounter;
+
+        //             // Operation
+        //             const newActionOperation = await breakGlassInstance.methods.removeBreakGlassControl().send();
+        //             await newActionOperation.confirmation();
+
+        //             // Final values
+        //             breakGlassStorage   = await breakGlassInstance.storage();
+        //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+        //             const actionSigner  = action.signers.includes(alice.pkh)
+
+        //             // Assertions
+        //             assert.strictEqual(action.initiator, alice.pkh);
+        //             assert.strictEqual(action.status, "PENDING");
+        //             assert.strictEqual(action.actionType, "removeBreakGlassControl");
+        //             assert.equal(action.executed, false);
+        //             assert.equal(actionSigner, true);
+        //             assert.equal(action.signersCount, 1);
+        //             assert.equal(breakGlassStorage.glassBroken, true);
+
+        //             // Operation
+        //             await signerFactory(eve.sk);
+        //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+        //         } catch(e){
+        //             console.log(e);
+        //         }
+        //     });
+        // })
+    });
 
     describe("Glass broken", async () => {
-        
+
+        describe("%setSingleContractAdmin", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should be able to access this entrypoint and create a new action to update the admin in one contract (the action counter should increase in the storage)', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+                    const newAdmin          = oscar.pkh;
+                    const targetContract    = doormanAddress.address;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const addressMap    = await action.addressMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "setSingleContractAdmin");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("newAdminAddress"), newAdmin);
+                    assert.equal(addressMap.get("targetContractAddress"), targetContract);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Council member should not be able to access this entrypoint if the provided contract does not have a setAdmin entrypoint', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const newAdmin          = oscar.pkh;
+                    const targetContract    = trudy.pkh;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Non-council member should not be able to access this entrypoint', async () => {
+                try{
+                    // Initial Values
+                    await signerFactory(mallory.sk);
+                    const newAdmin          = oscar.pkh;
+                    const targetContract    = doormanAddress.address;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        })
+
+        describe("%setAllContractsAdmin", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should be able to access this entrypoint and create a new action to update the admin in all contracts (the action counter should increase in the storage)', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+                    const newAdmin          = oscar.pkh;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const addressMap    = await action.addressMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "setAllContractsAdmin");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("newAdminAddress"), newAdmin);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Non-council member should not be able to access this entrypoint', async () => {
+                try{
+                    // Initial Values
+                    await signerFactory(mallory.sk);
+                    const newAdmin          = oscar.pkh;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        })
+
+        describe("%pauseAllEntrypoints", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should be able to access this entrypoint and create a new action to pause entrypoints in all contracts (the action counter should increase in the storage)', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.pauseAllEntrypoints().send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "pauseAllEntrypoints");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Non-council member should not be able to access this entrypoint', async () => {
+                try{
+                    // Initial Values
+                    await signerFactory(mallory.sk);
+                    const newAdmin          = oscar.pkh;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        })
+
+        describe("%unpauseAllEntrypoints", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should be able to access this entrypoint and create a new action to unpause entrypoints in all contracts (the action counter should increase in the storage)', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.unpauseAllEntrypoints().send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "unpauseAllEntrypoints");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Non-council member should not be able to access this entrypoint', async () => {
+                try{
+                    // Initial Values
+                    await signerFactory(mallory.sk);
+                    const newAdmin          = oscar.pkh;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        })
+
+        describe("%removeBreakGlassControl", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should be able to access this entrypoint and create a new action to remove the break glass control (the action counter should increase in the storage)', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.removeBreakGlassControl().send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "removeBreakGlassControl");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Non-council member should not be able to access this entrypoint', async () => {
+                try{
+                    // Initial Values
+                    await signerFactory(mallory.sk);
+                    const newAdmin          = oscar.pkh;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        })
+
+        describe("%flushAction", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should be able to access this entrypoint with a correct actionID and create a new action to flush a pending action (the action counter should increase in the storage)', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+                    const flushedAction     = 1;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.flushAction(flushedAction).send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    const action        = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const natMap        = await action.natMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "flushAction");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+                    assert.equal(natMap.get("actionId"), flushedAction);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Non-council member should not be able to access this entrypoint', async () => {
+                try{
+                    // Initial Values
+                    await signerFactory(mallory.sk);
+                    const flushedAction     = 1;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.flushAction(flushedAction).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Council member should not be able to access this entrypoint if the action linked to the provided actionID doesn’t exist', async () => {
+                try{
+                    // Initial Values
+                    const flushedAction     = 9999;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.flushAction(flushedAction).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was flushed', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const councilMember     = oscar.pkh;
+                    var flushActionId       = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const flusedActionOperation = await breakGlassInstance.methods.addCouncilMember(councilMember).send();
+                    await flusedActionOperation.confirmation();
+
+                    // Mid Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.flushAction(flushActionId).send();
+                    await newActionOperation.confirmation();
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const executedAction    = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const flushedAction     = await breakGlassStorage.actionsLedger.get(flushActionId);
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    assert.equal(executedAction.executed, true);
+                    assert.equal(executedAction.signersCount.toNumber(), signerThreshold.toNumber());
+                    assert.equal(executedAction.status, "EXECUTED");
+
+                    assert.equal(flushedAction.executed, false);
+                    assert.equal(flushedAction.status, "FLUSHED");
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.flushAction(flushActionId).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+
+            it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was executed', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const councilMember     = isaac.pkh;
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.addCouncilMember(councilMember).send();
+                    await newActionOperation.confirmation();
+
+                    // Create the same action for the following test
+                    const duplicatedActionOperation = await breakGlassInstance.methods.addCouncilMember(councilMember).send();
+                    await duplicatedActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const addressMap        = await action.addressMap;
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "addCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    const newCouncilStorage = breakGlassStorage.councilMembers.includes(isaac.pkh)
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
+                    assert.equal(action.status, "EXECUTED");
+                    assert.equal(newCouncilStorage, true);
+
+                    // Operation
+                    await signerFactory(alice.sk);
+                    await chai.expect(breakGlassInstance.methods.flushAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        })
+
+        describe("%signAction", async () => {
+
+            beforeEach("Set signer to council member", async () => {
+                await signerFactory(alice.sk)
+            });
+
+            it('Council member should not be able to sign the same action twice or more', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const councilMember     = oscar.pkh;
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.addCouncilMember(councilMember).send();
+                    await newActionOperation.confirmation();
+
+                    // Create the same action for the following test
+                    const duplicatedActionOperation = await breakGlassInstance.methods.addCouncilMember(councilMember).send();
+                    await duplicatedActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const addressMap        = await action.addressMap;
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "addCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    const newCouncilStorage = breakGlassStorage.councilMembers.includes(oscar.pkh)
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
+                    assert.equal(action.status, "EXECUTED");
+                    assert.equal(newCouncilStorage, true);
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('addCouncilMember --> should add the given address as a council member if the address is not in it', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const councilMember     = susie.pkh;
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.addCouncilMember(councilMember).send();
+                    await newActionOperation.confirmation();
+
+                    // Create the same action for the following test
+                    const duplicatedActionOperation = await breakGlassInstance.methods.addCouncilMember(councilMember).send();
+                    await duplicatedActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const addressMap        = await action.addressMap;
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "addCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    const newCouncilStorage = breakGlassStorage.councilMembers.includes(susie.pkh)
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
+                    assert.equal(action.status, "EXECUTED");
+                    assert.equal(newCouncilStorage, true);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('addCouncilMember --> should fail if the member is already in the storage', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const councilMember     = susie.pkh;
+                    const nextActionID      = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const addressMap        = await action.addressMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "addCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('removeCouncilMember --> should remove the given address from the council members if the address is in it', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const councilMember     = oscar.pkh;
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.removeCouncilMember(councilMember).send();
+                    await newActionOperation.confirmation();
+
+                    // Create the same action for the following test
+                    const duplicatedActionOperation = await breakGlassInstance.methods.removeCouncilMember(councilMember).send();
+                    await duplicatedActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const addressMap        = await action.addressMap;
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "removeCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    const newCouncilStorage = breakGlassStorage.councilMembers.includes(oscar.pkh)
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
+                    assert.equal(action.status, "EXECUTED");
+                    assert.equal(newCouncilStorage, false);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('removeCouncilMember --> should fail if the member is not in the council', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const councilMember     = oscar.pkh;
+                    const nextActionID      = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const addressMap        = await action.addressMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "removeCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('removeCouncilMember --> should fail if the threshold in the configuration is greater than the expected amount of members after execution', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    console.log("MEMBERS IN STORAGE: ", breakGlassStorage.councilMembers)
+                    console.log("CONFIG: ", breakGlassStorage.config)
+                    // const councilMember     = alice.pkh;
+                    // var removeActionID      = breakGlassStorage.actionCounter;
+
+                    // // Operation
+                    // const newActionOperation = await breakGlassInstance.methods.removeCouncilMember(councilMember).send();
+                    // await newActionOperation.confirmation();
+
+                    // // Assertions
+                    // breakGlassStorage       = await breakGlassInstance.storage();
+                    // var action              = await breakGlassStorage.actionsLedger.get(removeActionID);
+                    // const addressMap        = await action.addressMap;
+                    // assert.strictEqual(action.initiator, alice.pkh);
+                    // assert.strictEqual(action.status, "PENDING");
+                    // assert.strictEqual(action.actionType, "removeCouncilMember");
+                    // assert.equal(action.executed, false);
+                    // assert.equal(action.signersCount, 1);
+                    // assert.equal(addressMap.get("councilMemberAddress"), councilMember);
+
+                    // // Update contract config
+                    // var nextActionID        = breakGlassStorage.actionCounter;
+                    // const updateConfigValue = breakGlassStorage.config.threshold - 1;
+                    // const adminBackup       = breakGlassStorage.admin;
+                    // var setContractAdminOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, breakGlassAddress.address).send();
+                    // await setContractAdminOperation.confirmation();
+                    // await signerFactory(bob.sk);
+                    // var voteOperation   = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    // await voteOperation.confirmation();
+                    // var updateConfigOperation = await breakGlassInstance.methods.updateConfig(updateConfigValue,"configThreshold").send();
+                    // await updateConfigOperation.confirmation();
+
+                    // // Operation
+                    // await signerFactory(bob.sk);
+                    // await chai.expect(breakGlassInstance.methods.signAction(removeActionID).send()).to.be.rejected;
+
+                    // // Reset contract config
+                    // var updateConfigOperation = await breakGlassInstance.methods.updateConfig(1,"configThreshold").send();
+                    // await updateConfigOperation.confirmation();
+                    // await signerFactory(alice.sk);
+                    // breakGlassStorage       = await breakGlassInstance.storage();
+                    // nextActionID            = breakGlassStorage.actionCounter;
+                    // var setContractAdminOperation = await breakGlassInstance.methods.setSingleContractAdmin(adminBackup, breakGlassAddress.address).send();
+                    // await setContractAdminOperation.confirmation();
+                    // await signerFactory(bob.sk);
+                    // var voteOperation   = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    // await voteOperation.confirmation();
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('changeCouncilMember --> should replace an old councilMember with a new one if the old member if the old member is a council member', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage           = await breakGlassInstance.storage();
+                    const oldCouncilMember      = bob.pkh;
+                    const newCouncilMember      = mallory.pkh;
+                    const nextActionID          = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.changeCouncilMember(oldCouncilMember, newCouncilMember).send();
+                    await newActionOperation.confirmation();
+
+                    // Create a difference action for the following test
+                    var otherNewAddress             = trudy.pkh
+                    const unexistingOldOperation    = await breakGlassInstance.methods.changeCouncilMember(oldCouncilMember, otherNewAddress).send();
+                    await unexistingOldOperation.confirmation();
+
+                    // Create a difference action for the following test
+                    var otherOldAddress             = alice.pkh
+                    const existingNewOperation      = await breakGlassInstance.methods.changeCouncilMember(otherOldAddress, newCouncilMember).send();
+                    await existingNewOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const addressMap    = await action.addressMap;
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "changeCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("oldCouncilMemberAddress"), oldCouncilMember);
+                    assert.equal(addressMap.get("newCouncilMemberAddress"), newCouncilMember);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    const newCouncilStorage = breakGlassStorage.councilMembers.includes(oscar.pkh)
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.status, "EXECUTED");
+                    assert.equal(newCouncilStorage, false);
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('changeCouncilMember --> should fail if the old member is not in the council', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const oldCouncilMember  = alice.pkh;
+                    const newCouncilMember  = mallory.pkh;
+                    const nextActionID      = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const addressMap        = await action.addressMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "changeCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("oldCouncilMemberAddress"), oldCouncilMember);
+                    assert.equal(addressMap.get("newCouncilMemberAddress"), newCouncilMember);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('changeCouncilMember --> should fail if the new member is already in the council', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const oldCouncilMember  = bob.pkh;
+                    const newCouncilMember  = trudy.pkh;
+                    const nextActionID      = breakGlassStorage.actionCounter - 2; // Get the previously duplicated action
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const addressMap        = await action.addressMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "changeCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("oldCouncilMemberAddress"), oldCouncilMember);
+                    assert.equal(addressMap.get("newCouncilMemberAddress"), newCouncilMember);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('pauseAllEntrypoints --> should pause all entrypoints in all contracts referenced in the generalContracts map in the breakGlass storage', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.pauseAllEntrypoints().send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "pauseAllEntrypoints");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const generalContracts  = breakGlassStorage.generalContracts.entries();
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.status, "EXECUTED");
+
+                    // Check the entrypoints are paused
+                    for (let entry of generalContracts){
+                        // Get contract storage
+                        var contract        = await utils.tezos.contract.at(entry[1]);
+                        var storage:any     = await contract.storage();
+
+                        // Check pause
+                        var breakGlassConfig    = storage.breakGlassConfig
+                        if(storage.hasOwnProperty('breakGlassConfig')){
+                            for (let [key, value] of Object.entries(breakGlassConfig)){
+                                assert.equal(value, true);
+                            }
+                        }
+                    }
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('unpauseAllEntrypoints --> should unpause all entrypoints in all contracts referenced in the generalContracts map in the breakGlass storage', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.unpauseAllEntrypoints().send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "unpauseAllEntrypoints");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const generalContracts  = breakGlassStorage.generalContracts.entries();
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.status, "EXECUTED");
+
+                    // Check the entrypoints are paused
+                    for (let entry of generalContracts){
+                        // Get contract storage
+                        var contract        = await utils.tezos.contract.at(entry[1]);
+                        var storage:any     = await contract.storage();
+
+                        // Check pause
+                        var breakGlassConfig    = storage.breakGlassConfig
+                        if(storage.hasOwnProperty('breakGlassConfig')){
+                            for (let [key, value] of Object.entries(breakGlassConfig)){
+                                assert.equal(value, false);
+                            }
+                        }
+                    }
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('setSingleContractAdmin --> should update the administrator to the given address in the given contract', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+                    const newAdmin          = oscar.pkh;
+                    const targetContract    = doormanAddress.address;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const addressMap    = await action.addressMap;
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "setSingleContractAdmin");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("newAdminAddress"), newAdmin);
+                    assert.equal(addressMap.get("targetContractAddress"), targetContract);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.status, "EXECUTED");
+
+                    var contract        = await utils.tezos.contract.at(targetContract);
+                    var storage:any     = await contract.storage();
+                    if(storage.hasOwnProperty('admin')){
+                        assert.equal(storage.admin, newAdmin);
+                    }
+
+                    // Reset contract admin
+                    await signerFactory(oscar.sk);
+                    const resetOperation    = await doormanInstance.methods.setAdmin(breakGlassAddress.address).send();
+                    await resetOperation.confirmation();
+
+                    doormanStorage  = await doormanInstance.storage();
+                    console.log("DOORMAN ADMIN: ", doormanStorage.admin)
+                    governanceStorage  = await governanceInstance.storage();
+                    console.log("GOVERNANCE ADMIN: ", governanceStorage.admin)
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('setAllContractsAdmin --> should update the administrator to the given address in all contracts referenced in the generalContracts map in the storage', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+                    const newAdmin          = bob.pkh;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const addressMap    = await action.addressMap;
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "setAllContractsAdmin");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(addressMap.get("newAdminAddress"), newAdmin);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    var generalContracts    = breakGlassStorage.generalContracts.entries();
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
+                    assert.equal(action.status, "EXECUTED");
+                    assert.equal(breakGlassStorage.admin, newAdmin);
+
+                    // Check the contracts admin
+                    for (let entry of generalContracts){
+                        // Get contract storage
+                        var contract        = await utils.tezos.contract.at(entry[1]);
+                        var storage:any     = await contract.storage();
+
+                        // Check admin
+                        if(storage.hasOwnProperty('admin')){
+                            assert.equal(storage.admin, newAdmin)
+                        }
+                    }
+
+                    // reset all contracts admin to breakGlass for future tests
+                    await signerFactory(bob.sk)
+                    generalContracts  = await breakGlassStorage.generalContracts.entries();
+                    var setAdminOperation   = await breakGlassInstance.methods.setAdmin(breakGlassAddress.address).send();
+                    await setAdminOperation.confirmation();
+                    for (let entry of generalContracts){
+                        // Get contract storage
+                        var contract        = await utils.tezos.contract.at(entry[1]);
+                        var storage:any     = await contract.storage();
+
+                        // Check admin
+                        if(storage.hasOwnProperty('admin')){
+                            setAdminOperation   = await contract.methods.setAdmin(breakGlassAddress.address).send();
+                            await setAdminOperation.confirmation()
+                            console.log("Admin set")
+                        }
+                    }
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('removeBreakGlassControl --> should set the glassBroken variable to false and unpause all the entrypoints in all the contracts in the generalContracts map in the storage', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.removeBreakGlassControl().send();
+                    await newActionOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "removeBreakGlassControl");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(breakGlassStorage.glassBroken, true);
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    var generalContracts  = breakGlassStorage.generalContracts.entries();
+
+                    for (let entry of generalContracts){
+                        // Get contract storage
+                        var contract        = await utils.tezos.contract.at(entry[1]);
+                        var storage:any     = await contract.storage();
+
+                        // Check admin
+                        if(storage.hasOwnProperty('admin')){
+                            console.log("ADMIN: ",storage.admin)                   
+                        }
+                    }
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    generalContracts  = breakGlassStorage.generalContracts.entries();
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
+                    assert.equal(action.status, "EXECUTED");
+                    assert.equal(breakGlassStorage.glassBroken, false);
+                    
+                    // Check the contracts admin
+                    for (let entry of generalContracts){
+                        // Get contract storage
+                        var contract        = await utils.tezos.contract.at(entry[1]);
+                        var storage:any     = await contract.storage();
+
+                        // Check admin
+                        if(storage.hasOwnProperty('admin')){
+                            assert.equal(storage.admin, governanceAddress.address)
+                        }
+                    }
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('flushAction --> should flush an action in a pending state', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter;
+                    const flushedAction     = 1;
+
+                    // Operation
+                    const newActionOperation    = await breakGlassInstance.methods.flushAction(flushedAction).send();
+                    await newActionOperation.confirmation();
+
+                    console.log("ID: ", nextActionID)
+
+                    // Other operation for future tests
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    console.log(breakGlassStorage.actionCounter)
+                    const executedOperation     = await breakGlassInstance.methods.flushAction(nextActionID).send();
+                    await executedOperation.confirmation();
+
+                    // Other operation for future tests
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    console.log(breakGlassStorage.actionCounter)
+                    const flushedOperation      = await breakGlassInstance.methods.flushAction(1).send();
+                    await flushedOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage   = await breakGlassInstance.storage();
+                    var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner  = action.signers.includes(alice.pkh)
+                    const signerThreshold   = breakGlassStorage.config.threshold;
+                    const natMap            = await action.natMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "flushAction");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(breakGlassStorage.glassBroken, false);
+                    assert.equal(natMap.get("actionId"), flushedAction);
+                    
+                    // Operation
+                    await signerFactory(eve.sk);
+                    const signOperation = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await signOperation.confirmation();
+
+                    // Final values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    action                  = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    assert.equal(action.executed, true);
+                    assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
+                    assert.equal(action.status, "EXECUTED");
+
+                    const otherAction       = await breakGlassStorage.actionsLedger.get(1);
+                    assert.equal(otherAction.executed, true);
+                    assert.equal(otherAction.status, "FLUSHED");
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('flushAction --> should fail if the action was executed', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter - 2; // Get the previously duplicated action
+                    const executedAction    = breakGlassStorage.actionCounter - 3;
+
+                    console.log("ID: ", executedAction)
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const natMap            = await action.natMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "flushAction");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(natMap.get("actionId"), executedAction);
+
+                    action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    assert.equal(action.executed, true);
+
+                    // Operation
+                    await signerFactory(bob.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('flushAction --> should fail if the action was flushed', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter - 1; // Get the previously duplicated action
+                    const flushedAction     = 1;
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    const actionSigner      = action.signers.includes(alice.pkh)
+                    const natMap            = await action.natMap;
+
+                    // Assertions
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "flushAction");
+                    assert.equal(action.executed, false);
+                    assert.equal(actionSigner, true);
+                    assert.equal(action.signersCount, 1);
+                    assert.equal(natMap.get("actionId"), flushedAction);
+
+                    action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    assert.equal(action.status, "FLUSHED");
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(flushedAction).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was executed', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = breakGlassStorage.actionCounter - 2;
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    // Assertions
+                    assert.strictEqual(action.status, "EXECUTED");
+                    assert.equal(action.executed, true);
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Council member should not be able to access this entrypoint if the action linked to the provided actionID doesn’t exist', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = 999;
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    // Assertions
+                    assert.strictEqual(action, undefined);
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was flushed', async () => {
+                try{
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const nextActionID      = 1;
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+
+                    // Assertions
+                    assert.strictEqual(action.status, "FLUSHED");
+                    assert.equal(action.executed, false);
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Non-council contract should not be able to access this entrypoint', async () => {
+                try{
+                    // Initial values
+                    await signerFactory(david.sk);
+                    const actionID  = 1;
+
+                    // Operation
+                    await chai.expect(breakGlassInstance.methods.signAction(actionID).send()).to.be.rejected;
+                } catch(e){
+                    console.log(e);
+                }
+            });
+
+            it('Council member should not be able to access this entrypoint if the action linked to the provided actionID expired', async () => {
+                try{
+                    // Update contract config
+                    var nextActionID        = breakGlassStorage.actionCounter;
+                    const adminBackup       = breakGlassStorage.admin;
+                    breakGlassStorage       = await breakGlassInstance.storage();
+
+                    var setContractAdminOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, breakGlassAddress.address).send();
+                    await setContractAdminOperation.confirmation();
+                    await signerFactory(eve.sk);
+                    var voteOperation   = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await voteOperation.confirmation();
+                    await signerFactory(bob.sk);
+                    var updateConfigOperation = await breakGlassInstance.methods.updateConfig(0,"configActionExpiryDays").send();
+                    await updateConfigOperation.confirmation();
+                    await signerFactory(alice.sk);
+
+                    // Initial Values
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    const councilMember     = ivan.pkh;
+
+                    // Operation
+                    const newActionOperation = await breakGlassInstance.methods.addCouncilMember(councilMember).send();
+                    await newActionOperation.confirmation();
+
+                    // Assertions
+                    breakGlassStorage       = await breakGlassInstance.storage();
+                    nextActionID            = breakGlassStorage.actionCounter;
+                    var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    assert.strictEqual(action.initiator, alice.pkh);
+                    assert.strictEqual(action.status, "PENDING");
+                    assert.strictEqual(action.actionType, "addCouncilMember");
+                    assert.equal(action.executed, false);
+                    assert.equal(action.signersCount, 1);
+
+                    // Operation
+                    await signerFactory(eve.sk);
+                    await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+
+                    // Reset contract config
+                    var updateConfigOperation = await breakGlassInstance.methods.updateConfig(0,"configActionExpiryDays").send();
+                    await updateConfigOperation.confirmation();
+                    await signerFactory(alice.sk);
+                    var setContractAdminOperation = await breakGlassInstance.methods.setSingleContractAdmin(adminBackup, breakGlassAddress.address).send();
+                    await setContractAdminOperation.confirmation();
+                    await signerFactory(eve.sk);
+                    var voteOperation   = await breakGlassInstance.methods.signAction(nextActionID).send();
+                    await voteOperation.confirmation();
+                } catch(e){
+                    console.log(e);
+                }
+            });
+        })
     })
 });

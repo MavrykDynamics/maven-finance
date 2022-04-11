@@ -292,6 +292,19 @@ block {
 
     checkSenderIsCouncilMember(s);
 
+    // Check if actionID exist
+    const actionToFlush: actionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
+        Some (_action) -> _action
+    |   None -> failwith("Error. There is no action linked to this actionId")
+    ];
+
+    // Check if action was previously flushed or executed
+    if actionToFlush.executed then failwith("Error. This action was executed, it cannot be flushed")
+    else skip;
+
+    if actionToFlush.status = "FLUSHED" then failwith("Error. This action was flushed, it cannot be flushed again")
+    else skip;
+
     const emptyAddressMap  : addressMapType      = map [];
     const natMap           : natMapType          = map [
         ("actionId" : string) -> actionId;
@@ -416,6 +429,9 @@ block {
 
     checkGlassIsBroken(s);          // check that glass is broken
     checkSenderIsCouncilMember(s);
+
+    // Check if the provided contract has a setAdmin entrypoint
+    const checkEntrypoint: contract(address)    = setAdminInContract(targetContractAddress);
 
     const addressMap   : addressMapType      = map [
         ("newAdminAddress" : string) -> newAdminAddress;
@@ -586,6 +602,13 @@ block {
                 | None -> failwith("Error. Action not found")
             ];
 
+            // Check if action was previously flushed or executed
+            if flushedActionRecord.executed then failwith("Error. This action was executed, it cannot be flushed")
+            else skip;
+
+            if flushedActionRecord.status = "FLUSHED" then failwith("Error. This action was flushed, it cannot be flushed again")
+            else skip;
+
             flushedActionRecord.status := "FLUSHED";
             s.actionsLedger[flushedActionId] := flushedActionRecord;
 
@@ -603,7 +626,9 @@ block {
             ];
             // fetch params end ---
 
-            s.councilMembers := Set.add(councilMemberAddress, s.councilMembers);
+            // Check if new council member is already in the council
+            if Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+            else s.councilMembers := Set.add(councilMemberAddress, s.councilMembers);
         } else skip;
 
 
@@ -616,6 +641,15 @@ block {
                 | None -> failwith("Error. CouncilMemberAddress not found.")
             ];
             // fetch params end ---
+
+            // Check if council member is in the council
+            if not Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+            else skip;
+
+            // Check if removing the council member won't impact the threshold
+            if (abs(Set.cardinal(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+            else skip;
+
             s.councilMembers := Set.remove(councilMemberAddress, s.councilMembers);
         } else skip;
 
@@ -636,6 +670,14 @@ block {
             ];
             // fetch params end ---
 
+            // Check if new council member is already in the council
+            if Set.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+            else skip;
+
+            // Check if old council member is in the council
+            if not Set.mem(oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+            else skip;
+
             s.councilMembers := Set.add(newCouncilMemberAddress, s.councilMembers);
             s.councilMembers := Set.remove(oldCouncilMemberAddress, s.councilMembers);
         } else skip;
@@ -644,6 +686,9 @@ block {
 
         // pauseAllEntrypoints action type
         if actionType = "pauseAllEntrypoints" then block {
+
+            checkGlassIsBroken(s);          // check that glass is broken
+
             for _contractName -> contractAddress in map s.generalContracts block {
                 case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
                     Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
@@ -656,6 +701,9 @@ block {
 
         // unpauseAllEntrypoints action type
         if actionType = "unpauseAllEntrypoints" then block {
+
+            checkGlassIsBroken(s);          // check that glass is broken
+
             for _contractName -> contractAddress in map s.generalContracts block {
                 case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
                     Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
@@ -668,6 +716,8 @@ block {
 
         // setSingleContractAdmin action type
         if actionType = "setSingleContractAdmin" then block {
+
+            checkGlassIsBroken(s);          // check that glass is broken
 
             // fetch params begin ---
             const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
@@ -694,6 +744,8 @@ block {
         // setAllContractsAdmin action type
         if actionType = "setAllContractsAdmin" then block {
 
+            checkGlassIsBroken(s);          // check that glass is broken
+
             // fetch params begin ---
             const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
                 Some(_address) -> _address
@@ -701,7 +753,10 @@ block {
             ];
             // fetch params end ---
 
+            // Set self as contract admin
+            s.admin := newAdminAddress;
 
+            // Set all contracts in generalContracts map to given address
             for _contractName -> contractAddress in map s.generalContracts block {
                 case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
                     Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
@@ -716,7 +771,24 @@ block {
         if actionType = "removeBreakGlassControl" then block {
             // remove break glass control on contract
             // ensure settings (entrypoints unpaused, admin reset to governance dao) has been done
-            s.glassBroken := False;  
+            checkGlassIsBroken(s);          // check that glass is broken
+
+            // Reset all contracts admin to governance contract
+            const governanceAddress : address = case s.generalContracts["governance"] of [
+                Some(_address) -> _address
+                | None -> failwith("Error. Governance Contract is not found.")
+            ];
+            s.admin := governanceAddress;
+
+            for _contractName -> contractAddress in map s.generalContracts block {
+                case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
+                    Some(contr) -> operations := Tezos.transaction(governanceAddress, 0tez, contr) # operations
+                |   None -> skip
+                ];
+            };
+
+            // Reset glassBroken
+            s.glassBroken := False;
         } else skip;
 
             
