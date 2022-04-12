@@ -299,8 +299,8 @@ block {
     checkBalance(targetBalance, abs(quantity));
 
     (* Update target balance *)
-    targetBalance := abs(targetBalance - quantity);
-    const newTotalSupply : tokenBalance = abs(store.totalSupply - quantity);
+    targetBalance := abs(targetBalance - abs(quantity));
+    const newTotalSupply : tokenBalance = abs(store.totalSupply - abs(quantity));
 
     (* Update storage *)
     const updatedLedger : ledger = Big_map.update(targetAddress, Some(targetBalance), store.ledger);
@@ -311,8 +311,11 @@ block {
   } else block {
     // mint LP Token
 
+    // get target balance
+    var targetBalance : tokenBalance := getBalance(targetAddress, store);
+
     // Update target's balance
-    const targetNewBalance  : tokenBalance = getBalance(targetAddress, store) + abs(quantity);
+    const targetNewBalance  : tokenBalance = targetBalance + abs(quantity);
     const newTotalSupply    : tokenBalance = store.totalSupply + abs(quantity);
 
     // Update storage
