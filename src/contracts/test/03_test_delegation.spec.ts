@@ -1467,79 +1467,205 @@
 //             try{
 //                 // Initial values
 //                 await signerFactory(bob.sk)
-//                 const stakeAmount   = MVK(5);
 //                 const stakeAddress  = eve.pkh;
-//                 const stakeType     = "stakeAction";
 
-//                 await chai.expect(delegationInstance.methods.onStakeChange(stakeAddress, stakeAmount, stakeType).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.onStakeChange(stakeAddress).send()).to.be.rejected;
 //             } catch(e){
 //                 console.log(e);
 //             }
 //         });
 
-//         it('Whitelist contract should be able to call this entrypoint', async () => {
-//             try{
-//                 // Initial values
-//                 const stakeAmount       = MVK(5);
-//                 const stakeAddress      = alice.pkh;
-//                 const stakeType         = "stakeAction";
-//                 delegationStorage       = await delegationInstance.storage();
-//                 const oldDelegateRecord = await delegationStorage.delegateLedger.get(stakeAddress);
-//                 const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh);
+//         // it('Whitelist contract should be able to call this entrypoint', async () => {
+//         //     try{
+//         //         // Initial values
+//         //         const stakeAmount       = MVK(5);
+//         //         const stakeAddress      = alice.pkh;
+//         //         const stakeType         = "stakeAction";
+//         //         delegationStorage       = await delegationInstance.storage();
+//         //         const oldDelegateRecord = await delegationStorage.delegateLedger.get(stakeAddress);
+//         //         const satelliteRecord   = await delegationStorage.satelliteLedger.get(eve.pkh);
                 
-//                 const onStakeOperation  = await delegationInstance.methods.onStakeChange(stakeAddress, stakeAmount, stakeType).send();
-//                 await onStakeOperation.confirmation();
+//         //         const onStakeOperation  = await delegationInstance.methods.onStakeChange(stakeAddress, stakeAmount, stakeType).send();
+//         //         await onStakeOperation.confirmation();
 
-//                 // Final values
-//                 delegationStorage           = await delegationInstance.storage();
-//                 const delegateRecord        = await delegationStorage.delegateLedger.get(stakeAddress);
-//                 const newSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+//         //         // Final values
+//         //         delegationStorage           = await delegationInstance.storage();
+//         //         const delegateRecord        = await delegationStorage.delegateLedger.get(stakeAddress);
+//         //         const newSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
 
-//                 // Assertions
-//                 assert.equal(satelliteRecord.totalDelegatedAmount.toNumber() + stakeAmount, newSatelliteRecord.totalDelegatedAmount.toNumber());
-//             } catch(e){
-//                 console.log(e);
-//             }
-//         });
+//         //         // Assertions
+//         //         assert.equal(satelliteRecord.totalDelegatedAmount.toNumber() + stakeAmount, newSatelliteRecord.totalDelegatedAmount.toNumber());
+//         //     } catch(e){
+//         //         console.log(e);
+//         //     }
+//         // });
 
-//         it('Whitelist contract should be able to call this entrypoint and user should auto undelegate from a unexisting satellite', async () => {
-//             try{
-//                 // Initial values
-//                 const stakeAmount           = MVK(5);
-//                 const stakeAddress          = alice.pkh;
-//                 const stakeType             = "stakeAction";
-//                 delegationStorage           = await delegationInstance.storage();
-//                 const oldSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
-//                 const oldDelegateRecord     = await delegationStorage.delegateLedger.get(stakeAddress);
+//         // it('Whitelist contract should be able to call this entrypoint and user should auto undelegate from a unexisting satellite', async () => {
+//         //     try{
+//         //         // Initial values
+//         //         const stakeAmount           = MVK(5);
+//         //         const stakeAddress          = alice.pkh;
+//         //         const stakeType             = "stakeAction";
+//         //         delegationStorage           = await delegationInstance.storage();
+//         //         const oldSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+//         //         const oldDelegateRecord     = await delegationStorage.delegateLedger.get(stakeAddress);
 
-//                 // Operation
-//                 await signerFactory(eve.sk);
-//                 const unregisterOperation   = await delegationInstance.methods.unregisterAsSatellite().send();
-//                 await unregisterOperation.confirmation()
+//         //         // Operation
+//         //         await signerFactory(eve.sk);
+//         //         const unregisterOperation   = await delegationInstance.methods.unregisterAsSatellite().send();
+//         //         await unregisterOperation.confirmation()
 
-//                 await signerFactory(alice.sk)
-//                 const onStakeOperation  = await delegationInstance.methods.onStakeChange(stakeAddress, stakeAmount, stakeType).send();
-//                 await onStakeOperation.confirmation();
+//         //         await signerFactory(alice.sk)
+//         //         const onStakeOperation  = await delegationInstance.methods.onStakeChange(stakeAddress, stakeAmount, stakeType).send();
+//         //         await onStakeOperation.confirmation();
 
-//                 // Final values
-//                 delegationStorage           = await delegationInstance.storage();
-//                 const newSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
-//                 const newDelegateRecord     = await delegationStorage.delegateLedger.get(stakeAddress);
+//         //         // Final values
+//         //         delegationStorage           = await delegationInstance.storage();
+//         //         const newSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+//         //         const newDelegateRecord     = await delegationStorage.delegateLedger.get(stakeAddress);
 
-//                 // Assertions
-//                 assert.notStrictEqual(oldSatelliteRecord, undefined)
-//                 assert.notStrictEqual(oldDelegateRecord, undefined)
-//                 assert.strictEqual(newSatelliteRecord, undefined)
-//                 assert.strictEqual(newDelegateRecord, undefined)
-//             } catch(e){
-//                 console.log(e);
-//             }
-//         });
+//         //         // Assertions
+//         //         assert.notStrictEqual(oldSatelliteRecord, undefined)
+//         //         assert.notStrictEqual(oldDelegateRecord, undefined)
+//         //         assert.strictEqual(newSatelliteRecord, undefined)
+//         //         assert.strictEqual(newDelegateRecord, undefined)
+//         //     } catch(e){
+//         //         console.log(e);
+//         //     }
+//         // });
 //     })
 
 
 //     describe("Extra tests", async () => {
-        
+//         it('Delegator stakes 5 MVK', async () => {
+//             try{
+//                 // Initial values
+//                 const stakeAmount           = MVK(5);
+//                 delegationStorage           = await delegationInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const oldUserStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const oldSatelliteStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+//                 const oldSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+//                 const oldDelegateRecord     = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 console.log("SATELLITE OLD RECORD: ", oldSatelliteRecord);
+//                 console.log("SATELLITE OLD STAKE RECORD: ", oldSatelliteStakeRecord);
+//                 console.log("DELEGATOR OLD RECORD: ", oldDelegateRecord);
+//                 console.log("DELEGATOR OLD STAKE RECORD: ", oldUserStakeRecord);
+
+//                 // Operation
+//                 await signerFactory(alice.sk)
+//                 const stakeOperation  = await doormanInstance.methods.stake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
+
+//                 // Final values
+//                 delegationStorage           = await delegationInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const newUserStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const newSatelliteStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+//                 const newSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+//                 const newDelegateRecord     = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 console.log("SATELLITE NEW RECORD: ", newSatelliteRecord);
+//                 console.log("SATELLITE NEW STAKE RECORD: ", newSatelliteStakeRecord);
+//                 console.log("DELEGATOR NEW RECORD: ", newDelegateRecord);
+//                 console.log("DELEGATOR NEW STAKE RECORD: ", newUserStakeRecord);
+
+//                 // Assertions
+//                 assert.notStrictEqual(oldSatelliteRecord, undefined)
+//                 assert.notStrictEqual(oldDelegateRecord, undefined)
+//                 assert.notStrictEqual(newSatelliteRecord, undefined)
+//                 assert.notStrictEqual(newDelegateRecord, undefined)
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Delegator unstakes 5 MVK', async () => {
+//             try{
+//                 // Initial values
+//                 const stakeAmount           = MVK(5);
+//                 delegationStorage           = await delegationInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const oldUserStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const oldSatelliteStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+//                 const oldSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+//                 const oldDelegateRecord     = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 console.log("SATELLITE OLD RECORD: ", oldSatelliteRecord);
+//                 console.log("SATELLITE OLD STAKE RECORD: ", oldSatelliteStakeRecord);
+//                 console.log("DELEGATOR OLD RECORD: ", oldDelegateRecord);
+//                 console.log("DELEGATOR OLD STAKE RECORD: ", oldUserStakeRecord);
+
+//                 // Operation
+//                 await signerFactory(alice.sk)
+//                 const stakeOperation  = await doormanInstance.methods.unstake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
+
+//                 // Final values
+//                 delegationStorage           = await delegationInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const newUserStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const newSatelliteStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+//                 const newSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+//                 const newDelegateRecord     = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 console.log("SATELLITE NEW RECORD: ", newSatelliteRecord);
+//                 console.log("SATELLITE NEW STAKE RECORD: ", newSatelliteStakeRecord);
+//                 console.log("DELEGATOR NEW RECORD: ", newDelegateRecord);
+//                 console.log("DELEGATOR NEW STAKE RECORD: ", newUserStakeRecord);
+
+//                 // Assertions
+//                 assert.notStrictEqual(oldSatelliteRecord, undefined)
+//                 assert.notStrictEqual(oldDelegateRecord, undefined)
+//                 assert.notStrictEqual(newSatelliteRecord, undefined)
+//                 assert.notStrictEqual(newDelegateRecord, undefined)
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Satellite stakes 5 MVK', async () => {
+//             try{
+//                 // Initial values
+//                 const stakeAmount           = MVK(5);
+//                 delegationStorage           = await delegationInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const oldUserStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const oldSatelliteStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+//                 const oldSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+//                 const oldDelegateRecord     = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 console.log("SATELLITE OLD RECORD: ", oldSatelliteRecord);
+//                 console.log("SATELLITE OLD STAKE RECORD: ", oldSatelliteStakeRecord);
+//                 console.log("DELEGATOR OLD RECORD: ", oldDelegateRecord);
+//                 console.log("DELEGATOR OLD STAKE RECORD: ", oldUserStakeRecord);
+
+//                 // Operation
+//                 await signerFactory(eve.sk)
+//                 const stakeOperation  = await doormanInstance.methods.stake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
+
+//                 // Final values
+//                 delegationStorage           = await delegationInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const newUserStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 const newSatelliteStakeRecord    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+//                 const newSatelliteRecord    = await delegationStorage.satelliteLedger.get(eve.pkh);
+//                 const newDelegateRecord     = await delegationStorage.delegateLedger.get(alice.pkh);
+
+//                 console.log("SATELLITE NEW RECORD: ", newSatelliteRecord);
+//                 console.log("SATELLITE NEW STAKE RECORD: ", newSatelliteStakeRecord);
+//                 console.log("DELEGATOR NEW RECORD: ", newDelegateRecord);
+//                 console.log("DELEGATOR NEW STAKE RECORD: ", newUserStakeRecord);
+
+//                 // Assertions
+//                 assert.notStrictEqual(oldSatelliteRecord, undefined)
+//                 assert.notStrictEqual(oldDelegateRecord, undefined)
+//                 assert.notStrictEqual(newSatelliteRecord, undefined)
+//                 assert.notStrictEqual(newDelegateRecord, undefined)
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 //     })
 
 

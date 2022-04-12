@@ -38,10 +38,7 @@ type transferDestinationType is [@layout:comb] record[
 
 type transferActionType is list(transferDestinationType);
 
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
-type updateSatelliteBalanceParams is (address * nat * stakeType)
+type updateSatelliteBalanceParams is (address)
 
 type treasuryStorage is [@layout:comb] record [
     admin                      : address;

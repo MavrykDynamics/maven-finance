@@ -280,7 +280,7 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
       // update satellite balance if user is delegated to a satellite
       operation := Some (
         Tezos.transaction(
-          (Tezos.source, userRewards, (StakeAction : stakeType)),
+          (Tezos.source),
           0tez,
           updateSatelliteBalance(delegationAddress)
         )
@@ -363,7 +363,7 @@ block {
   );
 
   const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-    (Tezos.sender, stakeAmount, (StakeAction : stakeType)),
+    (Tezos.sender),
     0tez,
     updateSatelliteBalance(delegationAddress)
   );
@@ -371,7 +371,7 @@ block {
   // list of operations: burn mvk tokens first, then mint smvk tokens
   // const operations : list(operation) = list [burnMvkTokensOperation; mintSMvkTokensOperation; updateSatelliteBalanceOperation];
   const operations : list(operation) = case userCompound.0 of [
-    Some (o) -> list [updateSatelliteBalanceOperation; transferOperation; o]
+    Some (o) -> list [o; updateSatelliteBalanceOperation; transferOperation]
   | None -> list [updateSatelliteBalanceOperation; transferOperation]
   ];
   // 3. update record of user address with minted sMVK tokens
@@ -499,7 +499,7 @@ block {
 
   // update satellite balance if user is delegated to a satellite
   const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-    (Tezos.source, unstakeAmount, (UnstakeAction : stakeType)),
+    (Tezos.source),
     0tez,
     updateSatelliteBalance(delegationAddress)
   );
@@ -510,7 +510,7 @@ block {
 
   // create list of operations
   var operations : list(operation) := case secondCompound.0 of [
-    Some (compoundOperation) -> list[updateSatelliteBalanceOperation; transferOperation; compoundOperation]
+    Some (compoundOperation) -> list[compoundOperation; updateSatelliteBalanceOperation; transferOperation]
   | None -> list[updateSatelliteBalanceOperation; transferOperation]
   ];
 
@@ -567,7 +567,7 @@ function farmClaim(const farmClaim: farmClaimType; var s: doormanStorage): retur
         | None -> failwith("Error. Delegation Contract is not found.")
     ];
     const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (delegator, claimAmount, (StakeAction : stakeType)),
+      (delegator),
       0tez,
       updateSatelliteBalance(delegationAddress)
     );
