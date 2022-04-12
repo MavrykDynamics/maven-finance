@@ -2020,7 +2020,7 @@ describe("Break Glass tests", async () => {
                     // Other operation for future tests
                     breakGlassStorage       = await breakGlassInstance.storage();
                     console.log(breakGlassStorage.actionCounter)
-                    const flushedOperation      = await breakGlassInstance.methods.flushAction(1).send();
+                    const flushedOperation      = await breakGlassInstance.methods.flushAction(flushedAction).send();
                     await flushedOperation.confirmation();
 
                     // Final values
@@ -2053,8 +2053,8 @@ describe("Break Glass tests", async () => {
                     assert.equal(action.signersCount.toNumber(), signerThreshold.toNumber());
                     assert.equal(action.status, "EXECUTED");
 
-                    const otherAction       = await breakGlassStorage.actionsLedger.get(1);
-                    assert.equal(otherAction.executed, true);
+                    const otherAction       = await breakGlassStorage.actionsLedger.get(flushedAction);
+                    assert.equal(otherAction.executed, false);
                     assert.equal(otherAction.status, "FLUSHED");
                 } catch(e){
                     console.log(e);
@@ -2081,8 +2081,7 @@ describe("Break Glass tests", async () => {
                     assert.equal(actionSigner, true);
                     assert.equal(action.signersCount, 1);
                     assert.equal(natMap.get("actionId"), executedAction);
-
-                    action              = await breakGlassStorage.actionsLedger.get(nextActionID);
+                    action              = await breakGlassStorage.actionsLedger.get(executedAction);
                     assert.equal(action.executed, true);
 
                     // Operation
