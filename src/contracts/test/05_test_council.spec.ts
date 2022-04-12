@@ -1474,10 +1474,10 @@ describe("Council tests", async () => {
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, true);
                 assert.equal(action.signersCount, 2);
-                assert.equal(natMap.get("actionId"), mintActionID);
+                assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
 
                 assert.strictEqual(flushedAction.initiator, alice.pkh);
-                assert.strictEqual(flushedAction.status, "DROPPED");
+                assert.strictEqual(flushedAction.status, "FLUSHED");
                 assert.strictEqual(flushedAction.actionType, "requestMint");
                 assert.equal(flushedAction.executed, false);
                 assert.equal(flushedAction.signersCount, 1);
@@ -1673,7 +1673,7 @@ describe("Council tests", async () => {
                 assert.equal(action.executed, false);
                 assert.equal(actionSigner, true);
                 assert.equal(action.signersCount, 1);
-                assert.equal(natMap.get("actionId"), memberActionID);
+                assert.equal(natMap.get("actionId").toNumber(), memberActionID.toNumber());
 
                 // ----- SIGN DROP
                 await signerFactory(bob.sk)
@@ -1693,7 +1693,7 @@ describe("Council tests", async () => {
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, true);
                 assert.equal(action.signersCount, 2);
-                assert.equal(natMap.get("requestId"), memberActionID);
+                assert.equal(natMap.get("actionId"), memberActionID);
 
                 assert.strictEqual(flushedAction.initiator, alice.pkh);
                 assert.strictEqual(flushedAction.status, "FLUSHED");
@@ -1787,10 +1787,10 @@ describe("Council tests", async () => {
 
         it('updateBlocksPerMinute --> should update the blocksPerMinute in the given contract', async () => {
             try{
-                // Set farmFactory admin to governance for test purposes
+                // // Set farmFactory admin to governance for test purposes
                 const givenContractInstance     = await utils.tezos.contract.at(farmFactoryAddress.address);
-                const setAdminOperation         = await givenContractInstance.methods.setAdmin(governanceAddress.address).send();
-                await setAdminOperation.confirmation();
+                // const setAdminOperation         = await givenContractInstance.methods.setAdmin(governanceAddress.address).send();
+                // await setAdminOperation.confirmation();
 
                 // Initial Values
                 councilStorage          = await councilInstance.storage();
@@ -1840,7 +1840,7 @@ describe("Council tests", async () => {
                 assert.equal(action.signersCount, 2);
                 assert.equal(addressMap.get("contractAddress"), farmFactoryAddress.address);
                 assert.equal(natMap.get("newBlocksPerMinute"), actionValue);
-                assert.equal(givenContractStorage.config.blocksPerMinute, actionValue);
+                assert.equal(givenContractStorage.config, actionValue);
             } catch(e){
                 console.log(e);
             }
@@ -1897,7 +1897,7 @@ describe("Council tests", async () => {
                 // Assertions
                 assert.strictEqual(action.initiator, alice.pkh);
                 assert.strictEqual(action.status, "EXECUTED");
-                assert.strictEqual(action.actionType, "updateBlocksPerMinute");
+                assert.strictEqual(action.actionType, "addVestee");
                 assert.equal(action.executed, true);
                 assert.equal(actionSigner, true);
                 assert.equal(action.signersCount, 2);

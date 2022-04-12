@@ -32,12 +32,12 @@ type governanceAction is
     | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts          of updateGeneralContractsParams
     
-    | StartNextRound                  of bool
-    | Propose                         of newProposalType
+    // | StartNextRound                  of bool
+    // | Propose                         of newProposalType
     | ProposalRoundVote               of proposalIdType
     | AddUpdateProposalData           of addUpdateProposalDataType
     | AddUpdatePaymentData            of addUpdatePaymentDataType
-    | LockProposal                    of proposalIdType  
+    // | LockProposal                    of proposalIdType  
     
     | VotingRoundVote                 of (voteForProposalChoiceType)
     
@@ -1503,12 +1503,12 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
 
-        | StartNextRound(parameters)                  -> startNextRound(parameters, s)
-        | Propose(parameters)                         -> propose(parameters, s)
+        // | StartNextRound(parameters)                  -> startNextRound(parameters, s)
+        // | Propose(parameters)                         -> propose(parameters, s)
         | ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
         | AddUpdateProposalData(parameters)           -> addUpdateProposalData(parameters, s)
         | AddUpdatePaymentData(parameters)            -> addUpdatePaymentData(parameters, s)
-        | LockProposal(parameters)                    -> lockProposal(parameters, s)
+        // | LockProposal(parameters)                    -> lockProposal(parameters, s)
 
         | VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
         
