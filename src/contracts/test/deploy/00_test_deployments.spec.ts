@@ -106,9 +106,13 @@ describe('Contracts Deployment for Tests', async () => {
   var mockFa2Token : MockFa2Token
   var usdmToken : UsdmToken
   var usdmTokenController : UsdmTokenController
+  
   var lpTokenUsdmXtz : LpTokenUsdmXtz
+  var lpTokenMockFa2Xtz : LpTokenUsdmXtz
+
   var cfmm : Cfmm
   var cfmmTezFa2Token : CfmmTezFa2Token
+  var cfmmTezMockFa2Token : CfmmTezFa2Token
   // var vault : Vault
   var tezos
   
@@ -397,6 +401,15 @@ describe('Contracts Deployment for Tests', async () => {
             "tokenId" : 0
           }
         }
+      },
+      "usdm"       : {
+        "tokenContractAddress" : usdmToken.contract.address, 
+        "tokenType" : {
+          "fa2": {
+            "tokenContractAddress" : usdmToken.contract.address, 
+            "tokenId" : 0
+          }
+        }
       }
     });
     usdmTokenControllerStorage.usdmTokenAddress = usdmToken.contract.address;
@@ -432,6 +445,25 @@ describe('Contracts Deployment for Tests', async () => {
     );
 
     console.log("CFMM (XTZ/USDM) originated")
+
+
+    lpTokenMockFa2Xtz = await LpTokenUsdmXtz.originate(
+      utils.tezos,
+      lpTokenUsdmXtzStorage
+    );
+
+    console.log("LP Token MockFa2/XTZ originated")
+
+    cfmmTezFa2TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
+    cfmmTezFa2TokenStorage.lpTokenAddress   = lpTokenMockFa2Xtz.contract.address;
+    cfmmTezFa2TokenStorage.tokenName        = "mockFa2";
+    cfmmTezFa2TokenStorage.tokenAddress     = mockFa2Token.contract.address;
+    cfmmTezMockFa2Token = await CfmmTezFa2Token.originate(
+      utils.tezos,
+      cfmmTezFa2TokenStorage
+    );
+
+    console.log("CFMM (XTZ/MockFa2Token) originated")
 
 
     /* ---- ---- ---- ---- ---- */

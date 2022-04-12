@@ -36,9 +36,9 @@ type collateralTokenLedgerType is map(string, collateralTokenRecordType)
 
 type vaultType is [@layout:comb] record [
     address                     : address;
-    collateralBalanceLedger     : collateralBalanceLedgerType;           // tez/token balance
-    usdmOutstanding             : usdmAmountType;                        // nat 
-    collateralTokenAddresses         : collateralTokenAddressesType;     // token collateral address : name of token collateral
+    collateralBalanceLedger     : collateralBalanceLedgerType;        // tez/token balance
+    usdmOutstanding             : usdmAmountType;                     // nat 
+    collateralTokenAddresses    : collateralTokenAddressesType;       // token collateral address : name of token collateral
     // markedForLiquidation        : bool;                            // marked for liquidation
     // timeMarkedForLiquidation    : timestamp;                       // time marked for liquidation
 ]
@@ -178,7 +178,8 @@ type return is list (operation) * controllerStorage
 
 const zeroAddress            : address  = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg":address);
 const fixedPointAccuracy     : nat      = 1_000_000_000_000_000_000_000_000n;   // 10^24     - // for use in division
-const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;           // 10^18    - // for use in division with tez
+// const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;           // 10^18    - // for use in division with tez
+const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000_000_000_000n;           // 10^27    - // for use in division with tez
 
 // ----- constants end -----
 
@@ -363,8 +364,8 @@ block {
     
     // initialise variables - vaultCollateralValue and usdmOutstanding
     var vaultCollateralValue        : nat  := 0n;
-    // const usdmOutstanding           : nat  = vault.usdmOutstanding;    
-    // const collateralRatio           : nat  = s.config.collateralRatio;  // default 3000n: i.e. 3x
+    const usdmOutstanding           : nat  = vault.usdmOutstanding;    
+    const collateralRatio           : nat  = s.config.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // const decimals                  : nat  = s.config.decimals;         // default 3n (decimals): i.e. divide by 10 ^ 3
 
@@ -372,7 +373,7 @@ block {
         
         if tokenName = "tez" then block {
 
-            // calculate value of tez balance with same fixed point accuracy as price
+            // calculate value of tez balance with same fixed point accuracy as price - 1e6 x 1e27 -> 1e33
             const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
 
             // increment vault collateral value
@@ -380,24 +381,11 @@ block {
             
         } else block {
 
-            // // get price of token in xtz
-            // const tokenPrice : nat = case s.priceLedger[tokenName] of 
-            //     Some(_price) -> _price
-            //     | None -> failwith("Error. Price not found for token.")
-            // end;
-
-            // // calculate value of collateral balance
-            // const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
-
-            // // increment vault collateral value
-            // vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
-
-
             // get price of token in xtz
             case s.priceLedger[tokenName] of 
                 Some(_price) -> block {
 
-                    // calculate value of collateral balance
+                    // calculate value of collateral balance - 1e9 x 1e24 -> 1e33
                     const tokenValueInXtz : nat = tokenBalance * _price; 
 
                     // increment vault collateral value
@@ -409,19 +397,20 @@ block {
         };
     };
 
-    s.tempValue := vaultCollateralValue;
+    // s.tempValue := vaultCollateralValue;
 
-    // get price of USDM in xtz
-    // const usdmTokenPrice : nat = case s.priceLedger["usdm"] of 
-    //     Some(_price) -> _price
-    //     | None -> failwith("Error. Price not found for USDM Token.")
-    // end;
+    // get price of USDM in xtz 
+    const usdmTokenPrice : nat = case s.priceLedger["usdm"] of 
+        Some(_price) -> _price
+        | None -> failwith("Error. Price not found for USDM Token.")
+    end;
 
-    // const usdmOutstandingValueInXtz : nat = usdmOutstanding * usdmTokenPrice;
+    // 1e9 x 1e24 -> 1e33
+    const usdmOutstandingValueInXtz : nat = usdmOutstanding * usdmTokenPrice;
 
     // todo: adjust later for 300% collateral check
-    // const isUnderCollaterized : bool = vaultCollateralValue < abs( (collateralRatio * usdmOutstandingValueInXtz) / (100000) );
-    const isUnderCollaterized : bool = False;
+    const isUnderCollaterized : bool = vaultCollateralValue < abs( (collateralRatio * usdmOutstandingValueInXtz) / (1000) );
+    // const isUnderCollaterized : bool = False;
     
     // const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n)); 
 
@@ -634,7 +623,9 @@ block {
     const newCollateralBalance : nat  = abs(vaultTokenCollateralBalance - withdrawTokenAmount);
 
     // check if vault is undercollaterized, if not then send withdraw operation
-    if isUnderCollaterized(vault, s) then failwith("Error. Withdrawal is not allowed as vault is undercollaterized.") else skip;
+    if isUnderCollaterized(vault, s) 
+    then failwith("Error. Withdrawal is not allowed as vault is undercollaterized.") 
+    else skip;
     
     // get collateral token record - with token contract address and token type
     const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
@@ -784,7 +775,9 @@ block {
     var _vault : vaultType := getVault(vaultHandle, s);
 
     // check if vault is under collaterized
-    if isUnderCollaterized(_vault, s) then skip else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
+    if isUnderCollaterized(_vault, s) 
+    then skip 
+    else failwith("Error. Vault is not undercollaterized and cannot be liquidated.");
 
     // check if there is sufficient usdmOutstanding, and calculate remaining usdm after liquidation
     if usdmQuantity > _vault.usdmOutstanding then failwith("Error. Cannot burn more than outstanding amount of USDM in vault.") else skip;
@@ -986,24 +979,77 @@ block {
     vault.usdmOutstanding := newUsdmOutstanding;
     s.vaults[vaultHandle] := vault;
 
+    // --- test---
+    // var vaultCollateralValue : nat := 0n;
+
+    // const tezBalance : nat = case vault.collateralBalanceLedger["tez"] of 
+    //             Some(_balance) -> _balance
+    //             | None -> 12345n
+    //         end;
+
+    //         // calculate value of tez balance with same fixed point accuracy as price
+    // // const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
+    // const tezValueWithFixedPointAccuracy : nat = tezBalance * tezFixedPointAccuracy;
+
+    // // increment vault collateral value
+    // vaultCollateralValue := vaultCollateralValue + tezValueWithFixedPointAccuracy;
+
+    // for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
+        
+    //     if tokenName = "tez" then block {
+
+    //         // calculate value of tez balance with same fixed point accuracy as price
+    //         const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
+
+    //         // increment vault collateral value
+    //         vaultCollateralValue := vaultCollateralValue + tezValueWithFixedPointAccuracy;
+            
+    //     } else block {
+
+    //         // get price of token in xtz
+    //         case s.priceLedger[tokenName] of 
+    //             Some(_price) -> block {
+
+    //                 // calculate value of collateral balance
+    //                 const tokenValueInXtz : nat = tokenBalance * _price; 
+
+    //                 // increment vault collateral value
+    //                 vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
+    //             }
+    //             // | None -> skip // if there is no price set for collateral token yet
+    //             | None -> block {
+    //                 // calculate value of collateral balance
+    //                 const tokenValueInXtz : nat = tokenBalance * 123n; 
+
+    //                 // increment vault collateral value
+    //                 vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
+    //             }
+    //         end;
+
+    //     };
+    // };
+
+    // s.tempValue := vaultCollateralValue;
+    // --- test---
+
     // check if vault is undercollaterized; if it is not, then create and send mintOrBurn operation to USDM Token Contract
-    if isUnderCollaterized(vault, s) then failwith("Error. Excessive USDM minting and vault will be undercollaterized.")
-    else block {
+    if isUnderCollaterized(vault, s) 
+    then failwith("Error. Excessive USDM minting and vault will be undercollaterized.")
+    else skip;
 
-        // create and send mintOrBurn operation to USDM Token Contract
-        // const usdmMintOrBurnParams : mintOrBurnParamsType = (quantity, initiator);
-        const usdmMintOrBurnParams : mintOrBurnParamsType = record [
-            quantity = quantity;
-            target   = initiator;
-        ];
-        const mintOrBurnOperation : operation = Tezos.transaction(
-            usdmMintOrBurnParams,
-            0mutez,
-            getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
-        );
-        operations := mintOrBurnOperation # operations;
+    // create and send mintOrBurn operation to USDM Token Contract
+    // const usdmMintOrBurnParams : mintOrBurnParamsType = (quantity, initiator);
+    const usdmMintOrBurnParams : mintOrBurnParamsType = record [
+        quantity = quantity;
+        target   = initiator;
+    ];
+    const mintOrBurnOperation : operation = Tezos.transaction(
+        usdmMintOrBurnParams,
+        0mutez,
+        getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
+    );
+    operations := mintOrBurnOperation # operations;
 
-    };
 
 } with (operations, s)
 
