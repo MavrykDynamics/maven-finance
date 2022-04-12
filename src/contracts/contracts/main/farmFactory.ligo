@@ -56,6 +56,17 @@ function checkSenderIsAdmin(const s: farmFactoryStorage): unit is
   if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
+function checkSenderOrSourceIsCouncil(const s: farmFactoryStorage): unit is
+    block {
+        const councilAddress: address = case s.whitelistContracts["council"] of [
+            Some (_address) -> _address
+        |   None -> (failwith("Council contract not found in whitelist contracts"): address)
+        ];
+
+        if Tezos.source = councilAddress or Tezos.sender = councilAddress then skip
+        else failwith("Only Council contract allowed");
+    } with(unit)
+
 ////
 // BREAK GLASS CHECKS
 ////
@@ -191,8 +202,8 @@ function togglePauseTrackFarm(var s: farmFactoryStorage): return is
 (*  UpdateBlocksPerMinute entrypoint *)
 function updateBlocksPerMinute(const newBlocksPerMinutes: nat; var s: farmFactoryStorage): return is
     block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+        // check that source is admin or factory
+        checkSenderOrSourceIsCouncil(s);
 
         var operations: list(operation) := nil;
 
