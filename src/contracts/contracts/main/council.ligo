@@ -7,6 +7,9 @@
 // MvkToken types for transfer
 #include "../partials/types/mvkTokenTypes.ligo"
 
+// Vesting types for vesting council actions
+#include "../partials/types/vestingTypes.ligo"
+
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/types/councilTypes.ligo"
 
@@ -22,9 +25,9 @@ type councilAction is
     | CouncilActionUpdateBlocksPerMin of councilActionUpdateBlocksPerMinType
 
     // Council actions for vesting
-    | CouncilActionAddVestee of councilActionAddVesteeType
+    | CouncilActionAddVestee of addVesteeType
     | CouncilActionRemoveVestee of address
-    | CouncilActionUpdateVestee of councilActionUpdateVesteeType
+    | CouncilActionUpdateVestee of updateVesteeType
     | CouncilActionToggleVesteeLock of address
     
     // Council actions for internal control
@@ -91,12 +94,12 @@ function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : cont
   | None -> (failwith("updateBlocksPerMinutes entrypoint in Contract not found") : contract(nat))
 ];
 
-function sendAddVesteeParams(const contractAddress : address) : contract(councilActionAddVesteeType) is
+function sendAddVesteeParams(const contractAddress : address) : contract(addVesteeType) is
   case (Tezos.get_entrypoint_opt(
       "%addVestee",
-      contractAddress) : option(contract(councilActionAddVesteeType))) of [
+      contractAddress) : option(contract(addVesteeType))) of [
     Some(contr) -> contr
-  | None -> (failwith("addVestee entrypoint in Vesting Contract not found") : contract(councilActionAddVesteeType))
+  | None -> (failwith("addVestee entrypoint in Vesting Contract not found") : contract(addVesteeType))
 ];
 
 function sendRemoveVesteeParams(const contractAddress : address) : contract(address) is
@@ -107,12 +110,12 @@ function sendRemoveVesteeParams(const contractAddress : address) : contract(addr
   | None -> (failwith("removeVestee entrypoint in Vesting Contract not found") : contract(address))
 ];
 
-function sendUpdateVesteeParams(const contractAddress : address) : contract(councilActionUpdateVesteeType) is
+function sendUpdateVesteeParams(const contractAddress : address) : contract(updateVesteeType) is
 case (Tezos.get_entrypoint_opt(
     "%updateVestee",
-    contractAddress) : option(contract(councilActionUpdateVesteeType))) of [
+    contractAddress) : option(contract(updateVesteeType))) of [
 Some(contr) -> contr
-| None -> (failwith("updateVestee entrypoint in Vesting Contract not found") : contract(councilActionUpdateVesteeType))
+| None -> (failwith("updateVestee entrypoint in Vesting Contract not found") : contract(updateVesteeType))
 ];
 
 function sendToggleVesteeLockParams(const contractAddress : address) : contract(address) is
@@ -230,6 +233,10 @@ block {
 
     checkSenderIsCouncilMember(s);
 
+    // Check if new council member is already in the council
+    if Set.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+    else skip;
+
     const addressMap          : addressMapType     = map [
             ("councilMemberAddress" : string) -> newCouncilMemberAddress
         ];
@@ -271,6 +278,14 @@ block {
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
+
+    // Check if council member is in the council
+    if not Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+    else skip;
+
+    // Check if removing the council member won't impact the threshold
+    if (abs(Set.cardinal(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+    else skip;
 
     const addressMap          : addressMapType     = map [
             ("councilMemberAddress" : string) -> councilMemberAddress
@@ -314,6 +329,14 @@ block {
 
     checkSenderIsCouncilMember(s);
 
+    // Check if new council member is already in the council
+    if Set.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+    else skip;
+
+    // Check if old council member is in the council
+    if not Set.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+    else skip;
+
     const addressMap          : addressMapType     = map [
             ("oldCouncilMemberAddress" : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
             ("newCouncilMemberAddress" : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
@@ -356,6 +379,12 @@ block {
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
+
+    // Check if type is correct
+    if councilActionTransferParams.tokenType = "FA12" or
+    councilActionTransferParams.tokenType = "FA2" or
+    councilActionTransferParams.tokenType = "XTZ" then skip
+    else failwith("Error. Wrong token type provided. Only FA12/FA2/XTZ allowed");
 
     const addressMap : addressMapType     = map [
         ("receiverAddress"       : string) -> councilActionTransferParams.receiverAddress;
@@ -406,6 +435,13 @@ block {
 
     checkSenderIsCouncilMember(s);
 
+    // Check that blocks per minute will not break the system
+    if councilActionUpdateBlocksPerMinParam.newBlocksPerMinute = 0n then failwith("Error. The provided new blocksPerMinutes would break the system")
+    else skip;
+
+    // Check if the provided contract has a updateBlocksPerMinute entrypoint
+    const _checkEntrypoint: contract(nat)    = sendUpdateBlocksPerMinuteParams(councilActionUpdateBlocksPerMinParam.contractAddress);
+
     const addressMap : addressMapType     = map [
         ("contractAddress": string) -> councilActionUpdateBlocksPerMinParam.contractAddress
     ];
@@ -440,7 +476,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionAddVestee(const addVestee : councilActionAddVesteeType ; var s : councilStorage) : return is 
+function councilActionAddVestee(const addVestee : addVesteeType ; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -449,15 +485,32 @@ block {
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
+    
+    // Check if the vesting has a addVestee entrypoint
+    var vestingAddress : address := case s.generalContracts["vesting"] of [
+        Some(_address) -> _address
+        | None -> failwith("Error. Vesting Contract Address not found")
+    ];
+    const _checkEntrypoint: contract(addVesteeType)    = sendAddVesteeParams(vestingAddress);
+
+    // Check if the vestee already exists
+    const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", addVestee.0, vestingAddress);
+    case getVesteeOptView of [
+        Some (_value) -> case _value of [
+            Some (_vestee) -> failwith ("Error. This vestee already exists")
+        |   None -> skip
+        ]
+    |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
+    ];
 
     const addressMap : addressMapType     = map [
-        ("vesteeAddress"         : string) -> addVestee.vesteeAddress;
+        ("vesteeAddress"         : string) -> addVestee.0;
     ];
     const emptyStringMap : stringMapType = map [];
     const natMap : natMapType            = map [
-        ("totalAllocatedAmount"  : string) -> addVestee.totalAllocatedAmount;
-        ("cliffInMonths"         : string) -> addVestee.cliffInMonths;
-        ("vestingInMonths"       : string) -> addVestee.vestingInMonths;
+        ("totalAllocatedAmount"  : string) -> addVestee.1;
+        ("cliffInMonths"         : string) -> addVestee.2;
+        ("vestingInMonths"       : string) -> addVestee.3;
     ];
 
     var councilActionRecord : councilActionRecordType := record[
@@ -495,6 +548,23 @@ block {
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
+    
+    // Check if the vesting has a removeVestee entrypoint
+    var vestingAddress : address := case s.generalContracts["vesting"] of [
+        Some(_address) -> _address
+        | None -> failwith("Error. Vesting Contract Address not found")
+    ];
+    const _checkEntrypoint: contract(address)    = sendRemoveVesteeParams(vestingAddress);
+
+    // Check if the vestee already exists
+    const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+    case getVesteeOptView of [
+        Some (_value) -> case _value of [
+            Some (_vestee) -> skip
+        |   None -> failwith ("Error. This vestee does not exist")
+        ]
+    |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
+    ];
 
     const addressMap : addressMapType     = map [
         ("vesteeAddress"         : string) -> vesteeAddress;
@@ -528,7 +598,7 @@ block {
 
 } with (noOperations, s)
 
-function councilActionUpdateVestee(const updateVestee : councilActionUpdateVesteeType; var s : councilStorage) : return is 
+function councilActionUpdateVestee(const updateVestee : updateVesteeType; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -538,14 +608,31 @@ block {
     
     checkSenderIsCouncilMember(s);
 
+    // Check if the vesting has a updateVestee entrypoint
+    var vestingAddress : address := case s.generalContracts["vesting"] of [
+        Some(_address) -> _address
+        | None -> failwith("Error. Vesting Contract Address not found")
+    ];
+    const _checkEntrypoint: contract(updateVesteeType)    = sendUpdateVesteeParams(vestingAddress);
+
+    // Check if the vestee already exists
+    const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", updateVestee.0, vestingAddress);
+    case getVesteeOptView of [
+        Some (_value) -> case _value of [
+            Some (_vestee) -> skip
+        |   None -> failwith ("Error. This vestee does not exist")
+        ]
+    |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
+    ];
+
     const addressMap : addressMapType     = map [
-        ("vesteeAddress"         : string) -> updateVestee.vesteeAddress;
+        ("vesteeAddress"         : string) -> updateVestee.0;
     ];
     const emptyStringMap : stringMapType = map [];
     const natMap : natMapType            = map [
-        ("newTotalAllocatedAmount"  : string) -> updateVestee.newTotalAllocatedAmount;
-        ("newCliffInMonths"         : string) -> updateVestee.newCliffInMonths;
-        ("newVestingInMonths"       : string) -> updateVestee.newVestingInMonths;
+        ("newTotalAllocatedAmount"  : string) -> updateVestee.1;
+        ("newCliffInMonths"         : string) -> updateVestee.2;
+        ("newVestingInMonths"       : string) -> updateVestee.3;
     ];
 
     var councilActionRecord : councilActionRecordType := record[
@@ -583,6 +670,23 @@ block {
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
+
+    // Check if the provided contract has a toggleVesteeLock entrypoint
+    var vestingAddress : address := case s.generalContracts["vesting"] of [
+        Some(_address) -> _address
+        | None -> failwith("Error. Vesting Contract Address not found")
+    ];
+    const _checkEntrypoint: contract(address)    = sendToggleVesteeLockParams(vestingAddress);
+
+    // Check if the vestee already exists
+    const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
+    case getVesteeOptView of [
+        Some (_value) -> case _value of [
+            Some (_vestee) -> skip
+        |   None -> failwith ("Error. This vestee does not exist")
+        ]
+    |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
+    ];
 
     const addressMap : addressMapType     = map [
         ("vesteeAddress"         : string) -> vesteeAddress;
@@ -625,6 +729,19 @@ block {
     // 3. Increment action counter
 
     checkSenderIsCouncilMember(s);
+
+    // Check if the governance has a updateVestee entrypoint
+    var govenanceAddress : address := case s.generalContracts["governance"] of [
+        Some(_address) -> _address
+        | None -> failwith("Error. Governance Contract Address not found")
+    ];
+    const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(govenanceAddress);
+
+    // Check if type is correct
+    if councilActionRequestTokensParams.tokenType = "FA12" or
+    councilActionRequestTokensParams.tokenType = "FA2" or
+    councilActionRequestTokensParams.tokenType = "XTZ" then skip
+    else failwith("Error. Wrong token type provided. Only FA12/FA2/XTZ allowed");
 
     const addressMap : addressMapType     = map [
         ("treasuryAddress"       : string) -> councilActionRequestTokensParams.treasuryAddress;
@@ -676,6 +793,13 @@ block {
 
     checkSenderIsCouncilMember(s);
 
+    // Check if the governance has a updateVestee entrypoint
+    var govenanceAddress : address := case s.generalContracts["governance"] of [
+        Some(_address) -> _address
+        | None -> failwith("Error. Governance Contract Address not found")
+    ];
+    const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(govenanceAddress);
+
     const addressMap : addressMapType     = map [
         ("treasuryAddress"       : string) -> councilActionRequestMintParams.treasuryAddress;
     ];
@@ -722,6 +846,18 @@ block {
 
     checkSenderIsCouncilMember(s);
 
+    // Check if financial request exists
+    const _request: councilActionRecordType = case Big_map.find_opt(requestID, s.councilActionsLedger) of [
+        Some (_action) -> _action
+    |   None -> failwith("Error. Provided financial request not found")
+    ];
+
+    if _request.status  = "FLUSHED" then failwith("Error. The provided financial request has already been dropped")
+    else skip;
+
+    if _request.executed then failwith("Error. The provided financial request has been executed, it cannot be dropped")
+    else skip;
+
     const addressMap : addressMapType     = map [];
     const stringMap : stringMapType      = map [];
     const natMap : natMapType         = map [
@@ -764,6 +900,18 @@ block {
     // 3. Increment action counter
     
     checkSenderIsCouncilMember(s);
+
+    // Check if council action
+    const _request: councilActionRecordType = case Big_map.find_opt(actionId, s.councilActionsLedger) of [
+        Some (_action) -> _action
+    |   None -> failwith("Error. Provided council action not found")
+    ];
+
+    if _request.status  = "FLUSHED" then failwith("Error. The council action has already been flushed")
+    else skip;
+
+    if _request.executed then failwith("Error. The provided council action has been executed, it cannot be flushed")
+    else skip;
 
     const emptyAddressMap  : addressMapType     = map [];
     const emptyStringMap   : stringMapType      = map [];
@@ -902,12 +1050,7 @@ block {
             ];
             // fetch params end ---
 
-            const addVesteeParams : councilActionAddVesteeType = record [
-                vesteeAddress           = vesteeAddress;
-                totalAllocatedAmount    = totalAllocatedAmount;
-                cliffInMonths           = cliffInMonths;
-                vestingInMonths         = vestingInMonths;
-            ];
+            const addVesteeParams : addVesteeType = (vesteeAddress, totalAllocatedAmount, cliffInMonths, vestingInMonths);
 
             var vestingAddress : address := case s.generalContracts["vesting"] of [
                 Some(_address) -> _address
@@ -979,12 +1122,7 @@ block {
             ];
             // fetch params end ---
 
-            const updateVesteeParams : councilActionUpdateVesteeType = record [
-                vesteeAddress               = vesteeAddress;
-                newTotalAllocatedAmount     = newTotalAllocatedAmount;
-                newCliffInMonths            = newCliffInMonths;
-                newVestingInMonths          = newVestingInMonths;
-            ];
+            const updateVesteeParams : updateVesteeType = (vesteeAddress, newTotalAllocatedAmount, newCliffInMonths, newVestingInMonths);
 
             var vestingAddress : address := case s.generalContracts["vesting"] of [
                 Some(_address) -> _address

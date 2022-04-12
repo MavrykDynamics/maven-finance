@@ -212,6 +212,10 @@ block {
         | None -> failwith("Error. Vestee not found.")
     ];
 
+(* View functions to get the totalRemainder for the vestee *)
+[@view] function getVesteeOpt(const vesteeAddress : address; var s : vestingStorage) : option(vesteeRecordType) is 
+    Big_map.find_opt(vesteeAddress, s.vesteeLedger)
+
 (* View functions to get the total vested amount *)
 [@view] function getTotalVested(const _ : unit; var s : vestingStorage) : nat is 
     s.totalVestedAmount

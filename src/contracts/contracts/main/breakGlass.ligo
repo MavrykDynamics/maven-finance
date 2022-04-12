@@ -431,7 +431,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     // Check if the provided contract has a setAdmin entrypoint
-    const checkEntrypoint: contract(address)    = setAdminInContract(targetContractAddress);
+    const _checkEntrypoint: contract(address)    = setAdminInContract(targetContractAddress);
 
     const addressMap   : addressMapType      = map [
         ("newAdminAddress" : string) -> newAdminAddress;

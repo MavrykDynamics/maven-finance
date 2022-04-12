@@ -16,6 +16,9 @@
 // Treasury Type for mint and transfers
 #include "../partials/types/treasuryTypes.ligo"
 
+// Council Type for financial requests
+#include "../partials/types/councilTypes.ligo"
+
 // Governance Type
 #include "../partials/types/governanceTypes.ligo"
 
@@ -29,7 +32,7 @@ type governanceAction is
     | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
     
-    | StartNextRound of bool
+    // | StartNextRound of bool
     | Propose of newProposalType
     | ProposalRoundVote of proposalIdType
     | AddUpdateProposalData of addUpdateProposalDataType
@@ -38,17 +41,17 @@ type governanceAction is
     | VotingRoundVote of (voteForProposalChoiceType)
     
     | ExecuteProposal of (unit)
-    | DropProposal of (nat)
+    // | DropProposal of (nat)
 
     // Governance Lambda
     | CallGovernanceLambdaProxy of executeActionType
     | SetupLambdaFunction of setupLambdaFunctionType
 
     // Financial Governance
-    // | RequestTokens of requestTokensType
-    // | RequestMint of requestMintType
-    // | DropFinancialRequest of (nat)
-    // | VoteForRequest of voteForRequestType
+    | RequestTokens of councilActionRequestTokensType
+    | RequestMint of councilActionRequestMintType
+    | DropFinancialRequest of (nat)
+    | VoteForRequest of voteForRequestType
 
 const noOperations : list (operation) = nil;
 const maxRoundDuration: nat = 20_160n; // One week with blockTime = 30sec
@@ -1062,7 +1065,7 @@ block {
 
 } with (s)
 
-function requestTokens(const requestTokensParams : requestTokensType; var s : governanceStorage) : return is 
+function requestTokens(const requestTokensParams : councilActionRequestTokensType; var s : governanceStorage) : return is 
 block {
   
   checkSenderIsCouncilContract(s);
@@ -1148,7 +1151,7 @@ block {
 
 } with (noOperations, s)
 
-function requestMint(const requestMintParams : requestMintType; var s : governanceStorage) : return is 
+function requestMint(const requestMintParams : councilActionRequestMintType; var s : governanceStorage) : return is 
 block {
   
   checkSenderIsCouncilContract(s);
@@ -1414,7 +1417,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
-        | StartNextRound(parameters) -> startNextRound(parameters, s)
+        // | StartNextRound(parameters) -> startNextRound(parameters, s)
         | Propose(parameters) -> propose(parameters, s)
         | ProposalRoundVote(parameters) -> proposalRoundVote(parameters, s)
         | AddUpdateProposalData(parameters) -> addUpdateProposalData(parameters, s)
@@ -1423,15 +1426,15 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | VotingRoundVote(parameters) -> votingRoundVote(parameters, s)
         
         | ExecuteProposal(_parameters) -> executeProposal(s)
-        | DropProposal(parameters) -> dropProposal(parameters, s)
+        // | DropProposal(parameters) -> dropProposal(parameters, s)
 
         // Governance Lambdas
         | CallGovernanceLambdaProxy(parameters) -> callGovernanceLambdaProxy(parameters, s)
         | SetupLambdaFunction(parameters) -> setupLambdaFunction(parameters, s)
 
         // Financial Governance
-        // | RequestTokens(parameters) -> requestTokens(parameters, s)
-        // | RequestMint(parameters) -> requestMint(parameters, s)
-        // | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
-        // | VoteForRequest(parameters) -> voteForRequest(parameters, s)
+        | RequestTokens(parameters) -> requestTokens(parameters, s)
+        | RequestMint(parameters) -> requestMint(parameters, s)
+        | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
+        | VoteForRequest(parameters) -> voteForRequest(parameters, s)
     ]
