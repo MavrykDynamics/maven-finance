@@ -13,7 +13,6 @@ export const lpTokenUsdmXtzDecimals = 6
 
 const totalSupply      = 500000000                        // 500 LP Tokens
 const initialSupply    = new BigNumber(totalSupply)       // 500 LP Tokens
-const singleUserSupply = new BigNumber(totalSupply / 4)   // 0 LP Tokens
 
 const metadata = MichelsonMap.fromLiteral({
   '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
