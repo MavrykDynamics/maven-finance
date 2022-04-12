@@ -1,13 +1,11 @@
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
-type onStakeChangeParams is (address * nat * stakeType)
+type onStakeChangeParams is (address)
 type updateSatelliteRecordParams is (string * string * string * nat)
 
 // record for users choosing satellites 
 type delegateRecordType is record [
     satelliteAddress     : address;
-    delegatedDateTime    : timestamp;  
+    delegatedDateTime    : timestamp;
+    delegatedSMvkBalance : nat;
     // fee -> custom delegate fee for satellite
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)

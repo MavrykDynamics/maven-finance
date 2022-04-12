@@ -5,10 +5,7 @@ type userStakeBalanceRecordType is record[
 ]
 type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
-type updateSatelliteBalanceParams is (address * nat * stakeType)
+type updateSatelliteBalanceParams is (address)
 
 type doormanBreakGlassConfigType is record [
     stakeIsPaused           : bool;

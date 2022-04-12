@@ -53,19 +53,6 @@ type councilActionUpdateBlocksPerMinType is  [@layout:comb] record [
     newBlocksPerMinute          : nat;
 ] 
 
-type councilActionAddVesteeType is  [@layout:comb] record [ 
-    vesteeAddress               : address;
-    totalAllocatedAmount        : nat;
-    cliffInMonths               : nat;
-    vestingInMonths             : nat;
-] 
-type councilActionUpdateVesteeType is [@layout:comb] record [ 
-    vesteeAddress               : address;
-    newTotalAllocatedAmount     : nat;
-    newCliffInMonths            : nat;
-    newVestingInMonths          : nat;
-] 
-
 type flushActionType is (nat)
 
 type councilUpdateConfigNewValueType is nat
