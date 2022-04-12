@@ -23,35 +23,36 @@
 #include "../partials/types/governanceTypes.ligo"
 
 type governanceAction is 
-    | BreakGlass of (unit)
-    | SetAdmin of (address)
+    | BreakGlass                      of (unit)
+    | SetAdmin                        of (address)
     
     // Housekeeping
-    | UpdateConfig of governanceUpdateConfigParamsType
-    | UpdateWhitelistContracts of updateWhitelistContractsParams
-    | UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
-    | UpdateGeneralContracts of updateGeneralContractsParams
+    | UpdateConfig                    of governanceUpdateConfigParamsType
+    | UpdateWhitelistContracts        of updateWhitelistContractsParams
+    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
+    | UpdateGeneralContracts          of updateGeneralContractsParams
     
-    // | StartNextRound of bool
-    | Propose of newProposalType
-    | ProposalRoundVote of proposalIdType
-    | AddUpdateProposalData of addUpdateProposalDataType
-    | LockProposal of proposalIdType  
+    | StartNextRound                  of bool
+    | Propose                         of newProposalType
+    | ProposalRoundVote               of proposalIdType
+    | AddUpdateProposalData           of addUpdateProposalDataType
+    | AddUpdatePaymentData            of addUpdatePaymentDataType
+    | LockProposal                    of proposalIdType  
     
-    | VotingRoundVote of (voteForProposalChoiceType)
+    | VotingRoundVote                 of (voteForProposalChoiceType)
     
-    | ExecuteProposal of (unit)
-    // | DropProposal of (nat)
+    | ExecuteProposal                 of (unit)
+    | DropProposal                    of (nat)
 
     // Governance Lambda
-    | CallGovernanceLambdaProxy of executeActionType
-    | SetupLambdaFunction of setupLambdaFunctionType
+    | CallGovernanceLambdaProxy       of executeActionType
+    | SetupLambdaFunction             of setupLambdaFunctionType
 
     // Financial Governance
-    | RequestTokens of councilActionRequestTokensType
-    | RequestMint of councilActionRequestMintType
-    | DropFinancialRequest of (nat)
-    | VoteForRequest of voteForRequestType
+    // | RequestTokens                   of requestTokensType
+    // | RequestMint                     of requestMintType
+    // | DropFinancialRequest            of (nat)
+    // | VoteForRequest                  of voteForRequestType
 
 const noOperations : list (operation) = nil;
 const maxRoundDuration: nat = 20_160n; // One week with blockTime = 30sec
@@ -570,9 +571,11 @@ block {
     if satelliteSnapshot.totalMvkBalance < abs(minimumMvkRequiredForProposalSubmission) then failwith("You do not have the minimum MVK required to submit a proposal.")
       else skip; 
 
+    const proposalId          : nat                   = s.nextProposalId;
     const emptyPassVotersMap  : passVotersMapType     = map [];
     const emptyVotersMap      : votersMapType         = map [];
     const proposalMetadata    : proposalMetadataType  = map [];
+    const paymentMetadata     : paymentMetadataType   = map [];
 
     var proposerProposals   : set(nat)             := case s.currentRoundProposers[Tezos.sender] of [
       Some (_proposals) -> _proposals
@@ -585,6 +588,7 @@ block {
     var newProposalRecord : proposalRecordType := record [
         proposerAddress         = Tezos.sender;
         proposalMetadata        = proposalMetadata;
+        paymentMetadata         = paymentMetadata;
 
         status                  = "ACTIVE";                        // status: "ACTIVE", "DROPPED"
         title                   = newProposal.title;               // title
@@ -623,20 +627,29 @@ block {
     ];
 
     // save proposal to proposalLedger
-    s.proposalLedger[s.nextProposalId] := newProposalRecord;
+    s.proposalLedger[proposalId] := newProposalRecord;
 
     // save proposer proposals
-    proposerProposals                     := Set.add(s.nextProposalId, proposerProposals);
+    proposerProposals                     := Set.add(proposalId, proposerProposals);
     s.currentRoundProposers[Tezos.sender] := proposerProposals;
 
     // Add data on creation
     var operations: list(operation) := nil;
-    case newProposal.metadata of [
+    case newProposal.proposalMetadata of [
       Some (_metadataMap) -> block{
-        for name -> data in map _metadataMap block {
+        for title -> data in map _metadataMap block {
           const addUpdateProposalData : contract(addUpdateProposalDataType) = Tezos.self("%addUpdateProposalData");
+
+          // prepare proposal data parameters
+          const proposalData = record [
+            proposalId      = proposalId;
+            title           = title;
+            proposalBytes   = data;
+          ];
+
+          // new operation for add/update proposal data
           operations := Tezos.transaction(
-            (s.nextProposalId, name, data),
+            proposalData,
             0tez, 
             addUpdateProposalData
           ) # operations;
@@ -645,25 +658,47 @@ block {
     | None -> skip
     ];
 
+    case newProposal.paymentMetadata of [
+      Some (_metadataMap) -> block{
+        for title -> data in map _metadataMap block {
+          const addUpdatePaymentData : contract(addUpdatePaymentDataType) = Tezos.self("%addUpdatePaymentData");
+
+          // prepare payment data parameters
+          const paymentData = record [
+            proposalId      = proposalId;
+            title           = title;
+            paymentBytes   = data;
+          ];
+
+          // new operation for add/update payment data
+          operations := Tezos.transaction(
+            paymentData,
+            0tez, 
+            addUpdatePaymentData
+          ) # operations;
+        }
+      }
+    | None -> skip
+    ];
+
     // add proposal id to current round proposals and initialise with zero positive votes in MVK 
-    s.currentRoundProposals[s.nextProposalId] := 0n;
+    s.currentRoundProposals[proposalId] := 0n;
 
     // increment next proposal id
-    s.nextProposalId := s.nextProposalId + 1n;
+    s.nextProposalId := proposalId + 1n;
 
 } with (operations, s)
 
 (* AddUpdateProposalData Entrypoint *)
-// type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
 function addUpdateProposalData(const proposalData : addUpdateProposalDataType; var s : governanceStorage) : return is 
 block {
 
     if s.currentRound = (Proposal : roundType) then skip
         else failwith("Error. You can only add or update proposal data during a proposal round.");
 
-    const proposalId     : nat     = proposalData.0;
-    const proposalTitle  : string  = proposalData.1;
-    const proposalBytes  : bytes   = proposalData.2;
+    const proposalId     : nat     = proposalData.proposalId;
+    const title          : string  = proposalData.title;
+    const proposalBytes  : bytes   = proposalData.proposalBytes;
 
     var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of [ 
         Some(_record) -> _record
@@ -675,11 +710,44 @@ block {
       else skip;
 
     // check that sender is the creator of the proposal 
-    if proposalRecord.proposerAddress =/= Tezos.source then failwith("Error. Only the proposer can add or update data.")
+    if proposalRecord.proposerAddress =/= Tezos.sender then failwith("Error. Only the proposer can add or update data.")
       else skip;
 
     // Add or update data to proposal
-    proposalRecord.proposalMetadata[proposalTitle] := proposalBytes; 
+    proposalRecord.proposalMetadata[title] := proposalBytes; 
+
+    // save changes and update proposal ledger
+    s.proposalLedger[proposalId] := proposalRecord;
+
+} with (noOperations, s)
+
+
+(* AddUpdatePaymentData Entrypoint *)
+function addUpdatePaymentData(const paymentData : addUpdatePaymentDataType; var s : governanceStorage) : return is 
+block {
+
+    if s.currentRound = (Proposal : roundType) then skip
+        else failwith("Error. You can only add or update proposal data during a proposal round.");
+
+    const proposalId        : nat     = paymentData.proposalId;
+    const title             : string  = paymentData.title;
+    const paymentBytes      : bytes   = paymentData.paymentBytes;
+
+    var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of [ 
+        Some(_record) -> _record
+      | None -> failwith("Error. Proposal not found.")
+    ];
+
+    // check that proposal is not locked
+    if proposalRecord.locked = True then failwith("Error. Proposal is locked.")
+      else skip;
+
+    // check that sender is the creator of the proposal 
+    if proposalRecord.proposerAddress =/= Tezos.sender then failwith("Error. Only the proposer can add or update data.")
+      else skip;
+
+    // Add or update data to proposal
+    proposalRecord.paymentMetadata[title] := paymentBytes; 
 
     // save changes and update proposal ledger
     s.proposalLedger[proposalId] := proposalRecord;
@@ -965,7 +1033,7 @@ block {
     proposal.executed            := True;
     s.proposalLedger[s.timelockProposalId] := proposal;    
 
-    // loop metadata for execution
+    // loop proposal metadata for execution
     for _title -> metadataBytes in map proposal.proposalMetadata block {
 
       const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
@@ -981,7 +1049,25 @@ block {
 
       operations := sendActionToGovernanceLambdaOperation # operations;
     
-    }     
+    };     
+
+    // loop payment metadata for execution
+    for _title -> metadataBytes in map proposal.paymentMetadata block {
+
+      const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
+        | Some(_action) -> _action
+        | None    -> failwith("Error. Unable to unpack proposal metadata.")
+      ];
+
+      const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
+        executeAction,
+        0tez,
+        sendOperationToGovernanceLambda(unit)
+      );
+
+      operations := sendActionToGovernanceLambdaOperation # operations;
+    
+    };     
 
 } with (operations, s)
 
@@ -1408,33 +1494,34 @@ block {
 
 function main (const action : governanceAction; const s : governanceStorage) : return is 
     case action of [
-        | BreakGlass(_parameters) -> breakGlass(s)  
-        | SetAdmin(parameters) -> setAdmin(parameters, s)  
+        | BreakGlass(_parameters)                     -> breakGlass(s)  
+        | SetAdmin(parameters)                        -> setAdmin(parameters, s)  
         
         // Housekeeping
-        | UpdateConfig(parameters) -> updateConfig(parameters, s)
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
-        | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
-        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
+        | UpdateConfig(parameters)                    -> updateConfig(parameters, s)
+        | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
+        | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
+        | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
 
-        // | StartNextRound(parameters) -> startNextRound(parameters, s)
-        | Propose(parameters) -> propose(parameters, s)
-        | ProposalRoundVote(parameters) -> proposalRoundVote(parameters, s)
-        | AddUpdateProposalData(parameters) -> addUpdateProposalData(parameters, s)
-        | LockProposal(parameters) -> lockProposal(parameters, s)
+        | StartNextRound(parameters)                  -> startNextRound(parameters, s)
+        | Propose(parameters)                         -> propose(parameters, s)
+        | ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
+        | AddUpdateProposalData(parameters)           -> addUpdateProposalData(parameters, s)
+        | AddUpdatePaymentData(parameters)            -> addUpdatePaymentData(parameters, s)
+        | LockProposal(parameters)                    -> lockProposal(parameters, s)
 
-        | VotingRoundVote(parameters) -> votingRoundVote(parameters, s)
+        | VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
         
-        | ExecuteProposal(_parameters) -> executeProposal(s)
-        // | DropProposal(parameters) -> dropProposal(parameters, s)
+        | ExecuteProposal(_parameters)                -> executeProposal(s)
+        | DropProposal(parameters)                    -> dropProposal(parameters, s)
 
         // Governance Lambdas
-        | CallGovernanceLambdaProxy(parameters) -> callGovernanceLambdaProxy(parameters, s)
-        | SetupLambdaFunction(parameters) -> setupLambdaFunction(parameters, s)
+        | CallGovernanceLambdaProxy(parameters)       -> callGovernanceLambdaProxy(parameters, s)
+        | SetupLambdaFunction(parameters)             -> setupLambdaFunction(parameters, s)
 
         // Financial Governance
-        | RequestTokens(parameters) -> requestTokens(parameters, s)
-        | RequestMint(parameters) -> requestMint(parameters, s)
-        | DropFinancialRequest(parameters) -> dropFinancialRequest(parameters, s)
-        | VoteForRequest(parameters) -> voteForRequest(parameters, s)
+        // | RequestTokens(parameters)                   -> requestTokens(parameters, s)
+        // | RequestMint(parameters)                     -> requestMint(parameters, s)
+        // | DropFinancialRequest(parameters)            -> dropFinancialRequest(parameters, s)
+        // | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
     ]
