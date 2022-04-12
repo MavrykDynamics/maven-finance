@@ -29,14 +29,29 @@ type voteForProposalChoiceType is
 type votingRoundVoteType is (nat * timestamp * voteForProposalChoiceType)       // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundVoteType)
 
-type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
+// type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
+
+type addUpdateProposalDataType is [@layout:comb] record [
+  proposalId         : nat;
+  title              : string;
+  proposalBytes      : bytes;
+]
+
+type addUpdatePaymentDataType is [@layout:comb] record [
+  proposalId         : nat;
+  title              : string;
+  paymentBytes       : bytes;
+]
 type proposalMetadataType is map (string, bytes)
+type paymentMetadataType is map (string, bytes)
+
 type newProposalType is [@layout:comb] record [
-  title         : string;
-  description   : string;
-  invoice       : string; // IPFS file
-  sourceCode    : string;
-  metadata      : option(map(string,bytes))
+  title              : string;
+  description        : string;
+  invoice            : string; // IPFS file
+  sourceCode         : string;
+  proposalMetadata   : option(map(string,bytes));
+  paymentMetadata    : option(map(string,bytes));
 ]
 // action title: change governance config successReward to 100000 MVK, params in bytes
 // action title: change delegation config xxx to xxx , params in bytes
@@ -45,6 +60,7 @@ type proposalRecordType is [@layout:comb] record [
     
     proposerAddress      : address;
     proposalMetadata     : proposalMetadataType;
+    paymentMetadata      : paymentMetadataType;
 
     status               : string;                  // status - "ACTIVE", "DROPPED"
     title                : string;                  // title
