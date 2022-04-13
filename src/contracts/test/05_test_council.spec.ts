@@ -11,7 +11,7 @@ chai.use(chaiAsPromised);
 chai.should();
 
 import env from "../env";
-import { bob, alice, eve, mallory, oscar, trudy, isaac } from "../scripts/sandbox/accounts";
+import { bob, alice, eve, mallory, oscar, trudy, isaac, david } from "../scripts/sandbox/accounts";
 
 import vestingAddress from '../deployments/vestingAddress.json';
 import doormanAddress from '../deployments/doormanAddress.json';
@@ -1445,6 +1445,8 @@ describe("Council tests", async () => {
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
                 actionSigner        = action.signers.includes(alice.pkh)
+                addressMap          = await action.addressMap;
+                stringMap           = await action.stringMap;
                 natMap              = await action.natMap;
 
                 // Assertions
@@ -1466,7 +1468,9 @@ describe("Council tests", async () => {
                 // Final values
                 councilStorage      = await councilInstance.storage();
                 action              = await councilStorage.councilActionsLedger.get(flushActionID);
-                const flushedAction = await councilStorage.councilActionsLedger.get(mintActionID);
+                addressMap          = await action.addressMap;
+                stringMap           = await action.stringMap;
+                natMap              = await action.natMap;
 
                 // Assertions
                 assert.strictEqual(action.initiator, alice.pkh);
@@ -1476,14 +1480,19 @@ describe("Council tests", async () => {
                 assert.equal(action.signersCount, 2);
                 assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
 
+                const flushedAction = await councilStorage.councilActionsLedger.get(mintActionID);
+                addressMap          = await flushedAction.addressMap;
+                stringMap           = await flushedAction.stringMap;
+                natMap              = await flushedAction.natMap;
+
                 assert.strictEqual(flushedAction.initiator, alice.pkh);
                 assert.strictEqual(flushedAction.status, "FLUSHED");
                 assert.strictEqual(flushedAction.actionType, "requestMint");
                 assert.equal(flushedAction.executed, false);
                 assert.equal(flushedAction.signersCount, 1);
-                assert.equal(flushedAction.get("treasuryAddress"), fromTreasury);
-                assert.equal(flushedAction.get("purpose"), purpose);
-                assert.equal(flushedAction.get("tokenAmount"), tokenAmount);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
 
                 // ----- DROP
                 await signerFactory(alice.sk);
@@ -1555,7 +1564,7 @@ describe("Council tests", async () => {
 
                 // ----- DROP
                 await signerFactory(alice.sk);
-                await chai.expect(councilInstance.methods.councilActionDropFinancialReq(mintActionID).send()).to.be.rejected;
+                await chai.expect(councilInstance.methods.signAction(mintActionID).send()).to.be.rejected;
             } catch(e){
                 console.log(e);
             }
@@ -1693,7 +1702,7 @@ describe("Council tests", async () => {
                 assert.strictEqual(action.actionType, "flushAction");
                 assert.equal(action.executed, true);
                 assert.equal(action.signersCount, 2);
-                assert.equal(natMap.get("actionId"), memberActionID);
+                assert.equal(natMap.get("actionId").toNumber(), memberActionID.toNumber());
 
                 assert.strictEqual(flushedAction.initiator, alice.pkh);
                 assert.strictEqual(flushedAction.status, "FLUSHED");
@@ -1953,13 +1962,1547 @@ describe("Council tests", async () => {
                 await updateOperation.confirmation();
 
                 // Operation
-                await signerFactory(bob.sk)
                 await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 
                 // Reset general contracts
-                await signerFactory(bob.sk);
                 updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
                 await updateOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('updateVestee --> should fail if the addVestee entrypoint doesn’t exist in the vesting contract or if the vesting contract is not in the generalContracts map', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const cliffInMonths     = 0;
+                const vestingInMonths   = 12;
+                const vesteeAddress     = eve.pkh;
+                const totalAllocated    = MVK(40000000);
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "updateVestee");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+                assert.equal(natMap.get("newTotalAllocatedAmount"), totalAllocated);
+                assert.equal(natMap.get("newCliffInMonths"), cliffInMonths);
+                assert.equal(natMap.get("newVestingInMonths"), vestingInMonths);
+
+                // Update general contracts
+                await signerFactory(bob.sk);
+                var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+                await updateOperation.confirmation();
+
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+
+                // Reset general contracts
+                updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+                await updateOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('updateVestee --> should update a vestee', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const cliffInMonths     = 0;
+                const vestingInMonths   = 12;
+                const vesteeAddress     = eve.pkh;
+                const totalAllocated    = MVK(40000000);
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionUpdateVestee(vesteeAddress, totalAllocated, cliffInMonths, vestingInMonths).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "updateVestee");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+                assert.equal(natMap.get("newTotalAllocatedAmount"), totalAllocated);
+                assert.equal(natMap.get("newCliffInMonths"), cliffInMonths);
+                assert.equal(natMap.get("newVestingInMonths"), vestingInMonths);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var natMap          = await action.natMap;
+
+                vestingStorage      = await vestingInstance.storage();
+                const vestee        = await vestingStorage.vesteeLedger.get(vesteeAddress);
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "updateVestee");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+                assert.equal(natMap.get("newTotalAllocatedAmount"), totalAllocated);
+                assert.equal(natMap.get("newCliffInMonths"), cliffInMonths);
+                assert.equal(natMap.get("newVestingInMonths"), vestingInMonths);
+                assert.notStrictEqual(vestee, undefined);
+                assert.equal(vestee.totalAllocatedAmount, totalAllocated);
+                assert.equal(vestee.cliffMonths, cliffInMonths);
+                assert.equal(vestee.vestingMonths, vestingInMonths);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('toggleVesteeLock --> should fail if the toggleVesteeLock entrypoint doesn’t exist in the vesting contract or if the vesting contract is not in the generalContracts map', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const vesteeAddress     = eve.pkh;
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "toggleVesteeLock");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+
+                // Update general contracts
+                await signerFactory(bob.sk);
+                var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+                await updateOperation.confirmation();
+
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+
+                // Reset general contracts
+                updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+                await updateOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('toggleVesteeLock --> should lock or unlock a vestee', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const vesteeAddress     = eve.pkh;
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionToggleVesteeLock(vesteeAddress).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                vestingStorage      = await vestingInstance.storage();
+                var vestee          = await vestingStorage.vesteeLedger.get(vesteeAddress);
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "toggleVesteeLock");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+                assert.strictEqual(vestee.status, "ACTIVE")
+
+                // Operation
+                await signerFactory(bob.sk);
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                vestingStorage      = await vestingInstance.storage();
+                vestee              = await vestingStorage.vesteeLedger.get(vesteeAddress);
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "toggleVesteeLock");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+                assert.notStrictEqual(vestee, undefined);
+                assert.strictEqual(vestee.status, "LOCKED")
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('removeVestee --> should fail if the removeVestee entrypoint doesn’t exist in the vesting contract or if the vesting contract is not in the generalContracts map', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const vesteeAddress     = eve.pkh;
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionRemoveVestee(vesteeAddress).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "removeVestee");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+
+                // Update general contracts
+                await signerFactory(bob.sk);
+                var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+                await updateOperation.confirmation();
+
+                // Operation                
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+
+                // Update general contracts
+                var updateOperation = await councilInstance.methods.updateGeneralContracts("vesting", vestingAddress.address).send()
+                await updateOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('removeVestee --> should remove a vestee', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const vesteeAddress     = eve.pkh;
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionRemoveVestee(vesteeAddress).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "removeVestee");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                vestingStorage      = await vestingInstance.storage();
+                const vestee        = await vestingStorage.vesteeLedger.get(vesteeAddress);
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "removeVestee");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("vesteeAddress"), vesteeAddress);
+                assert.strictEqual(vestee, undefined);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('addCouncilMember --> should add the given address as a council member if the address is not in it', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const memberAddress     = david.pkh;
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionAddMember(memberAddress).send();
+                await newActionOperation.confirmation();
+
+                // Action for future test
+                const futureActionOperation = await councilInstance.methods.councilActionAddMember(memberAddress).send();
+                await futureActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "addCouncilMember");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                const memberUpdated = councilStorage.councilMembers.includes(david.pkh);
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "addCouncilMember");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+                assert.equal(memberUpdated, true);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('addCouncilMember --> should fail if the member is already a council member', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const memberAddress     = david.pkh;
+                const nextActionID      = councilStorage.actionCounter - 1;
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "addCouncilMember");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+
+                // Operation
+                await signerFactory(bob.sk)
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('removeCouncilMember --> should fail if the threshold in the configuration is greater than the expected amount of members after execution', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const memberAddress     = mallory.pkh;
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionRemoveMember(memberAddress).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                const councilSize   = councilStorage.councilMembers.length;
+                const oldThresold   = councilStorage.config.threshold;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "removeCouncilMember");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+
+                // Update config
+                await signerFactory(bob.sk)
+                var updateConfigOperation = await councilInstance.methods.updateConfig(councilSize,"configThreshold").send();
+                await updateConfigOperation.confirmation();
+
+                // Operation
+                var signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+                
+                await signerFactory(mallory.sk)
+                signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                await signerFactory(david.sk)
+                signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                await signerFactory(eve.sk)
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+
+                // Reset config
+                await signerFactory(bob.sk)
+                updateConfigOperation = await councilInstance.methods.updateConfig(oldThresold,"configThreshold").send();
+                await updateConfigOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('removeCouncilMember --> should remove the given address from the council members if the address is in it', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const memberAddress     = mallory.pkh;
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionRemoveMember(memberAddress).send();
+                await newActionOperation.confirmation();
+
+                // Action for future test
+                const futureActionOperation = await councilInstance.methods.councilActionRemoveMember(memberAddress).send();
+                await futureActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "removeCouncilMember");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                const memberUpdated = councilStorage.councilMembers.includes(mallory.pkh);
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "removeCouncilMember");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+                assert.equal(memberUpdated, false);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('removeCouncilMember --> should fail if the member is not a council member', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const memberAddress     = mallory.pkh;
+                const nextActionID      = councilStorage.actionCounter - 1;
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "removeCouncilMember");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("councilMemberAddress"), memberAddress);
+
+                // Operation
+                await signerFactory(bob.sk)
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('changeCouncilMember --> should replace an old councilMember with a new one if the old member if the old member is a council member', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const oldMemberAddress  = eve.pkh;
+                const newMemberAddress  = isaac.pkh;
+                const nextActionID      = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionChangeMember(oldMemberAddress, newMemberAddress).send();
+                await newActionOperation.confirmation();
+
+                // Action for future test
+                var futureNewAddress  = trudy.pkh;
+                var futureActionOperation = await councilInstance.methods.councilActionChangeMember(oldMemberAddress, futureNewAddress).send();
+                await futureActionOperation.confirmation();
+
+                // Action for future test
+                var futureOldAddress  = alice.pkh;
+                var futureActionOperation = await councilInstance.methods.councilActionChangeMember(futureOldAddress, newMemberAddress).send();
+                await futureActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "changeCouncilMember");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMemberAddress);
+                assert.equal(addressMap.get("newCouncilMemberAddress"), newMemberAddress);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                const memberRemoved = councilStorage.councilMembers.includes(eve.pkh);
+                const memberAdded = councilStorage.councilMembers.includes(isaac.pkh);
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "changeCouncilMember");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMemberAddress);
+                assert.equal(addressMap.get("newCouncilMemberAddress"), newMemberAddress);
+                assert.equal(memberRemoved, false);
+                assert.equal(memberAdded, true);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('changeCouncilMember --> should fail if the old member is not in the council', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const oldMemberAddress  = eve.pkh;
+                const newMemberAddress  = trudy.pkh;
+                const nextActionID      = councilStorage.actionCounter - 2;
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "changeCouncilMember");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMemberAddress);
+                assert.equal(addressMap.get("newCouncilMemberAddress"), newMemberAddress);
+
+                // Operation
+                await signerFactory(bob.sk)
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('changeCouncilMember --> should fail if the new member is already in the council', async () => {
+            try{
+                // Initial Values
+                councilStorage          = await councilInstance.storage();
+                const oldMemberAddress  = alice.pkh;
+                const newMemberAddress  = isaac.pkh;
+                const nextActionID      = councilStorage.actionCounter - 1;
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "changeCouncilMember");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("oldCouncilMemberAddress"), oldMemberAddress);
+                assert.equal(addressMap.get("newCouncilMemberAddress"), newMemberAddress);
+
+                // Operation
+                await signerFactory(bob.sk)
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('transfer --> should transfer tokens from the council contract to a given address', async () => {
+            try{
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const receiverAddress       = eve.pkh;
+                const tokenContractAddress  = mvkTokenAddress.address;
+                const tokenType             = "FA2";
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const tokenId               = 0;
+                const nextActionID          = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionTransfer(
+                    receiverAddress,
+                    tokenContractAddress,
+                    tokenAmount,
+                    tokenType,
+                    tokenId,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var stringMap       = await action.stringMap;
+                var natMap          = await action.natMap;
+
+                mvkTokenStorage         = await mvkTokenInstance.storage();
+                const preCouncilBalance = await mvkTokenStorage.ledger.get(councilAddress.address);
+                const preUserBalance    = await mvkTokenStorage.ledger.get(eve.pkh);
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "transfer");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("receiverAddress"), receiverAddress);
+                assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
+                assert.equal(stringMap.get("tokenType"), tokenType);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+                assert.equal(natMap.get("tokenId"), tokenId);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+
+                mvkTokenStorage             = await mvkTokenInstance.storage();
+                const postCouncilBalance    = await mvkTokenStorage.ledger.get(councilAddress.address);
+                const postUserBalance       = await mvkTokenStorage.ledger.get(eve.pkh);
+
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "transfer");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("receiverAddress"), receiverAddress);
+                assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
+                assert.equal(stringMap.get("tokenType"), tokenType);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+                assert.equal(natMap.get("tokenId"), tokenId);
+                assert.notEqual(postCouncilBalance.toNumber(), preCouncilBalance.toNumber());
+                assert.notEqual(postUserBalance.toNumber(), preUserBalance.toNumber());
+                assert.equal(postUserBalance.toNumber(), preUserBalance.toNumber() + tokenAmount);
+                assert.equal(postCouncilBalance.toNumber(), preCouncilBalance.toNumber() - tokenAmount);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('requestTokens --> should fail if the requestTokens entrypoint doesn’t exist in the governance contract or if the governance contract is not in the generalContracts map', async () => {
+            try{
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const fromTreasury          = treasuryAddress.address;
+                const tokenContractAddress  = mvkTokenAddress.address;
+                const tokenName             = "MVK";
+                const tokenType             = "FA2";
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const tokenId               = 0;
+                const nextActionID          = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionRequestTokens(
+                    fromTreasury,
+                    tokenContractAddress,
+                    tokenName,
+                    tokenAmount,
+                    tokenType,
+                    tokenId,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                const action        = await councilStorage.councilActionsLedger.get(nextActionID);
+                const actionSigner  = action.signers.includes(alice.pkh)
+                const addressMap    = await action.addressMap;
+                const stringMap     = await action.stringMap;
+                const natMap        = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "requestTokens");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
+                assert.equal(stringMap.get("tokenName"), tokenName);
+                assert.equal(stringMap.get("tokenType"), tokenType);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+                assert.equal(natMap.get("tokenId"), tokenId);
+
+                // Update general contracts
+                await signerFactory(bob.sk);
+                var updateOperation = await councilInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send()
+                await updateOperation.confirmation();
+
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                
+                // Reset general contracts
+                updateOperation = await councilInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send()
+                await updateOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('requestTokens --> should create a request in the governance contract requesting for tokens', async () => {
+            try{
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const fromTreasury          = treasuryAddress.address;
+                const tokenContractAddress  = mvkTokenAddress.address;
+                const tokenName             = "MVK";
+                const tokenType             = "FA2";
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const tokenId               = 0;
+                const nextActionID          = councilStorage.actionCounter;
+                governanceStorage           = await governanceInstance.storage();
+                const governanceActionID    = governanceStorage.financialRequestCounter; 
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionRequestTokens(
+                    fromTreasury,
+                    tokenContractAddress,
+                    tokenName,
+                    tokenAmount,
+                    tokenType,
+                    tokenId,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var stringMap       = await action.stringMap;
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "requestTokens");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
+                assert.equal(stringMap.get("tokenName"), tokenName);
+                assert.equal(stringMap.get("tokenType"), tokenType);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+                assert.equal(natMap.get("tokenId"), tokenId);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                action              = await councilStorage.councilActionsLedger.get(nextActionID);
+                actionSigner        = action.signers.includes(alice.pkh)
+                addressMap          = await action.addressMap;
+                stringMap           = await action.stringMap;
+                natMap              = await action.natMap;
+
+                governanceStorage       = await governanceInstance.storage();
+                const governanceAction  = await governanceStorage.financialRequestLedger.get(governanceActionID)
+
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "requestTokens");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(addressMap.get("tokenContractAddress"), tokenContractAddress);
+                assert.equal(stringMap.get("tokenName"), tokenName);
+                assert.equal(stringMap.get("tokenType"), tokenType);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+                assert.equal(natMap.get("tokenId"), tokenId);
+                assert.notStrictEqual(governanceAction, undefined);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('requestMint --> should fail if the requestMint entrypoint doesn’t exist in the governance contract or if the governance contract is not in the generalContracts map', async () => {
+            try{
+                
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const fromTreasury          = treasuryAddress.address;
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const nextActionID          = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                    fromTreasury,
+                    tokenAmount,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                const action        = await councilStorage.councilActionsLedger.get(nextActionID);
+                const actionSigner  = action.signers.includes(alice.pkh)
+                const addressMap    = await action.addressMap;
+                const stringMap     = await action.stringMap;
+                const natMap        = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "requestMint");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+
+                // Update general contracts
+                await signerFactory(bob.sk);
+                var updateOperation = await councilInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send()
+                await updateOperation.confirmation();
+
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                
+                // Reset general contracts
+                updateOperation = await councilInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send()
+                await updateOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('requestMint --> should create a request in the governance contract requesting for a MVK mint', async () => {
+            try{
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const fromTreasury          = treasuryAddress.address;
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const nextActionID          = councilStorage.actionCounter;
+                governanceStorage           = await governanceInstance.storage();
+                const governanceActionID    = governanceStorage.financialRequestCounter; 
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                    fromTreasury,
+                    tokenAmount,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var stringMap       = await action.stringMap;
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "requestMint");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                action              = await councilStorage.councilActionsLedger.get(nextActionID);
+                actionSigner        = action.signers.includes(alice.pkh)
+                addressMap          = await action.addressMap;
+                stringMap           = await action.stringMap;
+                natMap              = await action.natMap;
+
+                governanceStorage       = await governanceInstance.storage();
+                const governanceAction  = await governanceStorage.financialRequestLedger.get(governanceActionID)
+
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "requestMint");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+                assert.notStrictEqual(governanceAction, undefined);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('dropFinancialRequest --> should fail if the dropFinancialRequest entrypoint doesn’t exist in the governance contract or if the governance contract is not in the generalContracts map', async () => {
+            try{
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                governanceStorage           = await governanceInstance.storage();
+                const requestID             = governanceStorage.financialRequestCounter - 1;
+                const nextActionID          = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionDropFinancialReq(requestID).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                const action        = await councilStorage.councilActionsLedger.get(nextActionID);
+                const actionSigner  = action.signers.includes(alice.pkh)
+                const natMap        = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "dropFinancialRequest");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(natMap.get("requestId"), requestID);
+
+                // Update general contracts
+                await signerFactory(bob.sk);
+                var updateOperation = await councilInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send()
+                await updateOperation.confirmation();
+
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(nextActionID).send()).to.be.rejected;
+                
+                // Reset general contracts
+                updateOperation = await councilInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send()
+                await updateOperation.confirmation();
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('dropFinancialRequest --> should drop a financial request in the governance contract', async () => {
+            try{
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                governanceStorage           = await governanceInstance.storage();
+                const requestID             = governanceStorage.financialRequestCounter - 1;
+                const nextActionID          = councilStorage.actionCounter;
+
+                // Operation
+                const newActionOperation = await councilInstance.methods.councilActionDropFinancialReq(requestID).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(nextActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "dropFinancialRequest");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(natMap.get("requestId"), requestID);
+
+                // Operation
+                await signerFactory(bob.sk)
+                const signOperation = await councilInstance.methods.signAction(nextActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                action              = await councilStorage.councilActionsLedger.get(nextActionID);
+                actionSigner        = action.signers.includes(alice.pkh)
+                natMap              = await action.natMap;
+
+                governanceStorage       = await governanceInstance.storage();
+                const dropAction        = await governanceStorage.financialRequestLedger.get(requestID)
+
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "dropFinancialRequest");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(natMap.get("requestId"), requestID);
+                assert.equal(dropAction.status, false);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('flushAction --> should fail if the action was executed', async () => {
+            try{
+                // ----- REQUEST MINT
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const fromTreasury          = treasuryAddress.address;
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const mintActionID          = councilStorage.actionCounter;
+
+                // Operation
+                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                    fromTreasury,
+                    tokenAmount,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(mintActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var stringMap       = await action.stringMap;
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "requestMint");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+
+                // ----- FLUSH REQUEST
+                // Initial Values
+                councilStorage                  = await councilInstance.storage();
+                const flushActionID             = councilStorage.actionCounter;
+
+                // Operation
+                newActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                action              = await councilStorage.councilActionsLedger.get(flushActionID);
+                actionSigner        = action.signers.includes(alice.pkh)
+                natMap              = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "flushAction");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+
+                // ----- SIGN MINT
+                await signerFactory(bob.sk)
+
+                // Operation
+                var signOperation = await councilInstance.methods.signAction(mintActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                action              = await councilStorage.councilActionsLedger.get(mintActionID);
+                natMap              = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "requestMint");
+                assert.equal(action.executed, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+
+                // ----- SIGN FLUSH
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(flushActionID).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('flushAction --> should fail if the action was flushed', async () => {
+            try{
+                // ----- REQUEST MINT
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const fromTreasury          = treasuryAddress.address;
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const mintActionID          = councilStorage.actionCounter;
+
+                // Operation
+                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                    fromTreasury,
+                    tokenAmount,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(mintActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var stringMap       = await action.stringMap;
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "requestMint");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+
+                // ----- FLUSH REQUEST
+                // Initial Values
+                councilStorage                  = await councilInstance.storage();
+                const flushActionID             = councilStorage.actionCounter;
+
+                // Operation
+                newActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                action              = await councilStorage.councilActionsLedger.get(flushActionID);
+                actionSigner        = action.signers.includes(alice.pkh)
+                natMap              = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "flushAction");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+
+                // ----- SECOND FLUSH REQUEST
+                // Initial Values
+                councilStorage                  = await councilInstance.storage();
+                const reflushActionID           = councilStorage.actionCounter;
+
+                // Operation
+                newActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                action              = await councilStorage.councilActionsLedger.get(reflushActionID);
+                actionSigner        = action.signers.includes(alice.pkh)
+                natMap              = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "flushAction");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+
+                // ----- SIGN FIRST FLUSH
+                await signerFactory(bob.sk)
+
+                // Operation
+                var signOperation = await councilInstance.methods.signAction(flushActionID).send();
+                await signOperation.confirmation();
+
+                // ----- TRY SECOND FLUSH
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(flushActionID).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('flushAction --> should flush a pending action', async () => {
+            try{
+                // ----- REQUEST MINT
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const fromTreasury          = treasuryAddress.address;
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const mintActionID          = councilStorage.actionCounter;
+
+                // Operation
+                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                    fromTreasury,
+                    tokenAmount,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(mintActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var stringMap       = await action.stringMap;
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "requestMint");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+
+                // ----- FLUSH REQUEST
+                // Initial Values
+                councilStorage                  = await councilInstance.storage();
+                const flushActionID             = councilStorage.actionCounter;
+
+                // Operation
+                newActionOperation = await councilInstance.methods.flushAction(mintActionID).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                action              = await councilStorage.councilActionsLedger.get(flushActionID);
+                actionSigner        = action.signers.includes(alice.pkh)
+                natMap              = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "flushAction");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+
+                // ----- SIGN FIRST FLUSH
+                await signerFactory(bob.sk)
+
+                // Operation
+                var signOperation = await councilInstance.methods.signAction(flushActionID).send();
+                await signOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                action              = await councilStorage.councilActionsLedger.get(flushActionID);
+                actionSigner        = action.signers.includes(alice.pkh)
+                natMap              = await action.natMap;
+
+                const flushedAction = await councilStorage.councilActionsLedger.get(mintActionID);
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "EXECUTED");
+                assert.strictEqual(action.actionType, "flushAction");
+                assert.equal(action.executed, true);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 2);
+                assert.equal(natMap.get("actionId").toNumber(), mintActionID.toNumber());
+                assert.strictEqual(flushedAction.status, "FLUSHED");
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was flushed', async () => {
+            try{
+                // Initial values
+                await signerFactory(bob.sk)
+                councilStorage              = await councilInstance.storage();
+                const flushedActionID       = councilStorage.actionCounter - 2;
+
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(flushedActionID).send()).to.be.rejected;
+                const flushedAction = await councilStorage.councilActionsLedger.get(flushedActionID);
+                assert.strictEqual(flushedAction.status, "FLUSHED");
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Council member should not be able to access this entrypoint if the action linked to the provided actionID was executed', async () => {
+            try{
+                // Initial values
+                await signerFactory(bob.sk)
+                councilStorage              = await councilInstance.storage();
+                const executedActionID      = councilStorage.actionCounter - 1;
+
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(executedActionID).send()).to.be.rejected;
+                const executedAction = await councilStorage.councilActionsLedger.get(executedActionID);
+                assert.strictEqual(executedAction.status, "EXECUTED");
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Council member should not be able to access this entrypoint if the action linked to the provided actionID doesn’t exist', async () => {
+            try{
+                // Initial values
+                await signerFactory(bob.sk)
+                councilStorage              = await councilInstance.storage();
+                const flushedActionID       = 999;
+
+                // Operation
+                await chai.expect(councilInstance.methods.signAction(flushedActionID).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Council member should not be able to sign the same action twice or more', async () => {
+            try{
+                // ----- REQUEST MINT
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const fromTreasury          = treasuryAddress.address;
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const mintActionID          = councilStorage.actionCounter;
+
+                // Operation
+                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                    fromTreasury,
+                    tokenAmount,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(mintActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var stringMap       = await action.stringMap;
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "requestMint");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+
+                // Operation
+                await signerFactory(trudy.sk);
+                await chai.expect(councilInstance.methods.signAction(mintActionID).send()).to.be.rejected;
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Non-council contract should not be able to access this entrypoint', async () => {
+            try{
+                // ----- REQUEST MINT
+                // Initial Values
+                councilStorage              = await councilInstance.storage();
+                const fromTreasury          = treasuryAddress.address;
+                const purpose               = "For testing purposes";
+                const tokenAmount           = MVK(3);
+                const mintActionID          = councilStorage.actionCounter;
+
+                // Operation
+                var newActionOperation = await councilInstance.methods.councilActionRequestMint(
+                    fromTreasury,
+                    tokenAmount,
+                    purpose).send();
+                await newActionOperation.confirmation();
+
+                // Final values
+                councilStorage      = await councilInstance.storage();
+                var action          = await councilStorage.councilActionsLedger.get(mintActionID);
+                var actionSigner    = action.signers.includes(alice.pkh)
+                var addressMap      = await action.addressMap;
+                var stringMap       = await action.stringMap;
+                var natMap          = await action.natMap;
+
+                // Assertions
+                assert.strictEqual(action.initiator, alice.pkh);
+                assert.strictEqual(action.status, "PENDING");
+                assert.strictEqual(action.actionType, "requestMint");
+                assert.equal(action.executed, false);
+                assert.equal(actionSigner, true);
+                assert.equal(action.signersCount, 1);
+                assert.equal(addressMap.get("treasuryAddress"), fromTreasury);
+                assert.equal(stringMap.get("purpose"), purpose);
+                assert.equal(natMap.get("tokenAmount"), tokenAmount);
+
+                // Operation
+                await signerFactory(alice.sk);
+                await chai.expect(councilInstance.methods.signAction(mintActionID).send()).to.be.rejected;
             } catch(e){
                 console.log(e);
             }
