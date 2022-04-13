@@ -148,7 +148,10 @@ block {
     if _vestee.status = "LOCKED" then failwith("Error. Vestee is locked.")
       else skip;
 
-    const timestampCheck   : bool = Tezos.now > _vestee.nextRedemptionTimestamp;
+    if _vestee.totalRemainder = 0n then failwith("Error. You already claimed everything")
+      else skip;
+
+    const timestampCheck   : bool = Tezos.now > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
     
     var _operations : list(operation) := nil;
 
@@ -156,12 +159,11 @@ block {
 
         // calculate claim amount based on last redemption - calculate how many months has passed since last redemption if any
         var numberOfClaimMonths : nat := abs(abs(Tezos.now - _vestee.lastClaimedTimestamp) / thirty_days);
-    
-        // temp: for testing that mint inter-contract call works 
-        // const numberOfClaimMonths : nat = 1n;
 
         // get total claim amount
-        const totalClaimAmount = _vestee.claimAmountPerMonth * numberOfClaimMonths;  
+        var totalClaimAmount := _vestee.claimAmountPerMonth * numberOfClaimMonths;
+        if totalClaimAmount > _vestee.totalRemainder then totalClaimAmount := _vestee.totalRemainder
+          else skip;
 
         const mvkTokenAddress : address = s.mvkTokenAddress;
 
@@ -236,7 +238,11 @@ block {
 
     // check for div by 0 error
     if vestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
-        else skip;
+      else skip;
+
+    // Check for duration
+    if cliffInMonths > vestingInMonths then failwith("Error. The cliff period cannot last longer than the vesting period.")
+      else skip;
 
     var newVestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [
             Some(_record) -> failwith("Error. Vestee already exists")
@@ -267,7 +273,7 @@ block {
             monthsRemaining          = vestingInMonths;                  // remaining number of months   
             
             nextRedemptionTimestamp  = Tezos.now + (cliffInMonths * thirty_days);                  // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
-            lastClaimedTimestamp     = Tezos.now;                                              // timestamp of when vestee last claimed
+            lastClaimedTimestamp     = Tezos.now;                  // timestamp of when vestee last claimed
         ]
     ];    
 
@@ -351,21 +357,26 @@ block {
         | None -> failwith("Error. Vestee is not found.")
     ];
     
+    // Check for duration
+    if newCliffInMonths > newVestingInMonths then failwith("Error. The cliff period cannot last longer than the vesting period.")
+      else skip;
+
     vestee.totalAllocatedAmount  := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
 
     // factor any amount that vestee has claimed so far and update new claim amount per month accordingly
-    var newMonthsRemaining      : nat  := abs(newVestingInMonths - vestee.monthsClaimed); 
+    var newMonthsRemaining      : nat  := abs(newVestingInMonths - vestee.monthsClaimed);
     var newRemainder            : nat  := abs(newTotalAllocatedAmount - vestee.totalClaimed); 
-    var newClaimAmountPerMonth  : nat  := newRemainder / newMonthsRemaining;
+    var newClaimAmountPerMonth  : nat  := newRemainder;
+    if vestee.monthsClaimed < newVestingInMonths then 
+      newClaimAmountPerMonth := newRemainder / newMonthsRemaining
+    else skip;
 
     vestee.totalRemainder       := newRemainder;
     vestee.claimAmountPerMonth  := newClaimAmountPerMonth;
     vestee.cliffMonths          := newCliffInMonths;
     vestee.vestingMonths        := newVestingInMonths;
     vestee.monthsRemaining      := newMonthsRemaining;
-
     vestee.endCliffDateTime     := vestee.startTimestamp + (newCliffInMonths * thirty_days);                // calculated end of new cliff duration in timestamp based on dateTimeStart
-            
     vestee.endVestingDateTime   := vestee.startTimestamp + (newVestingInMonths * thirty_days);              // calculated end of new vesting duration in timestamp based on dateTimeStart
 
     // todo bugfix: check that new cliff in months is different from old cliff in months
