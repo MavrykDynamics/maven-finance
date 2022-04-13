@@ -315,7 +315,7 @@ describe('Contracts Deployment for Tests', async () => {
     const updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
     await updateGeneralContractsOperation.confirmation();
     
-    // Send MVK to treasury contract (TODO: keep?)
+    // Send MVK to treasury contract and council (TODO: keep?)
     const transferToTreasury = await mvkToken.contract.methods
       .transfer([
         {
@@ -326,6 +326,11 @@ describe('Contracts Deployment for Tests', async () => {
               token_id: 0,
               amount: MVK(200),
             },
+            {
+              to_: council.contract.address,
+              token_id: 0,
+              amount: MVK(15),
+            }
           ],
         },
       ])
