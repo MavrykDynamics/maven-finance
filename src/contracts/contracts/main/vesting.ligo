@@ -104,7 +104,6 @@ function mintTokens(
 function setAdmin(const newAdminAddress : address; var s : vestingStorage) : return is
 block {
     
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
     checkSenderIsAdmin(s); // check that sender is admin
 
     s.admin := newAdminAddress;
@@ -115,7 +114,6 @@ block {
 function updateConfig(const updateConfigParams : updateConfigParamsType; var s : vestingStorage) : return is 
 block {
 
-  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   checkSenderIsAdmin(s); // check that sender is admin
 
   const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
@@ -139,7 +137,6 @@ block {
     // 5. Update vestee records in vestingStorage
 
     s.tempBlockLevel := Tezos.level;
-    checkNoAmount(unit);
 
     // use _vestee and _operations so that compiling will not have warnings that variable is unused
     var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.sender] of [ 
@@ -228,7 +225,6 @@ block {
     // 2. create new vestee
     
     s.tempBlockLevel := Tezos.level;
-    checkNoAmount(unit);
 
     // checkSenderIsAdmin(s);
 
@@ -287,7 +283,6 @@ block {
     // 2. remove vestee from vesteeLedger
 
     // checkSenderIsAdmin(s);
-    checkNoAmount(unit);
 
     var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
@@ -311,7 +306,6 @@ block {
     // 2. lock vestee account
 
     // checkSenderIsAdmin(s);
-    checkNoAmount(unit);
 
     var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
@@ -341,7 +335,6 @@ block {
     // 2. update vestee record based on new params
 
     // checkSenderIsAdmin(s);
-    checkNoAmount(unit);
 
     // check sender is from council contract
     var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
@@ -391,18 +384,21 @@ block {
 } with (noOperations, s)
 
 
-function main (const action : vestingAction; const s : vestingStorage) : return is 
-    case action of [
-        | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | UpdateConfig(parameters) -> updateConfig(parameters, s)
-        
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
-        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
+function main (const action : vestingAction; const s : vestingStorage) : return is
+  block{
+    // Vesting contract entrypoints should not receive XTZ
+    checkNoAmount(unit);
+  } with (case action of [
+      | SetAdmin(parameters) -> setAdmin(parameters, s)  
+      | UpdateConfig(parameters) -> updateConfig(parameters, s)
+      
+      | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
+      | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
-        | Claim(_params) -> claim(s)
-        | AddVestee(params) -> addVestee(params.0, params.1, params.2, params.3, s)
-        | RemoveVestee(params) -> removeVestee(params, s)
-        | ToggleVesteeLock(params) -> toggleVesteeLock(params, s)
+      | Claim(_params) -> claim(s)
+      | AddVestee(params) -> addVestee(params.0, params.1, params.2, params.3, s)
+      | RemoveVestee(params) -> removeVestee(params, s)
+      | ToggleVesteeLock(params) -> toggleVesteeLock(params, s)
 
-        | UpdateVestee(params) -> updateVestee(params.0, params.1, params.2, params.3, s)        
-    ]
+      | UpdateVestee(params) -> updateVestee(params.0, params.1, params.2, params.3, s)        
+  ])

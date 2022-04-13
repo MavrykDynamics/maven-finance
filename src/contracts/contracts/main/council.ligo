@@ -855,9 +855,6 @@ block {
     if _request.status  = "FLUSHED" then failwith("Error. The provided financial request has already been dropped")
     else skip;
 
-    if _request.executed then failwith("Error. The provided financial request has been executed, it cannot be dropped")
-    else skip;
-
     const addressMap : addressMapType     = map [];
     const stringMap : stringMapType      = map [];
     const natMap : natMapType         = map [
@@ -996,6 +993,12 @@ block {
                 Some(_record) -> _record
                 | None -> failwith("Error. Council Action not found")
             ];
+
+            if flushedCouncilActionRecord.status  = "FLUSHED" then failwith("Error. The council action has already been flushed")
+            else skip;
+
+            if flushedCouncilActionRecord.executed then failwith("Error. The provided council action has been executed, it cannot be flushed")
+            else skip;
 
             flushedCouncilActionRecord.status := "FLUSHED";
             s.councilActionsLedger[flushedCouncilActionId] := flushedCouncilActionRecord;
@@ -1178,7 +1181,10 @@ block {
             ];
             // fetch params end ---
 
-            s.councilMembers := Set.add(councilMemberAddress, s.councilMembers);
+            // Check if new council member is already in the council
+            if Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+            else s.councilMembers := Set.add(councilMemberAddress, s.councilMembers);
+            
         } else skip;
 
 
@@ -1193,6 +1199,13 @@ block {
             ];
             // fetch params end ---
 
+            // Check if council member is in the council
+            if not Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+            else skip;
+
+            // Check if removing the council member won't impact the threshold
+            if (abs(Set.cardinal(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+            else skip;
             s.councilMembers := Set.remove(councilMemberAddress, s.councilMembers);
         } else skip;
 
@@ -1213,6 +1226,13 @@ block {
             ];
             // fetch params end ---
 
+            // Check if new council member is already in the council
+            if Set.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+            else skip;
+
+            // Check if old council member is in the council
+            if not Set.mem(oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+            else skip;
 
             s.councilMembers := Set.add(newCouncilMemberAddress, s.councilMembers);
             s.councilMembers := Set.remove(oldCouncilMemberAddress, s.councilMembers);
