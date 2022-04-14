@@ -136,7 +136,6 @@ block {
     // 4. Send operations to mint new MVK tokens and update user's balance in MVK ledger
     // 5. Update vestee records in vestingStorage
 
-    s.tempBlockLevel := Tezos.level;
 
     // use _vestee and _operations so that compiling will not have warnings that variable is unused
     var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.sender] of [ 
@@ -226,8 +225,6 @@ block {
     // 1. check if vestee address exists in vestee ledger
     // 2. create new vestee
     
-    s.tempBlockLevel := Tezos.level;
-
     // checkSenderIsAdmin(s);
 
     // check sender is from council contract
