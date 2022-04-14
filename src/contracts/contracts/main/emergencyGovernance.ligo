@@ -6,6 +6,7 @@
 
 type emergencyGovernanceAction is 
 | SetAdmin of (address)
+| UpdateMetadata of (string * bytes)
 | UpdateConfig of emergencyUpdateConfigParamsType    
 | UpdateGeneralContracts of updateGeneralContractsParams
 
@@ -80,6 +81,15 @@ block {
 
     s.admin := newAdminAddress;
 
+} with (noOperations, s)
+
+(*  update the metadata at a given key *)
+function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : emergencyGovernanceStorage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
 } with (noOperations, s)
 
 (*  updateConfig entrypoint  *)
@@ -305,7 +315,8 @@ block {
 
 function main (const action : emergencyGovernanceAction; const s : emergencyGovernanceStorage) : return is 
     case action of [
-        | SetAdmin(parameters) -> setAdmin(parameters, s)  
+        | SetAdmin(parameters) -> setAdmin(parameters, s)
+        | UpdateMetadata(parameters) -> updateMetadata(parameters.0, parameters.1, s)
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
         | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
 
