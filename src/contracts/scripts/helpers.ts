@@ -111,12 +111,17 @@ export const compile = async (
   })
 }
 
-export const compileLambdas = async (json: string, contract: string, ligoVersion: string = env.ligoVersion) => {
+export const compileLambdas = async (
+  json: string, 
+  contract: string, 
+  name: string, 
+  ligoVersion: string = env.ligoVersion
+  ) => {
   const ligo: string = getLigo(true, ligoVersion)
   const pwd: string = execSync('echo $PWD').toString()
   const lambdas: any = JSON.parse(fs.readFileSync(`${pwd.slice(0, pwd.length - 1)}/${json}`).toString())
   let res: any[] = []
-
+console.log(name);
   try {
     for (const lambda of lambdas) {
       const michelson = execSync(
@@ -133,7 +138,8 @@ export const compileLambdas = async (json: string, contract: string, ligoVersion
       fs.mkdirSync(`${env.buildDir}/lambdas`)
     }
 
-    fs.writeFileSync(`${env.buildDir}/lambdas/governanceLambdas.json`, JSON.stringify(res))
+    fs.writeFileSync(`${env.buildDir}/lambdas/${name}.json`, JSON.stringify(res))
+
   } catch (e) {
     console.log('error in compiling lambdas')
     console.error(e)

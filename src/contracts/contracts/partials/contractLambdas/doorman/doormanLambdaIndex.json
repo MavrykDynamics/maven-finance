@@ -1,0 +1,39 @@
+[
+    {
+      "index": 0,
+      "name": "setAdmin"
+    },
+    {
+      "index": 1,
+      "name": "updateMinMvkAmount"
+    },
+    {
+      "index": 2,
+      "name": "pauseAll"
+    },
+    {
+      "index": 3,
+      "name": "unpauseAll"
+    },
+    {
+      "index": 4,
+      "name": "togglePauseUnstake"
+    },
+    {
+      "index": 5,
+      "name": "stake"
+    },
+    {
+      "index": 6,
+      "name": "unstake"
+    },
+    {
+      "index": 7,
+      "name": "compound"
+    },
+    {
+      "index": 8,
+      "name": "farmClaim"
+    }
+]
+  
