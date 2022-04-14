@@ -25,6 +25,7 @@ import env from '../../env'
 import { bob, alice, eve, mallory } from '../../scripts/sandbox/accounts'
 
 import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
+import doormanLambdas from '../../build/lambdas/doormanLambdas.json'
 
 import { Doorman } from '../helpers/doormanHelper'
 import { Delegation } from '../helpers/delegationHelper'
@@ -441,7 +442,6 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Vesting Contract - set whitelist contract addresses map [council]')
 
 
-
     // Governance Setup Lambdas
     const governanceLambdaBatch = await tezos.wallet
       .batch()
@@ -452,6 +452,24 @@ describe('Contracts Deployment for Tests', async () => {
 
     const setupGovernanceLambdasOperation = await governanceLambdaBatch.send()
     await setupGovernanceLambdasOperation.confirmation()
+    console.log("Governance Lambdas Setup")
+
+    // Doorman Setup Lambdas
+    const doormanLambdaBatch = await tezos.wallet
+    .batch()
+    .withContractCall(doorman.contract.methods.setLambda("setAdmin"           , doormanLambdas[0])) // setAdmin
+    .withContractCall(doorman.contract.methods.setLambda("updateMinMvkAmount" , doormanLambdas[1])) // updateMinMvkAmount
+    .withContractCall(doorman.contract.methods.setLambda("pauseAll"           , doormanLambdas[2])) // pauseAll
+    .withContractCall(doorman.contract.methods.setLambda("unpauseAll"         , doormanLambdas[3])) // unpauseAll
+    .withContractCall(doorman.contract.methods.setLambda("togglePauseUnstake" , doormanLambdas[4])) // togglePauseUnstake
+    .withContractCall(doorman.contract.methods.setLambda("stake"              , doormanLambdas[5])) // stake
+    .withContractCall(doorman.contract.methods.setLambda("unstake"            , doormanLambdas[6])) // unstake
+    .withContractCall(doorman.contract.methods.setLambda("compound"           , doormanLambdas[7])) // compound
+    .withContractCall(doorman.contract.methods.setLambda("farmClaim"          , doormanLambdas[8])) // farmClaim
+  
+    const setupDoormanLambdasOperation = await doormanLambdaBatch.send()
+    await setupDoormanLambdasOperation.confirmation()
+    console.log("Doorman Lambdas Setup")
     
     //----------------------------
     // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)

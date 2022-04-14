@@ -1,4 +1,4 @@
-type userStakeBalanceRecordType is record[
+type userStakeBalanceRecordType is [@layout:comb] record[
     balance                                : nat;
     participationFeesPerShare              : nat;
     // emergencyGovernanceLastVotedTimestamp  : timestamp;
@@ -7,7 +7,7 @@ type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
 type updateSatelliteBalanceParams is (address)
 
-type doormanBreakGlassConfigType is record [
+type doormanBreakGlassConfigType is [@layout:comb] record [
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
     compoundIsPaused        : bool;
@@ -20,11 +20,22 @@ type satelliteInfoType is (string * string * string * nat * nat) // name, descri
 
 type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
+type setLambdaType is [@layout:comb] record [
+      name                  : string;
+      func_bytes            : bytes;
+]
+type lambdaLedgerType is big_map(string, bytes)
+
 type stakeType is 
   StakeAction of unit
 | UnstakeAction of unit
 
 type metadata is big_map (string, bytes);
+
+// type doormanActionType is 
+//     SetAdmin    of address
+//   | Stake       of nat
+
 
 type doormanStorage is [@layout:comb] record [
   admin                     : address;
@@ -47,4 +58,7 @@ type doormanStorage is [@layout:comb] record [
   logFinalAmount            : nat; // to be removed after testing
 
   accumulatedFeesPerShare   : nat;
+
+  lambdaLedger              : lambdaLedgerType;
 ]
+

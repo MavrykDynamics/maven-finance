@@ -276,6 +276,58 @@
 //         });
 //     })
 
+//     describe("%updateCouncilMemberInfo", async () => {
+//         beforeEach("Set signer to council member", async () => {
+//             await signerFactory(bob.sk)
+//         });
+//         it('Council member should be able to call this entrypoint and update its information', async () => {
+//             try{
+//                 // Initial Values
+//                 councilStorage          = await councilInstance.storage();
+//                 var councilMember       = councilStorage.councilMembers.get(bob.pkh);
+//                 const oldMemberName     = councilMember.name
+//                 const oldMemberImage    = councilMember.image
+//                 const oldMemberWebsite  = councilMember.website
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
+
+//                 // Operation
+//                 const updateOperation = await councilInstance.methods.updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage).send();
+//                 await updateOperation.confirmation();
+
+//                 // Final values
+//                 councilStorage  = await councilInstance.storage();
+//                 councilMember   = councilStorage.councilMembers.get(bob.pkh);
+
+//                 // Assertions
+//                 assert.strictEqual(councilMember.name, newMemberName);
+//                 assert.strictEqual(councilMember.image, newMemberImage);
+//                 assert.strictEqual(councilMember.website, newMemberWebsite);
+//                 assert.notStrictEqual(councilMember.name, oldMemberName);
+//                 assert.notStrictEqual(councilMember.image, oldMemberImage);
+//                 assert.notStrictEqual(councilMember.website, oldMemberWebsite);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Non-council member should not be able to call this entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 await signerFactory(oscar.sk);
+//                 councilStorage = await councilInstance.storage();
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
+
+//                 // Operation
+//                 await chai.expect(councilInstance.methods.updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     });
 
 //     describe("%councilActionUpdateBlocksPerMin", async () => {
 //         beforeEach("Set signer to council", async () => {
@@ -777,10 +829,13 @@
 //                 // Initial Values
 //                 councilStorage          = await councilInstance.storage();
 //                 const newMember         = isaac.pkh;
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
 //                 const nextActionID      = councilStorage.actionCounter;
 
 //                 // Operation
-//                 const newActionOperation = await councilInstance.methods.councilActionAddMember(newMember).send();
+//                 const newActionOperation = await councilInstance.methods.councilActionAddMember(newMember, newMemberName, newMemberWebsite, newMemberImage).send();
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
@@ -788,6 +843,7 @@
 //                 const action        = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 const actionSigner  = action.signers.includes(alice.pkh)
 //                 const addressMap    = await action.addressMap;
+//                 const stringMap    = await action.stringMap;
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -797,6 +853,9 @@
 //                 assert.equal(actionSigner, true);
 //                 assert.equal(action.signersCount, 1);
 //                 assert.equal(addressMap.get("councilMemberAddress"), newMember);
+//                 assert.equal(stringMap.get("councilMemberName"), newMemberName);
+//                 assert.equal(stringMap.get("councilMemberWebsite"), newMemberWebsite);
+//                 assert.equal(stringMap.get("councilMemberImage"), newMemberImage);
 //             } catch(e){
 //                 console.log(e);
 //             }
@@ -807,9 +866,12 @@
 //                 // Initial Values
 //                 councilStorage          = await councilInstance.storage();
 //                 const newMember         = alice.pkh;
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
 
 //                 // Operation                
-//                 await chai.expect(councilInstance.methods.councilActionAddMember(newMember).send()).to.be.rejected;
+//                 await chai.expect(councilInstance.methods.councilActionAddMember(newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
 //                 console.log(e);
 //             }
@@ -820,10 +882,13 @@
 //                 // Initial Values
 //                 councilStorage          = await councilInstance.storage();
 //                 const newMember         = isaac.pkh;
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
 
 //                 // Operation
 //                 await signerFactory(isaac.sk);
-//                 await chai.expect(councilInstance.methods.councilActionAddMember(newMember).send()).to.be.rejected;
+//                 await chai.expect(councilInstance.methods.councilActionAddMember(newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
 //                 console.log(e);
 //             }
@@ -871,7 +936,7 @@
 //                 await signerFactory(bob.sk);
 //                 councilStorage  = await councilInstance.storage();
 //                 const currentThreshold  = councilStorage.config.threshold;
-//                 const updatedThreshold  = councilStorage.councilMembers.length;
+//                 const updatedThreshold  = councilStorage.councilMembers.size;
 //                 var updateConfigOperation   = await councilInstance.methods.updateConfig(updatedThreshold,"configThreshold").send();
 //                 await updateConfigOperation.confirmation();
 
@@ -931,9 +996,12 @@
 //                 const oldMember         = eve.pkh;
 //                 const newMember         = mallory.pkh;
 //                 const nextActionID      = councilStorage.actionCounter;
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
 
 //                 // Operation
-//                 const newActionOperation = await councilInstance.methods.councilActionChangeMember(oldMember, newMember).send();
+//                 const newActionOperation = await councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send();
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
@@ -962,9 +1030,12 @@
 //                 councilStorage          = await councilInstance.storage();
 //                 const oldMember         = mallory.pkh;
 //                 const newMember         = isaac.pkh;
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
 
 //                 // Operation
-//                 await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember).send()).to.be.rejected;
+//                 await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
 //                 console.log(e);
 //             }
@@ -976,9 +1047,12 @@
 //                 councilStorage          = await councilInstance.storage();
 //                 const oldMember         = eve.pkh;
 //                 const newMember         = alice.pkh;
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
 
 //                 // Operation
-//                 await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember).send()).to.be.rejected;
+//                 await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
 //                 console.log(e);
 //             }
@@ -990,10 +1064,13 @@
 //                 councilStorage          = await councilInstance.storage();
 //                 const oldMember         = eve.pkh;
 //                 const newMember         = mallory.pkh;
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
 
 //                 // Operation
 //                 await signerFactory(isaac.sk);
-//                 await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember).send()).to.be.rejected;
+//                 await chai.expect(councilInstance.methods.councilActionChangeMember(oldMember, newMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //             } catch(e){
 //                 console.log(e);
 //             }
@@ -1640,9 +1717,12 @@
 //                 councilStorage              = await councilInstance.storage();
 //                 const councilMember         = mallory.pkh;
 //                 const memberActionID        = councilStorage.actionCounter;
+//                 const newMemberName         = "Member Name";
+//                 const newMemberImage        = "Member Image";
+//                 const newMemberWebsite      = "Member Website";
 
 //                 // Operation
-//                 var newActionOperation = await councilInstance.methods.councilActionAddMember(councilMember).send();
+//                 var newActionOperation = await councilInstance.methods.councilActionAddMember(councilMember, newMemberName, newMemberWebsite, newMemberImage).send();
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
@@ -1726,9 +1806,12 @@
 //                 councilStorage              = await councilInstance.storage();
 //                 const councilMember         = mallory.pkh;
 //                 const memberActionID        = councilStorage.actionCounter;
+//                 const newMemberName         = "Member Name";
+//                 const newMemberImage        = "Member Image";
+//                 const newMemberWebsite      = "Member Website";
 
 //                 // Operation
-//                 var newActionOperation = await councilInstance.methods.councilActionAddMember(councilMember).send();
+//                 var newActionOperation = await councilInstance.methods.councilActionAddMember(councilMember, newMemberName, newMemberWebsite, newMemberImage).send();
 //                 await newActionOperation.confirmation();
 
 //                 // Final values
@@ -2288,16 +2371,19 @@
 //         it('addCouncilMember --> should add the given address as a council member if the address is not in it', async () => {
 //             try{
 //                 // Initial Values
-//                 councilStorage          = await councilInstance.storage();
-//                 const memberAddress     = david.pkh;
-//                 const nextActionID      = councilStorage.actionCounter;
+//                 councilStorage              = await councilInstance.storage();
+//                 const memberAddress         = david.pkh;
+//                 const nextActionID          = councilStorage.actionCounter;
+//                 const newMemberName         = "Member Name";
+//                 const newMemberImage        = "Member Image";
+//                 const newMemberWebsite      = "Member Website";
 
 //                 // Operation
-//                 const newActionOperation = await councilInstance.methods.councilActionAddMember(memberAddress).send();
+//                 const newActionOperation = await councilInstance.methods.councilActionAddMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
 //                 await newActionOperation.confirmation();
 
 //                 // Action for future test
-//                 const futureActionOperation = await councilInstance.methods.councilActionAddMember(memberAddress).send();
+//                 const futureActionOperation = await councilInstance.methods.councilActionAddMember(memberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
 //                 await futureActionOperation.confirmation();
 
 //                 // Final values
@@ -2326,7 +2412,7 @@
 //                 var actionSigner    = action.signers.includes(alice.pkh)
 //                 var addressMap      = await action.addressMap;
 
-//                 const memberUpdated = councilStorage.councilMembers.includes(david.pkh);
+//                 const memberUpdated = councilStorage.councilMembers.has(david.pkh);
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2388,7 +2474,7 @@
 //                 var action          = await councilStorage.councilActionsLedger.get(nextActionID);
 //                 var actionSigner    = action.signers.includes(alice.pkh)
 //                 var addressMap      = await action.addressMap;
-//                 const councilSize   = councilStorage.councilMembers.length;
+//                 const councilSize   = councilStorage.councilMembers.size;
 //                 const oldThresold   = councilStorage.config.threshold;
 
 //                 // Assertions
@@ -2470,7 +2556,7 @@
 //                 var actionSigner    = action.signers.includes(alice.pkh)
 //                 var addressMap      = await action.addressMap;
 
-//                 const memberUpdated = councilStorage.councilMembers.includes(mallory.pkh);
+//                 const memberUpdated = councilStorage.councilMembers.has(mallory.pkh);
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -2523,19 +2609,22 @@
 //                 const oldMemberAddress  = eve.pkh;
 //                 const newMemberAddress  = isaac.pkh;
 //                 const nextActionID      = councilStorage.actionCounter;
+//                 const newMemberName     = "Member Name";
+//                 const newMemberImage    = "Member Image";
+//                 const newMemberWebsite  = "Member Website";
 
 //                 // Operation
-//                 const newActionOperation = await councilInstance.methods.councilActionChangeMember(oldMemberAddress, newMemberAddress).send();
+//                 const newActionOperation = await councilInstance.methods.councilActionChangeMember(oldMemberAddress, newMemberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
 //                 await newActionOperation.confirmation();
 
 //                 // Action for future test
 //                 var futureNewAddress  = trudy.pkh;
-//                 var futureActionOperation = await councilInstance.methods.councilActionChangeMember(oldMemberAddress, futureNewAddress).send();
+//                 var futureActionOperation = await councilInstance.methods.councilActionChangeMember(oldMemberAddress, futureNewAddress, newMemberName, newMemberWebsite, newMemberImage).send();
 //                 await futureActionOperation.confirmation();
 
 //                 // Action for future test
 //                 var futureOldAddress  = alice.pkh;
-//                 var futureActionOperation = await councilInstance.methods.councilActionChangeMember(futureOldAddress, newMemberAddress).send();
+//                 var futureActionOperation = await councilInstance.methods.councilActionChangeMember(futureOldAddress, newMemberAddress, newMemberName, newMemberWebsite, newMemberImage).send();
 //                 await futureActionOperation.confirmation();
 
 //                 // Final values
@@ -2565,8 +2654,8 @@
 //                 var actionSigner    = action.signers.includes(alice.pkh)
 //                 var addressMap      = await action.addressMap;
 
-//                 const memberRemoved = councilStorage.councilMembers.includes(eve.pkh);
-//                 const memberAdded = councilStorage.councilMembers.includes(isaac.pkh);
+//                 const memberRemoved = councilStorage.councilMembers.has(eve.pkh);
+//                 const memberAdded = councilStorage.councilMembers.has(isaac.pkh);
 
 //                 // Assertions
 //                 assert.strictEqual(action.initiator, alice.pkh);
@@ -3525,7 +3614,7 @@
 //     //         const newCouncilMemberAddress   = mallory.pkh;
 
 //     //         const councilStorage            = await councilInstance.storage();
-//     //         const initialCouncilMemberCount = councilStorage.councilMembers.length;
+//     //         const initialCouncilMemberCount = councilStorage.councilMembers.size;
             
 //     //         // check that there are 3 initial council members
 //     //         assert.equal(initialCouncilMemberCount, 3);
@@ -3564,7 +3653,7 @@
 //     //         // get updated storage
 //     //         const completedCouncilStorage          = await councilInstance.storage();
 //     //         const councilActionsAddMemberSigned    = await completedCouncilStorage.councilActionsLedger.get(actionId);
-//     //         const newCouncilMemberCount            = completedCouncilStorage.councilMembers.length;
+//     //         const newCouncilMemberCount            = completedCouncilStorage.councilMembers.size;
 
 //     //         // check that council action is approved and has been executed
 //     //         assert.equal(councilActionsAddMemberSigned.signersCount,  3);
@@ -3596,7 +3685,7 @@
 //     //         const removedCouncilMemberAddress      = alice.pkh;
 
 //     //         const councilStorage            = await councilInstance.storage();
-//     //         const initialCouncilMemberCount = councilStorage.councilMembers.length;
+//     //         const initialCouncilMemberCount = councilStorage.councilMembers.size;
 
 //     //         // check that there are 4 council members
 //     //         assert.equal(initialCouncilMemberCount, 4);
@@ -3635,7 +3724,7 @@
 //     //         // get updated storage
 //     //         const completedCouncilStorage           = await councilInstance.storage();
 //     //         const councilActionsRemoveMemberSigned  = await completedCouncilStorage.councilActionsLedger.get(actionId);
-//     //         const newCouncilMemberCount             = completedCouncilStorage.councilMembers.length;
+//     //         const newCouncilMemberCount             = completedCouncilStorage.councilMembers.size;
 
 //     //         // check that council action is approved and has been executed
 //     //         assert.equal(councilActionsRemoveMemberSigned.signersCount,  3);
@@ -3667,7 +3756,7 @@
 //     //         const newCouncilMemberAddress      = alice.pkh;
 
 //     //         const councilStorage            = await councilInstance.storage();
-//     //         const initialCouncilMemberCount = councilStorage.councilMembers.length;
+//     //         const initialCouncilMemberCount = councilStorage.councilMembers.size;
 
 //     //         // check that there are 3 council members
 //     //         assert.equal(initialCouncilMemberCount, 3);
@@ -3707,7 +3796,7 @@
 //     //         // get updated storage
 //     //         const completedCouncilStorage           = await councilInstance.storage();
 //     //         const councilActionsChangeMemberSigned  = await completedCouncilStorage.councilActionsLedger.get(actionId);
-//     //         const newCouncilMemberCount             = completedCouncilStorage.councilMembers.length;
+//     //         const newCouncilMemberCount             = completedCouncilStorage.councilMembers.size;
 
 //     //         // check that council action is approved and has been executed
 //     //         assert.equal(councilActionsChangeMemberSigned.signersCount,  3);
@@ -3741,7 +3830,7 @@
 //     //         const councilMemberAddress      = mallory.pkh;
         
 //     //         const councilStorage            = await councilInstance.storage();
-//     //         const initialCouncilMemberCount = councilStorage.councilMembers.length;
+//     //         const initialCouncilMemberCount = councilStorage.councilMembers.size;
 
 //     //         // check that there are 3 council members
 //     //         assert.equal(initialCouncilMemberCount, 3);
@@ -3805,7 +3894,7 @@
 //     //         const completedCouncilStorage           = await councilInstance.storage();
 //     //         const councilActionsAddMemberFlushed    = await completedCouncilStorage.councilActionsLedger.get(actionId);
 //     //         const councilActionsFlushAction         = await completedCouncilStorage.councilActionsLedger.get(flushActionId);
-//     //         const newCouncilMemberCount             = completedCouncilStorage.councilMembers.length;
+//     //         const newCouncilMemberCount             = completedCouncilStorage.councilMembers.size;
 
 //     //         // check that flush action is approved and has been executed
 //     //         assert.equal(councilActionsFlushAction.signersCount,  3);
@@ -3839,7 +3928,7 @@
 //     //         // Council Members: Bob, Alice, Eve
 
 //     //         const councilStorage            = await councilInstance.storage();
-//     //         const initialCouncilMemberCount = councilStorage.councilMembers.length;
+//     //         const initialCouncilMemberCount = councilStorage.councilMembers.size;
 
 //     //         const mockFa12TokenStorage      = await mockFa12TokenInstance.storage();
 //     //         const councilMockFa12Ledger     = await mockFa12TokenStorage.ledger.get(councilContractAddress);
@@ -3932,7 +4021,7 @@
 //     //         // Council Members: Bob, Alice, Eve
 
 //     //         const councilStorage            = await councilInstance.storage();
-//     //         const initialCouncilMemberCount = councilStorage.councilMembers.length;
+//     //         const initialCouncilMemberCount = councilStorage.councilMembers.size;
 
 //     //         const mockFa2TokenStorage      = await mockFa2TokenInstance.storage();
 //     //         const councilMockFa2Ledger     = await mockFa2TokenStorage.ledger.get(councilContractAddress);
@@ -4025,7 +4114,7 @@
 //     //         // Council Members: Bob, Alice, Eve
 
 //     //         const councilStorage            = await councilInstance.storage();
-//     //         const initialCouncilMemberCount = councilStorage.councilMembers.length;
+//     //         const initialCouncilMemberCount = councilStorage.councilMembers.size;
 
 //     //         const mvkTokenStorage           = await mvkTokenInstance.storage();
 //     //         const councilMvkLedger          = await mvkTokenStorage.ledger.get(councilContractAddress);
@@ -4117,7 +4206,7 @@
 //     //         // Council Members: Bob, Alice, Eve
 
 //     //         const councilStorage            = await councilInstance.storage();
-//     //         const initialCouncilMemberCount = councilStorage.councilMembers.length;
+//     //         const initialCouncilMemberCount = councilStorage.councilMembers.size;
 //     //         const councilTezBalance         = await utils.tezos.tz.getBalance(councilContractAddress);
 //     //         const oscarTezBalance           = await utils.tezos.tz.getBalance(oscar.pkh);
 
