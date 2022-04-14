@@ -1,39 +1,39 @@
 [
     {
       "index": 0,
-      "name": "setAdmin"
+      "name": "setAdminCompiled"
     },
     {
       "index": 1,
-      "name": "updateMinMvkAmount"
+      "name": "updateMinMvkAmountCompiled"
     },
     {
       "index": 2,
-      "name": "pauseAll"
+      "name": "pauseAllCompiled"
     },
     {
       "index": 3,
-      "name": "unpauseAll"
+      "name": "unpauseAllCompiled"
     },
     {
       "index": 4,
-      "name": "togglePauseUnstake"
+      "name": "togglePauseUnstakeCompiled"
     },
     {
       "index": 5,
-      "name": "stake"
+      "name": "stakeCompiled"
     },
     {
       "index": 6,
-      "name": "unstake"
+      "name": "unstakeCompiled"
     },
     {
       "index": 7,
-      "name": "compound"
+      "name": "compoundCompiled"
     },
     {
       "index": 8,
-      "name": "farmClaim"
+      "name": "farmClaimCompiled"
     }
 ]
   
