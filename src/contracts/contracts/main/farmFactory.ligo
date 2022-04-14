@@ -30,6 +30,7 @@ const noOperations: list (operation) = nil;
 ////
 type action is
     SetAdmin of (address)
+|   UpdateMetadata of (string * bytes)
 |   UpdateWhitelistContracts of updateWhitelistContractsParams
 |   UpdateGeneralContracts of updateGeneralContractsParams
 |   UpdateBlocksPerMinute of (nat)
@@ -226,6 +227,15 @@ block {
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
+(*  update the metadata at a given key *)
+function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : farmFactoryStorage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+} with (noOperations, s)
+
 (* CheckFarmExists view *)
 [@view] function checkFarmExists (const farmContract: address; const s: farmFactoryStorage): bool is 
     Set.mem(farmContract, s.trackedFarms)
@@ -390,6 +400,7 @@ function main (const action: action; var s: farmFactoryStorage): return is
   } with(
     case action of [
         SetAdmin (parameters) -> setAdmin(parameters, s)
+    |   UpdateMetadata (parameters) -> updateMetadata(parameters.0, parameters.1, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
     |   UpdateBlocksPerMinute (parameters) -> updateBlocksPerMinute(parameters, s)

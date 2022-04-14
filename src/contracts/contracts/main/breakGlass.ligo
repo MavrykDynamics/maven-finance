@@ -11,6 +11,7 @@ type breakGlassAction is
     | BreakGlass of (unit)
     
     | SetAdmin of (address)
+    | UpdateMetadata of (string * bytes)
     | UpdateConfig of breakGlassUpdateConfigParamsType    
 
     // glass broken not required (updates through Governance DAO)
@@ -121,6 +122,15 @@ block {
 
     s.admin := newAdminAddress;
 
+} with (noOperations, s)
+
+(*  update the metadata at a given key *)
+function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : breakGlassStorage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
 } with (noOperations, s)
 
 (*  updateConfig entrypoint  *)
@@ -812,7 +822,8 @@ function main (const action : breakGlassAction; const s : breakGlassStorage) : r
         case action of [
             | BreakGlass(_parameters) -> breakGlass(s)
 
-            | SetAdmin(parameters) -> setAdmin(parameters, s)  
+            | SetAdmin(parameters) -> setAdmin(parameters, s)
+            | UpdateMetadata(parameters) -> updateMetadata(parameters.0, parameters.1, s)  
             | UpdateConfig(parameters) -> updateConfig(parameters, s)
 
             // glass broken not required

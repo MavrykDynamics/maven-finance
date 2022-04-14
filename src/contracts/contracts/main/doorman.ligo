@@ -17,6 +17,7 @@ type return is list (operation) * doormanStorage
 
 type doormanAction is 
     SetAdmin                    of (address)
+  | UpdateMetadata of (string * bytes)
   | UpdateMinMvkAmount          of (nat)
   | UpdateWhitelistContracts    of updateWhitelistContractsParams
   | UpdateGeneralContracts      of updateGeneralContractsParams
@@ -285,7 +286,14 @@ block {
     
 } with (noOperations, res.1)
 
-
+(*  update the metadata at a given key *)
+function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : doormanStorage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+} with (noOperations, s)
 
 (*  updateMinMvkAmount entrypoint *)
 function updateMinMvkAmount(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
@@ -551,6 +559,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
   } with(
     case action of [
       | SetAdmin(parameters)                  -> setAdmin(parameters, s)
+      | UpdateMetadata(parameters)            -> updateMetadata(parameters.0, parameters.1, s)
       | UpdateMinMvkAmount(parameters)        -> updateMinMvkAmount(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)

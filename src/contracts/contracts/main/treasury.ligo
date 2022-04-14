@@ -18,6 +18,7 @@ type treasuryAction is
 
     // Housekeeping Config Entrypoints
     | SetAdmin                       of (address)
+    | UpdateMetadata                  of (string * bytes)
     | UpdateWhitelistContracts       of updateWhitelistContractsParams
     | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts         of updateGeneralContractsParams
@@ -185,6 +186,14 @@ block {
 
 } with (noOperations, s)
 
+(*  update the metadata at a given key *)
+function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : treasuryStorage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+} with (noOperations, s)
 
 ////
 // Pause Functions
@@ -359,7 +368,8 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         | Default(_params)                              -> ((nil : list(operation)), s)
         
         // Housekeeping Config Entrypoints
-        | SetAdmin(parameters)                          -> setAdmin(parameters, s)  
+        | SetAdmin(parameters)                          -> setAdmin(parameters, s)
+        | UpdateMetadata(parameters)                    -> updateMetadata(parameters.0, parameters.1, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)

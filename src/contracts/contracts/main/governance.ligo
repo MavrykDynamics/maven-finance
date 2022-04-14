@@ -25,7 +25,8 @@
 type governanceAction is 
     | BreakGlass                      of (unit)
     | SetAdmin                        of (address)
-    
+    | UpdateMetadata                  of (string * bytes)
+
     // Housekeeping
     | UpdateConfig                    of governanceUpdateConfigParamsType
     | UpdateWhitelistContracts        of updateWhitelistContractsParams
@@ -346,6 +347,15 @@ block {
 } with (noOperations, s)
 
 // housekeeping functions end: --
+
+(*  update the metadata at a given key *)
+function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : governanceStorage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+} with (noOperations, s)
 
 function breakGlass(var s : governanceStorage) : return is 
 block {
@@ -1501,8 +1511,9 @@ block {
 
 function main (const action : governanceAction; const s : governanceStorage) : return is 
     case action of [
-        | BreakGlass(_parameters)                     -> breakGlass(s)  
-        | SetAdmin(parameters)                        -> setAdmin(parameters, s)  
+        | BreakGlass(_parameters)                     -> breakGlass(s)
+        | SetAdmin(parameters)                        -> setAdmin(parameters, s)
+        | UpdateMetadata(parameters)                  -> updateMetadata(parameters.0, parameters.1, s)
         
         // Housekeeping
         | UpdateConfig(parameters)                    -> updateConfig(parameters, s)

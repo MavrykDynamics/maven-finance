@@ -8,7 +8,7 @@ export type councilStorageType = {
   metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
   config: {};
-  councilMembers: Array<string>;
+  councilMembers: MichelsonMap<MichelsonMapKey, unknown>;
 
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;

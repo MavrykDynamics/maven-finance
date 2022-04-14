@@ -9,6 +9,7 @@
 
 type delegationAction is 
     | SetAdmin of (address)
+    | UpdateMetadata of (string * bytes)
     | UpdateConfig of delegationUpdateConfigParamsType
 
     | UpdateWhitelistContracts of updateWhitelistContractsParams
@@ -172,6 +173,14 @@ block {
 
 } with (noOperations, s)
 
+(*  update the metadata at a given key *)
+function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : delegationStorage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+} with (noOperations, s)
 
 function updateConfig(const updateConfigParams : delegationUpdateConfigParamsType; var s : delegationStorage) : return is 
 block {
@@ -642,6 +651,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
     checkNoAmount(unit);
   } with (case action of [    
         | SetAdmin(parameters) -> setAdmin(parameters, s)  
+        | UpdateMetadata(parameters) -> updateMetadata(parameters.0, parameters.1, s)
         | UpdateConfig(parameters) -> updateConfig(parameters, s)
 
         | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
