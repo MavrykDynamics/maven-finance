@@ -274,7 +274,7 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
 function setAdmin(const newAdminAddress : address; var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["setAdmin"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["setAdminCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. setAdmin Lambda not found.")
     ];
@@ -291,7 +291,7 @@ block {
 function updateMinMvkAmount(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
 block {
   
-    const lambdaBytes : bytes = case s.lambdaLedger["updateMinMvkAmount"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["updateMinMvkAmountCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. updateMinMvkAmount Lambda not found.")
     ];
@@ -333,7 +333,7 @@ function updateGeneralContracts(const updateGeneralContractsParams: updateGenera
 function pauseAll(var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["pauseAll"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["pauseAllCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. pauseAll Lambda not found.")
     ];
@@ -350,7 +350,7 @@ block {
 function unpauseAll(var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["unpauseAll"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["unpauseAllCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. unpauseAll Lambda not found.")
     ];
@@ -366,7 +366,7 @@ block {
 function togglePauseStake(var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["togglePauseStake"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["togglePauseStakeCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. togglePauseStake Lambda not found.")
     ];
@@ -381,7 +381,7 @@ block {
 (*  togglePauseUnstake entrypoint *)
 function togglePauseUnstake(var s : doormanStorage) : return is
 block {
-    const lambdaBytes : bytes = case s.lambdaLedger["togglePauseUnstake"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["togglePauseUnstakeCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. togglePauseUnstake Lambda not found.")
     ];
@@ -397,7 +397,7 @@ block {
 function togglePauseCompound(var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["togglePauseCompound"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["togglePauseCompoundCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. togglePauseCompound Lambda not found.")
     ];
@@ -420,7 +420,7 @@ block {
 function stake(const stakeAmount : nat; var s : doormanStorage) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["stake"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["stakeCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. stake Lambda not found.")
     ];
@@ -438,7 +438,7 @@ block {
 function unstake(const unstakeAmount : nat; var s : doormanStorage) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["unstake"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["unstakeCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. unstake Lambda not found.")
     ];
@@ -456,7 +456,7 @@ block {
 function compound(var s: doormanStorage): return is
 block{
     
-    const lambdaBytes : bytes = case s.lambdaLedger["compound"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["compoundCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. compound Lambda not found.")
     ];
@@ -474,7 +474,7 @@ block{
 function farmClaim(const farmClaim: farmClaimType; var s: doormanStorage): return is
 block{
 
-    const lambdaBytes : bytes = case s.lambdaLedger["farmClaim"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["farmClaimCompiled"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. farmClaim Lambda not found.")
     ];

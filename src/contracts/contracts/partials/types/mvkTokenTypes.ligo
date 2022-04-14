@@ -7,7 +7,6 @@ type tokenBalance is nat;
 type operator is address
 type owner is address
 type treasury is string
-type forceTransfer is bool
 
 ////
 // STORAGE

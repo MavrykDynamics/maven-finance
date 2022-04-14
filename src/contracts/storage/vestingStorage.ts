@@ -8,15 +8,6 @@ import { zeroAddress } from '../test/helpers/Utils'
 
 import { vestingStorageType } from '../test/types/vestingStorageType'
 
-const config = {
-  defaultCliffPeriod: 6,
-  defaultCooldownPeriod: 1,
-  newBlockTimeLevel: 0,
-  newBlocksPerMinute: 0,
-  blocksPerMinute: 2,
-  blocksPerMonth: 86400,
-}
-
 const metadata = MichelsonMap.fromLiteral({
   '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
   data: Buffer.from(
