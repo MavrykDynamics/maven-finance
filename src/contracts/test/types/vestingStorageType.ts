@@ -6,8 +6,6 @@ export type vestingStorageType = {
   mvkTokenAddress: string;
   metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
-  config : {};
-
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
 

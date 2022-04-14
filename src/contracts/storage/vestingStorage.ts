@@ -34,8 +34,6 @@ export const vestingStorage: vestingStorageType = {
   mvkTokenAddress: "",
   metadata: metadata,
 
-  config: config,
-
   whitelistContracts: MichelsonMap.fromLiteral({}),
   generalContracts: MichelsonMap.fromLiteral({}),
 

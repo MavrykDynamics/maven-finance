@@ -1,11 +1,6 @@
 type blockLevel is nat;
 type metadata is big_map (string, bytes);
 
-type configType is record [
-    defaultCliffPeriod           : nat;   // 6 months in block levels -> 2880 * 30 * 6 = 518,400
-    defaultCooldownPeriod        : nat;   // 1 month in block level -> 2880 * 30 = 86400
-]
-
 type claimRecordType is record [
     amountClaimed      : nat;
     remainderVested    : nat; 
@@ -53,15 +48,6 @@ type vesteeLedgerType is big_map(address, vesteeRecordType) // address, vestee r
     
 type addVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
 type updateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
-
-type updateConfigNewValueType is nat
-type updateConfigActionType is 
-  ConfigDefaultCliffPeriod of unit
-| ConfigDefaultCooldownPeriod of unit
-type updateConfigParamsType is [@layout:comb] record [
-  updateConfigNewValue: updateConfigNewValueType; 
-  updateConfigAction: updateConfigActionType;
-]
 
 type vestingStorage is [@layout:comb] record [
     admin               : address;
