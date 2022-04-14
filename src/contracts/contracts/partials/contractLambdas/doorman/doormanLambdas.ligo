@@ -1,5 +1,5 @@
 (*  setAdmin lambda *)
-function setAdmin(const newAdminAddress : address; var s : doormanStorage) : return is
+function setAdminCompiled(const newAdminAddress : address; var s : doormanStorage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
@@ -13,7 +13,7 @@ block {
 
 
 (*  updateMinMvkAmount lambda *)
-function updateMinMvkAmount(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
+function updateMinMvkAmountCompiled(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
 block {
   // check that sender is admin (i.e. Governance DAO contract address)
   checkSenderIsAdmin(s);
@@ -28,7 +28,7 @@ block {
 
 
 (*  pauseAll lambda *)
-function pauseAll(var s : doormanStorage) : return is
+function pauseAllCompiled(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -48,7 +48,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function unpauseAll(var s : doormanStorage) : return is
+function unpauseAllCompiled(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -68,7 +68,7 @@ block {
 
 
 (*  togglePauseStake lambda *)
-function togglePauseStake(var s : doormanStorage) : return is
+function togglePauseStakeCompiled(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -81,7 +81,7 @@ block {
 
 
 (*  togglePauseUnstake lambda *)
-function togglePauseUnstake(var s : doormanStorage) : return is
+function togglePauseUnstakeCompiled(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -94,7 +94,7 @@ block {
 
 
 (*  togglePauseCompound lambda *)
-function togglePauseCompound(var s : doormanStorage) : return is
+function togglePauseCompoundCompiled(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -107,7 +107,7 @@ block {
 
 
 (*  stake lambda *)
-function stake(const stakeAmount : nat; var s : doormanStorage) : return is
+function stakeCompiled(const stakeAmount : nat; var s : doormanStorage) : return is
 block {
 
   // Steps Overview
@@ -124,75 +124,75 @@ block {
   // break glass check
   checkStakeIsNotPaused(s);
 
-    // Compound user rewards
-    const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
-    s := userCompound.1;
+  // Compound user rewards
+  const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
+  s := userCompound.1;
 
-    // 1. verify that user is staking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
-    if stakeAmount < s.minMvkAmount then failwith("You have to stake more MVK.")
-      else skip;
+  // 1. verify that user is staking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
+  if stakeAmount < s.minMvkAmount then failwith("You have to stake more MVK.")
+    else skip;
 
-    const mvkTokenAddress : address = s.mvkTokenAddress;
+  const mvkTokenAddress : address = s.mvkTokenAddress;
 
-    const delegationAddress : address = case s.generalContracts["delegation"] of [
-        Some(_address) -> _address
-        | None -> failwith("Error. Delegation Contract is not found.")
-    ];
-          
-    // update user's MVK balance (stake) -> decrease user balance in mvk ledger
-    const transferParameters: transferType = list[
-      record[
-        from_=Tezos.sender;
-        txs=list[
-          record[
-            to_=Tezos.self_address;
-            token_id=0n;
-            amount=stakeAmount;
-          ]
+  const delegationAddress : address = case s.generalContracts["delegation"] of [
+      Some(_address) -> _address
+      | None -> failwith("Error. Delegation Contract is not found.")
+  ];
+        
+  // update user's MVK balance (stake) -> decrease user balance in mvk ledger
+  const transferParameters: transferType = list[
+    record[
+      from_=Tezos.sender;
+      txs=list[
+        record[
+          to_=Tezos.self_address;
+          token_id=0n;
+          amount=stakeAmount;
         ]
       ]
-    ];
-    const transferOperation: operation = Tezos.transaction(
-      transferParameters,
-      0tez,
-      getTransferEntrypointFromTokenAddress(mvkTokenAddress)
-    );
+    ]
+  ];
+  const transferOperation: operation = Tezos.transaction(
+    transferParameters,
+    0tez,
+    getTransferEntrypointFromTokenAddress(mvkTokenAddress)
+  );
 
-    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (Tezos.sender),
-      0tez,
-      updateSatelliteBalance(delegationAddress)
-    );
+  const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+    (Tezos.sender),
+    0tez,
+    updateSatelliteBalance(delegationAddress)
+  );
 
-    // list of operations: burn mvk tokens first, then mint smvk tokens
-    // const operations : list(operation) = list [burnMvkTokensOperation; mintSMvkTokensOperation; updateSatelliteBalanceOperation];
-    const operations : list(operation) = case userCompound.0 of [
-      Some (o) -> list [o; updateSatelliteBalanceOperation; transferOperation]
-    | None -> list [updateSatelliteBalanceOperation; transferOperation]
-    ];
-    
-    // 3. update record of user address with minted sMVK tokens
+  // list of operations: burn mvk tokens first, then mint smvk tokens
+  // const operations : list(operation) = list [burnMvkTokensOperation; mintSMvkTokensOperation; updateSatelliteBalanceOperation];
+  const operations : list(operation) = case userCompound.0 of [
+    Some (o) -> list [o; updateSatelliteBalanceOperation; transferOperation]
+  | None -> list [updateSatelliteBalanceOperation; transferOperation]
+  ];
+  
+  // 3. update record of user address with minted sMVK tokens
 
-    // update user's staked balance in staked balance ledger
-    var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.sender] of [
-        Some(_val) -> _val
-        | None -> record[
-          balance=0n;
-          participationFeesPerShare=s.accumulatedFeesPerShare;
-        ]
-    ];
-    userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + stakeAmount; 
-    s.userStakeBalanceLedger[Tezos.sender] := userBalanceInStakeBalanceLedger;
+  // update user's staked balance in staked balance ledger
+  var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.sender] of [
+      Some(_val) -> _val
+      | None -> record[
+        balance=0n;
+        participationFeesPerShare=s.accumulatedFeesPerShare;
+      ]
+  ];
+  userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + stakeAmount; 
+  s.userStakeBalanceLedger[Tezos.sender] := userBalanceInStakeBalanceLedger;
 
-    // update staked MVK total supply
-    s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + stakeAmount;
+  // update staked MVK total supply
+  s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + stakeAmount;
 
 } with (operations, s)
 
 
 
 (*  unstake lambda *)
-function unstake(const unstakeAmount : nat; var s : doormanStorage) : return is
+function unstakeCompiled(const unstakeAmount : nat; var s : doormanStorage) : return is
 block {
   // Steps Overview
   // 1. verify that user is unstaking more than 0 sMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
@@ -323,7 +323,7 @@ block {
 
 
 (*  compound lambda *)
-function compound(var s: doormanStorage): return is
+function compoundCompiled(var s: doormanStorage): return is
   block{
     // Check if compound is paused
     checkCompoundIsNotPaused(s);
@@ -341,7 +341,7 @@ function compound(var s: doormanStorage): return is
 
 
 (* farmClaim lambda *)
-function farmClaim(const farmClaim: farmClaimType; var s: doormanStorage): return is
+function farmClaimCompiled(const farmClaim: farmClaimType; var s: doormanStorage): return is
   block{
     // Get values from parameter
     const delegator: address = farmClaim.0;

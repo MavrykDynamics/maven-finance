@@ -54,8 +54,6 @@ type vestingStorage is [@layout:comb] record [
     mvkTokenAddress     : address;
     metadata            : metadata;
 
-    config              : configType;
-
     whitelistContracts  : whitelistContractsType;      
     generalContracts    : generalContractsType;
 

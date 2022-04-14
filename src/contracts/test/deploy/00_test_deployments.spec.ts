@@ -455,15 +455,15 @@ describe('Contracts Deployment for Tests', async () => {
     // Doorman Setup Lambdas
     const doormanLambdaBatch = await tezos.wallet
     .batch()
-    .withContractCall(doorman.contract.methods.setLambda("setAdmin"           , doormanLambdas[0])) // setAdmin
-    .withContractCall(doorman.contract.methods.setLambda("updateMinMvkAmount" , doormanLambdas[1])) // updateMinMvkAmount
-    .withContractCall(doorman.contract.methods.setLambda("pauseAll"           , doormanLambdas[2])) // pauseAll
-    .withContractCall(doorman.contract.methods.setLambda("unpauseAll"         , doormanLambdas[3])) // unpauseAll
-    .withContractCall(doorman.contract.methods.setLambda("togglePauseUnstake" , doormanLambdas[4])) // togglePauseUnstake
-    .withContractCall(doorman.contract.methods.setLambda("stake"              , doormanLambdas[5])) // stake
-    .withContractCall(doorman.contract.methods.setLambda("unstake"            , doormanLambdas[6])) // unstake
-    .withContractCall(doorman.contract.methods.setLambda("compound"           , doormanLambdas[7])) // compound
-    .withContractCall(doorman.contract.methods.setLambda("farmClaim"          , doormanLambdas[8])) // farmClaim
+    .withContractCall(doorman.contract.methods.setLambda("setAdminCompiled"           , doormanLambdas[0])) // setAdmin
+    .withContractCall(doorman.contract.methods.setLambda("updateMinMvkAmountCompiled" , doormanLambdas[1])) // updateMinMvkAmount
+    .withContractCall(doorman.contract.methods.setLambda("pauseAllCompiled"           , doormanLambdas[2])) // pauseAll
+    .withContractCall(doorman.contract.methods.setLambda("unpauseAllCompiled"         , doormanLambdas[3])) // unpauseAll
+    .withContractCall(doorman.contract.methods.setLambda("togglePauseUnstakeCompiled" , doormanLambdas[4])) // togglePauseUnstake
+    .withContractCall(doorman.contract.methods.setLambda("stakeCompiled"      , doormanLambdas[5])) // compiledStake
+    .withContractCall(doorman.contract.methods.setLambda("unstakeCompiled"            , doormanLambdas[6])) // unstake
+    .withContractCall(doorman.contract.methods.setLambda("compoundCompiled"           , doormanLambdas[7])) // compound
+    .withContractCall(doorman.contract.methods.setLambda("farmClaimCompiled"          , doormanLambdas[8])) // farmClaim
   
     const setupDoormanLambdasOperation = await doormanLambdaBatch.send()
     await setupDoormanLambdasOperation.confirmation()
