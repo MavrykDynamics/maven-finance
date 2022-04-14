@@ -42,7 +42,5 @@ export const vestingStorage: vestingStorageType = {
   claimLedger: MichelsonMap.fromLiteral({}),
   vesteeLedger: MichelsonMap.fromLiteral({}),
 
-  totalVestedAmount: new BigNumber(0),
-
-  tempBlockLevel: new BigNumber(0)
+  totalVestedAmount: new BigNumber(0)
 }

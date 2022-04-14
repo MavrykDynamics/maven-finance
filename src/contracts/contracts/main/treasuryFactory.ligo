@@ -1,319 +1,319 @@
-////
-// TYPES INCLUDED
-////
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
-
-// General Contracts: generalContractsType, updateGeneralContractsParams
-#include "../partials/generalContractsType.ligo"
-
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
-
-// Treasury types
-#include "../partials/types/mvkTokenTypes.ligo"
-
-// Treasury types
-#include "../partials/types/treasuryTypes.ligo"
-
-// Treasury factory types
-#include "../partials/types/treasuryFactoryTypes.ligo"
-
-////
-// RETURN TYPES
-////
-(* define return for readability *)
-type return is list (operation) * treasuryFactoryStorage
-(* define noop for readability *)
-const noOperations: list (operation) = nil;
-
-////
-// ENTRYPOINTS
-////
-type treasuryFactoryAction is
-        SetAdmin of (address)
-    |   UpdateWhitelistContracts of updateWhitelistContractsParams
-    |   UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
-    |   UpdateGeneralContracts of updateGeneralContractsParams
-
-    |   PauseAll of (unit)
-    |   UnpauseAll of (unit)
-    |   TogglePauseCreateTreasury of (unit)
-    |   TogglePauseTrackTreasury of (unit)
-    |   TogglePauseUntrackTreasury of (unit)
-
-    |   CreateTreasury of createTreasuryActionType
-    |   TrackTreasury of address
-    |   UntrackTreasury of address
-
-////
-// HELPER FUNCTIONS
-///
-(* Checks functions *)
-function checkNoAmount(const _p: unit): unit is
-  if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
-  else unit
-
-function checkSenderIsAdmin(const s: treasuryFactoryStorage): unit is
-  if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
-  else unit
-
-////
-// BREAK GLASS CHECKS
-////
-
-// break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
-function checkCreateTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
-    if s.breakGlassConfig.createTreasuryIsPaused then failwith("Error. CreateTreasury entrypoint is paused.")
-    else unit;
-
-function checkTrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
-    if s.breakGlassConfig.trackTreasuryIsPaused then failwith("TrackTreasury entrypoint is paused.")
-    else unit;
-
-function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
-    if s.breakGlassConfig.untrackTreasuryIsPaused then failwith("UntrackTreasury entrypoint is paused.")
-    else unit;
-
-////
-// FUNCTIONS INCLUDED
-////
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryFactoryStorage): return is
-  block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-  } with (noOperations, s)
-
-// General Contracts: checkInGeneralContracts, updateGeneralContracts
-#include "../partials/generalContractsMethod.ligo"
-
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: treasuryFactoryStorage): return is
-  block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-  } with (noOperations, s)
+// ////
+// // TYPES INCLUDED
+// ////
+// // Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+// #include "../partials/whitelistContractsType.ligo"
+
+// // General Contracts: generalContractsType, updateGeneralContractsParams
+// #include "../partials/generalContractsType.ligo"
+
+// // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
+// #include "../partials/whitelistTokenContractsType.ligo"
+
+// // Treasury types
+// #include "../partials/types/mvkTokenTypes.ligo"
+
+// // Treasury types
+// #include "../partials/types/treasuryTypes.ligo"
+
+// // Treasury factory types
+// #include "../partials/types/treasuryFactoryTypes.ligo"
+
+// ////
+// // RETURN TYPES
+// ////
+// (* define return for readability *)
+// type return is list (operation) * treasuryFactoryStorage
+// (* define noop for readability *)
+// const noOperations: list (operation) = nil;
+
+// ////
+// // ENTRYPOINTS
+// ////
+// type treasuryFactoryAction is
+//         SetAdmin of (address)
+//     |   UpdateWhitelistContracts of updateWhitelistContractsParams
+//     |   UpdateWhitelistTokenContracts of updateWhitelistTokenContractsParams
+//     |   UpdateGeneralContracts of updateGeneralContractsParams
+
+//     |   PauseAll of (unit)
+//     |   UnpauseAll of (unit)
+//     |   TogglePauseCreateTreasury of (unit)
+//     |   TogglePauseTrackTreasury of (unit)
+//     |   TogglePauseUntrackTreasury of (unit)
+
+//     |   CreateTreasury of createTreasuryActionType
+//     |   TrackTreasury of address
+//     |   UntrackTreasury of address
+
+// ////
+// // HELPER FUNCTIONS
+// ///
+// (* Checks functions *)
+// function checkNoAmount(const _p: unit): unit is
+//   if Tezos.amount =/= 0tez then failwith("THIS_ENTRYPOINT_SHOULD_NOT_RECEIVE_XTZ")
+//   else unit
+
+// function checkSenderIsAdmin(const s: treasuryFactoryStorage): unit is
+//   if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
+//   else unit
+
+// ////
+// // BREAK GLASS CHECKS
+// ////
+
+// // break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
+// function checkCreateTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
+//     if s.breakGlassConfig.createTreasuryIsPaused then failwith("Error. CreateTreasury entrypoint is paused.")
+//     else unit;
+
+// function checkTrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
+//     if s.breakGlassConfig.trackTreasuryIsPaused then failwith("TrackTreasury entrypoint is paused.")
+//     else unit;
+
+// function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
+//     if s.breakGlassConfig.untrackTreasuryIsPaused then failwith("UntrackTreasury entrypoint is paused.")
+//     else unit;
+
+// ////
+// // FUNCTIONS INCLUDED
+// ////
+// // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+// #include "../partials/whitelistContractsMethod.ligo"
+
+// function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryFactoryStorage): return is
+//   block {
+//     // check that sender is admin
+//     checkSenderIsAdmin(s);
+
+//     s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+//   } with (noOperations, s)
+
+// // General Contracts: checkInGeneralContracts, updateGeneralContracts
+// #include "../partials/generalContractsMethod.ligo"
+
+// function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: treasuryFactoryStorage): return is
+//   block {
+//     // check that sender is admin
+//     checkSenderIsAdmin(s);
+
+//     s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+//   } with (noOperations, s)
 
-// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
-#include "../partials/whitelistTokenContractsMethod.ligo"
+// // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
+// #include "../partials/whitelistTokenContractsMethod.ligo"
 
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryFactoryStorage): return is
-  block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+// function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryFactoryStorage): return is
+//   block {
+//     // check that sender is admin
+//     checkSenderIsAdmin(s);
 
-    s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
-  } with (noOperations, s)
+//     s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+//   } with (noOperations, s)
 
-////
-// BREAK GLASS FUNCTIONS
-///
-function pauseAll(var s: treasuryFactoryStorage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+// ////
+// // BREAK GLASS FUNCTIONS
+// ///
+// function pauseAll(var s: treasuryFactoryStorage): return is
+//     block {
+//         // check that sender is admin
+//         checkSenderIsAdmin(s);
 
-        // set all pause configs to True
-        if s.breakGlassConfig.createTreasuryIsPaused then skip
-        else s.breakGlassConfig.createTreasuryIsPaused := True;
+//         // set all pause configs to True
+//         if s.breakGlassConfig.createTreasuryIsPaused then skip
+//         else s.breakGlassConfig.createTreasuryIsPaused := True;
 
-        if s.breakGlassConfig.trackTreasuryIsPaused then skip
-        else s.breakGlassConfig.trackTreasuryIsPaused := True;
+//         if s.breakGlassConfig.trackTreasuryIsPaused then skip
+//         else s.breakGlassConfig.trackTreasuryIsPaused := True;
 
-        if s.breakGlassConfig.untrackTreasuryIsPaused then skip
-        else s.breakGlassConfig.untrackTreasuryIsPaused := True;
+//         if s.breakGlassConfig.untrackTreasuryIsPaused then skip
+//         else s.breakGlassConfig.untrackTreasuryIsPaused := True;
 
-        var operations: list(operation) := nil;
+//         var operations: list(operation) := nil;
 
-        for treasuryAddress in set s.trackedTreasuries
-        block {
-            case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress): option(contract(unit))) of [
-                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-            |   None -> skip
-            ];
-        };
+//         for treasuryAddress in set s.trackedTreasuries
+//         block {
+//             case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress): option(contract(unit))) of [
+//                 Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+//             |   None -> skip
+//             ];
+//         };
 
-    } with (operations, s)
+//     } with (operations, s)
 
-function unpauseAll(var s: treasuryFactoryStorage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+// function unpauseAll(var s: treasuryFactoryStorage): return is
+//     block {
+//         // check that sender is admin
+//         checkSenderIsAdmin(s);
 
-        // set all pause configs to False
-        if s.breakGlassConfig.createTreasuryIsPaused then s.breakGlassConfig.createTreasuryIsPaused := False
-        else skip;
+//         // set all pause configs to False
+//         if s.breakGlassConfig.createTreasuryIsPaused then s.breakGlassConfig.createTreasuryIsPaused := False
+//         else skip;
 
-        if s.breakGlassConfig.trackTreasuryIsPaused then s.breakGlassConfig.trackTreasuryIsPaused := False
-        else skip;
+//         if s.breakGlassConfig.trackTreasuryIsPaused then s.breakGlassConfig.trackTreasuryIsPaused := False
+//         else skip;
 
-        if s.breakGlassConfig.untrackTreasuryIsPaused then s.breakGlassConfig.untrackTreasuryIsPaused := False
-        else skip;
+//         if s.breakGlassConfig.untrackTreasuryIsPaused then s.breakGlassConfig.untrackTreasuryIsPaused := False
+//         else skip;
 
-        var operations: list(operation) := nil;
+//         var operations: list(operation) := nil;
 
-        for treasuryAddress in set s.trackedTreasuries
-        block {
-            case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress): option(contract(unit))) of [
-                Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-            |   None -> skip
-            ];
-        };
+//         for treasuryAddress in set s.trackedTreasuries
+//         block {
+//             case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress): option(contract(unit))) of [
+//                 Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+//             |   None -> skip
+//             ];
+//         };
 
-    } with (operations, s)
+//     } with (operations, s)
 
-function togglePauseCreateTreasury(var s: treasuryFactoryStorage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+// function togglePauseCreateTreasury(var s: treasuryFactoryStorage): return is
+//     block {
+//         // check that sender is admin
+//         checkSenderIsAdmin(s);
 
-        if s.breakGlassConfig.createTreasuryIsPaused then s.breakGlassConfig.createTreasuryIsPaused := False
-        else s.breakGlassConfig.createTreasuryIsPaused := True;
+//         if s.breakGlassConfig.createTreasuryIsPaused then s.breakGlassConfig.createTreasuryIsPaused := False
+//         else s.breakGlassConfig.createTreasuryIsPaused := True;
 
-    } with (noOperations, s)
+//     } with (noOperations, s)
 
-function togglePauseUntrackTreasury(var s: treasuryFactoryStorage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+// function togglePauseUntrackTreasury(var s: treasuryFactoryStorage): return is
+//     block {
+//         // check that sender is admin
+//         checkSenderIsAdmin(s);
 
-        if s.breakGlassConfig.untrackTreasuryIsPaused then s.breakGlassConfig.untrackTreasuryIsPaused := False
-        else s.breakGlassConfig.untrackTreasuryIsPaused := True;
+//         if s.breakGlassConfig.untrackTreasuryIsPaused then s.breakGlassConfig.untrackTreasuryIsPaused := False
+//         else s.breakGlassConfig.untrackTreasuryIsPaused := True;
 
-    } with (noOperations, s)
+//     } with (noOperations, s)
 
-function togglePauseTrackTreasury(var s: treasuryFactoryStorage): return is
-    block {
-        // check that sender is admin
-        checkSenderIsAdmin(s);
+// function togglePauseTrackTreasury(var s: treasuryFactoryStorage): return is
+//     block {
+//         // check that sender is admin
+//         checkSenderIsAdmin(s);
 
-        if s.breakGlassConfig.trackTreasuryIsPaused then s.breakGlassConfig.trackTreasuryIsPaused := False
-        else s.breakGlassConfig.trackTreasuryIsPaused := True;
+//         if s.breakGlassConfig.trackTreasuryIsPaused then s.breakGlassConfig.trackTreasuryIsPaused := False
+//         else s.breakGlassConfig.trackTreasuryIsPaused := True;
 
-    } with (noOperations, s)
+//     } with (noOperations, s)
 
-////
-// ENTRYPOINTS FUNCTIONS
-///
+// ////
+// // ENTRYPOINTS FUNCTIONS
+// ///
 
-(*  set contract admin address *)
-function setAdmin(const newAdminAddress: address; var s: treasuryFactoryStorage): return is
-block {
-    checkSenderIsAdmin(s); // check that sender is admin
-    s.admin := newAdminAddress;
-} with (noOperations, s)
-
-(* CreateTreasury entrypoint *)
-function createTreasury(const createTreasuryParams: createTreasuryActionType; var s: treasuryFactoryStorage): return is 
-    block{
-        // Check if Sender is admin
-        checkSenderIsAdmin(s);
-
-        // Break glass check
-        checkCreateTreasuryIsNotPaused(s);
-
-        const transferIsPaused            : bool  = createTreasuryParams.transferIsPaused;
-        const mintMvkAndTransferIsPaused  : bool  = createTreasuryParams.mintMvkAndTransferIsPaused;
-
-        // Add TreasuryFactory Address to whitelistContracts of created treasury
-        const treasuryWhitelistContracts : whitelistContractsType = map[
-            ("treasuryFactory") -> (Tezos.self_address: address);
-            ("governance") -> (s.admin : address);
-        ];
-
-        const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
-
-        const treasuryGeneralContracts : generalContractsType = map[];
-
-        const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
-            transferIsPaused           = transferIsPaused;
-            mintMvkAndTransferIsPaused = mintMvkAndTransferIsPaused;
-        ];
-
-        const originatedTreasuryStorage : treasuryStorage = record[
-            admin                   = s.admin;                    // admin will be the governance contract
-            mvkTokenAddress         = s.mvkTokenAddress;
-            metadata                = (Big_map.empty: metadata);
-
-            breakGlassConfig        = treasuryBreakGlassConfig;
-
-            whitelistContracts        = treasuryWhitelistContracts;      // whitelist of contracts that can access restricted entrypoints
-            whitelistTokenContracts   = treasuryWhitelistTokenContracts;      
-            generalContracts          = treasuryGeneralContracts;
-        ];
-
-
-        const treasuryOrigination: (operation * address) = createTreasuryFunc(
-            (None: option(key_hash)), 
-            0tez,
-            originatedTreasuryStorage
-        );
-
-        s.trackedTreasuries := Set.add(treasuryOrigination.1, s.trackedTreasuries);
-
-    } with(list[treasuryOrigination.0], s)
-
-(* CheckTreasuryExists view *)
-[@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorage): bool is 
-    Set.mem(treasuryContract, s.trackedTreasuries)
-
-(* TrackTreasury entrypoint *)
-function trackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
-    block{
-        // Check if Sender is admin
-        checkSenderIsAdmin(s);
-
-        // Break glass check
-        checkTrackTreasuryIsNotPaused(s);
-
-        s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-            True -> (failwith("Error. The provided treasury contract already exists in the trackedTreasuries set"): set(address))
-        |   False -> Set.add(treasuryContract, s.trackedTreasuries)
-        ];
-
-    } with(noOperations, s)
-
-(* UntrackTreasury entrypoint *)
-function untrackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
-    block{
-        // Check if Sender is admin
-        checkSenderIsAdmin(s);
-
-        // Break glass check
-        checkUntrackTreasuryIsNotPaused(s);
-
-        s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-            True -> Set.remove(treasuryContract, s.trackedTreasuries)
-        |   False -> (failwith("Error. The provided treasury contract does not exist in the trackedTreasuries set"): set(address))
-        ];
-    } with(noOperations, s)
-
-(* Main entrypoint *)
-function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorage): return is
-  block{
-    // Check that sender didn't send Tezos while calling an entrypoint
-    checkNoAmount(Unit);
-  } with(
-    case action of [
-        SetAdmin (parameters) -> setAdmin(parameters, s)
-    |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
-    |   UpdateWhitelistTokenContracts (parameters) -> updateWhitelistTokenContracts(parameters, s)
-    |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
+// (*  set contract admin address *)
+// function setAdmin(const newAdminAddress: address; var s: treasuryFactoryStorage): return is
+// block {
+//     checkSenderIsAdmin(s); // check that sender is admin
+//     s.admin := newAdminAddress;
+// } with (noOperations, s)
+
+// (* CreateTreasury entrypoint *)
+// function createTreasury(const createTreasuryParams: createTreasuryActionType; var s: treasuryFactoryStorage): return is 
+//     block{
+//         // Check if Sender is admin
+//         checkSenderIsAdmin(s);
+
+//         // Break glass check
+//         checkCreateTreasuryIsNotPaused(s);
+
+//         const transferIsPaused            : bool  = createTreasuryParams.transferIsPaused;
+//         const mintMvkAndTransferIsPaused  : bool  = createTreasuryParams.mintMvkAndTransferIsPaused;
+
+//         // Add TreasuryFactory Address to whitelistContracts of created treasury
+//         const treasuryWhitelistContracts : whitelistContractsType = map[
+//             ("treasuryFactory") -> (Tezos.self_address: address);
+//             ("governance") -> (s.admin : address);
+//         ];
+
+//         const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
+
+//         const treasuryGeneralContracts : generalContractsType = map[];
+
+//         const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
+//             transferIsPaused           = transferIsPaused;
+//             mintMvkAndTransferIsPaused = mintMvkAndTransferIsPaused;
+//         ];
+
+//         const originatedTreasuryStorage : treasuryStorage = record[
+//             admin                   = s.admin;                    // admin will be the governance contract
+//             mvkTokenAddress         = s.mvkTokenAddress;
+//             metadata                = (Big_map.empty: metadata);
+
+//             breakGlassConfig        = treasuryBreakGlassConfig;
+
+//             whitelistContracts        = treasuryWhitelistContracts;      // whitelist of contracts that can access restricted entrypoints
+//             whitelistTokenContracts   = treasuryWhitelistTokenContracts;      
+//             generalContracts          = treasuryGeneralContracts;
+//         ];
+
+
+//         const treasuryOrigination: (operation * address) = createTreasuryFunc(
+//             (None: option(key_hash)), 
+//             0tez,
+//             originatedTreasuryStorage
+//         );
+
+//         s.trackedTreasuries := Set.add(treasuryOrigination.1, s.trackedTreasuries);
+
+//     } with(list[treasuryOrigination.0], s)
+
+// (* CheckTreasuryExists view *)
+// [@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorage): bool is 
+//     Set.mem(treasuryContract, s.trackedTreasuries)
+
+// (* TrackTreasury entrypoint *)
+// function trackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
+//     block{
+//         // Check if Sender is admin
+//         checkSenderIsAdmin(s);
+
+//         // Break glass check
+//         checkTrackTreasuryIsNotPaused(s);
+
+//         s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
+//             True -> (failwith("Error. The provided treasury contract already exists in the trackedTreasuries set"): set(address))
+//         |   False -> Set.add(treasuryContract, s.trackedTreasuries)
+//         ];
+
+//     } with(noOperations, s)
+
+// (* UntrackTreasury entrypoint *)
+// function untrackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
+//     block{
+//         // Check if Sender is admin
+//         checkSenderIsAdmin(s);
+
+//         // Break glass check
+//         checkUntrackTreasuryIsNotPaused(s);
+
+//         s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
+//             True -> Set.remove(treasuryContract, s.trackedTreasuries)
+//         |   False -> (failwith("Error. The provided treasury contract does not exist in the trackedTreasuries set"): set(address))
+//         ];
+//     } with(noOperations, s)
+
+// (* Main entrypoint *)
+// function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorage): return is
+//   block{
+//     // Check that sender didn't send Tezos while calling an entrypoint
+//     checkNoAmount(Unit);
+//   } with(
+//     case action of [
+//         SetAdmin (parameters) -> setAdmin(parameters, s)
+//     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
+//     |   UpdateWhitelistTokenContracts (parameters) -> updateWhitelistTokenContracts(parameters, s)
+//     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
     
-    |   PauseAll (_parameters) -> pauseAll(s)
-    |   UnpauseAll (_parameters) -> unpauseAll(s)
-    |   TogglePauseCreateTreasury (_parameters) -> togglePauseCreateTreasury(s)
-    |   TogglePauseTrackTreasury (_parameters) -> togglePauseTrackTreasury(s)
-    |   TogglePauseUntrackTreasury (_parameters) -> togglePauseUntrackTreasury(s)
+//     |   PauseAll (_parameters) -> pauseAll(s)
+//     |   UnpauseAll (_parameters) -> unpauseAll(s)
+//     |   TogglePauseCreateTreasury (_parameters) -> togglePauseCreateTreasury(s)
+//     |   TogglePauseTrackTreasury (_parameters) -> togglePauseTrackTreasury(s)
+//     |   TogglePauseUntrackTreasury (_parameters) -> togglePauseUntrackTreasury(s)
 
-    |   CreateTreasury (params) -> createTreasury(params, s)
-    |   TrackTreasury (params) -> trackTreasury(params, s)
-    |   UntrackTreasury (params) -> untrackTreasury(params, s)
-    ]
-  )
+//     |   CreateTreasury (params) -> createTreasury(params, s)
+//     |   TrackTreasury (params) -> trackTreasury(params, s)
+//     |   UntrackTreasury (params) -> untrackTreasury(params, s)
+//     ]
+//   )

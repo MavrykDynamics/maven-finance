@@ -18,6 +18,7 @@
 // import governanceAddress from '../deployments/governanceAddress.json';
 // import mockFa12TokenAddress  from '../deployments/mockFa12TokenAddress.json';
 // import mockFa2TokenAddress   from '../deployments/mockFa2TokenAddress.json';
+// import delegationAddress   from '../deployments/delegationAddress.json';
 
 // describe("Treasury tests", async () => {
 //     var utils: Utils;
@@ -72,22 +73,9 @@
 //     });
 
 
-//     describe('test: Treasury Housekeeping tests', function() {
-        
-//         it('test: non-admin user (alice) cannot set treasury admin', async () => {
-//             try{        
+//     describe('%setAdmin', function() {
 
-//                 await signerFactory(alice.sk);
-//                 const failSetAdminOperation = await treasuryInstance.methods.setAdmin(eve.pkh);
-//                 await chai.expect(failSetAdminOperation.send()).to.be.eventually.rejected;
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-
-//         });    
-
-//         it('test: admin user (bob) can set treasury admin', async () => {
+//         it('Non-admin should not be able to call this entrypoint', async () => {
 //             try{        
 
 //                 await signerFactory(bob.sk);
@@ -108,10 +96,31 @@
 //             } catch(e){
 //                 console.log(e);
 //             } 
+//         }); 
+        
+//         it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
+//             try{        
 
-//         });    
+//                 await signerFactory(bob.sk);
+//                 const setAdminOperation = await treasuryInstance.methods.setAdmin(eve.pkh).send();
+//                 await setAdminOperation.confirmation();
 
-//     }); // end test: Treasury Housekeeping tests
+//                 const updatedTreasuryStorage   = await treasuryInstance.storage();            
+//                 assert.equal(updatedTreasuryStorage.admin, eve.pkh);
+
+//                 // reset treasury admin to bob
+//                 await signerFactory(eve.sk);
+//                 const resetAdminOperation = await treasuryInstance.methods.setAdmin(bob.pkh).send();
+//                 await resetAdminOperation.confirmation();
+
+//                 const resetTreasuryStorage   = await treasuryInstance.storage();            
+//                 assert.equal(resetTreasuryStorage.admin, bob.pkh);
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+//     })
 
 //     describe('test: Treasury deposit tests', function() {
 
@@ -195,6 +204,9 @@
 //                 // Alice transfers 80 MVK Tokens to Treasury
 //                 const depositAmount = MVK(80);
         
+//                 mvkTokenStorage                     = await mvkTokenInstance.storage();
+//                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress.address);
+
 //                 await signerFactory(alice.sk)
 //                 const aliceTransferMockFa2ToTreasuryOperation = await mvkTokenInstance.methods.transfer([
 //                         {
@@ -210,305 +222,35 @@
 //                     ]).send();
 //                 await aliceTransferMockFa2ToTreasuryOperation.confirmation();
 
-//                 const updatedMvkTokenStorage       = await mvkTokenInstance.storage();
-//                 const treasuryMvkTokenBalance      = await updatedMvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 mvkTokenStorage       = await mvkTokenInstance.storage();
+//                 const finalTreasuryMvkTokenBalance      = await mvkTokenStorage.ledger.get(treasuryAddress.address);
 
-//                 assert.equal(treasuryMvkTokenBalance, depositAmount);
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//     }); // end test: Treasury deposit tests
-
-
-
-//     describe('test: Treasury transfer and mintMvkAndTransfer tests', function() {
-
-//         it('test: user (alice) cannot transfer tez from treasury', async () => {
-//             try{        
-                
-//                 const to_        = alice.pkh;
-//                 const amount     = 10000000;
-//                 const tokenType  = "tez"
-
-//                 await signerFactory(alice.sk);
-//                 const failTransferTezOperation = await treasuryInstance.methods.transfer(
-//                     [
-//                         {
-//                             "to_"    : to_,
-//                             "token"  : {
-//                                 "tez" : tokenType
-//                             },
-//                             "amount" : amount
-//                         }
-//                     ]
-//                 );
-//                 await chai.expect(failTransferTezOperation.send()).to.be.eventually.rejected;
-                
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//         it('test: user (alice) cannot transfer mock FA12 Tokens from treasury', async () => {
-//             try{        
-                
-//                 const to_                   = alice.pkh;
-//                 const amount                = 10000000;
-//                 const tokenContractAddress  = mockFa12TokenAddress.address;
-
-//                 await signerFactory(alice.sk);
-//                 const failTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
-//                     [
-//                         {
-//                             "to_"    : to_,
-//                             "token"  : {
-//                                 "fa12" : tokenContractAddress
-//                             },
-//                             "amount" : amount
-//                         }
-//                     ]
-//                 );
-//                 await chai.expect(failTransferMockFa12TokenOperation.send()).to.be.eventually.rejected;
+//                 assert.equal(finalTreasuryMvkTokenBalance.toNumber(), initTreasuryMvkTokenBalance.toNumber() + depositAmount);
 
 //             } catch(e){
 //                 console.log(e);
 //             } 
 //         });
 
-//         it('test: user (alice) cannot transfer mock FA2 Tokens from treasury', async () => {
+//     });
+
+//     describe('%transfer', function() {
+
+//         before("Set Bob as whitelist", async() => {
+//             await signerFactory(bob.sk);
+//             const adminUpdateWhitelistContractsOperation = await treasuryInstance.methods.updateWhitelistContracts(
+//                  "admin",
+//                  bob.pkh
+//             ).send();
+//             await adminUpdateWhitelistContractsOperation.confirmation();
+
+//             const treasuryStorage            = await treasuryInstance.storage();
+//             const treasuryWhitelistContracts = await treasuryStorage.whitelistContracts.get("admin");
+//             assert.equal(treasuryWhitelistContracts, bob.pkh);
+//         })
+
+//         it('Whitelist contract should be able to call this entrypoint and transfer XTZ', async () => {
 //             try{        
-                
-//                 const to_        = alice.pkh;
-//                 const amount     = 10000000;
-//                 const tokenContractAddress      = mockFa12TokenAddress.address;
-//                 const tokenId    = 0;
-
-//                 await signerFactory(alice.sk);
-//                 const failTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
-//                     [
-//                         {
-//                             "to_"    : to_,
-//                             "token"  : {
-//                                 "fa2" : {
-//                                     "tokenContractAddress" : tokenContractAddress,
-//                                     "tokenId" : tokenId
-//                                 }
-//                             },
-//                             "amount" : amount
-//                         }
-//                     ]
-//                 );
-//                 await chai.expect(failTransferMockFa2TokenOperation.send()).to.be.eventually.rejected;
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//         it('test: user (alice) cannot transfer MVK Tokens from treasury', async () => {
-//             try{        
-                
-//                 const to_                   = alice.pkh;
-//                 const amount                = MVK(10);
-//                 const tokenContractAddress  = mvkTokenAddress.address;
-//                 const tokenId               = 0;
-
-//                 await signerFactory(alice.sk);
-//                 const failTransferMvkTokenOperation = await treasuryInstance.methods.transfer(
-//                     [
-//                         {
-//                             "to_"    : to_,
-//                             "token"  : {
-//                                 "fa2" : {
-//                                     "tokenContractAddress" : tokenContractAddress,
-//                                     "tokenId" : tokenId
-//                                 }
-//                             },
-//                             "amount" : amount
-//                         }
-//                     ]
-//                 );
-//                 await chai.expect(failTransferMvkTokenOperation.send()).to.be.eventually.rejected;
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//         it('test: user (alice) cannot access treasury mintMvkAndTransfer entrypoint', async () => {
-//             try{        
-                
-//                 const to_        = alice.pkh;
-//                 const amount     = 10000000;
-
-//                 await signerFactory(alice.sk);
-//                 const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
-//                      to_,
-//                      amount,
-//                 );
-//                 await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//         it('test: admin (bob) cannot transfer tez from treasury', async () => {
-//             try{        
-                
-//                 const to_        = bob.pkh;
-//                 const amount     = 10000000;
-//                 const tokenType  = "tez"
-
-//                 await signerFactory(bob.sk);
-//                 const failTransferTezOperation = await treasuryInstance.methods.transfer(
-//                     [
-//                         {
-//                             "to_"    : to_,
-//                             "token"  : {
-//                                 "tez" : tokenType
-//                             },
-//                             "amount" : amount
-//                         }
-//                     ]
-//                 );
-//                 await chai.expect(failTransferTezOperation.send()).to.be.eventually.rejected;
-                
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//         it('test: admin (bob) cannot transfer mock FA12 Tokens from treasury', async () => {
-//             try{        
-                
-//                 const to_                    = bob.pkh;
-//                 const amount                 = 10000000;
-//                 const tokenContractAddress   = mockFa12TokenAddress.address;
-
-//                 await signerFactory(bob.sk);
-//                 const failTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
-//                     [
-//                         {
-//                             "to_"    : to_,
-//                             "token"  : {
-//                                 "fa12" : tokenContractAddress
-//                             },
-//                             "amount" : amount
-//                         }
-//                     ]
-//                 );
-//                 await chai.expect(failTransferMockFa12TokenOperation.send()).to.be.eventually.rejected;
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//         it('test: admin (bob) cannot transfer mock FA2 Tokens from treasury', async () => {
-//             try{        
-                
-//                 const to_                    = bob.pkh;
-//                 const amount                 = 10000000;
-//                 const tokenContractAddress   = mockFa12TokenAddress.address;
-//                 const tokenId                = 0;
-
-//                 await signerFactory(bob.sk);
-//                 const failTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
-//                     [
-//                         {
-//                             "to_"    : to_,
-//                             "token"  : {
-//                                 "fa2" : {
-//                                     "tokenContractAddress" : tokenContractAddress,
-//                                     "tokenId" : tokenId
-//                                 }
-//                             },
-//                             "amount" : amount
-//                         }
-//                     ]
-//                 );
-//                 await chai.expect(failTransferMockFa2TokenOperation.send()).to.be.eventually.rejected;
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//         it('test: admin (bob) cannot transfer MVK Tokens from treasury', async () => {
-//             try{        
-                
-//                 const to_                      = bob.pkh;
-//                 const amount                   = MVK(10);
-//                 const tokenContractAddress     = mvkTokenAddress.address;
-//                 const tokenId                  = 0;
-
-//                 await signerFactory(bob.sk);
-//                 const failTransferMvkTokenOperation = await treasuryInstance.methods.transfer(
-//                     [
-//                         {
-//                             "to_"    : to_,
-//                             "token"  : {
-//                                 "fa2" : {
-//                                     "tokenContractAddress" : tokenContractAddress,
-//                                     "tokenId" : tokenId
-//                                 }
-//                             },
-//                             "amount" : amount
-//                         }
-//                     ]
-//                 );
-//                 await chai.expect(failTransferMvkTokenOperation.send()).to.be.eventually.rejected;
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//         it('test: admin (bob) cannot access treasury mintMvkAndTransfer entrypoint', async () => {
-//             try{        
-                
-//                 const to_        = bob.pkh;
-//                 const amount     = 10000000;
-
-//                 await signerFactory(bob.sk);
-//                 const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
-//                      to_,
-//                      amount,
-//                 );
-//                 await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-
-//         it('test: admin (bob) can update whitelist contract address map', async () => {
-//             try{        
-
-//                 await signerFactory(bob.sk);
-//                 const adminUpdateWhitelistContractsOperation = await treasuryInstance.methods.updateWhitelistContracts(
-//                      "admin",
-//                      bob.pkh
-//                 ).send();
-//                 await adminUpdateWhitelistContractsOperation.confirmation();
-
-//                 const treasuryStorage            = await treasuryInstance.storage();
-//                 const treasuryWhitelistContracts = await treasuryStorage.whitelistContracts.get("admin");
-//                 assert.equal(treasuryWhitelistContracts, bob.pkh);
-
-//             } catch(e){
-//                 console.log(e);
-//             } 
-//         });
-
-//         it('test: whitelisted addresses (bob) can transfer tez from treasury', async () => {
-//             try{        
-                
 //                 const to_        = bob.pkh;
 //                 const tokenType  = "tez";
 //                 const amount     = 10000000;
@@ -536,7 +278,7 @@
 //             } 
 //         });
 
-//         it('test: whitelisted addresses (bob) can transfer mock FA12 Tokens from treasury', async () => {
+//         it('Whitelist contract should be able to call this entrypoint and transfer FA12', async () => {
 //             try{        
                 
 //                 const to_                   = bob.pkh;
@@ -568,7 +310,7 @@
 //             } 
 //         });
 
-//         it('test: whitelisted addresses (bob) can transfer mock FA2 Tokens from treasury', async () => {
+//         it('Whitelist contract should be able to call this entrypoint and transfer FA2', async () => {
 //             try{        
 
 //                 const to_                    = bob.pkh;
@@ -604,13 +346,17 @@
 //             } 
 //         });
 
-//         it('test: whitelisted addresses (bob) can transfer MVK Tokens from treasury', async () => {
+//         it('Whitelist contract should be able to call this entrypoint and transfer MVK', async () => {
 //             try{        
 
 //                 const to_                      = oscar.pkh;
 //                 const amount                   = MVK(10);
 //                 const tokenContractAddress     = mvkTokenAddress.address;
 //                 const tokenId                  = 0;
+                
+//                 mvkTokenStorage                     = await mvkTokenInstance.storage();
+//                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 const initUserMvkTokenBalance       = await mvkTokenStorage.ledger.get(to_);
 
 //                 await signerFactory(bob.sk);
 //                 const adminTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
@@ -629,50 +375,45 @@
 //                 ).send();
 //                 await adminTransferMockFa2TokenOperation.confirmation();
 
-//                 const finalMvkTokenBalance      = MVK(70);
-//                 const updatedMvkTokenStorage    = await mvkTokenInstance.storage();
-//                 const treasuryMvkTokenBalance   = await updatedMvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 mvkTokenStorage                         = await mvkTokenInstance.storage();
+//                 const finalTreasuryMvkTokenBalance      = await mvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 const finalUserMvkTokenBalance          = await mvkTokenStorage.ledger.get(to_);
 
-//                 assert.equal(treasuryMvkTokenBalance, finalMvkTokenBalance);
+//                 assert.equal(finalTreasuryMvkTokenBalance.toNumber(), initTreasuryMvkTokenBalance.toNumber() - amount);
+//                 assert.equal(finalUserMvkTokenBalance.toNumber(), initUserMvkTokenBalance.toNumber() + amount);
 
 //             } catch(e){
 //                 console.log(e);
 //             } 
 //         });
 
-//         it('test: whitelisted addresses (bob) can access treasury mintMvkAndTransfer entrypoint', async () => {
+//         it('Non-whitelist contracts should not be able to call this entrypoint and transfer XTZ', async () => {
 //             try{        
                 
-//                 const to_        = bob.pkh;
-//                 const amount     = 10000000000; // 10 MVK
+//                 const to_        = alice.pkh;
+//                 const amount     = 10000000;
+//                 const tokenType  = "tez"
 
-//                 const mvkTokenStorage           = await mvkTokenInstance.storage();
-//                 const initialBobMvkTokenBalance = await mvkTokenStorage.ledger.get(bob.pkh);
-
-
-//                 await signerFactory(bob.sk);
-//                 const mintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
-//                      to_,
-//                      amount,
-//                 ).send();
-//                 await mintMvkAndTransferOperation.confirmation();
-
-//                 const updatedMvkTokenStorage     = await mvkTokenInstance.storage();
-//                 const updatedBobMvkTokenBalance  = await updatedMvkTokenStorage.ledger.get(bob.pkh);
-
-//                 assert.equal(parseInt(updatedBobMvkTokenBalance), parseInt(initialBobMvkTokenBalance) + amount);
+//                 await signerFactory(alice.sk);
+//                 const failTransferTezOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "tez" : tokenType
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 );
+//                 await chai.expect(failTransferTezOperation.send()).to.be.eventually.rejected;
                 
-
 //             } catch(e){
 //                 console.log(e);
 //             } 
 //         });
 
-//     }); // end test: Treasury transfer tests
-
-//     describe('test: Treasury batch transfer tests', function() {
-        
-//         it('test: whitelisted user (bob) can send batch transfer of tez', async () => {
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of XTZ', async () => {
 //             try{        
                 
 //                 const tokenType  = "tez";
@@ -722,9 +463,9 @@
 //                 const finalRecipientTwoTezBalance   = await utils.tezos.tz.getBalance(recipient_two);
 //                 const finalRecipientThreeTezBalance = await utils.tezos.tz.getBalance(recipient_three);
 
-//                 assert.equal(finalRecipientOneTezBalance,   2002000000);
-//                 assert.equal(finalRecipientTwoTezBalance,   2003000000);
-//                 assert.equal(finalRecipientThreeTezBalance, 2005000000);
+//                 assert.equal(finalRecipientOneTezBalance.toNumber(),   initialRecipientOneTezBalance.toNumber() + amount_one);
+//                 assert.equal(finalRecipientTwoTezBalance.toNumber(),   initialRecipientTwoTezBalance.toNumber() + amount_two);
+//                 assert.equal(finalRecipientThreeTezBalance.toNumber(), initialRecipientThreeTezBalance.toNumber() + amount_three);
 
                 
 //             } catch(e){
@@ -732,7 +473,7 @@
 //             } 
 //         });
 
-//         it('test: whitelisted user (bob) can send batch transfer of mock FA12 tokens', async () => {
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of FA12', async () => {
 //             try{        
                 
 //                 const tokenType             = "fa12";
@@ -798,7 +539,7 @@
 //             } 
 //         });
 
-//         it('test: whitelisted user (bob) can send batch transfer of mock FA2 tokens', async () => {
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of FA2', async () => {
 //             try{        
                 
 //                 const tokenType             = "fa2";
@@ -874,7 +615,7 @@
 //             } 
 //         });
 
-//         it('test: whitelisted user (bob) can send batch transfer of MVK tokens', async () => {
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of MVK', async () => {
 //             try{        
                 
 //                 const tokenType             = "fa2";
@@ -950,10 +691,8 @@
 //             } 
 //         });
 
-//         it('test: whitelisted user (bob) can send batch transfer of tez, mock FA12 tokens, mock FA2 tokens, and MVK tokens', async () => {
-//             try{        
-                
-
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of FA12, FA2, MVK and XTZ', async () => {
+//             try{
 //                 const mockFa12TokenContractAddress  = mockFa12TokenAddress.address;
 
 //                 const mockFa2TokenContractAddress   = mockFa2TokenAddress.address;
@@ -982,6 +721,7 @@
 //                 const mockFa12TokenStorage           = await mockFa12TokenInstance.storage();
 //                 const mockFa2TokenStorage            = await mockFa2TokenInstance.storage();
 
+//                 const initRecipientOneTezBalance     = await utils.tezos.tz.getBalance(recipient_one);
 //                 const initialRecipientTwoAccount     = await mockFa12TokenStorage.ledger.get(recipient_two);
 //                 const initialRecipientThreeAccount   = await mockFa2TokenStorage.ledger.get(recipient_three);
 //                 const initialRecipientFourAccount    = await mvkTokenStorage.ledger.get(recipient_four);
@@ -1040,19 +780,383 @@
 //                 const finalRecipientThreeMockFa2TokenBalance  = await updatedMockFa2TokenStorage.ledger.get(recipient_three);
 //                 const finalRecipientThreeMvkTokenBalance      = await updatedMvkTokenStorage.ledger.get(recipient_four);
 
-//                 assert.equal(finalRecipientOneTezBalance,   2002000000);
-//                 assert.equal(parseInt(finalRecipientTwoMockFa12TokenBalance.balance),  initialRecipientTwoBalance    + amount_two);
-//                 assert.equal(parseInt(finalRecipientThreeMockFa2TokenBalance),         initialRecipientThreeBalance  + amount_three);
-//                 assert.equal(parseInt(finalRecipientThreeMvkTokenBalance),             initialRecipientFourBalance   + amount_four);
+//                 assert.equal(finalRecipientOneTezBalance,   initRecipientOneTezBalance.toNumber()    + amount_one);
+//                 assert.equal(parseInt(finalRecipientTwoMockFa12TokenBalance.balance.toNumber()),  initialRecipientTwoBalance    + amount_two);
+//                 assert.equal(parseInt(finalRecipientThreeMockFa2TokenBalance.toNumber()),         initialRecipientThreeBalance  + amount_three);
+//                 assert.equal(parseInt(finalRecipientThreeMvkTokenBalance.toNumber()),             initialRecipientFourBalance   + amount_four);
 
 //             } catch(e){
 //                 console.log(e);
 //             } 
 //         });
 
-//     }); // end test: Treasury batch transfer tests
+//         it('Non-whitelist contracts should not be able to call this entrypoint and transfer FA12', async () => {
+//             try{
+//                 const to_                   = alice.pkh;
+//                 const amount                = 10000000;
+//                 const tokenContractAddress  = mockFa12TokenAddress.address;
 
-    
+//                 await signerFactory(alice.sk);
+//                 const failTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa12" : tokenContractAddress
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 );
+//                 await chai.expect(failTransferMockFa12TokenOperation.send()).to.be.eventually.rejected;
 
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Non-whitelist contracts should not be able to call this entrypoint and transfer FA2', async () => {
+//             try{
+//                 const to_        = alice.pkh;
+//                 const amount     = 10000000;
+//                 const tokenContractAddress      = mockFa12TokenAddress.address;
+//                 const tokenId    = 0;
+
+//                 await signerFactory(alice.sk);
+//                 const failTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 );
+//                 await chai.expect(failTransferMockFa2TokenOperation.send()).to.be.eventually.rejected;
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Non-whitelist contracts should not be able to call this entrypoint and transfer MVK', async () => {
+//             try{
+//                 const to_                   = alice.pkh;
+//                 const amount                = MVK(10);
+//                 const tokenContractAddress  = mvkTokenAddress.address;
+//                 const tokenId               = 0;
+
+//                 await signerFactory(alice.sk);
+//                 const failTransferMvkTokenOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 );
+//                 await chai.expect(failTransferMvkTokenOperation.send()).to.be.eventually.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Whitelist contract should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map', async () => {
+//             try{
+//                 const to_                      = oscar.pkh;
+//                 const amount                   = MVK(10);
+//                 const tokenContractAddress     = mvkTokenAddress.address;
+//                 const tokenId                  = 0;
+
+//                 // Update config
+//                 await signerFactory(bob.sk);
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+
+//                 await chai.expect(treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 ).send()).to.be.eventually.rejected;
+
+//                 // Reset config
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+                
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
+
+//     describe('%mintMvkAndTransfer', function() {
+
+//         it('Whitelist contract should be able to call this entrypoint and mintAndTransfer MVK', async () => {
+//             try{        
+                
+//                 const to_        = bob.pkh;
+//                 const amount     = MVK(10); // 10 MVK
+
+//                 const mvkTokenStorage           = await mvkTokenInstance.storage();
+//                 const initialBobMvkTokenBalance = await mvkTokenStorage.ledger.get(bob.pkh);
+
+
+//                 await signerFactory(bob.sk);
+//                 const mintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
+//                      to_,
+//                      amount,
+//                 ).send();
+//                 await mintMvkAndTransferOperation.confirmation();
+
+//                 const updatedMvkTokenStorage     = await mvkTokenInstance.storage();
+//                 const updatedBobMvkTokenBalance  = await updatedMvkTokenStorage.ledger.get(bob.pkh);
+
+//                 assert.equal(parseInt(updatedBobMvkTokenBalance), parseInt(initialBobMvkTokenBalance) + amount);
+                
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Non-whitelist contracts should not be able to call this entrypoint and mintAndTransfer MVK', async () => {
+//             try{
+//                 const to_        = alice.pkh;
+//                 const amount     = 10000000;
+
+//                 await signerFactory(alice.sk);
+//                 const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
+//                      to_,
+//                      amount,
+//                 );
+//                 await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Whitelist contract should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map', async () => {
+//             try{
+//                 const to_                      = oscar.pkh;
+//                 const amount                   = MVK(10);
+
+//                 // Update config
+//                 await signerFactory(bob.sk);
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+
+//                 // Operation
+//                 const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
+//                      to_,
+//                      amount,
+//                 );
+//                 await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
+
+//                 // Reset config
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     });
+
+//     describe('%togglePauseTransfer', function() {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+//         it('Admin should be able to call this entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage                = await treasuryInstance.storage();
+//                 const isPausedStart            = treasuryStorage.breakGlassConfig.transferIsPaused
+//                 const to_                      = oscar.pkh;
+//                 const amount                   = MVK(10);
+//                 const tokenContractAddress     = mvkTokenAddress.address;
+//                 const tokenId                  = 0;
+
+//                 // Operation
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseTransfer().send();
+//                 await togglePauseOperation.confirmation();
+
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.transferIsPaused
+
+//                 await chai.expect(treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 ).send()
+//                 ).to.be.rejected;
+
+//                 // Reset admin
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseTransfer().send();
+//                 await togglePauseOperation.confirmation();
+
+//                 // Assertions
+//                 assert.equal(isPausedStart, false);
+//                 assert.equal(isPausedEnd, true);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.togglePauseTransfer().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
+
+//     describe('%togglePauseMintMvkAndTransfer', function() {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+//         it('Admin should be able to call this entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage                 = await treasuryInstance.storage();
+//                 const isPausedStart             = treasuryStorage.breakGlassConfig.mintMvkAndTransferIsPaused
+//                 const to_                       = bob.pkh;
+//                 const amount                    = MVK(10); // 10 MVK
+
+//                 // Operation
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseMintMvkAndTransfer().send();
+//                 await togglePauseOperation.confirmation();
+
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.mintMvkAndTransferIsPaused
+
+//                 await chai.expect(treasuryInstance.methods.mintMvkAndTransfer(
+//                     to_,
+//                     amount,
+//                 ).send()).to.be.rejected;
+
+//                 // Reset admin
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseMintMvkAndTransfer().send();
+//                 await togglePauseOperation.confirmation();
+
+//                 // Assertions
+//                 assert.equal(isPausedStart, false);
+//                 assert.equal(isPausedEnd, true);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.togglePauseMintMvkAndTransfer().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     });
+
+//     describe("%pauseAll", async () => {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+
+//         it('Admin should be able to call the entrypoint and pause all entrypoints in the contract', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 for (let [key, value] of Object.entries(treasuryStorage.breakGlassConfig)){
+//                     assert.equal(value, false);
+//                 }
+
+//                 // Operation
+//                 var pauseOperation = await treasuryInstance.methods.pauseAll().send();
+//                 await pauseOperation.confirmation();
+
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 for (let [key, value] of Object.entries(treasuryStorage.breakGlassConfig)){
+//                     assert.equal(value, true);
+//                 }
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.pauseAll().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
+
+//     describe("%unpauseAll", async () => {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+
+//         it('Admin should be able to call the entrypoint and unpause all entrypoints in the contract', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 for (let [key, value] of Object.entries(treasuryStorage.breakGlassConfig)){
+//                     assert.equal(value, true);
+//                 }
+
+//                 // Operation
+//                 var pauseOperation = await treasuryInstance.methods.unpauseAll().send();
+//                 await pauseOperation.confirmation();
+
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 for (let [key, value] of Object.entries(treasuryStorage.breakGlassConfig)){
+//                     assert.equal(value, false);
+//                 }
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.unpauseAll().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
 // });
 
