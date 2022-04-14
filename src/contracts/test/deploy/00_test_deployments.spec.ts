@@ -210,7 +210,21 @@ describe('Contracts Deployment for Tests', async () => {
       governance: governance.contract.address,
       farmFactory: farmFactory.contract.address
     })
-    councilStorage.councilMembers = [bob.pkh, alice.pkh, eve.pkh]
+    councilStorage.councilMembers.set(bob.pkh, {
+      name: "Bob",
+      image: "Bob image",
+      website: "Bob website"
+    })
+    councilStorage.councilMembers.set(alice.pkh, {
+      name: "Alice",
+      image: "Alice image",
+      website: "Alice website"
+    })
+    councilStorage.councilMembers.set(eve.pkh, {
+      name: "Eve",
+      image: "Eve image",
+      website: "Eve website"
+    })
     council = await Council.originate(utils.tezos, councilStorage)
 
     await saveContractAddress('councilAddress', council.contract.address)

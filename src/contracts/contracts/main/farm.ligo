@@ -23,6 +23,7 @@ const noOperations : list (operation) = nil;
 ////
 type entryAction is
     SetAdmin of (address)
+|   UpdateMetadata of (string * bytes)
 |   UpdateConfig of farmUpdateConfigParamsType
 
 |   UpdateWhitelistContracts of updateWhitelistContractsParams
@@ -355,6 +356,15 @@ block {
     s.admin := newAdminAddress;
 } with (noOperations, s)
 
+(*  update the metadata at a given key *)
+function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : farmStorage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+} with (noOperations, s)
+
 (*  update contract config *)
 function updateConfig(const updateConfigParams : farmUpdateConfigParamsType; var s : farmStorage) : return is 
 block {
@@ -614,6 +624,7 @@ function main (const action: entryAction; var s: farmStorage): return is
   } with(
     case action of [
         SetAdmin (parameters) -> setAdmin(parameters, s)
+    |   UpdateMetadata (parameters) -> updateMetadata(parameters.0, parameters.1, s)
     |   UpdateConfig (parameters) -> updateConfig(parameters, s)
     |   UpdateWhitelistContracts (parameters) -> updateWhitelistContracts(parameters, s)
     |   UpdateGeneralContracts (parameters) -> updateGeneralContracts(parameters, s)
