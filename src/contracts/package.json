@@ -26,10 +26,15 @@
     "pre-compile-m1": "ts-node scripts/cli.ts compile -o contracts/compiled -m true -c",
     "pre-compile-all": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled",
     "pre-compile-all-m1": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled -m true",
-    "compile-lambdas": "ts-node scripts/cli.ts compile-lambda -j contracts/partials/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo",
+    
+    "compile-lambdas": "ts-node scripts/cli.ts compile-lambda",
+    "compile-governance-lambdas": "yarn compile-lambdas -j contracts/partials/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo -n governanceLambdas",
+    "compile-doorman-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/doorman/doormanLambdaIndex.json -c contracts/main/doorman.ligo -n doormanLambdas",
+    "compile-all-lambdas": "yarn compile-governance-lambdas && yarn compile-doorman-lambdas",
+
     "compile-lambda-parameters": "ts-node scripts/cli.ts compile-lambda-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
     "compile-pack-parameters": "ts-node scripts/cli.ts compile-pack-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
-    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-lambdas",
+    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
     "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
     "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 600000",

@@ -72,7 +72,7 @@ type farmFactoryBreakGlassConfigType is record [
 ]
 
 type farmFactoryConfigType is record [
-    blocksPerMinute             : nat;
+    blocksPerMinute        : nat;
 ]
 
 ////

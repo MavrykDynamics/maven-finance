@@ -24,27 +24,29 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const doormanStorage: doormanStorageType = {
-  admin: bob.pkh,
-  mvkTokenAddress: "",
-  metadata: metadata,
+  admin                     : bob.pkh,
+  mvkTokenAddress           : "",
+  metadata                  : metadata,
 
-  minMvkAmount: new BigNumber(MVK(1)),
+  minMvkAmount              : new BigNumber(MVK(1)),
 
-  whitelistContracts : MichelsonMap.fromLiteral({}),
-  generalContracts: MichelsonMap.fromLiteral({}),
+  whitelistContracts        : MichelsonMap.fromLiteral({}),
+  generalContracts          : MichelsonMap.fromLiteral({}),
   
   breakGlassConfig: {
     stakeIsPaused           : false,
     unstakeIsPaused         : false,
     compoundIsPaused        : false
   },
-  userStakeBalanceLedger: MichelsonMap.fromLiteral({}),
+  userStakeBalanceLedger    : MichelsonMap.fromLiteral({}),
 
-  stakedMvkTotalSupply: new BigNumber(0),
-  unclaimedRewards: new BigNumber(0),
+  stakedMvkTotalSupply      : new BigNumber(0),
+  unclaimedRewards          : new BigNumber(0),
   
-  logExitFee: new BigNumber(1),
-  logFinalAmount: new BigNumber(1),
+  logExitFee                : new BigNumber(1),
+  logFinalAmount            : new BigNumber(1),
 
-  accumulatedFeesPerShare: new BigNumber(0)
+  accumulatedFeesPerShare   : new BigNumber(0),
+  
+  lambdaLedger              : MichelsonMap.fromLiteral({})
 };
