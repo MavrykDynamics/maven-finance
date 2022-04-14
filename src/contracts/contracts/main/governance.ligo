@@ -1111,6 +1111,13 @@ block {
         _proposal.status               := "DROPPED";
         s.proposalLedger[proposalId]   := _proposal;
 
+        // Remove proposal from currentRoundProposers
+        var proposerProposals   : set(nat)             := case s.currentRoundProposers[Tezos.sender] of [
+          Some (_proposals) -> _proposals
+        | None -> failwith("Error: Proposal not found in the current round.")
+        ];
+        s.currentRoundProposers[Tezos.sender] := Set.remove(proposalId, proposerProposals);
+
         // If timelock or voting round, restart the cycle
         if s.currentRound = (Voting : roundType) or s.currentRound = (Timelock : roundType) 
           then s := setupProposalRound(s) else skip;

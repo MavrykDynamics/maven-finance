@@ -93,17 +93,6 @@ type transfer is [@layout:comb] record[
 type fa2TransferType is list(transfer)
 type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
 
-type tezType             is unit
-type fa12TokenType       is address
-type fa2TokenType        is [@layout:comb] record [
-  tokenContractAddress     : address;
-  tokenId                  : nat;
-]
-type tokenType       is
-| Tez                     of tezType         // unit
-| Fa12                    of fa12TokenType   // address
-| Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
-
 type councilActionTransferType is [@layout:comb] record [
     receiverAddress       : address;       // receiver address
     tokenContractAddress  : address;       // token contract address

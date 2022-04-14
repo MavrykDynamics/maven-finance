@@ -233,17 +233,6 @@ type executeActionParamsType is
 | UpdateDelegationConfig of delegationUpdateConfigParamsType
 type executeActionType is (executeActionParamsType)
 
-type tezType             is unit
-type fa12TokenType       is address
-type fa2TokenType        is [@layout:comb] record [
-  tokenContractAddress    : address;
-  tokenId                 : nat;
-]
-type tokenType       is
-| Tez                     of tezType         // unit
-| Fa12                    of fa12TokenType   // address
-| Fa2                     of fa2TokenType    // record [ token : address; id : nat; ]
-
 type roundType       is
 | Proposal                  of unit
 | Voting                    of unit
