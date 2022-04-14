@@ -12,7 +12,6 @@
 
 type vestingAction is 
     | SetAdmin of (address)
-    | UpdateConfig of updateConfigParamsType    
 
     | Claim of (unit)
     
@@ -109,23 +108,6 @@ block {
     s.admin := newAdminAddress;
 
 } with (noOperations, s)
-
-(*  updateConfig entrypoint  *)
-function updateConfig(const updateConfigParams : updateConfigParamsType; var s : vestingStorage) : return is 
-block {
-
-  checkSenderIsAdmin(s); // check that sender is admin
-
-  const updateConfigAction    : updateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : updateConfigNewValueType = updateConfigParams.updateConfigNewValue;
-
-  case updateConfigAction of [
-    ConfigDefaultCliffPeriod (_v)        -> s.config.defaultCliffPeriod         := updateConfigNewValue
-  | ConfigDefaultCooldownPeriod (_v)     -> s.config.defaultCooldownPeriod      := updateConfigNewValue
-  ];
-
-} with (noOperations, s)
-
 
 function claim(var s : vestingStorage) : return is 
 block {
@@ -398,7 +380,6 @@ function main (const action : vestingAction; const s : vestingStorage) : return 
     checkNoAmount(unit);
   } with (case action of [
       | SetAdmin(parameters) -> setAdmin(parameters, s)  
-      | UpdateConfig(parameters) -> updateConfig(parameters, s)
       
       | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)

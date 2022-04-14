@@ -236,7 +236,6 @@ describe('Contracts Deployment for Tests', async () => {
 
     treasuryStorage.mvkTokenAddress  = mvkToken.contract.address
     treasuryStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"     : mvkToken.contract.address,
       "delegation"   : delegation.contract.address,
     });
     treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
@@ -254,7 +253,6 @@ describe('Contracts Deployment for Tests', async () => {
 
     treasuryFactoryStorage.mvkTokenAddress  = mvkToken.contract.address
     treasuryFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"     : mvkToken.contract.address,
       "delegation"   : delegation.contract.address,
     });
     treasuryFactoryStorage.whitelistContracts = MichelsonMap.fromLiteral({
