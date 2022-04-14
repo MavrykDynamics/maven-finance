@@ -77,6 +77,4 @@ type vestingStorage is [@layout:comb] record [
     vesteeLedger        : vesteeLedgerType;
 
     totalVestedAmount   : nat;          // record of how much has been vested so far
-
-    tempBlockLevel      : nat; 
 ]
