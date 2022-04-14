@@ -10,6 +10,12 @@
 // Vesting types for vesting council actions
 #include "../partials/types/vestingTypes.ligo"
 
+// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
+#include "../partials/whitelistTokenContractsType.ligo"
+
+// Treasury types for transfer and mint
+#include "../partials/types/treasuryTypes.ligo"
+
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/types/councilTypes.ligo"
 
