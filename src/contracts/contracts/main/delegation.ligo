@@ -951,7 +951,11 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         | RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)
         | UnregisterAsSatellite(_parameters)            -> unregisterAsSatellite(s)
         | UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
+<<<<<<< HEAD
         | DistributeReward(parameters)                  -> distributeReward(parameters, s)
+=======
+        | DistributeRewards(parameters) -> distributeRewards(parameters, s)
+>>>>>>> 5a5b8a3 (Satellite distribution entrypoint implemented but not tested)
 
           // General Entrypoints
         | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
