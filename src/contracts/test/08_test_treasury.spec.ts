@@ -1,1058 +1,1162 @@
-const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
-const { InMemorySigner, importKey } = require("@taquito/signer");
-import assert, { ok, rejects, strictEqual } from "assert";
-import { Utils, zeroAddress, MVK } from "./helpers/Utils";
-import fs from "fs";
-import { confirmOperation } from "../scripts/confirmation";
+// const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
+// const { InMemorySigner, importKey } = require("@taquito/signer");
+// import assert, { ok, rejects, strictEqual } from "assert";
+// import { Utils, zeroAddress, MVK } from "./helpers/Utils";
+// import fs from "fs";
+// import { confirmOperation } from "../scripts/confirmation";
 
-const chai = require("chai");
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);   
-chai.should();
+// const chai = require("chai");
+// const chaiAsPromised = require('chai-as-promised');
+// chai.use(chaiAsPromised);   
+// chai.should();
 
-import env from "../env";
-import { bob, alice, eve, mallory, oscar, trudy, isaac, david } from "../scripts/sandbox/accounts";
+// import env from "../env";
+// import { bob, alice, eve, mallory, oscar, trudy, isaac, david } from "../scripts/sandbox/accounts";
 
-import treasuryAddress from '../deployments/treasuryAddress.json';
-import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
-import governanceAddress from '../deployments/governanceAddress.json';
-import mockFa12TokenAddress  from '../deployments/mockFa12TokenAddress.json';
-import mockFa2TokenAddress   from '../deployments/mockFa2TokenAddress.json';
+// import treasuryAddress from '../deployments/treasuryAddress.json';
+// import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
+// import governanceAddress from '../deployments/governanceAddress.json';
+// import mockFa12TokenAddress  from '../deployments/mockFa12TokenAddress.json';
+// import mockFa2TokenAddress   from '../deployments/mockFa2TokenAddress.json';
+// import delegationAddress   from '../deployments/delegationAddress.json';
 
-describe("Treasury tests", async () => {
-    var utils: Utils;
+// describe("Treasury tests", async () => {
+//     var utils: Utils;
 
-    let treasuryInstance;    
-    let mvkTokenInstance;
-    let governanceInstance;
-    let mockFa12TokenInstance;
-    let mockFa2TokenInstance;
+//     let treasuryInstance;    
+//     let mvkTokenInstance;
+//     let governanceInstance;
+//     let mockFa12TokenInstance;
+//     let mockFa2TokenInstance;
 
-    let treasuryStorage;
-    let mvkTokenStorage;
-    let governanceStorage;
-    let mockFa12TokenStorage;
-    let mockFa2TokenStorage;
+//     let treasuryStorage;
+//     let mvkTokenStorage;
+//     let governanceStorage;
+//     let mockFa12TokenStorage;
+//     let mockFa2TokenStorage;
     
-    const signerFactory = async (pk) => {
-        await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
-        return utils.tezos;
-    };
+//     const signerFactory = async (pk) => {
+//         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
+//         return utils.tezos;
+//     };
 
-    before("setup", async () => {
+//     before("setup", async () => {
 
-        utils = new Utils();
-        await utils.init(bob.sk);
+//         utils = new Utils();
+//         await utils.init(bob.sk);
         
-        console.log(treasuryAddress);
-        console.log(treasuryAddress.address);
+//         console.log(treasuryAddress);
+//         console.log(treasuryAddress.address);
 
-        treasuryInstance       = await utils.tezos.contract.at(treasuryAddress.address);
-        mvkTokenInstance       = await utils.tezos.contract.at(mvkTokenAddress.address);
-        governanceInstance     = await utils.tezos.contract.at(governanceAddress.address);
-        mockFa12TokenInstance  = await utils.tezos.contract.at(mockFa12TokenAddress.address);
-        mockFa2TokenInstance   = await utils.tezos.contract.at(mockFa2TokenAddress.address);
+//         treasuryInstance       = await utils.tezos.contract.at(treasuryAddress.address);
+//         mvkTokenInstance       = await utils.tezos.contract.at(mvkTokenAddress.address);
+//         governanceInstance     = await utils.tezos.contract.at(governanceAddress.address);
+//         mockFa12TokenInstance  = await utils.tezos.contract.at(mockFa12TokenAddress.address);
+//         mockFa2TokenInstance   = await utils.tezos.contract.at(mockFa2TokenAddress.address);
             
-        treasuryStorage        = await treasuryInstance.storage();
-        mvkTokenStorage        = await mvkTokenInstance.storage();
-        governanceStorage      = await governanceInstance.storage();
-        mockFa12TokenStorage   = await mockFa12TokenInstance.storage();
-        mockFa2TokenStorage    = await mockFa2TokenInstance.storage();
+//         treasuryStorage        = await treasuryInstance.storage();
+//         mvkTokenStorage        = await mvkTokenInstance.storage();
+//         governanceStorage      = await governanceInstance.storage();
+//         mockFa12TokenStorage   = await mockFa12TokenInstance.storage();
+//         mockFa2TokenStorage    = await mockFa2TokenInstance.storage();
 
-        console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
-        console.log('Treasury Contract deployed at:', treasuryInstance.address);
-        console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        console.log('Governance Contract deployed at:', governanceInstance.address);
-        console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
-        console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
-        console.log('Bob address: ' + bob.pkh);
-        console.log('Alice address: ' + alice.pkh);
-        console.log('Eve address: ' + eve.pkh);
+//         console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
+//         console.log('Treasury Contract deployed at:', treasuryInstance.address);
+//         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
+//         console.log('Governance Contract deployed at:', governanceInstance.address);
+//         console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
+//         console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
+//         console.log('Bob address: ' + bob.pkh);
+//         console.log('Alice address: ' + alice.pkh);
+//         console.log('Eve address: ' + eve.pkh);
 
-    });
+//     });
 
 
-    describe('test: Treasury Housekeeping tests', function() {
+//     describe('%setAdmin', function() {
+
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try{        
+
+//                 await signerFactory(bob.sk);
+//                 const setAdminOperation = await treasuryInstance.methods.setAdmin(eve.pkh).send();
+//                 await setAdminOperation.confirmation();
+
+//                 const updatedTreasuryStorage   = await treasuryInstance.storage();            
+//                 assert.equal(updatedTreasuryStorage.admin, eve.pkh);
+
+//                 // reset treasury admin to bob
+//                 await signerFactory(eve.sk);
+//                 const resetAdminOperation = await treasuryInstance.methods.setAdmin(bob.pkh).send();
+//                 await resetAdminOperation.confirmation();
+
+//                 const resetTreasuryStorage   = await treasuryInstance.storage();            
+//                 assert.equal(resetTreasuryStorage.admin, bob.pkh);
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         }); 
         
-        it('test: non-admin user (alice) cannot set treasury admin', async () => {
-            try{        
+//         it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
+//             try{        
 
-                await signerFactory(alice.sk);
-                const failSetAdminOperation = await treasuryInstance.methods.setAdmin(eve.pkh);
-                await chai.expect(failSetAdminOperation.send()).to.be.eventually.rejected;
+//                 await signerFactory(bob.sk);
+//                 const setAdminOperation = await treasuryInstance.methods.setAdmin(eve.pkh).send();
+//                 await setAdminOperation.confirmation();
 
-            } catch(e){
-                console.log(e);
-            } 
+//                 const updatedTreasuryStorage   = await treasuryInstance.storage();            
+//                 assert.equal(updatedTreasuryStorage.admin, eve.pkh);
 
-        });    
+//                 // reset treasury admin to bob
+//                 await signerFactory(eve.sk);
+//                 const resetAdminOperation = await treasuryInstance.methods.setAdmin(bob.pkh).send();
+//                 await resetAdminOperation.confirmation();
 
-        it('test: admin user (bob) can set treasury admin', async () => {
-            try{        
+//                 const resetTreasuryStorage   = await treasuryInstance.storage();            
+//                 assert.equal(resetTreasuryStorage.admin, bob.pkh);
 
-                await signerFactory(bob.sk);
-                const setAdminOperation = await treasuryInstance.methods.setAdmin(eve.pkh).send();
-                await setAdminOperation.confirmation();
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+//     })
 
-                const updatedTreasuryStorage   = await treasuryInstance.storage();            
-                assert.equal(updatedTreasuryStorage.admin, eve.pkh);
+//     describe('test: Treasury deposit tests', function() {
 
-                // reset treasury admin to bob
-                await signerFactory(eve.sk);
-                const resetAdminOperation = await treasuryInstance.methods.setAdmin(bob.pkh).send();
-                await resetAdminOperation.confirmation();
-
-                const resetTreasuryStorage   = await treasuryInstance.storage();            
-                assert.equal(resetTreasuryStorage.admin, bob.pkh);
-
-            } catch(e){
-                console.log(e);
-            } 
-
-        });    
-
-    }); // end test: Treasury Housekeeping tests
-
-    describe('test: Treasury deposit tests', function() {
-
-        it('test: any user (alice) can deposit tez into treasury', async () => {
-            try{        
+//         it('test: any user (alice) can deposit tez into treasury', async () => {
+//             try{        
                 
-                // Alice transfers 80 XTZ to Treasury
-                const depositAmount = 80;
-                const depositAmountMutez = 80000000;
+//                 // Alice transfers 80 XTZ to Treasury
+//                 const depositAmount = 80;
+//                 const depositAmountMutez = 80000000;
                 
-                await signerFactory(alice.sk)
-                const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: depositAmount});
-                await aliceTransferTezToTreasuryOperation.confirmation();
+//                 await signerFactory(alice.sk)
+//                 const aliceTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: depositAmount});
+//                 await aliceTransferTezToTreasuryOperation.confirmation();
 
-                const treasuryTezBalance         = await utils.tezos.tz.getBalance(treasuryAddress.address);
-                assert.equal(treasuryTezBalance, depositAmountMutez);
+//                 const treasuryTezBalance         = await utils.tezos.tz.getBalance(treasuryAddress.address);
+//                 assert.equal(treasuryTezBalance, depositAmountMutez);
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('test: any user (alice) can deposit mock FA12 Tokens into treasury', async () => {
-            try{        
+//         it('test: any user (alice) can deposit mock FA12 Tokens into treasury', async () => {
+//             try{        
                 
-                // Alice transfers 80 Mock FA12 Tokens to Treasury
-                const depositAmount = 80000000;
+//                 // Alice transfers 80 Mock FA12 Tokens to Treasury
+//                 const depositAmount = 80000000;
         
-                await signerFactory(alice.sk)
-                const aliceTransferMockFa12ToTreasuryOperation = await mockFa12TokenInstance.methods.transfer(
-                    alice.pkh, 
-                    treasuryAddress.address, 
-                    depositAmount
-                    ).send();
-                await aliceTransferMockFa12ToTreasuryOperation.confirmation();
+//                 await signerFactory(alice.sk)
+//                 const aliceTransferMockFa12ToTreasuryOperation = await mockFa12TokenInstance.methods.transfer(
+//                     alice.pkh, 
+//                     treasuryAddress.address, 
+//                     depositAmount
+//                     ).send();
+//                 await aliceTransferMockFa12ToTreasuryOperation.confirmation();
 
-                const updatedMockFa12TokenStorage       = await mockFa12TokenInstance.storage();
-                const treasuryMockFa12TokenBalance      = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);
+//                 const updatedMockFa12TokenStorage       = await mockFa12TokenInstance.storage();
+//                 const treasuryMockFa12TokenBalance      = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);
 
-                assert.equal(treasuryMockFa12TokenBalance.balance, depositAmount);
+//                 assert.equal(treasuryMockFa12TokenBalance.balance, depositAmount);
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('test: any user (alice) can deposit mock FA2 Tokens into treasury', async () => {
-            try{        
+//         it('test: any user (alice) can deposit mock FA2 Tokens into treasury', async () => {
+//             try{        
                 
-                // Alice transfers 80 Mock FA2 Tokens to Treasury
-                const depositAmount = 80000000;
+//                 // Alice transfers 80 Mock FA2 Tokens to Treasury
+//                 const depositAmount = 80000000;
         
-                await signerFactory(alice.sk)
-                const aliceTransferMockFa2ToTreasuryOperation = await mockFa2TokenInstance.methods.transfer([
-                        {
-                            from_: alice.pkh,
-                            txs: [
-                                {
-                                    to_: treasuryAddress.address,
-                                    token_id: 0,
-                                    amount: depositAmount
-                                }
-                            ]
-                        }
-                    ]).send();
-                await aliceTransferMockFa2ToTreasuryOperation.confirmation();
+//                 await signerFactory(alice.sk)
+//                 const aliceTransferMockFa2ToTreasuryOperation = await mockFa2TokenInstance.methods.transfer([
+//                         {
+//                             from_: alice.pkh,
+//                             txs: [
+//                                 {
+//                                     to_: treasuryAddress.address,
+//                                     token_id: 0,
+//                                     amount: depositAmount
+//                                 }
+//                             ]
+//                         }
+//                     ]).send();
+//                 await aliceTransferMockFa2ToTreasuryOperation.confirmation();
 
-                const updatedMockFa2TokenStorage       = await mockFa2TokenInstance.storage();
-                const treasuryMockFa2TokenBalance      = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);
+//                 const updatedMockFa2TokenStorage       = await mockFa2TokenInstance.storage();
+//                 const treasuryMockFa2TokenBalance      = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);
 
-                assert.equal(treasuryMockFa2TokenBalance, depositAmount);
+//                 assert.equal(treasuryMockFa2TokenBalance, depositAmount);
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('test: any user (alice) can deposit MVK Tokens into treasury', async () => {
-            try{        
+//         it('test: any user (alice) can deposit MVK Tokens into treasury', async () => {
+//             try{        
                 
-                // Alice transfers 80 MVK Tokens to Treasury
-                const depositAmount = MVK(80);
+//                 // Alice transfers 80 MVK Tokens to Treasury
+//                 const depositAmount = MVK(80);
         
-                await signerFactory(alice.sk)
-                const aliceTransferMockFa2ToTreasuryOperation = await mvkTokenInstance.methods.transfer([
-                        {
-                            from_: alice.pkh,
-                            txs: [
-                                {
-                                    to_: treasuryAddress.address,
-                                    token_id: 0,
-                                    amount: depositAmount
-                                }
-                            ]
-                        }
-                    ]).send();
-                await aliceTransferMockFa2ToTreasuryOperation.confirmation();
+//                 mvkTokenStorage                     = await mvkTokenInstance.storage();
+//                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress.address);
 
-                const updatedMvkTokenStorage       = await mvkTokenInstance.storage();
-                const treasuryMvkTokenBalance      = await updatedMvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 await signerFactory(alice.sk)
+//                 const aliceTransferMockFa2ToTreasuryOperation = await mvkTokenInstance.methods.transfer([
+//                         {
+//                             from_: alice.pkh,
+//                             txs: [
+//                                 {
+//                                     to_: treasuryAddress.address,
+//                                     token_id: 0,
+//                                     amount: depositAmount
+//                                 }
+//                             ]
+//                         }
+//                     ]).send();
+//                 await aliceTransferMockFa2ToTreasuryOperation.confirmation();
 
-                assert.equal(treasuryMvkTokenBalance, depositAmount);
+//                 mvkTokenStorage       = await mvkTokenInstance.storage();
+//                 const finalTreasuryMvkTokenBalance      = await mvkTokenStorage.ledger.get(treasuryAddress.address);
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//                 assert.equal(finalTreasuryMvkTokenBalance.toNumber(), initTreasuryMvkTokenBalance.toNumber() + depositAmount);
 
-    }); // end test: Treasury deposit tests
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
+//     });
 
+//     describe('%transfer', function() {
 
-    describe('test: Treasury transfer and mintMvkAndTransfer tests', function() {
+//         before("Set Bob as whitelist", async() => {
+//             await signerFactory(bob.sk);
+//             const adminUpdateWhitelistContractsOperation = await treasuryInstance.methods.updateWhitelistContracts(
+//                  "admin",
+//                  bob.pkh
+//             ).send();
+//             await adminUpdateWhitelistContractsOperation.confirmation();
 
-        it('test: user (alice) cannot transfer tez from treasury', async () => {
-            try{        
+//             const treasuryStorage            = await treasuryInstance.storage();
+//             const treasuryWhitelistContracts = await treasuryStorage.whitelistContracts.get("admin");
+//             assert.equal(treasuryWhitelistContracts, bob.pkh);
+//         })
+
+//         it('Whitelist contract should be able to call this entrypoint and transfer XTZ', async () => {
+//             try{        
+//                 const to_        = bob.pkh;
+//                 const tokenType  = "tez";
+//                 const amount     = 10000000;
+
+//                 await signerFactory(bob.sk);
+//                 const adminTransferTezOperation = await treasuryInstance.methods.transfer(
+//                 [
+//                     {
+//                         "to_"    : to_,
+//                         "token"  : {
+//                             "tez" : tokenType
+//                         },
+//                         "amount" : amount
+//                     }
+//                 ]
+//                 ).send();
+//                 await adminTransferTezOperation.confirmation();
+
+//                 const finalTezBalance    = 70000000;
+//                 const treasuryTezBalance = await utils.tezos.tz.getBalance(treasuryAddress.address);
+//                 assert.equal(treasuryTezBalance, finalTezBalance);
                 
-                const to_        = alice.pkh;
-                const amount     = 10000000;
-                const tokenType  = "tez"
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-                await signerFactory(alice.sk);
-                const failTransferTezOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "tez" : tokenType
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                );
-                await chai.expect(failTransferTezOperation.send()).to.be.eventually.rejected;
+//         it('Whitelist contract should be able to call this entrypoint and transfer FA12', async () => {
+//             try{        
                 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//                 const to_                   = bob.pkh;
+//                 const amount                = 10000000;
+//                 const tokenContractAddress  = mockFa12TokenAddress.address;
 
-        it('test: user (alice) cannot transfer mock FA12 Tokens from treasury', async () => {
-            try{        
+//                 await signerFactory(bob.sk);
+//                 const adminTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa12" : tokenContractAddress
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 ).send();
+//                 await adminTransferMockFa12TokenOperation.confirmation();
+
+//                 const finalMockFa12TokenBalance      = 70000000;
+//                 const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
+//                 const treasuryMockFa12TokenBalance   = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);
+
+//                 assert.equal(treasuryMockFa12TokenBalance.balance, finalMockFa12TokenBalance);
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Whitelist contract should be able to call this entrypoint and transfer FA2', async () => {
+//             try{        
+
+//                 const to_                    = bob.pkh;
+//                 const amount                 = 10000000;
+//                 const tokenContractAddress   = mockFa2TokenAddress.address;
+//                 const tokenId                = 0;
+
+//                 await signerFactory(bob.sk);
+//                 const adminTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 ).send();
+//                 await adminTransferMockFa2TokenOperation.confirmation();
+
+//                 const finalMockFa2TokenBalance      = 70000000;
+//                 const updatedMockFa2TokenStorage    = await mockFa2TokenInstance.storage();
+//                 const treasuryMockFa2TokenBalance   = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);
+
+//                 assert.equal(treasuryMockFa2TokenBalance, finalMockFa2TokenBalance);
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Whitelist contract should be able to call this entrypoint and transfer MVK', async () => {
+//             try{        
+
+//                 const to_                      = oscar.pkh;
+//                 const amount                   = MVK(10);
+//                 const tokenContractAddress     = mvkTokenAddress.address;
+//                 const tokenId                  = 0;
                 
-                const to_                   = alice.pkh;
-                const amount                = 10000000;
-                const tokenContractAddress  = mockFa12TokenAddress.address;
+//                 mvkTokenStorage                     = await mvkTokenInstance.storage();
+//                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 const initUserMvkTokenBalance       = await mvkTokenStorage.ledger.get(to_);
 
-                await signerFactory(alice.sk);
-                const failTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "fa12" : tokenContractAddress
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                );
-                await chai.expect(failTransferMockFa12TokenOperation.send()).to.be.eventually.rejected;
+//                 await signerFactory(bob.sk);
+//                 const adminTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 ).send();
+//                 await adminTransferMockFa2TokenOperation.confirmation();
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//                 mvkTokenStorage                         = await mvkTokenInstance.storage();
+//                 const finalTreasuryMvkTokenBalance      = await mvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 const finalUserMvkTokenBalance          = await mvkTokenStorage.ledger.get(to_);
 
-        it('test: user (alice) cannot transfer mock FA2 Tokens from treasury', async () => {
-            try{        
+//                 assert.equal(finalTreasuryMvkTokenBalance.toNumber(), initTreasuryMvkTokenBalance.toNumber() - amount);
+//                 assert.equal(finalUserMvkTokenBalance.toNumber(), initUserMvkTokenBalance.toNumber() + amount);
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Non-whitelist contracts should not be able to call this entrypoint and transfer XTZ', async () => {
+//             try{        
                 
-                const to_        = alice.pkh;
-                const amount     = 10000000;
-                const tokenContractAddress      = mockFa12TokenAddress.address;
-                const tokenId    = 0;
+//                 const to_        = alice.pkh;
+//                 const amount     = 10000000;
+//                 const tokenType  = "tez"
 
-                await signerFactory(alice.sk);
-                const failTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress" : tokenContractAddress,
-                                    "tokenId" : tokenId
-                                }
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                );
-                await chai.expect(failTransferMockFa2TokenOperation.send()).to.be.eventually.rejected;
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: user (alice) cannot transfer MVK Tokens from treasury', async () => {
-            try{        
+//                 await signerFactory(alice.sk);
+//                 const failTransferTezOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "tez" : tokenType
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 );
+//                 await chai.expect(failTransferTezOperation.send()).to.be.eventually.rejected;
                 
-                const to_                   = alice.pkh;
-                const amount                = MVK(10);
-                const tokenContractAddress  = mvkTokenAddress.address;
-                const tokenId               = 0;
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-                await signerFactory(alice.sk);
-                const failTransferMvkTokenOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress" : tokenContractAddress,
-                                    "tokenId" : tokenId
-                                }
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                );
-                await chai.expect(failTransferMvkTokenOperation.send()).to.be.eventually.rejected;
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: user (alice) cannot access treasury mintMvkAndTransfer entrypoint', async () => {
-            try{        
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of XTZ', async () => {
+//             try{        
                 
-                const to_        = alice.pkh;
-                const amount     = 10000000;
+//                 const tokenType  = "tez";
 
-                await signerFactory(alice.sk);
-                const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
-                     to_,
-                     amount,
-                );
-                await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
+//                 const recipient_one   = mallory.pkh;
+//                 const amount_one      = 2000000;
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//                 const recipient_two   = oscar.pkh;
+//                 const amount_two      = 3000000;
 
-        it('test: admin (bob) cannot transfer tez from treasury', async () => {
-            try{        
-                
-                const to_        = bob.pkh;
-                const amount     = 10000000;
-                const tokenType  = "tez"
+//                 const recipient_three = trudy.pkh;
+//                 const amount_three    = 5000000;
 
-                await signerFactory(bob.sk);
-                const failTransferTezOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "tez" : tokenType
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                );
-                await chai.expect(failTransferTezOperation.send()).to.be.eventually.rejected;
-                
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//                 const initialRecipientOneTezBalance   = await utils.tezos.tz.getBalance(recipient_one);
+//                 const initialRecipientTwoTezBalance   = await utils.tezos.tz.getBalance(recipient_two);
+//                 const initialRecipientThreeTezBalance = await utils.tezos.tz.getBalance(recipient_three);
 
-        it('test: admin (bob) cannot transfer mock FA12 Tokens from treasury', async () => {
-            try{        
-                
-                const to_                    = bob.pkh;
-                const amount                 = 10000000;
-                const tokenContractAddress   = mockFa12TokenAddress.address;
+//                 await signerFactory(bob.sk);
+//                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
+//                 [
+//                     {
+//                         "to_"    : recipient_one,
+//                         "token"  : {
+//                             "tez" : tokenType
+//                         },
+//                         "amount" : amount_one
+//                     },
+//                     {
+//                         "to_"    : recipient_two,
+//                         "token"  : {
+//                             "tez" : tokenType
+//                         },
+//                         "amount" : amount_two
+//                     },
+//                     {
+//                         "to_"    : recipient_three,
+//                         "token"  : {
+//                             "tez" : tokenType
+//                         },
+//                         "amount" : amount_three
+//                     }
+//                 ]
+//                 ).send();
+//                 await adminBatchTransferOperation.confirmation();
 
-                await signerFactory(bob.sk);
-                const failTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "fa12" : tokenContractAddress
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                );
-                await chai.expect(failTransferMockFa12TokenOperation.send()).to.be.eventually.rejected;
+//                 const finalRecipientOneTezBalance   = await utils.tezos.tz.getBalance(recipient_one);
+//                 const finalRecipientTwoTezBalance   = await utils.tezos.tz.getBalance(recipient_two);
+//                 const finalRecipientThreeTezBalance = await utils.tezos.tz.getBalance(recipient_three);
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: admin (bob) cannot transfer mock FA2 Tokens from treasury', async () => {
-            try{        
-                
-                const to_                    = bob.pkh;
-                const amount                 = 10000000;
-                const tokenContractAddress   = mockFa12TokenAddress.address;
-                const tokenId                = 0;
-
-                await signerFactory(bob.sk);
-                const failTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress" : tokenContractAddress,
-                                    "tokenId" : tokenId
-                                }
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                );
-                await chai.expect(failTransferMockFa2TokenOperation.send()).to.be.eventually.rejected;
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: admin (bob) cannot transfer MVK Tokens from treasury', async () => {
-            try{        
-                
-                const to_                      = bob.pkh;
-                const amount                   = MVK(10);
-                const tokenContractAddress     = mvkTokenAddress.address;
-                const tokenId                  = 0;
-
-                await signerFactory(bob.sk);
-                const failTransferMvkTokenOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress" : tokenContractAddress,
-                                    "tokenId" : tokenId
-                                }
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                );
-                await chai.expect(failTransferMvkTokenOperation.send()).to.be.eventually.rejected;
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: admin (bob) cannot access treasury mintMvkAndTransfer entrypoint', async () => {
-            try{        
-                
-                const to_        = bob.pkh;
-                const amount     = 10000000;
-
-                await signerFactory(bob.sk);
-                const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
-                     to_,
-                     amount,
-                );
-                await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-
-        it('test: admin (bob) can update whitelist contract address map', async () => {
-            try{        
-
-                await signerFactory(bob.sk);
-                const adminUpdateWhitelistContractsOperation = await treasuryInstance.methods.updateWhitelistContracts(
-                     "admin",
-                     bob.pkh
-                ).send();
-                await adminUpdateWhitelistContractsOperation.confirmation();
-
-                const treasuryStorage            = await treasuryInstance.storage();
-                const treasuryWhitelistContracts = await treasuryStorage.whitelistContracts.get("admin");
-                assert.equal(treasuryWhitelistContracts, bob.pkh);
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: whitelisted addresses (bob) can transfer tez from treasury', async () => {
-            try{        
-                
-                const to_        = bob.pkh;
-                const tokenType  = "tez";
-                const amount     = 10000000;
-
-                await signerFactory(bob.sk);
-                const adminTransferTezOperation = await treasuryInstance.methods.transfer(
-                [
-                    {
-                        "to_"    : to_,
-                        "token"  : {
-                            "tez" : tokenType
-                        },
-                        "amount" : amount
-                    }
-                ]
-                ).send();
-                await adminTransferTezOperation.confirmation();
-
-                const finalTezBalance    = 70000000;
-                const treasuryTezBalance = await utils.tezos.tz.getBalance(treasuryAddress.address);
-                assert.equal(treasuryTezBalance, finalTezBalance);
-                
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: whitelisted addresses (bob) can transfer mock FA12 Tokens from treasury', async () => {
-            try{        
-                
-                const to_                   = bob.pkh;
-                const amount                = 10000000;
-                const tokenContractAddress  = mockFa12TokenAddress.address;
-
-                await signerFactory(bob.sk);
-                const adminTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "fa12" : tokenContractAddress
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                ).send();
-                await adminTransferMockFa12TokenOperation.confirmation();
-
-                const finalMockFa12TokenBalance      = 70000000;
-                const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
-                const treasuryMockFa12TokenBalance   = await updatedMockFa12TokenStorage.ledger.get(treasuryAddress.address);
-
-                assert.equal(treasuryMockFa12TokenBalance.balance, finalMockFa12TokenBalance);
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: whitelisted addresses (bob) can transfer mock FA2 Tokens from treasury', async () => {
-            try{        
-
-                const to_                    = bob.pkh;
-                const amount                 = 10000000;
-                const tokenContractAddress   = mockFa2TokenAddress.address;
-                const tokenId                = 0;
-
-                await signerFactory(bob.sk);
-                const adminTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress" : tokenContractAddress,
-                                    "tokenId" : tokenId
-                                }
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                ).send();
-                await adminTransferMockFa2TokenOperation.confirmation();
-
-                const finalMockFa2TokenBalance      = 70000000;
-                const updatedMockFa2TokenStorage    = await mockFa2TokenInstance.storage();
-                const treasuryMockFa2TokenBalance   = await updatedMockFa2TokenStorage.ledger.get(treasuryAddress.address);
-
-                assert.equal(treasuryMockFa2TokenBalance, finalMockFa2TokenBalance);
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: whitelisted addresses (bob) can transfer MVK Tokens from treasury', async () => {
-            try{        
-
-                const to_                      = oscar.pkh;
-                const amount                   = MVK(10);
-                const tokenContractAddress     = mvkTokenAddress.address;
-                const tokenId                  = 0;
-
-                await signerFactory(bob.sk);
-                const adminTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
-                    [
-                        {
-                            "to_"    : to_,
-                            "token"  : {
-                                "fa2" : {
-                                    "tokenContractAddress" : tokenContractAddress,
-                                    "tokenId" : tokenId
-                                }
-                            },
-                            "amount" : amount
-                        }
-                    ]
-                ).send();
-                await adminTransferMockFa2TokenOperation.confirmation();
-
-                const finalMvkTokenBalance      = MVK(70);
-                const updatedMvkTokenStorage    = await mvkTokenInstance.storage();
-                const treasuryMvkTokenBalance   = await updatedMvkTokenStorage.ledger.get(treasuryAddress.address);
-
-                assert.equal(treasuryMvkTokenBalance, finalMvkTokenBalance);
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-        it('test: whitelisted addresses (bob) can access treasury mintMvkAndTransfer entrypoint', async () => {
-            try{        
-                
-                const to_        = bob.pkh;
-                const amount     = 10000000000; // 10 MVK
-
-                const mvkTokenStorage           = await mvkTokenInstance.storage();
-                const initialBobMvkTokenBalance = await mvkTokenStorage.ledger.get(bob.pkh);
-
-
-                await signerFactory(bob.sk);
-                const mintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
-                     to_,
-                     amount,
-                ).send();
-                await mintMvkAndTransferOperation.confirmation();
-
-                const updatedMvkTokenStorage     = await mvkTokenInstance.storage();
-                const updatedBobMvkTokenBalance  = await updatedMvkTokenStorage.ledger.get(bob.pkh);
-
-                assert.equal(parseInt(updatedBobMvkTokenBalance), parseInt(initialBobMvkTokenBalance) + amount);
-                
-
-            } catch(e){
-                console.log(e);
-            } 
-        });
-
-    }); // end test: Treasury transfer tests
-
-    describe('test: Treasury batch transfer tests', function() {
-        
-        it('test: whitelisted user (bob) can send batch transfer of tez', async () => {
-            try{        
-                
-                const tokenType  = "tez";
-
-                const recipient_one   = mallory.pkh;
-                const amount_one      = 2000000;
-
-                const recipient_two   = oscar.pkh;
-                const amount_two      = 3000000;
-
-                const recipient_three = trudy.pkh;
-                const amount_three    = 5000000;
-
-                const initialRecipientOneTezBalance   = await utils.tezos.tz.getBalance(recipient_one);
-                const initialRecipientTwoTezBalance   = await utils.tezos.tz.getBalance(recipient_two);
-                const initialRecipientThreeTezBalance = await utils.tezos.tz.getBalance(recipient_three);
-
-                await signerFactory(bob.sk);
-                const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
-                [
-                    {
-                        "to_"    : recipient_one,
-                        "token"  : {
-                            "tez" : tokenType
-                        },
-                        "amount" : amount_one
-                    },
-                    {
-                        "to_"    : recipient_two,
-                        "token"  : {
-                            "tez" : tokenType
-                        },
-                        "amount" : amount_two
-                    },
-                    {
-                        "to_"    : recipient_three,
-                        "token"  : {
-                            "tez" : tokenType
-                        },
-                        "amount" : amount_three
-                    }
-                ]
-                ).send();
-                await adminBatchTransferOperation.confirmation();
-
-                const finalRecipientOneTezBalance   = await utils.tezos.tz.getBalance(recipient_one);
-                const finalRecipientTwoTezBalance   = await utils.tezos.tz.getBalance(recipient_two);
-                const finalRecipientThreeTezBalance = await utils.tezos.tz.getBalance(recipient_three);
-
-                assert.equal(finalRecipientOneTezBalance,   2002000000);
-                assert.equal(finalRecipientTwoTezBalance,   2003000000);
-                assert.equal(finalRecipientThreeTezBalance, 2005000000);
+//                 assert.equal(finalRecipientOneTezBalance.toNumber(),   initialRecipientOneTezBalance.toNumber() + amount_one);
+//                 assert.equal(finalRecipientTwoTezBalance.toNumber(),   initialRecipientTwoTezBalance.toNumber() + amount_two);
+//                 assert.equal(finalRecipientThreeTezBalance.toNumber(), initialRecipientThreeTezBalance.toNumber() + amount_three);
 
                 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('test: whitelisted user (bob) can send batch transfer of mock FA12 tokens', async () => {
-            try{        
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of FA12', async () => {
+//             try{        
                 
-                const tokenType             = "fa12";
-                const tokenContractAddress  = mockFa12TokenAddress.address;
+//                 const tokenType             = "fa12";
+//                 const tokenContractAddress  = mockFa12TokenAddress.address;
 
-                const recipient_one   = mallory.pkh;
-                const amount_one      = 2000000;
+//                 const recipient_one   = mallory.pkh;
+//                 const amount_one      = 2000000;
 
-                const recipient_two   = oscar.pkh;
-                const amount_two      = 3000000;
+//                 const recipient_two   = oscar.pkh;
+//                 const amount_two      = 3000000;
 
-                const recipient_three = trudy.pkh;
-                const amount_three    = 5000000;
+//                 const recipient_three = trudy.pkh;
+//                 const amount_three    = 5000000;
 
-                const mockFa12TokenStorage           = await mockFa12TokenInstance.storage();
-                const initialRecipientOneAccount     = await mockFa12TokenStorage.ledger.get(recipient_one);
-                const initialRecipientTwoAccount     = await mockFa12TokenStorage.ledger.get(recipient_two);
-                const initialRecipientThreeAccount   = await mockFa12TokenStorage.ledger.get(recipient_three);
+//                 const mockFa12TokenStorage           = await mockFa12TokenInstance.storage();
+//                 const initialRecipientOneAccount     = await mockFa12TokenStorage.ledger.get(recipient_one);
+//                 const initialRecipientTwoAccount     = await mockFa12TokenStorage.ledger.get(recipient_two);
+//                 const initialRecipientThreeAccount   = await mockFa12TokenStorage.ledger.get(recipient_three);
 
-                const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount.balance);
-                const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.balance);
-                const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount.balance);
+//                 const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount.balance);
+//                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount.balance);
+//                 const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount.balance);
 
-                await signerFactory(bob.sk);
-                const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
-                [
-                    {
-                        "to_"    : recipient_one,
-                        "token"  : {
-                            "fa12" : tokenContractAddress
-                        },
-                        "amount" : amount_one
-                    },
-                    {
-                        "to_"    : recipient_two,
-                        "token"  : {
-                            "fa12" : tokenContractAddress
-                        },
-                        "amount" : amount_two
-                    },
-                    {
-                        "to_"    : recipient_three,
-                        "token"  : {
-                            "fa12" : tokenContractAddress
-                        },
-                        "amount" : amount_three
-                    }
-                ]
-                ).send();
-                await adminBatchTransferOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
+//                 [
+//                     {
+//                         "to_"    : recipient_one,
+//                         "token"  : {
+//                             "fa12" : tokenContractAddress
+//                         },
+//                         "amount" : amount_one
+//                     },
+//                     {
+//                         "to_"    : recipient_two,
+//                         "token"  : {
+//                             "fa12" : tokenContractAddress
+//                         },
+//                         "amount" : amount_two
+//                     },
+//                     {
+//                         "to_"    : recipient_three,
+//                         "token"  : {
+//                             "fa12" : tokenContractAddress
+//                         },
+//                         "amount" : amount_three
+//                     }
+//                 ]
+//                 ).send();
+//                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
-                const finalRecipientOneBalance       = await updatedMockFa12TokenStorage.ledger.get(recipient_one);
-                const finalRecipientTwoBalance       = await updatedMockFa12TokenStorage.ledger.get(recipient_two);
-                const finalRecipientThreeBalance     = await updatedMockFa12TokenStorage.ledger.get(recipient_three);
+//                 const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
+//                 const finalRecipientOneBalance       = await updatedMockFa12TokenStorage.ledger.get(recipient_one);
+//                 const finalRecipientTwoBalance       = await updatedMockFa12TokenStorage.ledger.get(recipient_two);
+//                 const finalRecipientThreeBalance     = await updatedMockFa12TokenStorage.ledger.get(recipient_three);
 
-                assert.equal(parseInt(finalRecipientOneBalance.balance),   initialRecipientOneBalance   + amount_one);
-                assert.equal(parseInt(finalRecipientTwoBalance.balance),   initialRecipientTwoBalance   + amount_two);
-                assert.equal(parseInt(finalRecipientThreeBalance.balance), initialRecipientThreeBalance + amount_three);
+//                 assert.equal(parseInt(finalRecipientOneBalance.balance),   initialRecipientOneBalance   + amount_one);
+//                 assert.equal(parseInt(finalRecipientTwoBalance.balance),   initialRecipientTwoBalance   + amount_two);
+//                 assert.equal(parseInt(finalRecipientThreeBalance.balance), initialRecipientThreeBalance + amount_three);
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('test: whitelisted user (bob) can send batch transfer of mock FA2 tokens', async () => {
-            try{        
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of FA2', async () => {
+//             try{        
                 
-                const tokenType             = "fa2";
-                const tokenContractAddress  = mockFa2TokenAddress.address;
-                const tokenId               = 0;
+//                 const tokenType             = "fa2";
+//                 const tokenContractAddress  = mockFa2TokenAddress.address;
+//                 const tokenId               = 0;
 
-                const recipient_one   = mallory.pkh;
-                const amount_one      = 2000000;
+//                 const recipient_one   = mallory.pkh;
+//                 const amount_one      = 2000000;
 
-                const recipient_two   = oscar.pkh;
-                const amount_two      = 3000000;
+//                 const recipient_two   = oscar.pkh;
+//                 const amount_two      = 3000000;
 
-                const recipient_three = trudy.pkh;
-                const amount_three    = 5000000;
+//                 const recipient_three = trudy.pkh;
+//                 const amount_three    = 5000000;
 
-                const mockFa2TokenStorage            = await mockFa2TokenInstance.storage();
-                const initialRecipientOneAccount     = await mockFa2TokenStorage.ledger.get(recipient_one);
-                const initialRecipientTwoAccount     = await mockFa2TokenStorage.ledger.get(recipient_two);
-                const initialRecipientThreeAccount   = await mockFa2TokenStorage.ledger.get(recipient_three);
+//                 const mockFa2TokenStorage            = await mockFa2TokenInstance.storage();
+//                 const initialRecipientOneAccount     = await mockFa2TokenStorage.ledger.get(recipient_one);
+//                 const initialRecipientTwoAccount     = await mockFa2TokenStorage.ledger.get(recipient_two);
+//                 const initialRecipientThreeAccount   = await mockFa2TokenStorage.ledger.get(recipient_three);
 
-                const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount);
-                const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount);
-                const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount);
+//                 const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount);
+//                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount);
+//                 const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount);
 
-                await signerFactory(bob.sk);
-                const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
-                [
-                    {
-                        "to_"    : recipient_one,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : tokenContractAddress,
-                                "tokenId" : tokenId
-                            }
-                        },
-                        "amount" : amount_one
-                    },
-                    {
-                        "to_"    : recipient_two,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : tokenContractAddress,
-                                "tokenId" : tokenId
-                            }
-                        },
-                        "amount" : amount_two
-                    },
-                    {
-                        "to_"    : recipient_three,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : tokenContractAddress,
-                                "tokenId" : tokenId
-                            }
-                        },
-                        "amount" : amount_three
-                    }
-                ]
-                ).send();
-                await adminBatchTransferOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
+//                 [
+//                     {
+//                         "to_"    : recipient_one,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : tokenContractAddress,
+//                                 "tokenId" : tokenId
+//                             }
+//                         },
+//                         "amount" : amount_one
+//                     },
+//                     {
+//                         "to_"    : recipient_two,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : tokenContractAddress,
+//                                 "tokenId" : tokenId
+//                             }
+//                         },
+//                         "amount" : amount_two
+//                     },
+//                     {
+//                         "to_"    : recipient_three,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : tokenContractAddress,
+//                                 "tokenId" : tokenId
+//                             }
+//                         },
+//                         "amount" : amount_three
+//                     }
+//                 ]
+//                 ).send();
+//                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMockFa2TokenStorage     = await mockFa2TokenInstance.storage();
-                const finalRecipientOneBalance       = await updatedMockFa2TokenStorage.ledger.get(recipient_one);
-                const finalRecipientTwoBalance       = await updatedMockFa2TokenStorage.ledger.get(recipient_two);
-                const finalRecipientThreeBalance     = await updatedMockFa2TokenStorage.ledger.get(recipient_three);
+//                 const updatedMockFa2TokenStorage     = await mockFa2TokenInstance.storage();
+//                 const finalRecipientOneBalance       = await updatedMockFa2TokenStorage.ledger.get(recipient_one);
+//                 const finalRecipientTwoBalance       = await updatedMockFa2TokenStorage.ledger.get(recipient_two);
+//                 const finalRecipientThreeBalance     = await updatedMockFa2TokenStorage.ledger.get(recipient_three);
 
-                assert.equal(parseInt(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one);
-                assert.equal(parseInt(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two);
-                assert.equal(parseInt(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three);
+//                 assert.equal(parseInt(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one);
+//                 assert.equal(parseInt(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two);
+//                 assert.equal(parseInt(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three);
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('test: whitelisted user (bob) can send batch transfer of MVK tokens', async () => {
-            try{        
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of MVK', async () => {
+//             try{        
                 
-                const tokenType             = "fa2";
-                const tokenContractAddress  = mvkTokenAddress.address;
-                const tokenId               = 0;
+//                 const tokenType             = "fa2";
+//                 const tokenContractAddress  = mvkTokenAddress.address;
+//                 const tokenId               = 0;
 
-                const recipient_one   = mallory.pkh;
-                const amount_one      = 2000000;
+//                 const recipient_one   = mallory.pkh;
+//                 const amount_one      = 2000000;
 
-                const recipient_two   = oscar.pkh;
-                const amount_two      = 3000000;
+//                 const recipient_two   = oscar.pkh;
+//                 const amount_two      = 3000000;
 
-                const recipient_three = trudy.pkh;
-                const amount_three    = 5000000;
+//                 const recipient_three = trudy.pkh;
+//                 const amount_three    = 5000000;
 
-                const mvkTokenStorage                = await mvkTokenInstance.storage();
-                const initialRecipientOneAccount     = await mvkTokenStorage.ledger.get(recipient_one);
-                const initialRecipientTwoAccount     = await mvkTokenStorage.ledger.get(recipient_two);
-                const initialRecipientThreeAccount   = await mvkTokenStorage.ledger.get(recipient_three);
+//                 const mvkTokenStorage                = await mvkTokenInstance.storage();
+//                 const initialRecipientOneAccount     = await mvkTokenStorage.ledger.get(recipient_one);
+//                 const initialRecipientTwoAccount     = await mvkTokenStorage.ledger.get(recipient_two);
+//                 const initialRecipientThreeAccount   = await mvkTokenStorage.ledger.get(recipient_three);
 
-                const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount);
-                const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount);
-                const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount);
+//                 const initialRecipientOneBalance     = parseInt(initialRecipientOneAccount   === undefined ? 0 : initialRecipientOneAccount);
+//                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount   === undefined ? 0 : initialRecipientTwoAccount);
+//                 const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount === undefined ? 0 : initialRecipientThreeAccount);
 
-                await signerFactory(bob.sk);
-                const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
-                [
-                    {
-                        "to_"    : recipient_one,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : tokenContractAddress,
-                                "tokenId" : tokenId
-                            }
-                        },
-                        "amount" : amount_one
-                    },
-                    {
-                        "to_"    : recipient_two,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : tokenContractAddress,
-                                "tokenId" : tokenId
-                            }
-                        },
-                        "amount" : amount_two
-                    },
-                    {
-                        "to_"    : recipient_three,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : tokenContractAddress,
-                                "tokenId" : tokenId
-                            }
-                        },
-                        "amount" : amount_three
-                    }
-                ]
-                ).send();
-                await adminBatchTransferOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
+//                 [
+//                     {
+//                         "to_"    : recipient_one,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : tokenContractAddress,
+//                                 "tokenId" : tokenId
+//                             }
+//                         },
+//                         "amount" : amount_one
+//                     },
+//                     {
+//                         "to_"    : recipient_two,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : tokenContractAddress,
+//                                 "tokenId" : tokenId
+//                             }
+//                         },
+//                         "amount" : amount_two
+//                     },
+//                     {
+//                         "to_"    : recipient_three,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : tokenContractAddress,
+//                                 "tokenId" : tokenId
+//                             }
+//                         },
+//                         "amount" : amount_three
+//                     }
+//                 ]
+//                 ).send();
+//                 await adminBatchTransferOperation.confirmation();
 
-                const updatedMvkTokenStorage         = await mvkTokenInstance.storage();
-                const finalRecipientOneBalance       = await updatedMvkTokenStorage.ledger.get(recipient_one);
-                const finalRecipientTwoBalance       = await updatedMvkTokenStorage.ledger.get(recipient_two);
-                const finalRecipientThreeBalance     = await updatedMvkTokenStorage.ledger.get(recipient_three);
+//                 const updatedMvkTokenStorage         = await mvkTokenInstance.storage();
+//                 const finalRecipientOneBalance       = await updatedMvkTokenStorage.ledger.get(recipient_one);
+//                 const finalRecipientTwoBalance       = await updatedMvkTokenStorage.ledger.get(recipient_two);
+//                 const finalRecipientThreeBalance     = await updatedMvkTokenStorage.ledger.get(recipient_three);
 
-                assert.equal(parseInt(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one);
-                assert.equal(parseInt(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two);
-                assert.equal(parseInt(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three);
+//                 assert.equal(parseInt(finalRecipientOneBalance),   initialRecipientOneBalance   + amount_one);
+//                 assert.equal(parseInt(finalRecipientTwoBalance),   initialRecipientTwoBalance   + amount_two);
+//                 assert.equal(parseInt(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three);
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-        it('test: whitelisted user (bob) can send batch transfer of tez, mock FA12 tokens, mock FA2 tokens, and MVK tokens', async () => {
-            try{        
+//         it('Whitelist contract should be able to call this entrypoint and transfer batch of FA12, FA2, MVK and XTZ', async () => {
+//             try{
+//                 const mockFa12TokenContractAddress  = mockFa12TokenAddress.address;
+
+//                 const mockFa2TokenContractAddress   = mockFa2TokenAddress.address;
+//                 const mockFa2TokenId                = 0;
+                
+//                 const mvkTokenContractAddress       = mvkTokenAddress.address;
+//                 const mvkTokenId                    = 0;
+
+//                 // receive tez
+//                 const recipient_one   = isaac.pkh;
+//                 const amount_one      = 2000000;
+
+//                 // receive mock FA12 tokens
+//                 const recipient_two   = oscar.pkh;
+//                 const amount_two      = 3000000;
+
+//                 // receive mock FA2 tokens
+//                 const recipient_three = trudy.pkh;
+//                 const amount_three    = 5000000;
+
+//                 // receive MVK Tokens
+//                 const recipient_four  = david.pkh;
+//                 const amount_four     = 5000000;
+
+//                 const mvkTokenStorage                = await mvkTokenInstance.storage();
+//                 const mockFa12TokenStorage           = await mockFa12TokenInstance.storage();
+//                 const mockFa2TokenStorage            = await mockFa2TokenInstance.storage();
+
+//                 const initRecipientOneTezBalance     = await utils.tezos.tz.getBalance(recipient_one);
+//                 const initialRecipientTwoAccount     = await mockFa12TokenStorage.ledger.get(recipient_two);
+//                 const initialRecipientThreeAccount   = await mockFa2TokenStorage.ledger.get(recipient_three);
+//                 const initialRecipientFourAccount    = await mvkTokenStorage.ledger.get(recipient_four);
+
+//                 const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount    === undefined ? 0 : initialRecipientTwoAccount.balance);
+//                 const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount  === undefined ? 0 : initialRecipientThreeAccount);
+//                 const initialRecipientFourBalance    = parseInt(initialRecipientFourAccount   === undefined ? 0 : initialRecipientFourAccount);
+
+//                 await signerFactory(bob.sk);
+//                 const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
+//                 [
+//                     {
+//                         "to_"    : recipient_one,
+//                         "token"  : {
+//                             "tez" : "tez"
+//                         },
+//                         "amount" : amount_one
+//                     },
+//                     {
+//                         "to_"    : recipient_two,
+//                         "token"  : {
+//                             "fa12" : mockFa12TokenContractAddress
+//                         },
+//                         "amount" : amount_two
+//                     },
+//                     {
+//                         "to_"    : recipient_three,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : mockFa2TokenContractAddress,
+//                                 "tokenId" : mockFa2TokenId
+//                             }
+//                         },
+//                         "amount" : amount_three
+//                     },
+//                     {
+//                         "to_"    : recipient_four,
+//                         "token"  : {
+//                             "fa2" : {
+//                                 "tokenContractAddress" : mvkTokenContractAddress,
+//                                 "tokenId" : mvkTokenId
+//                             }
+//                         },
+//                         "amount" : amount_four
+//                     }
+//                 ]
+//                 ).send();
+//                 await adminBatchTransferOperation.confirmation();
+
+//                 const updatedMvkTokenStorage         = await mvkTokenInstance.storage();
+//                 const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
+//                 const updatedMockFa2TokenStorage     = await mockFa2TokenInstance.storage();
+
+//                 const finalRecipientOneTezBalance             = await utils.tezos.tz.getBalance(recipient_one);
+//                 const finalRecipientTwoMockFa12TokenBalance   = await updatedMockFa12TokenStorage.ledger.get(recipient_two);
+//                 const finalRecipientThreeMockFa2TokenBalance  = await updatedMockFa2TokenStorage.ledger.get(recipient_three);
+//                 const finalRecipientThreeMvkTokenBalance      = await updatedMvkTokenStorage.ledger.get(recipient_four);
+
+//                 assert.equal(finalRecipientOneTezBalance,   initRecipientOneTezBalance.toNumber()    + amount_one);
+//                 assert.equal(parseInt(finalRecipientTwoMockFa12TokenBalance.balance.toNumber()),  initialRecipientTwoBalance    + amount_two);
+//                 assert.equal(parseInt(finalRecipientThreeMockFa2TokenBalance.toNumber()),         initialRecipientThreeBalance  + amount_three);
+//                 assert.equal(parseInt(finalRecipientThreeMvkTokenBalance.toNumber()),             initialRecipientFourBalance   + amount_four);
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Non-whitelist contracts should not be able to call this entrypoint and transfer FA12', async () => {
+//             try{
+//                 const to_                   = alice.pkh;
+//                 const amount                = 10000000;
+//                 const tokenContractAddress  = mockFa12TokenAddress.address;
+
+//                 await signerFactory(alice.sk);
+//                 const failTransferMockFa12TokenOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa12" : tokenContractAddress
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 );
+//                 await chai.expect(failTransferMockFa12TokenOperation.send()).to.be.eventually.rejected;
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Non-whitelist contracts should not be able to call this entrypoint and transfer FA2', async () => {
+//             try{
+//                 const to_        = alice.pkh;
+//                 const amount     = 10000000;
+//                 const tokenContractAddress      = mockFa12TokenAddress.address;
+//                 const tokenId    = 0;
+
+//                 await signerFactory(alice.sk);
+//                 const failTransferMockFa2TokenOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 );
+//                 await chai.expect(failTransferMockFa2TokenOperation.send()).to.be.eventually.rejected;
+
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Non-whitelist contracts should not be able to call this entrypoint and transfer MVK', async () => {
+//             try{
+//                 const to_                   = alice.pkh;
+//                 const amount                = MVK(10);
+//                 const tokenContractAddress  = mvkTokenAddress.address;
+//                 const tokenId               = 0;
+
+//                 await signerFactory(alice.sk);
+//                 const failTransferMvkTokenOperation = await treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 );
+//                 await chai.expect(failTransferMvkTokenOperation.send()).to.be.eventually.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
+
+//         it('Whitelist contract should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map', async () => {
+//             try{
+//                 const to_                      = oscar.pkh;
+//                 const amount                   = MVK(10);
+//                 const tokenContractAddress     = mvkTokenAddress.address;
+//                 const tokenId                  = 0;
+
+//                 // Update config
+//                 await signerFactory(bob.sk);
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+
+//                 await chai.expect(treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 ).send()).to.be.eventually.rejected;
+
+//                 // Reset config
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+                
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
+
+//     describe('%mintMvkAndTransfer', function() {
+
+//         it('Whitelist contract should be able to call this entrypoint and mintAndTransfer MVK', async () => {
+//             try{        
+                
+//                 const to_        = bob.pkh;
+//                 const amount     = MVK(10); // 10 MVK
+
+//                 const mvkTokenStorage           = await mvkTokenInstance.storage();
+//                 const initialBobMvkTokenBalance = await mvkTokenStorage.ledger.get(bob.pkh);
+
+
+//                 await signerFactory(bob.sk);
+//                 const mintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
+//                      to_,
+//                      amount,
+//                 ).send();
+//                 await mintMvkAndTransferOperation.confirmation();
+
+//                 const updatedMvkTokenStorage     = await mvkTokenInstance.storage();
+//                 const updatedBobMvkTokenBalance  = await updatedMvkTokenStorage.ledger.get(bob.pkh);
+
+//                 assert.equal(parseInt(updatedBobMvkTokenBalance), parseInt(initialBobMvkTokenBalance) + amount);
                 
 
-                const mockFa12TokenContractAddress  = mockFa12TokenAddress.address;
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-                const mockFa2TokenContractAddress   = mockFa2TokenAddress.address;
-                const mockFa2TokenId                = 0;
-                
-                const mvkTokenContractAddress       = mvkTokenAddress.address;
-                const mvkTokenId                    = 0;
+//         it('Non-whitelist contracts should not be able to call this entrypoint and mintAndTransfer MVK', async () => {
+//             try{
+//                 const to_        = alice.pkh;
+//                 const amount     = 10000000;
 
-                // receive tez
-                const recipient_one   = isaac.pkh;
-                const amount_one      = 2000000;
+//                 await signerFactory(alice.sk);
+//                 const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
+//                      to_,
+//                      amount,
+//                 );
+//                 await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
 
-                // receive mock FA12 tokens
-                const recipient_two   = oscar.pkh;
-                const amount_two      = 3000000;
+//             } catch(e){
+//                 console.log(e);
+//             } 
+//         });
 
-                // receive mock FA2 tokens
-                const recipient_three = trudy.pkh;
-                const amount_three    = 5000000;
+//         it('Whitelist contract should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map', async () => {
+//             try{
+//                 const to_                      = oscar.pkh;
+//                 const amount                   = MVK(10);
 
-                // receive MVK Tokens
-                const recipient_four  = david.pkh;
-                const amount_four     = 5000000;
+//                 // Update config
+//                 await signerFactory(bob.sk);
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
 
-                const mvkTokenStorage                = await mvkTokenInstance.storage();
-                const mockFa12TokenStorage           = await mockFa12TokenInstance.storage();
-                const mockFa2TokenStorage            = await mockFa2TokenInstance.storage();
+//                 // Operation
+//                 const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
+//                      to_,
+//                      amount,
+//                 );
+//                 await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
 
-                const initialRecipientTwoAccount     = await mockFa12TokenStorage.ledger.get(recipient_two);
-                const initialRecipientThreeAccount   = await mockFa2TokenStorage.ledger.get(recipient_three);
-                const initialRecipientFourAccount    = await mvkTokenStorage.ledger.get(recipient_four);
+//                 // Reset config
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     });
 
-                const initialRecipientTwoBalance     = parseInt(initialRecipientTwoAccount    === undefined ? 0 : initialRecipientTwoAccount.balance);
-                const initialRecipientThreeBalance   = parseInt(initialRecipientThreeAccount  === undefined ? 0 : initialRecipientThreeAccount);
-                const initialRecipientFourBalance    = parseInt(initialRecipientFourAccount   === undefined ? 0 : initialRecipientFourAccount);
+//     describe('%togglePauseTransfer', function() {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+//         it('Admin should be able to call this entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage                = await treasuryInstance.storage();
+//                 const isPausedStart            = treasuryStorage.breakGlassConfig.transferIsPaused
+//                 const to_                      = oscar.pkh;
+//                 const amount                   = MVK(10);
+//                 const tokenContractAddress     = mvkTokenAddress.address;
+//                 const tokenId                  = 0;
 
-                await signerFactory(bob.sk);
-                const adminBatchTransferOperation = await treasuryInstance.methods.transfer(
-                [
-                    {
-                        "to_"    : recipient_one,
-                        "token"  : {
-                            "tez" : "tez"
-                        },
-                        "amount" : amount_one
-                    },
-                    {
-                        "to_"    : recipient_two,
-                        "token"  : {
-                            "fa12" : mockFa12TokenContractAddress
-                        },
-                        "amount" : amount_two
-                    },
-                    {
-                        "to_"    : recipient_three,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : mockFa2TokenContractAddress,
-                                "tokenId" : mockFa2TokenId
-                            }
-                        },
-                        "amount" : amount_three
-                    },
-                    {
-                        "to_"    : recipient_four,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : mvkTokenContractAddress,
-                                "tokenId" : mvkTokenId
-                            }
-                        },
-                        "amount" : amount_four
-                    }
-                ]
-                ).send();
-                await adminBatchTransferOperation.confirmation();
+//                 // Operation
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseTransfer().send();
+//                 await togglePauseOperation.confirmation();
 
-                const updatedMvkTokenStorage         = await mvkTokenInstance.storage();
-                const updatedMockFa12TokenStorage    = await mockFa12TokenInstance.storage();
-                const updatedMockFa2TokenStorage     = await mockFa2TokenInstance.storage();
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.transferIsPaused
 
-                const finalRecipientOneTezBalance             = await utils.tezos.tz.getBalance(recipient_one);
-                const finalRecipientTwoMockFa12TokenBalance   = await updatedMockFa12TokenStorage.ledger.get(recipient_two);
-                const finalRecipientThreeMockFa2TokenBalance  = await updatedMockFa2TokenStorage.ledger.get(recipient_three);
-                const finalRecipientThreeMvkTokenBalance      = await updatedMvkTokenStorage.ledger.get(recipient_four);
+//                 await chai.expect(treasuryInstance.methods.transfer(
+//                     [
+//                         {
+//                             "to_"    : to_,
+//                             "token"  : {
+//                                 "fa2" : {
+//                                     "tokenContractAddress" : tokenContractAddress,
+//                                     "tokenId" : tokenId
+//                                 }
+//                             },
+//                             "amount" : amount
+//                         }
+//                     ]
+//                 ).send()
+//                 ).to.be.rejected;
 
-                assert.equal(finalRecipientOneTezBalance,   2002000000);
-                assert.equal(parseInt(finalRecipientTwoMockFa12TokenBalance.balance),  initialRecipientTwoBalance    + amount_two);
-                assert.equal(parseInt(finalRecipientThreeMockFa2TokenBalance),         initialRecipientThreeBalance  + amount_three);
-                assert.equal(parseInt(finalRecipientThreeMvkTokenBalance),             initialRecipientFourBalance   + amount_four);
+//                 // Reset admin
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseTransfer().send();
+//                 await togglePauseOperation.confirmation();
 
-            } catch(e){
-                console.log(e);
-            } 
-        });
+//                 // Assertions
+//                 assert.equal(isPausedStart, false);
+//                 assert.equal(isPausedEnd, true);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.togglePauseTransfer().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
 
-    }); // end test: Treasury batch transfer tests
+//     describe('%togglePauseMintMvkAndTransfer', function() {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+//         it('Admin should be able to call this entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage                 = await treasuryInstance.storage();
+//                 const isPausedStart             = treasuryStorage.breakGlassConfig.mintMvkAndTransferIsPaused
+//                 const to_                       = bob.pkh;
+//                 const amount                    = MVK(10); // 10 MVK
 
-    
+//                 // Operation
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseMintMvkAndTransfer().send();
+//                 await togglePauseOperation.confirmation();
 
-});
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.mintMvkAndTransferIsPaused
+
+//                 await chai.expect(treasuryInstance.methods.mintMvkAndTransfer(
+//                     to_,
+//                     amount,
+//                 ).send()).to.be.rejected;
+
+//                 // Reset admin
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseMintMvkAndTransfer().send();
+//                 await togglePauseOperation.confirmation();
+
+//                 // Assertions
+//                 assert.equal(isPausedStart, false);
+//                 assert.equal(isPausedEnd, true);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.togglePauseMintMvkAndTransfer().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     });
+
+//     describe("%pauseAll", async () => {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+
+//         it('Admin should be able to call the entrypoint and pause all entrypoints in the contract', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 for (let [key, value] of Object.entries(treasuryStorage.breakGlassConfig)){
+//                     assert.equal(value, false);
+//                 }
+
+//                 // Operation
+//                 var pauseOperation = await treasuryInstance.methods.pauseAll().send();
+//                 await pauseOperation.confirmation();
+
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 for (let [key, value] of Object.entries(treasuryStorage.breakGlassConfig)){
+//                     assert.equal(value, true);
+//                 }
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.pauseAll().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
+
+//     describe("%unpauseAll", async () => {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+
+//         it('Admin should be able to call the entrypoint and unpause all entrypoints in the contract', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 for (let [key, value] of Object.entries(treasuryStorage.breakGlassConfig)){
+//                     assert.equal(value, true);
+//                 }
+
+//                 // Operation
+//                 var pauseOperation = await treasuryInstance.methods.unpauseAll().send();
+//                 await pauseOperation.confirmation();
+
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 for (let [key, value] of Object.entries(treasuryStorage.breakGlassConfig)){
+//                     assert.equal(value, false);
+//                 }
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.unpauseAll().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
+// });
 

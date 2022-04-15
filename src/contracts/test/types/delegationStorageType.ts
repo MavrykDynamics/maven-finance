@@ -1,11 +1,10 @@
 import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder'
 
-import { BigNumber } from 'bignumber.js'
-
 export type delegationStorageType = {
   admin: string
   mvkTokenAddress: string;
-  
+  metadata: MichelsonMap<MichelsonMapKey, unknown>;
+
   config: {}
   breakGlassConfig: {}
 

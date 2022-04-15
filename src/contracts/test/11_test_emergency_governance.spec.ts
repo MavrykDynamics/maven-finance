@@ -108,320 +108,684 @@
 //         .send()
 //         await updateOperatorsOperation.confirmation();
 
-//         const userStake = MVK(250);
-//         const malloryStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-//         await malloryStakeMvkOperation.confirmation();
+//         // const userStake = MVK(250);
+//         // const malloryStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+//         // await malloryStakeMvkOperation.confirmation();
 
-//         const malloryStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(mallory.pkh);
-//         assert.equal(malloryStakedMvkBalance.balance, userStake);
+//         // const malloryStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(mallory.pkh);
+//         // assert.equal(malloryStakedMvkBalance.balance, userStake);
 //         // ---------------------------------------------
-
-
-//         // ---------------------------------------------
-//         // set admin of every contract to governance contract
-//         await signerFactory(bob.sk);
-
-//         // doorman
-//         const setGovernanceAdminInDoormanContractOperation = await doormanInstance.methods.setAdmin(governanceAddress.address).send()
-//         await setGovernanceAdminInDoormanContractOperation.confirmation();
-
-//         // delegation
-//         const setGovernanceAdminInDelegationContractOperation = await delegationInstance.methods.setAdmin(governanceAddress.address).send()
-//         await setGovernanceAdminInDelegationContractOperation.confirmation();
-
-//         // emergency governance
-//         const setGovernanceAdminInEmergencyGovernanceContractOperation = await emergencyGovernanceInstance.methods.setAdmin(governanceAddress.address).send()
-//         await setGovernanceAdminInEmergencyGovernanceContractOperation.confirmation();
-
-//         // break glass
-//         const setGovernanceAdminInBreakGlassContractOperation = await breakGlassInstance.methods.setAdmin(governanceAddress.address).send()
-//         await setGovernanceAdminInBreakGlassContractOperation.confirmation();
-
-//         // council
-//         const setGovernanceAdminInCouncilContractOperation = await councilInstance.methods.setAdmin(governanceAddress.address).send()
-//         await setGovernanceAdminInCouncilContractOperation.confirmation();
-
-//         // vesting
-//         const setGovernanceAdminInVestingContractOperation = await vestingInstance.methods.setAdmin(governanceAddress.address).send()
-//         await setGovernanceAdminInVestingContractOperation.confirmation();
-
-//         // treasury
-//         const setGovernanceAdminInTreasuryContractOperation = await treasuryInstance.methods.setAdmin(governanceAddress.address).send()
-//         await setGovernanceAdminInTreasuryContractOperation.confirmation();
-//         // ---------------------------------------------
-
 //     });
 
-//     it('bob cannot trigger emergency control (no staked MVK, no tez sent)', async () => {
-//         try{        
+//     describe("%setAdmin", async () => {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+//         it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const currentAdmin = emergencyGovernanceStorage.admin;
 
-//             await signerFactory(bob.sk);
-//             const emergencyGovernanceTitle       = "New Emergency By Bob";
-//             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+//                 // Operation
+//                 const setAdminOperation = await emergencyGovernanceInstance.methods.setAdmin(alice.pkh).send();
+//                 await setAdminOperation.confirmation();
 
-//             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 emergencyGovernanceTitle, 
-//                 emergencyGovernanceDescription
-//             );
-//             await chai.expect(failTriggerEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const newAdmin = emergencyGovernanceStorage.admin;
+
+//                 // reset admin
+//                 await signerFactory(alice.sk);
+//                 const resetAdminOperation = await emergencyGovernanceInstance.methods.setAdmin(bob.pkh).send();
+//                 await resetAdminOperation.confirmation();
+
+//                 // Assertions
+//                 assert.notStrictEqual(newAdmin, currentAdmin);
+//                 assert.strictEqual(newAdmin, alice.pkh);
+//                 assert.strictEqual(currentAdmin, bob.pkh);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Non-admin should not be able to call this entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 await signerFactory(alice.sk);
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const currentAdmin = emergencyGovernanceStorage.admin;
+
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
+
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const newAdmin = emergencyGovernanceStorage.admin;
+
+//                 // Assertions
+//                 assert.strictEqual(newAdmin, currentAdmin);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 //     });
 
-//     it('bob cannot trigger emergency control (not enough staked MVK, enough tez sent)', async () => {
-//         try{        
+//     describe("%updateConfig", async () => {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
 
-//             const emergencyGovernanceTitle       = "New Emergency By Bob";
-//             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
-//             const minStakedMvkRequiredToTrigger  = MVK(10);
+//         it('Admin should be able to call the entrypoint and configure the vote expiry in days', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const newConfigValue = 1;
 
-//             // bob update operators
-//             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-//             {
-//                 add_operator: {
-//                     owner: bob.pkh,
-//                     operator: doormanAddress.address,
-//                     token_id: 0,
-//                 },
-//             }])
-//             .send()
-//             await updateOperatorsOperation.confirmation();
+//                 // Operation
+//                 const updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configVoteExpiryDays").send();
+//                 await updateConfigOperation.confirmation();
 
-//             // bob stakes 5 MVK
-//             const userStake = MVK(5);
-//             const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-//             await bobStakeMvkOperation.confirmation();
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const updateConfigValue = emergencyGovernanceStorage.config.voteExpiryDays;
 
-//             const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-//             assert.equal(bobStakedMvkBalance.balance, userStake);
+//                 // Assertions
+//                 assert.equal(updateConfigValue, newConfigValue);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Admin should be able to call the entrypoint and configure the required fee', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const newConfigValue = 5;
+
+//                 // Operation
+//                 const updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configRequiredFeeMutez").send();
+//                 await updateConfigOperation.confirmation();
+
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const updateConfigValue = emergencyGovernanceStorage.config.requiredFeeMutez;
+
+//                 // Assertions
+//                 assert.equal(updateConfigValue, newConfigValue);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Admin should be able to call the entrypoint and configure the sMVK Percentage required', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const newConfigValue = 5000;
+
+//                 // Operation
+//                 const updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configStakedMvkPercentRequired").send();
+//                 await updateConfigOperation.confirmation();
+
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const updateConfigValue = emergencyGovernanceStorage.config.stakedMvkPercentageRequired;
+
+//                 // Assertions
+//                 assert.equal(updateConfigValue, newConfigValue);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Admin should not be able to call the entrypoint and configure the sMVK Percentage required if it exceeds 100%', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const currentConfigValue = emergencyGovernanceStorage.config.stakedMvkPercentageRequired;
+//                 const newConfigValue = 10001;
+
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configStakedMvkPercentRequired").send()).to.be.rejected;
+
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const updateConfigValue = emergencyGovernanceStorage.config.stakedMvkPercentageRequired;
+
+//                 // Assertions
+//                 assert.notEqual(newConfigValue, currentConfigValue);
+//                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Admin should be able to call the entrypoint and configure the Min sMVK required to vote', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const newConfigValue = MVK(2);
+
+//                 // Operation
+//                 const updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configMinStakedMvkForVoting").send();
+//                 await updateConfigOperation.confirmation();
+
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const updateConfigValue = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
+
+//                 // Assertions
+//                 assert.equal(updateConfigValue, newConfigValue);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Admin should not be able to call the entrypoint and configure the Min sMVK required to vote if it goes below 0.1MVK', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const currentConfigValue = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
+//                 const newConfigValue = MVK(0.99);
+
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configStakedMvkPercentRequired").send()).to.be.rejected;
+
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const updateConfigValue = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
+
+//                 // Assertions
+//                 assert.notEqual(newConfigValue, currentConfigValue);
+//                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Admin should be able to call the entrypoint and configure the Min sMVK required to trigger', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const newConfigValue = MVK(0.1);
+
+//                 // Operation
+//                 const updateConfigOperation = await emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configMinStakedMvkForTrigger").send();
+//                 await updateConfigOperation.confirmation();
+
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const updateConfigValue = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
+
+//                 // Assertions
+//                 assert.equal(updateConfigValue, newConfigValue);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Admin should not be able to call the entrypoint and configure the Min sMVK required to trigger if it goes below 0.1MVK', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const currentConfigValue = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
+//                 const newConfigValue = MVK(0.099);
+
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configMinStakedMvkForTrigger").send()).to.be.rejected;
+
+//                 // Final values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const updateConfigValue = emergencyGovernanceStorage.config.minStakedMvkRequiredToTrigger;
+
+//                 // Assertions
+//                 assert.notEqual(newConfigValue, currentConfigValue);
+//                 assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
+//                 const newConfigValue = MVK(5);
+
+//                 // Operation
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(emergencyGovernanceInstance.methods.updateConfig(newConfigValue,"configMinStakedMvkForTrigger").send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     });
+
+//     describe("%triggerEmergencyControl", async () => {
+
+//         beforeEach("Set signer to user", async () => {
+//             await signerFactory(alice.sk)
+//         });
+
+//         it('User should not be able to call this entrypoint if it did not send the required fees', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+
+//                 // Initial Values
+//                 await signerFactory(bob.sk)
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const stakeAmount           = MVK(10);
+
+//                 // Operations
+//                 const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//                 {
+//                     add_operator: {
+//                         owner: bob.pkh,
+//                         operator: doormanAddress.address,
+//                         token_id: 0,
+//                     },
+//                 }]).send()
+//                 await updateOperatorsOperation.confirmation();
     
-//             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 emergencyGovernanceTitle, 
-//                 emergencyGovernanceDescription
-//             );
-//             await chai.expect(failTriggerEmergencyEmergencyControlOperation.send({ amount : 10 })).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
-
-//     it('bob cannot trigger emergency control (not enough staked MVK, too much tez sent)', async () => {
-//         try{        
-
-//             const emergencyGovernanceTitle       = "New Emergency By Bob";
-//             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
-//             const minStakedMvkRequiredToTrigger  = MVK(10);
-
-//             // bob update operators
-//             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-//             {
-//                 add_operator: {
-//                     owner: bob.pkh,
-//                     operator: doormanAddress.address,
-//                     token_id: 0,
-//                 },
-//             }])
-//             .send()
-//             await updateOperatorsOperation.confirmation();
-
-//             const userStake = MVK(5);
-//             const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-//             assert.equal(bobStakedMvkBalance.balance, userStake);
+//                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
     
-//             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 emergencyGovernanceTitle, 
-//                 emergencyGovernanceDescription
-//             );
-//             await chai.expect(failTriggerEmergencyEmergencyControlOperation.send({ amount : 15 })).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//                 const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+//                 assert.notEqual(stakeRecord.balance, 0);
 
-//     it('bob cannot trigger emergency control (not enough staked MVK, no tez sent)', async () => {
-//         try{        
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 
-//             const emergencyGovernanceTitle       = "New Emergency By Bob";
-//             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
-//             const minStakedMvkRequiredToTrigger  = MVK(10);
+//         it('User should not be able to call this entrypoint if it does not have enough SMVK to trigger', async () => {
+//             try{
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send({amount : 10})).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 
-//             // bob stakes 5 MVK
-//             const userStake = MVK(5);
-//             const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-            
-//             assert.equal(bobStakedMvkBalance.balance, userStake);
+//         it('User should not be able to call the treasury contract does not exist in the generalContracts map of the storage', async () => {
+//             try{
+//                 // Update generalContracts
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("treasury", treasuryAddress.address).send();
+//                 await updateOperation.confirmation()
+
+//                 // Initial Values
+//                 await signerFactory(alice.sk)
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const stakeAmount           = MVK(10);
+
+//                 // Operations
+//                 const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//                 {
+//                     add_operator: {
+//                         owner: alice.pkh,
+//                         operator: doormanAddress.address,
+//                         token_id: 0,
+//                     },
+//                 }]).send()
+//                 await updateOperatorsOperation.confirmation();
     
-//             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 emergencyGovernanceTitle, 
-//                 emergencyGovernanceDescription
-//             );
-//             await chai.expect(failTriggerEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
-
-
-//     it('bob cannot trigger emergency control (enough staked MVK, no tez sent)', async () => {
-//         try{        
-
-//             const emergencyGovernanceTitle       = "New Emergency By Bob";
-//             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
-//             const minStakedMvkRequiredToTrigger  = MVK(10);
-
-//             // bob update operators
-//             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-//             {
-//                 add_operator: {
-//                     owner: bob.pkh,
-//                     operator: doormanAddress.address,
-//                     token_id: 0,
-//                 },
-//             }])
-//             .send()
-//             await updateOperatorsOperation.confirmation();
-
-//             // bob stakes 5 MVK
-//             const userStake = MVK(5);
-//             const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-//             await bobStakeMvkOperation.confirmation();
-
-//             const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-//             assert.equal(bobStakedMvkBalance.balance, MVK(10));
+//                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
     
-//             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 emergencyGovernanceTitle, 
-//                 emergencyGovernanceDescription
-//             );
-//             await chai.expect(failTriggerEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//                 const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 assert.notEqual(stakeRecord.balance, 0);
 
-//     it('bob cannot trigger emergency control (enough staked MVK, not enough tez sent)', async () => {
-//         try{        
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send({amount: 0.000005})).to.be.rejected;
 
-//             const emergencyGovernanceTitle       = "New Emergency By Bob";
-//             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
-//             const minStakedMvkRequiredToTrigger  = MVK(10);
+//                 // Reset contract
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("treasury", treasuryAddress.address).send();
+//                 await updateOperation.confirmation()
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 
-//             // bob update operators
-//             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-//             {
-//                 add_operator: {
-//                     owner: bob.pkh,
-//                     operator: doormanAddress.address,
-//                     token_id: 0,
-//                 },
-//             }])
-//             .send()
-//             await updateOperatorsOperation.confirmation();
+//         it('User should not be able to call the doorman contract does not exist in the generalContracts map of the storage', async () => {
+//             try{
+//                 // Update generalContracts
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 await updateOperation.confirmation()
 
-//             const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-//             assert.equal(bobStakedMvkBalance.balance, MVK(10));
+//                 // Initial Values
+//                 await signerFactory(alice.sk)
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+
+//                 // Operations
+//                 const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 assert.notEqual(stakeRecord.balance, 0);
+
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send({amount: 0.000005})).to.be.rejected;
+
+//                 // Reset contract
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 await updateOperation.confirmation()
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('User should be able to call this entrypoint and trigger an emergency control', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+
+//                 // Operations
+//                 const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 assert.notEqual(stakeRecord.balance, 0);
+
+//                 // Operation
+//                 const triggerOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send({amount: 0.000005});
+//                 await triggerOperation.confirmation();
+
+//                 // Final values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
+//                 const emergencyProposal     = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+
+//                 assert.notEqual(emergencyID, 0);
+//                 assert.notEqual(emergencyProposal, undefined);
+//                 assert.strictEqual(emergencyProposal.proposerAddress, alice.pkh);
+//                 assert.strictEqual(emergencyProposal.stakedMvkPercentageRequired.toNumber(), emergencyGovernanceStorage.config.stakedMvkPercentageRequired.toNumber());
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('User should not be able to call this entrypoint if there is an emergency control in process', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId
+//                 assert.notEqual(emergencyID, 0);
+
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send({amount: 0.000005})).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
+
+//     describe("%dropEmergencyControl#1", async () => {
+
+//         beforeEach("Set signer to user", async () => {
+//             await signerFactory(alice.sk)
+//         });
+
+//         it('Non-proposer should not be able to call the entrypoint', async () => {
+//             try{
+//                 // Initial values
+//                 await signerFactory(eve.sk);
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.dropEmergencyGovernance().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Proposer should be able to call this entrypoint and drop the current emergency governance proposal he proposed', async () => {
+//             try{
+//                 // Initial values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId
+
+//                 // Operation
+//                 const dropOperation     = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
+//                 await dropOperation.confirmation();
+
+//                 // Assertions
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 const emergencyProposal     = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+//                 assert.equal(emergencyGovernanceStorage.currentEmergencyGovernanceId, 0)
+//                 assert.equal(emergencyProposal.dropped, true)
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('Proposer should not be able to call this entrypoint if there is no current proposal in the process', async () => {
+//             try{
+//                 await chai.expect(emergencyGovernanceInstance.methods.dropEmergencyGovernance().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
+
+//     describe("%voteFromEmergencyControl", async () => {
+
+//         before("Trigger emergency control", async () => {
+//             await signerFactory(alice.sk)
+//             // Initial Values
+//             emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//             doormanStorage              = await doormanInstance.storage();
+
+//             const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//             assert.notEqual(stakeRecord.balance, 0);
+
+//             // Operation
+//             const triggerOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send({amount: 0.000005});
+//             await triggerOperation.confirmation();
+
+//             // Final values
+//             emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//             const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
+//             const emergencyProposal     = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+
+//             assert.notEqual(emergencyID, 0);
+//             assert.notEqual(emergencyProposal, undefined);
+//             assert.strictEqual(emergencyProposal.proposerAddress, alice.pkh);
+//             assert.strictEqual(emergencyProposal.stakedMvkPercentageRequired.toNumber(), emergencyGovernanceStorage.config.stakedMvkPercentageRequired.toNumber());
+//         });
+
+//         beforeEach("Set signer to user", async () => {
+//             await signerFactory(alice.sk)
+//         });
+
+//         it('User should not be able to call this entrypoint if the getStakedBalance view does not exist on the Doorman contract', async () => {
+//             try{
+//                 // Update generalContracts
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 await updateOperation.confirmation()
+
+//                 // Initial Values
+//                 await signerFactory(mallory.sk)
+                
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
+
+//                 // Reset contract
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 await updateOperation.confirmation()
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('User should not be able to call this entrypoint if it does not have enough SMVK', async () => {
+//             try{
+//                 // Initial Values
+//                 await signerFactory(mallory.sk)
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage()
+//                 const smvkRequired          = emergencyGovernanceStorage.config.minStakedMvkRequiredToVote;
+//                 const stakeAmount           = MVK(1)
+
+//                 const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//                 {
+//                     add_operator: {
+//                         owner: mallory.pkh,
+//                         operator: doormanAddress.address,
+//                         token_id: 0,
+//                     },
+//                 }])
+//                 .send()
+//                 await updateOperatorsOperation.confirmation();
     
-//             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 emergencyGovernanceTitle, 
-//                 emergencyGovernanceDescription
-//             );
-//             await chai.expect(failTriggerEmergencyEmergencyControlOperation.send({ amount : 6})).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
 
-//     it('bob cannot trigger emergency control (enough staked MVK, too much tez sent)', async () => {
-//         try{        
+//                 doormanStorage              = await doormanInstance.storage()
+//                 const userSMVKBalance       = (await doormanStorage.userStakeBalanceLedger.get(mallory.pkh)).balance
 
-//             const emergencyGovernanceTitle       = "New Emergency By Bob";
-//             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
-//             const minStakedMvkRequiredToTrigger  = MVK(10);
+//                 assert.equal(userSMVKBalance<smvkRequired, true);
+                
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
 
-//             // bob update operators
-//             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-//             {
-//                 add_operator: {
-//                     owner: bob.pkh,
-//                     operator: doormanAddress.address,
-//                     token_id: 0,
-//                 },
-//             }])
-//             .send()
-//             await updateOperatorsOperation.confirmation();
+//                 // Operation
+//                 await signerFactory(bob.sk);
+//                 const updateOperation = await emergencyGovernanceInstance.methods.updateConfig(MVK(0.1),"configMinStakedMvkForTrigger").send();
+//                 await updateOperation.confirmation();
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 
-//             const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-//             assert.equal(bobStakedMvkBalance.balance, MVK(10));
-    
-//             const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 emergencyGovernanceTitle, 
-//                 emergencyGovernanceDescription
-//             );
-//             await chai.expect(failTriggerEmergencyEmergencyControlOperation.send({ amount : 11})).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//         it('User should not be able to call this entrypoint if the proposal was dropped', async () => {
+//             try{
+//                 // Initial values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
 
+//                 // Operation
+//                 const dropOperation     = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
+//                 await dropOperation.confirmation();
 
-//     it('bob can trigger emergency control (enough staked MVK, enough tez sent)', async () => {
-//         try{        
+//                 await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
 
-//             const emergencyGovernanceTitle       = "New Emergency By Bob";
-//             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+//                 // Final values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 const emergencyProposal     = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+//                 assert.equal(emergencyGovernanceStorage.currentEmergencyGovernanceId, 0);
+//                 assert.equal(emergencyProposal.dropped, true);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 
-//             // bob triggers emergency Governance
-//             const triggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 emergencyGovernanceTitle, 
-//                 emergencyGovernanceDescription
-//             ).send({amount : 10});
-//             await triggerEmergencyControlOperation.confirmation();
-            
-//             const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
-//             const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get('1');
+//         it('User should not be able to call this entrypoint if there is no current proposal in the process', async () => {
+//             try{
+//                 // Initial values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
 
-//             const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-//             assert.equal(bobStakedMvkBalance.balance, MVK(10));
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
 
-//             assert.equal(emergencyGovernanceProposal.title,           emergencyGovernanceTitle);
-//             assert.equal(emergencyGovernanceProposal.description,     emergencyGovernanceDescription);
-//             assert.equal(emergencyGovernanceProposal.status,          false);
-//             assert.equal(emergencyGovernanceProposal.dropped,         false);
-//             assert.equal(emergencyGovernanceProposal.executed,        false);
-//             assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes,        0);
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//                 // Final values
+//                 assert.equal(emergencyGovernanceStorage.currentEmergencyGovernanceId, 0);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 
-//     it('alice cannot trigger another emergency governance at the same time (no staked MVK, no tez sent)', async () => {
-//         try{        
+//         it('User should be able to call this entrypoint and vote for the current proposal without triggering the break glass', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
+                
+//                 // Operations
+//                 const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 assert.notEqual(stakeRecord.balance, 0);
 
-//             await signerFactory(alice.sk);
-//             const failTriggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("New Emergency Again", "Help please.");
-//             await chai.expect(failTriggerEmergencyControlOperation.send()).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//                 // Operation
+//                 const triggerOperation  = await emergencyGovernanceInstance.methods.triggerEmergencyControl("Test emergency control", "Test description").send({amount: 0.000005});
+//                 await triggerOperation.confirmation();
 
-//     it('alice cannot trigger another emergency governance at the same time (enough staked MVK, enough tez sent)', async () => {
-//         try{        
+//                 // Mid values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
+//                 var emergencyProposal       = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+//                 console.log("SMVK Balance: ", stakeRecord.balance)
+//                 console.log(emergencyProposal)
+//                 console.log("REQUIRED: ", emergencyProposal.stakedMvkRequiredForBreakGlass)
 
-//             await signerFactory(alice.sk);
+//                 assert.notEqual(emergencyID, 0);
+//                 assert.notEqual(emergencyProposal, undefined);
+//                 assert.strictEqual(emergencyProposal.proposerAddress, alice.pkh);
+//                 assert.strictEqual(emergencyProposal.stakedMvkPercentageRequired.toNumber(), emergencyGovernanceStorage.config.stakedMvkPercentageRequired.toNumber());
 
-//             // alice stakes 10 MVK
-//             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//                 console.log("SMVK required for breakGlass: ", emergencyProposal.stakedMvkRequiredForBreakGlass);
+
+//                 // Vote operation
+//                 const voteOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+//                 await voteOperation.confirmation();
+
+//                 // Final values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 emergencyProposal           = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+//                 doormanStorage              = await doormanInstance.storage()
+//                 const userSMVKBalance       = (await doormanStorage.userStakeBalanceLedger.get(alice.pkh)).balance
+//                 const userVote              = await emergencyProposal.voters.get(alice.pkh)
+
+//                 console.log("vote: ", userVote)
+
+//                 console.log("Alice SMVK balance: ", userSMVKBalance);
+//                 assert.equal(userSMVKBalance<emergencyProposal.stakedMvkRequiredForBreakGlass, true);
+//                 assert.notStrictEqual(userVote, undefined);
+//                 assert.equal(userVote[0].toNumber(), userSMVKBalance.toNumber());
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('User should not be able to call this entrypoint and vote for the same proposal twice or more', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
+//                 var emergencyProposal       = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+
+//                 // Vote operation
+//                 console.log(emergencyProposal)
+//                 await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+
+//         it('User should not be able to call this entrypoint and vote for the current proposal and trigger break glass if the if the breakGlass contract is not in generalContracts map or breakGlass entrypoint does not exist in it', async () => {
+//             try{
+//                 // Update generalContracts
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
+//                 await updateOperation.confirmation()
+
+//                 // Initial Values
+//                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
+//                 const emergencyProposal     = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+//                 const stakeAmount           = emergencyProposal.stakedMvkRequiredForBreakGlass;
+
+//                 // User stake more to trigger break glass
+//                 await signerFactory(alice.sk)
+//                 const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
 //                     add_operator: {
 //                         owner: alice.pkh,
@@ -430,263 +794,692 @@
 //                     },
 //                 }])
 //                 .send()
-//             await updateOperatorsOperation.confirmation();
-            
-//             const userStake = MVK(10);
-//             const aliceStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-//             await aliceStakeMvkOperation.confirmation();
+//                 await updateOperatorsOperation.confirmation();
+    
+//                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
+    
+//                 const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 assert.notEqual(stakeRecord.balance, 0);
+                
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
 
-//             const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
-//             assert.equal(aliceStakedMvkBalance.balance, MVK(10));
+//                 // Reset contract
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("breakGlass", breakGlassAddress.address).send();
+//                 await updateOperation.confirmation()
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 
-//             const failTriggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("New Emergency Again", "Help please.");
-//             await chai.expect(failTriggerEmergencyControlOperation.send({ amount : 10})).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//         it('User should not be able to call this entrypoint and vote for the current proposal and trigger break glass if the if the governance contract is not in generalContracts map or breakGlass entrypoint does not exist in it', async () => {
+//             try{
+//                 // Update generalContracts
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send();
+//                 await updateOperation.confirmation()
 
-//     it('eve cannot vote for emergency control (no staked MVK)', async () => {
-//         try{        
+//                 // Initial Values
+//                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
 
-//             await signerFactory(eve.sk);
-//             const failVoteForEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1);
-//             await chai.expect(failVoteForEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//                 // User stake more to trigger break glass
+//                 await signerFactory(alice.sk)
+//                 const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//                 assert.notEqual(stakeRecord.balance, 0);
+                
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.voteForEmergencyControl().send()).to.be.rejected;
 
-//     it('eve cannot vote for emergency control (not enough staked MVK)', async () => {
-//         try{        
+//                 // Reset contract
+//                 await signerFactory(bob.sk);
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("governance", governanceAddress.address).send();
+//                 await updateOperation.confirmation()
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 
-//             await signerFactory(eve.sk);
+//         it('User should be able to call this entrypoint and vote for the current proposal and trigger break glass', async () => {
+//             try{
+//                 // Initial Values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
+//                 var emergencyProposal       = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
 
-//             // eve stakes 4 MVK
-//             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//                 // Set all contracts admin to governance address if it is not
+//                 await signerFactory(bob.sk);
+//                 governanceStorage             = await governanceInstance.storage();
+//                 var generalContracts          = governanceStorage.generalContracts.entries();
+
+//                 for (let entry of generalContracts){
+//                     // Get contract storage
+//                     var contract        = await utils.tezos.contract.at(entry[1]);
+//                     var storage:any     = await contract.storage();
+
+//                     // Check admin
+//                     if(storage.hasOwnProperty('admin') && storage.admin!==governanceAddress.address && storage.admin!==breakGlassAddress.address){
+//                         var setAdminOperation   = await contract.methods.setAdmin(governanceAddress.address).send();
+//                         await setAdminOperation.confirmation()
+//                     }
+//                 }
+
+//                 // User stake more to trigger break glass
+//                 await signerFactory(mallory.sk);
+//                 const stakeAmount           = MVK(10)
+//                 const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
 //                 {
 //                     add_operator: {
-//                         owner: eve.pkh,
+//                         owner: mallory.pkh,
 //                         operator: doormanAddress.address,
 //                         token_id: 0,
 //                     },
 //                 }])
 //                 .send()
-//             await updateOperatorsOperation.confirmation();
-            
-//             const userStake = MVK(4);
-//             const eveStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-//             await eveStakeMvkOperation.confirmation();
+//                 await updateOperatorsOperation.confirmation();
+    
+//                 const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
 
-//             const eveStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
-//             assert.equal(eveStakedMvkBalance.balance, userStake);
+//                 const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(mallory.pkh);
+//                 assert.notEqual(stakeRecord.balance, 0);
+                
+//                 const voteOperation     = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
+//                 await voteOperation.confirmation();
 
-//             const failVoteForEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1);
-//             await chai.expect(failVoteForEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
-            
-//         } catch (e){
-//             console.log(e)
-//         }
+//                 // Check if glass was broken
+//                 breakGlassStorage       = await breakGlassInstance.storage();
+//                 const glassBroken       = breakGlassStorage.glassBroken;
+//                 assert.equal(glassBroken, true);
+
+//                 // Check admin and pause in all contracts
+//                 governanceStorage       = await governanceInstance.storage();
+//                 generalContracts        = governanceStorage.generalContracts.entries();
+//                 for (let entry of generalContracts){
+//                     // Get contract storage
+//                     var contract        = await utils.tezos.contract.at(entry[1]);
+//                     var storage:any     = await contract.storage();
+
+//                     // Check admin
+//                     if(storage.hasOwnProperty('admin')){
+//                         assert.equal(storage.admin, breakGlassAddress.address)
+//                     }
+
+//                     // Check pause
+//                     var breakGlassConfig    = storage.breakGlassConfig
+//                     if(storage.hasOwnProperty('breakGlassConfig')){
+//                         for (let [key, value] of Object.entries(breakGlassConfig)){
+//                             assert.equal(value, true);
+//                         }
+//                     }
+//                 }
+
+//                 // Check emergency storage
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 emergencyProposal           = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
+//                 assert.equal(emergencyProposal.executed, true);
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
 //     });
 
-//     it('eve can vote for emergency control (enough staked MVK)', async () => {
-//         try{        
+//     describe("%dropEmergencyControl#2", async () => {
 
-//             await signerFactory(eve.sk);
+//         beforeEach("Set signer to user", async () => {
+//             await signerFactory(alice.sk)
+//         });
 
-//             // eve update operators
-//             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-//             {
-//                 add_operator: {
-//                     owner: eve.pkh,
-//                     operator: doormanAddress.address,
-//                     token_id: 0,
-//                 },
-//             }])
-//             .send()
-//             await updateOperatorsOperation.confirmation();
+//         it('User should not be able to call this entrypoint if the proposal was executed', async () => {
+//             try{
+//                 // Initial values
+//                 emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
+//                 doormanStorage              = await doormanInstance.storage();
 
-//             // eve stakes another 6 MVK
-//             const userStake = MVK(6);
-//             const eveStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-//             await eveStakeMvkOperation.confirmation();
+//                 // Operation
+//                 await chai.expect(emergencyGovernanceInstance.methods.dropEmergencyGovernance().send()).to.be.rejected;
+//             } catch(e){
+//                 console.log(e);
+//             }
+//         });
+//     })
 
-//             const eveStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
-//             assert.equal(eveStakedMvkBalance.balance, MVK(10));
+//     // it('bob cannot trigger emergency control (no staked MVK, no tez sent)', async () => {
+//     //     try{        
 
-//             const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1).send();
-//             await voteForEmergencyControlOperation.confirmation();
+//     //         await signerFactory(bob.sk);
+//     //         const emergencyGovernanceTitle       = "New Emergency By Bob";
+//     //         const emergencyGovernanceDescription = "Critical flaw detected in contract.";
 
-//             const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
-//             const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get(1);
-
-//             assert.equal(emergencyGovernanceProposal.status,          false);
-//             assert.equal(emergencyGovernanceProposal.dropped,         false);
-//             assert.equal(emergencyGovernanceProposal.executed,        false);
-//             assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes, MVK(10));
+//     //         const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+//     //             emergencyGovernanceTitle, 
+//     //             emergencyGovernanceDescription
+//     //         );
+//     //         await chai.expect(failTriggerEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
             
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
 
-//     it('eve cannot vote for emergency control again', async () => {
-//         try{        
+//     // it('bob cannot trigger emergency control (not enough staked MVK, enough tez sent)', async () => {
+//     //     try{        
 
-//             await signerFactory(eve.sk);
-//             const failVoteAgainOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1);
-//             await chai.expect(failVoteAgainOperation.send()).to.be.eventually.rejected;
+//     //         const emergencyGovernanceTitle       = "New Emergency By Bob";
+//     //         const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+//     //         const minStakedMvkRequiredToTrigger  = MVK(10);
+
+//     //         // bob update operators
+//     //         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //         {
+//     //             add_operator: {
+//     //                 owner: bob.pkh,
+//     //                 operator: doormanAddress.address,
+//     //                 token_id: 0,
+//     //             },
+//     //         }])
+//     //         .send()
+//     //         await updateOperatorsOperation.confirmation();
+
+//     //         // bob stakes 5 MVK
+//     //         const userStake = MVK(5);
+//     //         const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+//     //         await bobStakeMvkOperation.confirmation();
+
+//     //         const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+//     //         assert.equal(bobStakedMvkBalance.balance, userStake);
+    
+//     //         const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+//     //             emergencyGovernanceTitle, 
+//     //             emergencyGovernanceDescription
+//     //         );
+//     //         await chai.expect(failTriggerEmergencyEmergencyControlOperation.send({ amount : 10 })).to.be.eventually.rejected;
             
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
 
-//     it('eve cannot drop emergency control (not creator)', async () => {
-//         try{        
+//     // it('bob cannot trigger emergency control (not enough staked MVK, too much tez sent)', async () => {
+//     //     try{        
 
-//             await signerFactory(eve.sk);
-//             const failDropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
-//             await chai.expect(failDropEmergencyControlOperation.send()).to.be.eventually.rejected;
+//     //         const emergencyGovernanceTitle       = "New Emergency By Bob";
+//     //         const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+//     //         const minStakedMvkRequiredToTrigger  = MVK(10);
+
+//     //         // bob update operators
+//     //         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //         {
+//     //             add_operator: {
+//     //                 owner: bob.pkh,
+//     //                 operator: doormanAddress.address,
+//     //                 token_id: 0,
+//     //             },
+//     //         }])
+//     //         .send()
+//     //         await updateOperatorsOperation.confirmation();
+
+//     //         const userStake = MVK(5);
+//     //         const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+//     //         assert.equal(bobStakedMvkBalance.balance, userStake);
+    
+//     //         const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+//     //             emergencyGovernanceTitle, 
+//     //             emergencyGovernanceDescription
+//     //         );
+//     //         await chai.expect(failTriggerEmergencyEmergencyControlOperation.send({ amount : 15 })).to.be.eventually.rejected;
             
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
 
-//     it('bob can drop emergency control (creator)', async () => {
-//         try{        
+//     // it('bob cannot trigger emergency control (not enough staked MVK, no tez sent)', async () => {
+//     //     try{        
+
+//     //         const emergencyGovernanceTitle       = "New Emergency By Bob";
+//     //         const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+//     //         const minStakedMvkRequiredToTrigger  = MVK(10);
+
+//     //         // bob stakes 5 MVK
+//     //         const userStake = MVK(5);
+//     //         const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
             
-//             await signerFactory(bob.sk);
-//             const dropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
-//             await dropEmergencyControlOperation.confirmation();
-
-//             const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
-//             const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get('1');
-
-//             assert.equal(emergencyGovernanceProposal.status,          false);
-//             assert.equal(emergencyGovernanceProposal.dropped,         true);
-//             assert.equal(emergencyGovernanceProposal.executed,        false);
+//     //         assert.equal(bobStakedMvkBalance.balance, userStake);
+    
+//     //         const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+//     //             emergencyGovernanceTitle, 
+//     //             emergencyGovernanceDescription
+//     //         );
+//     //         await chai.expect(failTriggerEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
             
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
 
-//     it('bob cannot drop emergency control again', async () => {
-//         try{        
 
-//             await signerFactory(bob.sk);
-//             const failDropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
-//             await chai.expect(failDropEmergencyControlOperation.send()).to.be.eventually.rejected;
+//     // it('bob cannot trigger emergency control (enough staked MVK, no tez sent)', async () => {
+//     //     try{        
+
+//     //         const emergencyGovernanceTitle       = "New Emergency By Bob";
+//     //         const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+//     //         const minStakedMvkRequiredToTrigger  = MVK(10);
+
+//     //         // bob update operators
+//     //         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //         {
+//     //             add_operator: {
+//     //                 owner: bob.pkh,
+//     //                 operator: doormanAddress.address,
+//     //                 token_id: 0,
+//     //             },
+//     //         }])
+//     //         .send()
+//     //         await updateOperatorsOperation.confirmation();
+
+//     //         // bob stakes 5 MVK
+//     //         const userStake = MVK(5);
+//     //         const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+//     //         await bobStakeMvkOperation.confirmation();
+
+//     //         const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+//     //         assert.equal(bobStakedMvkBalance.balance, MVK(10));
+    
+//     //         const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+//     //             emergencyGovernanceTitle, 
+//     //             emergencyGovernanceDescription
+//     //         );
+//     //         await chai.expect(failTriggerEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
             
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
 
-//     it('alice can trigger emergency control after previous one is dropped', async () => {
-//         try{        
+//     // it('bob cannot trigger emergency control (enough staked MVK, not enough tez sent)', async () => {
+//     //     try{        
 
-//             await signerFactory(alice.sk);
+//     //         const emergencyGovernanceTitle       = "New Emergency By Bob";
+//     //         const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+//     //         const minStakedMvkRequiredToTrigger  = MVK(10);
 
-//             const emergencyGovernanceTitle       = "New Emergency By Alice";
-//             const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+//     //         // bob update operators
+//     //         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //         {
+//     //             add_operator: {
+//     //                 owner: bob.pkh,
+//     //                 operator: doormanAddress.address,
+//     //                 token_id: 0,
+//     //             },
+//     //         }])
+//     //         .send()
+//     //         await updateOperatorsOperation.confirmation();
 
-//             // bob triggers emergency Governance
-//             const triggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 emergencyGovernanceTitle, 
-//                 emergencyGovernanceDescription
-//             ).send({amount : 10});
-//             await triggerEmergencyControlOperation.confirmation();
+//     //         const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+//     //         assert.equal(bobStakedMvkBalance.balance, MVK(10));
+    
+//     //         const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+//     //             emergencyGovernanceTitle, 
+//     //             emergencyGovernanceDescription
+//     //         );
+//     //         await chai.expect(failTriggerEmergencyEmergencyControlOperation.send({ amount : 6})).to.be.eventually.rejected;
             
-//             const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
-//             const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get('2');
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
 
-//             assert.equal(emergencyGovernanceProposal.title,           emergencyGovernanceTitle);
-//             assert.equal(emergencyGovernanceProposal.description,     emergencyGovernanceDescription);
-//             assert.equal(emergencyGovernanceProposal.status,          false);
-//             assert.equal(emergencyGovernanceProposal.dropped,         false);
-//             assert.equal(emergencyGovernanceProposal.executed,        false);
-//             assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes,        0);
+//     // it('bob cannot trigger emergency control (enough staked MVK, too much tez sent)', async () => {
+//     //     try{        
 
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//     //         const emergencyGovernanceTitle       = "New Emergency By Bob";
+//     //         const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+//     //         const minStakedMvkRequiredToTrigger  = MVK(10);
 
-//     it('bob stakes more MVK, votes for emergency control, and triggers break glass', async () => {
-//         try{        
+//     //         // bob update operators
+//     //         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //         {
+//     //             add_operator: {
+//     //                 owner: bob.pkh,
+//     //                 operator: doormanAddress.address,
+//     //                 token_id: 0,
+//     //             },
+//     //         }])
+//     //         .send()
+//     //         await updateOperatorsOperation.confirmation();
 
-//             const emergencyGovernanceProposalId = 2;
-
-//             await signerFactory(bob.sk);
-//             const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-//                 {
-//                     add_operator: {
-//                         owner: bob.pkh,
-//                         operator: doormanAddress.address,
-//                         token_id: 0,
-//                     },
-//                 }])
-//                 .send()
-//             await updateOperatorsOperation.confirmation();
-
-//             // bob stakes another 20 MVK
-//             const userStake = MVK(20);
-//             const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
-//             await bobStakeMvkOperation.confirmation();
-
-//             const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
-//             const bobTotalStakedMvkBalance = MVK(30); // 10 from earlier test, 20 from here
-//             assert.equal(bobStakedMvkBalance.balance, bobTotalStakedMvkBalance);
-
-//             // bob votes for emergency control
-//             const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(emergencyGovernanceProposalId).send();
-//             await voteForEmergencyControlOperation.confirmation();
-
-//             // check that glass has been broken
-//             const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
-//             const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceProposalId);
-
-//             assert.equal(emergencyGovernanceProposal.status,          true);
-//             assert.equal(emergencyGovernanceProposal.executed,        true);
-//             assert.equal(emergencyGovernanceProposal.dropped,         false);
-//             assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes, MVK(30));
-//             assert.equal(emergencyGovernanceProposal.stakedMvkRequiredForBreakGlass, MVK(28));
-
-//             const updatedDoormanStorage      = await doormanInstance.storage();
-//             const updatedDelegationStorage   = await delegationInstance.storage();
-//             const updatedCouncilStorage      = await councilInstance.storage();
-//             const updatedVestingStorage      = await vestingInstance.storage();
-//             const updatedTreasuryStorage     = await treasuryInstance.storage();
-//             const updatedBreakGlassStorage   = await breakGlassInstance.storage();
-
-//             // doorman break glass, and break glass configs
-//             assert.equal(updatedDoormanStorage.admin, breakGlassAddress.address);
-//             assert.equal(updatedDoormanStorage.breakGlassConfig.compoundIsPaused, true);
-//             assert.equal(updatedDoormanStorage.breakGlassConfig.stakeIsPaused, true);
-//             assert.equal(updatedDoormanStorage.breakGlassConfig.unstakeIsPaused, true);
-
-//             // delegation break glass, and break glass configs
-//             assert.equal(updatedDelegationStorage.admin, breakGlassAddress.address);
-//             assert.equal(updatedDelegationStorage.breakGlassConfig.delegateToSatelliteIsPaused, true);
-//             assert.equal(updatedDelegationStorage.breakGlassConfig.registerAsSatelliteIsPaused, true);
-//             assert.equal(updatedDelegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused, true);
-//             assert.equal(updatedDelegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused, true);
-//             assert.equal(updatedDelegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused, true);
-
-//             // council, vesting, treasury, break glass 
-//             assert.equal(updatedCouncilStorage.admin, breakGlassAddress.address);
-//             assert.equal(updatedVestingStorage.admin, breakGlassAddress.address);
-//             assert.equal(updatedTreasuryStorage.admin, breakGlassAddress.address);
-//             assert.equal(updatedBreakGlassStorage.admin, breakGlassAddress.address);            
+//     //         const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+//     //         assert.equal(bobStakedMvkBalance.balance, MVK(10));
+    
+//     //         const failTriggerEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+//     //             emergencyGovernanceTitle, 
+//     //             emergencyGovernanceDescription
+//     //         );
+//     //         await chai.expect(failTriggerEmergencyEmergencyControlOperation.send({ amount : 11})).to.be.eventually.rejected;
             
-//         } catch (e){
-//             console.log(e)
-//         }
-//     });
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+
+//     // it('bob can trigger emergency control (enough staked MVK, enough tez sent)', async () => {
+//     //     try{        
+
+//     //         const emergencyGovernanceTitle       = "New Emergency By Bob";
+//     //         const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+
+//     //         // bob triggers emergency Governance
+//     //         const triggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+//     //             emergencyGovernanceTitle, 
+//     //             emergencyGovernanceDescription
+//     //         ).send({amount : 10});
+//     //         await triggerEmergencyControlOperation.confirmation();
+            
+//     //         const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
+//     //         const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get('1');
+
+//     //         const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+//     //         assert.equal(bobStakedMvkBalance.balance, MVK(10));
+
+//     //         assert.equal(emergencyGovernanceProposal.title,           emergencyGovernanceTitle);
+//     //         assert.equal(emergencyGovernanceProposal.description,     emergencyGovernanceDescription);
+//     //         assert.equal(emergencyGovernanceProposal.status,          false);
+//     //         assert.equal(emergencyGovernanceProposal.dropped,         false);
+//     //         assert.equal(emergencyGovernanceProposal.executed,        false);
+//     //         assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes,        0);
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('alice cannot trigger another emergency governance at the same time (no staked MVK, no tez sent)', async () => {
+//     //     try{        
+
+//     //         await signerFactory(alice.sk);
+//     //         const failTriggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("New Emergency Again", "Help please.");
+//     //         await chai.expect(failTriggerEmergencyControlOperation.send()).to.be.eventually.rejected;
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('alice cannot trigger another emergency governance at the same time (enough staked MVK, enough tez sent)', async () => {
+//     //     try{        
+
+//     //         await signerFactory(alice.sk);
+
+//     //         // alice stakes 10 MVK
+//     //         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //             {
+//     //                 add_operator: {
+//     //                     owner: alice.pkh,
+//     //                     operator: doormanAddress.address,
+//     //                     token_id: 0,
+//     //                 },
+//     //             }])
+//     //             .send()
+//     //         await updateOperatorsOperation.confirmation();
+            
+//     //         const userStake = MVK(10);
+//     //         const aliceStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+//     //         await aliceStakeMvkOperation.confirmation();
+
+//     //         const aliceStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+//     //         assert.equal(aliceStakedMvkBalance.balance, MVK(10));
+
+//     //         const failTriggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl("New Emergency Again", "Help please.");
+//     //         await chai.expect(failTriggerEmergencyControlOperation.send({ amount : 10})).to.be.eventually.rejected;
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('eve cannot vote for emergency control (no staked MVK)', async () => {
+//     //     try{        
+
+//     //         await signerFactory(eve.sk);
+//     //         const failVoteForEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1);
+//     //         await chai.expect(failVoteForEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('eve cannot vote for emergency control (not enough staked MVK)', async () => {
+//     //     try{        
+
+//     //         await signerFactory(eve.sk);
+
+//     //         // eve stakes 4 MVK
+//     //         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //             {
+//     //                 add_operator: {
+//     //                     owner: eve.pkh,
+//     //                     operator: doormanAddress.address,
+//     //                     token_id: 0,
+//     //                 },
+//     //             }])
+//     //             .send()
+//     //         await updateOperatorsOperation.confirmation();
+            
+//     //         const userStake = MVK(4);
+//     //         const eveStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+//     //         await eveStakeMvkOperation.confirmation();
+
+//     //         const eveStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+//     //         assert.equal(eveStakedMvkBalance.balance, userStake);
+
+//     //         const failVoteForEmergencyEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1);
+//     //         await chai.expect(failVoteForEmergencyEmergencyControlOperation.send()).to.be.eventually.rejected;
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('eve can vote for emergency control (enough staked MVK)', async () => {
+//     //     try{        
+
+//     //         await signerFactory(eve.sk);
+
+//     //         // eve update operators
+//     //         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //         {
+//     //             add_operator: {
+//     //                 owner: eve.pkh,
+//     //                 operator: doormanAddress.address,
+//     //                 token_id: 0,
+//     //             },
+//     //         }])
+//     //         .send()
+//     //         await updateOperatorsOperation.confirmation();
+
+//     //         // eve stakes another 6 MVK
+//     //         const userStake = MVK(6);
+//     //         const eveStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+//     //         await eveStakeMvkOperation.confirmation();
+
+//     //         const eveStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+//     //         assert.equal(eveStakedMvkBalance.balance, MVK(10));
+
+//     //         const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1).send();
+//     //         await voteForEmergencyControlOperation.confirmation();
+
+//     //         const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
+//     //         const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get(1);
+
+//     //         assert.equal(emergencyGovernanceProposal.status,          false);
+//     //         assert.equal(emergencyGovernanceProposal.dropped,         false);
+//     //         assert.equal(emergencyGovernanceProposal.executed,        false);
+//     //         assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes, MVK(10));
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('eve cannot vote for emergency control again', async () => {
+//     //     try{        
+
+//     //         await signerFactory(eve.sk);
+//     //         const failVoteAgainOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(1);
+//     //         await chai.expect(failVoteAgainOperation.send()).to.be.eventually.rejected;
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('eve cannot drop emergency control (not creator)', async () => {
+//     //     try{        
+
+//     //         await signerFactory(eve.sk);
+//     //         const failDropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
+//     //         await chai.expect(failDropEmergencyControlOperation.send()).to.be.eventually.rejected;
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('bob can drop emergency control (creator)', async () => {
+//     //     try{        
+            
+//     //         await signerFactory(bob.sk);
+//     //         const dropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance().send();
+//     //         await dropEmergencyControlOperation.confirmation();
+
+//     //         const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
+//     //         const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get('1');
+
+//     //         assert.equal(emergencyGovernanceProposal.status,          false);
+//     //         assert.equal(emergencyGovernanceProposal.dropped,         true);
+//     //         assert.equal(emergencyGovernanceProposal.executed,        false);
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('bob cannot drop emergency control again', async () => {
+//     //     try{        
+
+//     //         await signerFactory(bob.sk);
+//     //         const failDropEmergencyControlOperation = await emergencyGovernanceInstance.methods.dropEmergencyGovernance();
+//     //         await chai.expect(failDropEmergencyControlOperation.send()).to.be.eventually.rejected;
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('alice can trigger emergency control after previous one is dropped', async () => {
+//     //     try{        
+
+//     //         await signerFactory(alice.sk);
+
+//     //         const emergencyGovernanceTitle       = "New Emergency By Alice";
+//     //         const emergencyGovernanceDescription = "Critical flaw detected in contract.";
+
+//     //         // bob triggers emergency Governance
+//     //         const triggerEmergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
+//     //             emergencyGovernanceTitle, 
+//     //             emergencyGovernanceDescription
+//     //         ).send({amount : 10});
+//     //         await triggerEmergencyControlOperation.confirmation();
+            
+//     //         const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
+//     //         const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get('2');
+
+//     //         assert.equal(emergencyGovernanceProposal.title,           emergencyGovernanceTitle);
+//     //         assert.equal(emergencyGovernanceProposal.description,     emergencyGovernanceDescription);
+//     //         assert.equal(emergencyGovernanceProposal.status,          false);
+//     //         assert.equal(emergencyGovernanceProposal.dropped,         false);
+//     //         assert.equal(emergencyGovernanceProposal.executed,        false);
+//     //         assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes,        0);
+
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
+
+//     // it('bob stakes more MVK, votes for emergency control, and triggers break glass', async () => {
+//     //     try{        
+
+//     //         const emergencyGovernanceProposalId = 2;
+
+//     //         await signerFactory(bob.sk);
+//     //         const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+//     //             {
+//     //                 add_operator: {
+//     //                     owner: bob.pkh,
+//     //                     operator: doormanAddress.address,
+//     //                     token_id: 0,
+//     //                 },
+//     //             }])
+//     //             .send()
+//     //         await updateOperatorsOperation.confirmation();
+
+//     //         // bob stakes another 20 MVK
+//     //         const userStake = MVK(20);
+//     //         const bobStakeMvkOperation = await doormanInstance.methods.stake(userStake).send();
+//     //         await bobStakeMvkOperation.confirmation();
+
+//     //         const bobStakedMvkBalance    = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
+//     //         const bobTotalStakedMvkBalance = MVK(30); // 10 from earlier test, 20 from here
+//     //         assert.equal(bobStakedMvkBalance.balance, bobTotalStakedMvkBalance);
+
+//     //         // bob votes for emergency control
+//     //         const voteForEmergencyControlOperation = await emergencyGovernanceInstance.methods.voteForEmergencyControl(emergencyGovernanceProposalId).send();
+//     //         await voteForEmergencyControlOperation.confirmation();
+
+//     //         // check that glass has been broken
+//     //         const updatedEmergencyGovernanceStorage   = await emergencyGovernanceInstance.storage();
+//     //         const emergencyGovernanceProposal         = await updatedEmergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyGovernanceProposalId);
+
+//     //         assert.equal(emergencyGovernanceProposal.status,          true);
+//     //         assert.equal(emergencyGovernanceProposal.executed,        true);
+//     //         assert.equal(emergencyGovernanceProposal.dropped,         false);
+//     //         assert.equal(emergencyGovernanceProposal.totalStakedMvkVotes, MVK(30));
+//     //         assert.equal(emergencyGovernanceProposal.stakedMvkRequiredForBreakGlass, MVK(28));
+
+//     //         const updatedDoormanStorage      = await doormanInstance.storage();
+//     //         const updatedDelegationStorage   = await delegationInstance.storage();
+//     //         const updatedCouncilStorage      = await councilInstance.storage();
+//     //         const updatedVestingStorage      = await vestingInstance.storage();
+//     //         const updatedTreasuryStorage     = await treasuryInstance.storage();
+//     //         const updatedBreakGlassStorage   = await breakGlassInstance.storage();
+
+//     //         // doorman break glass, and break glass configs
+//     //         assert.equal(updatedDoormanStorage.admin, breakGlassAddress.address);
+//     //         assert.equal(updatedDoormanStorage.breakGlassConfig.compoundIsPaused, true);
+//     //         assert.equal(updatedDoormanStorage.breakGlassConfig.stakeIsPaused, true);
+//     //         assert.equal(updatedDoormanStorage.breakGlassConfig.unstakeIsPaused, true);
+
+//     //         // delegation break glass, and break glass configs
+//     //         assert.equal(updatedDelegationStorage.admin, breakGlassAddress.address);
+//     //         assert.equal(updatedDelegationStorage.breakGlassConfig.delegateToSatelliteIsPaused, true);
+//     //         assert.equal(updatedDelegationStorage.breakGlassConfig.registerAsSatelliteIsPaused, true);
+//     //         assert.equal(updatedDelegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused, true);
+//     //         assert.equal(updatedDelegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused, true);
+//     //         assert.equal(updatedDelegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused, true);
+
+//     //         // council, vesting, treasury, break glass 
+//     //         assert.equal(updatedCouncilStorage.admin, breakGlassAddress.address);
+//     //         assert.equal(updatedVestingStorage.admin, breakGlassAddress.address);
+//     //         assert.equal(updatedTreasuryStorage.admin, breakGlassAddress.address);
+//     //         assert.equal(updatedBreakGlassStorage.admin, breakGlassAddress.address);            
+            
+//     //     } catch (e){
+//     //         console.log(e)
+//     //     }
+//     // });
 
 // });

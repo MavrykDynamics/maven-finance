@@ -1,0 +1,54 @@
+type userStakeBalanceRecordType is [@layout:comb] record[
+    balance                                : nat;
+    participationFeesPerShare              : nat;
+    // emergencyGovernanceLastVotedTimestamp  : timestamp;
+]
+type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
+
+type updateSatelliteBalanceParams is (address)
+
+type doormanBreakGlassConfigType is [@layout:comb] record [
+    stakeIsPaused           : bool;
+    unstakeIsPaused         : bool;
+    compoundIsPaused        : bool;
+]
+
+type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
+
+type setLambdaType is [@layout:comb] record [
+      name                  : string;
+      func_bytes            : bytes;
+]
+type lambdaLedgerType is big_map(string, bytes)
+
+type stakeType is 
+  StakeAction of unit
+| UnstakeAction of unit
+
+type metadata is big_map (string, bytes);
+
+type doormanStorage is [@layout:comb] record [
+  admin                     : address;
+  mvkTokenAddress           : address;
+  metadata                  : metadata;
+  
+  minMvkAmount              : nat;
+  
+  whitelistContracts        : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
+  generalContracts          : generalContractsType;
+  
+  breakGlassConfig          : doormanBreakGlassConfigType;
+  
+  userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
+
+  stakedMvkTotalSupply      : nat; // current total staked MVK
+  unclaimedRewards          : nat; // current exit fee pool rewards
+
+  logExitFee                : nat; // to be removed after testing
+  logFinalAmount            : nat; // to be removed after testing
+
+  accumulatedFeesPerShare   : nat;
+
+  lambdaLedger              : lambdaLedgerType;
+]
+

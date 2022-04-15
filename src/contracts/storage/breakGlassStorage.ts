@@ -13,19 +13,33 @@ const config = {
     actionExpiryDays           : 3,
 }
 
-export const breakGlassStorage: breakGlassStorageType = {
-  admin: bob.pkh,
-  mvkTokenAddress: "",
+const metadata = MichelsonMap.fromLiteral({
+  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+  data: Buffer.from(
+    JSON.stringify({
+      name: 'MAVRYK Break Glass Contract',
+      version: 'v1.0.0',
+      authors: ['MAVRYK Dev Team <contact@mavryk.finance>']
+    }),
+    'ascii',
+  ).toString('hex'),
+})
 
-  config: config,
+export const breakGlassStorage: breakGlassStorageType = {
+  admin               : bob.pkh,
+  mvkTokenAddress     : "",
+  metadata            : metadata,
+
+  config              : config,
   glassBroken         : false,
-  councilMembers      : [],
+  councilMembers      : MichelsonMap.fromLiteral({}),
   developerAddress    : zeroAddress,
 
   whitelistContracts  : MichelsonMap.fromLiteral({}),
   generalContracts    : MichelsonMap.fromLiteral({}),
   
   actionsLedger       : MichelsonMap.fromLiteral({}),
-  actionCounter       : new BigNumber(1)
+  actionCounter       : new BigNumber(1),
 
+  lambdaLedger        : MichelsonMap.fromLiteral({})
 }
