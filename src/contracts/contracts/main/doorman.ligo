@@ -12,6 +12,7 @@
 // Treasury types for farmClaim
 #include "../partials/types/treasuryTypes.ligo"
 
+const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
 const noOperations : list (operation) = nil;
 type return is list (operation) * doormanStorage
 

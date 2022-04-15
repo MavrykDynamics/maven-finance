@@ -98,7 +98,7 @@ type councilActionTransferType is [@layout:comb] record [
     purpose               : string;           
 ]
 
-type councilActionAddMemberType is  [@layout:comb] record [
+type councilActionAddMemberType is [@layout:comb] record [
     memberAddress       : address;
     memberName          : string;
     memberWebsite       : string;
@@ -127,7 +127,7 @@ type councilStorage is [@layout:comb] record [
     metadata                    : metadata;
 
     config                      : councilConfigType;
-    councilMembers              : councilMembersType;  // set of council member addresses
+    councilMembers              : councilMembersType;  // map of council member
     
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType;

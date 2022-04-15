@@ -9,7 +9,7 @@ export type breakGlassStorageType = {
 
   config: {};
   glassBroken         : boolean;
-  councilMembers      : Array<string>;
+  councilMembers      : MichelsonMap<MichelsonMapKey, unknown>;
   developerAddress    : string;
 
   whitelistContracts  : MichelsonMap<MichelsonMapKey, unknown>;
