@@ -529,10 +529,10 @@ describe('Contracts Deployment for Tests', async () => {
     .withContractCall(council.contract.methods.setLambda("lambdaUpdateConfig"                           , councilLambdas[2]))  // updateConfig
     .withContractCall(council.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , councilLambdas[3]))  // updateWhitelistContracts
     .withContractCall(council.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , councilLambdas[4]))  // updateGeneralContracts
-    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddMember"                 , councilLambdas[5]))  // councilActionAddMember
-    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveMember"              , councilLambdas[6]))  // councilActionRemoveMember
-    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionChangeMember"              , councilLambdas[7]))  // councilActionChangeMember
-    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateMemberInfo"          , councilLambdas[8]))  // councilActionUpdateMemberInfo
+    .withContractCall(council.contract.methods.setLambda("lambdaUpdateCouncilMemberInfo"                , councilLambdas[5]))  // updateCouncilMemberInfo
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddMember"                 , councilLambdas[6]))  // councilActionAddMember
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveMember"              , councilLambdas[7]))  // councilActionRemoveMember
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionChangeMember"              , councilLambdas[8]))  // councilActionChangeMember
     .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateBlocksPerMinute"     , councilLambdas[9]))  // councilActionUpdateBlocksPerMinute
     .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddVestee"                 , councilLambdas[10])) // councilActionAddVestee
     .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveVestee"              , councilLambdas[11])) // councilActionRemoveVestee

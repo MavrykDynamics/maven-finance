@@ -67,6 +67,28 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  updateCouncilMemberInfo lambda - update the info of a council member *)
+function lambdaUpdateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : councilStorage) : return is
+block {
+
+    // Check if sender is a member of the council
+    var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
+        Some (_info) -> _info
+    |   None -> failwith("Error. You are not a member of the council")
+    ];
+    
+    // Update member info
+    councilMember.name      := councilMemberInfo.name;
+    councilMember.website   := councilMemberInfo.website;
+    councilMember.image     := councilMemberInfo.image;
+
+    // Update storage
+    s.councilMembers[Tezos.sender]  := councilMember;
+
+} with (noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -235,28 +257,6 @@ block {
 
     // increment action counter
     s.actionCounter := s.actionCounter + 1n;
-
-} with (noOperations, s)
-
-
-
-(*  councilActionUpdateMemberInfo lambda - update the info of a council member *)
-function lambdaCouncilActionUpdateMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : councilStorage) : return is
-block {
-
-    // Check if sender is a member of the council
-    var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
-        Some (_info) -> _info
-    |   None -> failwith("Error. You are not a member of the council")
-    ];
-    
-    // Update member info
-    councilMember.name      := councilMemberInfo.name;
-    councilMember.website   := councilMemberInfo.website;
-    councilMember.image     := councilMemberInfo.image;
-
-    // Update storage
-    s.councilMembers[Tezos.sender]  := councilMember;
 
 } with (noOperations, s)
 
