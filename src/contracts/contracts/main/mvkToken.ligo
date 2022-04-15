@@ -4,139 +4,52 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-////
-// COMMON TYPES
-////
-type tokenId is nat;
-type tokenBalance is nat;
-type operator is address
-type owner is address
-type treasury is string
-type forceTransfer is bool
-
-////
-// STORAGE
-////
-type tokenMetadataInfo is record [
-  token_id          : tokenId;
-  token_info        : map(string, bytes);
-]
-type ledger is big_map(address, tokenBalance);
-type operators is big_map((owner * operator * nat), unit)
-
-type tokenMetadata is big_map(tokenId, tokenMetadataInfo);
-type metadata is big_map (string, bytes);
-
-type storage is record [
-  admin                 : address;
-
-  generalContracts      : generalContractsType;    // map of contract addresses
-  whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
-  metadata              : metadata;
-  token_metadata        : tokenMetadata;
-  totalSupply           : tokenBalance;
-  maximumSupply         : tokenBalance;
-  ledger                : ledger;
-  operators             : operators
-]
-
-////
-// RETURN TYPES
-////
-(* define return for readability *)
-type return is list (operation) * storage
-(* define noop for readability *)
-const noOperations : list (operation) = nil;
-
-////
-// INPUTS
-////
-(* Transfer entrypoint inputs *)
-type transferDestination is [@layout:comb] record[
-  to_: address;
-  token_id: tokenId;
-  amount: tokenBalance;
-]
-type transfer is [@layout:comb] record[
-  from_: address;
-  txs: list(transferDestination);
-]
-type transferParams is list(transfer)
-
-(* Balance_of entrypoint inputs *)
-type balanceOfRequest is [@layout:comb] record[
-  owner: owner;
-  token_id: tokenId;
-]
-type balanceOfResponse is [@layout:comb] record[
-  request: balanceOfRequest;
-  balance: tokenBalance;
-]
-type balanceOfParams is [@layout:comb] record[
-  requests: list(balanceOfRequest);
-  callback: contract(list(balanceOfResponse));
-]
-
-(* Update_operators entrypoint inputs *)
-type operatorParameter is [@layout:comb] record[
-  owner: owner;
-  operator: operator;
-  token_id: tokenId;
-]
-type updateOperator is 
-  Add_operator of operatorParameter
-| Remove_operator of operatorParameter
-type updateOperatorsParams is list(updateOperator)
-
-(* AssertMetadata entrypoint inputs *)
-type assertMetadataParams is [@layout:comb] record[
-  key: string;
-  hash: bytes;
-]
-
-(* GetTotalSupply & GetMaximumSupply entrypoint inputs *)
-type getSingleSupplyParamsType is contract(tokenBalance)
-
-(* GetTotalAndMaximumSupply entrypoint inputs *)
-type getTotalAndMaximumSupplyParamsType is contract(tokenBalance * tokenBalance)
-
-(* GetDesiredMintPossibility entrypoint inputs *)
-type getDesiredMintPossibilityParams is contract(tokenBalance)
-
-(* Mint entrypoint inputs *)
-type mintParams is (owner * tokenBalance)
-
-(* OnStakeChange entrypoint inputs *)
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
-type onStakeChangeParamsType is (owner * tokenBalance * stakeType)
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/types/mvkTokenTypes.ligo"
 
 ////
 // ENTRYPOINTS
 ////
 type action is
-  Transfer of transferParams
+  Transfer of transferType
 | Balance_of of balanceOfParams
 | Update_operators of updateOperatorsParams
 | AssertMetadata of assertMetadataParams
-| GetTotalSupply of getSingleSupplyParamsType
-| GetMaximumSupply of getSingleSupplyParamsType
-| GetTotalAndMaximumSupply of getTotalAndMaximumSupplyParamsType
 | Mint of mintParams
-| OnStakeChange of onStakeChangeParamsType
 | UpdateWhitelistContracts of updateWhitelistContractsParams
 | UpdateGeneralContracts of updateGeneralContractsParams
 
 ////
+// RETURN TYPES
+////
+(* define return for readability *)
+type return is list (operation) * mvkTokenStorage
+(* define noop for readability *)
+const noOperations : list (operation) = nil;
+
+////
 // FUNCTIONS
 ////
-(* Helper functions *)
-function getBalance(const owner : owner; const store : storage) : tokenBalance is
-  case Big_map.find_opt(owner, store.ledger) of
-    Some (v) -> v
+(* View functions *)
+(* getBalance View *)
+[@view] function getBalance(const user: owner; const store: mvkTokenStorage) : tokenBalance is
+  case Big_map.find_opt(user, store.ledger) of [
+    Some (_v) -> _v
   | None -> 0n
-  end
+  ]
+
+(* GetTotalSupply View *)
+[@view] function getTotalSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
+  store.totalSupply
+
+(* GetMaximumSupply View *)
+[@view] function getMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance is
+  store.maximumSupply
+
+(* GetTotalAndMaximumSupply View *)
+[@view] function getTotalAndMaximumSupply(const _: unit; const store: mvkTokenStorage) : tokenBalance * tokenBalance is
+  (store.totalSupply, store.maximumSupply)
+
 
 (* Helper function to validate *)
 function checkTokenId(const tokenId: tokenId): unit is
@@ -155,13 +68,13 @@ function checkOperator(const owner: owner; const token_id: tokenId; const operat
   if owner = Tezos.sender or Big_map.mem((owner, Tezos.sender, token_id), operators) then unit
   else failwith ("FA2_NOT_OPERATOR")
 
-function checkSenderIsDoormanContract(const store: storage): unit is
-  case Map.find_opt("doorman", store.generalContracts) of
+function checkSenderIsDoormanContract(const store: mvkTokenStorage): unit is
+  case Map.find_opt("doorman", store.generalContracts) of [
     Some (v) -> if v =/= Tezos.sender then failwith("ONLY_DOORMAN_CONTRACT_ALLOWED") else unit
   | None -> failwith("DOORMAN_CONTRACT_NOT_FOUND")
-  end
+  ]
 
-function checkSenderIsAdmin(const store: storage): unit is
+function checkSenderIsAdmin(const store: mvkTokenStorage): unit is
   if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
@@ -172,8 +85,24 @@ function checkNoAmount(const _p: unit): unit is
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: mvkTokenStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
+
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
+
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: mvkTokenStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
 
 (* Transfer Entrypoint *)
 function mergeOperations(const first: list (operation); const second: list (operation)) : list (operation) is 
@@ -183,14 +112,14 @@ function mergeOperations(const first: list (operation); const second: list (oper
     second
   )
 
-function transfer(const transferParams: transferParams; const store: storage): return is
+function transfer(const transferType: transferType; const store: mvkTokenStorage): return is
   block{
     function makeTransfer(const account: return; const transferParam: transfer) : return is
       block {
         const owner: owner = transferParam.from_;
         const txs: list(transferDestination) = transferParam.txs;
         
-        function transferTokens(const accumulator: storage; const destination: transferDestination): storage is
+        function transferTokens(const accumulator: mvkTokenStorage; const destination: transferDestination): mvkTokenStorage is
           block {
             const tokenId: tokenId = destination.token_id;
             const tokenAmount: tokenBalance = destination.amount;
@@ -222,21 +151,21 @@ function transfer(const transferParams: transferParams; const store: storage): r
           } with accumulator with record[ledger=updatedLedger];
 
           const updatedOperations: list(operation) = (nil: list(operation));
-          const updatedStorage: storage = List.fold(transferTokens, txs, account.1);
+          const updatedStorage: mvkTokenStorage = List.fold(transferTokens, txs, account.1);
       } with (mergeOperations(updatedOperations,account.0), updatedStorage)
-  } with List.fold(makeTransfer, transferParams, ((nil: list(operation)), store))
+  } with List.fold(makeTransfer, transferType, ((nil: list(operation)), store))
 
 (* Balance_of Entrypoint *)
-function balanceOf(const balanceOfParams: balanceOfParams; const store: storage) : return is
+function balanceOf(const balanceOfParams: balanceOfParams; const store: mvkTokenStorage) : return is
   block{
     function retrieveBalance(const request: balanceOfRequest): balanceOfResponse is
       block{
         const requestOwner: owner = request.owner;
         const tokenBalance: tokenBalance = 
-          case Big_map.find_opt(requestOwner, store.ledger) of
+          case Big_map.find_opt(requestOwner, store.ledger) of [
             Some (b) -> b
           | None -> 0n
-          end;
+          ];
         const response: balanceOfResponse = record[request=request;balance=tokenBalance];
       } with (response);
       const requests: list(balanceOfRequest) = balanceOfParams.requests;
@@ -244,18 +173,6 @@ function balanceOf(const balanceOfParams: balanceOfParams; const store: storage)
       const responses: list(balanceOfResponse) = List.map(retrieveBalance, requests);
       const operation: operation = Tezos.transaction(responses, 0tez, callback);
   } with (list[operation],store)
-
-(* GetTotalSupply Entrypoint *)
-function getTotalSupply(const getSingleSupplyParams: getSingleSupplyParamsType; const store: storage) : return is
-  (list[Tezos.transaction(store.totalSupply, 0tez, getSingleSupplyParams)], store)
-
-(* GetMaximumSupply Entrypoint *)
-function getMaximumSupply(const getSingleSupplyParams: getSingleSupplyParamsType; const store: storage) : return is
-  (list[Tezos.transaction(store.maximumSupply, 0tez, getSingleSupplyParams)], store)
-
-(* GetTotalAndMaximumSupply Entrypoint *)
-function getTotalAndMaximumSupply(const getTotalAndMaximumSupplyParams: getTotalAndMaximumSupplyParamsType; const store: storage) : return is
-  (list[Tezos.transaction((store.totalSupply, store.maximumSupply), 0tez, getTotalAndMaximumSupplyParams)], store)
 
 (* Update_operators Entrypoint *)
 function addOperator(const operatorParameter: operatorParameter; const operators: operators): operators is
@@ -282,14 +199,14 @@ function removeOperator(const operatorParameter: operatorParameter; const operat
     const operatorKey: (owner * operator * tokenId) = (owner, operator, tokenId)
   } with(Big_map.remove(operatorKey, operators))
 
-function updateOperators(const updateOperatorsParams: updateOperatorsParams; const store: storage) : return is
+function updateOperators(const updateOperatorsParams: updateOperatorsParams; const store: mvkTokenStorage) : return is
   block{
     var updatedOperators: operators := List.fold(
       function(const operators: operators; const updateOperator: updateOperator): operators is
-        case updateOperator of
+        case updateOperator of [
           Add_operator (param) -> addOperator(param, operators)
         | Remove_operator (param) -> removeOperator(param, operators)
-        end
+        ]
       ,
       updateOperatorsParams,
       store.operators
@@ -297,26 +214,26 @@ function updateOperators(const updateOperatorsParams: updateOperatorsParams; con
   } with(noOperations,store with record[operators=updatedOperators])
 
 (* AssertMetadata Entrypoint *)
-function assertMetadata(const assertMetadataParams: assertMetadataParams; const store: storage): return is
+function assertMetadata(const assertMetadataParams: assertMetadataParams; const store: mvkTokenStorage): return is
   block{
     const metadataKey: string = assertMetadataParams.key;
     const metadataHash: bytes = assertMetadataParams.hash;
-    case Big_map.find_opt(metadataKey, store.metadata) of
+    case Big_map.find_opt(metadataKey, store.metadata) of [
       Some (v) -> if v =/= metadataHash then failwith("METADATA_HAS_A_WRONG_HASH") else skip
     | None -> failwith("METADATA_NOT_FOUND")
-    end
+    ]
   } with (noOperations, store)
 
 (* Mint Entrypoint *)
-function mint(const mintParams: mintParams; const store : storage) : return is
+function mint(const mintParams: mintParams; const store : mvkTokenStorage) : return is
   block {
     const recipientAddress: owner = mintParams.0;
     const mintedTokens: tokenBalance = mintParams.1;
 
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
-    if checkInWhitelistContracts(Tezos.sender, store) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+    if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
-    // Check if the minted token exceed the maximumSupply defined in the storage
+    // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorage
     const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
     if tempTotalSupply > store.maximumSupply then failwith("Maximum total supply of MVK exceeded") else skip;
 
@@ -324,59 +241,25 @@ function mint(const mintParams: mintParams; const store : storage) : return is
     const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
     const newTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
 
-    // Update storage
+    // Update mvkTokenStorage
     const updatedLedger: ledger = Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
   } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
 
-(* OnStakeChange Entrypoint *)
-(* type onStakeChangeParamsType is (owner * tokenBalance * stakeType) : (address * nat * (StakeAction : unit, UnstakeAction : unit) )  *)
-function onStakeChange(const onStakeChangeParams: onStakeChangeParamsType; const store: storage): return is
-  block{
-    // check sender is from doorman contract or vesting contract
-    if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
-    
-    const owner: owner = onStakeChangeParams.0;
-    var ownerBalance: tokenBalance := getBalance(owner, store);
-    const value: tokenBalance = onStakeChangeParams.1;
-    const stakeType: stakeType = onStakeChangeParams.2;
-
-    case stakeType of
-      StakeAction (_v) -> block{
-        // stake -> decrease user balance in mvk ledger 
-        (* Balance check *)
-        checkBalance(ownerBalance, value);
-        (* Update sender balance *)
-        ownerBalance := abs(ownerBalance - value);
-      }
-      // unstake -> increase user balance in mvk ledger
-      // claim   -> increase user balance in mvk ledger (from vesting)
-    | UnstakeAction (_v) -> ownerBalance := ownerBalance + value
-    end;
-
-    (* Update ledger *)
-    const updatedLedger = Big_map.update(owner, Some(ownerBalance), store.ledger);
-  } with (noOperations, store with record[ledger=updatedLedger])
-
 (* Main entrypoint *)
-function main (const action : action; const store : storage) : return is
+function main (const action : action; const store : mvkTokenStorage) : return is
   block{
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);
   } with(
-    case action of
+    case action of [
         Transfer (params) -> transfer(params, store)
       | Balance_of (params) -> balanceOf(params, store)
       | Update_operators (params) -> updateOperators(params, store)
       | AssertMetadata (params) -> assertMetadata(params, store)
 
-      | GetTotalSupply (params) -> getTotalSupply(params, store)
-      | GetMaximumSupply (params) -> getMaximumSupply(params, store)
-      | GetTotalAndMaximumSupply (params) -> getTotalAndMaximumSupply(params, store)
-
       | Mint (params) -> mint(params, store)
-      | OnStakeChange (params) -> onStakeChange(params, store)
 
       | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
-    end
+    ]
   )

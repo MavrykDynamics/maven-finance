@@ -137,7 +137,7 @@
 #     #     print('test_bob_cannot_claim_before_cliff_period')    
 #     #     res = self.vestingContract.addVestee(bob, 500000000, 6,24).interpret(storage=init_vesting_storage, sender=admin)            
 #     #     with self.raisesMichelsonError(error_unable_to_claim_now):
-#     #         self.vestingContract.claim().interpret(storage=res.storage, sender=bob)
+#     #         self.vestingContract.claim().interpret(storage=res.storage, sender=alice)
 
 #     # def test_bob_can_claim_after_cliff_period(self):            
         
@@ -271,7 +271,7 @@
 #     #     self.assertEqual("LOCKED", lockBobVestee.storage['vesteeLedger'][bob]['status'])
 
 #     #     with self.raisesMichelsonError(error_vestee_is_locked):
-#     #         self.vestingContract.claim().interpret(storage=lockBobVestee.storage, sender=bob)
+#     #         self.vestingContract.claim().interpret(storage=lockBobVestee.storage, sender=alice)
 
 #     #     print('----')
 #     #     print('test_admin_can_lock_bob_from_claiming')    
@@ -409,7 +409,7 @@
 
 #     #     addVesteeBob = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=init_vesting_storage, sender=admin)        
 #     #     with self.raisesMichelsonError(error_vestee_not_found):
-#     #         self.vestingContract.claim().interpret(storage=addVesteeBob.storage, sender=alice)
+#     #         self.vestingContract.claim().interpret(storage=addVesteeBob.storage, sender=bob)
 
 #     #     print('----')
 #     #     print('test_vestee_can_only_claim_for_his_share_and_not_for_others')        

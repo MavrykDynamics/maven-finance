@@ -7,91 +7,18 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
-type tokenAmountType   is nat
+// MvkToken Types
+#include "../partials/types/mvkTokenTypes.ligo"
 
-type transferDestination is [@layout:comb] record[
-  to_       : address;
-  token_id  : nat;
-  amount    : tokenAmountType;
-]
-type transfer is [@layout:comb] record[
-  from_: address;
-  txs: list(transferDestination);
-]
-type fa2TransferType is list(transfer)
-type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
-
-type operator is address
-type owner is address
-type tokenId is nat;
-
-type breakGlassConfigType is [@layout:comb] record [
-    transferIsPaused            : bool; 
-    mintMvkAndTransferIsPaused  : bool;
-]
-
-
-type tezType             is unit
-type fa12TokenType       is address
-type fa2TokenType        is [@layout:comb] record [
-  tokenContractAddress    : address;
-  tokenId                 : nat;
-]
-
-type tokenType       is
-| Tez                     of tezType         // unit
-| Fa12                    of fa12TokenType   // address
-| Fa2                     of fa2TokenType    // record [ tokenContractAddress : address; tokenId : nat; ]
-
-type transferTokenType is [@layout:comb] record [
-    from_           : address;
-    to_             : address;
-    amt             : tokenAmountType;
-    token           : tokenType;
-]
-
-type transferDestinationType is [@layout:comb] record[
-  to_       : address;
-  token     : tokenType;
-  amount    : tokenAmountType;
-]
-// type transferActionType is [@layout:comb] record[
-//   txs       : list(transferDestinationType);
-// ]
-
-// type transferActionRecordType is [@layout:comb] record[
-//   txs       : list(transferDestinationType);
-// ]
-type transferActionType is list(transferDestinationType);
-
-type mintTokenType is (address * nat)
-type mintMvkAndTransferActionType is [@layout:comb] record [
-    to_             : address;
-    amt             : nat;
-]
-
-
-type updateSatelliteBalanceParams is (address * nat * nat)
-
-
-type storage is [@layout:comb] record [
-    admin                      : address;
-    mvkTokenAddress            : address;
-
-    breakGlassConfig           : breakGlassConfigType;
-
-    whitelistContracts         : whitelistContractsType;
-    whitelistTokenContracts    : whitelistTokenContractsType;
-    generalContracts           : generalContractsType;
-]
-
-
+// Treasury Types
+#include "../partials/types/treasuryTypes.ligo"
 
 type treasuryAction is 
     | Default                        of unit
 
     // Housekeeping Config Entrypoints
     | SetAdmin                       of (address)
+    | UpdateMetadata                  of (string * bytes)
     | UpdateWhitelistContracts       of updateWhitelistContractsParams
     | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts         of updateGeneralContractsParams
@@ -104,26 +31,26 @@ type treasuryAction is
 
     // Main Entrypoints
     | Transfer                       of transferActionType
-    | MintMvkAndTransfer             of mintMvkAndTransferActionType
+    | MintMvkAndTransfer             of mintMvkAndTransferType
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage
+type return is list (operation) * treasuryStorage
 
 // admin helper functions begin ---------------------------------------------------------
-function checkSenderIsAdmin(var s : storage) : unit is
+function checkSenderIsAdmin(var s : treasuryStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith("Only the administrator can call this entrypoint.");
 
-function checkSenderIsAllowed(const s: storage): unit is
+function checkSenderIsAllowed(const s: treasuryStorage): unit is
 block {
     // First check because a treasury without a factory should still be accessible
     if Tezos.sender = s.admin 
     then skip
     else{
-        const treasuryFactoryAddress: address = case s.whitelistContracts["treasuryFactory"] of
+        const treasuryFactoryAddress: address = case s.whitelistContracts["treasuryFactory"] of [
             Some (_address) -> _address
         |   None -> (failwith("Only Admin or Factory contract allowed"): address)
-        end;
+        ];
         if Tezos.sender = treasuryFactoryAddress then skip else failwith("Only Admin or Factory contract allowed");
     };
 } with(unit)
@@ -132,25 +59,62 @@ function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
         else failwith("This entrypoint should not receive any tez.");
 
+////
+// BREAK GLASS CHECKS
+////
+
+// break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
+function checkTransferIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.transferIsPaused then failwith("Transfer entrypoint is paused.")
+    else unit;
+
+function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith("MintMvkAndTransfer entrypoint is paused.")
+    else unit;
+
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
+
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+  } with (noOperations, s)
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: treasuryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+  } with (noOperations, s)
+
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
 #include "../partials/whitelistTokenContractsMethod.ligo"
+
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryStorage): return is
+  block {
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+  } with (noOperations, s)
 
 // admin helper functions end ---------------------------------------------------------
 
 // helper function to get mint entrypoint from token address
-function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintTokenType) is
+function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintParams) is
   case (Tezos.get_entrypoint_opt(
       "%mint",
-      token_address) : option(contract(mintTokenType))) of
+      token_address) : option(contract(mintParams))) of [
     Some(contr) -> contr
-  | None -> (failwith("Mint entrypoint not found") : contract(mintTokenType))
-  end;
+  | None -> (failwith("Mint entrypoint not found") : contract(mintParams))
+  ];
 
 (* Helper function to mint mvk/smvk tokens *)
 function mintTokens(
@@ -167,10 +131,10 @@ function mintTokens(
 function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceParams) is
   case (Tezos.get_entrypoint_opt(
       "%onStakeChange",
-      delegationAddress) : option(contract(updateSatelliteBalanceParams))) of
+      delegationAddress) : option(contract(updateSatelliteBalanceParams))) of [
     Some(contr) -> contr
   | None -> (failwith("onStakeChange entrypoint in Delegation Contract not found") : contract(updateSatelliteBalanceParams))
-  end;
+  ];
 
 
 ////
@@ -183,10 +147,10 @@ function transferFa12Token(const from_: address; const to_: address; const token
         const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
 
         const tokenContract: contract(fa12TransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of
+            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
                 Some (c) -> c
             |   None -> (failwith("Error. Transfer entrypoint not found in FA12 Token contract"): contract(fa12TransferType))
-            end;
+            ];
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenId: nat; const tokenContractAddress: address): operation is
@@ -205,16 +169,14 @@ block{
         ];
 
     const tokenContract: contract(fa2TransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of
+        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
             Some (c) -> c
         |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
-        end;
+        ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
-
-
 (*  setAdmin entrypoint *)
-function setAdmin(const newAdminAddress : address; var s : storage) : return is
+function setAdmin(const newAdminAddress : address; var s : treasuryStorage) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
@@ -224,11 +186,19 @@ block {
 
 } with (noOperations, s)
 
+(*  update the metadata at a given key *)
+function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : treasuryStorage) : return is
+block {
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+} with (noOperations, s)
 
 ////
 // Pause Functions
 ///
-function pauseAll(var s: storage) : return is
+function pauseAll(var s: treasuryStorage) : return is
 block {
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
@@ -242,7 +212,7 @@ block {
 
 } with (noOperations, s)
 
-function unpauseAll(var s : storage) : return is
+function unpauseAll(var s : treasuryStorage) : return is
 block {
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
@@ -256,7 +226,7 @@ block {
 
 } with (noOperations, s)
 
-function togglePauseTransfer(var s : storage) : return is
+function togglePauseTransfer(var s : treasuryStorage) : return is
 block {
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
@@ -266,7 +236,7 @@ block {
 
 } with (noOperations, s)
 
-function togglePauseMintMvkAndTransfer(var s : storage) : return is
+function togglePauseMintMvkAndTransfer(var s : treasuryStorage) : return is
 block {
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
@@ -278,8 +248,7 @@ block {
 
 
 (* transfer entrypoint *)
-// type transferTokenType is record [from_ : address; to_ : address; amt : nat; token : tokenType]
-function transfer(const transferTokenParams : transferActionType; var s : storage) : return is 
+function transfer(const transferTokenParams : transferActionType; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
@@ -287,18 +256,19 @@ block {
     // 2. Send transfer operation from Treasury account to user account
     // 3. Update user's satellite details in Delegation contract
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
-
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
+
+    // break glass check
+    checkTransferIsNotPaused(s);
 
     // const txs : list(transferDestinationType)   = transferTokenParams.txs;
     const txs : list(transferDestinationType)   = transferTokenParams;
     
-    const delegationAddress : address = case s.generalContracts["delegation"] of
+    const delegationAddress : address = case s.generalContracts["delegation"] of [
         Some(_address) -> _address
         | None -> failwith("Error. Delegation Contract is not found.")
-    end;
+    ];
     
     const mvkTokenAddress : address = s.mvkTokenAddress;
 
@@ -310,28 +280,28 @@ block {
         const amt          : tokenAmountType  = destination.amount;
         const from_        : address          = Tezos.self_address; // treasury
         
-        const transferTokenOperation : operation = case token of 
-            | Tez         -> transferTez((get_contract(to_) : contract(unit)), amt)
+        const transferTokenOperation : operation = case token of [
+            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address. Cannot transfer XTZ"): contract(unit)), amt)
             | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
             | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
-        end;
+        ];
 
         accumulator := transferTokenOperation # accumulator;
 
         // update user's satellite balance if MVK is transferred
-        const checkIfMvkToken : bool = case token of
+        const checkIfMvkToken : bool = case token of [
               Tez -> False
             | Fa12(_token) -> False
             | Fa2(token) -> block {
                     var mvkBool : bool := False;
                     if token.tokenContractAddress = mvkTokenAddress then mvkBool := True else mvkBool := False;                
                 } with mvkBool        
-        end;
+        ];
 
         if checkIfMvkToken = True then block {
             
             const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-                (to_, amt, 1n),
+                (to_),
                 0mutez,
                 updateSatelliteBalance(delegationAddress)
             );
@@ -349,7 +319,7 @@ block {
 
 (* mint and transfer entrypoint *)
 // type mintAndTransferType is record [to_ : address; amt : nat;]
-function mintMvkAndTransfer(const mintMvkAndTransfer : mintMvkAndTransferActionType ; var s : storage) : return is 
+function mintMvkAndTransfer(const mintMvkAndTransfer : mintMvkAndTransferType ; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
@@ -357,9 +327,10 @@ block {
     // 2. Send mint operation to MVK Token Contract
     // 3. Update user's satellite details in Delegation contract
 
-    var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s);
+    // break glass check
+    checkMintMvkAndTransferIsNotPaused(s);
 
-    if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith("Error. Sender is not allowed to call this entrypoint.")
       else skip;
 
     var operations : list(operation) := nil;
@@ -369,10 +340,10 @@ block {
 
     const mvkTokenAddress : address = s.mvkTokenAddress;
 
-    const delegationAddress : address = case s.generalContracts["delegation"] of
+    const delegationAddress : address = case s.generalContracts["delegation"] of [
       Some(_address) -> _address
       | None -> failwith("Error. Delegation Contract is not found.")
-    end;
+    ];
 
     const mintMvkTokensOperation : operation = mintTokens(
         to_,                // to address
@@ -381,7 +352,7 @@ block {
     ); 
 
     const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-        (to_, amt, 1n),
+        (to_),
         0mutez,
         updateSatelliteBalance(delegationAddress)
     );
@@ -392,12 +363,13 @@ block {
 } with (operations, s)
 
 
-function main (const action : treasuryAction; const s : storage) : return is 
-    case action of
+function main (const action : treasuryAction; const s : treasuryStorage) : return is 
+    case action of [
         | Default(_params)                              -> ((nil : list(operation)), s)
         
         // Housekeeping Config Entrypoints
-        | SetAdmin(parameters)                          -> setAdmin(parameters, s)  
+        | SetAdmin(parameters)                          -> setAdmin(parameters, s)
+        | UpdateMetadata(parameters)                    -> updateMetadata(parameters.0, parameters.1, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
@@ -411,4 +383,4 @@ function main (const action : treasuryAction; const s : storage) : return is
         // Main Entrypoints
         | Transfer(parameters)                          -> transfer(parameters, s)
         | MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
-    end
+    ]

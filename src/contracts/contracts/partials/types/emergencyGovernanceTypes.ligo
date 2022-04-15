@@ -1,0 +1,64 @@
+type voteType is (nat * timestamp)              // mvk amount, timestamp
+type voterMapType is map (address, voteType)
+type emergencyGovernanceRecordType is [@layout:comb] record [
+    proposerAddress                  : address;
+    executed                         : bool;
+    dropped                          : bool;
+
+    title                            : string;
+    description                      : string;   
+    voters                           : voterMapType; 
+    totalStakedMvkVotes              : nat;              
+    stakedMvkPercentageRequired      : nat;              // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
+    stakedMvkRequiredForBreakGlass   : nat;              // capture state of min staked MVK vote required
+    
+    startDateTime                    : timestamp;
+    startLevel                       : nat;              // block level of submission, used to order proposals
+    executedDateTime                 : timestamp;        // will follow startDateTime and be updated when executed
+    executedLevel                    : nat;              // will follow startLevel and be updated when executed
+    expirationDateTime               : timestamp;
+]
+
+type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType)
+
+type emergencyConfigType is record [
+    decimals                         : nat;   // decimals used for percentages
+    voteExpiryDays                   : nat;   // track time by tezos blocks - e.g. 2 days 
+    requiredFeeMutez                 : tez;   // fee for triggering emergency control - e.g. 100 tez -> change to MVK 
+    stakedMvkPercentageRequired      : nat;   // minimum staked MVK percentage amount required to activate break glass 
+    minStakedMvkRequiredToVote       : nat;   // minimum staked MVK balance of user required to vote for emergency governance
+    minStakedMvkRequiredToTrigger    : nat;   // minimum staked MVK balance of user to trigger emergency governance
+]
+
+type emergencyUpdateConfigNewValueType is nat
+type emergencyUpdateConfigActionType is 
+  ConfigVoteExpiryDays of unit
+| ConfigRequiredFeeMutez of unit
+| ConfigStakedMvkPercentRequired of unit
+| ConfigMinStakedMvkForVoting of unit
+| ConfigMinStakedMvkForTrigger of unit
+type emergencyUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue  : emergencyUpdateConfigNewValueType; 
+  updateConfigAction    : emergencyUpdateConfigActionType;
+]
+
+type triggerEmergencyControlType is [@layout:comb] record[
+  title        : string;
+  description  : string;
+]
+
+type metadata is big_map (string, bytes);
+
+type emergencyGovernanceStorage is [@layout:comb] record [
+    admin                               : address;
+    config                              : emergencyConfigType;
+    mvkTokenAddress                     : address;
+    metadata                            : metadata;
+    
+    generalContracts                    : generalContractsType;
+
+    emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
+    
+    currentEmergencyGovernanceId        : nat;
+    nextEmergencyGovernanceProposalId   : nat;
+]

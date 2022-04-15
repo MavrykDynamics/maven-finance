@@ -4,7 +4,10 @@ import { BigNumber } from "bignumber.js";
 export type farmFactoryStorageType = {
   admin: string;
   mvkTokenAddress: string;
-  
+  metadata: MichelsonMap<MichelsonMapKey, unknown>;
+
+  config: BigNumber;
+
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
@@ -15,5 +18,4 @@ export type farmFactoryStorageType = {
   }
   
   trackedFarms: Array<unknown>;
-  blocksPerMinute: BigNumber
 };

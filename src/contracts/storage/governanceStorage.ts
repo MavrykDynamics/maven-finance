@@ -33,10 +33,23 @@ const config = {
     financialRequestDurationInDays     : 3
 }
 
+const metadata = MichelsonMap.fromLiteral({
+  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+  data: Buffer.from(
+    JSON.stringify({
+      name: 'MAVRYK Governance Contract',
+      version: 'v1.0.0',
+      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+    }),
+    'ascii',
+  ).toString('hex'),
+})
+
 export const governanceStorage: governanceStorageType = {
   
   admin                   : bob.pkh,
   mvkTokenAddress         : "",
+  metadata                : metadata,
   config                  : config,
   
   whitelistContracts      : MichelsonMap.fromLiteral({}),
@@ -45,17 +58,20 @@ export const governanceStorage: governanceStorageType = {
 
   proposalLedger          : MichelsonMap.fromLiteral({}),
   snapshotLedger          : MichelsonMap.fromLiteral({}),
-  activeSatellitesMap     : MichelsonMap.fromLiteral({}),
 
   startLevel              : new BigNumber(1),
   nextProposalId          : new BigNumber(1),
   cycleCounter            : new BigNumber(1),
 
-  currentRound            : 'none',
-  currentRoundStartLevel  : new BigNumber(1),
-  currentRoundEndLevel    : new BigNumber(14401),
-  currentCycleEndLevel    : new BigNumber(28801),
+  currentRound            : { proposal: null },
+  currentBlocksPerProposalRound :  new BigNumber(0),
+  currentBlocksPerVotingRound   :  new BigNumber(0),
+  currentBlocksPerTimelockRound :  new BigNumber(0),
+  currentRoundStartLevel  : new BigNumber(0),
+  currentRoundEndLevel    : new BigNumber(0),
+  currentCycleEndLevel    : new BigNumber(0),
   currentRoundProposals   : MichelsonMap.fromLiteral({}),
+  currentRoundProposers   : MichelsonMap.fromLiteral({}),
   currentRoundVotes       : MichelsonMap.fromLiteral({}),
 
   currentRoundHighestVotedProposalId : new BigNumber(0),

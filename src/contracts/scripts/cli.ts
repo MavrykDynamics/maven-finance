@@ -56,9 +56,14 @@ yargs
         alias: 'c',
         type: 'string',
       },
+      name: {
+        description: 'name of lambda file',
+        alias: 'n',
+        type: 'string',
+      }
     },
     async (argv) => {
-      compileLambdas(argv.json, argv.contract)
+      compileLambdas(argv.json, argv.contract, argv.name)
     },
   )
   .command(
@@ -74,7 +79,7 @@ yargs
         description: 'input file relative path (with lambdas Ligo code)',
         alias: 'c',
         type: 'string',
-      },
+      }
     },
     async (argv) => {
       compileParameters(argv.json, argv.contract)
