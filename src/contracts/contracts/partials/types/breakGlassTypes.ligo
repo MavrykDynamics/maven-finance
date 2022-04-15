@@ -41,6 +41,13 @@ type natMapType       is map(string, nat);
 
 type metadata is big_map (string, bytes);
 
+type setLambdaType is [@layout:comb] record [
+      name                  : string;
+      func_bytes            : bytes;
+]
+type lambdaLedgerType is big_map(string, bytes)
+
+
 type actionRecordType is record [
     
     initiator                  : address;          // address of action initiator
@@ -82,4 +89,6 @@ type breakGlassStorage is [@layout:comb] record [
     
     actionsLedger               : actionsLedgerType;         // record of past actions taken by council members
     actionCounter               : nat;
+
+    lambdaLedger                : lambdaLedgerType;
 ]
