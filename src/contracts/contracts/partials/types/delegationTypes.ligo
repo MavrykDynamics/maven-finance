@@ -3,9 +3,11 @@ type onStakeChangeParams is (address)
 
 // record for users choosing satellites 
 type delegateRecordType is [@layout:comb] record [
-    satelliteAddress      : address;
-    delegatedDateTime     : timestamp;
-    delegatedSMvkBalance  : nat;
+    satelliteAddress                : address;
+    delegatedDateTime               : timestamp;
+    delegatedSMvkBalance            : nat;
+    participationRewardsPerShare    : nat;
+    unclaimedRewards                : nat;
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
@@ -133,6 +135,10 @@ type delegationLambdaActionType is
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+type distributeRewardsTypes is [@layout:comb] record [
+    elligibleSatellites  : set(address);
+    totalSMvkReward      : nat;
+]
 
 type delegationStorage is [@layout:comb] record [
     admin                : address;

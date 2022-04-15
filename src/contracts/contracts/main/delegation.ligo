@@ -53,7 +53,11 @@ type delegationAction is
       // Lambda Entrypoints
     | SetLambda                         of setLambdaType
 
+    | UpdateSatelliteRecord of (updateSatelliteRecordParams)
+    | OnStakeChange of onStakeChangeParams
+    | DistributeRewards of distributeRewardsTypes
 
+const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
 const noOperations : list (operation) = nil;
 type return is list (operation) * delegationStorage
 
@@ -807,6 +811,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         | RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)
         | UnregisterAsSatellite(_parameters)            -> unregisterAsSatellite(s)
         | UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
+        | DistributeRewards(parameters) -> distributeRewards(parameters, s)
 
           // General Entrypoints
         | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)    
