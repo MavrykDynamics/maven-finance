@@ -13,11 +13,6 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
     compoundIsPaused        : bool;
 ]
 
-const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
-
-type getSatelliteBalanceType is (address * string * string * string * nat * contract(string * string * string * nat * nat)) // name, description, image, satellite fee
-type satelliteInfoType is (string * string * string * nat * nat) // name, description, image, satellite fee, sMVK balance
-
 type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
 type setLambdaType is [@layout:comb] record [

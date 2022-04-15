@@ -13,15 +13,18 @@ type breakGlassAction is
     | SetAdmin of (address)
     | UpdateMetadata of (string * bytes)
     | UpdateConfig of breakGlassUpdateConfigParamsType    
+    
+    // Council members
+    | UpdateCouncilMemberInfo of councilMemberInfoType
 
     // glass broken not required (updates through Governance DAO)
     | UpdateWhitelistContracts of updateWhitelistContractsParams
     | UpdateGeneralContracts of updateGeneralContractsParams
     
     // Internal control of council members
-    | AddCouncilMember of address
+    | AddCouncilMember of councilAddMemberType
     | RemoveCouncilMember of address
-    | ChangeCouncilMember of (address * address)
+    | ChangeCouncilMember of councilChangeMemberType
     
     // glass broken required
     | SetSingleContractAdmin of (address * address)   // set admin for single contract
@@ -42,7 +45,7 @@ function checkSenderIsAdmin(var s : breakGlassStorage) : unit is
         else failwith("Only the administrator can call this entrypoint.");
 
 function checkSenderIsCouncilMember(var s : breakGlassStorage) : unit is
-    if Set.mem(Tezos.sender, s.councilMembers) then unit 
+    if Map.mem(Tezos.sender, s.councilMembers) then unit 
         else failwith("Only council members can call this entrypoint.");
 
 function checkSenderIsEmergencyGovernanceContract(var s : breakGlassStorage) : unit is
@@ -142,13 +145,31 @@ block {
   const updateConfigNewValue  : breakGlassUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
   case updateConfigAction of [
-    ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
+    ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
   | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
   ];
 
 } with (noOperations, s)
 
-function addCouncilMember(const councilMemberAddress : address; var s : breakGlassStorage) : return is 
+(*  update the info of a council member *)
+function updateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : breakGlassStorage) : return is
+block {
+    // Check if sender is a member of the council
+    var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
+        Some (_info) -> _info
+    |   None -> failwith("Error. You are not a member of the council")
+    ];
+    
+    // Update member info
+    councilMember.name      := councilMemberInfo.name;
+    councilMember.website   := councilMemberInfo.website;
+    councilMember.image     := councilMemberInfo.image;
+
+    // Update storage
+    s.councilMembers[Tezos.sender]  := councilMember;
+} with (noOperations, s)
+
+function addCouncilMember(const newCouncilMember : councilAddMemberType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -159,11 +180,16 @@ block {
     checkSenderIsCouncilMember(s);
 
     // Check if new council member is already in the council
-    if Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+    if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
     else skip;
 
     const addressMap : addressMapType     = map [
-        ("councilMemberAddress" : string) -> councilMemberAddress;
+        ("councilMemberAddress" : string) -> newCouncilMember.memberAddress;
+    ];
+    const stringMap: stringMapType      = map [
+        ("councilMemberName": string) -> newCouncilMember.memberName;
+        ("councilMemberImage": string) -> newCouncilMember.memberImage;
+        ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
     ];
     const emptyNatMap : natMapType        = map [];
 
@@ -178,6 +204,7 @@ block {
         signersCount          = 1n;
 
         addressMap            = addressMap;
+        stringMap             = stringMap;
         natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
@@ -204,16 +231,17 @@ block {
     checkSenderIsCouncilMember(s);
 
     // Check if council member is in the council
-    if not Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+    if not Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
     else skip;
 
     // Check if removing the council member won't impact the threshold
-    if (abs(Set.cardinal(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+    if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
     else skip;
 
     const addressMap : addressMapType     = map [
         ("councilMemberAddress"         : string) -> councilMemberAddress;
     ];
+    const emptyStringMap: stringMapType   = map [];
     const emptyNatMap : natMapType        = map [];
 
     var actionRecord : actionRecordType := record[
@@ -227,6 +255,7 @@ block {
         signersCount          = 1n;
 
         addressMap            = addressMap;
+        stringMap             = emptyStringMap;
         natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
@@ -242,7 +271,7 @@ block {
 
 } with (noOperations, s)
 
-function changeCouncilMember(const oldCouncilMemberAddress : address; const newCouncilMemberAddress : address; var s : breakGlassStorage) : return is 
+function changeCouncilMember(const councilChangeMemberParams : councilChangeMemberType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -253,16 +282,21 @@ block {
     checkSenderIsCouncilMember(s);
 
     // Check if new council member is already in the council
-    if Set.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+    if Map.mem(councilChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
     else skip;
 
     // Check if old council member is in the council
-    if not Set.mem(oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+    if not Map.mem(councilChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
     else skip;
 
     const addressMap : addressMapType     = map [
-        ("oldCouncilMemberAddress"         : string) -> oldCouncilMemberAddress;
-        ("newCouncilMemberAddress"         : string) -> newCouncilMemberAddress;
+        ("oldCouncilMemberAddress"         : string) -> councilChangeMemberParams.oldCouncilMemberAddress;
+        ("newCouncilMemberAddress"         : string) -> councilChangeMemberParams.newCouncilMemberAddress;
+    ];
+    const stringMap: stringMapType      = map [
+        ("newCouncilMemberName": string) -> councilChangeMemberParams.newCouncilMemberName;
+        ("newCouncilMemberImage": string) -> councilChangeMemberParams.newCouncilMemberImage;
+        ("newCouncilMemberWebsite": string) -> councilChangeMemberParams.newCouncilMemberWebsite
     ];
     const emptyNatMap : natMapType        = map [];
 
@@ -277,6 +311,7 @@ block {
         signersCount          = 1n;
 
         addressMap            = addressMap;
+        stringMap             = stringMap;
         natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
@@ -316,6 +351,7 @@ block {
     else skip;
 
     const emptyAddressMap  : addressMapType      = map [];
+    const emptyStringMap   : stringMapType       = map [];
     const natMap           : natMapType          = map [
         ("actionId" : string) -> actionId;
     ];
@@ -331,6 +367,7 @@ block {
         signersCount          = 1n;
 
         addressMap            = emptyAddressMap;
+        stringMap             = emptyStringMap;
         natMap                = natMap;
 
         startDateTime         = Tezos.now;
@@ -359,6 +396,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     const emptyAddressMap  : addressMapType      = map [];
+    const emptyStringMap   : stringMapType       = map [];
     const emptyNatMap      : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
@@ -372,6 +410,7 @@ block {
         signersCount          = 1n;
 
         addressMap            = emptyAddressMap;
+        stringMap             = emptyStringMap;
         natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
@@ -400,6 +439,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     const emptyAddressMap  : addressMapType      = map [];
+    const emptyStringMap   : stringMapType       = map [];
     const emptyNatMap      : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
@@ -413,6 +453,7 @@ block {
         signersCount          = 1n;
 
         addressMap            = emptyAddressMap;
+        stringMap             = emptyStringMap;
         natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
@@ -447,6 +488,7 @@ block {
         ("newAdminAddress" : string) -> newAdminAddress;
         ("targetContractAddress" : string) -> targetContractAddress;
     ];
+    const emptyStringMap: stringMapType      = map [];
     const emptyNatMap  : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
@@ -460,6 +502,7 @@ block {
         signersCount          = 1n;
 
         addressMap            = addressMap;
+        stringMap             = emptyStringMap;
         natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
@@ -490,6 +533,7 @@ block {
     const addressMap   : addressMapType      = map [
         ("newAdminAddress" : string) -> newAdminAddress;
     ];
+    const emptyStringMap: stringMapType      = map [];
     const emptyNatMap  : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
@@ -503,6 +547,7 @@ block {
         signersCount          = 1n;
 
         addressMap            = addressMap;
+        stringMap             = emptyStringMap;
         natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
@@ -533,6 +578,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     const emptyAddressMap  : addressMapType      = map [];
+    const emptyStringMap   : stringMapType       = map [];
     const emptyNatMap      : natMapType          = map [];
 
     var actionRecord : actionRecordType := record[
@@ -546,6 +592,7 @@ block {
         signersCount          = 1n;
 
         addressMap            = emptyAddressMap;
+        stringMap             = emptyStringMap;
         natMap                = emptyNatMap;
 
         startDateTime         = Tezos.now;
@@ -634,11 +681,31 @@ block {
                 Some(_address) -> _address
                 | None -> failwith("Error. CouncilMemberAddress not found.")
             ];
+
+            const councilMemberName : string = case _actionRecord.stringMap["councilMemberName"] of [
+                Some(_string) -> _string
+                | None -> failwith("Error. CouncilMemberName not found.")
+            ];
+
+            const councilMemberImage : string = case _actionRecord.stringMap["councilMemberImage"] of [
+                Some(_string) -> _string
+                | None -> failwith("Error. CouncilMemberImage not found.")
+            ];
+
+            const councilMemberWebsite : string = case _actionRecord.stringMap["councilMemberWebsite"] of [
+                Some(_string) -> _string
+                | None -> failwith("Error. CouncilMemberWebsite not found.")
+            ];
             // fetch params end ---
 
             // Check if new council member is already in the council
-            if Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
-            else s.councilMembers := Set.add(councilMemberAddress, s.councilMembers);
+            const councilMemberInfo: councilMemberInfoType  = record[
+                name=councilMemberName;
+                image=councilMemberImage;
+                website=councilMemberWebsite;
+            ];
+            if Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+            else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
         } else skip;
 
 
@@ -653,14 +720,14 @@ block {
             // fetch params end ---
 
             // Check if council member is in the council
-            if not Set.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+            if not Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
             else skip;
 
             // Check if removing the council member won't impact the threshold
-            if (abs(Set.cardinal(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+            if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
             else skip;
 
-            s.councilMembers := Set.remove(councilMemberAddress, s.councilMembers);
+            s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
         } else skip;
 
 
@@ -678,18 +745,39 @@ block {
                 Some(_address) -> _address
                 | None -> failwith("Error. NewCouncilMemberAddress not found.")
             ];
+
+            const newCouncilMemberName : string = case _actionRecord.stringMap["newCouncilMemberName"] of [
+                Some(_string) -> _string
+                | None -> failwith("Error. NewCouncilMemberName not found.")
+            ];
+
+            const newCouncilMemberImage : string = case _actionRecord.stringMap["newCouncilMemberImage"] of [
+                Some(_string) -> _string
+                | None -> failwith("Error. NewCouncilMemberImage not found.")
+            ];
+
+            const newCouncilMemberWebsite : string = case _actionRecord.stringMap["newCouncilMemberWebsite"] of [
+                Some(_string) -> _string
+                | None -> failwith("Error. NewCouncilMemberWebsite not found.")
+            ];
             // fetch params end ---
 
             // Check if new council member is already in the council
-            if Set.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+            if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
             else skip;
 
             // Check if old council member is in the council
-            if not Set.mem(oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+            if not Map.mem(oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
             else skip;
 
-            s.councilMembers := Set.add(newCouncilMemberAddress, s.councilMembers);
-            s.councilMembers := Set.remove(oldCouncilMemberAddress, s.councilMembers);
+            const councilMemberInfo: councilMemberInfoType  = record[
+                name=newCouncilMemberName;
+                image=newCouncilMemberImage;
+                website=newCouncilMemberWebsite;
+            ];
+
+            s.councilMembers := Map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
+            s.councilMembers := Map.remove(oldCouncilMemberAddress, s.councilMembers);
         } else skip;
 
 
@@ -826,6 +914,9 @@ function main (const action : breakGlassAction; const s : breakGlassStorage) : r
             | UpdateMetadata(parameters) -> updateMetadata(parameters.0, parameters.1, s)  
             | UpdateConfig(parameters) -> updateConfig(parameters, s)
 
+            // Council members
+            | UpdateCouncilMemberInfo(parameters) -> updateCouncilMemberInfo(parameters, s)
+
             // glass broken not required
             | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
             | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
@@ -833,7 +924,7 @@ function main (const action : breakGlassAction; const s : breakGlassStorage) : r
             // Internal control of council members
             | AddCouncilMember(parameters) -> addCouncilMember(parameters, s)
             | RemoveCouncilMember(parameters) -> removeCouncilMember(parameters, s)
-            | ChangeCouncilMember(parameters) -> changeCouncilMember(parameters.0, parameters.1, s)
+            | ChangeCouncilMember(parameters) -> changeCouncilMember(parameters, s)
             
             // glass broken required
             | SetSingleContractAdmin(parameters) -> setSingleContractAdmin(parameters.0, parameters.1, s)

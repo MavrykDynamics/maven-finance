@@ -32,7 +32,7 @@ export const breakGlassStorage: breakGlassStorageType = {
 
   config: config,
   glassBroken         : false,
-  councilMembers      : [],
+  councilMembers      : MichelsonMap.fromLiteral({}),
   developerAddress    : zeroAddress,
 
   whitelistContracts  : MichelsonMap.fromLiteral({}),
