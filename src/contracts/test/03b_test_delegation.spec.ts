@@ -63,8 +63,6 @@ describe("Delegation tests", async () => {
         mvkTokenStorage   = await mvkTokenInstance.storage();
         governanceStorage = await governanceInstance.storage();
 
-        console.log(doormanStorage.generalContracts)
-
         console.log('-- -- -- -- -- Delegation Tests -- -- -- --')
         console.log('Doorman Contract deployed at:', doormanInstance.address);
         console.log('Delegation Contract deployed at:', delegationInstance.address);
