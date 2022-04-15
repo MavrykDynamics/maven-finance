@@ -6,12 +6,12 @@ export type emergencyGovernanceStorageType = {
   admin: string;
   config: {};
   mvkTokenAddress: string;
+  metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
 
   emergencyGovernanceLedger: MichelsonMap<MichelsonMapKey, unknown>;
 
-  tempStakedMvkTotalSupply: BigNumber;
   currentEmergencyGovernanceId: BigNumber;
   nextEmergencyGovernanceProposalId: BigNumber;
 

@@ -1,0 +1,308 @@
+type proposalIdType is nat
+type metadata is big_map (string, bytes);
+
+// record for satellites
+type satelliteRecordType is record [
+    status                : nat;        // active: 1; inactive: 0; 
+    stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
+    satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
+    totalDelegatedAmount  : nat;        // record of total delegated amount from delegates
+    
+    name                  : string;     // string for name
+    description           : string;     // string for description
+    image                 : string;     // ipfs hash
+    
+    registeredDateTime    : timestamp;  
+
+    // bondSufficiency       : nat;        // bond sufficiency flag - set to 1 if satellite has enough bond; set to 0 if satellite has not enough bond (over-delegated) when checked on governance action    
+]
+
+// Stores all voter data during proposal round
+type proposalRoundVoteType is (nat * timestamp)           // total voting power (MVK) * timestamp
+type passVotersMapType is map (address, proposalRoundVoteType)
+
+// Stores all voter data during voting round
+type voteForProposalChoiceType is 
+  Yay of unit
+| Nay of unit
+| Abstain of unit
+type votingRoundVoteType is (nat * timestamp * voteForProposalChoiceType)       // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
+type votersMapType is map (address, votingRoundVoteType)
+
+// type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
+
+type addUpdateProposalDataType is [@layout:comb] record [
+  proposalId         : nat;
+  title              : string;
+  proposalBytes      : bytes;
+]
+
+type addUpdatePaymentDataType is [@layout:comb] record [
+  proposalId         : nat;
+  title              : string;
+  paymentBytes       : bytes;
+]
+type proposalMetadataType is map (string, bytes)
+type paymentMetadataType is map (string, bytes)
+
+type newProposalType is [@layout:comb] record [
+  title              : string;
+  description        : string;
+  invoice            : string; // IPFS file
+  sourceCode         : string;
+  proposalMetadata   : option(map(string,bytes));
+  paymentMetadata    : option(map(string,bytes));
+]
+// action title: change governance config successReward to 100000 MVK, params in bytes
+// action title: change delegation config xxx to xxx , params in bytes
+
+type proposalRecordType is [@layout:comb] record [
+    
+    proposerAddress      : address;
+    proposalMetadata     : proposalMetadataType;
+    paymentMetadata      : paymentMetadataType;
+
+    status               : string;                  // status - "ACTIVE", "DROPPED"
+    title                : string;                  // title
+    description          : string;                  // description
+    invoice              : string;                  // ipfs hash of invoice file
+    sourceCode           : string;                  // link to github / repo
+
+    successReward        : nat;                     // log of successful proposal reward for voters - may change over time
+    executed             : bool;                    // true / false
+    locked               : bool;                    // true / false
+    
+    passVoteCount        : nat;                     // proposal round: pass votes count - number of satellites
+    passVoteMvkTotal     : nat;                     // proposal round pass vote total mvk from satellites who voted pass
+    passVotersMap        : passVotersMapType;       // proposal round ledger
+
+    minProposalRoundVotePercentage  : nat;          // min vote percentage of total MVK supply required to pass proposal round
+    minProposalRoundVotesRequired   : nat;          // min staked MVK votes required for proposal round to pass
+
+    upvoteCount          : nat;                     // voting round: upvotes count - number of satellites
+    upvoteMvkTotal       : nat;                     // voting round: upvotes MVK total
+    downvoteCount        : nat;                     // voting round: downvotes count - number of satellites
+    downvoteMvkTotal     : nat;                     // voting round: downvotes MVK total
+    abstainCount         : nat;                     // voting round: abstain count - number of satellites
+    abstainMvkTotal      : nat;                     // voting round: abstain MVK total
+    voters               : votersMapType;           // voting round ledger
+
+    minQuorumPercentage  : nat;                     // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
+    minQuorumMvkTotal    : nat;                     // log of min quorum in MVK - capture state at this point
+    quorumCount          : nat;                     // log of turnout for voting round - number of satellites who voted
+    quorumMvkTotal       : nat;                     // log of total positive votes in MVK 
+    startDateTime        : timestamp;               // log of when the proposal was proposed
+
+    cycle                    : nat;                 // log of cycle that proposal belongs to
+    currentCycleStartLevel   : nat;                 // log of current cycle starting block level
+    currentCycleEndLevel     : nat;                 // log of current cycle end block level
+]
+type proposalLedgerType is big_map (nat, proposalRecordType);
+
+type requestIdType is nat; 
+// Stores all voter data for financial requests
+type financialRequestVoteChoiceType is 
+  Approve of unit
+| Disapprove of unit
+type financialRequestVoteType is [@layout:comb] record [
+  vote              : financialRequestVoteChoiceType;
+  totalVotingPower  : nat; 
+  timeVoted         : timestamp;
+] 
+type financialRequestVotersMapType is map (address, financialRequestVoteType)
+
+type financialRequestRecordType is [@layout:comb] record [
+
+    requesterAddress        : address;
+    requestType             : string;                // "MINT" or "TRANSFER"
+    status                  : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
+    executed                : bool;                  // false on creation; set to true when financial request is executed successfully
+    
+    treasuryAddress         : address;
+    tokenContractAddress    : address; 
+    tokenAmount             : nat;
+    tokenName               : string; 
+    tokenType               : string;
+    tokenId                 : nat;
+    requestPurpose          : string;
+
+    voters                  : financialRequestVotersMapType; 
+    approveVoteTotal        : nat;
+    disapproveVoteTotal     : nat;
+
+    snapshotStakedMvkTotalSupply       : nat;
+    stakedMvkPercentageForApproval     : nat; 
+    stakedMvkRequiredForApproval       : nat; 
+
+    requestedDateTime       : timestamp;               // log of when the request was submitted
+    expiryDateTime          : timestamp;               
+]
+type financialRequestLedgerType is big_map (nat, financialRequestRecordType);
+
+type financialRequestSnapshotRecordType is [@layout:comb] record [
+    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this cycle
+    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
+    totalVotingPower          : nat;      // log calculated total voting power 
+]
+type financialRequestSnapshotMapType is map (address, financialRequestSnapshotRecordType)
+type financialRequestSnapshotLedgerType is big_map (requestIdType, financialRequestSnapshotMapType);
+type requestSatelliteSnapshotType is  [@layout:comb] record [
+    satelliteAddress      : address;
+    requestId             : nat; 
+    stakedMvkBalance      : nat; 
+    totalDelegatedAmount  : nat; 
+]
+
+// snapshot will be valid for current cycle only (proposal + voting rounds)
+type snapshotRecordType is [@layout:comb] record [
+    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this cycle
+    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
+    totalVotingPower          : nat;      // log calculated total voting power 
+    currentCycleStartLevel    : nat;      // log of current cycle starting block level
+    currentCycleEndLevel      : nat;      // log of when cycle (proposal + voting) will end
+]
+type snapshotLedgerType is big_map (address, snapshotRecordType);
+
+type configType is [@layout:comb] record [
+    
+    successReward                       : nat;  // incentive reward for successful proposal
+
+    minProposalRoundVotePercentage      : nat; // percentage of staked MVK votes required to pass proposal round
+    minProposalRoundVotesRequired       : nat; // amount of staked MVK votes required to pass proposal round
+
+    minQuorumPercentage                 : nat;  // minimum quorum percentage to be achieved (in MVK)
+    minQuorumMvkTotal                   : nat;  // minimum quorum in MVK
+
+    votingPowerRatio                    : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
+    proposalSubmissionFee               : nat;  // e.g. 10 tez per submitted proposal
+    minimumStakeReqPercentage           : nat;  // minimum amount of MVK required in percentage of total staked MVK supply (e.g. 0.01%)
+    maxProposalsPerDelegate             : nat;  // number of active proposals delegate can have at any given time
+
+    blocksPerMinute                     : nat;  // to account for eventual changes in blocks per minute (and blocks per day / time) - todo: change to allow decimal
+
+    blocksPerProposalRound              : nat;  // to determine duration of proposal round
+    blocksPerVotingRound                : nat;  // to determine duration of voting round
+    blocksPerTimelockRound              : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+
+    financialRequestApprovalPercentage  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
+    financialRequestDurationInDays      : nat;  // duration of final request before expiry
+    
+]
+
+// update config types
+type governanceUpdateConfigNewValueType is nat
+type governanceUpdateConfigActionType is 
+  ConfigSuccessReward of unit
+| ConfigMinProposalRoundVotePct of unit
+| ConfigMinProposalRoundVotesReq of unit
+| ConfigMinQuorumPercentage of unit
+| ConfigMinQuorumMvkTotal of unit
+| ConfigVotingPowerRatio of unit
+| ConfigProposalSubmissionFee of unit
+| ConfigMinimumStakeReqPercentage of unit
+| ConfigMaxProposalsPerDelegate of unit
+| ConfigBlocksPerProposalRound of unit
+| ConfigBlocksPerVotingRound of unit
+| ConfigBlocksPerTimelockRound of unit
+| ConfigFinancialReqApprovalPct of unit
+| ConfigFinancialReqDurationDays of unit
+
+type governanceUpdateConfigParamsType is [@layout:comb] record [
+  updateConfigNewValue: governanceUpdateConfigNewValueType; 
+  updateConfigAction: governanceUpdateConfigActionType;
+]
+
+// execute action variant types - start test with 2 variant action types
+// type updateGovernanceConfigType is (nat * governanceUpdateConfigActionType); // unit: type governanceUpdateConfigParamsType is (updateConfigActionType * governanceUpdateConfigNewValueType)
+type updateGovernanceConfigType is [@layout:comb] record [
+  updateConfigNewValue: nat;
+  updateConfigAction: governanceUpdateConfigActionType
+]
+
+type setupLambdaFunctionType is [@layout:comb] record [
+  id          : nat;
+  func_bytes  : bytes;
+]
+type updateLambdaFunctionType is setupLambdaFunctionType
+type governanceLambdaLedgerType is big_map(nat, bytes)
+
+
+type executeActionParamsType is 
+  UpdateLambdaFunction of updateLambdaFunctionType
+| UpdateGovernanceConfig of updateGovernanceConfigType
+| UpdateDelegationConfig of delegationUpdateConfigParamsType
+type executeActionType is (executeActionParamsType)
+
+type roundType       is
+| Proposal                  of unit
+| Voting                    of unit
+| Timelock                  of unit
+
+type requestTokensType is [@layout:comb] record [
+    treasuryAddress       : address;  // treasury address
+    tokenContractAddress  : address;  // token contract address
+    tokenName             : string;   // token name should be in whitelist token contracts map in governance contract
+    tokenAmount           : nat;      // token amount requested
+    tokenType             : string;   
+    tokenId               : nat;      // token amount requested
+    purpose               : string;   // financial request purpose
+]
+
+type requestMintType is [@layout:comb] record [
+    treasuryAddress       : address;  // treasury address
+    tokenAmount           : nat;      // MVK token amount requested
+    purpose               : string;   // financial request purpose
+]
+
+type voteForRequestChoiceType is 
+  Approve of unit
+| Disapprove of unit
+type voteForRequestType is [@layout:comb] record [
+    requestId        : nat;
+    vote             : voteForRequestChoiceType;
+]
+
+type governanceStorage is [@layout:comb] record [
+    admin                       : address;
+    mvkTokenAddress             : address;
+    metadata                    : metadata;
+
+    config                      : configType;
+
+    whitelistContracts          : whitelistContractsType;      
+    whitelistTokenContracts     : whitelistTokenContractsType;      
+    generalContracts            : generalContractsType; 
+    
+    proposalLedger              : proposalLedgerType;
+    snapshotLedger              : snapshotLedgerType;
+
+    startLevel                  : nat;                // use Tezos.level as start level
+    nextProposalId              : nat;                // counter of next proposal id
+    cycleCounter                : nat;                // counter of current cycle 
+    
+    // current round state variables - will be flushed periodically
+    currentRound                : roundType;          // proposal, voting, timelock
+    currentBlocksPerProposalRound      : nat;  // to determine duration of proposal round
+    currentBlocksPerVotingRound        : nat;  // to determine duration of voting round
+    currentBlocksPerTimelockRound      : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+    currentRoundStartLevel      : nat;                // current round starting block level
+    currentRoundEndLevel        : nat;                // current round ending block level
+    currentCycleEndLevel        : nat;                // current cycle (proposal + voting) ending block level 
+    currentRoundProposals       : map(nat, nat);      // proposal id, total positive votes in MVK
+    currentRoundProposers       : map(address, set(nat));  // proposer, 
+    currentRoundVotes           : map(address, nat);  // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
+
+    currentRoundHighestVotedProposalId  : nat;        // set to 0 if there is no proposal currently, if not set to proposal id
+    timelockProposalId                  : nat;        // set to 0 if there is proposal in timelock, if not set to proposal id
+
+    snapshotMvkTotalSupply         : nat;             // snapshot of total MVK supply - for quorum calculation use
+    snapshotStakedMvkTotalSupply   : nat;             // snapshot of total staked MVK supply - for financial request decision making 
+
+    financialRequestLedger             : financialRequestLedgerType;
+    financialRequestSnapshotLedger     : financialRequestSnapshotLedgerType;
+    financialRequestCounter            : nat;
+
+    governanceLambdaLedger      : governanceLambdaLedgerType;
+
+    tempFlag : nat;     // test variable - currently used to show block levels per transaction
+]

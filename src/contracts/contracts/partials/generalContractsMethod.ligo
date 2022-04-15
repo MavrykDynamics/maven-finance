@@ -1,35 +1,30 @@
-function checkInGeneralContracts(const contractAddress : address; var s : storage) : bool is 
+function checkInGeneralContracts(const contractAddress : address; const generalContracts : generalContractsType) : bool is 
 block {
   var inContractAddressMap : bool := False;
-  for _key -> value in map s.generalContracts block {
+  for _key -> value in map generalContracts block {
     if contractAddress = value then inContractAddressMap := True
       else skip;
   }  
 } with inContractAddressMap
 
 (* UpdateGeneralContracts Entrypoint *)
-function updateGeneralContracts(const updateGeneralContractsParams : updateGeneralContractsParams; var s : storage) : return is 
+function updateGeneralContractsMap(const updateGeneralContractsParams : updateGeneralContractsParams; const generalContracts : generalContractsType) : generalContractsType is 
   block{
-    
-    checkSenderIsAdmin(s); // check that sender is admin
 
     const contractName    : string  = updateGeneralContractsParams.0;
     const contractAddress : address = updateGeneralContractsParams.1; 
-    // type
 
     const existingAddress: option(address) = 
-      if checkInGeneralContracts(contractAddress, s) then (None : option(address)) else Some (contractAddress);
+      if checkInGeneralContracts(contractAddress, generalContracts) then (None : option(address)) else Some (contractAddress);
 
     const updatedGeneralContracts: generalContractsType = 
       Map.update(
         contractName, 
         existingAddress,
-        s.generalContracts
+        generalContracts
       );
 
-    s.generalContracts := updatedGeneralContracts;
-
-  } with (noOperations, s)
+  } with (updatedGeneralContracts)
 
 
 //   function updateContractAddresses(const updateContractAddressesParams : updateContractAddressesParams; const store: storage) : return is 

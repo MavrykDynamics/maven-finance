@@ -19,6 +19,7 @@
 // import lpAddress from '../deployments/lpTokenAddress.json';
 // import mvkAddress from '../deployments/mvkTokenAddress.json';
 // import doormanAddress from '../deployments/doormanAddress.json';
+// import treasuryAddress from '../deployments/treasuryAddress.json';
 
 // describe("Farm", async () => {
 //     var utils: Utils;
@@ -34,6 +35,9 @@
 
 //     let farmFactoryInstance;
 //     let farmFactoryStorage;
+
+//     let treasuryInstance;
+//     let treasuryStorage;
 
 //     let farmBlockStart;
 //     let farmBlockEnd;
@@ -62,6 +66,8 @@
 //         mvkTokenStorage    = await mvkTokenInstance.storage();
 //         lpTokenInstance = await utils.tezos.contract.at(lpAddress.address);
 //         lpTokenStorage    = await lpTokenInstance.storage();
+//         treasuryInstance    = await utils.tezos.contract.at(treasuryAddress.address);
+//         treasuryStorage    = await treasuryInstance.storage();
 
 //         // Make farm factory track the farm
 //         if(!farmFactoryStorage.trackedFarms.includes(farmAddress.address)){
@@ -118,8 +124,8 @@
 //                 // Check that the farm has the correct values
 //                 const farmOpenEnd = farmStorage.open;
 //                 const farmInitEnd = farmStorage.init;
-//                 const farmTotalBlocksEnd = farmStorage.plannedRewards.totalBlocks;
-//                 const farmCurrentRewardPerBlockEnd = farmStorage.plannedRewards.currentRewardPerBlock;
+//                 const farmTotalBlocksEnd = farmStorage.config.plannedRewards.totalBlocks;
+//                 const farmCurrentRewardPerBlockEnd = farmStorage.config.plannedRewards.currentRewardPerBlock;
 
 //                 assert.equal(farmOpenEnd, true, "The farm should be closed when originated");
 //                 assert.equal(farmInitEnd, true, "The farm should not be initiated when originated");
@@ -392,13 +398,13 @@
 //         });
 //     });
 
-//     describe('%toggleForceRewardFromTransfer', function() {
+//     describe('%updateConfig', function() {
 //         it('Admin should be able to force the rewards to come from transfers instead of minting', async () => {
 //             try{
 //                 // Initial values
 //                 const amountToDeposit = 1;
 //                 const mvkTotalSupply = parseInt(mvkTokenStorage.totalSupply);
-//                 const toggleTransfer = farmStorage.forceRewardFromTransfer;
+//                 const toggleTransfer = farmStorage.config.forceRewardFromTransfer;
 //                 const doormanBalance = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
                 
 //                 // Create a transaction for depositing LP to a farm
@@ -422,16 +428,16 @@
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplyFirstUpdate = parseInt(mvkTokenStorage.totalSupply);
 //                     doormanBalanceFirstUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
-//                     treasuryFirstUpdate = parseInt(await mvkTokenStorage.ledger.get(eve.pkh));
+//                     treasuryFirstUpdate = parseInt(await mvkTokenStorage.ledger.get(treasuryAddress.address));
 //                 })
 
 //                 // Toggle to transfer
-//                 const firstToggleOperation = await farmInstance.methods.toggleForceRewardFromTransfer().send();
+//                 const firstToggleOperation = await farmInstance.methods.updateConfig(1, "configForceRewardFromTransfer").send();
 //                 await firstToggleOperation.confirmation();
 
 //                 //Update storage
 //                 farmStorage = await farmInstance.storage();
-//                 const toggleTransferFirstUpdate = farmStorage.forceRewardFromTransfer;
+//                 const toggleTransferFirstUpdate = farmStorage.config.forceRewardFromTransfer;
 
 //                 //Do another claim
 //                 var mvkTotalSupplySecondUpdate = 0;
@@ -443,16 +449,16 @@
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplySecondUpdate = parseInt(mvkTokenStorage.totalSupply);
 //                     doormanBalanceSecondUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
-//                     treasurySecondUpdate = parseInt(await mvkTokenStorage.ledger.get(eve.pkh));
+//                     treasurySecondUpdate = parseInt(await mvkTokenStorage.ledger.get(treasuryAddress.address));
 //                 })
 
 //                 // Toggle to mint 
-//                 const secondToggleOperation = await farmInstance.methods.toggleForceRewardFromTransfer().send();
+//                 const secondToggleOperation = await farmInstance.methods.updateConfig(0, "configForceRewardFromTransfer").send();
 //                 await secondToggleOperation.confirmation();
 
 //                 //Update storage
 //                 farmStorage = await farmInstance.storage();
-//                 const toggleTransferSecondUpdate = farmStorage.forceRewardFromTransfer;
+//                 const toggleTransferSecondUpdate = farmStorage.config.forceRewardFromTransfer;
 
 //                 //Do another claim
 //                 var mvkTotalSupplyThirdUpdate = 0;
@@ -464,7 +470,7 @@
 //                     mvkTokenStorage = await mvkTokenInstance.storage();
 //                     mvkTotalSupplyThirdUpdate = parseInt(mvkTokenStorage.totalSupply);
 //                     doormanBalanceThirdUpdate = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
-//                     treasuryThirdUpdate = parseInt(await mvkTokenStorage.ledger.get(eve.pkh));
+//                     treasuryThirdUpdate = parseInt(await mvkTokenStorage.ledger.get(treasuryAddress.address));
 //                 })
 
 //                 assert.notEqual(mvkTotalSupply,mvkTotalSupplyFirstUpdate);
@@ -501,7 +507,7 @@
 //                 // Initial values
 //                 const amountToDeposit = 1;
 //                 const mvkTotalSupply = parseInt(mvkTokenStorage.totalSupply);
-//                 const toggleTransfer = farmStorage.forceRewardFromTransfer;
+//                 const toggleTransfer = farmStorage.config.forceRewardFromTransfer;
 //                 const doormanBalance = parseInt(await mvkTokenStorage.ledger.get(doormanAddress.address));
                 
 //                 // Create a transaction for depositing LP to a farm
@@ -529,11 +535,11 @@
 
 //                 // Toggle to transfer
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(farmInstance.methods.toggleForceRewardFromTransfer().send()).to.be.rejected;
+//                 await chai.expect(farmInstance.methods.updateConfig(1, "configForceRewardFromTransfer").send()).to.be.rejected;
 
 //                 //Update storage
 //                 farmStorage = await farmInstance.storage();
-//                 const toggleTransferFirstUpdate = farmStorage.forceRewardFromTransfer;
+//                 const toggleTransferFirstUpdate = farmStorage.config.forceRewardFromTransfer;
 
 //                 //Do another claim
 //                 var mvkTotalSupplySecondUpdate = 0;

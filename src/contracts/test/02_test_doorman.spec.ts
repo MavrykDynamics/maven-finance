@@ -1,4 +1,5 @@
 // const { TezosToolkit, ContractAbstraction, ContractProvider, Tezos, TezosOperationError } = require("@taquito/taquito")
+// import { BigNumber } from 'bignumber.js'
 // const { InMemorySigner, importKey } = require("@taquito/signer");
 // import assert, { ok, rejects, strictEqual } from "assert";
 // import { Utils, MVK } from "./helpers/Utils";
@@ -225,10 +226,10 @@
 //                 mvkTokenStorage = await mvkTokenInstance.storage();
 
 //                 // Test values
-//                 const mli = Math.trunc((doormanSMVKTotalSupply * 100 * 10**24) / mvkTotalSupply);
-//                 const exitFee = Math.trunc((500 * 10**24 * 10**24) / (mli + 5*10**24));
-//                 const paidFee = Math.trunc((userUnstake * (exitFee/100)) / (10**24));
-//                 const expectedFinalAmount = userUnstake - paidFee;
+//                 const mli = Math.trunc((doormanSMVKTotalSupply * 100 * 10**36) / mvkTotalSupply);
+//                 const exitFee = Math.trunc((500 * 10**36 * 10**36) / (mli + 5*10**36));
+//                 const paidFee = Math.trunc(userUnstake * (exitFee/100));
+//                 const expectedFinalAmount = userUnstake - (paidFee/10**36);
 
 //                 // Final Values
 //                 const userMVKBalanceEnd = parseInt(await mvkTokenStorage.ledger.get(bob.pkh));
@@ -238,9 +239,9 @@
 //                 const exitFeePoolEnd = parseInt(doormanStorage.exitFeePool);
 
 //                 // Assertion
-//                 assert.equal(doormanSMVKTotalSupply - expectedFinalAmount, doormanSMVKTotalSupplyEnd);
-//                 assert.equal(userMVKBalance + expectedFinalAmount, userMVKBalanceEnd);
-//                 assert.equal(userStakeBalance - expectedFinalAmount, userStakeBalanceEnd);
+//                 assert.equal(Math.floor(doormanSMVKTotalSupply - expectedFinalAmount), doormanSMVKTotalSupplyEnd);
+//                 assert.equal(Math.round(userMVKBalance + expectedFinalAmount), userMVKBalanceEnd);
+//                 assert.equal(Math.floor(userStakeBalance - expectedFinalAmount), userStakeBalanceEnd);
 //                 assert.equal(exitFeePoolEnd, exitFeePool);
 //             } catch(e) {
 //                 console.log(e)
@@ -317,10 +318,10 @@
 //                 mvkTokenStorage = await mvkTokenInstance.storage();
 
 //                 // Test values
-//                 const mli = Math.trunc((doormanSMVKTotalSupply * 100 * 10**24) / mvkTotalSupply);
-//                 const exitFee = Math.trunc((500 * 10**24 * 10**24) / (mli + 5*10**24));
-//                 const paidFee = Math.trunc((firstUserUnstake * (exitFee/100)) / (10**24));
-//                 const expectedFinalAmount = firstUserUnstake - paidFee;
+//                 const mli = Math.trunc((doormanSMVKTotalSupply * 100 * 10**36) / mvkTotalSupply);
+//                 const exitFee = Math.trunc((500 * 10**36 * 10**36) / (mli + 5*10**36));
+//                 const paidFee = Math.trunc(firstUserUnstake * (exitFee/100));
+//                 const expectedFinalAmount = Math.trunc(firstUserUnstake - (paidFee/10**36));
 
 //                 // Final Values
 //                 const firstUserStakeLedgerEnd = await doormanStorage.userStakeBalanceLedger.get(bob.pkh);
@@ -329,7 +330,7 @@
 //                 const secondUserStakeBalanceEnd = parseInt(secondUserStakeLedgerEnd.balance);
 
 //                 const rewardPerShare = paidFee / (doormanSMVKTotalSupply - firstUserUnstake);
-//                 const firstUserExpectedReward = rewardPerShare * (firstUserStake - firstUserUnstake);
+//                 const firstUserExpectedReward = rewardPerShare * (firstUserStake - expectedFinalAmount);
 //                 const secondUserExpectedReward = rewardPerShare * secondUserstake;
 
 //                 const firstUserReward = firstUserStakeBalanceEnd - firstUserUnstake
@@ -337,10 +338,15 @@
 
 //                 const exitFeePoolEnd = parseInt(doormanStorage.exitFeePool);
 
+//                 console.log(await mvkTokenStorage.ledger.get(bob.pkh))
+//                 console.log(await mvkTokenStorage.ledger.get(eve.pkh))
+//                 console.log(await mvkTokenStorage.ledger.get(doormanAddress.address))
+
 //                 // Assertion
+//                 console.log(expectedFinalAmount)
 //                 assert.equal(doormanStorage.logFinalAmount,expectedFinalAmount)
 //                 assert.equal(paidFee,firstUserReward+secondUserReward)
-//                 assert.equal(firstUserExpectedReward,firstUserReward)
+//                 assert.equal(firstUserReward,firstUserExpectedReward)
 //                 assert.equal(secondUserExpectedReward,secondUserReward)
 //                 assert.notEqual(exitFeePool,exitFeePoolEnd)
 //             } catch(e) {

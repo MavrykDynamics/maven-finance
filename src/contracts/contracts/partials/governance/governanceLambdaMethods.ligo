@@ -1,25 +1,24 @@
 (* CallGovernanceLambda Entrypoint *)
-function callGovernanceLambdaProxy(const executeAction : executeActionType; var s : storage) : return is
+function callGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceStorage) : return is
   block {
     
     checkSenderIsAdminOrSelf(s);
 
-    // get callGovernanceLambda method in governanceLambdaLedger
-    const governanceLambdaBytes : bytes = case s.governanceLambdaLedger[0n] of
+    const governanceLambdaBytes : bytes = case s.governanceLambdaLedger[0n] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. Call Governance Lambda not found.")
-    end;
+    ];
 
-    // reference: type governanceLambdaFunctionType is (executeActionType * storage) -> return
-    const res : return = case (Bytes.unpack(governanceLambdaBytes) : option(governanceLambdaFunctionType)) of
+    // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
+    const res : return = case (Bytes.unpack(governanceLambdaBytes) : option(governanceLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
       | None    -> failwith("Error. Unable to unpack CallGovernanceLambda.")
-    end;
+    ];
   
   } with (res.0, s)
 
 (* SetupLambdaFunction Entrypoint *)
-function setupLambdaFunction(const params : setupLambdaFunctionType; var s : storage) : return is
+function setupLambdaFunction(const params : setupLambdaFunctionType; var s : governanceStorage) : return is
   block {
 
     checkSenderIsAdminOrSelf(s);
@@ -28,10 +27,10 @@ function setupLambdaFunction(const params : setupLambdaFunctionType; var s : sto
     assert_with_error(params.id <= max_index, "Error. Too many lambda functions found.");
 
     // save lambda in governanceLambdaLedger
-    case s.governanceLambdaLedger[params.id] of
-      | Some(_) -> failwith("Error. Lambda already in Governance Lambda Ledger.")
-      | None    -> s.governanceLambdaLedger[params.id] := params.func_bytes
-    end;
+    case s.governanceLambdaLedger[params.id] of [
+      Some(_) -> failwith("Error. Lambda already in Governance Lambda Ledger.")
+    | None    -> s.governanceLambdaLedger[params.id] := params.func_bytes
+    ];
 
   } with ((nil : list(operation)), s)
 
