@@ -955,7 +955,11 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         | DistributeReward(parameters)                  -> distributeReward(parameters, s)
 =======
         | DistributeRewards(parameters) -> distributeRewards(parameters, s)
+<<<<<<< HEAD
 >>>>>>> 5a5b8a3 (Satellite distribution entrypoint implemented but not tested)
+=======
+        | ClaimRewards(_parameters) -> claimRewards(s)
+>>>>>>> 71765b5 (Satellite distribution entrypoint implemented but not tested)
 
           // General Entrypoints
         | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
