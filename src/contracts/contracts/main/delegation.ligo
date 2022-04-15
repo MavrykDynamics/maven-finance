@@ -55,7 +55,9 @@ type delegationAction is
 
     | UpdateSatelliteRecord of (updateSatelliteRecordParams)
     | OnStakeChange of onStakeChangeParams
+
     | DistributeRewards of distributeRewardsTypes
+    | ClaimRewards of unit
 
 const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
 const noOperations : list (operation) = nil;
@@ -549,7 +551,6 @@ block {
 } with response
 
 
-
 (* togglePauseRegisterSatellite entrypoint *)
 function togglePauseRegisterSatellite(var s : delegationStorage) : return is
 block {
@@ -585,7 +586,6 @@ block {
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
 
 } with response
-
 
 
 (* togglePauseUpdateSatellite entrypoint *)
@@ -812,6 +812,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         | UnregisterAsSatellite(_parameters)            -> unregisterAsSatellite(s)
         | UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
         | DistributeRewards(parameters) -> distributeRewards(parameters, s)
+        | ClaimRewards(_parameters) -> claimRewards(s)
 
           // General Entrypoints
         | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)    
