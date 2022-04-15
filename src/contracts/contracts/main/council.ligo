@@ -28,12 +28,12 @@ type councilAction is
     | UpdateConfig                      of councilUpdateConfigParamsType
     | UpdateWhitelistContracts          of updateWhitelistContractsParams
     | UpdateGeneralContracts            of updateGeneralContractsParams
+    | UpdateCouncilMemberInfo           of councilMemberInfoType
 
     // Council Actions for Internal Control
     | CouncilActionAddMember            of councilActionAddMemberType
     | CouncilActionRemoveMember         of address
     | CouncilActionChangeMember         of councilActionChangeMemberType
-    | CouncilActionUpdateMemberInfo     of councilMemberInfoType
 
     // Council Actions for Contracts
     | CouncilActionUpdateBlocksPerMin   of councilActionUpdateBlocksPerMinType
@@ -357,6 +357,24 @@ block {
 
 } with (res.0, res.1)
 
+
+
+(*  updateCouncilMemberInfo entrypoint - update the info of a council member *)
+function updateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : councilStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCouncilMemberInfo"] of [
+      | Some(_v) -> _v
+      | None     -> failwith("Error. updateCouncilMemberInfo Lambda not found.")
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilMemberInfoType * councilStorage) -> return )) of [
+      | Some(f) -> f(councilMemberInfo, s)
+      | None    -> failwith("Error. Unable to unpack Council updateCouncilMemberInfo Lambda.")
+    ];
+
+} with (res.0, res.1)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -414,24 +432,6 @@ block {
     const res : return = case (Bytes.unpack(lambdaBytes) : option((councilActionChangeMemberType * councilStorage) -> return )) of [
       | Some(f) -> f(councilActionChangeMemberParams, s)
       | None    -> failwith("Error. Unable to unpack Council councilActionChangeMember Lambda.")
-    ];
-
-} with (res.0, res.1)
-
-
-
-(*  councilActionUpdateMemberInfo entrypoint - update the info of a council member *)
-function councilActionUpdateMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : councilStorage) : return is
-block {
-    
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionUpdateMemberInfo"] of [
-      | Some(_v) -> _v
-      | None     -> failwith("Error. councilActionUpdateMemberInfo Lambda not found.")
-    ];
-
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilMemberInfoType * councilStorage) -> return )) of [
-      | Some(f) -> f(councilMemberInfo, s)
-      | None    -> failwith("Error. Unable to unpack Council councilActionUpdateMemberInfo Lambda.")
     ];
 
 } with (res.0, res.1)
@@ -707,12 +707,12 @@ function main (const action : councilAction; const s : councilStorage) : return 
         | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
+        | UpdateCouncilMemberInfo(parameters)           -> updateCouncilMemberInfo(parameters, s)
         
         // Council Actions for Internal Control
         | CouncilActionAddMember(parameters)            -> councilActionAddMember(parameters, s)
         | CouncilActionRemoveMember(parameters)         -> councilActionRemoveMember(parameters, s)
         | CouncilActionChangeMember(parameters)         -> councilActionChangeMember(parameters, s)
-        | CouncilActionUpdateMemberInfo(parameters)     -> councilActionUpdateMemberInfo(parameters, s)
 
         // Council actions for Contracts
         | CouncilActionUpdateBlocksPerMin(parameters)   -> councilActionUpdateBlocksPerMinute(parameters, s)

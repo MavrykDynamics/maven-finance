@@ -21,19 +21,19 @@
     },
     {
       "index": 5,
-      "name": "lambdaCouncilActionAddMember"
+      "name": "lambdaUpdateCouncilMemberInfo"
     },
     {
       "index": 6,
-      "name": "lambdaCouncilActionRemoveMember"
+      "name": "lambdaCouncilActionAddMember"
     },
     {
       "index": 7,
-      "name": "lambdaCouncilActionChangeMember"
+      "name": "lambdaCouncilActionRemoveMember"
     },
     {
       "index": 8,
-      "name": "lambdaCouncilActionUpdateMemberInfo"
+      "name": "lambdaCouncilActionChangeMember"
     },
     {
       "index": 9,
