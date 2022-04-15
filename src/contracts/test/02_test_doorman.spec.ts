@@ -241,7 +241,7 @@
 //                 // Assertion
 //                 assert.equal(Math.floor(doormanSMVKTotalSupply - expectedFinalAmount), doormanSMVKTotalSupplyEnd);
 //                 assert.equal(Math.round(userMVKBalance + expectedFinalAmount), userMVKBalanceEnd);
-//                 assert.equal(userStakeBalance - expectedFinalAmount, userStakeBalanceEnd);
+//                 assert.equal(Math.floor(userStakeBalance - expectedFinalAmount), userStakeBalanceEnd);
 //                 assert.equal(exitFeePoolEnd, exitFeePool);
 //             } catch(e) {
 //                 console.log(e)

@@ -50,6 +50,7 @@ type councilActionUpdateBlocksPerMinType is  [@layout:comb] record [
 ] 
 
 type flushActionType is (nat)
+type signActionType is (nat)
 
 type councilUpdateConfigNewValueType is nat
 type councilUpdateConfigActionType is 
@@ -121,6 +122,12 @@ type councilMemberInfoType is [@layout:comb] record [
 
 type councilMembersType is map(address, councilMemberInfoType)
 
+type setLambdaType is [@layout:comb] record [
+      name                  : string;
+      func_bytes            : bytes;
+]
+type lambdaLedgerType is big_map(string, bytes)
+
 type councilStorage is [@layout:comb] record [
     admin                       : address;
     mvkTokenAddress             : address;
@@ -134,4 +141,6 @@ type councilStorage is [@layout:comb] record [
 
     councilActionsLedger        : councilActionsLedgerType; 
     actionCounter               : nat;
+
+    lambdaLedger                : lambdaLedgerType;
 ]

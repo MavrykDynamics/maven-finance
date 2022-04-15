@@ -1,0 +1,55 @@
+[
+    {
+      "index": 0,
+      "name": "lambdaBreakGlass"
+    },
+    {
+      "index": 1,
+      "name": "lambdaSetAdmin"
+    },
+    {
+      "index": 2,
+      "name": "lambdaUpdateConfig"
+    },
+    {
+      "index": 3,
+      "name": "lambdaAddCouncilMember"
+    },
+    {
+      "index": 4,
+      "name": "lambdaRemoveCouncilMember"
+    },
+    {
+      "index": 5,
+      "name": "lambdaChangeCouncilMember"
+    },
+    {
+      "index": 6,
+      "name": "lambdaPauseAllEntrypoints"
+    },
+    {
+      "index": 7,
+      "name": "lambdaUnpauseAllEntrypoints"
+    },
+    {
+      "index": 8,
+      "name": "lambdaSetSingleContractAdmin"
+    },
+    {
+      "index": 9,
+      "name": "lambdaSetAllContractsAdmin"
+    },
+    {
+      "index": 10,
+      "name": "lambdaRemoveBreakGlassControl"
+    },
+    {
+      "index": 11,
+      "name": "lambdaFlushAction"
+    },
+    {
+      "index": 12,
+      "name": "lambdaSignAction"
+    }
+]
+  

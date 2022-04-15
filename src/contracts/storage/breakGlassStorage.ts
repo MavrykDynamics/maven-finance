@@ -26,11 +26,11 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const breakGlassStorage: breakGlassStorageType = {
-  admin: bob.pkh,
-  mvkTokenAddress: "",
-  metadata: metadata,
+  admin               : bob.pkh,
+  mvkTokenAddress     : "",
+  metadata            : metadata,
 
-  config: config,
+  config              : config,
   glassBroken         : false,
   councilMembers      : MichelsonMap.fromLiteral({}),
   developerAddress    : zeroAddress,
@@ -39,6 +39,7 @@ export const breakGlassStorage: breakGlassStorageType = {
   generalContracts    : MichelsonMap.fromLiteral({}),
   
   actionsLedger       : MichelsonMap.fromLiteral({}),
-  actionCounter       : new BigNumber(1)
+  actionCounter       : new BigNumber(1),
 
+  lambdaLedger        : MichelsonMap.fromLiteral({})
 }
