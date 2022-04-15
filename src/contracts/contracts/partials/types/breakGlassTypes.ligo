@@ -3,8 +3,28 @@ type breakGlassConfigType is record [
     actionExpiryDays            : nat;                 // action expiry in number of days
 ]
 
-type councilMembersType is set(address)
+type councilMemberInfoType is [@layout:comb] record [
+    name          : string;
+    website       : string;
+    image         : string;
+]
+type councilMembersType is map(address, councilMemberInfoType)
 type signersType is set(address)
+
+type councilAddMemberType is [@layout:comb] record [
+    memberAddress       : address;
+    memberName          : string;
+    memberWebsite       : string;
+    memberImage         : string;
+]
+
+type councilChangeMemberType is [@layout:comb] record [
+    oldCouncilMemberAddress           : address;
+    newCouncilMemberAddress           : address;
+    newCouncilMemberName              : string;
+    newCouncilMemberWebsite           : string;
+    newCouncilMemberImage             : string;
+]
 
 type breakGlassUpdateConfigNewValueType is nat
 type breakGlassUpdateConfigActionType is 
@@ -16,6 +36,7 @@ type breakGlassUpdateConfigParamsType is [@layout:comb] record [
 ]
 
 type addressMapType   is map(string, address);
+type stringMapType    is map(string, string);
 type natMapType       is map(string, nat);
 
 type metadata is big_map (string, bytes);
@@ -31,6 +52,7 @@ type actionRecordType is record [
     signersCount               : nat;              // total number of signers
 
     addressMap                 : addressMapType;
+    stringMap                  : stringMapType;
     natMap                     : natMapType;
 
     startDateTime              : timestamp;       // timestamp of when action was initiated

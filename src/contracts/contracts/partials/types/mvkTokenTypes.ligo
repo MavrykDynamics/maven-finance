@@ -67,23 +67,8 @@ type assertMetadataParams is [@layout:comb] record[
   hash: bytes;
 ]
 
-(* GetTotalSupply & GetMaximumSupply entrypoint inputs *)
-type getSingleSupplyParamsType is tokenBalance
-
-(* GetTotalAndMaximumSupply entrypoint inputs *)
-type getTotalAndMaximumSupplyParamsType is tokenBalance * tokenBalance
-
-(* GetDesiredMintPossibility entrypoint inputs *)
-type getDesiredMintPossibilityParams is tokenBalance
-
 (* Mint entrypoint inputs *)
 type mintParams is (owner * tokenBalance)
-
-(* OnStakeChange entrypoint inputs *)
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
-type onStakeChangeParamsType is (owner * tokenBalance * stakeType)
 
 type mvkTokenStorage is record [
   admin                 : address;
