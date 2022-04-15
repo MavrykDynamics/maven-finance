@@ -34,16 +34,16 @@ type doormanAction is
   | Compound                    of (unit)
   | FarmClaim                   of farmClaimType
 
-  // | CallLambda                  of doormanActionType
   | SetLambda                   of setLambdaType
 
-// type doormanLambdaFunctionType is (doormanActionType * doormanStorage) -> return
+
 
 // ------------------------------------------------------------------------------
 //
 // Helper Functions Begin
 //
 // ------------------------------------------------------------------------------
+
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
@@ -80,8 +80,12 @@ function checkNoAmount(const _p : unit) : unit is
   if (Tezos.amount = 0tez) then unit
     else failwith("This entrypoint should not receive any tez.");
 
+
+
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
+
+
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
@@ -89,6 +93,7 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
+
 
 // ------------------------------------------------------------------------------
 // Break Glass Helper Functions Begin
@@ -113,6 +118,7 @@ function checkCompoundIsNotPaused(var s : doormanStorage) : unit is
 // ------------------------------------------------------------------------------
 // Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
+
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
@@ -163,6 +169,7 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
+
 
 // ------------------------------------------------------------------------------
 // Compound Helper Functions Begin
@@ -223,6 +230,7 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
 // ------------------------------------------------------------------------------
 
 
+
 // ------------------------------------------------------------------------------
 //
 // Lambda Methods Begin
@@ -239,6 +247,7 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
 // ------------------------------------------------------------------------------
 
 
+
 // ------------------------------------------------------------------------------
 //
 // Views Begin
@@ -248,6 +257,9 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
 (*  View: getTotalStakedSupply *)
 [@view] function getTotalStakedSupply(const _: unit; const s: doormanStorage) : nat is
   s.stakedMvkTotalSupply
+
+
+
 (* View: getStakedBalance *)
 [@view] function getStakedBalance (const userAddress : address; var s : doormanStorage) : nat is
   case s.userStakeBalanceLedger[userAddress] of [
@@ -260,6 +272,7 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
 // Views End
 //
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -276,7 +289,7 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
 function setAdmin(const newAdminAddress : address; var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["setAdminCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. setAdmin Lambda not found.")
     ];
@@ -287,7 +300,9 @@ block {
     
 } with (noOperations, res.1)
 
-(*  update the metadata at a given key *)
+
+
+(*  updateMetadata entrypoint: update the metadata at a given key *)
 function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : doormanStorage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
@@ -296,11 +311,13 @@ block {
     s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
 } with (noOperations, s)
 
+
+
 (*  updateMinMvkAmount entrypoint *)
 function updateMinMvkAmount(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
 block {
   
-    const lambdaBytes : bytes = case s.lambdaLedger["updateMinMvkAmountCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMinMvkAmount"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. updateMinMvkAmount Lambda not found.")
     ];
@@ -329,6 +346,7 @@ function updateGeneralContracts(const updateGeneralContractsParams: updateGenera
     checkSenderIsAdmin(s);
     s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
   } with (noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -342,7 +360,7 @@ function updateGeneralContracts(const updateGeneralContractsParams: updateGenera
 function pauseAll(var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["pauseAllCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. pauseAll Lambda not found.")
     ];
@@ -359,7 +377,7 @@ block {
 function unpauseAll(var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["unpauseAllCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. unpauseAll Lambda not found.")
     ];
@@ -375,7 +393,7 @@ block {
 function togglePauseStake(var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["togglePauseStakeCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseStake"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. togglePauseStake Lambda not found.")
     ];
@@ -390,7 +408,7 @@ block {
 (*  togglePauseUnstake entrypoint *)
 function togglePauseUnstake(var s : doormanStorage) : return is
 block {
-    const lambdaBytes : bytes = case s.lambdaLedger["togglePauseUnstakeCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnstake"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. togglePauseUnstake Lambda not found.")
     ];
@@ -406,7 +424,7 @@ block {
 function togglePauseCompound(var s : doormanStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["togglePauseCompoundCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCompound"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. togglePauseCompound Lambda not found.")
     ];
@@ -429,7 +447,7 @@ block {
 function stake(const stakeAmount : nat; var s : doormanStorage) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["stakeCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaStake"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. stake Lambda not found.")
     ];
@@ -447,7 +465,7 @@ block {
 function unstake(const unstakeAmount : nat; var s : doormanStorage) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["unstakeCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnstake"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. unstake Lambda not found.")
     ];
@@ -465,7 +483,7 @@ block {
 function compound(var s: doormanStorage): return is
 block{
     
-    const lambdaBytes : bytes = case s.lambdaLedger["compoundCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCompound"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. compound Lambda not found.")
     ];
@@ -483,7 +501,7 @@ block{
 function farmClaim(const farmClaim: farmClaimType; var s: doormanStorage): return is
 block{
 
-    const lambdaBytes : bytes = case s.lambdaLedger["farmClaimCompiled"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaFarmClaim"] of [
       | Some(_v) -> _v
       | None     -> failwith("Error. farmClaim Lambda not found.")
     ];
@@ -499,38 +517,10 @@ block{
 // Stake/Unstake/Compound/FarmClaim Entrypoints End
 // ------------------------------------------------------------------------------
 
+
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints Begin
 // ------------------------------------------------------------------------------
-
-(* callLambda entrypoint *)
-// function callLambda(const doormanAction : doormanActionType; var s : governanceStorage) : return is
-//   block {
-    
-//     checkSenderIsAdmin(s);
-
-//     const lambdaName : nat = case doormanAction of [
-        
-//       | SetAdmin(_v)      -> "setAdmin"
-      
-//       | Stake(_v)         -> "stake"
-//       | Unstake(_v)       -> "unstake"
-//     ];
-    
-//     const lambdaBytes : bytes = case s.lambdaLedger[lambdaName] of [
-//       | Some(_v) -> _v
-//       | None     -> failwith("Error. Doorman Lambda not found.")
-//     ];
-
-//     // reference: type doormanLambdaFunctionType is (doormanActionType * doormanStorage) -> return
-//     const res : return = case (Bytes.unpack(lambdaBytes) : option(doormanLambdaFunctionType)) of [
-//       | Some(f) -> f(doormanAction, s)
-//       | None    -> failwith("Error. Unable to unpack Doorman Lambda.")
-//     ];
-  
-//   } with (res.0, s)
-
-
 
 (* setLambda entrypoint *)
 function setLambda(const setLambdaParams: setLambdaType; var s: doormanStorage): return is
@@ -549,6 +539,13 @@ block{
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
 // ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints End
+//
+// ------------------------------------------------------------------------------
+
 
 
 (* Main entrypoint *)
@@ -576,7 +573,6 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | Compound(_parameters)                 -> compound(s)
       | FarmClaim(parameters)                 -> farmClaim(parameters, s)
 
-      // | CallLambda(parameters)                -> callLambda(parameters, s)
       | SetLambda(parameters)                 -> setLambda(parameters, s)
     ]
     

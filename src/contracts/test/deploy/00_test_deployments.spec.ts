@@ -26,6 +26,8 @@ import { bob, alice, eve, mallory } from '../../scripts/sandbox/accounts'
 
 import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
 import doormanLambdas from '../../build/lambdas/doormanLambdas.json'
+import breakGlassLambdas from '../../build/lambdas/breakGlassLambdas.json'
+import councilLambdas from '../../build/lambdas/councilLambdas.json'
 
 import { Doorman } from '../helpers/doormanHelper'
 import { Delegation } from '../helpers/delegationHelper'
@@ -484,20 +486,71 @@ describe('Contracts Deployment for Tests', async () => {
     // Doorman Setup Lambdas
     const doormanLambdaBatch = await tezos.wallet
     .batch()
-    .withContractCall(doorman.contract.methods.setLambda("setAdminCompiled"           , doormanLambdas[0])) // setAdmin
-    .withContractCall(doorman.contract.methods.setLambda("updateMinMvkAmountCompiled" , doormanLambdas[1])) // updateMinMvkAmount
-    .withContractCall(doorman.contract.methods.setLambda("pauseAllCompiled"           , doormanLambdas[2])) // pauseAll
-    .withContractCall(doorman.contract.methods.setLambda("unpauseAllCompiled"         , doormanLambdas[3])) // unpauseAll
-    .withContractCall(doorman.contract.methods.setLambda("togglePauseUnstakeCompiled" , doormanLambdas[4])) // togglePauseUnstake
-    .withContractCall(doorman.contract.methods.setLambda("stakeCompiled"      , doormanLambdas[5])) // compiledStake
-    .withContractCall(doorman.contract.methods.setLambda("unstakeCompiled"            , doormanLambdas[6])) // unstake
-    .withContractCall(doorman.contract.methods.setLambda("compoundCompiled"           , doormanLambdas[7])) // compound
-    .withContractCall(doorman.contract.methods.setLambda("farmClaimCompiled"          , doormanLambdas[8])) // farmClaim
+    .withContractCall(doorman.contract.methods.setLambda("lambdaSetAdmin"           , doormanLambdas[0])) // setAdmin
+    .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateMinMvkAmount" , doormanLambdas[1])) // updateMinMvkAmount
+    .withContractCall(doorman.contract.methods.setLambda("lambdaPauseAll"           , doormanLambdas[2])) // pauseAll
+    .withContractCall(doorman.contract.methods.setLambda("lambdaUnpauseAll"         , doormanLambdas[3])) // unpauseAll
+    .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseUnstake" , doormanLambdas[4])) // togglePauseUnstake
+    .withContractCall(doorman.contract.methods.setLambda("lambdaStake"              , doormanLambdas[5])) // stake
+    .withContractCall(doorman.contract.methods.setLambda("lambdaUnstake"            , doormanLambdas[6])) // unstake
+    .withContractCall(doorman.contract.methods.setLambda("lambdaCompound"           , doormanLambdas[7])) // compound
+    .withContractCall(doorman.contract.methods.setLambda("lambdaFarmClaim"          , doormanLambdas[8])) // farmClaim
   
     const setupDoormanLambdasOperation = await doormanLambdaBatch.send()
     await setupDoormanLambdasOperation.confirmation()
     console.log("Doorman Lambdas Setup")
     
+    // Break Glass Setup Lambdas
+    const breakGlassLambdaBatch = await tezos.wallet
+    .batch()
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaBreakGlass"                , breakGlassLambdas[0]))  // breakGlass
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetAdmin"                  , breakGlassLambdas[1]))  // setAdmin
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateConfig"              , breakGlassLambdas[2]))  // updateConfig
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaAddCouncilMember"          , breakGlassLambdas[3]))  // addCouncilMember
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaRemoveCouncilMember"       , breakGlassLambdas[4]))  // removeCouncilMember
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaChangeCouncilMember"       , breakGlassLambdas[5]))  // changeCouncilMember
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaPauseAllEntrypoints"       , breakGlassLambdas[6]))  // pauseAllEntrypoints
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaUnpauseAllEntrypoints"     , breakGlassLambdas[7]))  // unpauseAllEntrypoints
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetSingleContractAdmin"    , breakGlassLambdas[8]))  // setSingleContractAdmin
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetAllContractsAdmin"      , breakGlassLambdas[9]))  // setAllContractsAdmin
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaRemoveBreakGlassControl"   , breakGlassLambdas[10])) // removeBreakGlassControl
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaFlushAction"               , breakGlassLambdas[11])) // flushAction
+    .withContractCall(breakGlass.contract.methods.setLambda("lambdaSignAction"                , breakGlassLambdas[12])) // signAction
+  
+    const setupBreakGlassLambdasOperation = await breakGlassLambdaBatch.send()
+    await setupBreakGlassLambdasOperation.confirmation()
+    console.log("Break Glass Lambdas Setup")
+    
+    // Council Setup Lambdas
+    const councilLambdaBatch = await tezos.wallet
+    .batch()
+    .withContractCall(council.contract.methods.setLambda("lambdaSetAdmin"                               , councilLambdas[0]))  // setAdmin
+    .withContractCall(council.contract.methods.setLambda("lambdaUpdateMetadata"                         , councilLambdas[1]))  // updateMetadata
+    .withContractCall(council.contract.methods.setLambda("lambdaUpdateConfig"                           , councilLambdas[2]))  // updateConfig
+    .withContractCall(council.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , councilLambdas[3]))  // updateWhitelistContracts
+    .withContractCall(council.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , councilLambdas[4]))  // updateGeneralContracts
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddMember"                 , councilLambdas[5]))  // councilActionAddMember
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveMember"              , councilLambdas[6]))  // councilActionRemoveMember
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionChangeMember"              , councilLambdas[7]))  // councilActionChangeMember
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateMemberInfo"          , councilLambdas[8]))  // councilActionUpdateMemberInfo
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateBlocksPerMinute"     , councilLambdas[9]))  // councilActionUpdateBlocksPerMinute
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddVestee"                 , councilLambdas[10])) // councilActionAddVestee
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveVestee"              , councilLambdas[11])) // councilActionRemoveVestee
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateVestee"              , councilLambdas[12])) // councilActionUpdateVestee
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionToggleVesteeLock"          , councilLambdas[13])) // councilActionToggleVesteeLock
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionTransfer"                  , councilLambdas[14])) // councilActionTransfer
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRequestTokens"             , councilLambdas[15])) // councilActionRequestTokens
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRequestMint"               , councilLambdas[16])) // councilActionRequestMint
+    .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionDropFinancialRequest"      , councilLambdas[17])) // councilActionDropFinancialRequest
+    .withContractCall(council.contract.methods.setLambda("lambdaFlushAction"                            , councilLambdas[18])) // flushAction
+    .withContractCall(council.contract.methods.setLambda("lambdaSignAction"                             , councilLambdas[19])) // signAction
+
+  
+    const setupCouncilLambdasOperation = await councilLambdaBatch.send()
+    await setupCouncilLambdasOperation.confirmation()
+    console.log("Council Lambdas Setup")
+    
+
     //----------------------------
     // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
     //----------------------------

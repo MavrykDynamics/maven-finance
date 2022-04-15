@@ -30,7 +30,9 @@
     "compile-lambdas": "ts-node scripts/cli.ts compile-lambda",
     "compile-governance-lambdas": "yarn compile-lambdas -j contracts/partials/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo -n governanceLambdas",
     "compile-doorman-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/doorman/doormanLambdaIndex.json -c contracts/main/doorman.ligo -n doormanLambdas",
-    "compile-all-lambdas": "yarn compile-governance-lambdas && yarn compile-doorman-lambdas",
+    "compile-breakGlass-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/breakGlass/breakGlassLambdaIndex.json -c contracts/main/breakGlass.ligo -n breakGlassLambdas",
+    "compile-council-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/council/councilLambdaIndex.json -c contracts/main/council.ligo -n councilLambdas",
+    "compile-all-lambdas": "yarn compile-governance-lambdas && yarn compile-doorman-lambdas && yarn compile-breakGlass-lambdas && yarn compile-council-lambdas",
 
     "compile-lambda-parameters": "ts-node scripts/cli.ts compile-lambda-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",
     "compile-pack-parameters": "ts-node scripts/cli.ts compile-pack-parameters -j contracts/partials/governance/governanceLambdaParameters.json -c contracts/main/governance.ligo",

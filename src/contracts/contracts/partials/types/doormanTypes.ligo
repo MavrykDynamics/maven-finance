@@ -27,11 +27,6 @@ type stakeType is
 
 type metadata is big_map (string, bytes);
 
-// type doormanActionType is 
-//     SetAdmin    of address
-//   | Stake       of nat
-
-
 type doormanStorage is [@layout:comb] record [
   admin                     : address;
   mvkTokenAddress           : address;

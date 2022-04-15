@@ -26,17 +26,19 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const councilStorage: councilStorageType = {
-  admin: bob.pkh,
-  mvkTokenAddress: "",
-  metadata: metadata,
+  admin                 : bob.pkh,
+  mvkTokenAddress       : "",
+  metadata              : metadata,
   
-  config: config,
-  councilMembers: MichelsonMap.fromLiteral({}),
+  config                : config,
+  councilMembers        : MichelsonMap.fromLiteral({}),
 
-  whitelistContracts: MichelsonMap.fromLiteral({}),
-  generalContracts: MichelsonMap.fromLiteral({}),
+  whitelistContracts    : MichelsonMap.fromLiteral({}),
+  generalContracts      : MichelsonMap.fromLiteral({}),
 
-  councilActionsLedger: MichelsonMap.fromLiteral({}),
+  councilActionsLedger  : MichelsonMap.fromLiteral({}),
 
-  actionCounter: new BigNumber(1),
+  actionCounter         : new BigNumber(1),
+
+  lambdaLedger          : MichelsonMap.fromLiteral({}),
 }

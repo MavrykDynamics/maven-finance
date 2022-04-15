@@ -2290,7 +2290,7 @@ describe("Break Glass tests", async () => {
                     // Initial Values
                     breakGlassStorage       = await breakGlassInstance.storage();
                     const nextActionID      = breakGlassStorage.actionCounter - 2; // Get the previously duplicated action
-                    const flushedAction     = breakGlassStorage.actionCounter - 3;
+                    const flushedAction     = 1;
                     var action              = await breakGlassStorage.actionsLedger.get(nextActionID);
                     const actionSigner      = action.signers.includes(alice.pkh)
                     const natMap            = await action.natMap;

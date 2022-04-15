@@ -1,19 +1,15 @@
 (*  setAdmin lambda *)
-function setAdminCompiled(const newAdminAddress : address; var s : doormanStorage) : return is
+function lambdaSetAdmin(const newAdminAddress : address; var s : doormanStorage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
-    // case doormanAction of [
-    //     SetAdmin(params) -> s.admin := params
-    //   | _ -> skip
-    // ];
 
 } with (noOperations, s)
 
 
 
 (*  updateMinMvkAmount lambda *)
-function updateMinMvkAmountCompiled(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
+function lambdaUpdateMinMvkAmount(const newMinMvkAmount : nat; var s : doormanStorage) : return is 
 block {
   // check that sender is admin (i.e. Governance DAO contract address)
   checkSenderIsAdmin(s);
@@ -28,7 +24,7 @@ block {
 
 
 (*  pauseAll lambda *)
-function pauseAllCompiled(var s : doormanStorage) : return is
+function lambdaPauseAll(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -48,7 +44,7 @@ block {
 
 
 (*  unpauseAll lambda *)
-function unpauseAllCompiled(var s : doormanStorage) : return is
+function lambdaUnpauseAll(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -68,7 +64,7 @@ block {
 
 
 (*  togglePauseStake lambda *)
-function togglePauseStakeCompiled(var s : doormanStorage) : return is
+function lambdaTogglePauseStake(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -81,7 +77,7 @@ block {
 
 
 (*  togglePauseUnstake lambda *)
-function togglePauseUnstakeCompiled(var s : doormanStorage) : return is
+function lambdaTogglePauseUnstake(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -94,7 +90,7 @@ block {
 
 
 (*  togglePauseCompound lambda *)
-function togglePauseCompoundCompiled(var s : doormanStorage) : return is
+function lambdaTogglePauseCompound(var s : doormanStorage) : return is
 block {
     // check that sender is admin
     checkSenderIsAdmin(s);
@@ -107,7 +103,7 @@ block {
 
 
 (*  stake lambda *)
-function stakeCompiled(const stakeAmount : nat; var s : doormanStorage) : return is
+function lambdaStake(const stakeAmount : nat; var s : doormanStorage) : return is
 block {
 
   // Steps Overview
@@ -192,7 +188,7 @@ block {
 
 
 (*  unstake lambda *)
-function unstakeCompiled(const unstakeAmount : nat; var s : doormanStorage) : return is
+function lambdaUnstake(const unstakeAmount : nat; var s : doormanStorage) : return is
 block {
   // Steps Overview
   // 1. verify that user is unstaking more than 0 sMVK tokens - note: amount should be converted (on frontend) to 10^6 similar to mutez
@@ -323,7 +319,7 @@ block {
 
 
 (*  compound lambda *)
-function compoundCompiled(var s: doormanStorage): return is
+function lambdaCompound(var s: doormanStorage): return is
   block{
     // Check if compound is paused
     checkCompoundIsNotPaused(s);
@@ -341,7 +337,7 @@ function compoundCompiled(var s: doormanStorage): return is
 
 
 (* farmClaim lambda *)
-function farmClaimCompiled(const farmClaim: farmClaimType; var s: doormanStorage): return is
+function lambdaFarmClaim(const farmClaim: farmClaimType; var s: doormanStorage): return is
   block{
     // Get values from parameter
     const delegator: address = farmClaim.0;
