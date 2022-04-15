@@ -153,28 +153,28 @@ describe("Delegation tests", async () => {
                 await distributeOperation.confirmation();
                 delegationStorage = await delegationInstance.storage();
                 var satelliteRecord = await delegationStorage.satelliteLedger.get(bob.pkh)
-                console.log("PRE-CLAIM SATELLITE: ", satelliteRecord)
+                console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unclaimedRewards.toNumber())
 
                 // Claim operations
                 var claimOperation = await delegationInstance.methods.claimRewards().send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 var satelliteRecord = await delegationStorage.satelliteLedger.get(bob.pkh)
-                console.log("POST-CLAIM SATELLITE: ", satelliteRecord)
+                console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unclaimedRewards.toNumber())
 
                 await signerFactory(alice.sk);
                 claimOperation = await delegationInstance.methods.claimRewards().send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 var delegateRecord = await delegationStorage.delegateLedger.get(alice.pkh)
-                console.log("POST-CLAIM ALICE: ", delegateRecord)
+                console.log("POST-CLAIM ALICE: ", delegateRecord.unclaimedRewards.toNumber())
 
                 await signerFactory(eve.sk);
                 claimOperation = await delegationInstance.methods.claimRewards().send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 var delegateRecord = await delegationStorage.delegateLedger.get(eve.pkh)
-                console.log("POST-CLAIM EVE: ", delegateRecord)
+                console.log("POST-CLAIM EVE: ", delegateRecord.unclaimedRewards.toNumber())
             } catch(e){
                 console.log(e);
             }
