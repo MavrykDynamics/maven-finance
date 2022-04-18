@@ -3,12 +3,13 @@ import { BigNumber } from 'bignumber.js'
 
 const { bob, alice } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from '../test/helpers/Utils'
+import { MVK, zeroAddress } from '../test/helpers/Utils'
 
 import { governanceStorageType } from '../test/types/governanceStorageType'
 
 const config = {
     successReward             : 10000,
+    cycleVotersReward         : MVK(100),
 
     minProposalRoundVotePercentage : 1000,
     minProposalRoundVotesRequired  : 10000,
@@ -80,6 +81,8 @@ export const governanceStorage: governanceStorageType = {
   currentRoundProposals   : MichelsonMap.fromLiteral({}),
   currentRoundProposers   : MichelsonMap.fromLiteral({}),
   currentRoundVotes       : MichelsonMap.fromLiteral({}),
+  currentCycleVotersReward: new BigNumber(0),
+
   currentRoundHighestVotedProposalId : new BigNumber(0),
   timelockProposalId                 : new BigNumber(0),
   

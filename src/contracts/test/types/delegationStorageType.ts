@@ -14,6 +14,7 @@ export type delegationStorageType = {
 
   delegateLedger      : MichelsonMap<MichelsonMapKey, unknown>
   satelliteLedger     : MichelsonMap<MichelsonMapKey, unknown>
+  satelliteRewardsLedger: MichelsonMap<MichelsonMapKey, unknown>
 
   lambdaLedger        : MichelsonMap<MichelsonMapKey, unknown>
   
