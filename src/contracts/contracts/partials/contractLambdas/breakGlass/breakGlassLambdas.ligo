@@ -190,7 +190,7 @@ block {
 
 
 (*  changeCouncilMember lambda  *)
-function lambdaChangeCouncilMember(const councilActionChangeMemberParams : councilChangeMemberType; const newCouncilMemberAddress : address; var s : breakGlassStorage) : return is 
+function lambdaChangeCouncilMember(const councilActionChangeMemberParams : councilChangeMemberType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:

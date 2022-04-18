@@ -1,13 +1,27 @@
+// ------------------------------------------------------------------------------
+// Common Types
+// ------------------------------------------------------------------------------
+
 // Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
 #include "../partials/whitelistContractsType.ligo"
 
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Set Lambda Types
+#include "../partials/functionalTypes/setLambdaTypes.ligo"
+
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
+
 // BreakGlass Types
 #include "../partials/types/breakGlassTypes.ligo"
 
+// ------------------------------------------------------------------------------
+
 type breakGlassAction is
+
     // Break Glass
     | BreakGlass                    of (unit)
     
@@ -39,6 +53,7 @@ type breakGlassAction is
 
     // Lambda Entrypoints
     | SetLambda                     of setLambdaType
+
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * breakGlassStorage

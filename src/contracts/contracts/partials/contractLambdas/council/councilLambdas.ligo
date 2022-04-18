@@ -331,7 +331,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  councilActionAddVestee lambda  *)
-function lambdaCouncilActionAddVestee(const addVestee : addVesteeType ; var s : councilStorage) : return is 
+function lambdaCouncilActionAddVestee(const addVesteeParams : addVesteeType ; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -348,8 +348,14 @@ block {
     ];
     const _checkEntrypoint: contract(addVesteeType)    = sendAddVesteeParams(vestingAddress);
 
+    // init parameters
+    const vesteeAddress          : address  = addVesteeParams.vesteeAddress;
+    const totalAllocatedAmount   : nat      = addVesteeParams.totalAllocatedAmount;
+    const cliffInMonths          : nat      = addVesteeParams.cliffInMonths;
+    const vestingInMonths        : nat      = addVesteeParams.vestingInMonths;
+
     // Check if the vestee already exists
-    const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", addVestee.0, vestingAddress);
+    const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
     case getVesteeOptView of [
         Some (_value) -> case _value of [
             Some (_vestee) -> failwith ("Error. This vestee already exists")
@@ -359,13 +365,13 @@ block {
     ];
 
     const addressMap : addressMapType     = map [
-        ("vesteeAddress"         : string) -> addVestee.0;
+        ("vesteeAddress"         : string) -> vesteeAddress;
     ];
     const emptyStringMap : stringMapType = map [];
     const natMap : natMapType            = map [
-        ("totalAllocatedAmount"  : string) -> addVestee.1;
-        ("cliffInMonths"         : string) -> addVestee.2;
-        ("vestingInMonths"       : string) -> addVestee.3;
+        ("totalAllocatedAmount"  : string) -> totalAllocatedAmount;
+        ("cliffInMonths"         : string) -> cliffInMonths;
+        ("vestingInMonths"       : string) -> vestingInMonths;
     ];
 
     var councilActionRecord : councilActionRecordType := record[
@@ -459,7 +465,7 @@ block {
 
 
 (*  councilActionUpdateVestee lambda  *)
-function lambdaCouncilActionUpdateVestee(const updateVestee : updateVesteeType; var s : councilStorage) : return is 
+function lambdaCouncilActionUpdateVestee(const updateVesteeParams : updateVesteeType; var s : councilStorage) : return is 
 block {
 
     // Overall steps:
@@ -476,8 +482,14 @@ block {
     ];
     const _checkEntrypoint: contract(updateVesteeType)    = sendUpdateVesteeParams(vestingAddress);
 
+    // init parameters
+    const vesteeAddress             : address  = updateVesteeParams.vesteeAddress;
+    const newTotalAllocatedAmount   : nat      = updateVesteeParams.newTotalAllocatedAmount;
+    const newCliffInMonths          : nat      = updateVesteeParams.newCliffInMonths;
+    const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
+
     // Check if the vestee already exists
-    const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", updateVestee.0, vestingAddress);
+    const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
     case getVesteeOptView of [
         Some (_value) -> case _value of [
             Some (_vestee) -> skip
@@ -487,13 +499,13 @@ block {
     ];
 
     const addressMap : addressMapType     = map [
-        ("vesteeAddress"         : string) -> updateVestee.0;
+        ("vesteeAddress"         : string)    -> vesteeAddress;
     ];
     const emptyStringMap : stringMapType = map [];
     const natMap : natMapType            = map [
-        ("newTotalAllocatedAmount"  : string) -> updateVestee.1;
-        ("newCliffInMonths"         : string) -> updateVestee.2;
-        ("newVestingInMonths"       : string) -> updateVestee.3;
+        ("newTotalAllocatedAmount"  : string) -> newTotalAllocatedAmount;
+        ("newCliffInMonths"         : string) -> newCliffInMonths;
+        ("newVestingInMonths"       : string) -> newVestingInMonths;
     ];
 
     var councilActionRecord : councilActionRecordType := record[
@@ -1002,7 +1014,12 @@ block {
             ];
             // fetch params end ---
 
-            const addVesteeParams : addVesteeType = (vesteeAddress, totalAllocatedAmount, cliffInMonths, vestingInMonths);
+            const addVesteeParams : addVesteeType = record [
+                vesteeAddress           = vesteeAddress;
+                totalAllocatedAmount    = totalAllocatedAmount;
+                cliffInMonths           = cliffInMonths;
+                vestingInMonths         = vestingInMonths;
+            ];
 
             var vestingAddress : address := case s.generalContracts["vesting"] of [
                 Some(_address) -> _address
@@ -1074,7 +1091,12 @@ block {
             ];
             // fetch params end ---
 
-            const updateVesteeParams : updateVesteeType = (vesteeAddress, newTotalAllocatedAmount, newCliffInMonths, newVestingInMonths);
+            const updateVesteeParams : updateVesteeType = record [
+                vesteeAddress               = vesteeAddress;
+                newTotalAllocatedAmount     = newTotalAllocatedAmount;
+                newCliffInMonths            = newCliffInMonths;
+                newVestingInMonths          = newVestingInMonths;
+            ];
 
             var vestingAddress : address := case s.generalContracts["vesting"] of [
                 Some(_address) -> _address
