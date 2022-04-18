@@ -740,15 +740,18 @@ describe('Contracts Deployment for Tests', async () => {
 
 
     // Delegation Contract - set general contract addresses [governance]
-    // Delegation Contract - set whitelist contract addresses [treasury]
+    // Delegation Contract - set whitelist contract addresses [treasury, governance]
     const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts('governance', governance.contract.address).send()
     await setGovernanceContractAddressInDelegationOperation.confirmation()
 
-    const setWhitelistTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address).send()  
+    const setWhitelistTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address).send();
     await setWhitelistTreasuryContractAddressInDelegationOperation.confirmation()
     
+    const setWhitelistGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts('governance', governance.contract.address).send();
+    await setWhitelistGovernanceContractAddressInDelegationOperation.confirmation()
+
     console.log('Delegation Contract - set general contract addresses [governance]')
-    console.log('Delegation Contract - set whitelist contract addresses [treasury]')
+    console.log('Delegation Contract - set whitelist contract addresses [treasury, governance]')
 
 
 
