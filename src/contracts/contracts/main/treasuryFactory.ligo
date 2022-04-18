@@ -10,6 +10,9 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
+// Set Lambda Types
+#include "../partials/functionalTypes/setLambdaTypes.ligo"
+
 // Treasury types
 #include "../partials/types/mvkTokenTypes.ligo"
 

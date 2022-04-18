@@ -61,33 +61,35 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const farmStorage: farmStorageType = {
-  admin: bob.pkh,
-  mvkTokenAddress: "",
-  metadata: metadata,
+  admin                     : bob.pkh,
+  mvkTokenAddress           : "",
+  metadata                  : metadata,
 
-  config: {
-    lpToken: lpToken,
-    tokenPair: tokenPair,
-    infinite: false,
-    forceRewardFromTransfer: false,
-    blocksPerMinute: new BigNumber(2),
-    plannedRewards: plannedRewards,
-  },
+  config                    : {
+                                lpToken                  : lpToken,
+                                tokenPair                : tokenPair,
+                                infinite                 : false,
+                                forceRewardFromTransfer  : false,
+                                blocksPerMinute          : new BigNumber(2),
+                                plannedRewards           : plannedRewards,
+                              },
   
-  generalContracts: MichelsonMap.fromLiteral({}),
-  whitelistContracts: MichelsonMap.fromLiteral({}),
+  generalContracts          : MichelsonMap.fromLiteral({}),
+  whitelistContracts        : MichelsonMap.fromLiteral({}),
 
-  breakGlassConfig: {
-    depositIsPaused: false,
-    withdrawIsPaused: false,
-    claimIsPaused: false
-  },
+  breakGlassConfig          : {
+                                depositIsPaused  : false,
+                                withdrawIsPaused : false,
+                                claimIsPaused    : false
+                              },
 
-  lastBlockUpdate: new BigNumber(0),
-  accumulatedMVKPerShare: new BigNumber(0),
-  claimedRewards: claimedRewards,
-  delegators: MichelsonMap.fromLiteral({}),
-  open: false,
-  init: false,
-  initBlock: new BigNumber(0)
+  lastBlockUpdate           : new BigNumber(0),
+  accumulatedMVKPerShare    : new BigNumber(0),
+  claimedRewards            : claimedRewards,
+  delegators                : MichelsonMap.fromLiteral({}),
+  open                      : false,
+  init                      : false,
+  initBlock                 : new BigNumber(0),
+
+  lambdaLedger              : MichelsonMap.fromLiteral({})
 };
