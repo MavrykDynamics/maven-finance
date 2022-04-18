@@ -234,8 +234,17 @@ describe("Delegation tests", async () => {
         
         it('Reward distribution tests #1', async () => {
             try{
+                console.log("configuration:\n- 2 satellites (Bob|Mallory)\n- 2 delegates on Bob (Alice|Eve)\n- Operations: \n   DistributeReward(100MVK)\n   Unregister(Bob)\n   Undelegate(Alice)\n   Claim(Bob)\n   Delegate(Alice->Mallory)\n   Claim(Alice)\n   Claim(Eve)");
+
                 // Initial Values
-                delegationStorage = await delegationInstance.storage();
+                delegationStorage           = await delegationInstance.storage();
+                doormanStorage              = await doormanInstance.storage();
+                const reward                = MVK(100);
+                const initSatelliteSMVK     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh) 
+                const initSatelliteRewards  = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
+                const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(bob.pkh);
+                const satelliteVotingPower  = initSatelliteRecord.totalDelegatedAmount.toNumber() + initSatelliteRecord.stakedMvkBalance.toNumber();
+                const satelliteFee          = initSatelliteRecord.satelliteFee.toNumber();
 
                 // Distribute Operation
                 const distributeOperation = await delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send();
@@ -255,6 +264,7 @@ describe("Delegation tests", async () => {
                 satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
                 console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
+                // Alice redelegate operation
                 await signerFactory(alice.sk);
                 claimOperation = await doormanInstance.methods.compound().send();
                 await claimOperation.confirmation()
