@@ -594,8 +594,11 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 };
 
                 // Prepare operation list
-                operations := list[updateSatelliteBalanceOperation];
-
+                var operations: list(operation) :=  case userCompound.0 of [
+                  Some (o) -> list [o; updateSatelliteBalanceOperation]
+                | None -> list [updateSatelliteBalanceOperation]
+                ];
+                
                 // Get MVK Token address
                 const mvkTokenAddress: address = s.mvkTokenAddress;
 
@@ -612,7 +615,6 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                     sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
                   );
                   operations := mintOperation # operations;
-
                 } else skip;
 
                 // Transfer from treasury
@@ -635,7 +637,6 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                     sendTransferOperationToTreasury(treasuryAddress)
                   );
                   operations := transferOperation # operations;
-
                 } else skip;
 
             }

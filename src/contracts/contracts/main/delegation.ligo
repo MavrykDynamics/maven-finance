@@ -56,7 +56,7 @@ type delegationAction is
     | UpdateSatelliteRecord of (updateSatelliteRecordParams)
     | OnStakeChange of onStakeChangeParams
 
-    | DistributeRewards of distributeRewardsTypes
+    | DistributeReward of distributeRewardTypes
     | ClaimRewards of unit
 
 const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36

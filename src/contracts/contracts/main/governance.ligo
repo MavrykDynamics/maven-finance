@@ -560,6 +560,38 @@ block {
 
 
 // helper function to setup new proposal round
+function sendRewardsToVoters(var s: governanceStorage): operation is
+  block{
+    // Get all voting satellite
+    const highestVotedProposalId: nat   = s.currentRoundHighestVotedProposalId;
+    const proposal: proposalRecordType  = case Big_map.find_opt(highestVotedProposalId, s.proposalLedger) of [
+      Some (_record) -> _record
+    | None -> failwith("Error. Highest voted proposal not found")
+    ];
+    const voters: votersMapType         = proposal.voters;
+    
+    // Get voters
+    var votersAddresses: set(address)   := Set.empty;
+    function getVotersAddresses(const voters: set(address); const voter: address * votingRoundVoteType): set(address) is
+      Set.add(voter.0, voters);
+    var votersAddresses := Map.fold(getVotersAddresses, voters, votersAddresses);
+
+    // Get rewards
+    const roundReward: nat  = s.currentCycleVotersReward;
+
+    // Send rewards to all satellites
+    const delegationAddress : address = case s.generalContracts["delegation"] of [
+      Some(_address) -> _address
+      | None -> failwith("Error. Delegation Contract is not found")
+    ];
+    const distributeRewardsEntrypoint: contract(set(address) * nat) =
+      case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
+        Some(contr) -> contr
+      | None -> (failwith("Error. DistributeReward entrypoint not found in Delegation contract."): contract(set(address) * nat))
+    ];
+    const distributeOperation: operation = Tezos.transaction((votersAddresses, roundReward), 0tez, distributeRewardsEntrypoint);
+  } with(distributeOperation)
+
 function setupProposalRound(var s: governanceStorage): governanceStorage is
 block {
 
@@ -575,6 +607,7 @@ block {
     s.currentRoundStartLevel               := Tezos.level;
     s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
     s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
+    s.currentCycleVotersReward             := s.config.cycleVotersReward;
     s.currentRoundProposals                := emptyProposalMap;    // flush proposals
     s.currentRoundProposers                := emptyProposerMap;    // flush proposals
     s.currentRoundVotes                    := emptyVotesMap;       // flush voters

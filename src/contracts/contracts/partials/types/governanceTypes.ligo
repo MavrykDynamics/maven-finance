@@ -179,6 +179,7 @@ type snapshotLedgerType is big_map (address, snapshotRecordType);
 type governanceConfigType is [@layout:comb] record [
     
     successReward                       : nat;  // incentive reward for successful proposal
+    cycleVotersReward                   : nat;  // Reward sent then split to all voters at the end of a voting round
 
     minProposalRoundVotePercentage      : nat; // percentage of staked MVK votes required to pass proposal round
     minProposalRoundVotesRequired       : nat; // amount of staked MVK votes required to pass proposal round
@@ -378,7 +379,8 @@ type governanceStorage is [@layout:comb] record [
     currentRoundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
     currentRoundProposers              : map(address, set(nat));  // proposer, 
     currentRoundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    
+    currentCycleVotersReward            : nat;
+
     nextProposalId                      : nat;                    // counter of next proposal id
     cycleCounter                        : nat;                    // counter of current cycle 
     currentRoundHighestVotedProposalId  : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id
@@ -393,6 +395,7 @@ type governanceStorage is [@layout:comb] record [
     financialRequestCounter             : nat;
 
     // lambda storage
+    proxyLambdaLedger                   : proxyLambdaLedgerType;   // lambdas to external contracts used in executing proposals
     lambdaLedger                        : lambdaLedgerType;             // governance contract lambdas
 
     

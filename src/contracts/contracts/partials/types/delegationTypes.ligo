@@ -1,13 +1,19 @@
 type onStakeChangeParams is (address)
 
 
+type satelliteRewards is record [
+    unpaid                          : nat;
+    paid                            : nat;
+    participationRewardsPerShare    : nat;
+    accumulatedRewardsPerShare      : nat; // 0n if delegate
+]
+
 // record for users choosing satellites 
 type delegateRecordType is [@layout:comb] record [
     satelliteAddress                : address;
     delegatedDateTime               : timestamp;
     delegatedSMvkBalance            : nat;
-    participationRewardsPerShare    : nat;
-    unclaimedRewards                : nat;
+    // fee -> custom delegate fee for satellite
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
@@ -45,6 +51,8 @@ type satelliteRecordType is [@layout:comb] record [
     registeredDateTime    : timestamp;  
 ]
 type satelliteLedgerType is map (address, satelliteRecordType)
+
+type satelliteRewardsLedgerType is map (address, satelliteRewards)
 
 type requestSatelliteSnapshotType is  [@layout:comb] record [
     satelliteAddress      : address;
@@ -141,18 +149,19 @@ type distributeRewardsTypes is [@layout:comb] record [
 ]
 
 type delegationStorage is [@layout:comb] record [
-    admin                : address;
-    mvkTokenAddress      : address;
-    metadata             : metadata;
-    
-    config               : delegationConfigType;
+    admin                   : address;
+    mvkTokenAddress         : address;
+    metadata                : metadata;
 
-    whitelistContracts   : whitelistContractsType;      
-    generalContracts     : generalContractsType;
+    config                  : delegationConfigType;
+
+    whitelistContracts      : whitelistContractsType;      
+    generalContracts        : generalContractsType;
 
     breakGlassConfig     : delegationBreakGlassConfigType;
     delegateLedger       : delegateLedgerType;
     satelliteLedger      : satelliteLedgerType;
+    satelliteRewardsLedger  : satelliteRewardsLedgerType;
 
     lambdaLedger         : lambdaLedgerType;   
 ]
