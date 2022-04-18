@@ -1,20 +1,33 @@
+// ------------------------------------------------------------------------------
+// Common Types
+// ------------------------------------------------------------------------------
 
 // Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
 #include "../partials/whitelistContractsType.ligo"
+
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
+
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
+
+// Set Lambda Types
+#include "../partials/functionalTypes/setLambdaTypes.ligo"
+
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
+
 // Doorman types
 #include "../partials/types/doormanTypes.ligo"
+
 // MvkToken types for transfer
 #include "../partials/types/mvkTokenTypes.ligo"
+
 // Treasury types for farmClaim
 #include "../partials/types/treasuryTypes.ligo"
 
-const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
-const noOperations : list (operation) = nil;
-type return is list (operation) * doormanStorage
+// ------------------------------------------------------------------------------
 
 type doormanAction is 
     SetAdmin                    of (address)
@@ -35,6 +48,25 @@ type doormanAction is
   | FarmClaim                   of farmClaimType
 
   | SetLambda                   of setLambdaType
+
+
+const noOperations : list (operation) = nil;
+type return is list (operation) * doormanStorage
+
+
+// ------------------------------------------------------------------------------
+//
+// Constants Begin
+//
+// ------------------------------------------------------------------------------
+
+const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_000n // 10^36
+
+// ------------------------------------------------------------------------------
+//
+// Constants End
+//
+// ------------------------------------------------------------------------------
 
 
 
@@ -298,7 +330,7 @@ block {
       | None    -> failwith("Error. Unable to unpack Doorman setAdmin Lambda.")
     ];
     
-} with (noOperations, res.1)
+} with (res.0, res.1)
 
 
 
@@ -353,7 +385,7 @@ function updateGeneralContracts(const updateGeneralContractsParams: updateGenera
 
 
 // ------------------------------------------------------------------------------
-// Break Glass Entrypoints Begin
+// Pause / Break Glass Entrypoints Begin
 // ------------------------------------------------------------------------------
 
 (*  pauseAll entrypoint *)
@@ -435,7 +467,7 @@ block {
 } with (noOperations, res.1)
 
 // ------------------------------------------------------------------------------
-// Housekeeping Entrypoints End
+// Pause / Break Glass Entrypoints End
 // ------------------------------------------------------------------------------
 
 
@@ -554,6 +586,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
     
     // entrypoint should not receive any tez amount
     checkNoAmount(Unit);
+
   } with(
     case action of [
       | SetAdmin(parameters)                  -> setAdmin(parameters, s)

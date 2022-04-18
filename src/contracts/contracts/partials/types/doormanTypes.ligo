@@ -15,12 +15,6 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
 
 type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
-type setLambdaType is [@layout:comb] record [
-      name                  : string;
-      func_bytes            : bytes;
-]
-type lambdaLedgerType is big_map(string, bytes)
-
 type stakeType is 
   StakeAction of unit
 | UnstakeAction of unit

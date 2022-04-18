@@ -7,6 +7,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Set Lambda Types
+#include "../partials/functionalTypes/setLambdaTypes.ligo"
+
 // Farm Types
 #include "../partials/types/farmTypes.ligo"
 
@@ -269,7 +272,7 @@ function createFarm(const farmStorage: farmStorageType; var s: farmFactoryStorag
         ];
 
         // Create needed records for farm contract
-        const farmDelegators: big_map(delegator, delegatorRecord) = Big_map.empty;
+        const farmDelegators : big_map(delegator, delegatorRecord) = Big_map.empty;
         const farmClaimedRewards: claimedRewards = record[
             paid=0n;
             unpaid=0n;
@@ -325,12 +328,13 @@ function createFarm(const farmStorage: farmStorageType; var s: farmFactoryStorag
         const farmMetadata: metadata = Big_map.literal (list [
             ("", Bytes.pack(farmMetadataPlain));
         ]);
+        const farmLambdaLedger : big_map(string, bytes) = Big_map.empty;
 
         // Check wether the farm is infinite or its total blocks has been set
         if not farmInfinite and farmStorage.plannedRewards.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
 
         // Create a farm and auto init it?
-        const originatedFarmStorage: farmStorage = record[
+        const originatedFarmStorage : farmStorage = record[
             admin                   = s.admin; // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
             mvkTokenAddress         = s.mvkTokenAddress;
             metadata                = farmMetadata;
@@ -349,6 +353,8 @@ function createFarm(const farmStorage: farmStorageType; var s: farmFactoryStorag
             open                    = True ;
             init                    = True;
             initBlock               = Tezos.level;
+
+            lambdaLedger            = farmLambdaLedger;
         ];
 
         // Do we want to send tez to the farm contract?

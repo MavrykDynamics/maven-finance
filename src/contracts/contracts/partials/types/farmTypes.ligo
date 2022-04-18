@@ -48,6 +48,7 @@ type metadata is big_map (string, bytes);
 ////
 // INPUTS
 ////
+
 (* Transfer entrypoint inputs for FA12 and FA2 *)
 type transferDestination is [@layout:comb] record[
   to_: address;
@@ -83,10 +84,6 @@ type farmUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: farmUpdateConfigActionType;
 ]
 
-////
-// STORAGE
-////
-
 type farmStorage is [@layout:comb] record[
     admin                   : address;
     mvkTokenAddress         : address;
@@ -106,4 +103,6 @@ type farmStorage is [@layout:comb] record[
     open                    : bool;
     init                    : bool;
     initBlock               : nat;
+
+    lambdaLedger            : lambdaLedgerType;
 ]

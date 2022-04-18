@@ -1,5 +1,3 @@
-// todo: consideration: include a signature hash of signer for added security?
-
 type signersType is set(address)
 
 type metadata is big_map (string, bytes);

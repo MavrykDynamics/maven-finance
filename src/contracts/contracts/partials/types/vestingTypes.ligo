@@ -1,7 +1,7 @@
 type blockLevel is nat;
 type metadata is big_map (string, bytes);
 
-type claimRecordType is record [
+type claimRecordType is [@layout:comb] record [
     amountClaimed      : nat;
     remainderVested    : nat; 
     dateTimeClaimed    : timestamp;
@@ -9,7 +9,7 @@ type claimRecordType is record [
 ]
 type claimLedgerType is big_map(address, claimRecordType)
 
-type vesteeRecordType is record [
+type vesteeRecordType is [@layout:comb] record [
     
     // static variables initiated at start ----
 
@@ -41,13 +41,19 @@ type vesteeRecordType is record [
 ] 
 type vesteeLedgerType is big_map(address, vesteeRecordType) // address, vestee record
 
-// how to account for changes in block level
+type addVesteeType is [@layout:comb] record [
+    vesteeAddress           : address;
+    totalAllocatedAmount    : nat;
+    cliffInMonths           : nat;
+    vestingInMonths         : nat;
+]
 
-// determine if cliff period and vesting period will be unique to different users 
-// e.g. different start times for each person depending on when they joined and vesting starts
-    
-type addVesteeType is (address * nat * nat * nat) // vestee address, total allocated amount, cliff in months, vesting in months
-type updateVesteeType is (address * nat * nat * nat) // vestee address, new total allocated amount, new cliff in months, new vesting in months
+type updateVesteeType is [@layout:comb] record [
+    vesteeAddress              : address;
+    newTotalAllocatedAmount    : nat;
+    newCliffInMonths           : nat;
+    newVestingInMonths         : nat;
+]
 
 type vestingStorage is [@layout:comb] record [
     admin               : address;
@@ -60,5 +66,7 @@ type vestingStorage is [@layout:comb] record [
     claimLedger         : claimLedgerType;
     vesteeLedger        : vesteeLedgerType;
 
-    totalVestedAmount   : nat;          // record of how much has been vested so far
+    totalVestedAmount   : nat;              // record of how much has been vested so far
+
+    lambdaLedger        : lambdaLedgerType;
 ]
