@@ -1,11 +1,19 @@
 type onStakeChangeParams is (address)
 
 
+<<<<<<< HEAD
 type satelliteRewards is [@layout:comb] record [
     unpaid                                  : nat;
     participationRewardsPerShare            : nat;
     satelliteAccumulatedRewardsPerShare     : nat; // 0n if delegate
     satelliteReferenceAddress               : address;
+=======
+type satelliteRewards is record [
+    unpaid                          : nat;
+    paid                            : nat;
+    participationRewardsPerShare    : nat;
+    accumulatedRewardsPerShare      : nat; // 0n if delegate
+>>>>>>> 7025273 (Governance rewards distributed after voting round + tests delegation started)
 ]
 
 // record for users choosing satellites 
@@ -168,9 +176,15 @@ type delegationStorage is [@layout:comb] record [
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;
 
+<<<<<<< HEAD
     breakGlassConfig        : delegationBreakGlassConfigType;
     delegateLedger          : delegateLedgerType;
     satelliteLedger         : satelliteLedgerType;
+=======
+    breakGlassConfig     : delegationBreakGlassConfigType;
+    delegateLedger       : delegateLedgerType;
+    satelliteLedger      : satelliteLedgerType;
+>>>>>>> 7025273 (Governance rewards distributed after voting round + tests delegation started)
     satelliteRewardsLedger  : satelliteRewardsLedgerType;
 
     lambdaLedger            : lambdaLedgerType;   
