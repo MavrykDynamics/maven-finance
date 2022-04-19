@@ -188,7 +188,7 @@ type governanceConfigType is [@layout:comb] record [
     minQuorumMvkTotal                   : nat;  // minimum quorum in MVK
 
     votingPowerRatio                    : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
-    proposalSubmissionFee               : nat;  // e.g. 10 tez per submitted proposal
+    proposalSubmissionFeeMutez          : tez;  // e.g. 10 tez per submitted proposal
     minimumStakeReqPercentage           : nat;  // minimum amount of MVK required in percentage of total staked MVK supply (e.g. 0.01%)
     maxProposalsPerDelegate             : nat;  // number of active proposals delegate can have at any given time
 
@@ -218,7 +218,7 @@ type governanceUpdateConfigActionType is
 | ConfigMinQuorumPercentage         of unit
 | ConfigMinQuorumMvkTotal           of unit
 | ConfigVotingPowerRatio            of unit
-| ConfigProposalSubmissionFee       of unit
+| ConfigProposeFeeMutez             of unit
 | ConfigMinimumStakeReqPercentage   of unit
 | ConfigMaxProposalsPerDelegate     of unit
 | ConfigBlocksPerProposalRound      of unit

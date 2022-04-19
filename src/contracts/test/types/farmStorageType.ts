@@ -45,7 +45,7 @@ export type farmStorageType = {
                                 unpaid : BigNumber;
                                 paid   : BigNumber;
                               }
-  delegators                : MichelsonMap<MichelsonMapKey, unknown>;
+  depositors                : MichelsonMap<MichelsonMapKey, unknown>;
   open                      : Boolean;
   init                      : Boolean;
   initBlock                 : BigNumber;

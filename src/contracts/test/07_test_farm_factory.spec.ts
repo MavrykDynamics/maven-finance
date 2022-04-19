@@ -34,6 +34,28 @@
 //     let mvkTokenInstance;
 //     let mvkTokenStorage;
 
+//     const farmMetadataBase = Buffer.from(
+//       JSON.stringify({
+//         name: 'MAVRYK PLENTY-USDTz Farm',
+//         description: 'MAVRYK Farm Contract',
+//         version: 'v1.0.0',
+//         liquidityPairToken: {
+//           tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+//           origin: ['Plenty'],
+//           token0: {
+//             symbol: ['PLENTY'],
+//             tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+//           },
+//           token1: {
+//             symbol: ['USDtz'],
+//             tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+//           }
+//         },
+//         authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//       }),
+//       'ascii',
+//     ).toString('hex')
+
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
 //         return utils.tezos;
@@ -51,6 +73,9 @@
 //         doormanStorage    = await doormanInstance.storage();
 //         mvkTokenInstance = await utils.tezos.contract.at(mvkTokenAddress.address);
 //         mvkTokenStorage    = await mvkTokenInstance.storage();
+
+//         console.log("Farm metadata in bytes:")
+//         console.log(farmMetadataBase)
 //     });
 
 //     beforeEach("storage", async () => {
@@ -71,11 +96,7 @@
 //                         false,
 //                         12000,
 //                         100,
-//                         "Plenty",
-//                         "USDTz",
-//                         "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-//                         "PLENTY",
-//                         "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b",
+//                         farmMetadataBase,
 //                         lpTokenAddress.address,
 //                         0,
 //                         "fa12",
@@ -112,11 +133,7 @@
 //                         false,
 //                         12000,
 //                         0,
-//                         "Plenty",
-//                         "USDTz",
-//                         "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-//                         "PLENTY",
-//                         "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b",
+//                         farmMetadataBase,
 //                         lpTokenAddress.address,
 //                         0,
 //                         "fa12"
@@ -134,11 +151,7 @@
 //                         false,
 //                         12000,
 //                         100,
-//                         "Plenty",
-//                         "USDTz",
-//                         "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-//                         "PLENTY",
-//                         "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b",
+//                         farmMetadataBase,
 //                         lpTokenAddress.address,
 //                         0,
 //                         "fa12"
@@ -248,11 +261,7 @@
 //                         false,
 //                         12000,
 //                         100,
-//                         "Plenty",
-//                         "USDTz",
-//                         "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-//                         "PLENTY",
-//                         "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b",
+//                         farmMetadataBase,
 //                         lpTokenAddress.address,
 //                         0,
 //                         "fa12"
@@ -346,11 +355,7 @@
 //                         false,
 //                         12000,
 //                         100,
-//                         "Plenty",
-//                         "USDTz",
-//                         "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-//                         "PLENTY",
-//                         "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b",
+//                         farmMetadataBase,
 //                         lpTokenAddress.address,
 //                         0,
 //                         "fa12"
@@ -470,11 +475,7 @@
 //                         false,
 //                         12000,
 //                         100,
-//                         "Plenty",
-//                         "USDTz",
-//                         "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-//                         "PLENTY",
-//                         "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b",
+//                         farmMetadataBase,
 //                         lpTokenAddress.address,
 //                         0,
 //                         "fa12"
@@ -835,11 +836,7 @@
 //                         false,
 //                         100,
 //                         12000,
-//                         "Plenty",
-//                         "USDTz",
-//                         "KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9",
-//                         "PLENTY",
-//                         "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b",
+//                         farmMetadataBase,
 //                         lpTokenAddress.address,
 //                         0,
 //                         "fa12"
@@ -876,10 +873,10 @@
 //                     farmStorage = await farmInstance.storage();
 //                     doormanStorage = await doormanInstance.storage();
 
-//                     // Delegator's record
-//                     const delegatorRecord = await farmStorage.delegators.get(bob.pkh)
+//                     // Depositor's record
+//                     const depositorRecord = await farmStorage.depositors.get(bob.pkh)
 //                     console.log("User's deposit in Farm Contract")
-//                     console.log(delegatorRecord)
+//                     console.log(depositorRecord)
 
 //                     // Stake's record
 //                     const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
@@ -926,11 +923,11 @@
 //                     farmStorage = await farmInstance.storage();
 //                     doormanStorage = await doormanInstance.storage();
 
-//                     // Delegator's record
-//                     const delegatorRecord = await farmStorage.delegators.get(bob.pkh)
-//                     console.log(delegatorRecord)
+//                     // Depositor's record
+//                     const depositorRecord = await farmStorage.depositors.get(bob.pkh)
+//                     console.log(depositorRecord)
 
-//                     // Delegator's record
+//                     // Depositor's record
 //                     const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
 //                     console.log(doormanRecord)
 //                 }catch(e){

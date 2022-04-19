@@ -14,9 +14,11 @@ function updateGeneralContractsMap(const updateGeneralContractsParams : updateGe
     const contractName     : string  = updateGeneralContractsParams.generalContractName;
     const contractAddress  : address = updateGeneralContractsParams.generalContractAddress; 
 
-    const existingAddress: option(address) = 
-      if checkInGeneralContracts(contractAddress, generalContracts) then (None : option(address)) else Some (contractAddress);
-
+    const existingAddress: option(address) = case Map.find_opt(contractName, generalContracts) of [
+      Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress): option(address))
+    |  None -> (Some (contractAddress): option(address))
+    ];
+    
     const updatedGeneralContracts: generalContractsType = 
       Map.update(
         contractName, 

@@ -4,13 +4,6 @@
 
 type metadata is big_map (string, bytes);
 
-type treasuryMetadataType is record[
-    name                    : string;
-    description             : string;
-    version                 : string;
-    authors                 : string;
-]
-
 type createTreasuryFuncType is (option(key_hash) * tez * treasuryStorage) -> (operation * address)
 const createTreasuryFunc: createTreasuryFuncType =
 [%Michelson ( {| { UNPPAIIR ;

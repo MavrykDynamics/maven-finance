@@ -1,8 +1,15 @@
+<<<<<<< HEAD
 // ------------------------------------------------------------------------------
 // Common Types
 // ------------------------------------------------------------------------------
 
 type delegator is address
+=======
+////
+// COMMON TYPES
+////
+type depositor is address
+>>>>>>> cc8504d (Governance contract submission proposal fee implementation + refactoring on factories to handle bytes for metadata + delegation contract satellite reward distribution through governance working)
 type tokenBalance is nat
 type metadata is big_map (string, bytes);
 
@@ -31,6 +38,7 @@ type farmTokenPair is [@layout:comb] record [
     token1: farmToken;
 ]
 
+<<<<<<< HEAD
 type createFarmType is [@layout:comb] record[
     forceRewardFromTransfer  : bool;
     infinite                 : bool;
@@ -38,6 +46,14 @@ type createFarmType is [@layout:comb] record[
     lpTokenOrigin            : string;
     tokenPair                : farmTokenPair;
     lpToken                  : farmLpToken;
+=======
+type farmStorageType is [@layout:comb] record[
+    forceRewardFromTransfer : bool;
+    infinite                : bool;
+    plannedRewards          : farmPlannedRewards;
+    metadata                : bytes;
+    lpToken                 : farmLpToken;
+>>>>>>> cc8504d (Governance contract submission proposal fee implementation + refactoring on factories to handle bytes for metadata + delegation contract satellite reward distribution through governance working)
 ]
 
 type farmMetadataType is record[

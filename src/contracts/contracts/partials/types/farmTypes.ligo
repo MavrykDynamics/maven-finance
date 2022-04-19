@@ -1,12 +1,19 @@
 
+<<<<<<< HEAD
 // ------------------------------------------------------------------------------
 // Common Types
 // ------------------------------------------------------------------------------
 
 type delegator is address
+=======
+////
+// COMMON TYPES
+////
+type depositor is address
+>>>>>>> cc8504d (Governance contract submission proposal fee implementation + refactoring on factories to handle bytes for metadata + delegation contract satellite reward distribution through governance working)
 type tokenBalance is nat
 
-type delegatorRecord is [@layout:comb] record[
+type depositorRecord is [@layout:comb] record[
     balance: tokenBalance;
     participationMVKPerShare: tokenBalance;
     unclaimedRewards: tokenBalance;
@@ -135,7 +142,7 @@ type farmStorage is [@layout:comb] record[
     lastBlockUpdate         : nat;
     accumulatedMVKPerShare  : tokenBalance;
     claimedRewards          : claimedRewards;
-    delegators              : big_map(delegator, delegatorRecord);
+    depositors              : big_map(depositor, depositorRecord);
     open                    : bool;
     init                    : bool;
     initBlock               : nat;

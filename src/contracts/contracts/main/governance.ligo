@@ -640,8 +640,9 @@ block {
       // create or retrieve satellite snapshot from snapshotLedger in governanceStorage
       var satelliteSnapshotRecord : snapshotRecordType := getSatelliteSnapshotRecord(satelliteAddress, s);
 
-      // calculate total voting power 
-      const maxTotalVotingPower = abs(mvkBalance * 10000 / s.config.votingPowerRatio);
+      // calculate total voting power
+      var maxTotalVotingPower: nat := mvkBalance * 10000n / s.config.votingPowerRatio;
+      if s.config.votingPowerRatio = 0n then maxTotalVotingPower := mvkBalance * 10000n else skip;
       const mvkBalanceAndTotalDelegatedAmount = mvkBalance + totalDelegatedAmount; 
       var totalVotingPower : nat := 0n;
       if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
