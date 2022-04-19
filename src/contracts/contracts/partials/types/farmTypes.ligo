@@ -2,9 +2,6 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
-////
-// COMMON TYPES
-////
 type depositor is address
 type tokenBalance is nat
 

@@ -2,9 +2,6 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
-////
-// COMMON TYPES
-////
 type depositor is address
 type tokenBalance is nat
 type metadata is big_map (string, bytes);

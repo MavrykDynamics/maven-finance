@@ -689,7 +689,6 @@ block {
 } with response
 
 
-
 (* togglePauseDistributeReward entrypoint *)
 function togglePauseDistributeReward(var s : delegationStorage) : return is
 block {
@@ -951,15 +950,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         | RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)
         | UnregisterAsSatellite(_parameters)            -> unregisterAsSatellite(s)
         | UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
-<<<<<<< HEAD
         | DistributeReward(parameters)                  -> distributeReward(parameters, s)
-=======
-        | DistributeRewards(parameters) -> distributeRewards(parameters, s)
-<<<<<<< HEAD
->>>>>>> 5a5b8a3 (Satellite distribution entrypoint implemented but not tested)
-=======
-        | ClaimRewards(_parameters) -> claimRewards(s)
->>>>>>> 71765b5 (Satellite distribution entrypoint implemented but not tested)
 
           // General Entrypoints
         | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
