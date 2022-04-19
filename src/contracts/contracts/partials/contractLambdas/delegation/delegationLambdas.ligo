@@ -332,7 +332,6 @@ block {
 
     case delegationLambdaAction of [
         | LambdaDelegateToSatellite(satelliteAddress) -> {
-
             // Update unclaimed rewards
             s := updateRewards(s);
             
@@ -637,6 +636,9 @@ block {
 
     case delegationLambdaAction of [
         | LambdaUnregisterAsSatellite(_parameters) -> {
+                
+                // Update unclaimed rewards
+                s := updateRewards(s);
                 
                 // remove sender from satellite ledger
                 remove (Tezos.sender : address) from map s.satelliteLedger;
