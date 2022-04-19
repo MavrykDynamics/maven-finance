@@ -689,7 +689,6 @@ block {
 } with response
 
 
-
 (* togglePauseDistributeReward entrypoint *)
 function togglePauseDistributeReward(var s : delegationStorage) : return is
 block {
