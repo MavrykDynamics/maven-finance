@@ -592,6 +592,32 @@ function sendRewardsToVoters(var s: governanceStorage): operation is
     const distributeOperation: operation = Tezos.transaction((votersAddresses, roundReward), 0tez, distributeRewardsEntrypoint);
   } with(distributeOperation)
 
+function sendRewardToProposer(var s: governanceStorage): operation is
+  block{
+    // Get all voting satellite
+    const timelockProposalId: nat   = s.timelockProposalId;
+    const proposal: proposalRecordType  = case Big_map.find_opt(timelockProposalId, s.proposalLedger) of [
+      Some (_record) -> _record
+    | None -> failwith("Error. Timelock proposal not found")
+    ];
+    const proposerAddress: address         = proposal.proposerAddress;
+    
+    // Get rewards
+    const proposerReward: nat  = proposal.successReward;
+
+    // Send rewards to the proposer
+    const delegationAddress : address = case s.generalContracts["delegation"] of [
+      Some(_address) -> _address
+      | None -> failwith("Error. Delegation Contract is not found")
+    ];
+    const distributeRewardsEntrypoint: contract(set(address) * nat) =
+      case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
+        Some(contr) -> contr
+      | None -> (failwith("Error. DistributeReward entrypoint not found in Delegation contract."): contract(set(address) * nat))
+    ];
+    const distributeOperation: operation = Tezos.transaction((set[proposerAddress], proposerReward), 0tez, distributeRewardsEntrypoint);
+  } with(distributeOperation)
+
 function setupProposalRound(var s: governanceStorage): governanceStorage is
 block {
 
@@ -999,7 +1025,6 @@ block {
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
 
 } with response
-
 
 
 // (* addUpdatePaymentData entrypoint *)

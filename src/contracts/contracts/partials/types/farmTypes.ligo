@@ -1,16 +1,9 @@
 
-<<<<<<< HEAD
 // ------------------------------------------------------------------------------
 // Common Types
 // ------------------------------------------------------------------------------
 
-type delegator is address
-=======
-////
-// COMMON TYPES
-////
 type depositor is address
->>>>>>> cc8504d (Governance contract submission proposal fee implementation + refactoring on factories to handle bytes for metadata + delegation contract satellite reward distribution through governance working)
 type tokenBalance is nat
 
 type depositorRecord is [@layout:comb] record[

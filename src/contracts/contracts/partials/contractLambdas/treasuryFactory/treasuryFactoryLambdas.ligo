@@ -252,10 +252,10 @@ function lambdaCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactor
 block{
 
     // Check if Sender is admin
-    checkSenderIsAdmin(s);
+        checkSenderIsAdmin(s);
 
-    // Break glass check
-    checkCreateTreasuryIsNotPaused(s);
+        // Break glass check
+        checkCreateTreasuryIsNotPaused(s);
 
     var operations: list(operation) := nil;
 
@@ -283,18 +283,9 @@ block{
                 ];
 
                 // Prepare Treasury Metadata
-                const treasuryMetadataDescription: string = "MAVRYK Treasury Contract";
-                const treasuryMetadataVersion: string = "v1.0.0";
-                const treasuryMetadataName: string = "MAVRYK " ^ treasuryName ^ " Treasury";
-                const treasuryMetadataAuthors: string = "MAVRYK Dev Team <contact@mavryk.finance>";
-                const treasuryMetadataPlain: treasuryMetadataType = record[
-                    name                    = treasuryMetadataName;
-                    description             = treasuryMetadataDescription;
-                    version                 = treasuryMetadataVersion;
-                    authors                 = treasuryMetadataAuthors;
-                ];
                 const treasuryMetadata: metadata = Big_map.literal (list [
-                    ("", Bytes.pack(treasuryMetadataPlain));
+                    ("", Bytes.pack("tezos-storage:data"));
+                    ("data", treasuryMetadata)
                 ]);
                 const treasuryLambdaLedger : big_map(string, bytes) = Big_map.empty;
 
