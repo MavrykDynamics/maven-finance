@@ -39,6 +39,28 @@
 //     let mockFa12TokenStorage;
 //     let mockFa2TokenStorage;
     
+//     const treasuryMetadataBase = Buffer.from(
+//         JSON.stringify({
+//           name: 'MAVRYK PLENTY-USDTz Farm',
+//           description: 'MAVRYK Farm Contract',
+//           version: 'v1.0.0',
+//           liquidityPairToken: {
+//             tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+//             origin: ['Plenty'],
+//             token0: {
+//               symbol: ['PLENTY'],
+//               tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+//             },
+//             token1: {
+//               symbol: ['USDtz'],
+//               tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+//             }
+//           },
+//           authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+//         }),
+//         'ascii',
+//       ).toString('hex')
+
 //     const signerFactory = async (pk) => {
 //         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
 //         return utils.tezos;
@@ -65,6 +87,9 @@
 //         governanceStorage       = await governanceInstance.storage();
 //         mockFa12TokenStorage    = await mockFa12TokenInstance.storage();
 //         mockFa2TokenStorage     = await mockFa2TokenInstance.storage();
+
+//         console.log("Treasury metadata in bytes:")
+//         console.log(treasuryMetadataBase)
 
 //         console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
 //         console.log('Treasury Contract deployed at:', treasuryInstance.address);
@@ -135,7 +160,7 @@
 //                     treasuryFactoryStorage       = await treasuryFactoryInstance.storage();
 //                     const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
     
-//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury("Farm").send()).to.be.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.rejected;
     
 //                     // Reset admin
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseCreateTreasury().send();
@@ -341,7 +366,7 @@
 //             it('Admin should be able to call this entrypoint', async () => {
 //                 try{
 //                     // Operation
-//                     const operation = await treasuryFactoryInstance.methods.createTreasury("Farm").send();
+//                     const operation = await treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send();
 //                     await operation.confirmation()
 
 //                     // Final values
@@ -361,7 +386,7 @@
 //                 try{
 //                     // Operation
 //                     await signerFactory(alice.sk);
-//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury("Farm").send()).to.be.eventually.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.eventually.rejected;
 //                 }catch(e){
 //                     console.log(e);
 //                 }
@@ -381,7 +406,7 @@
 //                     treasuryFactoryStorage       = await treasuryFactoryInstance.storage();
 //                     const isPausedEnd       = treasuryFactoryStorage.breakGlassConfig.createTreasuryIsPaused
     
-//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury("Farm").send()).to.be.rejected;
+//                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.rejected;
     
 //                     // Reset admin
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseCreateTreasury().send();

@@ -8,27 +8,27 @@ import { MVK, zeroAddress } from '../test/helpers/Utils'
 import { governanceStorageType } from '../test/types/governanceStorageType'
 
 const config = {
-    successReward             : 10000,
-    cycleVotersReward         : MVK(100),
+    successReward                       : 10000,
+    cycleVotersReward                   : MVK(100),
 
-    minProposalRoundVotePercentage : 1000,
-    minProposalRoundVotesRequired  : 10000,
+    minProposalRoundVotePercentage      : 1000,
+    minProposalRoundVotesRequired       : 10000,
 
-    minQuorumPercentage       : 1000,
-    minQuorumMvkTotal         : 10000,
+    minQuorumPercentage                 : 1000,
+    minQuorumMvkTotal                   : 10000,
 
-    votingPowerRatio          : 10000,
-    proposalSubmissionFee     : 10000000, // 10 tez
-    minimumStakeReqPercentage : 10,       // 0.01% for testing: change to 10,000 later -> 10%
-    maxProposalsPerDelegate   : 20,
+    votingPowerRatio                    : 10000,
+    proposalSubmissionFeeMutez          : 1000000, // 1 tez
+    minimumStakeReqPercentage           : 10,       // 0.01% for testing: change to 10,000 later -> 10%
+    maxProposalsPerDelegate             : 20,
 
-    newBlockTimeLevel         : 0,
-    newBlocksPerMinute        : 0,
-    blocksPerMinute           : 2,
+    newBlockTimeLevel                   : 0,
+    newBlocksPerMinute                  : 0,
+    blocksPerMinute                     : 2,
 
-    blocksPerProposalRound    : 14400,
-    blocksPerVotingRound      : 14400,
-    blocksPerTimelockRound    : 5760,
+    blocksPerProposalRound              : 14400,
+    blocksPerVotingRound                : 14400,
+    blocksPerTimelockRound              : 5760,
 
     financialRequestApprovalPercentage : 6700,
     financialRequestDurationInDays     : 3,

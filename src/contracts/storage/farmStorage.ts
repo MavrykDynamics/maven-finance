@@ -85,7 +85,7 @@ export const farmStorage: farmStorageType = {
   lastBlockUpdate           : new BigNumber(0),
   accumulatedMVKPerShare    : new BigNumber(0),
   claimedRewards            : claimedRewards,
-  delegators                : MichelsonMap.fromLiteral({}),
+  depositors                : MichelsonMap.fromLiteral({}),
   open                      : false,
   init                      : false,
   initBlock                 : new BigNumber(0),
