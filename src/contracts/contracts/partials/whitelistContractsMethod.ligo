@@ -18,7 +18,6 @@ function updateWhitelistContractsMap(const updateWhitelistContractsParams: updat
       Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress): option(address))
     |  None -> (Some (contractAddress): option(address))
     ];
-
     const updatedWhitelistContracts: whitelistContractsType = 
       Map.update(
         contractName, 
