@@ -1,21 +1,33 @@
 type onStakeChangeParams is (address)
-type updateSatelliteRecordParams is (string * string * string * nat)
+
 
 // record for users choosing satellites 
-type delegateRecordType is record [
-    satelliteAddress     : address;
-    delegatedDateTime    : timestamp;
-    delegatedSMvkBalance : nat;
-    // fee -> custom delegate fee for satellite
+type delegateRecordType is [@layout:comb] record [
+    satelliteAddress      : address;
+    delegatedDateTime     : timestamp;
+    delegatedSMvkBalance  : nat;
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
-// todo: add pointsystem
+// type newSatelliteRecordType is (string * string * string * nat) // name, description, image, satellite fee
+// type updateSatelliteRecordParams is (string * string * string * nat)
 
-type newSatelliteRecordType is (string * string * string * nat) // name, description, image, satellite fee
+type newSatelliteRecordType is [@layout:comb] record [
+    name                  : string;
+    description           : string;
+    image                 : string;
+    satelliteFee          : nat;
+]
+
+type updateSatelliteRecordType is [@layout:comb] record [
+    name                  : string;
+    description           : string;
+    image                 : string;
+    satelliteFee          : nat;
+]
 
 // record for satellites
-type satelliteRecordType is record [
+type satelliteRecordType is [@layout:comb] record [
     status                : nat;        // active: 1; inactive: 0; 
     stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
@@ -26,8 +38,6 @@ type satelliteRecordType is record [
     image                 : string;     // ipfs hash
     
     registeredDateTime    : timestamp;  
-
-    // bondSufficiency       : nat;        // bond sufficiency flag - set to 1 if satellite has enough bond; set to 0 if satellite has not enough bond (over-delegated) when checked on governance action    
 ]
 type satelliteLedgerType is map (address, satelliteRecordType)
 
@@ -38,7 +48,7 @@ type requestSatelliteSnapshotType is  [@layout:comb] record [
     totalDelegatedAmount  : nat; 
 ]
 
-type delegationConfigType is record [
+type delegationConfigType is [@layout:comb] record [
     minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required to register as delegate (in muMVK)
     delegationRatio           : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated    
     maxSatellites             : nat;   // 100 -> prevent any gaming of system with mass registration of satellites - can be changed through governance
@@ -67,6 +77,16 @@ type delegationUpdateConfigParamsType is [@layout:comb] record [
 
 type metadata is big_map (string, bytes);
 
+type setLambdaType is [@layout:comb] record [
+      name                  : string;
+      func_bytes            : bytes;
+]
+type lambdaLedgerType is big_map(string, bytes)
+
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
+
 type delegationStorage is [@layout:comb] record [
     admin                : address;
     mvkTokenAddress      : address;
@@ -80,4 +100,6 @@ type delegationStorage is [@layout:comb] record [
     breakGlassConfig     : delegationBreakGlassConfigType;
     delegateLedger       : delegateLedgerType;
     satelliteLedger      : satelliteLedgerType;
+
+    lambdaLedger         : lambdaLedgerType;   
 ]

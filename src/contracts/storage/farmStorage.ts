@@ -64,7 +64,6 @@ export const farmStorage: farmStorageType = {
   admin                     : bob.pkh,
   mvkTokenAddress           : "",
   metadata                  : metadata,
-
   config                    : {
                                 lpToken                  : lpToken,
                                 tokenPair                : tokenPair,

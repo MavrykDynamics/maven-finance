@@ -155,23 +155,6 @@ function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit 
 
 // ------------------------------------------------------------------------------
 //
-// Lambda Methods Begin
-//
-// ------------------------------------------------------------------------------
-
-// Treasury Factory Lambdas:
-#include "../partials/contractLambdas/treasuryFactory/treasuryFactoryLambdas.ligo"
-
-// ------------------------------------------------------------------------------
-//
-// Lambda Methods End
-//
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-//
 // Views Begin
 //
 // ------------------------------------------------------------------------------
@@ -202,17 +185,10 @@ function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit 
 function setAdmin(const newAdminAddress: address; var s: treasuryFactoryStorage): return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    checkSenderIsAdmin(s); // check that sender is admin
+    s.admin := newAdminAddress;
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-
-} with (res.0, res.1)
+} with (noOperations, s)
 
 
 
@@ -220,17 +196,11 @@ block {
 function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : treasuryFactoryStorage) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    // Update metadata
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-
-} with (res.0, res.1)
+} with (noOperations, s)
 
 
 
@@ -238,17 +208,11 @@ block {
 function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-
-} with (res.0, res.1)
+} with (noOperations, s)
 
 
 
@@ -256,17 +220,11 @@ block {
 function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-
-} with (res.0, res.1)
+} with (noOperations, s)
 
 
 
@@ -274,17 +232,11 @@ block {
 function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryFactoryStorage): return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistTokenContractsParams * treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistTokenContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-
-} with (res.0, res.1)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -300,17 +252,30 @@ block {
 function pauseAll(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    // check that sender is admin
+    checkSenderIsAdmin(s);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // set all pause configs to True
+    if s.breakGlassConfig.createTreasuryIsPaused then skip
+    else s.breakGlassConfig.createTreasuryIsPaused := True;
 
-} with (res.0, res.1)
+    if s.breakGlassConfig.trackTreasuryIsPaused then skip
+    else s.breakGlassConfig.trackTreasuryIsPaused := True;
+
+    if s.breakGlassConfig.untrackTreasuryIsPaused then skip
+    else s.breakGlassConfig.untrackTreasuryIsPaused := True;
+
+    var operations: list(operation) := nil;
+
+    for treasuryAddress in set s.trackedTreasuries
+    block {
+        case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress): option(contract(unit))) of [
+            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+        |   None -> skip
+        ];
+    };
+
+} with (operations, s)
 
 
 
@@ -318,17 +283,30 @@ block {
 function unpauseAll(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    // check that sender is admin
+    checkSenderIsAdmin(s);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // set all pause configs to False
+    if s.breakGlassConfig.createTreasuryIsPaused then s.breakGlassConfig.createTreasuryIsPaused := False
+    else skip;
 
-} with (res.0, res.1)
+    if s.breakGlassConfig.trackTreasuryIsPaused then s.breakGlassConfig.trackTreasuryIsPaused := False
+    else skip;
+
+    if s.breakGlassConfig.untrackTreasuryIsPaused then s.breakGlassConfig.untrackTreasuryIsPaused := False
+    else skip;
+
+    var operations: list(operation) := nil;
+
+    for treasuryAddress in set s.trackedTreasuries
+    block {
+        case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress): option(contract(unit))) of [
+            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+        |   None -> skip
+        ];
+    };
+
+} with (operations, s)
 
 
 
@@ -336,17 +314,13 @@ block {
 function togglePauseCreateTreasury(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseCreateTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    // check that sender is admin
+    checkSenderIsAdmin(s);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    if s.breakGlassConfig.createTreasuryIsPaused then s.breakGlassConfig.createTreasuryIsPaused := False
+    else s.breakGlassConfig.createTreasuryIsPaused := True;
 
-} with (res.0, res.1)
+} with (noOperations, s)
 
 
 
@@ -354,17 +328,13 @@ block {
 function togglePauseUntrackTreasury(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    // check that sender is admin
+    checkSenderIsAdmin(s);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    if s.breakGlassConfig.untrackTreasuryIsPaused then s.breakGlassConfig.untrackTreasuryIsPaused := False
+    else s.breakGlassConfig.untrackTreasuryIsPaused := True;
 
-} with (res.0, res.1)
+} with (noOperations, s)
 
 
 
@@ -372,17 +342,13 @@ block {
 function togglePauseTrackTreasury(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseTrackTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+    // check that sender is admin
+    checkSenderIsAdmin(s);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    if s.breakGlassConfig.trackTreasuryIsPaused then s.breakGlassConfig.trackTreasuryIsPaused := False
+    else s.breakGlassConfig.trackTreasuryIsPaused := True;
 
-} with (res.0, res.1)
+} with (noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -397,18 +363,71 @@ block {
 (* createTreasury entrypoint *)
 function createTreasury(const treasuryName: string; var s: treasuryFactoryStorage): return is 
 block{
+    // Check if Sender is admin
+    checkSenderIsAdmin(s);
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    // Break glass check
+    checkCreateTreasuryIsNotPaused(s);
+
+    // Add TreasuryFactory Address to whitelistContracts of created treasury
+    const treasuryWhitelistContracts : whitelistContractsType = map[
+        ("treasuryFactory") -> (Tezos.self_address: address);
+        ("governance") -> (s.admin : address);
+    ];
+    const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
+
+    const delegationAddress: address = case s.generalContracts["delegation"] of [ 
+        Some (_address) -> _address
+    |   None -> failwith("Delegation contract not found in general contracts")
+    ];
+    const treasuryGeneralContracts : generalContractsType = map[
+        ("delegation") -> (delegationAddress : address);
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(treasuryName, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
+        transferIsPaused           = False;
+        mintMvkAndTransferIsPaused = False;
     ];
 
-} with(res.0, res.1)
+    // Prepare Treasury Metadata
+    const treasuryMetadataDescription: string = "MAVRYK Treasury Contract";
+    const treasuryMetadataVersion: string = "v1.0.0";
+    const treasuryMetadataName: string = "MAVRYK " ^ treasuryName ^ " Treasury";
+    const treasuryMetadataAuthors: string = "MAVRYK Dev Team <contact@mavryk.finance>";
+    const treasuryMetadataPlain: treasuryMetadataType = record[
+        name                    = treasuryMetadataName;
+        description             = treasuryMetadataDescription;
+        version                 = treasuryMetadataVersion;
+        authors                 = treasuryMetadataAuthors;
+    ];
+    const treasuryMetadata: metadata = Big_map.literal (list [
+        ("", Bytes.pack(treasuryMetadataPlain));
+    ]);
+    const treasuryLambdaLedger : big_map(string, bytes) = Big_map.empty;
+
+    const originatedTreasuryStorage : treasuryStorage = record[
+        admin                     = s.admin;                         // admin will be the governance contract
+        mvkTokenAddress           = s.mvkTokenAddress;
+        metadata                  = treasuryMetadata;
+
+        breakGlassConfig          = treasuryBreakGlassConfig;
+
+        whitelistContracts        = treasuryWhitelistContracts;      // whitelist of contracts that can access restricted entrypoints
+        whitelistTokenContracts   = treasuryWhitelistTokenContracts;      
+        generalContracts          = treasuryGeneralContracts;
+
+        lambdaLedger              = treasuryLambdaLedger;
+    ];
+
+    const treasuryOrigination: (operation * address) = createTreasuryFunc(
+        (None: option(key_hash)), 
+        0tez,
+        originatedTreasuryStorage
+    );
+
+    s.trackedTreasuries := Set.add(treasuryOrigination.1, s.trackedTreasuries);
+
+} with(list[treasuryOrigination.0], s)
 
 
 
@@ -416,17 +435,18 @@ block{
 function trackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
 block{
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTrackTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    // Check if Sender is admin
+    checkSenderIsAdmin(s);
+
+    // Break glass check
+    checkTrackTreasuryIsNotPaused(s);
+
+    s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
+          True  -> (failwith("Error. The provided treasury contract already exists in the trackedTreasuries set"): set(address))
+        | False -> Set.add(treasuryContract, s.trackedTreasuries)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(treasuryContract, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-
-} with(res.0, res.1)
+} with(noOperations, s)
 
 
 
@@ -434,17 +454,18 @@ block{
 function untrackTreasury (const treasuryContract: address; var s: treasuryFactoryStorage): return is 
 block{
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackTreasury"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    // Check if Sender is admin
+    checkSenderIsAdmin(s);
+
+    // Break glass check
+    checkUntrackTreasuryIsNotPaused(s);
+
+    s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
+          True  -> Set.remove(treasuryContract, s.trackedTreasuries)
+        | False -> (failwith("Error. The provided treasury contract does not exist in the trackedTreasuries set"): set(address))
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * treasuryFactoryStorage) -> return )) of [
-      | Some(f) -> f(treasuryContract, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-
-} with(res.0, res.1)
+} with(noOperations, s)
 
 // ------------------------------------------------------------------------------
 // Treasury Factory Entrypoints End
@@ -480,13 +501,12 @@ block{
 //
 // ------------------------------------------------------------------------------
 
-
-
-(* main entrypoint *)
+(* Main entrypoint *)
 function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorage): return is
   block{
     
-    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+    // Check that sender didn't send any tez while calling an entrypoint
+    checkNoAmount(Unit);
 
   } with(
 

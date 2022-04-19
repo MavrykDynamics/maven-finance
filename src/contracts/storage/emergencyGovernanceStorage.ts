@@ -33,15 +33,16 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
-  admin: bob.pkh,
-  config: config,
-  mvkTokenAddress: "",
-  metadata: metadata,
+  
+  admin                               : bob.pkh,
+  config                              : config,
+  mvkTokenAddress                     : "",
+  metadata                            : metadata,
+  generalContracts                    : MichelsonMap.fromLiteral({}),
 
-  generalContracts: MichelsonMap.fromLiteral({}),
+  emergencyGovernanceLedger           : MichelsonMap.fromLiteral({}),
+  currentEmergencyGovernanceId        : new BigNumber(0),
+  nextEmergencyGovernanceProposalId   : new BigNumber(1),
 
-  emergencyGovernanceLedger: MichelsonMap.fromLiteral({}),
-
-  currentEmergencyGovernanceId: new BigNumber(0),
-  nextEmergencyGovernanceProposalId: new BigNumber(1),
+  lambdaLedger                        : MichelsonMap.fromLiteral({}),
 }

@@ -9,15 +9,15 @@
     },
     {
       "index": 2,
-      "name": "lambdaUpdateMinMvkAmount"
-    },
-    {
-      "index": 3,
       "name": "lambdaUpdateWhitelistContracts"
     },
     {
-      "index": 4,
+      "index": 3,
       "name": "lambdaUpdateGeneralContracts"
+    },
+    {
+      "index": 4,
+      "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
       "index": 5,
@@ -29,23 +29,19 @@
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseUnstake"
+      "name": "lambdaTogglePauseTransfer"
     },
     {
       "index": 8,
-      "name": "lambdaStake"
+      "name": "lambdaTogglePauseMintMvkAndTransfer"
     },
     {
       "index": 9,
-      "name": "lambdaUnstake"
+      "name": "lambdaTransfer"
     },
     {
       "index": 10,
-      "name": "lambdaCompound"
-    },
-    {
-      "index": 11,
-      "name": "lambdaFarmClaim"
+      "name": "lambdaMintMvkAndTransfer"
     }
 ]
   
