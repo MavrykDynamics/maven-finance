@@ -65,7 +65,6 @@ type return is list (operation) * breakGlassStorage
 //
 // ------------------------------------------------------------------------------
 
-
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
@@ -506,10 +505,14 @@ block{
 
 
 
+(* main entrypoint *)
 function main (const action : breakGlassAction; const s : breakGlassStorage) : return is 
     block {
-        checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+
+        checkNoAmount(Unit); // entrypoints should not receive any tez amount  
+
     } with(
+
         case action of [
             
             // Break Glass

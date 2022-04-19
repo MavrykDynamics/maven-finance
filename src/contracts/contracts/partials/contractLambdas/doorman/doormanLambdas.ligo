@@ -1,8 +1,29 @@
+// ------------------------------------------------------------------------------
+//
+// Doorman Lambdas Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Housekeeping Lambdas Begin
+// ------------------------------------------------------------------------------
+
 (*  setAdmin lambda *)
 function lambdaSetAdmin(const newAdminAddress : address; var s : doormanStorage) : return is
 block {
     checkSenderIsAdmin(s); // check that sender is admin
     s.admin := newAdminAddress;
+
+} with (noOperations, s)
+
+
+
+(*  updateMetadata lambda - update the metadata at a given key *)
+function lambdaUpdateMetadata(const metadataKey: string; const metadataHash: bytes; var s : doormanStorage) : return is
+block {
+    
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
 
 } with (noOperations, s)
 
@@ -22,6 +43,38 @@ block {
 } with (noOperations, s)
 
 
+
+(*  updateWhitelistContracts lambda *)
+function lambdaUpdateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: doormanStorage): return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+
+} with (noOperations, s)
+
+
+
+(*  updateGeneralContracts lambda *)
+function lambdaUpdateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: doormanStorage): return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+
+} with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Housekeeping Lambdas End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Lambdas Begin
+// ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
 function lambdaPauseAll(var s : doormanStorage) : return is
@@ -100,7 +153,15 @@ block {
 
 } with (noOperations, s)
 
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Lambdas End
+// ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Doorman Lambdas Begin
+// ------------------------------------------------------------------------------
 
 (*  stake lambda *)
 function lambdaStake(const stakeAmount : nat; var s : doormanStorage) : return is
@@ -467,4 +528,12 @@ function lambdaFarmClaim(const farmClaim: farmClaimType; var s: doormanStorage):
 
 } with(operations, s)
 
+// ------------------------------------------------------------------------------
+// Doorman Lambdas End
+// ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+//
+// Doorman Lambdas End
+//
+// ------------------------------------------------------------------------------

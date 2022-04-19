@@ -1,13 +1,15 @@
-////
-// COMMON TYPES
-////
+// ------------------------------------------------------------------------------
+// Common Types
+// ------------------------------------------------------------------------------
+
 type delegator is address
 type tokenBalance is nat
 type metadata is big_map (string, bytes);
 
-////
-// MICHELSON FARM TYPES
-////
+// ------------------------------------------------------------------------------
+// Farm Types
+// ------------------------------------------------------------------------------
+
 type farmPlannedRewards is [@layout:comb] record[
     totalBlocks: nat;
     currentRewardPerBlock: tokenBalance;
@@ -29,26 +31,26 @@ type farmTokenPair is [@layout:comb] record [
     token1: farmToken;
 ]
 
-type farmStorageType is [@layout:comb] record[
-    forceRewardFromTransfer : bool;
-    infinite                : bool;
-    plannedRewards          : farmPlannedRewards;
-    lpTokenOrigin           : string;
-    tokenPair               : farmTokenPair;
-    lpToken                 : farmLpToken;
+type createFarmType is [@layout:comb] record[
+    forceRewardFromTransfer  : bool;
+    infinite                 : bool;
+    plannedRewards           : farmPlannedRewards;
+    lpTokenOrigin            : string;
+    tokenPair                : farmTokenPair;
+    lpToken                  : farmLpToken;
 ]
 
 type farmMetadataType is record[
-    name                    : string;
-    description             : string;
-    version                 : string;
-    liquidityPairToken      : record[
-        tokenAddress        : address;
-        origin              : string;
-        token0              : farmToken;
-        token1              : farmToken;
+    name                     : string;
+    description              : string;
+    version                  : string;
+    liquidityPairToken       : record[
+        tokenAddress         : address;
+        origin               : string;
+        token0               : farmToken;
+        token1               : farmToken;
     ];
-    authors                 : string;
+    authors                  : string;
 ]
 
 type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
@@ -75,21 +77,21 @@ type farmFactoryConfigType is record [
     blocksPerMinute        : nat;
 ]
 
-////
-// STORAGE
-////
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
 
 type farmFactoryStorage is [@layout:comb] record[
     admin                  : address;
-    mvkTokenAddress        : address;
     metadata               : metadata;
-
+    mvkTokenAddress        : address;
     config                 : farmFactoryConfigType;
-
-    whitelistContracts     : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
-    generalContracts       : generalContractsType;
-
     breakGlassConfig       : farmFactoryBreakGlassConfigType;
 
+    whitelistContracts     : whitelistContractsType;      
+    generalContracts       : generalContractsType;
+
     trackedFarms           : set(address);
+
+    lambdaLedger           : lambdaLedgerType;
 ]

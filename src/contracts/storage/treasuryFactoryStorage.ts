@@ -28,15 +28,18 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const treasuryFactoryStorage: treasuryFactoryStorageType = {
-  admin: bob.pkh,
-  mvkTokenAddress: "",
-  metadata: metadata,
+  
+  admin                     : bob.pkh,
+  mvkTokenAddress           : "",
+  metadata                  : metadata,
 
-  trackedTreasuries: [],
-  breakGlassConfig : breakGlassConfig,
+  trackedTreasuries         : [],
+  breakGlassConfig          : breakGlassConfig,
 
-  whitelistContracts : MichelsonMap.fromLiteral({}),
-  whitelistTokenContracts : MichelsonMap.fromLiteral({}),
-  generalContracts: MichelsonMap.fromLiteral({})
+  whitelistContracts        : MichelsonMap.fromLiteral({}),
+  whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
+  generalContracts          : MichelsonMap.fromLiteral({}),
+
+  lambdaLedger              : MichelsonMap.fromLiteral({})
 
 };

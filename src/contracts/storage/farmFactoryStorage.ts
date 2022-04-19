@@ -16,19 +16,20 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const farmFactoryStorage: farmFactoryStorageType = {
-  admin: bob.pkh,
-  mvkTokenAddress: "",
-  metadata: metadata,
-  config: new BigNumber(2),
-  
-  generalContracts: MichelsonMap.fromLiteral({}),
-  whitelistContracts: MichelsonMap.fromLiteral({}),
-
-  breakGlassConfig: {
-    createFarmIsPaused: false,
-    trackFarmIsPaused: false,
-    untrackFarmIsPaused: false,
+  admin                 : bob.pkh,
+  metadata              : metadata,
+  mvkTokenAddress       : "",
+  config                : new BigNumber(2),
+  breakGlassConfig      : {
+    createFarmIsPaused  : false,
+    trackFarmIsPaused   : false,
+    untrackFarmIsPaused : false,
   },
+  
+  generalContracts      : MichelsonMap.fromLiteral({}),
+  whitelistContracts    : MichelsonMap.fromLiteral({}),
 
-  trackedFarms: []
+  trackedFarms          : [],
+
+  lambdaLedger          : MichelsonMap.fromLiteral({}),
 };

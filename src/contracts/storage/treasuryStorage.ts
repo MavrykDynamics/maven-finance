@@ -32,15 +32,17 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const treasuryStorage: treasuryStorageType = {
-  admin: bob.pkh,
-  mvkTokenAddress: "",
-  metadata: metadata,
+  admin                     : bob.pkh,
+  mvkTokenAddress           : "",
+  metadata                  : metadata,
 
-  config: config,
-  breakGlassConfig : breakGlassConfig,
+  config                    : config,
+  breakGlassConfig          : breakGlassConfig,
 
-  whitelistContracts : MichelsonMap.fromLiteral({}),
-  whitelistTokenContracts : MichelsonMap.fromLiteral({}),
-  generalContracts: MichelsonMap.fromLiteral({})
+  whitelistContracts        : MichelsonMap.fromLiteral({}),
+  whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
+  generalContracts          : MichelsonMap.fromLiteral({}),
+
+  lambdaLedger              : MichelsonMap.fromLiteral({})
   
 };

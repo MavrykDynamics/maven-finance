@@ -1,4 +1,4 @@
-type breakGlassConfigType is record [
+type breakGlassConfigType is [@layout:comb] record [
     threshold                   : nat;                 // min number of council members who need to agree on action
     actionExpiryDays            : nat;                 // action expiry in number of days
 ]
@@ -67,8 +67,12 @@ type actionsLedgerType is big_map(nat, actionRecordType)
 type signActionType is (nat)
 type flushActionType is (nat)
 
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
+
 type breakGlassStorage is [@layout:comb] record [
-    admin                       : address;               // for init of contract - needed?
+    admin                       : address;               
     mvkTokenAddress             : address;
     metadata                    : metadata;
     

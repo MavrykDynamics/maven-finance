@@ -40,6 +40,16 @@ type transferActionType is list(transferDestinationType);
 
 type updateSatelliteBalanceParams is (address)
 
+type setLambdaType is [@layout:comb] record [
+      name                  : string;
+      func_bytes            : bytes;
+]
+type lambdaLedgerType is big_map(string, bytes)
+
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
+
 type treasuryStorage is [@layout:comb] record [
     admin                      : address;
     mvkTokenAddress            : address;
@@ -50,4 +60,6 @@ type treasuryStorage is [@layout:comb] record [
     whitelistContracts         : whitelistContractsType;
     whitelistTokenContracts    : whitelistTokenContractsType;
     generalContracts           : generalContractsType;
+
+    lambdaLedger               : lambdaLedgerType;
 ]

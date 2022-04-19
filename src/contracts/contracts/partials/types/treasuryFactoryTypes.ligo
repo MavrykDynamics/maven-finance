@@ -1,6 +1,6 @@
-////
-// MICHELSON Treasury TYPES
-////
+// ------------------------------------------------------------------------------
+// Treasury Factory Types
+// ------------------------------------------------------------------------------
 
 type metadata is big_map (string, bytes);
 
@@ -26,9 +26,10 @@ type treasuryFactoryBreakGlassConfigType is record [
     untrackTreasuryIsPaused    : bool;
 ]
 
-////
-// STORAGE
-////
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
+
 type treasuryFactoryStorage is [@layout:comb] record[
     admin                      : address;
     mvkTokenAddress            : address;
@@ -40,4 +41,6 @@ type treasuryFactoryStorage is [@layout:comb] record[
     whitelistContracts         : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
     whitelistTokenContracts    : whitelistTokenContractsType;
     generalContracts           : generalContractsType;
+
+    lambdaLedger               : lambdaLedgerType;
 ]
