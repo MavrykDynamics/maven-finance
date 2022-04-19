@@ -1,7 +1,6 @@
 type userStakeBalanceRecordType is [@layout:comb] record[
     balance                                : nat;
     participationFeesPerShare              : nat;
-    // emergencyGovernanceLastVotedTimestamp  : timestamp;
 ]
 type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
 
@@ -20,6 +19,10 @@ type stakeType is
 | UnstakeAction of unit
 
 type metadata is big_map (string, bytes);
+
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
 
 type doormanStorage is [@layout:comb] record [
   admin                     : address;

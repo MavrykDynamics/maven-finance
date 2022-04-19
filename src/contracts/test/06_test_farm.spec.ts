@@ -102,8 +102,7 @@ describe("Farm", async () => {
                 await operation.confirmation()
 
             }catch(e){
-                console.log(e);
-                // assert.equal(e.message,"ONLY_ADMINISTRATOR_ALLOWED");
+                assert.equal(e.message, '(temporary) proto.011-PtHangz2.michelson_v1.script_rejected');
             }
         })
 

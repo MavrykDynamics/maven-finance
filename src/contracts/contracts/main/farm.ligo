@@ -20,7 +20,7 @@
 
 // ------------------------------------------------------------------------------
 
-type entryAction is
+type farmAction is
 
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
@@ -116,7 +116,6 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-(* Getters and Setters *)
 function getDelegatorDeposit(const delegator: delegator; const s: farmStorage): option(delegatorRecord) is
     Big_map.find_opt(delegator, s.delegators)
 
@@ -156,8 +155,8 @@ block {
     if Tezos.sender = s.admin then skip
     else{
         const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
-            Some (_address) -> _address
-        |   None -> (failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED): address)
+                Some (_address) -> _address
+            |   None -> (failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED): address)
         ];
         if Tezos.sender = farmFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED);
     };
@@ -192,8 +191,9 @@ function checkFarmIsOpen(const s: farmStorage): unit is
 // ------------------------------------------------------------------------------
 
 
+
 // ------------------------------------------------------------------------------
-// Break Glass Helper Functions Begin
+// Pause / Break Glass Helper Functions Begin
 // ------------------------------------------------------------------------------
 
 function checkDepositIsNotPaused(var s : farmStorage) : unit is
@@ -209,8 +209,9 @@ function checkClaimIsNotPaused(var s : farmStorage) : unit is
     else unit;
 
 // ------------------------------------------------------------------------------
-// Break Glass Helper Functions End
+// Pause / Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -286,6 +287,7 @@ block{
 // ------------------------------------------------------------------------------
 // Transfer Helper Functions End
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -765,14 +767,15 @@ block{
 // ------------------------------------------------------------------------------
 
 
+
 (* Main entrypoint *)
-function main (const action: entryAction; var s: farmStorage): return is
+function main (const action: farmAction; var s: farmStorage): return is
   block{
     
-    // Check that sender didn't send Tezos while calling an entrypoint
-    checkNoAmount(Unit);
+    checkNoAmount(Unit); // entrypoints should not receive any tez amount  
 
   } with(
+
     case action of [
 
             // Housekeeping Entrypoints

@@ -67,6 +67,29 @@ const thirty_days    : int              = one_day * 30;
 
 // ------------------------------------------------------------------------------
 //
+// Error Codes Begin
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 1n;
+
+[@inline] const error_MINT_ENTRYPOINT_NOT_FOUND                                              = 2n;
+[@inline] const error_VESTEE_NOT_FOUND                                                       = 3n;
+
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 4n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 5n;
+
+// ------------------------------------------------------------------------------
+//
+// Error Codes End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
 // Helper Functions Begin
 //
 // ------------------------------------------------------------------------------
@@ -77,13 +100,13 @@ const thirty_days    : int              = one_day * 30;
 
 function checkSenderIsAdmin(var s : vestingStorage) : unit is
     if (Tezos.sender = s.admin) then unit
-    else failwith("Only the administrator can call this entrypoint.");
+    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
-    else failwith("This entrypoint should not receive any tez.");
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 
 
@@ -100,20 +123,10 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 
+
 // ------------------------------------------------------------------------------
 // Entrypoint / General Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-// helper function to update user's staked balance in doorman contract after vesting
-function vestingUpdateStakedBalanceInDoorman(const contractAddress : address) : contract(address * nat) is
-  case (Tezos.get_entrypoint_opt(
-      "%vestingUpdateStakedBalanceInDoorman",
-      contractAddress) : option(contract(address * nat))) of [
-    Some(contr) -> contr
-  | None -> (failwith("vestingUpdateStakedBalanceInDoorman entrypoint in Doorman Contract not found") : contract(address * nat))
-  ];
-
-
 
 // helper function to get mint entrypoint from token address
 function getMintEntrypointFromTokenAddress(const token_address : address) : contract(mintParams) is
@@ -121,7 +134,7 @@ function getMintEntrypointFromTokenAddress(const token_address : address) : cont
       "%mint",
       token_address) : option(contract(mintParams))) of [
     Some(contr) -> contr
-  | None -> (failwith("Mint entrypoint not found") : contract(mintParams))
+  | None -> (failwith(error_MINT_ENTRYPOINT_NOT_FOUND) : contract(mintParams))
   ];
 
 
@@ -172,22 +185,22 @@ function mintTokens(
 //
 // ------------------------------------------------------------------------------
 
-(* View function to get the totalRemainder for the vestee *)
+(* View: get total vesting remainder of vestee *)
 [@view] function getVesteeBalance(const vesteeAddress : address; var s : vestingStorage) : nat is 
     case s.vesteeLedger[vesteeAddress] of [ 
-        | Some(_record) -> _record.totalRemainder
-        | None -> failwith("Error. Vestee not found.")
+          Some(_record) -> _record.totalRemainder
+        | None          -> failwith(error_VESTEE_NOT_FOUND)
     ];
 
 
 
-(* View function to get the totalRemainder for the vestee *)
+(* View: get vestee record *)
 [@view] function getVesteeOpt(const vesteeAddress : address; var s : vestingStorage) : option(vesteeRecordType) is 
     Big_map.find_opt(vesteeAddress, s.vesteeLedger)
 
 
 
-(* View function to get the total vested amount *)
+(* View: get total vested amount *)
 [@view] function getTotalVested(const _ : unit; var s : vestingStorage) : nat is 
     s.totalVestedAmount
 
@@ -215,12 +228,12 @@ block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. setAdmin Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((address * vestingStorage) -> return )) of [
       | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith("Error. Unable to unpack Vesting setAdmin Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -233,12 +246,12 @@ block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. setAdmin Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * vestingStorage) -> return )) of [
       | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith("Error. Unable to unpack Vesting updateMetadata Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -251,12 +264,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. updateWhitelistContracts Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * vestingStorage) -> return )) of [
       | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith("Error. Unable to unpack Vesting updateWhitelistContracts Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -269,12 +282,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. updateGeneralContracts Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * vestingStorage) -> return )) of [
       | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith("Error. Unable to unpack Vesting updateGeneralContracts Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -282,6 +295,7 @@ block {
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -294,12 +308,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddVestee"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. addVestee Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((addVesteeType * vestingStorage) -> return )) of [
       | Some(f) -> f(addVesteeParams, s)
-      | None    -> failwith("Error. Unable to unpack Vesting addVestee Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
     
 } with (res.0, res.1)
@@ -312,12 +326,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveVestee"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. removeVestee Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((address * vestingStorage) -> return )) of [
       | Some(f) -> f(vesteeAddress, s)
-      | None    -> failwith("Error. Unable to unpack Vesting removeVestee Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
     
 } with (res.0, res.1)
@@ -330,12 +344,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateVestee"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. updateVestee Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((updateVesteeType * vestingStorage) -> return )) of [
       | Some(f) -> f(updateVesteeParams, s)
-      | None    -> failwith("Error. Unable to unpack Vesting updateVestee Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -348,12 +362,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaToggleVesteeLock"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. toggleVesteeLock Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((address * vestingStorage) -> return )) of [
       | Some(f) -> f(vesteeAddress, s)
-      | None    -> failwith("Error. Unable to unpack Vesting toggleVesteeLock Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
     
 } with (res.0, res.1)
@@ -361,6 +375,7 @@ block {
 // ------------------------------------------------------------------------------
 // Internal Vestee Control Entrypoints End
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -373,12 +388,12 @@ block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaim"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. claim Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((vestingStorage) -> return )) of [
       | Some(f) -> f(s)
-      | None    -> failwith("Error. Unable to unpack Vesting claim Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -386,6 +401,7 @@ block {
 // ------------------------------------------------------------------------------
 // Vestee Entrypoints End
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -418,11 +434,12 @@ block{
 // ------------------------------------------------------------------------------
 
 
+
+(* main entrypoint *)
 function main (const action : vestingAction; const s : vestingStorage) : return is
   block{
     
-    // Vesting contract entrypoints should not receive XTZ
-    checkNoAmount(unit);
+    checkNoAmount(unit); // entrypoints should not receive any tez amount  
 
   } with (case action of [
 

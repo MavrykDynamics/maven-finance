@@ -303,13 +303,13 @@ block {
 
         const mvkTokenAddress : address = s.mvkTokenAddress;
 
-        const mintSMvkTokensOperation : operation = mintTokens(
+        const mintMvkTokensOperation : operation = mintTokens(
             Tezos.sender,           // to address
             totalClaimAmount,       // amount of mvk Tokens to be minted
             mvkTokenAddress         // mvkTokenAddress
         ); 
 
-        _operations := mintSMvkTokensOperation # _operations;
+        _operations := mintMvkTokensOperation # _operations;
 
         var monthsRemaining  : nat   := 0n;
         if _vestee.monthsRemaining < numberOfClaimMonths then monthsRemaining := 0n

@@ -1,7 +1,8 @@
 
-////
-// COMMON TYPES
-////
+// ------------------------------------------------------------------------------
+// Common Types
+// ------------------------------------------------------------------------------
+
 type delegator is address
 type tokenBalance is nat
 
@@ -45,9 +46,9 @@ type farmConfigType is record [
 
 type metadata is big_map (string, bytes);
 
-////
-// INPUTS
-////
+// ------------------------------------------------------------------------------
+// Inputs
+// ------------------------------------------------------------------------------
 
 (* Transfer entrypoint inputs for FA12 and FA2 *)
 type transferDestination is [@layout:comb] record[
@@ -84,14 +85,17 @@ type farmUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: farmUpdateConfigActionType;
 ]
 
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
+
 type farmStorage is [@layout:comb] record[
     admin                   : address;
     mvkTokenAddress         : address;
     metadata                : metadata;
-
     config                  : farmConfigType;
 
-    whitelistContracts      : whitelistContractsType;      // whitelist of contracts that can access restricted entrypoints
+    whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;
 
     breakGlassConfig        : farmBreakGlassConfigType;

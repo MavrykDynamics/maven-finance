@@ -1,0 +1,75 @@
+[
+    {
+      "index": 0,
+      "name": "lambdaSetAdmin"
+    },
+    {
+      "index": 1,
+      "name": "lambdaUpdateMetadata"
+    },
+    {
+      "index": 2,
+      "name": "lambdaUpdateConfig"
+    },
+    {
+      "index": 3,
+      "name": "lambdaUpdateWhitelistContracts"
+    },
+    {
+      "index": 4,
+      "name": "lambdaUpdateGeneralContracts"
+    },
+    {
+      "index": 5,
+      "name": "lambdaPauseAll"
+    },
+    {
+      "index": 6,
+      "name": "lambdaUnpauseAll"
+    },
+    {
+      "index": 7,
+      "name": "lambdaTogglePauseDelegateToSatellite"
+    },
+    {
+      "index": 8,
+      "name": "lambdaTogglePauseUndelegateSatellite"
+    },
+    {
+      "index": 9,
+      "name": "lambdaTogglePauseRegisterSatellite"
+    },
+    {
+      "index": 10,
+      "name": "lambdaTogglePauseUnregisterSatellite"
+    },
+    {
+      "index": 11,
+      "name": "lambdaTogglePauseUpdateSatellite"
+    },
+    {
+      "index": 12,
+      "name": "lambdaDelegateToSatellite"
+    },
+    {
+      "index": 13,
+      "name": "lambdaUndelegateFromSatellite"
+    },
+    {
+      "index": 14,
+       "name": "lambdaRegisterAsSatellite"
+    },
+    {
+      "index": 15,
+       "name": "lambdaUnregisterAsSatellite"
+    },
+    {
+      "index": 16,
+      "name": "lambdaUpdateSatelliteRecord"
+    },
+    {
+      "index": 17,
+      "name": "lambdaOnStakeChange"
+    }
+]
+  

@@ -35,17 +35,20 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 export const delegationStorage: delegationStorageType = {
-  admin: bob.pkh,
-  mvkTokenAddress: "",
-  metadata: metadata,
   
-  config: config,
-  breakGlassConfig: breakGlassConfig,
+  admin               : bob.pkh,
+  mvkTokenAddress     : "",
+  metadata            : metadata,
+  
+  config              : config,
+  breakGlassConfig    : breakGlassConfig,
 
-  whitelistContracts : MichelsonMap.fromLiteral({}),
-  generalContracts: MichelsonMap.fromLiteral({}),
+  whitelistContracts  : MichelsonMap.fromLiteral({}),
+  generalContracts    : MichelsonMap.fromLiteral({}),
   
-  delegateLedger: MichelsonMap.fromLiteral({}),
-  satelliteLedger: MichelsonMap.fromLiteral({}),
+  delegateLedger      : MichelsonMap.fromLiteral({}),
+  satelliteLedger     : MichelsonMap.fromLiteral({}),
+  
+  lambdaLedger        : MichelsonMap.fromLiteral({}),
   
 };

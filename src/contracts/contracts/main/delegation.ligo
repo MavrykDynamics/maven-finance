@@ -1,145 +1,250 @@
+// ------------------------------------------------------------------------------
+// Common Types
+// ------------------------------------------------------------------------------
+
 // Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
 #include "../partials/whitelistContractsType.ligo"
 
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// Set Lambda Types
+#include "../partials/functionalTypes/setLambdaTypes.ligo"
+
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
+
 // Delegation Type
 #include "../partials/types/delegationTypes.ligo"
 
+// ------------------------------------------------------------------------------
+
 type delegationAction is 
-    | SetAdmin of (address)
-    | UpdateMetadata of (string * bytes)
-    | UpdateConfig of delegationUpdateConfigParamsType
 
-    | UpdateWhitelistContracts of updateWhitelistContractsParams
-    | UpdateGeneralContracts of updateGeneralContractsParams
+      // Housekeeping Entrypoints
+    | SetAdmin                          of (address)
+    | UpdateMetadata                    of (string * bytes)
+    | UpdateConfig                      of delegationUpdateConfigParamsType
+    | UpdateWhitelistContracts          of updateWhitelistContractsParams
+    | UpdateGeneralContracts            of updateGeneralContractsParams
 
-    | TogglePauseDelegateToSatellite of (unit)
-    | TogglePauseUndelegateSatellite of (unit)
-    | TogglePauseRegisterSatellite of (unit)
-    | TogglePauseUnregisterSatellite of (unit)
-    | TogglePauseUpdateSatellite of (unit)
-    | PauseAll of (unit)
-    | UnpauseAll of (unit)
+      // Pause / Break Glass Entrypoints
+    | PauseAll                          of (unit)
+    | UnpauseAll                        of (unit)
+    | TogglePauseDelegateToSatellite    of (unit)
+    | TogglePauseUndelegateSatellite    of (unit)
+    | TogglePauseRegisterSatellite      of (unit)
+    | TogglePauseUnregisterSatellite    of (unit)
+    | TogglePauseUpdateSatellite        of (unit)
 
-    | DelegateToSatellite of (address)    
-    | UndelegateFromSatellite of (unit)
+      // Delegation Entrypoints
+    | DelegateToSatellite               of (address)    
+    | UndelegateFromSatellite           of (unit)
     
-    | RegisterAsSatellite of newSatelliteRecordType
-    | UnregisterAsSatellite of (unit)
+      // Satellite Entrypoints
+    | RegisterAsSatellite               of newSatelliteRecordType
+    | UnregisterAsSatellite             of (unit)
+    | UpdateSatelliteRecord             of updateSatelliteRecordType
 
-    | UpdateSatelliteRecord of (updateSatelliteRecordParams)
-    | OnStakeChange of onStakeChangeParams
+      // General Entrypoints
+    | OnStakeChange                     of onStakeChangeParams
+
+      // Lambda Entrypoints
+    | SetLambda                         of setLambdaType
+
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * delegationStorage
 
-// admin helper functions begin ---------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
+// Error Codes Begin
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                            = 0n;
+[@inline] const error_ONLY_SELF_ALLOWED                                     = 1n;
+[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                         = 2n;
+[@inline] const error_ONLY_GOVERNANCE_CONTRACT_ALLOWED                      = 3n;
+[@inline] const error_ONLY_SATELLITE_ALLOWED                                = 4n;
+[@inline] const error_SATELLITE_NOT_ALLOWED                                 = 5n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                     = 6n;
+
+[@inline] const error_SATELLITE_NOT_FOUND                                   = 7n;
+[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                            = 8n;
+[@inline] const error_GOVERNANCE_CONTRACT_NOT_FOUND                         = 9n;
+
+[@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_NOT_FOUND            = 10n;
+[@inline] const error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND        = 11n;
+
+[@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IS_PAUSED            = 12n;
+[@inline] const error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IS_PAUSED        = 13n;
+[@inline] const error_REGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED            = 14n;
+[@inline] const error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED          = 15n;
+[@inline] const error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IS_PAUSED          = 16n;
+
+[@inline] const error_LAMBDA_NOT_FOUND                                      = 17n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 18n;
+
+// ------------------------------------------------------------------------------
+//
+// Error Codes End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Helper Functions Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Admin Helper Functions Begin
+// ------------------------------------------------------------------------------
+
 function checkSenderIsAdmin(var s : delegationStorage) : unit is
     if (Tezos.sender = s.admin) then unit
-    else failwith("Only the administrator can call this entrypoint.");
+    else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
+
+
 
 function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.sender = Tezos.self_address) then unit
-    else failwith("Only this contract can call this entrypoint.");
+    else failwith(error_ONLY_SELF_ALLOWED);
+
+
 
 function checkSenderIsSatellite(var s : delegationStorage) : unit is 
   if (Map.mem(Tezos.sender, s.satelliteLedger)) then unit
-  else failwith("Error. Sender is not a satellite.");
+  else failwith(error_ONLY_SATELLITE_ALLOWED);
+
+
 
 function checkSenderIsNotSatellite(var s : delegationStorage) : unit is 
-  if (Map.mem(Tezos.sender, s.satelliteLedger)) then failwith("Error. Sender is a satellite.")
+  if (Map.mem(Tezos.sender, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
   else unit;
+
+
 
 function checkSenderIsDoormanContract(var s : delegationStorage) : unit is
 block{
   const doormanAddress : address = case s.generalContracts["doorman"] of [
       Some(_address) -> _address
-      | None -> failwith("Error. Doorman Contract is not found.")
+      | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = doormanAddress) then skip
-  else failwith("Error. Only the Doorman Contract can call this entrypoint.");
+  else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
 } with unit
+
+
 
 function checkSenderIsGovernanceContract(var s : delegationStorage) : unit is
 block{
   const governanceAddress : address = case s.generalContracts["governance"] of [
       Some(_address) -> _address
-      | None -> failwith("Error. Governance Contract is not found.")
+      | None -> failwith(error_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = governanceAddress) then skip
-  else failwith("Error. Only the Governance Contract can call this entrypoint.");
+  else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
 } with unit
+
+
 
 function checkNoAmount(const _p : unit) : unit is
   if (Tezos.amount = 0tez) then unit
-  else failwith("This entrypoint should not receive any tez.");
+  else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+
+
 
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: delegationStorage): return is
-  block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
 
-    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-  } with (noOperations, s)
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
-function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: delegationStorage): return is
-  block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+// ------------------------------------------------------------------------------
+// Admin Helper Functions Begin
+// ------------------------------------------------------------------------------
 
-    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-  } with (noOperations, s)
 
-// admin helper functions end -----------------------------------------------------------------------------------
 
-(* View function that forwards the satellite voting power to the Governance or other contract *)
-[@view] function getSatelliteOpt(const satelliteAddress: address; var s : delegationStorage) : option(satelliteRecordType) is
-  s.satelliteLedger[satelliteAddress]
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
 
-[@view] function getActiveSatellites(const _: unit; var s : delegationStorage) : map(address, satelliteRecordType) is
-  block {
-    var activeSatellites: map(address, satelliteRecordType) := Map.empty; 
-    function findActiveSatellite(const activeSatellites: map(address, satelliteRecordType); const satellite: address * satelliteRecordType): map(address, satelliteRecordType) is
-      if satellite.1.status = 1n then Map.add(satellite.0, satellite.1, activeSatellites)
-      else activeSatellites;
-    var activeSatellites: map(address, satelliteRecordType) := Map.fold(findActiveSatellite, s.satelliteLedger, activeSatellites)
-  } with(activeSatellites)
-
-// break glass: checkIsNotPaused helper functions begin ---------------------------------------------------------
 function checkDelegateToSatelliteIsNotPaused(var s : delegationStorage) : unit is
-    if s.breakGlassConfig.delegateToSatelliteIsPaused then failwith("DelegateToSatellite entrypoint is paused.")
-    else unit;
+  if s.breakGlassConfig.delegateToSatelliteIsPaused then failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  else unit;
+
+    
 
 function checkUndelegateFromSatelliteIsNotPaused(var s : delegationStorage) : unit is
-    if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith("UndelegateFromSatellite entrypoint is paused.")
-    else unit;
+  if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  else unit;
 
-  function checkRegisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
-    if s.breakGlassConfig.registerAsSatelliteIsPaused then failwith("RegisterAsSatellite entrypoint is paused.")
-    else unit;
 
-  function checkUnregisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
-    if s.breakGlassConfig.unregisterAsSatelliteIsPaused then failwith("UnregisterAsSatellite entrypoint is paused.")
-    else unit;
-  
-  function checkUpdateSatelliteRecordIsNotPaused(var s : delegationStorage) : unit is
-    if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith("UpdateSatelliteRecord entrypoint is paused.")
-    else unit;
-// break glass: checkIsNotPaused helper functions end -----------------------------------------------------------
 
-// helper functions begin: --------------------------------------------------------------------------------------
+function checkRegisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
+  if s.breakGlassConfig.registerAsSatelliteIsPaused then failwith(error_REGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  else unit;
 
-// helper function to get satellite 
+
+
+function checkUnregisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
+  if s.breakGlassConfig.unregisterAsSatelliteIsPaused then failwith(error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  else unit;
+
+
+
+function checkUpdateSatelliteRecordIsNotPaused(var s : delegationStorage) : unit is
+  if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith(error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IS_PAUSED)
+  else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function delegateToSatelliteEntrypoint(const delegationAddress : address) : contract(address) is
+  case (Tezos.get_entrypoint_opt(
+      "%delegateToSatellite",
+      delegationAddress) : option(contract(address))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(address))
+];
+
+function undelegateFromSatelliteEntrypoint(const delegationAddress : address) : contract(unit) is
+  case (Tezos.get_entrypoint_opt(
+      "%undelegateFromSatellite",
+      delegationAddress) : option(contract(unit))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(unit))
+];
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Satellite Helper Functions Begin
+// ------------------------------------------------------------------------------
+
 function getSatelliteRecord (const satelliteAddress : address; const s : delegationStorage) : satelliteRecordType is
-  block {
+block {
+
     var satelliteRecord : satelliteRecordType :=
       record [
         status                = 0n;        
@@ -155,522 +260,512 @@ function getSatelliteRecord (const satelliteAddress : address; const s : delegat
       ];
 
     case s.satelliteLedger[satelliteAddress] of [
-      None -> failwith("Satellite not found.")
-    | Some(instance) -> satelliteRecord := instance
+        None -> failwith(error_SATELLITE_NOT_FOUND)
+      | Some(instance) -> satelliteRecord := instance
     ];
-  } with satelliteRecord
 
-// helper functions end: ----------------------------------------------------------------------------------------
+} with satelliteRecord
 
-// housekeeping functions begin: --------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------
+// Satellite Helper Functions End
+// ------------------------------------------------------------------------------
 
-(*  set contract admin address *)
+// ------------------------------------------------------------------------------
+//
+// Helper Functions End
+//
+// ------------------------------------------------------------------------------
+
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Methods Begin
+//
+// ------------------------------------------------------------------------------
+
+// Delegation Lambdas:
+#include "../partials/contractLambdas/delegation/delegationLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Methods End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get Satellite Record *)
+[@view] function getSatelliteOpt(const satelliteAddress: address; var s : delegationStorage) : option(satelliteRecordType) is
+  s.satelliteLedger[satelliteAddress]
+
+
+
+(* View: get map of active satellites *)
+[@view] function getActiveSatellites(const _: unit; var s : delegationStorage) : map(address, satelliteRecordType) is
+block {
+
+    var activeSatellites: map(address, satelliteRecordType) := Map.empty; 
+
+    function findActiveSatellite(const activeSatellites: map(address, satelliteRecordType); const satellite: address * satelliteRecordType): map(address, satelliteRecordType) is
+      if satellite.1.status = 1n then Map.add(satellite.0, satellite.1, activeSatellites)
+      else activeSatellites;
+
+    var activeSatellites: map(address, satelliteRecordType) := Map.fold(findActiveSatellite, s.satelliteLedger, activeSatellites)
+
+} with(activeSatellites)
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setAdmin entrypoint *)
 function setAdmin(const newAdminAddress : address; var s : delegationStorage) : return is
 block {
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
 
-    s.admin := newAdminAddress;
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * delegationStorage) -> return )) of [
+      | Some(f) -> f(newAdminAddress, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+    
+} with (res.0, res.1)
 
-} with (noOperations, s)
 
-(*  update the metadata at a given key *)
+
+(* updateMetadata entrypoint - update the metadata at a given key *)
 function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : delegationStorage) : return is
 block {
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
-    
-    // Update metadata
-    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
-} with (noOperations, s)
 
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * delegationStorage) -> return )) of [
+      | Some(f) -> f(metadataKey, metadataHash, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+
+
+(* updateConfig entrypoint *)
 function updateConfig(const updateConfigParams : delegationUpdateConfigParamsType; var s : delegationStorage) : return is 
 block {
 
-  checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-  const updateConfigAction    : delegationUpdateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : delegationUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationUpdateConfigParamsType * delegationStorage) -> return )) of [
+      | Some(f) -> f(updateConfigParams, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
 
-  case updateConfigAction of [
-    ConfigDelegationRatio (_v)         -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.delegationRatio          := updateConfigNewValue
-  | ConfigMinimumStakedMvkBalance (_v) -> if updateConfigNewValue < 100_000_000n then failwith("Error. This config value cannot go below 0.1SMVK") else s.config.minimumStakedMvkBalance  := updateConfigNewValue
-  | ConfigMaxSatellites (_v)           -> s.config.maxSatellites            := updateConfigNewValue
-  ];
-
-} with (noOperations, s)
+} with (res.0, res.1)
 
 
-// break glass toggle entrypoints begin ---------------------------------------------------------
+
+(* updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: delegationStorage): return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * delegationStorage) -> return )) of [
+      | Some(f) -> f(updateWhitelistContractsParams, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+
+
+(* updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: delegationStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * delegationStorage) -> return )) of [
+      | Some(f) -> f(updateGeneralContractsParams, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* pauseAll entrypoint *)
+function pauseAll(var s : delegationStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+
+
+(* unpauseAll entrypoint *)
+function unpauseAll(var s : delegationStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+
+
+(* togglePauseDelegateToSatellite entrypoint *)
 function togglePauseDelegateToSatellite(var s : delegationStorage) : return is
 block {
-    checkSenderIsAdmin(s); // check that sender is admin
-    if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
-      else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
-} with (noOperations, s)
 
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDelegateToSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+
+
+(* togglePauseUndelegateSatellite entrypoint *)
 function togglePauseUndelegateSatellite(var s : delegationStorage) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUndelegateSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
-      else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
 
-} with (noOperations, s)
+} with (res.0, res.1)
 
+
+
+(* togglePauseRegisterSatellite entrypoint *)
 function togglePauseRegisterSatellite(var s : delegationStorage) : return is
 block {
-    checkSenderIsAdmin(s); // check that sender is admin
-    if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
-      else s.breakGlassConfig.registerAsSatelliteIsPaused := True;
 
-} with (noOperations, s)
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseRegisterSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-// note: togglePauseUnregisterAsSatellite is too long and exceeds max length of 32 characters so togglePauseUnregisterSatellite is used instead
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+
+
+(* togglePauseUnregisterSatellite entrypoint *)
 function togglePauseUnregisterSatellite(var s : delegationStorage) : return is
 block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
 
-    if s.breakGlassConfig.unregisterAsSatelliteIsPaused then s.breakGlassConfig.unregisterAsSatelliteIsPaused := False
-      else s.breakGlassConfig.unregisterAsSatelliteIsPaused := True;
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnregisterSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-} with (noOperations, s)
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
 
-// note: togglePauseUpdateSatelliteRecord is too long and exceeds max length of 32 characters so togglePauseUpdateSatellite is used instead
+} with (res.0, res.1)
+
+
+
+(* togglePauseUpdateSatellite entrypoint *)
 function togglePauseUpdateSatellite(var s : delegationStorage) : return is
 block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
 
-    if s.breakGlassConfig.updateSatelliteRecordIsPaused then s.breakGlassConfig.updateSatelliteRecordIsPaused := False
-      else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUpdateSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-} with (noOperations, s)
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
 
-function pauseAll(var s : delegationStorage) : return is
-block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+} with (res.0, res.1)
 
-    // set all pause configs to True
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints End
+// ------------------------------------------------------------------------------
 
-    if s.breakGlassConfig.delegateToSatelliteIsPaused then skip
-      else s.breakGlassConfig.delegateToSatelliteIsPaused := True;
 
-    if s.breakGlassConfig.undelegateFromSatelliteIsPaused then skip
-      else s.breakGlassConfig.undelegateFromSatelliteIsPaused := True;
 
-    if s.breakGlassConfig.registerAsSatelliteIsPaused then skip
-      else s.breakGlassConfig.registerAsSatelliteIsPaused := True;
+// ------------------------------------------------------------------------------
+// Delegation Entrypoints Begin
+// ------------------------------------------------------------------------------
 
-    if s.breakGlassConfig.unregisterAsSatelliteIsPaused then skip
-      else s.breakGlassConfig.unregisterAsSatelliteIsPaused := True;
-
-    if s.breakGlassConfig.updateSatelliteRecordIsPaused then skip
-      else s.breakGlassConfig.updateSatelliteRecordIsPaused := True;
-
-} with (noOperations, s)
-
-function unpauseAll(var s : delegationStorage) : return is
-block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-
-    // set all pause configs to False
-    if s.breakGlassConfig.delegateToSatelliteIsPaused then s.breakGlassConfig.delegateToSatelliteIsPaused := False
-      else skip;
-
-    if s.breakGlassConfig.undelegateFromSatelliteIsPaused then s.breakGlassConfig.undelegateFromSatelliteIsPaused := False
-      else skip;
-
-    if s.breakGlassConfig.registerAsSatelliteIsPaused then s.breakGlassConfig.registerAsSatelliteIsPaused := False
-      else skip;
-
-    if s.breakGlassConfig.unregisterAsSatelliteIsPaused then s.breakGlassConfig.unregisterAsSatelliteIsPaused := False
-      else skip;
-
-    if s.breakGlassConfig.updateSatelliteRecordIsPaused then s.breakGlassConfig.updateSatelliteRecordIsPaused := False
-      else skip;
-
-} with (noOperations, s)
-
-// break glass toggle entrypoints end ---------------------------------------------------------
-
-// housekeeping functions end: --------------------------------------------------------------------------------
-
+(* delegateToSatellite entrypoint *)
 function delegateToSatellite(const satelliteAddress : address; var s : delegationStorage) : return is 
 block {
 
-    // Overall steps:
-    // 1. check if satellite exists
-    // 2. callback to doorman contract to fetch staked MVK (sMVK) balance
-    // 3. save new user delegate record
-    // 4. update satellite total delegated amount
-
-    // check that entrypoint is not paused
-    checkDelegateToSatelliteIsNotPaused(s);
-
-    // check that sender is not a satellite
-    checkSenderIsNotSatellite(s);
-    
-    // check if satellite exists
-    var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
-         Some(_val) -> _val
-        | None -> failwith("Satellite does not exist")
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDelegateToSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const doormanAddress : address = case s.generalContracts["doorman"] of [
-      Some(_address) -> _address
-      | None -> failwith("Error. Doorman Contract is not found")
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * delegationStorage) -> return )) of [
+      | Some(f) -> f(satelliteAddress, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
-    var operations : list(operation) := nil;
+} with (res.0, res.1)
 
-    // enable redelegation of satellites even if a user is delegated to a satellite already - easier alternative -> batch call undelegateFromSatellite, then delegateToSatellite
-    // get delegate record if exists, if not create a new delegate record
 
-    // check if user is delegated to a satellite or not
-    if Big_map.mem(Tezos.source, s.delegateLedger) then block {
-      // user is already delegated to a satellite 
-      var delegateRecord : delegateRecordType := case s.delegateLedger[Tezos.source] of [
-          Some(_delegateRecord) -> _delegateRecord
-        | None -> failwith("Delegate Record does not exist") // failwith should not be reached as conditional check is already cleared
-      ];
 
-      const previousSatellite : address = delegateRecord.satelliteAddress; 
-
-      // check that new satellite is not the same as previously delegated satellite
-      if previousSatellite = satelliteAddress then failwith("You are already delegated to this satellite")
-        else skip;
-
-      const delegateFromSatellite : contract(address) = Tezos.self("%delegateToSatellite");
-      const delegateFromSatelliteOperation : operation = Tezos.transaction(
-        (satelliteAddress),
-        0tez, 
-        delegateFromSatellite
-      );
-
-      operations  := delegateFromSatelliteOperation # operations;
-
-      const undelegateFromSatellite : contract(unit) = Tezos.self("%undelegateFromSatellite");
-      const undelegateFromSatelliteOperation : operation = Tezos.transaction(
-        (unit),
-        0tez, 
-        undelegateFromSatellite
-      );
-
-      operations  := undelegateFromSatelliteOperation # operations;
-
-    } else block {
-
-      const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
-      const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-        Some (value) -> value
-      | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-      ];
-      
-      // user is not delegated to a satellite
-      var delegateRecord : delegateRecordType := record [
-          satelliteAddress  = satelliteAddress;
-          delegatedDateTime = Tezos.now;
-          delegatedSMvkBalance     = stakedMvkBalance;
-      ];
-
-      s.delegateLedger[Tezos.source] := delegateRecord;
-      // Retrieve satellite account from delegationStorage
-      var satelliteRecord : satelliteRecordType := getSatelliteRecord(satelliteAddress, s);
-
-      // update satellite totalDelegatedAmount balance
-      satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
-      
-      // update satellite ledger delegationStorage with new balance
-      s.satelliteLedger[satelliteAddress] := satelliteRecord;
-
-    }
-
-} with (operations, s)
-
+(* undelegateFromSatellite entrypoint *)
 function undelegateFromSatellite(var s : delegationStorage) : return is
 block {
 
-    // Overall steps:
-    // 1. check if user address exists in delegateLedger
-    // 2. callback to doorman contract to fetch sMVK balance
-    // 3a. if satellite exists, update satellite record with new balance and remove user from delegateLedger
-    // 3b. if satellite does not exist, remove user from delegateLedger
-
-    // check that entrypoint is not paused
-    checkUndelegateFromSatelliteIsNotPaused(s);
-
-    var _delegateRecord : delegateRecordType := case s.delegateLedger[Tezos.source] of [
-         Some(_val) -> _val
-        | None -> failwith("Error. User address not found in delegateLedger.")
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUndelegateFromSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const doormanAddress : address = case s.generalContracts["doorman"] of [
-      Some(_address) -> _address
-      | None -> failwith("Error. Doorman Contract is not found")
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
-    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
-    const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-      Some (value) -> value
-    | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-    ];
+} with (res.0, res.1)
 
-    var emptySatelliteRecord : satelliteRecordType :=
-      record [
-        status                = 0n;        
-        stakedMvkBalance      = 0n;       
-        satelliteFee          = 0n;    
-        totalDelegatedAmount  = 0n;
-        
-        name                  = "Empty Satellite";
-        description           = "Empty Satellite";
-        image                 = ""; 
+// ------------------------------------------------------------------------------
+// Delegation Entrypoints End
+// ------------------------------------------------------------------------------
 
-        registeredDateTime    = Tezos.now;
-      ];
 
-    var _satelliteRecord : satelliteRecordType := case s.satelliteLedger[_delegateRecord.satelliteAddress] of [
-      None -> emptySatelliteRecord
-    | Some(_record) -> _record
-    ];
 
-    if _satelliteRecord.status = 1n then block {
-      // satellite exists
+// ------------------------------------------------------------------------------
+// Satellite Entrypoints Begin
+// ------------------------------------------------------------------------------
 
-      // check that sMVK balance does not exceed satellite's total delegated amount
-        if stakedMvkBalance > _satelliteRecord.totalDelegatedAmount then failwith("Error. User's staked MVK balance exceeds satellite's total delegated amount.")
-          else skip;
-        
-        // update satellite totalDelegatedAmount balance
-        _satelliteRecord.totalDelegatedAmount := abs(_satelliteRecord.totalDelegatedAmount - stakedMvkBalance); 
-        
-        // update satellite ledger delegationStorage with new balance
-        s.satelliteLedger[_delegateRecord.satelliteAddress] := _satelliteRecord;
-
-    } else skip;
-
-    // remove user's address from delegateLedger
-    remove (Tezos.source : address) from map s.delegateLedger;
-
-} with (noOperations, s)
-
-function updateSatelliteRecord(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : delegationStorage) : return is
-block {
-
-    // Overall steps:
-    // 1. check if sender's address exists in satelliteLedger
-    // 2. update satellite records
-
-    checkUpdateSatelliteRecordIsNotPaused(s);
-
-    var satelliteRecord : satelliteRecordType := case s.satelliteLedger[Tezos.sender] of [
-         Some(_val) -> _val
-        | None -> failwith("Satellite does not exist")
-    ];
-
-    // update satellite details - validation checks should be done before submitting to smart contract
-    satelliteRecord.name           := name;         
-    satelliteRecord.description    := description;  
-    satelliteRecord.image          := image;   
-    satelliteRecord.satelliteFee   := satelliteFee;        
-    
-    // update satellite ledger delegationStorage with new information
-    s.satelliteLedger[Tezos.sender] := satelliteRecord;
-
-} with (noOperations, s)
-
-function registerAsSatellite(const name : string; const description : string; const image : string; const satelliteFee : nat; var s : delegationStorage) : return is 
+(* registerAsSatellite entrypoint *)
+function registerAsSatellite(const registerAsSatelliteParams : newSatelliteRecordType; var s : delegationStorage) : return is 
 block {
     
-    // Overall steps: 
-    // 1. verify that satellite does not already exist (prevent double registration)
-    // 2. callback to doorman contract to fetch sMVK balance
-    // 3. if user sMVK balance is more than minimumDelegateBond, register as delegate
-    // 4. add new satellite record and save to satelliteLedger
-
-    // add the satellite fields here
-
-    // check that entrypoint is not paused
-    checkRegisterAsSatelliteIsNotPaused(s);
-
-    // Get user stake balance
-    const doormanAddress : address = case s.generalContracts["doorman"] of [
-      Some(_address) -> _address
-      | None -> failwith("Error. Doorman Contract is not found")
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRegisterAsSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
-    const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-      Some (value) -> value
-    | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((newSatelliteRecordType * delegationStorage) -> return )) of [
+      | Some(f) -> f(registerAsSatelliteParams, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
-    // lock satellite's sMVK amount -> bond? 
-    if stakedMvkBalance < s.config.minimumStakedMvkBalance then failwith("You do not have enough sMVK to meet the minimum delegate bond.")
-      else skip;
+} with (res.0, res.1)
 
-    const satelliteRecord: satelliteRecordType = case Map.find_opt(Tezos.source, s.satelliteLedger) of [
-      Some (_satellite) -> (failwith("Satellite already exists"): satelliteRecordType)
-    | None -> record[            
-          status                = 1n;
-          stakedMvkBalance      = stakedMvkBalance;
-          satelliteFee          = satelliteFee;
-          totalDelegatedAmount  = 0n;
 
-          name                  = name;
-          description           = description;
-          image                 = image;
-          
-          registeredDateTime    = Tezos.now;
-      ]
-    ];
 
-    // Update satellite's record
-    s.satelliteLedger[Tezos.source] := satelliteRecord;
-
-} with (noOperations, s)
-
+(* unregisterAsSatellite entrypoint *)
 function unregisterAsSatellite(var s : delegationStorage) : return is
 block {
-    // Overall steps:
-    // 1. check if satellite exists in satelliteLedger
-    // 2. remove satellite address from satelliteLedger
 
-    // check that entrypoint is not paused
-    checkUnregisterAsSatelliteIsNotPaused(s);
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnregisterAsSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    // check sender is satellite
-    checkSenderIsSatellite(s);
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+
+
+(* updateSatelliteRecord entrypoint *)
+function updateSatelliteRecord(const updateSatelliteRecordParams : updateSatelliteRecordType; var s : delegationStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateSatelliteRecord"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateSatelliteRecordType * delegationStorage) -> return )) of [
+      | Some(f) -> f(updateSatelliteRecordParams, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
     
-    // remove sender from satellite ledger
-    remove (Tezos.sender : address) from map s.satelliteLedger;
+} with (res.0, res.1)
 
-    // todo: oracles check
+// ------------------------------------------------------------------------------
+// Satellite Entrypoints End
+// ------------------------------------------------------------------------------
 
-} with (noOperations, s)
 
+
+// ------------------------------------------------------------------------------
+// General Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* onStakeChange entrypoint *)
 function onStakeChange(const userAddress : address; var s : delegationStorage) : return is 
 block {
 
-    // Overall steps:
-    // 1. check if user is a satellite 
-    // 2a. if user is a satellite, update satellite's bond amount depending on stakeAmount and stakeType
-    // 2b. if user is not a satellite, update satellite's total delegated amount depending on stakeAmount and stakeType
-    // Note: stakeType 1n to increase, stakeType 0n to decrease
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnStakeChange"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    // check sender is Doorman Contract or Treasury Contract
-    // checkSenderIsDoormanContract(s);
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * delegationStorage) -> return )) of [
+      | Some(f) -> f(userAddress, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// General Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams: setLambdaType; var s: delegationStorage): return is
+block{
     
-    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
 
-    const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
+} with(noOperations, s)
 
-    var operations: list(operation) := nil;
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
 
-    // check if user is a satellite
-    if userIsSatellite then block {
+// ------------------------------------------------------------------------------
+//
+// Entrypoints End
+//
+// ------------------------------------------------------------------------------
 
-      // Find doorman address
-      const doormanAddress : address = case s.generalContracts["doorman"] of [
-        Some(_address) -> _address
-        | None -> failwith("Error. Doorman Contract is not found")
-      ];
 
-      // Get user SMVK Balance
-      const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
-      const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-        Some (value) -> value
-      | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-      ];
 
-      var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
-        Some (_satellite) -> _satellite
-        | None -> failwith("Error: satellite record not found.")
-      ];
-
-      // Save satellite
-      satelliteRecord.stakedMvkBalance := stakedMvkBalance;
-      s.satelliteLedger := Map.update(userAddress, Some(satelliteRecord), s.satelliteLedger);
-    }
-    else block {
-
-      // check if user has delegated to a satellite
-      const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
-      
-      if userIsDelegator then block {
-        // Retrieve satellite account from delegationStorage
-        var _delegatorRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
-          Some (_delegate) -> _delegate
-        | None -> failwith("Error: delegate record not found.")
-        ];
-
-        const userHasActiveSatellite: bool = Map.mem(_delegatorRecord.satelliteAddress, s.satelliteLedger);
-        if userHasActiveSatellite then block {
-          // Find doorman address
-          const doormanAddress : address = case s.generalContracts["doorman"] of [
-            Some(_address) -> _address
-            | None -> failwith("Error. Doorman Contract is not found")
-          ];
-
-          // Get user SMVK Balance
-          const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
-          const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-            Some (value) -> value
-          | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-          ];
-
-          var userSatellite: satelliteRecordType := case Map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
-            Some (_delegatedSatellite) -> _delegatedSatellite
-          | None -> failwith("Error: satellite record not found.")
-          ];
-
-          const stakeAmount: nat = abs(_delegatorRecord.delegatedSMvkBalance - stakedMvkBalance);
-
-          // Save satellite
-          if stakedMvkBalance > _delegatorRecord.delegatedSMvkBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
-          else if stakeAmount > userSatellite.totalDelegatedAmount then failwith("Error: stakeAmount is larger than satellite's total delegated amount.")
-          else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
-
-          _delegatorRecord.delegatedSMvkBalance  := stakedMvkBalance;
-          s.delegateLedger   := Map.update(userAddress, Some(_delegatorRecord), s.delegateLedger);
-          s.satelliteLedger  := Map.update(_delegatorRecord.satelliteAddress, Some(userSatellite), s.satelliteLedger);
-        } 
-        // Force User to undelegate if it does not have an active satellite anymore
-        else operations := Tezos.transaction((unit), 0tez, (Tezos.self("%undelegateFromSatellite"): contract(unit))) # operations;
-      }
-      else skip
-    }
-} with (operations, s)
-
+(* main entrypoint *)
 function main (const action : delegationAction; const s : delegationStorage) : return is 
   block{
-    // Check sender sent no XTZ
-    checkNoAmount(unit);
+
+    checkNoAmount(unit); // entrypoints should not receive any tez amount  
+
   } with (case action of [    
-        | SetAdmin(parameters) -> setAdmin(parameters, s)  
-        | UpdateMetadata(parameters) -> updateMetadata(parameters.0, parameters.1, s)
-        | UpdateConfig(parameters) -> updateConfig(parameters, s)
 
-        | UpdateWhitelistContracts(parameters) -> updateWhitelistContracts(parameters, s)
-        | UpdateGeneralContracts(parameters) -> updateGeneralContracts(parameters, s)
+          // Housekeeping Entrypoints
+        | SetAdmin(parameters)                          -> setAdmin(parameters, s)  
+        | UpdateMetadata(parameters)                    -> updateMetadata(parameters.0, parameters.1, s)
+        | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
+        | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
+        | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
 
-        | TogglePauseDelegateToSatellite(_parameters) -> togglePauseDelegateToSatellite(s)
-        | TogglePauseUndelegateSatellite(_parameters) -> togglePauseUndelegateSatellite(s)
-        | TogglePauseRegisterSatellite(_parameters) -> togglePauseRegisterSatellite(s)
-        | TogglePauseUnregisterSatellite(_parameters) -> togglePauseUnregisterSatellite(s)
-        | TogglePauseUpdateSatellite(_parameters) -> togglePauseUpdateSatellite(s)
-        | PauseAll(_parameters) -> pauseAll(s)
-        | UnpauseAll(_parameters) -> unpauseAll(s)
+          // Pause / Break Glass Entrypoints
+        | PauseAll(_parameters)                         -> pauseAll(s)
+        | UnpauseAll(_parameters)                       -> unpauseAll(s)
+        | TogglePauseDelegateToSatellite(_parameters)   -> togglePauseDelegateToSatellite(s)
+        | TogglePauseUndelegateSatellite(_parameters)   -> togglePauseUndelegateSatellite(s)
+        | TogglePauseRegisterSatellite(_parameters)     -> togglePauseRegisterSatellite(s)
+        | TogglePauseUnregisterSatellite(_parameters)   -> togglePauseUnregisterSatellite(s)
+        | TogglePauseUpdateSatellite(_parameters)       -> togglePauseUpdateSatellite(s)
         
-        | DelegateToSatellite(parameters) -> delegateToSatellite(parameters, s)
-        | UndelegateFromSatellite(_parameters) -> undelegateFromSatellite(s)
+          // Delegation Entrypoints
+        | DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)
+        | UndelegateFromSatellite(_parameters)          -> undelegateFromSatellite(s)
         
-        | RegisterAsSatellite(parameters) -> registerAsSatellite(parameters.0, parameters.1, parameters.2, parameters.3, s)
-        | UnregisterAsSatellite(_parameters) -> unregisterAsSatellite(s)
+          // Satellite Entrypoints
+        | RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)
+        | UnregisterAsSatellite(_parameters)            -> unregisterAsSatellite(s)
+        | UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
 
-        | UpdateSatelliteRecord(parameters) -> updateSatelliteRecord(parameters.0, parameters.1, parameters.2, parameters.3, s)
-        | OnStakeChange(parameters) -> onStakeChange(parameters, s)    
-    ])
+          // General Entrypoints
+        | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)    
+
+          // Lambda Entrypoints
+        | SetLambda(parameters)                         -> setLambda(parameters, s)    
+    ]
+  )

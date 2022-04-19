@@ -16,22 +16,15 @@ type councilActionRecordType is record [
     signersCount               : nat;              // total number of signers
     executed                   : bool;             // boolean of whether action has been executed
 
-    // ----------------------------------
-    // use placeholders for params if not in use for action type
-    // - using snake_case instead of camelCase for better readability (address_param_1 vs addressParam1)
-    // ----------------------------------
-    
     addressMap                 : addressMapType;
     stringMap                  : stringMapType;
     natMap                     : natMapType;
 
-    // ----------------------------------
-
-    startDateTime              : timestamp;       // timestamp of when action was initiated
-    startLevel                 : nat;             // block level of when action was initiated           
-    executedDateTime           : timestamp;       // will follow startDateTime and be updated when executed
-    executedLevel              : nat;             // will follow startLevel and be updated when executed
-    expirationDateTime         : timestamp;       // timestamp of when action will expire
+    startDateTime              : timestamp;        // timestamp of when action was initiated
+    startLevel                 : nat;              // block level of when action was initiated           
+    executedDateTime           : timestamp;        // will follow startDateTime and be updated when executed
+    executedLevel              : nat;              // will follow startLevel and be updated when executed
+    expirationDateTime         : timestamp;        // timestamp of when action will expire
 ]
 
 type councilActionsLedgerType is big_map(nat, councilActionRecordType)
@@ -126,13 +119,17 @@ type setLambdaType is [@layout:comb] record [
 ]
 type lambdaLedgerType is big_map(string, bytes)
 
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
+
 type councilStorage is [@layout:comb] record [
     admin                       : address;
     mvkTokenAddress             : address;
     metadata                    : metadata;
 
     config                      : councilConfigType;
-    councilMembers              : councilMembersType;  // map of council member
+    councilMembers              : councilMembersType;  
     
     whitelistContracts          : whitelistContractsType;      
     generalContracts            : generalContractsType;
