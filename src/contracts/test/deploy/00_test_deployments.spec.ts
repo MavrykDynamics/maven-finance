@@ -693,7 +693,7 @@ describe('Contracts Deployment for Tests', async () => {
       .send()
     await transferToTreasury.confirmation()
 
-    // Doorman Contract - set general contract addresses [delegation, mvkToken, farmFactory]
+    // Doorman Contract - set general contract addresses [delegation, farmTreasury, satelliteTreasury, farmFactory]
     const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts('delegation', delegation.contract.address).send()
     await setDelegationContractAddressInDoormanOperation.confirmation()
     
