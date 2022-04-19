@@ -428,12 +428,16 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseRegisterSatellite"       , delegationLambdas[9]))  // togglePauseRegisterSatellite
       .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUnregisterSatellite"     , delegationLambdas[10])) // togglePauseUnregisterSatellite
       .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUpdateSatellite"         , delegationLambdas[11])) // togglePauseUpdateSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaDelegateToSatellite"                , delegationLambdas[12])) // delegateToSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUndelegateFromSatellite"            , delegationLambdas[13])) // undelegateFromSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaRegisterAsSatellite"                , delegationLambdas[14])) // registerAsSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUnregisterAsSatellite"              , delegationLambdas[15])) // unregisterAsSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateSatelliteRecord"              , delegationLambdas[16])) // updateSatelliteRecord
-      .withContractCall(delegation.contract.methods.setLambda("lambdaOnStakeChange"                      , delegationLambdas[17])) // onStakeChange
+      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseDistributeReward"        , delegationLambdas[12])) // togglePauseDistributeReward
+      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseClaimRewards"            , delegationLambdas[13])) // togglePauseClaimRewards
+      .withContractCall(delegation.contract.methods.setLambda("lambdaDelegateToSatellite"                , delegationLambdas[14])) // delegateToSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUndelegateFromSatellite"            , delegationLambdas[15])) // undelegateFromSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaRegisterAsSatellite"                , delegationLambdas[16])) // registerAsSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUnregisterAsSatellite"              , delegationLambdas[17])) // unregisterAsSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateSatelliteRecord"              , delegationLambdas[18])) // updateSatelliteRecord
+      .withContractCall(delegation.contract.methods.setLambda("lambdaDistributeReward"                   , delegationLambdas[19])) // distributeReward
+      .withContractCall(delegation.contract.methods.setLambda("lambdaClaimRewards"                       , delegationLambdas[20])) // claimRewards
+      .withContractCall(delegation.contract.methods.setLambda("lambdaOnStakeChange"                      , delegationLambdas[21])) // onStakeChange
     
       const setupDelegationLambdasOperation = await delegationLambdaBatch.send()
       await setupDelegationLambdasOperation.confirmation()
@@ -644,6 +648,9 @@ describe('Contracts Deployment for Tests', async () => {
 
     // Set Lambdas End
 
+    //----------------------------
+    // Set remaining contract addresses - post-deployment
+    //----------------------------
 
     // MVK Token Contract - set general contract addresses [doorman]
     // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
@@ -695,7 +702,8 @@ describe('Contracts Deployment for Tests', async () => {
     const setFarmFactoryAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("farmFactory", farmFactory.contract.address).send();
     await setFarmFactoryAddressInDoormanOperation.confirmation();
     
-    console.log('Doorman Contract - set general contract addresses [delegation, mvkToken, farmFactory]')
+    var updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address).send();
+    await updateGeneralContractsOperation.confirmation();
 
     // Doorman Contract - set whitelist contract address [farmTreasury, satelliteTreasury]
     var updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
@@ -704,7 +712,7 @@ describe('Contracts Deployment for Tests', async () => {
     updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address).send();
     await updateGeneralContractsOperation.confirmation();
     
-
+    console.log('Doorman Contract - set general contract addresses [delegation, farmTreasury, satelliteTreasury, farmFactory]')
 
     // Farm FA12 Contract - set general contract addresses [doorman]
     // Farm FA12 Contract - set whitelist contract addresses [council] 

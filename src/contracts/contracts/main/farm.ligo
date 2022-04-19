@@ -93,9 +93,9 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 [@inline] const error_CLAIM_ENTRYPOINT_IS_PAUSED                                             = 9n;
 [@inline] const error_DOORMAN_CONTRACT_NOT_FOUND_IN_GENERAL_CONTRACTS                        = 10n;
 [@inline] const error_FARM_CLAIM_ENTRYPOINT_NOT_FOUND_IN_DOORMAN_CONTRACT                    = 11n;
-[@inline] const error_DELEGATOR_NOT_FOUND                                                    = 12n;
-[@inline] const error_DELEGATOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE         = 13n;
-[@inline] const error_DELEGATOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD                    = 14n;
+[@inline] const error_DEPOSITOR_NOT_FOUND                                                    = 12n;
+[@inline] const error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE         = 13n;
+[@inline] const error_DEPOSITOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD                    = 14n;
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA12_CONTRACT_NOT_FOUND                      = 15n;
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA2_CONTRACT_NOT_FOUND                       = 16n;
 
@@ -120,8 +120,8 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function getDelegatorDeposit(const delegator: delegator; const s: farmStorage): option(delegatorRecord) is
-    Big_map.find_opt(delegator, s.delegators)
+function getDepositorDeposit(const depositor: depositor; const s: farmStorage): option(depositorRecord) is
+    Big_map.find_opt(depositor, s.depositors)
 
 
 
@@ -269,11 +269,11 @@ function transferLP(const from_: address; const to_: address; const tokenAmount:
 
     
 
-function transferReward(const delegator: delegator; const tokenAmount: tokenBalance; const s: farmStorage): operation is
+function transferReward(const depositor: depositor; const tokenAmount: tokenBalance; const s: farmStorage): operation is
 block{
 
     // Call farmClaim from the doorman contract
-    const doormanContractAddress: address = case Big_map.find_opt("doorman", s.generalContracts) of [
+    const doormanContractAddress: address = case Map.find_opt("doorman", s.generalContracts) of [
         Some (a) -> a
     |   None -> (failwith(error_DOORMAN_CONTRACT_NOT_FOUND_IN_GENERAL_CONTRACTS): address)
     ];
@@ -284,7 +284,7 @@ block{
     |   None -> (failwith(error_FARM_CLAIM_ENTRYPOINT_NOT_FOUND_IN_DOORMAN_CONTRACT): contract(farmClaimType))
     ];
 
-    const farmClaimParams: farmClaimType = (delegator, tokenAmount, s.config.forceRewardFromTransfer);
+    const farmClaimParams: farmClaimType = (depositor, tokenAmount, s.config.forceRewardFromTransfer);
 
 } with (Tezos.transaction(farmClaimParams, 0tez, doormanContract))
 
@@ -356,34 +356,34 @@ block{
 function updateUnclaimedRewards(var s: farmStorage): farmStorage is
 block{
 
-    // Get delegator
-    const delegator: delegator = Tezos.sender;
+    // Get depositor
+    const depositor: depositor = Tezos.sender;
 
     // Check if sender as already a record
-    var delegatorRecord: delegatorRecord :=
-        case getDelegatorDeposit(delegator, s) of [
+    var depositorRecord: depositorRecord :=
+        case getDepositorDeposit(depositor, s) of [
             Some (r) -> r
-        |   None -> (failwith(error_DELEGATOR_NOT_FOUND): delegatorRecord)
+        |   None -> (failwith(error_DEPOSITOR_NOT_FOUND): depositorRecord)
         ];
 
-    // Compute delegator reward
-    const accumulatedMVKPerShareStart: tokenBalance = delegatorRecord.participationMVKPerShare;
+    // Compute depositor reward
+    const accumulatedMVKPerShareStart: tokenBalance = depositorRecord.participationMVKPerShare;
     const accumulatedMVKPerShareEnd: tokenBalance = s.accumulatedMVKPerShare;
-    if accumulatedMVKPerShareStart > accumulatedMVKPerShareEnd then failwith(error_DELEGATOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE) else skip;
+    if accumulatedMVKPerShareStart > accumulatedMVKPerShareEnd then failwith(error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE) else skip;
     const currentMVKPerShare = abs(accumulatedMVKPerShareEnd - accumulatedMVKPerShareStart);
-    const delegatorReward = (currentMVKPerShare * delegatorRecord.balance) / fixedPointAccuracy;
+    const depositorReward = (currentMVKPerShare * depositorRecord.balance) / fixedPointAccuracy;
 
     // Update paid and unpaid rewards in farmStorage
-    if delegatorReward > s.claimedRewards.unpaid then failwith(error_DELEGATOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD) else skip;
+    if depositorReward > s.claimedRewards.unpaid then failwith(error_DEPOSITOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD) else skip;
     s.claimedRewards := record[
-        unpaid=abs(s.claimedRewards.unpaid - delegatorReward);
-        paid=s.claimedRewards.paid + delegatorReward;
+        unpaid=abs(s.claimedRewards.unpaid - depositorReward);
+        paid=s.claimedRewards.paid + depositorReward;
     ];
 
     // Update user's unclaimed rewards and participationMVKPerShare
-    delegatorRecord.unclaimedRewards := delegatorRecord.unclaimedRewards + delegatorReward;
-    delegatorRecord.participationMVKPerShare := accumulatedMVKPerShareEnd;
-    s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+    depositorRecord.unclaimedRewards := depositorRecord.unclaimedRewards + depositorReward;
+    depositorRecord.participationMVKPerShare := accumulatedMVKPerShareEnd;
+    s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
 } with(s)
 

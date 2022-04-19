@@ -1,7 +1,7 @@
 type onStakeChangeParams is (address)
 
 
-type satelliteRewards is record [
+type satelliteRewards is [@layout:comb] record [
     unpaid                          : nat;
     paid                            : nat;
     participationRewardsPerShare    : nat;
@@ -81,6 +81,9 @@ type delegationBreakGlassConfigType is record [
     unregisterAsSatelliteIsPaused    : bool;
 
     updateSatelliteRecordIsPaused    : bool;
+
+    distributeRewardIsPaused         : bool;
+    claimRewardsIsPaused             : bool;
 ]
 
 type delegationUpdateConfigNewValueType is nat
@@ -101,7 +104,11 @@ type metadata is big_map (string, bytes);
 
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
-    metadataHash     : bytes; 
+    metadataHash     : bytes;
+    
+type distributeRewardTypes is [@layout:comb] record [
+    elligibleSatellites  : set(address);
+    totalSMvkReward      : nat;
 ]
 
 type setLambdaType is [@layout:comb] record [

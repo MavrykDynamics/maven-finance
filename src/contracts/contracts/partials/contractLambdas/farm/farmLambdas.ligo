@@ -396,21 +396,21 @@ block{
                 // Check if farm is closed or not
                 checkFarmIsOpen(s);
 
-                // Delegator address
-                const delegator: delegator = Tezos.sender;
+                // Depositor address
+                const depositor: depositor = Tezos.sender;
 
                 // Check if sender as already a record
-                const existingDelegator: bool = Big_map.mem(delegator, s.delegators);
+                const existingDepositor: bool = Big_map.mem(depositor, s.depositors);
 
-                // Prepare new delegator record
-                var delegatorRecord: delegatorRecord := record[
+                // Prepare new depositor record
+                var depositorRecord: depositorRecord := record[
                     balance=0n;
                     participationMVKPerShare=s.accumulatedMVKPerShare;
                     unclaimedRewards=0n
                 ];
 
-                // Get delegator deposit and perform a claim
-                if existingDelegator then {
+                // Get depositor deposit and perform a claim
+                if existingDepositor then {
                     // Update user's unclaimed rewards
                     s := updateUnclaimedRewards(s);
 
@@ -423,15 +423,15 @@ block{
                 }
                 else skip;
 
-                // Update delegator token balance
-                delegatorRecord.balance := delegatorRecord.balance + tokenAmount;
+                // Update depositor token balance
+                depositorRecord.balance := depositorRecord.balance + tokenAmount;
 
-                // Update delegators Big_map and farmTokenBalance
+                // Update depositors Big_map and farmTokenBalance
                 s.config.lpToken.tokenBalance := s.config.lpToken.tokenBalance + tokenAmount;
-                s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+                s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
                 // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
-                const transferOperation: operation = transferLP(delegator, Tezos.self_address, tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
+                const transferOperation: operation = transferLP(depositor, Tezos.self_address, tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
 
                 operations := transferOperation # operations;
 
@@ -461,7 +461,7 @@ block{
                 // Update pool farmStorage
                 s := updateFarm(s);     
 
-                const delegator: delegator = Tezos.sender;
+                const depositor: depositor = Tezos.sender;
 
                 // Prepare to update user's unclaimedRewards if user already deposited tokens
                 s := updateUnclaimedRewards(s);
@@ -471,10 +471,10 @@ block{
                     |   None     -> failwith("DELEGATOR_NOT_FOUND")
                 ];
 
-                // Check if the delegator has enough token to withdraw
-                if tokenAmount > delegatorRecord.balance then failwith("The amount withdrawn is higher than the delegator deposit") else skip;
-                delegatorRecord.balance := abs(delegatorRecord.balance - tokenAmount);
-                s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+                // Check if the depositor has enough token to withdraw
+                if tokenAmount > depositorRecord.balance then failwith("The amount withdrawn is higher than the depositor deposit") else skip;
+                depositorRecord.balance := abs(depositorRecord.balance - tokenAmount);
+                s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
                 // Check if the farm has enough token
                 if tokenAmount > s.config.lpToken.tokenBalance then failwith("The amount withdrawn is higher than the farm lp balance") else skip;
@@ -483,7 +483,7 @@ block{
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
                 const transferOperation: operation = transferLP(
                     Tezos.self_address,
-                    delegator,
+                    depositor,
                     tokenAmount,
                     s.config.lpToken.tokenId, 
                     s.config.lpToken.tokenStandard,
@@ -521,7 +521,7 @@ block{
                 // Update user's unclaimed rewards
                 s := updateUnclaimedRewards(s);
 
-                const delegator: delegator = Tezos.sender;
+                const depositor: depositor = Tezos.sender;
 
                 // Check if sender as already a record
                 var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
@@ -529,16 +529,16 @@ block{
                     |   None     -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
                 ];
 
-                const claimedRewards: tokenBalance = delegatorRecord.unclaimedRewards;
+                const claimedRewards: tokenBalance = depositorRecord.unclaimedRewards;
 
-                if claimedRewards = 0n then failwith("The delegator has no rewards to claim") else skip;
+                if claimedRewards = 0n then failwith("The depositor has no rewards to claim") else skip;
 
-                // Store new unclaimedRewards value in delegator
-                delegatorRecord.unclaimedRewards := 0n;
-                s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+                // Store new unclaimedRewards value in depositor
+                depositorRecord.unclaimedRewards := 0n;
+                s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
                 // Transfer sMVK rewards
-                const transferRewardOperation: operation = transferReward(delegator, claimedRewards, s);
+                const transferRewardOperation: operation = transferReward(depositor, claimedRewards, s);
 
                 operations := transferRewardOperation # operations;
 
