@@ -12,7 +12,7 @@ import { mvkStorageType } from '../test/types/mvkTokenStorageType'
 
 export const mvkTokenDecimals = 9
 
-const totalSupply = MVK(100000)
+const totalSupply = MVK(1000000)
 const maximumSupply = MVK(10**9)
 const initialSupply = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
 const singleUserSupply = new BigNumber(totalSupply / 8)

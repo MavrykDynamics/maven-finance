@@ -82,12 +82,12 @@
 # TOLERANCE = 0.0001
 
 # error_farm_not_init = 'This farm has not yet been initiated'
-# error_withdraw_higher_than_deposit = 'The amount withdrawn is higher than the delegator deposit'
+# error_withdraw_higher_than_deposit = 'The amount withdrawn is higher than the depositor deposit'
 # error_only_administrator = 'ONLY_ADMINISTRATOR_ALLOWED'
 # error_farm_closed = 'This farm is closed'
 # error_farm_already_init = 'This farm is already opened you cannot initialize it again'
-# error_delegator_not_found = 'DELEGATOR_NOT_FOUND'
-# error_no_unclaimed_rewards = 'The delegator has no rewards to claim'
+# error_depositor_not_found = 'DEPOSITOR_NOT_FOUND'
+# error_no_unclaimed_rewards = 'The depositor has no rewards to claim'
 # error_deposit_paused = 'Deposit entrypoint is paused.'
 # error_withdraw_paused = 'Withdraw entrypoint is paused.'
 # error_claim_paused = 'Claim entrypoint is paused.'
@@ -322,7 +322,7 @@
 #         with self.raisesMichelsonError(error_farm_closed):
 #             res = self.farmContract.deposit(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+101)
 
-#         self.assertEqual(False, alice in res.storage['delegators'])
+#         self.assertEqual(False, alice in res.storage['depositors'])
 #         print('----')
 #         print('✅ User should not be able to deposit in a ended farm')
 
@@ -348,11 +348,11 @@
 
 #         # Operations
 #         res = self.farmContract.deposit(firstDeposit).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#         userUnclaimedReward = int(res.storage['delegators'][bob]['unclaimedRewards'])
+#         userUnclaimedReward = int(res.storage['depositors'][bob]['unclaimedRewards'])
 #         self.assertEqual(0,userUnclaimedReward)
 
 #         res = self.farmContract.deposit(secondDeposit).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+1)
-#         userUnclaimedReward = int(res.storage['delegators'][bob]['unclaimedRewards'])
+#         userUnclaimedReward = int(res.storage['depositors'][bob]['unclaimedRewards'])
 #         self.assertNotEqual(0,userUnclaimedReward)
 
 #         print('----')
@@ -380,11 +380,11 @@
 #         # Deposit operation
 #         res = self.farmContract.deposit(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
-#         self.assertEqual(totalDepositAmount, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
 #         print('----')
 #         print('✅ Alice deposits 2LP')
 #         print('alice deposit balance:')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 
 #     def test_11_alice_deposit_2_lp(self):        
 #         init_farm_storage = deepcopy(self.farmStorage)
@@ -408,11 +408,11 @@
 #         # Deposit operation
 #         res = self.farmContract.deposit(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
-#         self.assertEqual(totalDepositAmount, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
 #         print('----')
 #         print('✅ Alice deposits 2LP')
 #         print('alice deposit balance:')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 
 #     def test_12_alice_deposit_2_lp_on_fa2(self):        
 #         init_farm_storage = deepcopy(self.farmFA2Storage)
@@ -436,11 +436,11 @@
 #         # Deposit operation
 #         res = self.farmFA2Contract.deposit(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
-#         self.assertEqual(totalDepositAmount, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
 #         print('----')
 #         print('✅ Alice deposits 2LP on a farm with FA2 LP Tokens')
 #         print('alice deposit balance:')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
         
 #     def test_13_alice_deposit_2_lp_then_2_lp_on_different_block(self):        
 #         init_farm_storage = deepcopy(self.farmStorage)
@@ -468,16 +468,16 @@
 #         # Second deposit operation
 #         res = self.farmContract.deposit(firstDepositedAmount).interpret(storage=res.storage, source=bob, level=nextBlock)
 
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
 #         totalDepositAmount = 2 * firstDepositedAmount
 
 #         self.assertEqual(suspectedRewards, aliceUnclaimedRewards)
-#         self.assertEqual(totalDepositAmount, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
 #         print('----')
 #         print('✅ Alice deposits 2LP on one block then 2 more on another block')
 #         print('alice deposit balance:')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('alice unclaimedRewards during second deposit')
 #         print(aliceUnclaimedRewards)
     
@@ -519,11 +519,11 @@
 
 #         # Operations
 #         res = self.farmContract.deposit(firstDeposit).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#         userUnclaimedReward = int(res.storage['delegators'][bob]['unclaimedRewards'])
+#         userUnclaimedReward = int(res.storage['depositors'][bob]['unclaimedRewards'])
 #         self.assertEqual(0,userUnclaimedReward)
 
 #         res = self.farmContract.withdraw(firstWithdraw).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+1)
-#         userUnclaimedReward = int(res.storage['delegators'][bob]['unclaimedRewards'])
+#         userUnclaimedReward = int(res.storage['depositors'][bob]['unclaimedRewards'])
 #         self.assertNotEqual(0,userUnclaimedReward)
 
 #         print('----')
@@ -549,7 +549,7 @@
 #         lastBlockUpdate = res.storage['lastBlockUpdate']
 
 #         # Operations
-#         with self.raisesMichelsonError(error_delegator_not_found):
+#         with self.raisesMichelsonError(error_depositor_not_found):
 #             self.farmContract.withdraw(firstWithdraw).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
 #         print('----')
@@ -607,14 +607,14 @@
 
 #         # Withdraw operation
 #         res = self.farmContract.withdraw(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 
-#         self.assertEqual(0, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(0, res.storage['depositors'][bob]['balance'])
 #         self.assertEqual(0, aliceUnclaimedRewards)
 #         print('----')
 #         print('✅ Alice deposits 2LP then withdraws 2LP on the same block')
 #         print('alice delegated lp balance')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('alice unclaimedRewards during withdrawal')
 #         print(aliceUnclaimedRewards)
 
@@ -642,14 +642,14 @@
 
 #         # Withdraw operation
 #         res = self.farmFA2Contract.withdraw(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 
-#         self.assertEqual(0, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(0, res.storage['depositors'][bob]['balance'])
 #         self.assertEqual(0, aliceUnclaimedRewards)
 #         print('----')
 #         print('✅ Alice deposits 2LP then withdraws 2LP on the same block on a farm with FA2 LP Tokens')
 #         print('alice delegated lp balance')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('alice unclaim rewards during withdrawal')
 #         print(aliceUnclaimedRewards)
         
@@ -678,16 +678,16 @@
 
 #         # Withdraw operation
 #         res = self.farmContract.withdraw(totalDepositAmount).interpret(storage=res.storage, source=bob, level=nextBlock)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 
 #         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
 
-#         self.assertEqual(0, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(0, res.storage['depositors'][bob]['balance'])
 #         self.assertEqual(suspectedRewards, aliceUnclaimedRewards)
 #         print('----')
 #         print('✅ Alice deposits 2LP then withdraws 2LP on two different blocks')
 #         print('alice delegated lp balance')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('alice unclaimed rewards during withdrawal')
 #         print(aliceUnclaimedRewards)
 
@@ -717,16 +717,16 @@
 
 #         # Withdraw operation
 #         res = self.farmContract.withdraw(totalWithdrawAmount).interpret(storage=res.storage, source=bob, level=nextBlock)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards'];
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards'];
 
 #         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
 
-#         self.assertEqual(totalDepositAmount-totalWithdrawAmount, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(totalDepositAmount-totalWithdrawAmount, res.storage['depositors'][bob]['balance'])
 #         self.assertEqual(suspectedRewards, aliceUnclaimedRewards)
 #         print('----')
 #         print('✅ Alice deposits 2LP then withdraws 1LP on two different blocks')
 #         print('alice delegated lp balance')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('alice unclaimed rewards during withdrawal')
 #         print(aliceUnclaimedRewards)
 
@@ -757,16 +757,16 @@
 #         # Withdraw operation
 #         aliceUnclaimedRewards = 0
 #         res = self.farmContract.withdraw(totalWithdrawAmount).interpret(storage=res.storage, source=bob, level=nextBlock)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 
 #         suspectedRewards = totalBlocks * currentRewardPerBlock
 
-#         self.assertEqual(0, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(0, res.storage['depositors'][bob]['balance'])
 #         self.assertEqual(suspectedRewards, aliceUnclaimedRewards)
 #         print('----')
 #         print('✅ Alice deposits 2LP before farm ends then withdraws 2LP after farm ends')
 #         print('alice delegated lp balance')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('alice unclaimed rewards during withdrawal')
 #         print(aliceUnclaimedRewards)
 
@@ -802,7 +802,7 @@
 #         lastBlockUpdate = res.storage['lastBlockUpdate']
 
 #         # Operations
-#         with self.raisesMichelsonError(error_delegator_not_found):
+#         with self.raisesMichelsonError(error_depositor_not_found):
 #             self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
 #         print('----')
@@ -862,19 +862,19 @@
 
 #         # New deposit
 #         res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 
 #         # breakpoint()
 
 #         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
-#         bobUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
+#         bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
 #         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
-#         self.assertEqual(aliceDepositAmount, res.storage['delegators'][bob]['balance'])
-#         self.assertEqual(bobDepositAmount, res.storage['delegators'][alice]['balance'])
+#         self.assertEqual(aliceDepositAmount, res.storage['depositors'][bob]['balance'])
+#         self.assertEqual(bobDepositAmount, res.storage['depositors'][alice]['balance'])
 #         self.assertEqual(0, aliceUnclaimedRewards)
 #         self.assertEqual(0, bobUnclaimedRewards)
 #         self.assertEqual(suspectedRewards/2, aliceClaimedRewards)
@@ -882,11 +882,11 @@
 #         print('----')
 #         print('✅ Alice and Bob deposit 2LP on a block then they both claim on another one')
 #         print('alice deposit balance:')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('alice unclaimed sMVK:')
 #         print(aliceClaimedRewards)
 #         print('bob deposit balance:')
-#         print(res.storage['delegators'][alice]['balance'])
+#         print(res.storage['depositors'][alice]['balance'])
 #         print('bob unclaimed sMVK:')
 #         print(bobClaimedRewards)
 
@@ -917,16 +917,16 @@
 
 #         # New deposit
 #         res = self.farmFA2Contract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         res = self.farmFA2Contract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
-#         bobUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
+#         bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
 #         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
-#         self.assertEqual(aliceDepositAmount, res.storage['delegators'][bob]['balance'])
-#         self.assertEqual(bobDepositAmount, res.storage['delegators'][alice]['balance'])
+#         self.assertEqual(aliceDepositAmount, res.storage['depositors'][bob]['balance'])
+#         self.assertEqual(bobDepositAmount, res.storage['depositors'][alice]['balance'])
 #         self.assertEqual(0, aliceUnclaimedRewards)
 #         self.assertEqual(0, bobUnclaimedRewards)
 #         self.assertEqual(suspectedRewards/2, aliceClaimedRewards)
@@ -934,11 +934,11 @@
 #         print('----')
 #         print('✅ Alice and Bob deposit 2LP on a block then they both claim on another one on a farm with FA2 LP Tokens')
 #         print('alice deposit balance:')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('alice claimed sMVK:')
 #         print(aliceClaimedRewards)
 #         print('bob deposit balance:')
-#         print(res.storage['delegators'][alice]['balance'])
+#         print(res.storage['depositors'][alice]['balance'])
 #         print('bob claimed sMVK:')
 #         print(bobClaimedRewards)
 
@@ -971,18 +971,18 @@
 
 #         # New deposit
 #         res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 #         nextBlock += 15
 
 #         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=nextBlock)
-#         bobUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         bobUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         aliceSuspectedRewards = math.trunc((50 * currentRewardPerBlock) + (25 * currentRewardPerBlock / 3))
 #         bobSuspectedRewards = math.trunc(40 * currentRewardPerBlock * 2 / 3)
-#         self.assertEqual(aliceDepositAmount, res.storage['delegators'][bob]['balance'])
-#         self.assertEqual(bobDepositAmount, res.storage['delegators'][alice]['balance'])
+#         self.assertEqual(aliceDepositAmount, res.storage['depositors'][bob]['balance'])
+#         self.assertEqual(bobDepositAmount, res.storage['depositors'][alice]['balance'])
 #         self.assertEqual(0, aliceUnclaimedRewards)
 #         self.assertEqual(0, bobUnclaimedRewards)
 #         self.assertEqual(aliceSuspectedRewards, aliceClaimedRewards)
@@ -990,11 +990,11 @@
 #         print('----')
 #         print('✅ Alice deposit 2LP on a block, Bob deposit 4LP on another block then Alice claim on another block then Bob claim on another block')
 #         print('alice deposit balance:')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('alice claimed sMVK:')
 #         print(aliceClaimedRewards)
 #         print('bob deposit balance:')
-#         print(res.storage['delegators'][alice]['balance'])
+#         print(res.storage['depositors'][alice]['balance'])
 #         print('bob claimed sMVK:')
 #         print(bobClaimedRewards)
         
@@ -1025,18 +1025,18 @@
 #         aliceClaimedRewards = 0;
 #         with self.raisesMichelsonError(error_no_unclaimed_rewards):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#             aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#             aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         suspectedRewards = 0
         
-#         self.assertEqual(totalDepositAmount, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(totalDepositAmount, res.storage['depositors'][bob]['balance'])
 #         self.assertEqual(aliceClaimedRewards, suspectedRewards)
 #         self.assertEqual(aliceUnclaimedRewards, suspectedRewards)
 #         print('----')
 #         print('✅ Alice claims sMVK after depositing 2LP on the same block')
 #         print('alice delegated lp balance')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('rewards:')
 #         print(aliceClaimedRewards)
 
@@ -1072,18 +1072,18 @@
 #         aliceClaimedRewards = 0
 #         with self.raisesMichelsonError(error_no_unclaimed_rewards):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
-#             aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#             aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         suspectedRewards = 0
         
-#         self.assertEqual(0, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(0, res.storage['depositors'][bob]['balance'])
 #         self.assertEqual(aliceClaimedRewards, suspectedRewards)
 #         self.assertEqual(aliceUnclaimedRewards, suspectedRewards)
 #         print('----')
 #         print('✅ Alice deposits and withdraws on the same block then claim on a different block')
 #         print('alice delegated lp balance')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('rewards:')
 #         print(aliceClaimedRewards)
         
@@ -1112,7 +1112,7 @@
 
 #         # Claim reward after one block
 #         res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
@@ -1149,12 +1149,12 @@
 
 #         # Claim reward after one block
 #         res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         with self.raisesMichelsonError(error_no_unclaimed_rewards):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
-#             aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#             aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
@@ -1188,9 +1188,9 @@
 #         # Claim rewards
 #         aliceUnclaimedRewards = 0
 #         aliceClaimedRewards = 0
-#         with self.raisesMichelsonError(error_delegator_not_found):
+#         with self.raisesMichelsonError(error_depositor_not_found):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#             aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#             aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         suspectedRewards = 0
@@ -1232,18 +1232,18 @@
 
 #         # Claim reward after one block
 #         res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         suspectedRewards = (nextBlock-lastBlockUpdate) * currentRewardPerBlock
 
-#         self.assertEqual(1, res.storage['delegators'][bob]['balance'])
+#         self.assertEqual(1, res.storage['depositors'][bob]['balance'])
 #         self.assertEqual(suspectedRewards, aliceClaimedRewards)
 #         self.assertEqual(0, aliceUnclaimedRewards)
 #         print('----')
 #         print('✅ Alice deposits 2LP on a block, withdraws 1LP on another and claims on another')
 #         print('alice delegated lp balance')
-#         print(res.storage['delegators'][bob]['balance'])
+#         print(res.storage['depositors'][bob]['balance'])
 #         print('rewards:')
 #         print(aliceClaimedRewards)
 
@@ -1275,15 +1275,15 @@
 
 #         # Claim reward after one block
 #         res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate + 1000)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=lastBlockUpdate + 1001)
-#         bobUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
+#         bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
 #         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         res = self.farmContract.claim().interpret(storage=res.storage, sender=eve, level=lastBlockUpdate + 1002)
-#         eveUnclaimedRewards = res.storage['delegators'][eve]['unclaimedRewards']
+#         eveUnclaimedRewards = res.storage['depositors'][eve]['unclaimedRewards']
 #         eveClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         totalFarmRewards = totalBlocks * currentRewardPerBlock
@@ -1340,14 +1340,14 @@
 #         bobClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         res = self.farmContract.claim().interpret(storage=res.storage, sender=eve, level=lastBlockUpdate + 1002)
-#         eveUnclaimedRewards = res.storage['delegators'][eve]['unclaimedRewards']
+#         eveUnclaimedRewards = res.storage['depositors'][eve]['unclaimedRewards']
 #         eveClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         totalFarmRewards = totalBlocks * currentRewardPerBlock
 
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
-#         bobUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
-#         eveUnclaimedRewards = res.storage['delegators'][eve]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
+#         bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
+#         eveUnclaimedRewards = res.storage['depositors'][eve]['unclaimedRewards']
 #         totalUserUnclaimedRewards = aliceUnclaimedRewards + bobUnclaimedRewards + eveUnclaimedRewards
 #         totalUserClaimedRewards = aliceClaimedRewards + bobClaimedRewards + eveClaimedRewards
 
@@ -1452,23 +1452,23 @@
 #     #     totalFarmRewards = totalBlocks * currentRewardPerBlock
 #     #     totalUserClaimedRewards = aliceUnclaimedRewards + bobUnclaimedRewards + eveUnclaimedRewards
                 
-#     #     self.assertEqual(5, res.storage['delegators'][bob]['balance'])
-#     #     self.assertEqual(21, res.storage['delegators'][alice]['balance'])
-#     #     self.assertEqual(18, res.storage['delegators'][eve]['balance'])
+#     #     self.assertEqual(5, res.storage['depositors'][bob]['balance'])
+#     #     self.assertEqual(21, res.storage['depositors'][alice]['balance'])
+#     #     self.assertEqual(18, res.storage['depositors'][eve]['balance'])
 #     #     self.assertEqual(pytest.approx(totalFarmRewards, TOLERANCE), totalUserClaimedRewards)
 #     #     self.assertEqual(suspectedAliceRewards, aliceUnclaimedRewards)
 #     #     print('----')
 #     #     print('✅ Alice ')
 #     #     print('alice delegated lp balance')
-#     #     print(res.storage['delegators'][bob]['balance'])
+#     #     print(res.storage['depositors'][bob]['balance'])
 #     #     print('alice rewards:')
 #     #     print(aliceUnclaimedRewards)
 #     #     print('bob delegated lp balance')
-#     #     print(res.storage['delegators'][alice]['balance'])
+#     #     print(res.storage['depositors'][alice]['balance'])
 #     #     print('bob rewards:')
 #     #     print(bobUnclaimedRewards)
 #     #     print('eve delegated lp balance')
-#     #     print(res.storage['delegators'][eve]['balance'])
+#     #     print(res.storage['depositors'][eve]['balance'])
 #     #     print('eve rewards:')
 #     #     print(eveUnclaimedRewards)
 #     #     print('total farm rewards:')
@@ -2590,11 +2590,11 @@
 
 #         # Final claim
 #         res = self.farmContract.claim().interpret(storage=res.storage, sender=bob, level=lastBlockUpdate+2000000)
-#         aliceUnclaimedRewards = res.storage['delegators'][bob]['unclaimedRewards']
+#         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         aliceClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         res = self.farmContract.claim().interpret(storage=res.storage, sender=alice, level=lastBlockUpdate+2000000)
-#         bobUnclaimedRewards = res.storage['delegators'][alice]['unclaimedRewards']
+#         bobUnclaimedRewards = res.storage['depositors'][alice]['unclaimedRewards']
 #         bobClaimedRewards += int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         totalClaimedRewards = aliceClaimedRewards + bobClaimedRewards
