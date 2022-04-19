@@ -31,12 +31,28 @@ type farmTokenPair is [@layout:comb] record [
     token1: farmToken;
 ]
 
+<<<<<<< HEAD
 type createFarmType is [@layout:comb] record[
+<<<<<<< HEAD
+=======
+    forceRewardFromTransfer  : bool;
+    infinite                 : bool;
+    plannedRewards           : farmPlannedRewards;
+    lpTokenOrigin            : string;
+    tokenPair                : farmTokenPair;
+    lpToken                  : farmLpToken;
+=======
+type farmStorageType is [@layout:comb] record[
+>>>>>>> 4cb5c5e (Governance contract submission proposal fee implementation + refactoring on factories to handle bytes for metadata + delegation contract satellite reward distribution through governance working)
     forceRewardFromTransfer : bool;
     infinite                : bool;
     plannedRewards          : farmPlannedRewards;
     metadata                : bytes;
     lpToken                 : farmLpToken;
+<<<<<<< HEAD
+=======
+>>>>>>> cc8504d (Governance contract submission proposal fee implementation + refactoring on factories to handle bytes for metadata + delegation contract satellite reward distribution through governance working)
+>>>>>>> 4cb5c5e (Governance contract submission proposal fee implementation + refactoring on factories to handle bytes for metadata + delegation contract satellite reward distribution through governance working)
 ]
 
 type farmMetadataType is record[
