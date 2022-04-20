@@ -594,6 +594,9 @@ block {
     // Update unclaimed rewards
     s := updateRewards(s);
 
+    // Check if limit was reached
+    if Map.size(s.satelliteLedger) >= s.config.maxSatellites then failwith("Error. The maximum amount of satellites has been reached") else skip;
+
     // Get user stake balance
     const doormanAddress : address = case s.generalContracts["doorman"] of [
         Some(_address) -> _address

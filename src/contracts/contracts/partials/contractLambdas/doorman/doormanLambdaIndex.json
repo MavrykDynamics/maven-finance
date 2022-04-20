@@ -46,6 +46,10 @@
     {
       "index": 11,
       "name": "lambdaFarmClaim"
+    },
+    {
+      "index": 12,
+      "name": "lambdaSatelliteRewardsClaim"
     }
 ]
   
