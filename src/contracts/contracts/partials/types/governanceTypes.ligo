@@ -224,7 +224,7 @@ type proxyLambdaLedgerType is big_map(nat, bytes)
 
 
 type executeActionParamsType is 
-  UpdateLambdaFunction of updateProxyLambdaType
+  UpdateLambdaFunction   of updateProxyLambdaType
 | UpdateGovernanceConfig of updateGovernanceConfigType
 | UpdateDelegationConfig of delegationUpdateConfigParamsType
 type executeActionType is (executeActionParamsType)

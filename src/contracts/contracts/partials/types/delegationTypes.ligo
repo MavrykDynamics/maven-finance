@@ -68,8 +68,8 @@ type delegationBreakGlassConfigType is record [
 type delegationUpdateConfigNewValueType is nat
 type delegationUpdateConfigActionType is 
   ConfigMinimumStakedMvkBalance of unit
-| ConfigDelegationRatio of unit
-| ConfigMaxSatellites of unit
+| ConfigDelegationRatio         of unit
+| ConfigMaxSatellites           of unit
 type delegationUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: delegationUpdateConfigNewValueType; 
   updateConfigAction: delegationUpdateConfigActionType;
@@ -82,6 +82,26 @@ type setLambdaType is [@layout:comb] record [
       func_bytes            : bytes;
 ]
 type lambdaLedgerType is big_map(string, bytes)
+
+type delegationLambdaActionType is 
+  LambdaSetAdmin                              of address
+| LambdaUpdateMetadata                        of (string * bytes)
+| LambdaUpdateConfig                          of delegationUpdateConfigParamsType
+| LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
+| LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+| LambdaPauseAll                              of (unit)
+| LambdaUnpauseAll                            of (unit)
+| LambdaPauseDelegateToSatellite              of (unit)
+| LambdaPauseUndelegateSatellite              of (unit)
+| LambdaPauseRegisterSatellite                of (unit)
+| LambdaPauseUnregisterSatellite              of (unit)
+| LambdaPauseUpdateSatellite                  of (unit)
+| LambdaDelegateToSatellite                   of (address)
+| LambdaUndelegateFromSatellite               of (unit)
+| LambdaRegisterAsSatellite                   of newSatelliteRecordType
+| LambdaUnregisterAsSatellite                 of (unit)
+| LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
+| LambdaOnStakeChange                         of onStakeChangeParams
 
 // ------------------------------------------------------------------------------
 // Storage
