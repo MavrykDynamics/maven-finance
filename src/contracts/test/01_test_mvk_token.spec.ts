@@ -58,6 +58,59 @@
 //     await signerFactory(bob.sk)
 //   })
 
+//   describe("%setAdmin", async () => {
+//       beforeEach("Set signer to admin", async () => {
+//           await signerFactory(bob.sk)
+//       });
+//       it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
+//           try{
+//               // Initial Values
+//               tokenStorage = await tokenInstance.storage();
+//               const currentAdmin = tokenStorage.admin;
+
+//               // Operation
+//               const setAdminOperation = await tokenInstance.methods.setAdmin(alice.pkh).send();
+//               await setAdminOperation.confirmation();
+
+//               // Final values
+//               tokenStorage = await tokenInstance.storage();
+//               const newAdmin = tokenStorage.admin;
+
+//               // reset admin
+//               await signerFactory(alice.sk);
+//               const resetAdminOperation = await tokenInstance.methods.setAdmin(bob.pkh).send();
+//               await resetAdminOperation.confirmation();
+
+//               // Assertions
+//               assert.notStrictEqual(newAdmin, currentAdmin);
+//               assert.strictEqual(newAdmin, alice.pkh);
+//               assert.strictEqual(currentAdmin, bob.pkh);
+//           } catch(e){
+//               console.log(e);
+//           }
+//       });
+//       it('Non-admin should not be able to call this entrypoint', async () => {
+//           try{
+//               // Initial Values
+//               await signerFactory(alice.sk);
+//               tokenStorage = await tokenInstance.storage();
+//               const currentAdmin = tokenStorage.admin;
+
+//               // Operation
+//               await chai.expect(tokenInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
+
+//               // Final values
+//               tokenStorage = await tokenInstance.storage();
+//               const newAdmin = tokenStorage.admin;
+
+//               // Assertions
+//               assert.strictEqual(newAdmin, currentAdmin);
+//           } catch(e){
+//               console.log(e);
+//           }
+//       });
+//   });
+
 //   describe('%transfer', function () {
 //     it('Bob sends 2000MVK to Eve', async () => {
 //       try {
@@ -2212,186 +2265,6 @@
 //           newAddressesContractsMapAlice,
 //           undefined,
 //           'Alice should not be in the General Contracts map after adding him to it',
-//         )
-//       } catch (e) {
-//         console.log(e)
-//       }
-//     })
-//   })
-
-//   describe('%onStakeChange', function () {
-//     // before('Mint MVK tokens for Bob', async () => {
-//     //   const whitelistBobOperationAdd = await tokenInstance.methods.updateWhitelistContracts('bob', bob.pkh).send()
-//     //   await whitelistBobOperationAdd.confirmation()
-//     //   const mintBobOperation = await tokenInstance.methods.mint(bob.pkh, 20000).send()
-//     //   await mintBobOperation.confirmation()
-//     //   const whitelistBobOperationRemove = await tokenInstance.methods
-//     //     .updateWhitelistContracts('bob', bob.pkh)
-//     //     .send()
-//     //   await whitelistBobOperationRemove.confirmation()
-//     //   tokenStorage = await tokenInstance.storage()
-//     // })
-
-//     it('Stakes 1000MVK on Bob account without being whitelisted', async () => {
-//       try {
-//         const operation = await tokenInstance.methods.onStakeChange(bob.pkh, 1000, 'stakeAction').send()
-//         await operation.confirmation()
-//       } catch (e) {
-//         tokenStorage = await tokenInstance.storage()
-//         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
-//         assert.equal(
-//           e.message,
-//           'ONLY_WHITELISTED_CONTRACTS_ALLOWED',
-//           'This entrypoint should only be called by whitelisted contracts',
-//         )
-//         assert.equal(
-//           parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase),
-//           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
-//         )
-//       }
-//     })
-
-//     it('Stakes 1000MVK on Bob account while being whitelisted', async () => {
-//       try {
-//         const whitelistBobOperationAdd = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
-//           .send()
-//         await whitelistBobOperationAdd.confirmation()
-
-//         const operation = await tokenInstance.methods.onStakeChange(bob.pkh, 1000, 'stakeAction').send()
-//         await operation.confirmation()
-
-//         const whitelistBobOperationRemove = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
-//           .send()
-//         await whitelistBobOperationRemove.confirmation()
-
-//         tokenStorage = await tokenInstance.storage()
-//         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
-//         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase.minus(1000)),
-//           'Bob MVK Ledger should have ' +
-//             (bobTokenLedgerBase - 1000) +
-//             'MVK but she has ' +
-//             bobTokenLedgerAfter +
-//             'MVK',
-//         )
-//       } catch (e) {
-//         console.log(e)
-//       }
-//     })
-
-//     it('Stakes all Bob MVK tokens while being whitelisted', async () => {
-//       try {
-//         const whitelistBobOperationAdd = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
-//           .send()
-//         await whitelistBobOperationAdd.confirmation()
-
-//         const bobBalance = await tokenStorage.ledger.get(bob.pkh)
-//         const operation = await tokenInstance.methods.onStakeChange(bob.pkh, bobBalance, 'stakeAction').send()
-//         await operation.confirmation()
-
-//         const whitelistBobOperationRemove = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
-//           .send()
-//         await whitelistBobOperationRemove.confirmation()
-
-//         tokenStorage = await tokenInstance.storage()
-//         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
-//         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase.minus(bobBalance)),
-//           'Bob MVK Ledger should have ' +
-//             (bobTokenLedgerBase - bobBalance) +
-//             'MVK but she has ' +
-//             bobTokenLedgerAfter +
-//             'MVK',
-//         )
-//       } catch (e) {
-//         console.log(e)
-//       }
-//     })
-
-//     it('Stakes too much MVK from Bob account while being whitelisted', async () => {
-//       try {
-//         const whitelistBobOperationAdd = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
-//           .send()
-//         await whitelistBobOperationAdd.confirmation()
-
-//         const bobBalance = await tokenStorage.ledger.get(bob.pkh)
-//         const operation = await tokenInstance.methods.onStakeChange(bob.pkh, bobBalance + 1, 'stakeAction').send()
-//         await operation.confirmation()
-//       } catch (e) {
-//         tokenStorage = await tokenInstance.storage()
-//         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
-
-//         const whitelistBobOperationRemove = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
-//           .send()
-//         await whitelistBobOperationRemove.confirmation()
-
-//         assert.equal(
-//           e.message,
-//           'FA2_INSUFFICIENT_BALANCE',
-//           'This entrypoint should only be called by whitelisted contracts',
-//         )
-//         assert.equal(
-//           parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase),
-//           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
-//         )
-//       }
-//     })
-
-//     it('Unstakes 1000MVK from Bob account without being whitelisted', async () => {
-//       try {
-//         const operation = await tokenInstance.methods.onStakeChange(bob.pkh, 1000, 'unstakeAction').send()
-//         await operation.confirmation()
-//       } catch (e) {
-//         tokenStorage = await tokenInstance.storage()
-//         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
-//         assert.equal(
-//           e.message,
-//           'ONLY_WHITELISTED_CONTRACTS_ALLOWED',
-//           'This entrypoint should only be called by whitelisted contracts',
-//         )
-//         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//           parseInt(bobTokenLedgerBase),
-//           "Bob MVK balance shouldn't have changed: " + bobTokenLedgerAfter + 'MVK',
-//         )
-//       }
-//     })
-
-//     it('Unstakes 1000MVK on Bob account while being whitelisted', async () => {
-//       try {
-//         const whitelistBobOperationAdd = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
-//           .send()
-//         await whitelistBobOperationAdd.confirmation()
-
-//         const operation = await tokenInstance.methods.onStakeChange(bob.pkh, 1000, 'unstakeAction').send()
-//         await operation.confirmation()
-
-//         const whitelistBobOperationRemove = await tokenInstance.methods
-//           .updateWhitelistContracts('bob', bob.pkh)
-//           .send()
-//         await whitelistBobOperationRemove.confirmation()
-
-//         tokenStorage = await tokenInstance.storage()
-//         const bobTokenLedgerAfter = await tokenStorage.ledger.get(bob.pkh)
-//         assert.equal(
-//             parseInt(bobTokenLedgerAfter),
-//             parseInt(bobTokenLedgerBase.plus(1000)),
-//           'Bob MVK Ledger should have ' +
-//             (bobTokenLedgerBase + 1000) +
-//             'MVK but she has ' +
-//             bobTokenLedgerAfter +
-//             'MVK',
 //         )
 //       } catch (e) {
 //         console.log(e)
