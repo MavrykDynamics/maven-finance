@@ -53,7 +53,7 @@ type doormanAction is
   | Unstake                     of (nat)
   | Compound                    of (unit)
   | FarmClaim                   of farmClaimType
-  | SatelliteRewardsClaim       of (address * nat)
+  | SatelliteRewardsClaim       of satelliteRewardsClaimType
 
     // Lambda Entrypoints
   | SetLambda                   of setLambdaType
@@ -749,7 +749,7 @@ block{
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((satelliteRewardsClaimType * doormanStorage) -> return )) of [
-      | Some(f) -> f(satelliteRewardsClaimType, s)
+      | Some(f) -> f(satelliteRewardsClaim, s)
       | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
@@ -818,7 +818,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | Unstake(parameters)                   -> unstake(parameters, s)
       | Compound(_parameters)                 -> compound(s)
       | FarmClaim(parameters)                 -> farmClaim(parameters, s)
-      | SatelliteRewardsClaim(parameters)     -> satelliteRewardsClaim(parameters.0, parameters.1, s)
+      | SatelliteRewardsClaim(parameters)     -> satelliteRewardsClaim(parameters, s)
 
         // Lambda Entrypoints
       | SetLambda(parameters)                 -> setLambda(parameters, s)
