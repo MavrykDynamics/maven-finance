@@ -408,7 +408,7 @@
 //     //         // console.log('storage: console log checks  ----');
 //     //         const beforeGovernanceStorage = await governanceInstance.storage();
 //     //         const beforeDelegationStorage = await delegationInstance.storage();
-//     //         console.log("Before Test Block Level: " + beforeGovernanceStorage.tempFlag);
+
 //     //         // console.log(beforeGovernanceStorage);
 //     //         console.log("Current Round:" +beforeGovernanceStorage.currentRound);
 

@@ -11,7 +11,7 @@ const config = {
     successReward             : 10000,
 
     minProposalRoundVotePercentage : 1000,
-    minProposalRoundVotesRequired : 10000,
+    minProposalRoundVotesRequired  : 10000,
 
     minQuorumPercentage       : 1000,
     minQuorumMvkTotal         : 10000,
@@ -80,12 +80,11 @@ export const governanceStorage: governanceStorageType = {
   snapshotMvkTotalSupply             : new BigNumber(1000000000),
   snapshotStakedMvkTotalSupply       : new BigNumber(0),
 
-  governanceLambdaLedger             : MichelsonMap.fromLiteral({}),
+  proxyLambdaLedger                  : MichelsonMap.fromLiteral({}),
+  lambdaLedger                       : MichelsonMap.fromLiteral({}),
 
   financialRequestLedger             : MichelsonMap.fromLiteral({}),
   financialRequestSnapshotLedger     : MichelsonMap.fromLiteral({}),
   financialRequestCounter            : new BigNumber(1),
-
-  tempFlag: new BigNumber(0),
 
 };

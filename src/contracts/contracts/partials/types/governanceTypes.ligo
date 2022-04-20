@@ -262,7 +262,6 @@ type governanceStorage is [@layout:comb] record [
     admin                       : address;
     mvkTokenAddress             : address;
     metadata                    : metadata;
-
     config                      : configType;
 
     whitelistContracts          : whitelistContractsType;      
@@ -301,5 +300,4 @@ type governanceStorage is [@layout:comb] record [
     proxyLambdaLedger           : proxyLambdaLedgerType;   // lambdas to external contracts used in executing proposals
     lambdaLedger                : lambdaLedgerType;             // governance contract lambdas
 
-    tempFlag : nat;     // test variable - currently used to show block levels per transaction
 ]

@@ -37,12 +37,11 @@ export type governanceStorageType = {
   snapshotMvkTotalSupply             : BigNumber;
   snapshotStakedMvkTotalSupply       : BigNumber;
 
-  governanceLambdaLedger             : MichelsonMap<MichelsonMapKey, unknown>;
+  proxyLambdaLedger                  : MichelsonMap<MichelsonMapKey, unknown>;
+  lambdaLedger                       : MichelsonMap<MichelsonMapKey, unknown>;
 
   financialRequestLedger             : MichelsonMap<MichelsonMapKey, unknown>;
   financialRequestSnapshotLedger     : MichelsonMap<MichelsonMapKey, unknown>;
   financialRequestCounter            : BigNumber;
-
-  tempFlag :BigNumber;
   
 };
