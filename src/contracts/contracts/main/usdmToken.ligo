@@ -279,6 +279,7 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
     end
   } with (noOperations, store)
 
+
 (* MintOrBurn Entrypoint *)
 function mintOrBurn(const mintOrBurnParams: mintOrBurnParams; var store : storage) : return is
 block {
