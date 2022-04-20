@@ -56,7 +56,7 @@ type delegationAction is
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * delegationStorage
-
+type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegationStorage) -> return
 
 // ------------------------------------------------------------------------------
 //
@@ -272,6 +272,26 @@ block {
 // Satellite Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(delegationUnpackLambdaFunctionType)) of [
+        Some(f) -> f(delegationLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -350,12 +370,14 @@ block {
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * delegationStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
     
-} with (res.0, res.1)
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+    
+} with response
 
 
 
@@ -386,12 +408,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationUpdateConfigParamsType * delegationStorage) -> return )) of [
-      | Some(f) -> f(updateConfigParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -404,12 +427,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * delegationStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -422,12 +446,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * delegationStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -448,12 +473,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseAll(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -466,12 +492,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUnpauseAll(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -484,12 +511,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseDelegateToSatellite(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -502,12 +530,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseUndelegateSatellite(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -520,12 +549,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseRegisterSatellite(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -538,12 +568,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseUnregisterSatellite(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -556,12 +587,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseUpdateSatellite(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -582,12 +614,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * delegationStorage) -> return )) of [
-      | Some(f) -> f(satelliteAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaDelegateToSatellite(satelliteAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -600,12 +633,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUndelegateFromSatellite(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Delegation Entrypoints End
@@ -626,12 +660,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((newSatelliteRecordType * delegationStorage) -> return )) of [
-      | Some(f) -> f(registerAsSatelliteParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaRegisterAsSatellite(registerAsSatelliteParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -644,12 +679,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUnregisterAsSatellite(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -662,12 +698,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateSatelliteRecordType * delegationStorage) -> return )) of [
-      | Some(f) -> f(updateSatelliteRecordParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateSatelliteRecord(updateSatelliteRecordParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
     
-} with (res.0, res.1)
+} with response
 
 // ------------------------------------------------------------------------------
 // Satellite Entrypoints End
@@ -688,12 +725,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * delegationStorage) -> return )) of [
-      | Some(f) -> f(userAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaOnStakeChange(userAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // General Entrypoints End
