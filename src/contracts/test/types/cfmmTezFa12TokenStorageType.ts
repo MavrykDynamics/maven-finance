@@ -17,6 +17,6 @@ export type cfmmTezFa12TokenStorageType = {
   pendingPoolUpdates: BigNumber
 
   lastOracleUpdate : Date
-  usdmTokenAddress : string
+  usdmTokenControllerAddress : string
   treasuryAddress : string
 }
