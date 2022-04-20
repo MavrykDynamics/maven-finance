@@ -39,8 +39,6 @@ type vaultType is [@layout:comb] record [
     collateralBalanceLedger     : collateralBalanceLedgerType;        // tez/token balance
     usdmOutstanding             : usdmAmountType;                     // nat 
     collateralTokenAddresses    : collateralTokenAddressesType;       // token collateral address : name of token collateral
-    // markedForLiquidation        : bool;                            // marked for liquidation
-    // timeMarkedForLiquidation    : timestamp;                       // time marked for liquidation
 ]
 
 // owner types
@@ -980,6 +978,7 @@ block {
     s.vaults[vaultHandle] := vault;
 
     // --- test---
+    
     // var vaultCollateralValue : nat := 0n;
 
     // const tezBalance : nat = case vault.collateralBalanceLedger["tez"] of 
