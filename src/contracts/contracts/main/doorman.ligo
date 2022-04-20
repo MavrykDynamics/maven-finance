@@ -656,6 +656,24 @@ block{
 
 } with response
 
+
+
+(* satelliteRewardsClaim entrypoint *)
+function satelliteRewardsClaim(const satelliteRewardsClaim: satelliteRewardsClaimType; var s: doormanStorage): return is
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSatelliteRewardsClaim"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((satelliteRewardsClaimType * doormanStorage) -> return )) of [
+      | Some(f) -> f(satelliteRewardsClaimType, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with(res.0, res.1)
+
 // ------------------------------------------------------------------------------
 // Doorman Entrypoints End
 // ------------------------------------------------------------------------------
@@ -689,74 +707,6 @@ block{
 //
 // ------------------------------------------------------------------------------
 
-function satelliteRewardsClaim(const user: address; const rewards: nat; var s: doormanStorage): return is
-  block{
-    // Compound user rewards
-    const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
-    s := userCompound.1;
-
-    // Update the delegation balance
-    const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
-        Some(_address) -> _address
-        | None -> failwith("Error. Delegation Contract is not found.")
-    ];
-    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (user),
-      0tez,
-      updateSatelliteBalance(delegationAddress)
-    );
-
-    // Check sender is delegation contract
-    if Tezos.sender = delegationAddress then skip else failwith("Error. Only the delegation contract can access this entrypoint");
-
-    // get user's staked balance in staked balance ledger
-    var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[user] of [
-      Some (_val) -> _val
-    | None -> record[
-        balance=0n;
-        participationFeesPerShare=s.accumulatedFeesPerShare;
-      ]
-    ];
-
-    userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + rewards; 
-    s.userStakeBalanceLedger[user] := userBalanceInStakeBalanceLedger;
-
-    // update staked MVK total supply
-    s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + rewards;
-
-    // Get treasury address from name
-    const treasuryAddress: address = case Map.find_opt("satelliteTreasury", s.generalContracts) of [
-      Some (v) -> v
-    | None -> failwith("Error. Satellite treasury contract not found")
-    ];
-
-    // Prepare operation list
-    var operations: list(operation) :=  case userCompound.0 of [
-      Some (o) -> list [o; updateSatelliteBalanceOperation]
-    | None -> list [updateSatelliteBalanceOperation]
-    ];
-    
-    // Get MVK Token address
-    const mvkTokenAddress: address = s.mvkTokenAddress;
-
-    const transferParam: transferActionType = list[
-      record[
-        to_=Tezos.self_address;
-        token=Fa2 (record[
-          tokenContractAddress=mvkTokenAddress;
-          tokenId=0n;
-        ]);
-        amount=rewards;
-      ]
-    ];
-
-    const transferOperation: operation = Tezos.transaction(
-      transferParam,
-      0tez,
-      sendTransferOperationToTreasury(treasuryAddress)
-    );
-    operations := transferOperation # operations;
-  } with(operations, s)
 
 (* main entrypoint *)
 function main (const action : doormanAction; const s : doormanStorage) : return is
