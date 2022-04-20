@@ -16,18 +16,20 @@ function callGovernanceLambda(const executeAction : executeActionType; var s : g
 
     ];
 
-    const lambdaBytes : bytes = case s.governanceLambdaLedger[id] of [
+    const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. Governance Lambda not found.")
+      | None     -> failwith("Error. Governance Proxy Lambda not found.")
     ];
 
     // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
-      | None    -> failwith("Error. Unable to unpack Governance Lambda.")
+      | None    -> failwith("Error. Unable to unpack Governance Proxy Lambda.")
     ];
   
   } with (res.0, s)
+
+
 
 (* updateLambdaFunction lambda *)
 function updateLambdaFunction(const executeAction : executeActionType; var s : governanceStorage) : return is
@@ -42,13 +44,15 @@ function updateLambdaFunction(const executeAction : executeActionType; var s : g
         const lambdaId    = params.id;
         const lambdaBytes = params.func_bytes;
 
-        s.governanceLambdaLedger[lambdaId] := lambdaBytes
+        s.proxyLambdaLedger[lambdaId] := lambdaBytes
 
         }
     | _ -> skip
     ];
 
   } with (noOperations, s)
+
+
 
 function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceStorage) : return is 
 block {
@@ -87,6 +91,7 @@ block {
 
 } with (operations, s)
 
+
 function updateDelegationConfig(const executeAction : executeActionType; var s : governanceStorage) : return is 
 block {
 
@@ -95,6 +100,7 @@ block {
     var operations: list(operation) := nil;
 
     case executeAction of [
+      
       UpdateDelegationConfig(params) -> {
 
         // find and get delegation contract address from the generalContracts big map

@@ -768,7 +768,7 @@ block{
 
 
 
-(* Main entrypoint *)
+(* main entrypoint *)
 function main (const action: farmAction; var s: farmStorage): return is
   block{
     

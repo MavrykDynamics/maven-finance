@@ -216,7 +216,7 @@ function checkUpdateSatelliteRecordIsNotPaused(var s : delegationStorage) : unit
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function delegateToSatelliteEntrypoint(const delegationAddress : address) : contract(address) is
+function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : contract(address) is
   case (Tezos.get_entrypoint_opt(
       "%delegateToSatellite",
       delegationAddress) : option(contract(address))) of [
@@ -224,7 +224,9 @@ function delegateToSatelliteEntrypoint(const delegationAddress : address) : cont
   | None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(address))
 ];
 
-function undelegateFromSatelliteEntrypoint(const delegationAddress : address) : contract(unit) is
+
+
+function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address) : contract(unit) is
   case (Tezos.get_entrypoint_opt(
       "%undelegateFromSatellite",
       delegationAddress) : option(contract(unit))) of [

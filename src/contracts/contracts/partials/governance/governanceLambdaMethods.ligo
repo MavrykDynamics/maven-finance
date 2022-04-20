@@ -23,9 +23,6 @@ function setupLambdaFunction(const params : setupLambdaFunctionType; var s : gov
 
     checkSenderIsAdminOrSelf(s);
 
-    const max_index : nat = 6n;
-    assert_with_error(params.id <= max_index, "Error. Too many lambda functions found.");
-
     // save lambda in governanceLambdaLedger
     case s.governanceLambdaLedger[params.id] of [
       Some(_) -> failwith("Error. Lambda already in Governance Lambda Ledger.")
