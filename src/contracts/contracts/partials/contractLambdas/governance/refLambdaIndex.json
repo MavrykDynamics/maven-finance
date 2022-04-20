@@ -28,6 +28,14 @@
       "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
+      "index": 7,
+      "name": "lambdaStartNextRound"
+    },
+    {
+      "index": 8,
+      "name": "lambdaPropose"
+    },
+    {
       "index": 9,
       "name": "lambdaAddUpdateProposalData"
     },
@@ -39,7 +47,10 @@
       "index": 11,
       "name": "lambdaLockProposal"
     },
-    
+    {
+      "index": 12,
+      "name": "lambdaProposalRoundVote"
+    },
     {
       "index": 13,
       "name": "lambdaVotingRoundVote"
@@ -51,6 +62,22 @@
     {
       "index": 15,
        "name": "lambdaDropProposal"
+    },
+    {
+      "index": 16,
+       "name": "lambdaRequestTokens"
+    },
+    {
+      "index": 17,
+      "name": "lambdaRequestMint"
+    },
+    {
+      "index": 18,
+      "name": "lambdaDropFinancialRequest"
+    },
+    {
+      "index": 19,
+      "name": "lambdaVoteForRequest"
     }
 ]
   

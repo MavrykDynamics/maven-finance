@@ -49,9 +49,9 @@ type governanceAction is
     | UpdateGeneralContracts          of updateGeneralContractsParams
     
       // Governance Cycle Entrypoints
-    | StartNextRound                  of bool
-    | Propose                         of newProposalType
-    | ProposalRoundVote               of proposalIdType
+    // | StartNextRound                  of bool
+    // | Propose                         of newProposalType
+    // | ProposalRoundVote               of proposalIdType
     | AddUpdateProposalData           of addUpdateProposalDataType
     | AddUpdatePaymentData            of addUpdatePaymentDataType
     | LockProposal                    of proposalIdType      
@@ -60,10 +60,10 @@ type governanceAction is
     | DropProposal                    of (nat)
 
       // Financial Governance Entrypoints
-    | RequestTokens                   of requestTokensType
-    | RequestMint                     of requestMintType
-    | DropFinancialRequest            of (nat)
-    | VoteForRequest                  of voteForRequestType
+    // | RequestTokens                   of requestTokensType
+    // | RequestMint                     of requestMintType
+    // | DropFinancialRequest            of (nat)
+    // | VoteForRequest                  of voteForRequestType
 
       // Lambda Entrypoints
     | CallGovernanceLambdaProxy       of executeActionType
@@ -419,19 +419,23 @@ function setProposalRecordVote(const voteType : voteForProposalChoiceType; const
 block {
 
     case voteType of [
-      Yay -> block {
-        _proposal.upvoteCount       := _proposal.upvoteCount + 1n;    
-        _proposal.upvoteMvkTotal    := _proposal.upvoteMvkTotal + totalVotingPower;
-        _proposal.quorumMvkTotal    := _proposal.quorumMvkTotal + totalVotingPower;
-      }
-    | Nay -> block {
-        _proposal.downvoteCount     := _proposal.downvoteCount + 1n;    
-        _proposal.downvoteMvkTotal  := _proposal.downvoteMvkTotal + totalVotingPower;
-    }
-    | Abstain -> block {
-      _proposal.abstainCount        := _proposal.abstainCount + 1n;    
-      _proposal.abstainMvkTotal     := _proposal.abstainMvkTotal + totalVotingPower;
-    }
+
+        Yay -> block {
+            _proposal.upvoteCount       := _proposal.upvoteCount + 1n;    
+            _proposal.upvoteMvkTotal    := _proposal.upvoteMvkTotal + totalVotingPower;
+            _proposal.quorumMvkTotal    := _proposal.quorumMvkTotal + totalVotingPower;
+          }
+
+      | Nay -> block {
+            _proposal.downvoteCount     := _proposal.downvoteCount + 1n;    
+            _proposal.downvoteMvkTotal  := _proposal.downvoteMvkTotal + totalVotingPower;
+          }
+
+      | Abstain -> block {
+            _proposal.abstainCount        := _proposal.abstainCount + 1n;    
+            _proposal.abstainMvkTotal     := _proposal.abstainMvkTotal + totalVotingPower;
+          }
+      
     ];
 
     _proposal.quorumCount := _proposal.quorumCount + 1n;
@@ -1125,9 +1129,9 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
 
           // Governance Cycle Entrypoints
-        | StartNextRound(parameters)                  -> startNextRound(parameters, s)
-        | Propose(parameters)                         -> propose(parameters, s)
-        | ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
+        // | StartNextRound(parameters)                  -> startNextRound(parameters, s)
+        // | Propose(parameters)                         -> propose(parameters, s)
+        // | ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
         | AddUpdateProposalData(parameters)           -> addUpdateProposalData(parameters, s)
         | AddUpdatePaymentData(parameters)            -> addUpdatePaymentData(parameters, s)
         | LockProposal(parameters)                    -> lockProposal(parameters, s)
@@ -1136,10 +1140,10 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | DropProposal(parameters)                    -> dropProposal(parameters, s)
 
           // Financial Governance Entrypoints
-        | RequestTokens(parameters)                   -> requestTokens(parameters, s)
-        | RequestMint(parameters)                     -> requestMint(parameters, s)
-        | DropFinancialRequest(parameters)            -> dropFinancialRequest(parameters, s)
-        | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
+        // | RequestTokens(parameters)                   -> requestTokens(parameters, s)
+        // | RequestMint(parameters)                     -> requestMint(parameters, s)
+        // | DropFinancialRequest(parameters)            -> dropFinancialRequest(parameters, s)
+        // | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
 
           // Lambda Entrypoints
         | CallGovernanceLambdaProxy(parameters)       -> callGovernanceLambdaProxy(parameters, s)
