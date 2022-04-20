@@ -123,7 +123,7 @@ type cfmmStorage is [@layout:comb] record [
 
     // for oracle
     lastOracleUpdate        : timestamp;
-    usdmTokenAddress        : address;
+    usdmTokenControllerAddress        : address;
 
     // treasury
     treasuryAddress         : address;
@@ -312,7 +312,7 @@ block {
     const onPriceActionOperation : operation = Tezos.transaction(
         onPriceActionParams,
         0mutez,
-        getOnPriceActionInUsdmEntrypoint(s.usdmTokenAddress)
+        getOnPriceActionInUsdmEntrypoint(s.usdmTokenControllerAddress)
     );
 } with (onPriceActionOperation)
 
