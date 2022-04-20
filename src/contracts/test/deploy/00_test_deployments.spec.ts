@@ -58,6 +58,7 @@ import { UsdmTokenController } from "../helpers/usdmTokenControllerHelper";
 import { LpTokenUsdmXtz } from "../helpers/lpTokenUsdmXtzHelper";
 import { Cfmm } from "../helpers/cfmmHelper";
 import { CfmmTezFa2Token } from "../helpers/cfmmTezFa2TokenHelper";
+import { CfmmTezFa12Token } from "../helpers/cfmmTezFa12TokenHelper";
 import { Vault } from "../helpers/vaultHelper";
 
 
@@ -82,6 +83,7 @@ import { usdmTokenControllerStorage } from "../../storage/usdmTokenControllerSto
 import { lpTokenUsdmXtzStorage } from "../../storage/lpTokenUsdmXtzStorage";
 import { cfmmStorage } from "../../storage/cfmmStorage";
 import { cfmmTezFa2TokenStorage } from "../../storage/cfmmTezFa2TokenStorage";
+import { cfmmTezFa12TokenStorage } from "../../storage/cfmmTezFa12TokenStorage";
 import { vaultStorage } from "../../storage/vaultStorage";
 
 
@@ -109,10 +111,12 @@ describe('Contracts Deployment for Tests', async () => {
   
   var lpTokenUsdmXtz : LpTokenUsdmXtz
   var lpTokenMockFa2Xtz : LpTokenUsdmXtz
+  var lpTokenMockFa12Xtz : MockFa12Token
 
   var cfmm : Cfmm
-  var cfmmTezFa2Token : CfmmTezFa2Token
+  var cfmmTezUsdm : CfmmTezFa2Token
   var cfmmTezMockFa2Token : CfmmTezFa2Token
+  var cfmmTezMockFa12Token : CfmmTezFa12Token
   // var vault : Vault
   var tezos
   
@@ -435,18 +439,6 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("LP Token USDM/XTZ originated")
 
-    cfmmTezFa2TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
-    cfmmTezFa2TokenStorage.lpTokenAddress   = lpTokenUsdmXtz.contract.address;
-    cfmmTezFa2TokenStorage.tokenName        = "usdm";
-    cfmmTezFa2TokenStorage.tokenAddress     = usdmToken.contract.address;
-    cfmmTezFa2Token = await CfmmTezFa2Token.originate(
-      utils.tezos,
-      cfmmTezFa2TokenStorage
-    );
-
-    console.log("CFMM (XTZ/USDM) originated")
-
-
     lpTokenMockFa2Xtz = await LpTokenUsdmXtz.originate(
       utils.tezos,
       lpTokenUsdmXtzStorage
@@ -454,16 +446,49 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log("LP Token MockFa2/XTZ originated")
 
+    mockFa12TokenStorage.ledger = MichelsonMap.fromLiteral({});
+    lpTokenMockFa12Xtz = await MockFa12Token.originate(
+      utils.tezos,
+      mockFa12TokenStorage
+    );
+
+    console.log("LP Token MockFa12/XTZ originated")
+
     cfmmTezFa2TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
-    cfmmTezFa2TokenStorage.lpTokenAddress   = lpTokenMockFa2Xtz.contract.address;
-    cfmmTezFa2TokenStorage.tokenName        = "mockFa2";
-    cfmmTezFa2TokenStorage.tokenAddress     = mockFa2Token.contract.address;
+    cfmmTezFa2TokenStorage.lpTokenAddress             = lpTokenUsdmXtz.contract.address;
+    cfmmTezFa2TokenStorage.tokenName                  = "usdm";
+    cfmmTezFa2TokenStorage.tokenAddress               = usdmToken.contract.address;
+    cfmmTezUsdm = await CfmmTezFa2Token.originate(
+      utils.tezos,
+      cfmmTezFa2TokenStorage
+    );
+
+    console.log("CFMM (XTZ/USDM) originated")
+
+
+    
+    cfmmTezFa2TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
+    cfmmTezFa2TokenStorage.lpTokenAddress             = lpTokenMockFa2Xtz.contract.address;
+    cfmmTezFa2TokenStorage.tokenName                  = "mockFa2";
+    cfmmTezFa2TokenStorage.tokenAddress               = mockFa2Token.contract.address;
     cfmmTezMockFa2Token = await CfmmTezFa2Token.originate(
       utils.tezos,
       cfmmTezFa2TokenStorage
     );
 
     console.log("CFMM (XTZ/MockFa2Token) originated")
+
+
+    cfmmTezFa12TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
+    cfmmTezFa12TokenStorage.lpTokenAddress             = lpTokenMockFa12Xtz.contract.address;
+    cfmmTezFa12TokenStorage.tokenName                  = "mockFa12";
+    cfmmTezFa12TokenStorage.tokenAddress               = mockFa12Token.contract.address;
+    cfmmTezMockFa12Token = await CfmmTezFa12Token.originate(
+      utils.tezos,
+      cfmmTezFa12TokenStorage
+    );
+
+    console.log("CFMM (XTZ/MockFa12Token) originated")
 
 
     /* ---- ---- ---- ---- ---- */
@@ -942,13 +967,13 @@ describe('Contracts Deployment for Tests', async () => {
     
     
     const setCfmmContractAddressInLpTokenUsdmXtzOperation = await lpTokenUsdmXtz.contract.methods
-      .updateWhitelistContracts("cfmm", cfmmTezFa2Token.contract.address)
+      .updateWhitelistContracts("cfmm", cfmmTezUsdm.contract.address)
       .send();  
     await setCfmmContractAddressInLpTokenUsdmXtzOperation.confirmation();
     console.log('cfmm (XTZ/USDM) contract address set in LP Token (USDM/XTZ) whitelist')
 
     const setCfmmContractAddressInUsdmTokenControllerOperation = await usdmTokenController.contract.methods
-      .updateCfmmAddressLedger("usdm", cfmmTezFa2Token.contract.address)
+      .updateCfmmAddressLedger("usdm", cfmmTezUsdm.contract.address)
       .send();  
     await setCfmmContractAddressInUsdmTokenControllerOperation.confirmation();
     console.log('cfmm (XTZ/USDM) contract address set in USDM Token Controller CFMM Address Ledger')
@@ -973,9 +998,15 @@ describe('Contracts Deployment for Tests', async () => {
     
     await saveContractAddress("usdmTokenAddress", usdmToken.contract.address)
     await saveContractAddress("usdmTokenControllerAddress", usdmTokenController.contract.address)
+    
     await saveContractAddress("lpTokenUsdmXtzTokenAddress", lpTokenUsdmXtz.contract.address)
+    await saveContractAddress("lpTokenMockFa2XtzAddress", lpTokenMockFa2Xtz.contract.address)
+    await saveContractAddress("lpTokenMockFa12XtzAddress", lpTokenMockFa12Xtz.contract.address)
+
     // await saveContractAddress("cfmmAddress", cfmm.contract.address)
-    await saveContractAddress("cfmmTezFa2TokenAddress", cfmmTezFa2Token.contract.address)
+    await saveContractAddress("cfmmTezUsdmAddress", cfmmTezUsdm.contract.address)
+    await saveContractAddress("cfmmTezMockFa2TokenAddress", cfmmTezMockFa2Token.contract.address)
+    await saveContractAddress("cfmmTezMockFa12TokenAddress", cfmmTezMockFa12Token.contract.address)
 
     //----------------------------
     // Save MVK Decimals to JSON (for reuse in JS / PyTezos Tests)
