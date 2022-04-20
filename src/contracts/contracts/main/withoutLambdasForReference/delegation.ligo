@@ -76,14 +76,17 @@ type return is list (operation) * delegationStorage
 [@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                            = 8n;
 [@inline] const error_GOVERNANCE_CONTRACT_NOT_FOUND                         = 9n;
 
-[@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IS_PAUSED            = 10n;
-[@inline] const error_UNDELEGATE_FROM_SATELLITE_IS_PAUSED                   = 11n;
-[@inline] const error_REGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED            = 12n;
-[@inline] const error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED          = 13n;
-[@inline] const error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IS_PAUSED          = 14n;
+[@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_NOT_FOUND            = 10n;
+[@inline] const error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND        = 11n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                      = 15n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 16n;
+[@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IS_PAUSED            = 12n;
+[@inline] const error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IS_PAUSED        = 13n;
+[@inline] const error_REGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED            = 14n;
+[@inline] const error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED          = 15n;
+[@inline] const error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IS_PAUSED          = 16n;
+
+[@inline] const error_LAMBDA_NOT_FOUND                                      = 17n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 18n;
 
 // ------------------------------------------------------------------------------
 //

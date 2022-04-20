@@ -24,6 +24,7 @@ chai.should()
 import env from '../../env'
 import { bob, alice, eve, mallory } from '../../scripts/sandbox/accounts'
 
+import governanceProxyLambdas from '../../build/lambdas/governanceProxyLambdas.json'
 import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
 import doormanLambdas from '../../build/lambdas/doormanLambdas.json'
 import delegationLambdas from '../../build/lambdas/delegationLambdas.json'
@@ -378,18 +379,47 @@ describe('Contracts Deployment for Tests', async () => {
 
     // Set Lambdas 
 
+      // Governance Setup Proxy Lambdas (external contracts)
+      const governanceProxyLambdaBatch = await tezos.wallet
+      .batch()
+      .withContractCall(governance.contract.methods.setProxyLambda(0, governanceProxyLambdas[0])) // callGovernanceLambda
+      .withContractCall(governance.contract.methods.setProxyLambda(1, governanceProxyLambdas[1])) // updateLambdaFunction
+      .withContractCall(governance.contract.methods.setProxyLambda(2, governanceProxyLambdas[2])) // updateGovernanceConfig
+      .withContractCall(governance.contract.methods.setProxyLambda(3, governanceProxyLambdas[3])) // updateDelegationConfig
+  
+      const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
+      await setupGovernanceProxyLambdasOperation.confirmation()
+      console.log("Governance Proxy Lambdas Setup")
+  
       // Governance Setup Lambdas
       const governanceLambdaBatch = await tezos.wallet
       .batch()
-      .withContractCall(governance.contract.methods.setupLambdaFunction(0, governanceLambdas[0])) // callGovernanceLambda
-      .withContractCall(governance.contract.methods.setupLambdaFunction(1, governanceLambdas[1])) // updateLambdaFunction
-      .withContractCall(governance.contract.methods.setupLambdaFunction(2, governanceLambdas[2])) // updateGovernanceConfig
-      .withContractCall(governance.contract.methods.setupLambdaFunction(3, governanceLambdas[3])) // updateDelegationConfig
-  
+      .withContractCall(governance.contract.methods.setLambda("lambdaBreakGlass"                      , governanceLambdas[0]))  // breakGlass
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetAdmin"                        , governanceLambdas[1]))  // setAdmin
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateMetadata"                  , governanceLambdas[2]))  // updateMetadata
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateConfig"                    , governanceLambdas[3]))  // updateConfig
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistContracts"        , governanceLambdas[4]))  // updateWhitelistContracts
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateGeneralContracts"          , governanceLambdas[5]))  // updateGeneralContracts
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"   , governanceLambdas[6]))  // updateWhitelistTokenContracts
+      .withContractCall(governance.contract.methods.setLambda("lambdaStartNextRound"                  , governanceLambdas[7]))  // startNextRound
+      .withContractCall(governance.contract.methods.setLambda("lambdaPropose"                         , governanceLambdas[8]))  // propose
+      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdateProposalData"           , governanceLambdas[9]))  // addUpdateProposalData
+      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdatePaymentData"            , governanceLambdas[10])) // addUpdatePaymentData
+      .withContractCall(governance.contract.methods.setLambda("lambdaLockProposal"                    , governanceLambdas[11])) // lockProposal
+      .withContractCall(governance.contract.methods.setLambda("lambdaProposalRoundVote"               , governanceLambdas[12])) // proposalRoundVote
+      .withContractCall(governance.contract.methods.setLambda("lambdaVotingRoundVote"                 , governanceLambdas[13])) // votingRoundVote
+      .withContractCall(governance.contract.methods.setLambda("lambdaExecuteProposal"                 , governanceLambdas[14])) // executeProposal
+      .withContractCall(governance.contract.methods.setLambda("lambdaDropProposal"                    , governanceLambdas[15])) // dropProposal
+      .withContractCall(governance.contract.methods.setLambda("lambdaRequestTokens"                   , governanceLambdas[16])) // requestTokens
+      .withContractCall(governance.contract.methods.setLambda("lambdaRequestMint"                     , governanceLambdas[17])) // requestMint
+      .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"            , governanceLambdas[18])) // dropFinancialRequest
+      .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                  , governanceLambdas[19])) // voteForRequest
+    
       const setupGovernanceLambdasOperation = await governanceLambdaBatch.send()
       await setupGovernanceLambdasOperation.confirmation()
       console.log("Governance Lambdas Setup")
-  
+
+
       // Doorman Setup Lambdas
       const doormanLambdaBatch = await tezos.wallet
       .batch()
@@ -439,19 +469,23 @@ describe('Contracts Deployment for Tests', async () => {
       // Break Glass Setup Lambdas
       const breakGlassLambdaBatch = await tezos.wallet
       .batch()
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaBreakGlass"                , breakGlassLambdas[0]))  // breakGlass
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetAdmin"                  , breakGlassLambdas[1]))  // setAdmin
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateConfig"              , breakGlassLambdas[2]))  // updateConfig
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaAddCouncilMember"          , breakGlassLambdas[3]))  // addCouncilMember
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaRemoveCouncilMember"       , breakGlassLambdas[4]))  // removeCouncilMember
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaChangeCouncilMember"       , breakGlassLambdas[5]))  // changeCouncilMember
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaPauseAllEntrypoints"       , breakGlassLambdas[6]))  // pauseAllEntrypoints
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUnpauseAllEntrypoints"     , breakGlassLambdas[7]))  // unpauseAllEntrypoints
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetSingleContractAdmin"    , breakGlassLambdas[8]))  // setSingleContractAdmin
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetAllContractsAdmin"      , breakGlassLambdas[9]))  // setAllContractsAdmin
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaRemoveBreakGlassControl"   , breakGlassLambdas[10])) // removeBreakGlassControl
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaFlushAction"               , breakGlassLambdas[11])) // flushAction
-      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSignAction"                , breakGlassLambdas[12])) // signAction
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaBreakGlass"                , breakGlassLambdas[0]))   // breakGlass
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetAdmin"                  , breakGlassLambdas[1]))   // setAdmin
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateMetadata"            , breakGlassLambdas[2]))   // updateMetadata
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateConfig"              , breakGlassLambdas[3]))   // updateConfig
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateWhitelistContracts"  , breakGlassLambdas[4]))   // updateWhitelistContracts
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateGeneralContracts"    , breakGlassLambdas[5]))   // updateGeneralContracts
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUpdateCouncilMemberInfo"   , breakGlassLambdas[6]))   // updateCouncilMemberInfo
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaAddCouncilMember"          , breakGlassLambdas[7]))   // addCouncilMember
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaRemoveCouncilMember"       , breakGlassLambdas[8]))   // removeCouncilMember
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaChangeCouncilMember"       , breakGlassLambdas[9]))   // changeCouncilMember
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaPauseAllEntrypoints"       , breakGlassLambdas[10]))  // pauseAllEntrypoints
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaUnpauseAllEntrypoints"     , breakGlassLambdas[11]))  // unpauseAllEntrypoints
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetSingleContractAdmin"    , breakGlassLambdas[12]))  // setSingleContractAdmin
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSetAllContractsAdmin"      , breakGlassLambdas[13]))  // setAllContractsAdmin
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaRemoveBreakGlassControl"   , breakGlassLambdas[14]))  // removeBreakGlassControl
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaFlushAction"               , breakGlassLambdas[15]))  // flushAction
+      .withContractCall(breakGlass.contract.methods.setLambda("lambdaSignAction"                , breakGlassLambdas[16]))  // signAction
     
       const setupBreakGlassLambdasOperation = await breakGlassLambdaBatch.send()
       await setupBreakGlassLambdasOperation.confirmation()

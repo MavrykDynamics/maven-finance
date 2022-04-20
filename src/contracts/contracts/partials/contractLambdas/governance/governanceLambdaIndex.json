@@ -25,47 +25,59 @@
     },
     {
       "index": 6,
-      "name": "lambdaUpdateCouncilMemberInfo"
+      "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
       "index": 7,
-      "name": "lambdaAddCouncilMember"
+      "name": "lambdaStartNextRound"
     },
     {
       "index": 8,
-      "name": "lambdaRemoveCouncilMember"
+      "name": "lambdaPropose"
     },
     {
       "index": 9,
-      "name": "lambdaChangeCouncilMember"
+      "name": "lambdaAddUpdateProposalData"
     },
     {
       "index": 10,
-      "name": "lambdaPauseAllEntrypoints"
+      "name": "lambdaAddUpdatePaymentData"
     },
     {
       "index": 11,
-      "name": "lambdaUnpauseAllEntrypoints"
+      "name": "lambdaLockProposal"
     },
     {
       "index": 12,
-      "name": "lambdaSetSingleContractAdmin"
+      "name": "lambdaProposalRoundVote"
     },
     {
       "index": 13,
-      "name": "lambdaSetAllContractsAdmin"
+      "name": "lambdaVotingRoundVote"
     },
     {
       "index": 14,
-      "name": "lambdaRemoveBreakGlassControl"
+      "name": "lambdaExecuteProposal"
     },
     {
       "index": 15,
-      "name": "lambdaFlushAction"
+       "name": "lambdaDropProposal"
     },
     {
       "index": 16,
-      "name": "lambdaSignAction"
+       "name": "lambdaRequestTokens"
+    },
+    {
+      "index": 17,
+      "name": "lambdaRequestMint"
+    },
+    {
+      "index": 18,
+      "name": "lambdaDropFinancialRequest"
+    },
+    {
+      "index": 19,
+      "name": "lambdaVoteForRequest"
     }
 ]
   
