@@ -390,6 +390,8 @@ block{
 
 } with(list[operation], s)
 
+
+
 (* claim lambda *)
 function lambdaClaim(var s: farmStorage) : return is
 block{
