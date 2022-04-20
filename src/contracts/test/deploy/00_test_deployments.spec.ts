@@ -99,7 +99,7 @@ describe('Contracts Deployment for Tests', async () => {
 
   before('setup', async () => {
     utils = new Utils()
-    await utils.init(bob.sk)
+    await utils.init(alice.sk)
 
     //----------------------------
     // Originate and deploy contracts

@@ -39,7 +39,6 @@ export interface GovernanceStorage {
   governanceLambdaLedger: MichelsonMap<string, unknown>
   financialRequestLedger: MichelsonMap<string, unknown>
   financialRequestCounter: number
-  tempFlag: number
 }
 export interface GovernanceState {
   governanceStorage: GovernanceStorage | any
