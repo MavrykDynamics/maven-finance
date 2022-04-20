@@ -17,7 +17,7 @@ export const cfmmTezFa2TokenStorage: cfmmTezFa2TokenStorageType = {
     admin                         : bob.pkh,
     config                        : config,
   
-    cashPool                      : new BigNumber(0),
+    cashPool                      : new BigNumber(1),
 
     tokenName                     : "",
     tokenAddress                  : zeroAddress,
