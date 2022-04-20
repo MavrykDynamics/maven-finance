@@ -2,7 +2,7 @@ type proposalIdType is nat
 type metadata is big_map (string, bytes);
 
 // record for satellites
-type satelliteRecordType is record [
+type satelliteRecordType is [@layout:comb] record [
     status                : nat;        // active: 1; inactive: 0; 
     stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
     satelliteFee          : nat;        // fee that satellite charges to delegates ? to be clarified in terms of satellite distribution
@@ -13,8 +13,6 @@ type satelliteRecordType is record [
     image                 : string;     // ipfs hash
     
     registeredDateTime    : timestamp;  
-
-    // bondSufficiency       : nat;        // bond sufficiency flag - set to 1 if satellite has enough bond; set to 0 if satellite has not enough bond (over-delegated) when checked on governance action    
 ]
 
 // Stores all voter data during proposal round
@@ -28,8 +26,6 @@ type voteForProposalChoiceType is
 | Abstain of unit
 type votingRoundVoteType is (nat * timestamp * voteForProposalChoiceType)       // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundVoteType)
-
-// type addUpdateProposalDataType is (nat * string * bytes) // proposal id, proposal metadata title or description, proposal metadata in bytes
 
 type addUpdateProposalDataType is [@layout:comb] record [
   proposalId         : nat;
@@ -219,16 +215,16 @@ type updateGovernanceConfigType is [@layout:comb] record [
   updateConfigAction: governanceUpdateConfigActionType
 ]
 
-type setupLambdaFunctionType is [@layout:comb] record [
+type setProxyLambdaType is [@layout:comb] record [
   id          : nat;
   func_bytes  : bytes;
 ]
-type updateLambdaFunctionType is setupLambdaFunctionType
-type governanceLambdaLedgerType is big_map(nat, bytes)
+type updateProxyLambdaType is setProxyLambdaType
+type proxyLambdaLedgerType is big_map(nat, bytes)
 
 
 type executeActionParamsType is 
-  UpdateLambdaFunction of updateLambdaFunctionType
+  UpdateLambdaFunction of updateProxyLambdaType
 | UpdateGovernanceConfig of updateGovernanceConfigType
 | UpdateDelegationConfig of delegationUpdateConfigParamsType
 type executeActionType is (executeActionParamsType)
@@ -302,7 +298,8 @@ type governanceStorage is [@layout:comb] record [
     financialRequestSnapshotLedger     : financialRequestSnapshotLedgerType;
     financialRequestCounter            : nat;
 
-    governanceLambdaLedger      : governanceLambdaLedgerType;
+    proxyLambdaLedger           : proxyLambdaLedgerType;   // lambdas to external contracts used in executing proposals
+    lambdaLedger                : lambdaLedgerType;             // governance contract lambdas
 
     tempFlag : nat;     // test variable - currently used to show block levels per transaction
 ]

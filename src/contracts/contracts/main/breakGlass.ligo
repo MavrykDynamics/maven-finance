@@ -24,9 +24,6 @@ type breakGlassAction is
 
     // Break Glass
     | BreakGlass                    of (unit)
-    
-    // Council members
-    | UpdateCouncilMemberInfo of councilMemberInfoType
 
     // Housekeeping Entrypoints - Glass Broken Not Required
     | SetAdmin                      of (address)
@@ -34,8 +31,9 @@ type breakGlassAction is
     | UpdateConfig                  of breakGlassUpdateConfigParamsType    
     | UpdateWhitelistContracts      of updateWhitelistContractsParams
     | UpdateGeneralContracts        of updateGeneralContractsParams
+    | UpdateCouncilMemberInfo       of councilMemberInfoType
     
-    // Internal control of council members
+    // Internal Control of Council Members
     | AddCouncilMember of councilAddMemberType
     | RemoveCouncilMember of address
     | ChangeCouncilMember of councilChangeMemberType
@@ -61,6 +59,32 @@ type return is list (operation) * breakGlassStorage
 
 // ------------------------------------------------------------------------------
 //
+// Error Codes Begin
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
+[@inline] const error_ONLY_COUNCIL_MEMBERS_ALLOWED                                           = 1n;
+[@inline] const error_ONLY_EMERGENCY_CONTRACT_ALLOWED                                        = 2n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 3n;
+[@inline] const error_GLASS_NOT_BROKEN                                                       = 4n;
+
+[@inline] const error_EMERGENCY_CONTRACT_NOT_FOUND                                           = 5n;
+[@inline] const error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND                             = 6n;
+
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 7n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 8n;
+
+// ------------------------------------------------------------------------------
+//
+// Error Codes End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
 // Helper Functions Begin
 //
 // ------------------------------------------------------------------------------
@@ -71,13 +95,13 @@ type return is list (operation) * breakGlassStorage
 
 function checkSenderIsAdmin(var s : breakGlassStorage) : unit is
     if (Tezos.sender = s.admin) then unit
-        else failwith("Only the administrator can call this entrypoint.");
+        else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
 
 
 
 function checkSenderIsCouncilMember(var s : breakGlassStorage) : unit is
     if Map.mem(Tezos.sender, s.councilMembers) then unit 
-        else failwith("Only council members can call this entrypoint.");
+        else failwith(error_ONLY_COUNCIL_MEMBERS_ALLOWED);
 
 
 
@@ -85,23 +109,23 @@ function checkSenderIsEmergencyGovernanceContract(var s : breakGlassStorage) : u
 block{
   const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of [
       Some(_address) -> _address
-      | None -> failwith("Error. Emergency Governance Contract is not found.")
+      | None -> failwith(error_EMERGENCY_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = emergencyGovernanceAddress) then skip
-    else failwith("Error. Only the Emergency Governance Contract can call this entrypoint.");
+    else failwith(error_ONLY_EMERGENCY_CONTRACT_ALLOWED);
 } with unit
 
 
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
-      else failwith("This entrypoint should not receive any tez.");
+      else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 
 
 function checkGlassIsBroken(var s : breakGlassStorage) : unit is
     if s.glassBroken = True then unit
-      else failwith("Error. Glass has not been broken");
+      else failwith(error_GLASS_NOT_BROKEN);
 
 
 
@@ -121,7 +145,7 @@ function setAdminInContract(const contractAddress : address) : contract(address)
       "%setAdmin",
       contractAddress) : option(contract(address))) of [
     Some(contr) -> contr
-  | None -> (failwith("setAdmin entrypoint in Contract Address not found") : contract(address))
+  | None -> (failwith(error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
   ];
 
 // ------------------------------------------------------------------------------
@@ -153,19 +177,7 @@ function setAdminInContract(const contractAddress : address) : contract(address)
 //
 // ------------------------------------------------------------------------------
 
-(*  update the info of a council member *)
-function updateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : breakGlassStorage) : return is
-block {
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCouncilMemberInfo"] of [
-      | Some(_v) -> _v
-      | None     -> failwith("Error. updateCouncilMemberInfo Lambda not found.")
-    ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilMemberInfoType * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(councilMemberInfo, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass updateCouncilMemberInfo Lambda.")
-    ];
-} with (res.0, res.1)
 
 // ------------------------------------------------------------------------------
 //
@@ -183,12 +195,12 @@ block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaBreakGlass"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. breakGlass Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassStorage) -> return )) of [
       | Some(f) -> f(s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass breakGlass Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -196,6 +208,7 @@ block {
 // ------------------------------------------------------------------------------
 // Break Glass Entrypoint End
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -208,27 +221,35 @@ block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. setAdmin Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((address * breakGlassStorage) -> return )) of [
       | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass setAdmin Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
 
 
 
-(*  update the metadata at a given key *)
+(* updateMetadata entrypoint - update the metadata at a given key *)
 function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : breakGlassStorage) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
-    
-    // Update metadata
-    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
-} with (noOperations, s)
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * breakGlassStorage) -> return )) of [
+      | Some(f) -> f(metadataKey, metadataHash, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+
 
 (*  updateConfig entrypoint  *)
 function updateConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var s : breakGlassStorage) : return is 
@@ -236,12 +257,12 @@ block {
   
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. updateConfig Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassUpdateConfigParamsType * breakGlassStorage) -> return )) of [
       | Some(f) -> f(updateConfigParams, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass updateConfig Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -252,22 +273,52 @@ block {
 function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: breakGlassStorage): return is
 block {
 
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-} with (noOperations, s)
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * breakGlassStorage) -> return )) of [
+      | Some(f) -> f(updateWhitelistContractsParams, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
 
 
 
 (*  updateGeneralContracts entrypoint  *)
 function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: breakGlassStorage): return is
-  block {
-    // check that sender is admin
-    checkSenderIsAdmin(s);
+block {
 
-    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-  } with (noOperations, s)
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * breakGlassStorage) -> return )) of [
+      | Some(f) -> f(updateGeneralContractsParams, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+
+
+(* updateCouncilMemberInfo entrypoint *)
+function updateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : breakGlassStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateCouncilMemberInfo"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilMemberInfoType * breakGlassStorage) -> return )) of [
+      | Some(f) -> f(councilMemberInfo, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+} with (res.0, res.1)
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -284,12 +335,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddCouncilMember"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. addCouncilMember Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((councilAddMemberType * breakGlassStorage) -> return )) of [
       | Some(f) -> f(newCouncilMember, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass addCouncilMember Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -302,12 +353,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveCouncilMember"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. removeCouncilMember Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((address * breakGlassStorage) -> return )) of [
       | Some(f) -> f(councilMemberAddress, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass removeCouncilMember Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -320,12 +371,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaChangeCouncilMember"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. changeCouncilMember Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((councilChangeMemberType * breakGlassStorage) -> return )) of [
       | Some(f) -> f(changeCouncilMemberParams, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass changeCouncilMember Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -333,6 +384,7 @@ block {
 // ------------------------------------------------------------------------------
 // Break Glass Council Actions End - Internal Control of Council Members
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -345,12 +397,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAllEntrypoints"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. pauseAllEntrypoints Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassStorage) -> return )) of [
       | Some(f) -> f(s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass pauseAllEntrypoints Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -363,12 +415,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAllEntrypoints"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. unpauseAllEntrypoints Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassStorage) -> return )) of [
       | Some(f) -> f(s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass unpauseAllEntrypoints Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -381,12 +433,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetSingleContractAdmin"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. setSingleContractAdmin Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((address * address * breakGlassStorage) -> return )) of [
       | Some(f) -> f(newAdminAddress, targetContractAddress, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass setSingleContractAdmin Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -399,12 +451,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAllContractsAdmin"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. setAllContractsAdmin Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((address * breakGlassStorage) -> return )) of [
       | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass setAllContractsAdmin Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -417,12 +469,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveBreakGlassControl"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. removeBreakGlassControl Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassStorage) -> return )) of [
       | Some(f) -> f(s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass removeBreakGlassControl Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -430,6 +482,7 @@ block {
 // ------------------------------------------------------------------------------
 // Glass Broken Required Entrypoints End
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -442,12 +495,12 @@ block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaFlushAction"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. flushAction Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((flushActionType * breakGlassStorage) -> return )) of [
       | Some(f) -> f(actionId, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass flushAction Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -460,12 +513,12 @@ block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSignAction"] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. signAction Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * breakGlassStorage) -> return )) of [
       | Some(f) -> f(actionId, s)
-      | None    -> failwith("Error. Unable to unpack BreakGlass signAction Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
 
 } with (res.0, res.1)
@@ -518,15 +571,13 @@ function main (const action : breakGlassAction; const s : breakGlassStorage) : r
             // Break Glass
             | BreakGlass(_parameters)               -> breakGlass(s)
             
-            // Council members
-            | UpdateCouncilMemberInfo(parameters) -> updateCouncilMemberInfo(parameters, s)
-
             // Housekeeping Entrypoints - Glass Broken Not Required
             | SetAdmin(parameters)                  -> setAdmin(parameters, s)
             | UpdateMetadata(parameters)            -> updateMetadata(parameters.0, parameters.1, s)  
             | UpdateConfig(parameters)              -> updateConfig(parameters, s)
             | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
             | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+            | UpdateCouncilMemberInfo(parameters) -> updateCouncilMemberInfo(parameters, s)
 
             // Break Glass Council Actions - Internal Control of Council Members
             | AddCouncilMember(parameters)          -> addCouncilMember(parameters, s)

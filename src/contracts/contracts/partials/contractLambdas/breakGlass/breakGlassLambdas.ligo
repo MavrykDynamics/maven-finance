@@ -1,10 +1,17 @@
 // ------------------------------------------------------------------------------
+//
+// Break Glass Lambdas Begin
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
 // Break Glass Entrypoint Begin
 // ------------------------------------------------------------------------------
 
 (*  breakGlass lambda *)
 function lambdaBreakGlass(var s : breakGlassStorage) : return is 
 block {
+
     // Steps Overview:
     // 1. set contract admins to breakglass address - should be done in emergency governance?
     // 2. send pause all operations to main contracts
@@ -36,6 +43,17 @@ block {
 
 
 
+(* updateMetadata lambda - update the metadata at a given key *)
+function lambdaUpdateMetadata(const metadataKey: string; const metadataHash: bytes; var s : breakGlassStorage) : return is
+block {
+    
+    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+    
+} with (noOperations, s)
+
+
+
 (*  updateConfig lambda  *)
 function lambdaUpdateConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var s : breakGlassStorage) : return is 
 block {
@@ -52,9 +70,29 @@ block {
 } with (noOperations, s)
 
 
-// ------------------------------------------------------------------------------
-// Housekeeping Entrypoints End
-// ------------------------------------------------------------------------------
+
+(*  updateWhitelistContracts lambda  *)
+function lambdaUpdateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: breakGlassStorage): return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+
+} with (noOperations, s)
+
+
+
+(*  updateGeneralContracts lambda  *)
+function lambdaUpdateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: breakGlassStorage): return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+
+} with (noOperations, s)
+
 
 
 (*  updateCouncilMemberInfo lambda - update the info of a council member *)
@@ -76,6 +114,12 @@ block {
     s.councilMembers[Tezos.sender]  := councilMember;
 
 } with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
+
 
 // ------------------------------------------------------------------------------
 // Break Glass Council Actions Begin - Internal Control of Council Members
@@ -246,10 +290,10 @@ block {
 
 } with (noOperations, s)
 
-
 // ------------------------------------------------------------------------------
 // Break Glass Council Actions End - Internal Control of Council Members
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -495,6 +539,7 @@ block {
 // ------------------------------------------------------------------------------
 // Glass Broken Required Entrypoints End
 // ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -861,3 +906,8 @@ block {
 // Council Signing of Actions Entrypoints End
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+//
+// Break Glass Lambdas End
+//
+// ------------------------------------------------------------------------------

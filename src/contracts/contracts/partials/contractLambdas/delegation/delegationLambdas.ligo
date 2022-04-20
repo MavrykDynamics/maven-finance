@@ -258,7 +258,7 @@ block {
         (satelliteAddress),
         0tez, 
         // delegateToSatellite
-        delegateToSatelliteEntrypoint(Tezos.self_address)
+        getDelegateToSatelliteEntrypoint(Tezos.self_address)
       );
 
       operations  := delegateToSatelliteOperation # operations;
@@ -268,7 +268,7 @@ block {
         (unit),
         0tez, 
         // undelegateFromSatellite
-        undelegateFromSatelliteEntrypoint(Tezos.self_address)
+        getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
       );
 
       operations  := undelegateFromSatelliteOperation # operations;
@@ -599,7 +599,7 @@ block {
         else operations := Tezos.transaction(
             (unit), 
             0tez, 
-            undelegateFromSatelliteEntrypoint(Tezos.self_address)
+            getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
             ) # operations;
       }
 
