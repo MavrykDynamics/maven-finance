@@ -16,6 +16,8 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
 
 type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
 
+type satelliteRewardsClaimType is (address * nat) // Recipient address + Rewards claim
+
 type stakeType is 
   StakeAction of unit
 | UnstakeAction of unit

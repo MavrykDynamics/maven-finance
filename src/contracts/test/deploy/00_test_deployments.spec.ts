@@ -408,6 +408,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(doorman.contract.methods.setLambda("lambdaUnstake"                      , doormanLambdas[9]))  // unstake
       .withContractCall(doorman.contract.methods.setLambda("lambdaCompound"                     , doormanLambdas[10])) // compound
       .withContractCall(doorman.contract.methods.setLambda("lambdaFarmClaim"                    , doormanLambdas[11])) // farmClaim
+      .withContractCall(doorman.contract.methods.setLambda("lambdaSatelliteRewardsClaim"        , doormanLambdas[12])) // satelliteRewardsClaim
     
       const setupDoormanLambdasOperation = await doormanLambdaBatch.send()
       await setupDoormanLambdasOperation.confirmation()
