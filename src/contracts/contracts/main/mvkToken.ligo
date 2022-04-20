@@ -11,13 +11,15 @@
 // ENTRYPOINTS
 ////
 type action is
-  Transfer of transferType
-| Balance_of of balanceOfParams
-| Update_operators of updateOperatorsParams
-| AssertMetadata of assertMetadataParams
-| Mint of mintParams
-| UpdateWhitelistContracts of updateWhitelistContractsParams
-| UpdateGeneralContracts of updateGeneralContractsParams
+  SetAdmin                  of address
+| UpdateWhitelistContracts  of updateWhitelistContractsParams
+| UpdateGeneralContracts    of updateGeneralContractsParams
+| Transfer                  of transferType
+| Balance_of                of balanceOfParams
+| Update_operators          of updateOperatorsParams
+| UpdateInflationRate       of nat
+| AssertMetadata            of assertMetadataParams
+| Mint                      of mintParams
 
 ////
 // RETURN TYPES
@@ -26,6 +28,14 @@ type action is
 type return is list (operation) * mvkTokenStorage
 (* define noop for readability *)
 const noOperations : list (operation) = nil;
+
+////
+// CONSTANTS
+////
+
+const one_day        : int              = 86_400;
+const thirty_days    : int              = one_day * 30;
+const one_year      : int               = one_day * 365;
 
 ////
 // FUNCTIONS
@@ -105,6 +115,18 @@ block {
     s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
 
 } with (noOperations, s)
+
+(*  SetAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var store : mvkTokenStorage) : return is
+block {
+
+  // Check that sender is admin
+  checkSenderIsAdmin(store);
+
+  // Update storage admin
+  store.admin := newAdminAddress;
+
+} with (noOperations, store)
 
 (* Transfer Entrypoint *)
 function mergeOperations(const first: list (operation); const second: list (operation)) : list (operation) is 
@@ -227,7 +249,7 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
   } with (noOperations, store)
 
 (* Mint Entrypoint *)
-function mint(const mintParams: mintParams; const store : mvkTokenStorage) : return is
+function mint(const mintParams: mintParams; var store : mvkTokenStorage) : return is
   block {
     const recipientAddress: owner = mintParams.0;
     const mintedTokens: tokenBalance = mintParams.1;
@@ -235,17 +257,41 @@ function mint(const mintParams: mintParams; const store : mvkTokenStorage) : ret
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
     if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
+    // Check inflation rate
+    const inflation: tokenBalance = store.maximumSupply * store.inflationRate / 10000n; // Apply the rate 
+    // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
+    if store.nextInflationTimestamp < Tezos.now then {
+      // Set the new maximumSupply
+      store.maximumSupply           := store.maximumSupply + inflation;
+
+      // Update the next change date
+      store.nextInflationTimestamp  := store.nextInflationTimestamp + one_year;
+    }
+    else skip;
+
     // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorage
     const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
-    if tempTotalSupply > store.maximumSupply then failwith("Maximum total supply of MVK exceeded") else skip;
+    if tempTotalSupply > store.maximumSupply then failwith("Maximum total supply of MVK exceeded") 
+    else skip;
 
     // Update sender's balance
     const senderNewBalance: tokenBalance = getBalance(recipientAddress, store) + mintedTokens;
-    const newTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
 
     // Update mvkTokenStorage
-    const updatedLedger: ledger = Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
-  } with (noOperations, store with record[ledger=updatedLedger;totalSupply=newTotalSupply])
+    store.totalSupply := store.totalSupply + mintedTokens;
+    store.ledger := Big_map.update(recipientAddress, Some(senderNewBalance), store.ledger);
+  } with (noOperations, store)
+
+(* UpdateInflationRate Entrypoint *)
+function updateInflationRate(const newInflationRate: nat; var store : mvkTokenStorage) : return is
+  block {
+    // Check if sender is admin
+    checkSenderIsAdmin(store);
+
+    // Update the inflation rate
+    if newInflationRate > 10000n then failwith("Error. The inflation rate cannot exceed 100%")
+    else store.inflationRate  := newInflationRate
+  } with (noOperations, store)
 
 (* Main entrypoint *)
 function main (const action : action; const store : mvkTokenStorage) : return is
@@ -254,14 +300,14 @@ function main (const action : action; const store : mvkTokenStorage) : return is
     checkNoAmount(Unit);
   } with(
     case action of [
-        Transfer (params) -> transfer(params, store)
-      | Balance_of (params) -> balanceOf(params, store)
-      | Update_operators (params) -> updateOperators(params, store)
-      | AssertMetadata (params) -> assertMetadata(params, store)
-
-      | Mint (params) -> mint(params, store)
-
-      | UpdateWhitelistContracts (params) -> updateWhitelistContracts(params, store)
-      | UpdateGeneralContracts (params) -> updateGeneralContracts(params, store)
+        SetAdmin (params)                   -> setAdmin(params, store)
+      | UpdateWhitelistContracts (params)   -> updateWhitelistContracts(params, store)
+      | UpdateGeneralContracts (params)     -> updateGeneralContracts(params, store)
+      | Transfer (params)                   -> transfer(params, store)
+      | Balance_of (params)                 -> balanceOf(params, store)
+      | Update_operators (params)           -> updateOperators(params, store)
+      | UpdateInflationRate (params)        -> updateInflationRate(params, store)
+      | AssertMetadata (params)             -> assertMetadata(params, store)
+      | Mint (params)                       -> mint(params, store)
     ]
   )

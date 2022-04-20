@@ -68,6 +68,11 @@ const token_metadata = MichelsonMap.fromLiteral({
   },
 })
 
+// Calculate one year from now
+const currentTimestamp        = new Date();
+currentTimestamp.setFullYear(currentTimestamp.getFullYear() + 1);
+const nextInflationTimestamp  = Math.round(currentTimestamp.getTime() / 1000);
+
 export const mvkStorage: mvkStorageType = {
   admin: bob.pkh,
   
@@ -79,6 +84,8 @@ export const mvkStorage: mvkStorageType = {
 
   totalSupply: initialSupply,
   maximumSupply: new BigNumber(maximumSupply),
+  inflationRate: new BigNumber(500),
+  nextInflationTimestamp: new BigNumber(nextInflationTimestamp),
 
   ledger: ledger,
   operators: MichelsonMap.fromLiteral({}),
