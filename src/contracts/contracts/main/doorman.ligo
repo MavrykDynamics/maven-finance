@@ -708,6 +708,7 @@ block{
 // ------------------------------------------------------------------------------
 
 
+
 (* main entrypoint *)
 function main (const action : doormanAction; const s : doormanStorage) : return is
   block {
