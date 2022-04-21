@@ -104,7 +104,8 @@ type metadata is big_map (string, bytes);
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
     metadataHash     : bytes;
-    
+]
+
 type distributeRewardTypes is [@layout:comb] record [
     elligibleSatellites  : set(address);
     totalSMvkReward      : nat;
@@ -133,6 +134,7 @@ type delegationLambdaActionType is
 | LambdaPauseRegisterSatellite                of (unit)
 | LambdaPauseUnregisterSatellite              of (unit)
 | LambdaPauseUpdateSatellite                  of (unit)
+| LambdaPauseDistributeReward                 of (unit)
 
   // Delegation Lambdas
 | LambdaDelegateToSatellite                   of (address)
@@ -142,9 +144,11 @@ type delegationLambdaActionType is
 | LambdaRegisterAsSatellite                   of newSatelliteRecordType
 | LambdaUnregisterAsSatellite                 of (unit)
 | LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
+| LambdaDistributeReward                      of distributeRewardTypes
 
   // General Lambdas
 | LambdaOnStakeChange                         of onStakeChangeParams
+| LambdaOnSatelliteRewardPaid                 of address
 
 // ------------------------------------------------------------------------------
 // Storage

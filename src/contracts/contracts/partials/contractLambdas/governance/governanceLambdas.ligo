@@ -141,13 +141,13 @@ block {
                         // set boundary - do for the rest
                         s.config.successReward              := updateConfigNewValue
                         }
+                    | ConfigCycleVotersReward (_v)                      -> s.config.cycleVotersReward                       := updateConfigNewValue
                     | ConfigMinProposalRoundVotePct (_v)                -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minProposalRoundVotePercentage := updateConfigNewValue
                     | ConfigMinProposalRoundVotesReq (_v)               -> s.config.minProposalRoundVotesRequired           := updateConfigNewValue
                     | ConfigMinQuorumPercentage (_v)                    -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minQuorumPercentage                     := updateConfigNewValue
                     | ConfigMinQuorumMvkTotal (_v)                      -> s.config.minQuorumMvkTotal                       := updateConfigNewValue
                     | ConfigVotingPowerRatio (_v)                       -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.votingPowerRatio                        := updateConfigNewValue
-                    | ConfigProposalSubmissionFee (_v)                  -> s.config.proposalSubmissionFee                   := updateConfigNewValue
-                    | ConfigMinimumStakeReqPercentage (_v)              -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minimumStakeReqPercentage               := updateConfigNewValue
+                    | ConfigProposeFeeMutez (_v)                        -> s.config.proposalSubmissionFeeMutez              := updateConfigNewValue * 1mutez                    | ConfigMinimumStakeReqPercentage (_v)              -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.minimumStakeReqPercentage               := updateConfigNewValue
                     | ConfigMaxProposalsPerDelegate (_v)                -> s.config.maxProposalsPerDelegate                 := updateConfigNewValue
                     | ConfigBlocksPerProposalRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith("Error. The duration of this round cannot exceed the maximum round duration") else s.config.blocksPerProposalRound                  := updateConfigNewValue
                     | ConfigBlocksPerVotingRound (_v)                   -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith("Error. The duration of this round cannot exceed the maximum round duration") else s.config.blocksPerVotingRound                    := updateConfigNewValue
@@ -278,6 +278,10 @@ block {
                     
                     | Voting -> case currentRoundHighestVotedProposal of [
                         Some (proposal) -> block{
+                            // Check if proposal has voters. Send rewards to all voters
+                            if Set.cardinal(proposal.voters) > 0n then operations  := sendRewardsToVoters(s) # operations
+                            else skip;
+
                             if proposal.upvoteMvkTotal < proposal.minQuorumMvkTotal then {
                             
                                 // Vote criteria not matched - restart a new proposal round
@@ -320,7 +324,7 @@ block {
     // 1. verify that the current round is a governance proposal round
     // 2. verify that current block level has not exceeded round's end level 
     // 3. verify that user is a satellite, has sufficient staked MVK to propose (data taken from snapshot of all active satellite holdings at start of governance round)
-    // 4. todo: check that proposer has sent enough tez to cover the submission fee
+    // 4. check that proposer has sent enough tez to cover the submission fee
     // 5. submit (save) proposal - note: proposer does not automatically vote pass for his proposal
     // 6. add proposal id to current round proposals map
 
@@ -331,7 +335,22 @@ block {
 
     case governanceLambdaAction of [
         | LambdaPropose(newProposal) -> {
+
+                // check if tez sent is equal to the required fee
+                if Tezos.amount =/= s.config.proposalSubmissionFeeMutez 
+                then failwith("Error. Tez sent is not equal to required fee to propose.") 
+                else skip;
+
+                const treasuryAddress : address = case s.generalContracts["treasury"] of [
+                    Some(_address) -> _address
+                    | None -> failwith("Error. Treasury Contract is not found.")
+                ];
+
+                const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address. Cannot transfer XTZ");
+                const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
                 
+                operations  := transferFeeToTreasuryOperation # operations;
+
                 // check if satellite exists in the active satellites map
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
                       Some(_address) -> _address
