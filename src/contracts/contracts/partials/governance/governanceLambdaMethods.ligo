@@ -10,7 +10,7 @@ function callGovernanceLambdaProxy(const executeAction : executeActionType; var 
     ];
 
     // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
-    const res : return = case (Bytes.unpack(governanceLambdaBytes) : option(governanceLambdaFunctionType)) of [
+    const res : return = case (Bytes.unpack(governanceLambdaBytes) : option(governanceProxyLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
       | None    -> failwith("Error. Unable to unpack CallGovernanceLambda.")
     ];

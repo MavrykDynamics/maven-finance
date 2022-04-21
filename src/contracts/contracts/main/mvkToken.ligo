@@ -86,23 +86,25 @@ function checkNoAmount(const _p: unit): unit is
 #include "../partials/whitelistContractsMethod.ligo"
 
 function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: mvkTokenStorage): return is
-  block {
+block {
+
     // check that sender is admin
     checkSenderIsAdmin(s);
-
     s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
-  } with (noOperations, s)
+  
+} with (noOperations, s)
 
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
 
 function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: mvkTokenStorage): return is
-  block {
+block {
+  
     // check that sender is admin
     checkSenderIsAdmin(s);
-
     s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
-  } with (noOperations, s)
+
+} with (noOperations, s)
 
 (* Transfer Entrypoint *)
 function mergeOperations(const first: list (operation); const second: list (operation)) : list (operation) is 

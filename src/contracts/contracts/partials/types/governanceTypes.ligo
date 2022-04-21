@@ -223,12 +223,6 @@ type updateProxyLambdaType is setProxyLambdaType
 type proxyLambdaLedgerType is big_map(nat, bytes)
 
 
-type executeActionParamsType is 
-  UpdateLambdaFunction   of updateProxyLambdaType
-| UpdateGovernanceConfig of updateGovernanceConfigType
-| UpdateDelegationConfig of delegationUpdateConfigParamsType
-type executeActionType is (executeActionParamsType)
-
 type roundType       is
 | Proposal                  of unit
 | Voting                    of unit
@@ -257,6 +251,49 @@ type voteForRequestType is [@layout:comb] record [
     requestId        : nat;
     vote             : voteForRequestChoiceType;
 ]
+
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type executeActionParamsType is 
+  UpdateLambdaFunction   of updateProxyLambdaType
+| UpdateGovernanceConfig of updateGovernanceConfigType
+| UpdateDelegationConfig of delegationUpdateConfigParamsType
+type executeActionType is (executeActionParamsType)
+
+
+type governanceLambdaActionType is 
+  
+  // Break Glass Entrypoint
+| LambdaBreakGlass                            of (unit)
+
+  // Housekeeping Lambdas
+| LambdaSetAdmin                              of address
+| LambdaUpdateMetadata                        of updateMetadataType
+| LambdaUpdateConfig                          of governanceUpdateConfigParamsType
+| LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
+| LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+| LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsParams
+
+  // Governance Cycle Lambdas
+| LambdaStartNextRound                        of (bool)
+| LambdaPropose                               of newProposalType
+| LambdaProposalRoundVote                     of proposalIdType
+| LambdaAddUpdateProposalData                 of addUpdateProposalDataType
+| LambdaAddUpdatePaymentData                  of addUpdatePaymentDataType
+| LambdaLockProposal                          of proposalIdType
+| LambdaVotingRoundVote                       of (voteForProposalChoiceType)
+| LambdaExecuteProposal                       of (unit)
+| LambdaDropProposal                          of proposalIdType
+
+  // Financial Governance Lambdas
+| LambdaRequestTokens                         of requestTokensType
+| LambdaRequestMint                           of requestMintType
+| LambdaDropFinancialRequest                  of (nat)
+| LambdaVoteForRequest                        of voteForRequestType
+
 
 type governanceStorage is [@layout:comb] record [
     admin                       : address;

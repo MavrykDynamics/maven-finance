@@ -26,11 +26,21 @@ block {
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const metadataKey: string; const metadataHash: bytes; var s : delegationStorage) : return is
+function lambdaUpdateMetadata(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
 block {
 
     checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)  
-    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+
+    case delegationLambdaAction of [
+        | LambdaUpdateMetadata(updateMetadataParams) -> {
+                
+                const metadataKey : string = updateMetadataParams.metadataKey;
+                const metadataHash : bytes = updateMetadataParams.metadataHash;
+                
+                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
