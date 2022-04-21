@@ -424,6 +424,18 @@ block {
 
 
 
+(* View: get Satellite Record *)
+[@view] function getDelegateOpt(const delegateAddress: address; var s : delegationStorage) : option(delegateRecordType) is
+  s.delegateLedger[delegateAddress]
+
+
+
+(* View: get User reward *)
+[@view] function getUserRewardOpt(const userAddress: address; var s : delegationStorage) : option(satelliteRewards) is
+  s.satelliteRewardsLedger[userAddress]
+
+
+
 (* View: get User unpaid reward *)
 [@view] function getUserUnpaidReward(const userAddress: address; var s : delegationStorage) : nat is
   block{
