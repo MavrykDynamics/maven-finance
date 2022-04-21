@@ -77,6 +77,11 @@ type delegationUpdateConfigParamsType is [@layout:comb] record [
 
 type metadata is big_map (string, bytes);
 
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
 type setLambdaType is [@layout:comb] record [
       name                  : string;
       func_bytes            : bytes;
@@ -84,11 +89,15 @@ type setLambdaType is [@layout:comb] record [
 type lambdaLedgerType is big_map(string, bytes)
 
 type delegationLambdaActionType is 
+
+  // Housekeeping Lambdas
   LambdaSetAdmin                              of address
-| LambdaUpdateMetadata                        of (string * bytes)
+| LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of delegationUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+
+  // Pause / Break Glass Lambdas
 | LambdaPauseAll                              of (unit)
 | LambdaUnpauseAll                            of (unit)
 | LambdaPauseDelegateToSatellite              of (unit)
@@ -96,11 +105,17 @@ type delegationLambdaActionType is
 | LambdaPauseRegisterSatellite                of (unit)
 | LambdaPauseUnregisterSatellite              of (unit)
 | LambdaPauseUpdateSatellite                  of (unit)
+
+  // Delegation Lambdas
 | LambdaDelegateToSatellite                   of (address)
 | LambdaUndelegateFromSatellite               of (unit)
+
+  // Satellite Lambdas
 | LambdaRegisterAsSatellite                   of newSatelliteRecordType
 | LambdaUnregisterAsSatellite                 of (unit)
 | LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
+
+  // General Lambdas
 | LambdaOnStakeChange                         of onStakeChangeParams
 
 // ------------------------------------------------------------------------------

@@ -42,28 +42,28 @@ type governanceAction is
 
       // Housekeeping Entrypoints
     | SetAdmin                        of (address)
-    | UpdateMetadata                  of (string * bytes)
+    | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceUpdateConfigParamsType
     | UpdateWhitelistContracts        of updateWhitelistContractsParams
-    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
     | UpdateGeneralContracts          of updateGeneralContractsParams
+    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
     
       // Governance Cycle Entrypoints
-    // | StartNextRound                  of bool
-    // | Propose                         of newProposalType
-    // | ProposalRoundVote               of proposalIdType
+    | StartNextRound                  of bool
+    | Propose                         of newProposalType
+    | ProposalRoundVote               of proposalIdType
     | AddUpdateProposalData           of addUpdateProposalDataType
     | AddUpdatePaymentData            of addUpdatePaymentDataType
     | LockProposal                    of proposalIdType      
     | VotingRoundVote                 of (voteForProposalChoiceType)    
     | ExecuteProposal                 of (unit)
-    | DropProposal                    of (nat)
+    | DropProposal                    of proposalIdType
 
       // Financial Governance Entrypoints
-    // | RequestTokens                   of requestTokensType
-    // | RequestMint                     of requestMintType
-    // | DropFinancialRequest            of (nat)
-    // | VoteForRequest                  of voteForRequestType
+    | RequestTokens                   of requestTokensType
+    | RequestMint                     of requestMintType
+    | DropFinancialRequest            of (nat)
+    | VoteForRequest                  of voteForRequestType
 
       // Lambda Entrypoints
     | CallGovernanceLambdaProxy       of executeActionType
@@ -73,8 +73,12 @@ type governanceAction is
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * governanceStorage
-type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
 
+// proxy lambdas -> executing proposals to external contracts within MAVRYK system
+type governanceProxyLambdaFunctionType is (executeActionType * governanceStorage) -> return
+
+// governance contract methods lambdas
+type governanceUnpackLambdaFunctionType is (governanceLambdaActionType * governanceStorage) -> return
 
 
 // ------------------------------------------------------------------------------
@@ -392,7 +396,7 @@ block {
     const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
     var totalVotingPower : nat := 0n;
     if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-      else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+    else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
     var satelliteSnapshotRecord : financialRequestSnapshotRecordType := record [
         totalMvkBalance         = stakedMvkBalance; 
@@ -617,6 +621,26 @@ block {
 // Governance Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceUnpackLambdaFunctionType)) of [
+        Some(f) -> f(governanceLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -661,12 +685,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((governanceStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaBreakGlass(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
     
-} with (res.0, res.1)
+} with response
 
 // ------------------------------------------------------------------------------
 // Break Glass Entrypoint End
@@ -687,17 +712,18 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * governanceStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : governanceStorage) : return is
+// (* updateMetadata entrypoint - update the metadata at a given key *)
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -705,16 +731,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * governanceStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(*  updateConfig entrypoint *)
+// (*  updateConfig entrypoint *)
 function updateConfig(const updateConfigParams : governanceUpdateConfigParamsType; var s : governanceStorage) : return is 
 block {
 
@@ -723,16 +750,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((governanceUpdateConfigParamsType * governanceStorage) -> return )) of [
-      | Some(f) -> f(updateConfigParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+    
+} with response
 
 
 
-(*  updateWhitelistContracts entrypoint *)
+// (*  updateWhitelistContracts entrypoint *)
 function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceStorage): return is
 block {
 
@@ -741,16 +769,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * governanceStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(*  updateGeneralContracts entrypoint *)
+// (*  updateGeneralContracts entrypoint *)
 function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceStorage): return is
 block {
 
@@ -759,16 +788,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * governanceStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(*  updateWhitelistTokenContracts entrypoint *)
+// (*  updateWhitelistTokenContracts entrypoint *)
 function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: governanceStorage): return is
 block {
 
@@ -777,12 +807,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistTokenContractsParams * governanceStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistTokenContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -803,16 +834,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((bool * governanceStorage) -> return )) of [
-      | Some(f) -> f(executePastProposal, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaStartNextRound(executePastProposal);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(* propose entrypoint *)
+// (* propose entrypoint *)
 function propose(const newProposal : newProposalType ; var s : governanceStorage) : return is 
 block {
 
@@ -821,16 +853,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((newProposalType * governanceStorage) -> return )) of [
-      | Some(f) -> f(newProposal, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaPropose(newProposal);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(* addUpdateProposalData entrypoint *)
+// (* addUpdateProposalData entrypoint *)
 function addUpdateProposalData(const proposalData : addUpdateProposalDataType; var s : governanceStorage) : return is 
 block {
 
@@ -839,16 +872,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((addUpdateProposalDataType * governanceStorage) -> return )) of [
-      | Some(f) -> f(proposalData, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaAddUpdateProposalData(proposalData);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(* addUpdatePaymentData entrypoint *)
+// (* addUpdatePaymentData entrypoint *)
 function addUpdatePaymentData(const paymentData : addUpdatePaymentDataType; var s : governanceStorage) : return is 
 block {
 
@@ -857,12 +891,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((addUpdatePaymentDataType * governanceStorage) -> return )) of [
-      | Some(f) -> f(paymentData, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaAddUpdatePaymentData(paymentData);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
@@ -875,16 +910,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * governanceStorage) -> return )) of [
-      | Some(f) -> f(proposalId, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaLockProposal(proposalId);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(* proposalRoundVote entrypoint *)
+// (* proposalRoundVote entrypoint *)
 function proposalRoundVote(const proposalId : nat; var s : governanceStorage) : return is 
 block {
 
@@ -893,16 +929,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * governanceStorage) -> return )) of [
-      | Some(f) -> f(proposalId, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaProposalRoundVote(proposalId);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(* votingRoundVote entrypoint *)
+// (* votingRoundVote entrypoint *)
 function votingRoundVote(const voteType : voteForProposalChoiceType; var s : governanceStorage) : return is 
 block {
 
@@ -911,16 +948,17 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((voteForProposalChoiceType * governanceStorage) -> return )) of [
-      | Some(f) -> f(voteType, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaVotingRoundVote(voteType);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(* executeProposal entrypoint *)
+// (* executeProposal entrypoint *)
 function executeProposal(var s : governanceStorage) : return is 
 block {
 
@@ -929,17 +967,18 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((governanceStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaExecuteProposal(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
-(* dropProposal entrypoint *)
-function dropProposal(const proposalId : nat; var s : governanceStorage) : return is 
+// (* dropProposal entrypoint *)
+function dropProposal(const proposalId : proposalIdType; var s : governanceStorage) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDropProposal"] of [
@@ -947,12 +986,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * governanceStorage) -> return )) of [
-      | Some(f) -> f(proposalId, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaDropProposal(proposalId);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
     
-} with (res.0, res.1)
+} with response
 
 // ------------------------------------------------------------------------------
 // Governance Cycle Entrypoints End
@@ -973,12 +1013,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilActionRequestTokensType * governanceStorage) -> return )) of [
-      | Some(f) -> f(requestTokensParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaRequestTokens(requestTokensParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
@@ -991,12 +1032,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilActionRequestMintType * governanceStorage) -> return )) of [
-      | Some(f) -> f(requestMintParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaRequestMint(requestMintParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
@@ -1009,12 +1051,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * governanceStorage) -> return )) of [
-      | Some(f) -> f(requestId, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaDropFinancialRequest(requestId);
 
-} with (res.0, res.1);
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 
 
 
@@ -1027,12 +1070,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((voteForRequestType * governanceStorage) -> return )) of [
-      | Some(f) -> f(voteForRequest, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaVoteForRequest(voteForRequest);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
   
-} with (res.0, res.1)
+} with response
 
 // ------------------------------------------------------------------------------
 // Financial Governance Entrypoints End
@@ -1056,7 +1100,7 @@ block {
     ];
 
     // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
-    const res : return = case (Bytes.unpack(governanceLambdaBytes) : option(governanceLambdaFunctionType)) of [
+    const res : return = case (Bytes.unpack(governanceLambdaBytes) : option(governanceProxyLambdaFunctionType)) of [
         Some(f) -> f(executeAction, s)
       | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
@@ -1075,10 +1119,10 @@ block {
     const id          : nat   = setProxyLambdaParams.id;
     const func_bytes  : bytes = setProxyLambdaParams.func_bytes;
 
-    // set lambda in proxyLambdaLedger - allow override of lambdas
+    // set proxy lambda in proxyLambdaLedger - allow override of lambdas
     s.proxyLambdaLedger[id] := func_bytes;
 
-} with ((nil : list(operation)), s)
+} with (noOperations, s)
 
 
 
@@ -1092,6 +1136,8 @@ block{
     // assign params to constants for better code readability
     const lambdaName    = setLambdaParams.name;
     const lambdaBytes   = setLambdaParams.func_bytes;
+
+    // set lambda in lambdaLedger - allow override of lambdas
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
 } with(noOperations, s)
@@ -1122,16 +1168,16 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                        -> setAdmin(parameters, s)
-        | UpdateMetadata(parameters)                  -> updateMetadata(parameters.0, parameters.1, s)
+        | UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                    -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
 
           // Governance Cycle Entrypoints
-        // | StartNextRound(parameters)                  -> startNextRound(parameters, s)
-        // | Propose(parameters)                         -> propose(parameters, s)
-        // | ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
+        | StartNextRound(parameters)                  -> startNextRound(parameters, s)
+        | Propose(parameters)                         -> propose(parameters, s)
+        | ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
         | AddUpdateProposalData(parameters)           -> addUpdateProposalData(parameters, s)
         | AddUpdatePaymentData(parameters)            -> addUpdatePaymentData(parameters, s)
         | LockProposal(parameters)                    -> lockProposal(parameters, s)
@@ -1140,10 +1186,10 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | DropProposal(parameters)                    -> dropProposal(parameters, s)
 
           // Financial Governance Entrypoints
-        // | RequestTokens(parameters)                   -> requestTokens(parameters, s)
-        // | RequestMint(parameters)                     -> requestMint(parameters, s)
-        // | DropFinancialRequest(parameters)            -> dropFinancialRequest(parameters, s)
-        // | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
+        | RequestTokens(parameters)                   -> requestTokens(parameters, s)
+        | RequestMint(parameters)                     -> requestMint(parameters, s)
+        | DropFinancialRequest(parameters)            -> dropFinancialRequest(parameters, s)
+        | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
 
           // Lambda Entrypoints
         | CallGovernanceLambdaProxy(parameters)       -> callGovernanceLambdaProxy(parameters, s)

@@ -88,9 +88,7 @@ describe('Contracts Deployment for Tests', async () => {
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
   var tezos
-  let deployedDoormanStorage
-  let deployedDelegationStorage
-  let deployedMvkTokenStorage
+  
 
   const signerFactory = async (pk) => {
     await tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) })
@@ -99,7 +97,7 @@ describe('Contracts Deployment for Tests', async () => {
 
   before('setup', async () => {
     utils = new Utils()
-    await utils.init(alice.sk)
+    await utils.init(bob.sk)
 
     //----------------------------
     // Originate and deploy contracts
@@ -349,10 +347,6 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
     
-    // Doorman Contract - set whitelist contract address [farmTreasury]
-    const updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
-    await updateGeneralContractsOperation.confirmation();
-    
     // Send MVK to treasury contract and council (TODO: keep?)
     const transferToTreasury = await mvkToken.contract.methods
       .transfer([
@@ -374,7 +368,7 @@ describe('Contracts Deployment for Tests', async () => {
       ])
       .send()
     await transferToTreasury.confirmation()
-
+    console.log('send mvk to treasury contract and council');
 
 
     // Set Lambdas 
@@ -391,7 +385,9 @@ describe('Contracts Deployment for Tests', async () => {
       await setupGovernanceProxyLambdasOperation.confirmation()
       console.log("Governance Proxy Lambdas Setup")
   
+
       // Governance Setup Lambdas
+      console.log("governance contract address: "+governance.contract.address);
       const governanceLambdaBatch = await tezos.wallet
       .batch()
       .withContractCall(governance.contract.methods.setLambda("lambdaBreakGlass"                      , governanceLambdas[0]))  // breakGlass
@@ -680,6 +676,10 @@ describe('Contracts Deployment for Tests', async () => {
     
     console.log('Doorman Contract - set general contract addresses [delegation, mvkToken, farmFactory]')
 
+    // Doorman Contract - set whitelist contract address [farmTreasury]
+    const updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
+    await updateGeneralContractsOperation.confirmation();
+    
 
 
     // Farm FA12 Contract - set general contract addresses [doorman]
@@ -781,11 +781,12 @@ describe('Contracts Deployment for Tests', async () => {
 
   it(`test all contract deployments`, async () => {
     try {
-      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --') // break
+      console.log('-- -- -- -- -- -- -- -- -- -- -- -- --') 
       console.log('Test: All contracts deployed')
       console.log('-- -- -- -- -- -- -- -- -- -- -- -- --')
     } catch (e) {
       console.log(e)
     }
   })
+  
 })
