@@ -21,7 +21,7 @@
 // MvkToken types for transfer
 #include "../partials/types/mvkTokenTypes.ligo"
 
-// Vesting types for vesting council actions
+// // Vesting types for vesting council actions
 #include "../partials/types/vestingTypes.ligo"
 
 // Treasury types for transfer and mint
@@ -32,48 +32,90 @@
 
 // ------------------------------------------------------------------------------
 
-type councilAction is 
-    | Default                           of unit
+// Council Methods to Lambda Action Type
+type councilLambdaActionType is 
 
-    // Housekeeping Actions
-    | SetAdmin                          of address
-    | UpdateMetadata                    of (string * bytes)
-    | UpdateConfig                      of councilUpdateConfigParamsType
-    | UpdateWhitelistContracts          of updateWhitelistContractsParams
-    | UpdateGeneralContracts            of updateGeneralContractsParams
-    | UpdateCouncilMemberInfo           of councilMemberInfoType
+    // Housekeeping Lambdas
+    LambdaSetAdmin                              of address
+  | LambdaUpdateMetadata                        of updateMetadataType
+  | LambdaUpdateConfig                          of councilUpdateConfigParamsType
+  | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
+  | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+  | LambdaUpdateCouncilMemberInfo               of councilMemberInfoType
 
     // Council Actions for Internal Control
-    | CouncilActionAddMember            of councilActionAddMemberType
-    | CouncilActionRemoveMember         of address
-    | CouncilActionChangeMember         of councilActionChangeMemberType
+  | LambdaCouncilActionAddMember                of councilActionAddMemberType
+  | LambdaCouncilActionRemoveMember             of address
+  | LambdaCouncilActionChangeMember             of councilActionChangeMemberType
 
     // Council Actions for Contracts
-    | CouncilActionUpdateBlocksPerMin   of councilActionUpdateBlocksPerMinType
+  | LambdaCouncilUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
 
     // Council Actions for Vesting
-    | CouncilActionAddVestee            of addVesteeType
-    | CouncilActionRemoveVestee         of address
-    | CouncilActionUpdateVestee         of updateVesteeType
-    | CouncilActionToggleVesteeLock     of address
+  | LambdaCouncilActionAddVestee                of addVesteeType
+  | LambdaCouncilActionRemoveVestee             of address
+  | LambdaCouncilActionUpdateVestee             of updateVesteeType
+  | LambdaCouncilToggleVesteeLock               of address
 
     // Council Actions for Financial Governance
-    | CouncilActionTransfer             of councilActionTransferType
-    | CouncilActionRequestTokens        of councilActionRequestTokensType
-    | CouncilActionRequestMint          of councilActionRequestMintType
-    | CouncilActionDropFinancialReq     of nat
+  | LambdaCouncilActionTransfer                 of councilActionTransferType
+  | LambdaCouncilRequestTokens                  of councilActionRequestTokensType
+  | LambdaCouncilRequestMint                    of councilActionRequestMintType
+  | LambdaCouncilDropFinancialReq               of nat
+
+  // Council Signing of Actions
+  | LambdaFlushAction                           of flushActionType
+  | LambdaSignAction                            of signActionType 
+
+
+
+// Council Main Entrypoint Actions
+type councilAction is 
+
+    // Default Entrypoint to Receive Tez
+  | Default                                     of unit
+
+    // Housekeeping Actions
+  | SetAdmin                                    of address
+  | UpdateMetadata                              of updateMetadataType
+  | UpdateConfig                                of councilUpdateConfigParamsType
+  | UpdateWhitelistContracts                    of updateWhitelistContractsParams
+  | UpdateGeneralContracts                      of updateGeneralContractsParams
+  | UpdateCouncilMemberInfo                     of councilMemberInfoType
+
+    // Council Actions for Internal Control
+  | CouncilActionAddMember                      of councilActionAddMemberType
+  | CouncilActionRemoveMember                   of address
+  | CouncilActionChangeMember                   of councilActionChangeMemberType
+
+    // Council Actions for Contracts
+  | CouncilActionUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
+
+    // Council Actions for Vesting
+  | CouncilActionAddVestee                      of addVesteeType
+  | CouncilActionRemoveVestee                   of address
+  | CouncilActionUpdateVestee                   of updateVesteeType
+  | CouncilActionToggleVesteeLock               of address
+
+    // Council Actions for Financial Governance
+  | CouncilActionTransfer                       of councilActionTransferType
+  | CouncilActionRequestTokens                  of councilActionRequestTokensType
+  | CouncilActionRequestMint                    of councilActionRequestMintType
+  | CouncilActionDropFinancialReq               of nat
 
     // Council Signing of Actions
-    | FlushAction                       of flushActionType
-    | SignAction                        of signActionType                
+  | FlushAction                                 of flushActionType
+  | SignAction                                  of signActionType                
 
     // Lambda Entrypoints
-    | SetLambda                         of setLambdaType
+  | SetLambda                                   of setLambdaType
 
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * councilStorage
 
+// council contract methods lambdas
+type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorage) -> return
 
 // ------------------------------------------------------------------------------
 //
@@ -281,6 +323,26 @@ block{
 // Transfer Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(councilUnpackLambdaFunctionType)) of [
+        Some(f) -> f(councilLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -325,17 +387,18 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * councilStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
 (*  updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : councilStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : councilStorage) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -343,12 +406,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * councilStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -361,12 +425,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilUpdateConfigParamsType * councilStorage) -> return )) of [
-      | Some(f) -> f(updateConfigParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -379,12 +444,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * councilStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -397,12 +463,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * councilStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -415,12 +482,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilMemberInfoType * councilStorage) -> return )) of [
-      | Some(f) -> f(councilMemberInfo, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaUpdateCouncilMemberInfo(councilMemberInfo);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -441,12 +509,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilActionAddMemberType * councilStorage) -> return )) of [
-      | Some(f) -> f(newCouncilMember, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionAddMember(newCouncilMember);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -459,12 +528,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * councilStorage) -> return )) of [
-      | Some(f) -> f(councilMemberAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionRemoveMember(councilMemberAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -477,12 +547,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilActionChangeMemberType * councilStorage) -> return )) of [
-      | Some(f) -> f(councilActionChangeMemberParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionChangeMember(councilActionChangeMemberParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -495,12 +566,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilActionTransferType * councilStorage) -> return )) of [
-      | Some(f) -> f(councilActionTransferParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionTransfer(councilActionTransferParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Council Actions for Internal Control Entrypoints End
@@ -521,12 +593,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilActionUpdateBlocksPerMinType * councilStorage) -> return )) of [
-      | Some(f) -> f(councilActionUpdateBlocksPerMinParam, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilUpdateBlocksPerMin(councilActionUpdateBlocksPerMinParam);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Council Actions for Contracts Entrypoints End
@@ -547,12 +620,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((addVesteeType * councilStorage) -> return )) of [
-      | Some(f) -> f(addVesteeParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionAddVestee(addVesteeParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -565,12 +639,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * councilStorage) -> return )) of [
-      | Some(f) -> f(vesteeAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionRemoveVestee(vesteeAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -583,12 +658,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateVesteeType * councilStorage) -> return )) of [
-      | Some(f) -> f(updateVesteeParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionUpdateVestee(updateVesteeParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -601,12 +677,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * councilStorage) -> return )) of [
-      | Some(f) -> f(vesteeAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilToggleVesteeLock(vesteeAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Council Actions for Vesting Entrypoints End
@@ -627,12 +704,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilActionRequestTokensType * councilStorage) -> return )) of [
-      | Some(f) -> f(councilActionRequestTokensParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilRequestTokens(councilActionRequestTokensParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -645,12 +723,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilActionRequestMintType * councilStorage) -> return )) of [
-      | Some(f) -> f(councilActionRequestMintParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilRequestMint(councilActionRequestMintParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -663,12 +742,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * councilStorage) -> return )) of [
-      | Some(f) -> f(requestId, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilDropFinancialReq(requestId);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Council Actions for Financial Governance End
@@ -689,12 +769,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((flushActionType * councilStorage) -> return )) of [
-      | Some(f) -> f(actionId, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaFlushAction(actionId);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 
 
@@ -707,12 +788,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((signActionType * councilStorage) -> return )) of [
-      | Some(f) -> f(actionId, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaSignAction(actionId);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Council Signing of Actions Entrypoints End
@@ -755,11 +837,12 @@ function main (const action : councilAction; const s : councilStorage) : return 
 
     case action of [
       
+          // Default Entrypoint to Receive Tez
         | Default(_params)                              -> ((nil : list(operation)), s)
 
         // Housekeeping Actions
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
-        | UpdateMetadata(parameters)                    -> updateMetadata(parameters.0, parameters.1, s)  
+        | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)  
         | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)

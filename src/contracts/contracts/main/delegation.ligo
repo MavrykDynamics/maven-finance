@@ -24,7 +24,7 @@ type delegationAction is
 
       // Housekeeping Entrypoints
     | SetAdmin                          of (address)
-    | UpdateMetadata                    of (string * bytes)
+    | UpdateMetadata                    of updateMetadataType
     | UpdateConfig                      of delegationUpdateConfigParamsType
     | UpdateWhitelistContracts          of updateWhitelistContractsParams
     | UpdateGeneralContracts            of updateGeneralContractsParams
@@ -56,6 +56,8 @@ type delegationAction is
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * delegationStorage
+
+// delegation contract methods lambdas
 type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegationStorage) -> return
 
 // ------------------------------------------------------------------------------
@@ -382,7 +384,7 @@ block {
 
 
 (* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : delegationStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : delegationStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -390,12 +392,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * delegationStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 
 
@@ -779,7 +782,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
 
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)  
-        | UpdateMetadata(parameters)                    -> updateMetadata(parameters.0, parameters.1, s)
+        | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)

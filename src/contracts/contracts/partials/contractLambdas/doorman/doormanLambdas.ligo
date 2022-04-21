@@ -366,13 +366,13 @@ block {
 
   // create list of operations
   var operations : list(operation) := case secondCompound.0 of [
-    Some (compoundOperation) -> list[compoundOperation; updateSatelliteBalanceOperation; transferOperation]
-  | None -> list[updateSatelliteBalanceOperation; transferOperation]
+      Some (compoundOperation) -> list[compoundOperation; updateSatelliteBalanceOperation; transferOperation]
+    | None -> list[updateSatelliteBalanceOperation; transferOperation]
   ];
 
   operations := case firstCompound.0 of [
-    Some (compoundOperation) -> compoundOperation # operations
-  | None -> operations
+      Some (compoundOperation) -> compoundOperation # operations
+    | None -> operations
   ];
 
 } with (operations, s)

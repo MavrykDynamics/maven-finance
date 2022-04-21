@@ -113,11 +113,18 @@ type councilMemberInfoType is [@layout:comb] record [
 
 type councilMembersType is map(address, councilMemberInfoType)
 
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+
 type setLambdaType is [@layout:comb] record [
       name                  : string;
       func_bytes            : bytes;
 ]
 type lambdaLedgerType is big_map(string, bytes)
+
 
 // ------------------------------------------------------------------------------
 // Storage
