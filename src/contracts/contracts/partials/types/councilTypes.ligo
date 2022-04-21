@@ -30,9 +30,14 @@ type councilActionRecordType is record [
 type councilActionsLedgerType is big_map(nat, councilActionRecordType)
 
 type councilConfigType is record [
-    threshold                   : nat;                 // min number of council members who need to agree on action
-    actionExpiryDays            : nat;                 // action expiry in number of days 
-    // todo: strings, nats validation length
+    threshold                       : nat;                 // min number of council members who need to agree on action
+    actionExpiryDays                : nat;                 // action expiry in number of days 
+    
+    councilMemberNameMaxLength      : nat;
+    councilMemberWebsiteMaxLength   : nat;
+    councilMemberImageMaxLength     : nat;
+    requestTokenNameMaxLength       : nat;
+    requestPurposeMaxLength         : nat;
 ]
 
 type councilActionUpdateBlocksPerMinType is  [@layout:comb] record [ 
@@ -45,8 +50,13 @@ type signActionType is (nat)
 
 type councilUpdateConfigNewValueType is nat
 type councilUpdateConfigActionType is 
-  ConfigThreshold of unit
-| ConfigActionExpiryDays of unit
+  ConfigThreshold                       of unit
+| ConfigActionExpiryDays                of unit
+| ConfigCouncilNameMaxLength            of unit
+| ConfigCouncilWebsiteMaxLength         of unit
+| ConfigCouncilImageMaxLength           of unit
+| ConfigRequestTokenNameMaxLength       of unit
+| ConfigRequestPurposeMaxLength         of unit
 type councilUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : councilUpdateConfigNewValueType; 
   updateConfigAction    : councilUpdateConfigActionType;
