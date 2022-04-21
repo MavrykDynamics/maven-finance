@@ -368,6 +368,10 @@ case (Tezos.get_entrypoint_opt(
   | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND) : contract(addUpdatePaymentDataType))
 ];
 
+
+
+function transferTez(const to_ : contract(unit); const amt : tez) : operation is Tezos.transaction(unit, amt, to_)
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
@@ -592,6 +596,8 @@ function sendRewardsToVoters(var s: governanceStorage): operation is
     const distributeOperation: operation = Tezos.transaction((votersAddresses, roundReward), 0tez, distributeRewardsEntrypoint);
   } with(distributeOperation)
 
+
+
 function sendRewardToProposer(var s: governanceStorage): operation is
   block{
     // Get all voting satellite
@@ -617,6 +623,8 @@ function sendRewardToProposer(var s: governanceStorage): operation is
     ];
     const distributeOperation: operation = Tezos.transaction((set[proposerAddress], proposerReward), 0tez, distributeRewardsEntrypoint);
   } with(distributeOperation)
+
+
 
 function setupProposalRound(var s: governanceStorage): governanceStorage is
 block {

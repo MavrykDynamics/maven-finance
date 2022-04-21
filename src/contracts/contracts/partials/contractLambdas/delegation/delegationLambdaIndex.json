@@ -53,39 +53,35 @@
     },
     {
       "index": 13,
-      "name": "lambdaTogglePauseClaimRewards"
-    },
-    {
-      "index": 14,
       "name": "lambdaDelegateToSatellite"
     },
     {
-      "index": 15,
+      "index": 14,
       "name": "lambdaUndelegateFromSatellite"
     },
     {
-      "index": 16,
+      "index": 15,
        "name": "lambdaRegisterAsSatellite"
     },
     {
-      "index": 17,
+      "index": 16,
        "name": "lambdaUnregisterAsSatellite"
     },
     {
-      "index": 18,
+      "index": 17,
       "name": "lambdaUpdateSatelliteRecord"
     },
     {
-      "index": 19,
+      "index": 18,
        "name": "lambdaDistributeReward"
     },
     {
-      "index": 20,
-      "name": "lambdaClaimRewards"
+      "index": 19,
+      "name": "lambdaOnStakeChange"
     },
     {
-      "index": 21,
-      "name": "lambdaOnStakeChange"
+      "index": 20,
+      "name": "lambdaOnSatelliteRewardPaid"
     }
 ]
   

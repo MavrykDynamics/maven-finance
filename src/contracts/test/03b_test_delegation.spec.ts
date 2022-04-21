@@ -67,147 +67,151 @@ describe("Delegation tests", async () => {
 
     describe("%distributeRewards", async () => {
         before("Set admin to whitelist and init satellite and delegators", async () => {
-            // Set Whitelist
-            await signerFactory(bob.sk)
-            const updateWhitelistOperation  = await delegationInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
-            await updateWhitelistOperation.confirmation();
+            try{
+                // Set Whitelist
+                await signerFactory(bob.sk)
+                const updateWhitelistOperation  = await delegationInstance.methods.updateWhitelistContracts("bob", bob.pkh).send();
+                await updateWhitelistOperation.confirmation();
 
-            // Init values
-            const bobSatelliteName                  = "New Satellite (Bob)";
-            const bobSatelliteDescription           = "New Satellite Description (Bob)";
-            const bobSatelliteImage                 = "https://placeholder.com/300";
-            const bobSatelliteFee                   = "1000"; // 10% fee
-            const mallorySatelliteName              = "New Satellite (Mallory)";
-            const mallorySatelliteDescription       = "New Satellite Description (Mallory)";
-            const mallorySatelliteImage             = "https://placeholder.com/300";
-            const mallorySatelliteFee               = "2000"; // 20% fee
+                // Init values
+                const bobSatelliteName                  = "New Satellite (Bob)";
+                const bobSatelliteDescription           = "New Satellite Description (Bob)";
+                const bobSatelliteImage                 = "https://placeholder.com/300";
+                const bobSatelliteFee                   = "1000"; // 10% fee
+                const mallorySatelliteName              = "New Satellite (Mallory)";
+                const mallorySatelliteDescription       = "New Satellite Description (Mallory)";
+                const mallorySatelliteImage             = "https://placeholder.com/300";
+                const mallorySatelliteFee               = "2000"; // 20% fee
 
-            // Register Bob
-            var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner    : bob.pkh,
-                    operator : doormanAddress.address,
-                    token_id : 0,
-                },
-            }])
-            .send()
-            await updateOperatorsOperation.confirmation();
+                // Register Bob
+                var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : bob.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
 
-            var stakeOperation = await doormanInstance.methods.stake(MVK(10)).send();
-            await stakeOperation.confirmation();
+                var stakeOperation = await doormanInstance.methods.stake(MVK(10)).send();
+                await stakeOperation.confirmation();
 
-            var registerAsSatelliteOperation = await delegationInstance.methods
-                .registerAsSatellite(
-                    bobSatelliteName, 
-                    bobSatelliteDescription, 
-                    bobSatelliteImage, 
-                    bobSatelliteFee
-                ).send();
-            await registerAsSatelliteOperation.confirmation();
+                var registerAsSatelliteOperation = await delegationInstance.methods
+                    .registerAsSatellite(
+                        bobSatelliteName, 
+                        bobSatelliteDescription, 
+                        bobSatelliteImage, 
+                        bobSatelliteFee
+                    ).send();
+                await registerAsSatelliteOperation.confirmation();
 
-            // Register Mallory
-            await signerFactory(mallory.sk);
-            var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner    : mallory.pkh,
-                    operator : doormanAddress.address,
-                    token_id : 0,
-                },
-            }])
-            .send()
-            await updateOperatorsOperation.confirmation();
+                // Register Mallory
+                await signerFactory(mallory.sk);
+                var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : mallory.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
 
-            var stakeOperation = await doormanInstance.methods.stake(MVK(10)).send();
-            await stakeOperation.confirmation();
-    
-            registerAsSatelliteOperation = await delegationInstance.methods
-                .registerAsSatellite(
-                    mallorySatelliteName, 
-                    mallorySatelliteDescription, 
-                    mallorySatelliteImage, 
-                    mallorySatelliteFee
-                ).send();
-            await registerAsSatelliteOperation.confirmation();
+                var stakeOperation = await doormanInstance.methods.stake(MVK(10)).send();
+                await stakeOperation.confirmation();
 
-            // Delegate Alice
-            await signerFactory(alice.sk);
-            updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner    : alice.pkh,
-                    operator : doormanAddress.address,
-                    token_id : 0,
-                },
-            }])
-            .send()
-            await updateOperatorsOperation.confirmation();
+                registerAsSatelliteOperation = await delegationInstance.methods
+                    .registerAsSatellite(
+                        mallorySatelliteName, 
+                        mallorySatelliteDescription, 
+                        mallorySatelliteImage, 
+                        mallorySatelliteFee
+                    ).send();
+                await registerAsSatelliteOperation.confirmation();
 
-            var stakeOperation = await doormanInstance.methods.stake(MVK(10)).send();
-            await stakeOperation.confirmation();
+                // Delegate Alice
+                await signerFactory(alice.sk);
+                updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : alice.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
 
-            var delegationOperation   = await delegationInstance.methods.delegateToSatellite(bob.pkh).send();
-            await delegationOperation.confirmation();
-            
-            // Delegate Eve
-            await signerFactory(eve.sk);
-            updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner    : eve.pkh,
-                    operator : doormanAddress.address,
-                    token_id : 0,
-                },
-            }])
-            .send()
-            await updateOperatorsOperation.confirmation();
+                var stakeOperation = await doormanInstance.methods.stake(MVK(10)).send();
+                await stakeOperation.confirmation();
 
-            stakeOperation = await doormanInstance.methods.stake(MVK(20)).send();
-            await stakeOperation.confirmation();
+                var delegationOperation   = await delegationInstance.methods.delegateToSatellite(bob.pkh).send();
+                await delegationOperation.confirmation();
 
-            delegationOperation   = await delegationInstance.methods.delegateToSatellite(bob.pkh).send();
-            await delegationOperation.confirmation();
+                // Delegate Eve
+                await signerFactory(eve.sk);
+                updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : eve.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
 
-            // Delegate Oscar
-            await signerFactory(oscar.sk);
-            updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner    : oscar.pkh,
-                    operator : doormanAddress.address,
-                    token_id : 0,
-                },
-            }])
-            .send()
-            await updateOperatorsOperation.confirmation();
+                stakeOperation = await doormanInstance.methods.stake(MVK(20)).send();
+                await stakeOperation.confirmation();
 
-            stakeOperation = await doormanInstance.methods.stake(MVK(30)).send();
-            await stakeOperation.confirmation();
+                delegationOperation   = await delegationInstance.methods.delegateToSatellite(bob.pkh).send();
+                await delegationOperation.confirmation();
 
-            delegationOperation   = await delegationInstance.methods.delegateToSatellite(mallory.pkh).send();
-            await delegationOperation.confirmation();
+                // Delegate Oscar
+                await signerFactory(oscar.sk);
+                updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : oscar.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
 
-            // Delegate Trudy
-            await signerFactory(trudy.sk);
-            updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-            {
-                add_operator: {
-                    owner    : trudy.pkh,
-                    operator : doormanAddress.address,
-                    token_id : 0,
-                },
-            }])
-            .send()
-            await updateOperatorsOperation.confirmation();
+                stakeOperation = await doormanInstance.methods.stake(MVK(30)).send();
+                await stakeOperation.confirmation();
 
-            stakeOperation = await doormanInstance.methods.stake(MVK(20)).send();
-            await stakeOperation.confirmation();
+                delegationOperation   = await delegationInstance.methods.delegateToSatellite(mallory.pkh).send();
+                await delegationOperation.confirmation();
 
-            delegationOperation   = await delegationInstance.methods.delegateToSatellite(mallory.pkh).send();
-            await delegationOperation.confirmation();
+                // Delegate Trudy
+                await signerFactory(trudy.sk);
+                updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                {
+                    add_operator: {
+                        owner    : trudy.pkh,
+                        operator : doormanAddress.address,
+                        token_id : 0,
+                    },
+                }])
+                .send()
+                await updateOperatorsOperation.confirmation();
 
-            await signerFactory(bob.sk)
+                stakeOperation = await doormanInstance.methods.stake(MVK(20)).send();
+                await stakeOperation.confirmation();
+
+                delegationOperation   = await delegationInstance.methods.delegateToSatellite(mallory.pkh).send();
+                await delegationOperation.confirmation();
+
+                await signerFactory(bob.sk)
+            } catch (e){
+                console.log(e)
+            }
         });
         beforeEach("Set signer to admin", async () => {
             await signerFactory(bob.sk)
@@ -228,7 +232,7 @@ describe("Delegation tests", async () => {
         //         console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), " / ", satelliteRecord.paid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
         //         // Claim operations
-        //         var claimOperation = await delegationInstance.methods.claimRewards().send();
+        //         var claimOperation = await doormanInstance.methods.compound().send();
         //         await claimOperation.confirmation()
         //         delegationStorage = await delegationInstance.storage();
         //         doormanStorage  = await doormanInstance.storage();
@@ -237,7 +241,7 @@ describe("Delegation tests", async () => {
         //         console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), " / ", satelliteRecord.paid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
         //         await signerFactory(alice.sk);
-        //         claimOperation = await delegationInstance.methods.claimRewards().send();
+        //         claimOperation = await doormanInstance.methods.compound().send();
         //         await claimOperation.confirmation()
         //         delegationStorage = await delegationInstance.storage();
         //         doormanStorage  = await doormanInstance.storage();
@@ -246,7 +250,7 @@ describe("Delegation tests", async () => {
         //         console.log("POST-CLAIM ALICE: ", delegateRecord.unpaid.toNumber(), " / ", delegateRecord.paid.toNumber(), " | ", delegateStake.balance.toNumber())
 
         //         await signerFactory(eve.sk);
-        //         claimOperation = await delegationInstance.methods.claimRewards().send();
+        //         claimOperation = await doormanInstance.methods.compound().send();
         //         await claimOperation.confirmation()
         //         delegationStorage = await delegationInstance.storage();
         //         doormanStorage  = await doormanInstance.storage();
@@ -326,12 +330,17 @@ describe("Delegation tests", async () => {
                 // Satellite Claim operation
                 await signerFactory(bob.sk);
                 var paidRewards   = initSatelliteRewards.unpaid.toNumber() + satelliteFeeReward + initSatelliteSMVK.balance.toNumber() * accumulatedRewardPerShare
-                var claimOperation = await delegationInstance.methods.claimRewards().send();
+                satelliteRewards = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
+                console.log("START: ", satelliteRewards)
+
+                var claimOperation = await doormanInstance.methods.compound().send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
                 satelliteRewards = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
                 satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
+
+                console.log("START: ", satelliteRewards)
                 console.log("POST-CLAIM SATELLITE: ", satelliteRewards.unpaid.toNumber(), " / ", satelliteRewards.paid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
                 // Assertions
@@ -356,7 +365,7 @@ describe("Delegation tests", async () => {
                 console.log("POST-DELEGATE ALICE: ", delegateRewards.unpaid.toNumber(), " / ", delegateRewards.paid.toNumber(), " | ", delegateStake.balance.toNumber())
 
                 // Claims operations
-                claimOperation = await delegationInstance.methods.claimRewards().send();
+                claimOperation = await doormanInstance.methods.compound().send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
@@ -373,7 +382,7 @@ describe("Delegation tests", async () => {
                 await signerFactory(eve.sk);
                 const initEveSMVK     = await doormanStorage.userStakeBalanceLedger.get(eve.pkh) 
                 const initEveRewards  = await delegationStorage.satelliteRewardsLedger.get(eve.pkh)
-                claimOperation = await delegationInstance.methods.claimRewards().send();
+                claimOperation = await doormanInstance.methods.compound().send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
@@ -495,10 +504,10 @@ describe("Delegation tests", async () => {
 
                 // Claim operations
                 await signerFactory(bob.sk)
-                var claimOperation  = await delegationInstance.methods.claimRewards().send();
+                var claimOperation  = await doormanInstance.methods.compound().send();
                 await claimOperation.confirmation();
                 await signerFactory(mallory.sk)
-                claimOperation  = await delegationInstance.methods.claimRewards().send();
+                claimOperation  = await doormanInstance.methods.compound().send();
                 await claimOperation.confirmation();
 
                 // Final values
