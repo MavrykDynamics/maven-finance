@@ -70,7 +70,7 @@ const token_metadata = MichelsonMap.fromLiteral({
 
 // Calculate one year from now
 const currentTimestamp        = new Date();
-currentTimestamp.setFullYear(currentTimestamp.getFullYear() + 1);
+currentTimestamp.setDate(currentTimestamp.getDate() + 365);
 const nextInflationTimestamp  = Math.round(currentTimestamp.getTime() / 1000);
 
 export const mvkStorage: mvkStorageType = {
