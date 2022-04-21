@@ -22,21 +22,26 @@ type emergencyGovernanceRecordType is [@layout:comb] record [
 type emergencyGovernanceLedgerType is big_map(nat, emergencyGovernanceRecordType)
 
 type emergencyConfigType is record [
-    decimals                         : nat;   // decimals used for percentages
-    voteExpiryDays                   : nat;   // track time by tezos blocks - e.g. 2 days 
-    requiredFeeMutez                 : tez;   // fee for triggering emergency control - e.g. 100 tez -> change to MVK 
-    stakedMvkPercentageRequired      : nat;   // minimum staked MVK percentage amount required to activate break glass 
-    minStakedMvkRequiredToVote       : nat;   // minimum staked MVK balance of user required to vote for emergency governance
-    minStakedMvkRequiredToTrigger    : nat;   // minimum staked MVK balance of user to trigger emergency governance
+    decimals                          : nat;   // decimals used for percentages
+    voteExpiryDays                    : nat;   // track time by tezos blocks - e.g. 2 days 
+    requiredFeeMutez                  : tez;   // fee for triggering emergency control - e.g. 100 tez -> change to MVK 
+    stakedMvkPercentageRequired       : nat;   // minimum staked MVK percentage amount required to activate break glass 
+    minStakedMvkRequiredToVote        : nat;   // minimum staked MVK balance of user required to vote for emergency governance
+    minStakedMvkRequiredToTrigger     : nat;   // minimum staked MVK balance of user to trigger emergency governance
+
+    proposalTitleMaxLength            : nat;
+    proposalDescMaxLength             : nat;
 ]
 
 type emergencyUpdateConfigNewValueType is nat
 type emergencyUpdateConfigActionType is 
-  ConfigVoteExpiryDays of unit
-| ConfigRequiredFeeMutez of unit
-| ConfigStakedMvkPercentRequired of unit
-| ConfigMinStakedMvkForVoting of unit
-| ConfigMinStakedMvkForTrigger of unit
+  ConfigVoteExpiryDays            of unit
+| ConfigRequiredFeeMutez          of unit
+| ConfigStakedMvkPercentRequired  of unit
+| ConfigMinStakedMvkForVoting     of unit
+| ConfigMinStakedMvkForTrigger    of unit
+| ConfigProposalTitleMaxLength    of unit
+| ConfigProposalDescMaxLength     of unit
 type emergencyUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : emergencyUpdateConfigNewValueType; 
   updateConfigAction    : emergencyUpdateConfigActionType;
