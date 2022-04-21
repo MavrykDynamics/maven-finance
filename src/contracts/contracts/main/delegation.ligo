@@ -30,14 +30,14 @@ type delegationAction is
     | UpdateGeneralContracts            of updateGeneralContractsParams
 
       // Pause / Break Glass Entrypoints
-    // | PauseAll                          of (unit)
-    // | UnpauseAll                        of (unit)
-    // | TogglePauseDelegateToSatellite    of (unit)
-    // | TogglePauseUndelegateSatellite    of (unit)
-    // | TogglePauseRegisterSatellite      of (unit)
-    // | TogglePauseUnregisterSatellite    of (unit)
-    // | TogglePauseUpdateSatellite        of (unit)
-    // | TogglePauseDistributeReward       of (unit)
+    | PauseAll                          of (unit)
+    | UnpauseAll                        of (unit)
+    | TogglePauseDelegateToSatellite    of (unit)
+    | TogglePauseUndelegateSatellite    of (unit)
+    | TogglePauseRegisterSatellite      of (unit)
+    | TogglePauseUnregisterSatellite    of (unit)
+    | TogglePauseUpdateSatellite        of (unit)
+    | TogglePauseDistributeReward       of (unit)
 
       // Delegation Entrypoints
     | DelegateToSatellite               of (address)    
@@ -51,7 +51,7 @@ type delegationAction is
 
       // General Entrypoints
     | OnStakeChange                     of onStakeChangeParams
-    | OnSatelliteRewardPaid             of (unit)
+    | OnSatelliteRewardPaid             of address
 
       // Lambda Entrypoints
     | SetLambda                         of setLambdaType
@@ -412,6 +412,18 @@ block {
 
 
 
+(* View: get Satellite Record *)
+[@view] function getDelegateOpt(const delegateAddress: address; var s : delegationStorage) : option(delegateRecordType) is
+  s.delegateLedger[delegateAddress]
+
+
+
+(* View: get User reward *)
+[@view] function getUserRewardOpt(const userAddress: address; var s : delegationStorage) : option(satelliteRewards) is
+  s.satelliteRewardsLedger[userAddress]
+
+
+
 (* View: get User unpaid reward *)
 [@view] function getUserUnpaidReward(const userAddress: address; var s : delegationStorage) : nat is
   block{
@@ -745,12 +757,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaPauseDistributeReward(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
 // ------------------------------------------------------------------------------
@@ -873,12 +886,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((distributeRewardTypes * delegationStorage) -> return )) of [
-      | Some(f) -> f(distributeRewardParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaDistributeReward(distributeRewardParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
     
-} with (res.0, res.1)
+} with response
 
 // ------------------------------------------------------------------------------
 // Satellite Entrypoints End
@@ -910,7 +924,7 @@ block {
 
 
 (* onSatelliteRewardPaid entrypoint *)
-function onSatelliteRewardPaid(var s : delegationStorage) : return is 
+function onSatelliteRewardPaid(const userAddress : address; var s : delegationStorage) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnSatelliteRewardPaid"] of [
@@ -918,12 +932,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaOnSatelliteRewardPaid(userAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // General Entrypoints End
@@ -977,14 +992,14 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
 
           // Pause / Break Glass Entrypoints
-        // | PauseAll(_parameters)                         -> pauseAll(s)
-        // | UnpauseAll(_parameters)                       -> unpauseAll(s)
-        // | TogglePauseDelegateToSatellite(_parameters)   -> togglePauseDelegateToSatellite(s)
-        // | TogglePauseUndelegateSatellite(_parameters)   -> togglePauseUndelegateSatellite(s)
-        // | TogglePauseRegisterSatellite(_parameters)     -> togglePauseRegisterSatellite(s)
-        // | TogglePauseUnregisterSatellite(_parameters)   -> togglePauseUnregisterSatellite(s)
-        // | TogglePauseUpdateSatellite(_parameters)       -> togglePauseUpdateSatellite(s)
-        // | TogglePauseDistributeReward                   -> togglePauseDistributeReward(s)
+        | PauseAll(_parameters)                         -> pauseAll(s)
+        | UnpauseAll(_parameters)                       -> unpauseAll(s)
+        | TogglePauseDelegateToSatellite(_parameters)   -> togglePauseDelegateToSatellite(s)
+        | TogglePauseUndelegateSatellite(_parameters)   -> togglePauseUndelegateSatellite(s)
+        | TogglePauseRegisterSatellite(_parameters)     -> togglePauseRegisterSatellite(s)
+        | TogglePauseUnregisterSatellite(_parameters)   -> togglePauseUnregisterSatellite(s)
+        | TogglePauseUpdateSatellite(_parameters)       -> togglePauseUpdateSatellite(s)
+        | TogglePauseDistributeReward(_parameters)      -> togglePauseDistributeReward(s)
         
           // Delegation Entrypoints
         | DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)
@@ -998,7 +1013,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
 
           // General Entrypoints
         | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
-        | OnSatelliteRewardPaid(_parameters)            -> onSatelliteRewardPaid(s)
+        | OnSatelliteRewardPaid(parameters)             -> onSatelliteRewardPaid(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                         -> setLambda(parameters, s)    
