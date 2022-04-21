@@ -149,9 +149,6 @@ block {
         | _ -> skip
     ];
 
-    if s.breakGlassConfig.claimRewardsIsPaused then skip
-    else s.breakGlassConfig.claimRewardsIsPaused := True;
-
     if s.breakGlassConfig.distributeRewardIsPaused then skip
     else s.breakGlassConfig.distributeRewardIsPaused := True;
 
@@ -283,19 +280,6 @@ block {
             }
         | _ -> skip
     ];
-
-} with (noOperations, s)
-
-
-
-(* lambdaTogglePauseClaimRewards lambda *)
-function lambdaTogglePauseClaimRewards(var s : delegationStorage) : return is
-block {
-
-    // check that sender is admin
-    checkSenderIsAdmin(s);
-    if s.breakGlassConfig.claimRewardsIsPaused then s.breakGlassConfig.claimRewardsIsPaused := False
-    else s.breakGlassConfig.claimRewardsIsPaused := True;
 
 } with (noOperations, s)
 
@@ -753,46 +737,7 @@ block {
 
 } with (noOperations, s)
 
-function lambdaClaimRewards(var s: delegationStorage): return is
-  block{
 
-    // check that entrypoint is not paused
-    checkClaimRewardsIsNotPaused(s);
-
-    // Update user claim rewards
-    s := updateRewards(s);
-
-    // Get user address
-    const userAddress: address  = Tezos.source;
-
-    var rewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-      Some (_record) -> _record
-    | None -> failwith("Error. Rewards record not found")
-    ];
-
-    // Update record
-    var rewards: nat                        := rewardsRecord.unpaid;
-    rewardsRecord.paid                      := rewardsRecord.paid + rewards;
-    rewardsRecord.unpaid                    := 0n;
-    s.satelliteRewardsLedger[userAddress]   := rewardsRecord;
-
-    // Check if there is rewards to claim
-    if rewards = 0n then failwith("Error. You have no rewards to claim") else skip;
-
-    // Send rewards to Doorman Contract
-    const doormanContractAddress: address = case Map.find_opt("doorman", s.generalContracts) of [
-        Some (a) -> a
-    |   None -> (failwith("Doorman contract not found in generalContracts map"): address)
-    ];
-    
-    const doormanContract: contract(address * nat) = case (Tezos.get_entrypoint_opt("%satelliteRewardsClaim", doormanContractAddress): option(contract(address * nat))) of [
-        Some (c) -> c
-    |   None -> (failwith("SatelliteRewardsClaim entrypoint not found in Doorman contract"): contract(address * nat))
-    ];
-
-    const claimOperation: operation = Tezos.transaction((userAddress, rewards), 0tez, doormanContract);
-
-  } with(list[claimOperation], s)
 
 function lambdaDistributeReward(const distributeRewardParams: distributeRewardTypes; var s: delegationStorage): return is 
   block{
@@ -984,6 +929,65 @@ block {
 
 } with (operations, s)
 
+
+
+(* onSatelliteRewardPaid lambda *)
+function lambdaOnSatelliteRewardPaid(var s : delegationStorage) : return is 
+block {
+    // Check sender is doorman contract
+    const doormanAddress : address = case s.generalContracts["doorman"] of [
+      Some(_address) -> _address
+      | None -> failwith("Error. Doorman Contract is not found")
+    ];
+    if doormanAddress = Tezos.sender then skip else failwith("Error. Only the doorman contract can access this entrypoint");
+
+    // Get user address
+    const userAddress: address  = Tezos.source;
+
+    // Check if user is satellite or delegate
+    const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
+    const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
+
+    // Update unclaimedRewards
+    if userIsSatellite then {
+      var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+        Some (_record) -> _record
+      | None -> failwith("Error. Rewards record not found")
+      ];
+
+      // Update satellite
+      var satelliteReward: nat                               := satelliteRewardsRecord.unpaid;
+      satelliteRewardsRecord.participationRewardsPerShare    := satelliteRewardsRecord.accumulatedRewardsPerShare;
+      satelliteRewardsRecord.paid                            := satelliteRewardsRecord.paid + satelliteReward;
+      satelliteRewardsRecord.unpaid                          := 0n;
+      s.satelliteRewardsLedger[userAddress]                  := satelliteRewardsRecord;
+
+    } else if userIsDelegator then {
+      // Get Delegate
+      var delegateRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
+        Some (_record) -> _record
+      | None -> failwith("Error. Delegate not found")
+      ];
+
+      var delegateRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+        Some (_record) -> _record
+      | None -> failwith("Error. Satellite rewards record not found")
+      ];
+
+      // Get Delegate satellite rewards
+      var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(delegateRecord.satelliteAddress, s.satelliteRewardsLedger) of [
+        Some (_record) -> _record
+      | None -> failwith("Error. Delegate rewards record not found")
+      ];
+
+      // Update satellite
+      var delegateReward: nat                               := delegateRewardsRecord.unpaid;
+      delegateRewardsRecord.participationRewardsPerShare    := satelliteRewardsRecord.accumulatedRewardsPerShare;
+      delegateRewardsRecord.paid                            := delegateRewardsRecord.paid + delegateReward;
+      delegateRewardsRecord.unpaid                          := 0n;
+      s.satelliteRewardsLedger[userAddress]                 := delegateRewardsRecord;
+    } else skip;
+} with (noOperations, s)
 // ------------------------------------------------------------------------------
 // General Lambdas End
 // ------------------------------------------------------------------------------

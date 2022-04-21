@@ -38,7 +38,6 @@ type delegationAction is
     // | TogglePauseUnregisterSatellite    of (unit)
     // | TogglePauseUpdateSatellite        of (unit)
     // | TogglePauseDistributeReward       of (unit)
-    // | TogglePauseClaimRewards           of (unit)
 
       // Delegation Entrypoints
     | DelegateToSatellite               of (address)    
@@ -49,10 +48,10 @@ type delegationAction is
     | UnregisterAsSatellite             of (unit)
     | UpdateSatelliteRecord             of updateSatelliteRecordType
     | DistributeReward                  of distributeRewardTypes
-    | ClaimRewards                      of unit
 
       // General Entrypoints
     | OnStakeChange                     of onStakeChangeParams
+    | OnSatelliteRewardPaid             of (unit)
 
       // Lambda Entrypoints
     | SetLambda                         of setLambdaType
@@ -93,10 +92,9 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 [@inline] const error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED          = 15n;
 [@inline] const error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IS_PAUSED          = 16n;
 [@inline] const error_DISTRIBUTE_REWARD_ENTRYPOINT_IS_PAUSED                = 17n;
-[@inline] const error_CLAIM_REWARDS_ENTRYPOINT_IS_PAUSED                    = 18n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                      = 19n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 20n;
+[@inline] const error_LAMBDA_NOT_FOUND                                      = 18n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 19n;
 
 // ------------------------------------------------------------------------------
 //
@@ -286,13 +284,7 @@ function checkUpdateSatelliteRecordIsNotPaused(var s : delegationStorage) : unit
 
 
 function checkDistributeRewardIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.claimRewardsIsPaused then failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IS_PAUSED)
-  else unit;
-
-
-
-function checkClaimRewardsIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.distributeRewardIsPaused then failwith(error_CLAIM_REWARDS_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.distributeRewardIsPaused then failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IS_PAUSED)
   else unit;
 
 // ------------------------------------------------------------------------------
@@ -417,6 +409,64 @@ block {
 (* View: get Satellite Record *)
 [@view] function getSatelliteOpt(const satelliteAddress: address; var s : delegationStorage) : option(satelliteRecordType) is
   s.satelliteLedger[satelliteAddress]
+
+
+
+(* View: get User unpaid reward *)
+[@view] function getUserUnpaidReward(const userAddress: address; var s : delegationStorage) : nat is
+  block{
+    // Check if user is satellite or delegate
+    const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
+    const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
+
+    // Reward
+    var unpaidReward: nat := 0n;
+
+    // Update unclaimedRewards
+    if userIsSatellite then {
+      // Get Satellite
+      var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
+        Some (_record) -> _record
+      | None -> failwith("Error. Satellite not found")
+      ];
+
+      var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+        Some (_record) -> _record
+      | None -> failwith("Error. Rewards record not found")
+      ];
+
+      // Calculate satellite unclaim rewards
+      const satelliteRewardsRatio: nat  = abs(satelliteRewardsRecord.accumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
+      const satelliteRewards: nat       = satelliteRecord.stakedMvkBalance * satelliteRewardsRatio;
+
+      // Update satellite
+      unpaidReward                          := satelliteRewardsRecord.unpaid + satelliteRewards / fixedPointAccuracy;
+    } else if userIsDelegator then {
+      // Get Delegate
+      var delegateRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
+        Some (_record) -> _record
+      | None -> failwith("Error. Delegate not found")
+      ];
+
+      var delegateRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+        Some (_record) -> _record
+      | None -> failwith("Error. Rewards record not found")
+      ];
+
+      // Get Delegate satellite rewards
+      var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(delegateRecord.satelliteAddress, s.satelliteRewardsLedger) of [
+        Some (_record) -> _record
+      | None -> failwith("Error. Rewards record not found")
+      ];
+
+      // Calculate satellite unclaim rewards
+      const delegateRewardsRatio: nat  = abs(satelliteRewardsRecord.accumulatedRewardsPerShare - delegateRewardsRecord.participationRewardsPerShare);
+      const delegateRewards: nat       = delegateRecord.delegatedSMvkBalance * delegateRewardsRatio;
+
+      // Update satellite
+      unpaidReward                         := delegateRewardsRecord.unpaid + delegateRewards / fixedPointAccuracy;
+    } else skip;
+  } with(unpaidReward)
 
 
 
@@ -685,6 +735,7 @@ block {
 } with response
 
 
+
 (* togglePauseDistributeReward entrypoint *)
 function togglePauseDistributeReward(var s : delegationStorage) : return is
 block {
@@ -700,24 +751,6 @@ block {
     ];
 
 } with (res.0, res.1)
-
-
-(* togglePauseClaimRewards entrypoint *)
-function togglePauseClaimRewards(var s : delegationStorage) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseClaimRewards"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-
-} with (res.0, res.1)
-
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
 // ------------------------------------------------------------------------------
@@ -831,22 +864,6 @@ block {
 
 
 
-(* claimRewards entrypoint *)
-function claimRewards(var s : delegationStorage) : return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaimRewards"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-
-} with (res.0, res.1)
-
 (* distributeReward entrypoint *)
 function distributeReward(const distributeRewardParams: distributeRewardTypes; var s: delegationStorage) : return is
 block {
@@ -889,6 +906,24 @@ block {
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
 
 } with response
+
+
+
+(* onSatelliteRewardPaid entrypoint *)
+function onSatelliteRewardPaid(var s : delegationStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnSatelliteRewardPaid"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option((delegationStorage) -> return )) of [
+      | Some(f) -> f(s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
 
 // ------------------------------------------------------------------------------
 // General Entrypoints End
@@ -949,8 +984,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         // | TogglePauseRegisterSatellite(_parameters)     -> togglePauseRegisterSatellite(s)
         // | TogglePauseUnregisterSatellite(_parameters)   -> togglePauseUnregisterSatellite(s)
         // | TogglePauseUpdateSatellite(_parameters)       -> togglePauseUpdateSatellite(s)
-        // | TogglePauseDistributeReward(_parameters)      -> togglePauseDistributeReward(s)
-        // | TogglePauseClaimRewards(_parameters)          -> togglePauseClaimRewards(s)
+        // | TogglePauseDistributeReward                   -> togglePauseDistributeReward(s)
         
           // Delegation Entrypoints
         | DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)
@@ -961,10 +995,10 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         | UnregisterAsSatellite(_parameters)            -> unregisterAsSatellite(s)
         | UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
         | DistributeReward(parameters)                  -> distributeReward(parameters, s)
-        | ClaimRewards(_parameters)                     -> claimRewards(s)
 
           // General Entrypoints
-        | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)    
+        | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
+        | OnSatelliteRewardPaid(_parameters)            -> onSatelliteRewardPaid(s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                         -> setLambda(parameters, s)    
