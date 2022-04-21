@@ -677,11 +677,10 @@ function lambdaSatelliteRewardsClaim(const satelliteRewardsClaim: satelliteRewar
   block{
     // Get variables
     const user: address = satelliteRewardsClaim.0; 
-    const rewards: nat  = satelliteRewardsClaim.1;
+    const rewardsPerShare: nat  = satelliteRewardsClaim.1;
 
     // Compound user rewards
-    const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
-    s := userCompound.1;
+    s := compoundUserRewards(s);
 
     // Update the delegation balance
     const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
@@ -719,10 +718,7 @@ function lambdaSatelliteRewardsClaim(const satelliteRewardsClaim: satelliteRewar
     ];
 
     // Prepare operation list
-    var operations: list(operation) :=  case userCompound.0 of [
-      Some (o) -> list [o; updateSatelliteBalanceOperation]
-    | None -> list [updateSatelliteBalanceOperation]
-    ];
+    var operations: list(operation) := list [updateSatelliteBalanceOperation];
     
     // Get MVK Token address
     const mvkTokenAddress: address = s.mvkTokenAddress;
