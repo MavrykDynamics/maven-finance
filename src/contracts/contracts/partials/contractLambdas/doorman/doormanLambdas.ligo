@@ -696,51 +696,14 @@ function lambdaSatelliteRewardsClaim(const satelliteRewardsClaim: satelliteRewar
     // Check sender is delegation contract
     if Tezos.sender = delegationAddress then skip else failwith("Error. Only the delegation contract can access this entrypoint");
 
-    // get user's staked balance in staked balance ledger
-    var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[user] of [
-      Some (_val) -> _val
-    | None -> record[
-        balance=0n;
-        participationFeesPerShare=s.accumulatedFeesPerShare;
-      ]
-    ];
-
-    userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + rewards; 
-    s.userStakeBalanceLedger[user] := userBalanceInStakeBalanceLedger;
-
-    // update staked MVK total supply
-    s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + rewards;
-
-    // Get treasury address from name
-    const treasuryAddress: address = case Map.find_opt("satelliteTreasury", s.generalContracts) of [
-      Some (v) -> v
-    | None -> failwith("Error. Satellite treasury contract not found")
-    ];
-
-    // Prepare operation list
-    var operations: list(operation) := list [updateSatelliteBalanceOperation];
-    
-    // Get MVK Token address
-    const mvkTokenAddress: address = s.mvkTokenAddress;
-
-    const transferParam: transferActionType = list[
-      record[
-        to_=Tezos.self_address;
-        token=Fa2 (record[
-          tokenContractAddress=mvkTokenAddress;
-          tokenId=0n;
-        ]);
-        amount=rewards;
-      ]
-    ];
-
-    const transferOperation: operation = Tezos.transaction(
-      transferParam,
+    // tell the delegation contract that the reward has been paid 
+    const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
+      (unit),
       0tez,
-      sendTransferOperationToTreasury(treasuryAddress)
+      onSatelliteRewardPaid(delegationAddress)
     );
-    operations := transferOperation # operations;
-  } with(operations, s)
+    operations  := onSatelliteRewardPaidOperation # operations;
+} with(operations, s)
 
 // ------------------------------------------------------------------------------
 // Doorman Lambdas End
