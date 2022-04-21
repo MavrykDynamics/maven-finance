@@ -83,7 +83,6 @@ type delegationBreakGlassConfigType is record [
     updateSatelliteRecordIsPaused    : bool;
 
     distributeRewardIsPaused         : bool;
-    claimRewardsIsPaused             : bool;
 ]
 
 type delegationUpdateConfigNewValueType is nat
@@ -165,10 +164,10 @@ type delegationStorage is [@layout:comb] record [
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;
 
-    breakGlassConfig     : delegationBreakGlassConfigType;
-    delegateLedger       : delegateLedgerType;
-    satelliteLedger      : satelliteLedgerType;
+    breakGlassConfig        : delegationBreakGlassConfigType;
+    delegateLedger          : delegateLedgerType;
+    satelliteLedger         : satelliteLedgerType;
     satelliteRewardsLedger  : satelliteRewardsLedgerType;
 
-    lambdaLedger         : lambdaLedgerType;   
+    lambdaLedger            : lambdaLedgerType;   
 ]
