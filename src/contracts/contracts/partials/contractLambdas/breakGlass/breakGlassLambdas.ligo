@@ -89,7 +89,7 @@ block {
                 const updateConfigNewValue  : breakGlassUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                        ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
+                      ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
                     | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
                 ];
 
@@ -190,15 +190,15 @@ block {
                 if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
                 else skip;
 
-                const addressMap : addressMapType     = map [
+                const addressMap : addressMapType    = map [
                     ("councilMemberAddress" : string) -> newCouncilMember.memberAddress;
                 ];
-                const stringMap           : stringMapType      = map [
-                        ("councilMemberName": string) -> newCouncilMember.memberName;
-                        ("councilMemberImage": string) -> newCouncilMember.memberImage;
-                        ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
+                const stringMap : stringMapType      = map [
+                    ("councilMemberName": string) -> newCouncilMember.memberName;
+                    ("councilMemberImage": string) -> newCouncilMember.memberImage;
+                    ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
                 ];
-                const emptyNatMap : natMapType        = map [];
+                const emptyNatMap : natMapType       = map [];
 
                 var actionRecord : actionRecordType := record[
 
@@ -320,10 +320,10 @@ block {
                     ("oldCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
                     ("newCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
                 ];
-                const stringMap           : stringMapType      = map [
-                    ("newCouncilMemberName" : string) -> councilActionChangeMemberParams.newCouncilMemberName;
-                    ("newCouncilMemberWebsite" : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-                    ("newCouncilMemberImage" : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
+                const stringMap : stringMapType      = map [
+                    ("newCouncilMemberName"    : string)  -> councilActionChangeMemberParams.newCouncilMemberName;
+                    ("newCouncilMemberWebsite" : string)  -> councilActionChangeMemberParams.newCouncilMemberWebsite;
+                    ("newCouncilMemberImage"   : string)  -> councilActionChangeMemberParams.newCouncilMemberImage;
                 ];
                 const emptyNatMap : natMapType        = map [];
 
@@ -919,8 +919,8 @@ block {
 
                         for _contractName -> contractAddress in map s.generalContracts block {
                             case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
-                                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
-                            |   None -> skip
+                                    Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+                                |   None -> skip
                             ];
                         };            
                     } else skip;
@@ -934,12 +934,12 @@ block {
 
                         // fetch params begin ---
                         const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. NewAdminAddress not found.")
                         ];
 
                         const targetContractAddress : address = case _actionRecord.addressMap["targetContractAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. TargetContractAddress not found.")
                         ];
                         // fetch params end ---
@@ -950,6 +950,7 @@ block {
                             setAdminInContract(targetContractAddress)
                         );
                         operations := setSingleContractAdminOperation # operations;
+
                     } else skip;
 
 
@@ -961,8 +962,8 @@ block {
 
                         // fetch params begin ---
                         const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
-                            Some(_address) -> _address
-                        |   None -> failwith("Error. NewAdminAddress not found.")
+                                Some(_address) -> _address
+                            |   None -> failwith("Error. NewAdminAddress not found.")
                         ];
                         // fetch params end ---
 
@@ -972,8 +973,8 @@ block {
                         // Set all contracts in generalContracts map to given address
                         for _contractName -> contractAddress in map s.generalContracts block {
                             case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                                Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
-                            |   None -> skip
+                                    Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
+                                |   None -> skip
                             ];
                         } 
                     } else skip;
@@ -988,22 +989,22 @@ block {
 
                         // Reset all contracts admin to governance contract
                         const governanceAddress : address = case s.generalContracts["governance"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. Governance Contract is not found.")
                         ];
                         s.admin := governanceAddress;
 
                         for _contractName -> contractAddress in map s.generalContracts block {
                             case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                                Some(contr) -> operations := Tezos.transaction(governanceAddress, 0tez, contr) # operations
-                            |   None -> skip
+                                    Some(contr) -> operations := Tezos.transaction(governanceAddress, 0tez, contr) # operations
+                                |   None -> skip
                             ];
                         };
 
                         // Reset glassBroken
                         s.glassBroken := False;
-                    } else skip;
 
+                    } else skip;
                         
                     // update break glass action record status
                     _actionRecord.status              := "EXECUTED";
