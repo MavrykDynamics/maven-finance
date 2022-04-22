@@ -502,11 +502,11 @@ block{
                 ];
 
                 // update satellite balance if user is delegated to a satellite
-                const onStakeChangeOperation: operation = Tezos.transaction((Tezos.source), 0tez, updateSatelliteBalance(delegationAddress));
+                const onStakeChangeOperation: operation = Tezos.transaction((Tezos.sender), 0tez, updateSatelliteBalance(delegationAddress));
 
                 // tell the delegation contract that the reward has been paid 
                 const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (Tezos.source),
+                  (Tezos.sender),
                   0tez,
                   onSatelliteRewardPaid(delegationAddress)
                 );
