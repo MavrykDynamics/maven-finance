@@ -9,7 +9,7 @@
 // ------------------------------------------------------------------------------
 
 (*  breakGlass lambda *)
-function lambdaBreakGlass(var s : breakGlassStorage) : return is 
+function lambdaBreakGlass(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
 
     // Steps Overview:
@@ -18,7 +18,13 @@ block {
 
     // check that sender is from emergency governance contract 
     checkSenderIsEmergencyGovernanceContract(s);
-    s.glassBroken := True; // break glass to give council members access to protected entrypoints
+
+    case breakGlassLambdaAction of [
+        | LambdaBreakGlass(_parameters) -> {
+                s.glassBroken := True; // break glass to give council members access to protected entrypoints
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
@@ -33,85 +39,126 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const newAdminAddress : address; var s : breakGlassStorage) : return is
+function lambdaSetAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorage) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
-    s.admin := newAdminAddress;
+    checkSenderIsAdmin(s);
+
+    case breakGlassLambdaAction of [
+        | LambdaSetAdmin(newAdminAddress) -> {
+                s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const metadataKey: string; const metadataHash: bytes; var s : breakGlassStorage) : return is
+function lambdaUpdateMetadata(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
-    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
-    
+    checkSenderIsAdmin(s); 
+
+    case breakGlassLambdaAction of [
+        | LambdaUpdateMetadata(updateMetadataParams) -> {
+                
+                const metadataKey   : string = updateMetadataParams.metadataKey;
+                const metadataHash  : bytes  = updateMetadataParams.metadataHash;
+                
+                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+            }
+        | _ -> skip
+    ];
+
 } with (noOperations, s)
 
 
 
 (*  updateConfig lambda  *)
-function lambdaUpdateConfig(const updateConfigParams : breakGlassUpdateConfigParamsType; var s : breakGlassStorage) : return is 
+function lambdaUpdateConfig(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
-  checkSenderIsAdmin(s); // check that sender is admin
+  
+    checkSenderIsAdmin(s); 
+  
+    case breakGlassLambdaAction of [
+        | LambdaUpdateConfig(updateConfigParams) -> {
+                
+                const updateConfigAction    : breakGlassUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : breakGlassUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
-  const updateConfigAction    : breakGlassUpdateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : breakGlassUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+                case updateConfigAction of [
+                        ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
+                    | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
+                ];
 
-  case updateConfigAction of [
-    ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
-  | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
-  ];
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (*  updateWhitelistContracts lambda  *)
-function lambdaUpdateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: breakGlassStorage): return is
+function lambdaUpdateWhitelistContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorage): return is
 block {
 
-    // check that sender is admin
     checkSenderIsAdmin(s);
-    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+
+    case breakGlassLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (*  updateGeneralContracts lambda  *)
-function lambdaUpdateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: breakGlassStorage): return is
+function lambdaUpdateGeneralContracts(const breakGlassLambdaAction : breakGlassLambdaActionType; var s: breakGlassStorage): return is
 block {
 
-    // check that sender is admin
     checkSenderIsAdmin(s);
-    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+
+    case breakGlassLambdaAction of [
+        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (*  updateCouncilMemberInfo lambda - update the info of a council member *)
-function lambdaUpdateCouncilMemberInfo(const councilMemberInfo: councilMemberInfoType; var s : breakGlassStorage) : return is
+function lambdaUpdateCouncilMemberInfo(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is
 block {
 
-    // Check if sender is a member of the council
-    var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
-        Some (_info) -> _info
-    |   None -> failwith("Error. You are not a member of the council")
-    ];
-    
-    // Update member info
-    councilMember.name      := councilMemberInfo.name;
-    councilMember.website   := councilMemberInfo.website;
-    councilMember.image     := councilMemberInfo.image;
+    case breakGlassLambdaAction of [
+        | LambdaUpdateCouncilMemberInfo(councilMemberInfo) -> {
 
-    // Update storage
-    s.councilMembers[Tezos.sender]  := councilMember;
+                // Check if sender is a member of the council
+                var councilMember: councilMemberInfoType := case Map.find_opt(Tezos.sender, s.councilMembers) of [
+                        Some (_info) -> _info
+                    |   None         -> failwith("Error. You are not a member of the council")
+                ];
+                
+                // Update member info
+                councilMember.name      := councilMemberInfo.name;
+                councilMember.website   := councilMemberInfo.website;
+                councilMember.image     := councilMemberInfo.image;
+
+                // Update storage
+                s.councilMembers[Tezos.sender]  := councilMember;
+                
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
@@ -126,7 +173,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  addCouncilMember lambda  *)
-function lambdaAddCouncilMember(const newCouncilMember : councilAddMemberType; var s : breakGlassStorage) : return is 
+function lambdaAddCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -136,51 +183,58 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    // Check if new council member is already in the council
-    if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
-    else skip;
+    case breakGlassLambdaAction of [
+        | LambdaAddCouncilMember(newCouncilMember) -> {
+                
+                // Check if new council member is already in the council
+                if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+                else skip;
 
-    const addressMap : addressMapType     = map [
-        ("councilMemberAddress" : string) -> newCouncilMember.memberAddress;
+                const addressMap : addressMapType     = map [
+                    ("councilMemberAddress" : string) -> newCouncilMember.memberAddress;
+                ];
+                const stringMap           : stringMapType      = map [
+                        ("councilMemberName": string) -> newCouncilMember.memberName;
+                        ("councilMemberImage": string) -> newCouncilMember.memberImage;
+                        ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
+                ];
+                const emptyNatMap : natMapType        = map [];
+
+                var actionRecord : actionRecordType := record[
+
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "addCouncilMember";
+                    executed              = False;
+
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
+
+                    addressMap            = addressMap;
+                    stringMap             = stringMap;
+                    natMap                = emptyNatMap;
+
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n;
+
+            }
+        | _ -> skip
     ];
-    const stringMap           : stringMapType      = map [
-            ("councilMemberName": string) -> newCouncilMember.memberName;
-            ("councilMemberImage": string) -> newCouncilMember.memberImage;
-            ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
-    ];
-    const emptyNatMap : natMapType        = map [];
-
-    var actionRecord : actionRecordType := record[
-
-        initiator             = Tezos.sender;
-        status                = "PENDING";
-        actionType            = "addCouncilMember";
-        executed              = False;
-
-        signers               = set[Tezos.sender];
-        signersCount          = 1n;
-
-        addressMap            = addressMap;
-        stringMap             = stringMap;
-        natMap                = emptyNatMap;
-
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-    ];
-    s.actionsLedger[s.actionCounter] := actionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
 
 
 (*  removeCouncilMember lambda  *)
-function lambdaRemoveCouncilMember(const councilMemberAddress : address; var s : breakGlassStorage) : return is 
+function lambdaRemoveCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -190,51 +244,58 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    // Check if council member is in the council
-    if not Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
-    else skip;
+    case breakGlassLambdaAction of [
+        | LambdaRemoveCouncilMember(councilMemberAddress) -> {
+                
+                // Check if council member is in the council
+                if not Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+                else skip;
 
-    // Check if removing the council member won't impact the threshold
-    if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
-    else skip;
+                // Check if removing the council member won't impact the threshold
+                if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+                else skip;
 
-    const addressMap : addressMapType     = map [
-        ("councilMemberAddress"         : string) -> councilMemberAddress;
+                const addressMap : addressMapType     = map [
+                    ("councilMemberAddress"         : string) -> councilMemberAddress;
+                ];
+                const emptyStringMap : stringMapType  = map [];
+                const emptyNatMap : natMapType        = map [];
+
+                var actionRecord : actionRecordType := record[
+
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "removeCouncilMember";
+                    executed              = False;
+
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
+
+                    addressMap            = addressMap;
+                    stringMap             = emptyStringMap;
+                    natMap                = emptyNatMap;
+
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n;    
+
+            }
+        | _ -> skip
     ];
-    const emptyStringMap : stringMapType  = map [];
-    const emptyNatMap : natMapType        = map [];
-
-    var actionRecord : actionRecordType := record[
-
-        initiator             = Tezos.sender;
-        status                = "PENDING";
-        actionType            = "removeCouncilMember";
-        executed              = False;
-
-        signers               = set[Tezos.sender];
-        signersCount          = 1n;
-
-        addressMap            = addressMap;
-        stringMap             = emptyStringMap;
-        natMap                = emptyNatMap;
-
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-    ];
-    s.actionsLedger[s.actionCounter] := actionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
 
 
 (*  changeCouncilMember lambda  *)
-function lambdaChangeCouncilMember(const councilActionChangeMemberParams : councilChangeMemberType; var s : breakGlassStorage) : return is 
+function lambdaChangeCouncilMember(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -244,49 +305,56 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    // Check if new council member is already in the council
-    if Map.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
-    else skip;
+    case breakGlassLambdaAction of [
+        | LambdaChangeCouncilMember(councilActionChangeMemberParams) -> {
+                
+                // Check if new council member is already in the council
+                if Map.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+                else skip;
 
-    // Check if old council member is in the council
-    if not Map.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
-    else skip;
+                // Check if old council member is in the council
+                if not Map.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+                else skip;
 
-    const addressMap : addressMapType     = map [
-        ("oldCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
-        ("newCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
+                const addressMap : addressMapType     = map [
+                    ("oldCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
+                    ("newCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
+                ];
+                const stringMap           : stringMapType      = map [
+                    ("newCouncilMemberName" : string) -> councilActionChangeMemberParams.newCouncilMemberName;
+                    ("newCouncilMemberWebsite" : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
+                    ("newCouncilMemberImage" : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
+                ];
+                const emptyNatMap : natMapType        = map [];
+
+                var actionRecord : actionRecordType := record[
+
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "changeCouncilMember";
+                    executed              = False;
+
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
+
+                    addressMap            = addressMap;
+                    stringMap             = stringMap;
+                    natMap                = emptyNatMap;
+
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n;
+
+            }
+        | _ -> skip
     ];
-    const stringMap           : stringMapType      = map [
-        ("newCouncilMemberName" : string) -> councilActionChangeMemberParams.newCouncilMemberName;
-        ("newCouncilMemberWebsite" : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-        ("newCouncilMemberImage" : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
-    ];
-    const emptyNatMap : natMapType        = map [];
-
-    var actionRecord : actionRecordType := record[
-
-        initiator             = Tezos.sender;
-        status                = "PENDING";
-        actionType            = "changeCouncilMember";
-        executed              = False;
-
-        signers               = set[Tezos.sender];
-        signersCount          = 1n;
-
-        addressMap            = addressMap;
-        stringMap             = stringMap;
-        natMap                = emptyNatMap;
-
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-    ];
-    s.actionsLedger[s.actionCounter] := actionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
@@ -301,7 +369,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  pauseAllEntrypoints lambda  *)
-function lambdaPauseAllEntrypoints(var s : breakGlassStorage) : return is
+function lambdaPauseAllEntrypoints(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is
 block {
 
     // Overall steps:
@@ -310,44 +378,51 @@ block {
     // 3. Create and save new action record, set the sender as a signer of the action
     // 4. Increment action counter
 
-    checkGlassIsBroken(s);          // check that glass is broken
+    checkGlassIsBroken(s);          
     checkSenderIsCouncilMember(s);
 
-    const emptyAddressMap  : addressMapType      = map [];
-    const emptyStringMap   : stringMapType       = map [];
-    const emptyNatMap      : natMapType          = map [];
+    case breakGlassLambdaAction of [
+        | LambdaPauseAllEntrypoints(_parameters) -> {
+                
+                const emptyAddressMap  : addressMapType      = map [];
+                const emptyStringMap   : stringMapType       = map [];
+                const emptyNatMap      : natMapType          = map [];
 
-    var actionRecord : actionRecordType := record[
+                var actionRecord : actionRecordType := record[
 
-        initiator             = Tezos.sender;
-        status                = "PENDING";
-        actionType            = "pauseAllEntrypoints";
-        executed              = False;
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "pauseAllEntrypoints";
+                    executed              = False;
 
-        signers               = set[Tezos.sender];
-        signersCount          = 1n;
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
 
-        addressMap            = emptyAddressMap;
-        stringMap             = emptyStringMap;
-        natMap                = emptyNatMap;
+                    addressMap            = emptyAddressMap;
+                    stringMap             = emptyStringMap;
+                    natMap                = emptyNatMap;
 
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n;
+
+            }
+        | _ -> skip
     ];
-    s.actionsLedger[s.actionCounter] := actionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
 
 
 (*  unpauseAllEntrypoints lambda  *)
-function lambdaUnpauseAllEntrypoints(var s : breakGlassStorage) : return is
+function lambdaUnpauseAllEntrypoints(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is
 block {
 
     // Overall steps:
@@ -356,44 +431,51 @@ block {
     // 3. Create and save new action record, set the sender as a signer of the action
     // 4. Increment action counter
 
-    checkGlassIsBroken(s);          // check that glass is broken
+    checkGlassIsBroken(s);        
     checkSenderIsCouncilMember(s);
 
-    const emptyAddressMap  : addressMapType      = map [];
-    const emptyStringMap   : stringMapType       = map [];
-    const emptyNatMap      : natMapType          = map [];
+    case breakGlassLambdaAction of [
+        | LambdaUnpauseAllEntrypoints(_parameters) -> {
+                
+                const emptyAddressMap  : addressMapType      = map [];
+                const emptyStringMap   : stringMapType       = map [];
+                const emptyNatMap      : natMapType          = map [];
 
-    var actionRecord : actionRecordType := record[
+                var actionRecord : actionRecordType := record[
 
-        initiator             = Tezos.sender;
-        status                = "PENDING";
-        actionType            = "unpauseAllEntrypoints";
-        executed              = False;
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "unpauseAllEntrypoints";
+                    executed              = False;
 
-        signers               = set[Tezos.sender];
-        signersCount          = 1n;
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
 
-        addressMap            = emptyAddressMap;
-        stringMap             = emptyStringMap;
-        natMap                = emptyNatMap;
+                    addressMap            = emptyAddressMap;
+                    stringMap             = emptyStringMap;
+                    natMap                = emptyNatMap;
 
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n; 
+
+            }
+        | _ -> skip
     ];
-    s.actionsLedger[s.actionCounter] := actionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
 
 
 (*  setSingleContractAdmin lambda  *)
-function lambdaSetSingleContractAdmin(const newAdminAddress : address; const targetContractAddress : address; var s : breakGlassStorage) : return is 
+function lambdaSetSingleContractAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -402,50 +484,60 @@ block {
     // 3. Create and save new action record, set the sender as a signer of the action
     // 4. Increment action counter
 
-    checkGlassIsBroken(s);          // check that glass is broken
+    checkGlassIsBroken(s);         
     checkSenderIsCouncilMember(s);
 
-    // Check if the provided contract has a setAdmin entrypoint
-    const _checkEntrypoint: contract(address)    = setAdminInContract(targetContractAddress);
+    case breakGlassLambdaAction of [
+        | LambdaSetSingleContractAdmin(setSingleContractParams) -> {
 
-    const addressMap   : addressMapType      = map [
-        ("newAdminAddress" : string) -> newAdminAddress;
-        ("targetContractAddress" : string) -> targetContractAddress;
+                const newAdminAddress        : address = setSingleContractParams.newAdminAddress;
+                const targetContractAddress  : address = setSingleContractParams.targetContractAddress;
+
+                // Check if the provided contract has a setAdmin entrypoint
+                const _checkEntrypoint: contract(address)    = setAdminInContract(targetContractAddress);
+
+                const addressMap   : addressMapType      = map [
+                    ("newAdminAddress"       : string) -> newAdminAddress;
+                    ("targetContractAddress" : string) -> targetContractAddress;
+                ];
+                const emptyStringMap   : stringMapType   = map [];
+                const emptyNatMap      : natMapType      = map [];
+
+                var actionRecord : actionRecordType := record[
+
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "setSingleContractAdmin";
+                    executed              = False;
+
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
+
+                    addressMap            = addressMap;
+                    stringMap             = emptyStringMap;
+                    natMap                = emptyNatMap;
+
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n;
+                
+            }
+        | _ -> skip
     ];
-    const emptyStringMap   : stringMapType   = map [];
-    const emptyNatMap  : natMapType          = map [];
-
-    var actionRecord : actionRecordType := record[
-
-        initiator             = Tezos.sender;
-        status                = "PENDING";
-        actionType            = "setSingleContractAdmin";
-        executed              = False;
-
-        signers               = set[Tezos.sender];
-        signersCount          = 1n;
-
-        addressMap            = addressMap;
-        stringMap             = emptyStringMap;
-        natMap                = emptyNatMap;
-
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-    ];
-    s.actionsLedger[s.actionCounter] := actionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
 
 
 (*  setAllContractsAdmin lambda  *)
-function lambdaSetAllContractsAdmin(const newAdminAddress : address; var s : breakGlassStorage) : return is 
+function lambdaSetAllContractsAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -454,46 +546,53 @@ block {
     // 3. Create and save new action record, set the sender as a signer of the action
     // 4. Increment action counter
 
-    checkGlassIsBroken(s);          // check that glass is broken
+    checkGlassIsBroken(s);          
     checkSenderIsCouncilMember(s);
 
-    const addressMap   : addressMapType      = map [
-        ("newAdminAddress" : string) -> newAdminAddress;
+    case breakGlassLambdaAction of [
+        | LambdaSetAllContractsAdmin(newAdminAddress) -> {
+                
+                const addressMap   : addressMapType      = map [
+                    ("newAdminAddress" : string) -> newAdminAddress;
+                ];
+                const emptyStringMap   : stringMapType   = map [];
+                const emptyNatMap  : natMapType          = map [];
+
+                var actionRecord : actionRecordType := record[
+
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "setAllContractsAdmin";
+                    executed              = False;
+
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
+
+                    addressMap            = addressMap;
+                    stringMap             = emptyStringMap;
+                    natMap                = emptyNatMap;
+
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n;
+
+            }
+        | _ -> skip
     ];
-    const emptyStringMap   : stringMapType   = map [];
-    const emptyNatMap  : natMapType          = map [];
-
-    var actionRecord : actionRecordType := record[
-
-        initiator             = Tezos.sender;
-        status                = "PENDING";
-        actionType            = "setAllContractsAdmin";
-        executed              = False;
-
-        signers               = set[Tezos.sender];
-        signersCount          = 1n;
-
-        addressMap            = addressMap;
-        stringMap             = emptyStringMap;
-        natMap                = emptyNatMap;
-
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-    ];
-    s.actionsLedger[s.actionCounter] := actionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
 
 
 (*  removeBreakGlassControl lambda  *)
-function lambdaRemoveBreakGlassControl(var s : breakGlassStorage) : return is 
+function lambdaRemoveBreakGlassControl(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -502,37 +601,44 @@ block {
     // 3. Create and save new action record, set the sender as a signer of the action
     // 4. Increment action counter
 
-    checkGlassIsBroken(s);          // check that glass is broken
+    checkGlassIsBroken(s);         
     checkSenderIsCouncilMember(s);
 
-    const emptyAddressMap  : addressMapType      = map [];
-    const emptyStringMap   : stringMapType   = map [];
-    const emptyNatMap      : natMapType          = map [];
+    case breakGlassLambdaAction of [
+        | LambdaRemoveBreakGlassControl(_parameters) -> {
+                
+                const emptyAddressMap  : addressMapType      = map [];
+                const emptyStringMap   : stringMapType       = map [];
+                const emptyNatMap      : natMapType          = map [];
 
-    var actionRecord : actionRecordType := record[
+                var actionRecord : actionRecordType := record[
 
-        initiator             = Tezos.sender;
-        status                = "PENDING";
-        actionType            = "removeBreakGlassControl";
-        executed              = False;
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "removeBreakGlassControl";
+                    executed              = False;
 
-        signers               = set[Tezos.sender];
-        signersCount          = 1n;
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
 
-        addressMap            = emptyAddressMap;
-        stringMap             = emptyStringMap;
-        natMap                = emptyNatMap;
+                    addressMap            = emptyAddressMap;
+                    stringMap             = emptyStringMap;
+                    natMap                = emptyNatMap;
 
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n;
+
+            }
+        | _ -> skip
     ];
-    s.actionsLedger[s.actionCounter] := actionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
@@ -547,7 +653,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  flushAction lambda  *)
-function lambdaFlushAction(const actionId: flushActionType; var s : breakGlassStorage) : return is 
+function lambdaFlushAction(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
 
     // Overall steps:
@@ -557,348 +663,363 @@ block {
 
     checkSenderIsCouncilMember(s);
 
-    // Check if actionID exist
-    const actionToFlush: actionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
-        Some (_action) -> _action
-    |   None -> failwith("Error. There is no action linked to this actionId")
+    case breakGlassLambdaAction of [
+        | LambdaFlushAction(actionId) -> {
+                
+                // Check if actionId exist
+                const actionToFlush: actionRecordType = case Big_map.find_opt(actionId, s.actionsLedger) of [
+                        Some (_action) -> _action
+                    |   None           -> failwith("Error. There is no action linked to this actionId")
+                ];
+
+                // Check if action was previously flushed or executed
+                if actionToFlush.executed then failwith("Error. This action was executed, it cannot be flushed")
+                else skip;
+
+                if actionToFlush.status = "FLUSHED" then failwith("Error. This action was flushed, it cannot be flushed again")
+                else skip;
+
+                const emptyAddressMap  : addressMapType      = map [];
+                const emptyStringMap   : stringMapType       = map [];
+                const natMap           : natMapType          = map [
+                    ("actionId" : string) -> actionId;
+                ];
+
+                var actionRecord : actionRecordType := record[
+
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "flushAction";
+                    executed              = False;
+
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
+
+                    addressMap            = emptyAddressMap;
+                    stringMap             = emptyStringMap;
+                    natMap                = natMap;
+
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n;
+
+            }
+        | _ -> skip
     ];
-
-    // Check if action was previously flushed or executed
-    if actionToFlush.executed then failwith("Error. This action was executed, it cannot be flushed")
-    else skip;
-
-    if actionToFlush.status = "FLUSHED" then failwith("Error. This action was flushed, it cannot be flushed again")
-    else skip;
-
-    const emptyAddressMap  : addressMapType      = map [];
-    const emptyStringMap   : stringMapType       = map [];
-    const natMap           : natMapType          = map [
-        ("actionId" : string) -> actionId;
-    ];
-
-    var actionRecord : actionRecordType := record[
-
-        initiator             = Tezos.sender;
-        status                = "PENDING";
-        actionType            = "flushAction";
-        executed              = False;
-
-        signers               = set[Tezos.sender];
-        signersCount          = 1n;
-
-        addressMap            = emptyAddressMap;
-        stringMap             = emptyStringMap;
-        natMap                = natMap;
-
-        startDateTime         = Tezos.now;
-        startLevel            = Tezos.level;             
-        executedDateTime      = Tezos.now;
-        executedLevel         = Tezos.level;
-        expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
-    ];
-    s.actionsLedger[s.actionCounter] := actionRecord; 
-
-    // increment action counter
-    s.actionCounter := s.actionCounter + 1n;
 
 } with (noOperations, s)
 
 
 
 (*  signAction lambda  *)
-function lambdaSignAction(const actionId: nat; var s : breakGlassStorage) : return is 
+function lambdaSignAction(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
     
     checkSenderIsCouncilMember(s);
 
-    var _actionRecord : actionRecordType := case s.actionsLedger[actionId] of [
-        | Some(_record) -> _record
-        | None -> failwith("Error. Break Glass action record not found.")
-    ];
-
-    // check if break glass action has been flushed
-    if _actionRecord.status = "FLUSHED" then failwith("Error. Break Glass action has been flushed") else skip;
-
-    if Tezos.now > _actionRecord.expirationDateTime then failwith("Error. Break Glass action has expired") else skip;
-
-    // check if signer already signed
-    if Set.mem(Tezos.sender, _actionRecord.signers) then failwith("Error. Sender has already signed this break glass action") else skip;
-
-    // update signers and signersCount for break glass action record
-    var signersCount : nat             := _actionRecord.signersCount + 1n;
-    _actionRecord.signersCount         := signersCount;
-    _actionRecord.signers              := Set.add(Tezos.sender, _actionRecord.signers);
-    s.actionsLedger[actionId]          := _actionRecord;
-
-    const actionType : string = _actionRecord.actionType;
-
     var operations : list(operation) := nil;
 
-    // check if threshold has been reached
-    if signersCount >= s.config.threshold and not _actionRecord.executed then block {
-        
-        // --------------------------------------
-        // execute action based on action types
-        // --------------------------------------
-
-        // flush action type
-        if actionType = "flushAction" then block {
-
-            // fetch params begin ---
-            const flushedActionId : nat = case _actionRecord.natMap["actionId"] of [
-                Some(_nat) -> _nat
-                | None -> failwith("Error. ActionId not found.")
-            ];
-            // fetch params end ---
-
-            var flushedActionRecord : actionRecordType := case s.actionsLedger[flushedActionId] of [     
-                Some(_record) -> _record
-                | None -> failwith("Error. Action not found")
-            ];
-
-            // Check if action was previously flushed or executed
-            if flushedActionRecord.executed then failwith("Error. This action was executed, it cannot be flushed")
-            else skip;
-
-            if flushedActionRecord.status = "FLUSHED" then failwith("Error. This action was flushed, it cannot be flushed again")
-            else skip;
-
-            flushedActionRecord.status := "FLUSHED";
-            s.actionsLedger[flushedActionId] := flushedActionRecord;
-
-        } else skip;
-
-
-
-        // addCouncilMember action type
-        if actionType = "addCouncilMember" then block {
-
-            // fetch params begin ---
-            const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
-                Some(_address) -> _address
-                | None -> failwith("Error. CouncilMemberAddress not found.")
-            ];
-
-            const councilMemberName : string = case _actionRecord.stringMap["councilMemberName"] of [
-                Some(_string) -> _string
-                | None -> failwith("Error. CouncilMemberName not found.")
-            ];
-
-            const councilMemberImage : string = case _actionRecord.stringMap["councilMemberImage"] of [
-                Some(_string) -> _string
-                | None -> failwith("Error. CouncilMemberImage not found.")
-            ];
-
-            const councilMemberWebsite : string = case _actionRecord.stringMap["councilMemberWebsite"] of [
-                Some(_string) -> _string
-                | None -> failwith("Error. CouncilMemberWebsite not found.")
-            ];
-            // fetch params end ---
-
-            // Check if new council member is already in the council
-
-            const councilMemberInfo: councilMemberInfoType  = record[
-                name=councilMemberName;
-                image=councilMemberImage;
-                website=councilMemberWebsite;
-            ];
-
-            if Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
-            else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
-        } else skip;
-
-
-
-        // removeCouncilMember action type
-        if actionType = "removeCouncilMember" then block {
-            // fetch params begin ---
-            const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
-                Some(_address) -> _address
-                | None -> failwith("Error. CouncilMemberAddress not found.")
-            ];
-            // fetch params end ---
-
-            // Check if council member is in the council
-            if not Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
-            else skip;
-
-            // Check if removing the council member won't impact the threshold
-            if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
-            else skip;
-
-            s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
-        } else skip;
-
-
-
-        // changeCouncilMember action type
-        if actionType = "changeCouncilMember" then block {
-
-            // fetch params begin ---
-            const oldCouncilMemberAddress : address = case _actionRecord.addressMap["oldCouncilMemberAddress"] of [
-                Some(_address) -> _address
-                | None -> failwith("Error. OldCouncilMemberAddress not found.")
-            ];
-
-            const newCouncilMemberAddress : address = case _actionRecord.addressMap["newCouncilMemberAddress"] of [
-                Some(_address) -> _address
-                | None -> failwith("Error. NewCouncilMemberAddress not found.")
-            ];
-
-            const councilMemberName : string = case _actionRecord.stringMap["newCouncilMemberName"] of [
-                Some(_string) -> _string
-                | None -> failwith("Error. CouncilMemberName not found.")
-            ];
-
-            const councilMemberImage : string = case _actionRecord.stringMap["newCouncilMemberImage"] of [
-                Some(_string) -> _string
-                | None -> failwith("Error. CouncilMemberImage not found.")
-            ];
-
-            const councilMemberWebsite : string = case _actionRecord.stringMap["newCouncilMemberWebsite"] of [
-                Some(_string) -> _string
-                | None -> failwith("Error. CouncilMemberWebsite not found.")
-            ];
-            // fetch params end ---
-
-            // Check if new council member is already in the council
-            if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
-            else skip;
-
-            // Check if old council member is in the council
-            if not Map.mem(oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
-            else skip;
-
-            const councilMemberInfo: councilMemberInfoType  = record[
-                name=councilMemberName;
-                image=councilMemberImage;
-                website=councilMemberWebsite;
-            ];
-
-            s.councilMembers := Map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
-            s.councilMembers := Map.remove(oldCouncilMemberAddress, s.councilMembers);
-        } else skip;
-
-
-
-        // pauseAllEntrypoints action type
-        if actionType = "pauseAllEntrypoints" then block {
-
-            checkGlassIsBroken(s);          // check that glass is broken
-
-            for _contractName -> contractAddress in map s.generalContracts block {
-                case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
-                    Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
-                |   None -> skip
+    case breakGlassLambdaAction of [
+        | LambdaSignAction(actionId) -> {
+                
+                var _actionRecord : actionRecordType := case s.actionsLedger[actionId] of [
+                    | Some(_record) -> _record
+                    | None -> failwith("Error. Break Glass action record not found.")
                 ];
-            };      
-        } else skip;
+
+                // check if break glass action has been flushed
+                if _actionRecord.status = "FLUSHED" then failwith("Error. Break Glass action has been flushed") else skip;
+
+                if Tezos.now > _actionRecord.expirationDateTime then failwith("Error. Break Glass action has expired") else skip;
+
+                // check if signer already signed
+                if Set.mem(Tezos.sender, _actionRecord.signers) then failwith("Error. Sender has already signed this break glass action") else skip;
+
+                // update signers and signersCount for break glass action record
+                var signersCount : nat             := _actionRecord.signersCount + 1n;
+                _actionRecord.signersCount         := signersCount;
+                _actionRecord.signers              := Set.add(Tezos.sender, _actionRecord.signers);
+                s.actionsLedger[actionId]          := _actionRecord;
+
+                const actionType : string = _actionRecord.actionType;
+
+                // check if threshold has been reached
+                if signersCount >= s.config.threshold and not _actionRecord.executed then block {
+                    
+                    // --------------------------------------
+                    // execute action based on action types
+                    // --------------------------------------
+
+                    // flush action type
+                    if actionType = "flushAction" then block {
+
+                        // fetch params begin ---
+                        const flushedActionId : nat = case _actionRecord.natMap["actionId"] of [
+                            Some(_nat) -> _nat
+                            | None -> failwith("Error. ActionId not found.")
+                        ];
+                        // fetch params end ---
+
+                        var flushedActionRecord : actionRecordType := case s.actionsLedger[flushedActionId] of [     
+                            Some(_record) -> _record
+                            | None -> failwith("Error. Action not found")
+                        ];
+
+                        // Check if action was previously flushed or executed
+                        if flushedActionRecord.executed then failwith("Error. This action was executed, it cannot be flushed")
+                        else skip;
+
+                        if flushedActionRecord.status = "FLUSHED" then failwith("Error. This action was flushed, it cannot be flushed again")
+                        else skip;
+
+                        flushedActionRecord.status := "FLUSHED";
+                        s.actionsLedger[flushedActionId] := flushedActionRecord;
+
+                    } else skip;
 
 
 
-        // unpauseAllEntrypoints action type
-        if actionType = "unpauseAllEntrypoints" then block {
+                    // addCouncilMember action type
+                    if actionType = "addCouncilMember" then block {
 
-            checkGlassIsBroken(s);          // check that glass is broken
+                        // fetch params begin ---
+                        const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
+                            Some(_address) -> _address
+                            | None -> failwith("Error. CouncilMemberAddress not found.")
+                        ];
 
-            for _contractName -> contractAddress in map s.generalContracts block {
-                case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
-                    Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
-                |   None -> skip
-                ];
-            };            
-        } else skip;
+                        const councilMemberName : string = case _actionRecord.stringMap["councilMemberName"] of [
+                            Some(_string) -> _string
+                            | None -> failwith("Error. CouncilMemberName not found.")
+                        ];
 
+                        const councilMemberImage : string = case _actionRecord.stringMap["councilMemberImage"] of [
+                            Some(_string) -> _string
+                            | None -> failwith("Error. CouncilMemberImage not found.")
+                        ];
 
+                        const councilMemberWebsite : string = case _actionRecord.stringMap["councilMemberWebsite"] of [
+                            Some(_string) -> _string
+                            | None -> failwith("Error. CouncilMemberWebsite not found.")
+                        ];
+                        // fetch params end ---
 
-        // setSingleContractAdmin action type
-        if actionType = "setSingleContractAdmin" then block {
+                        // Check if new council member is already in the council
 
-            checkGlassIsBroken(s);          // check that glass is broken
+                        const councilMemberInfo: councilMemberInfoType  = record[
+                            name=councilMemberName;
+                            image=councilMemberImage;
+                            website=councilMemberWebsite;
+                        ];
 
-            // fetch params begin ---
-            const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
-                Some(_address) -> _address
-                | None -> failwith("Error. NewAdminAddress not found.")
-            ];
-
-            const targetContractAddress : address = case _actionRecord.addressMap["targetContractAddress"] of [
-                Some(_address) -> _address
-                | None -> failwith("Error. TargetContractAddress not found.")
-            ];
-            // fetch params end ---
-
-            const setSingleContractAdminOperation : operation = Tezos.transaction(
-                newAdminAddress, 
-                0tez, 
-                setAdminInContract(targetContractAddress)
-            );
-            operations := setSingleContractAdminOperation # operations;
-        } else skip;
+                        if Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
+                        else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
+                    } else skip;
 
 
 
-        // setAllContractsAdmin action type
-        if actionType = "setAllContractsAdmin" then block {
+                    // removeCouncilMember action type
+                    if actionType = "removeCouncilMember" then block {
+                        // fetch params begin ---
+                        const councilMemberAddress : address = case _actionRecord.addressMap["councilMemberAddress"] of [
+                            Some(_address) -> _address
+                            | None -> failwith("Error. CouncilMemberAddress not found.")
+                        ];
+                        // fetch params end ---
 
-            checkGlassIsBroken(s);          // check that glass is broken
+                        // Check if council member is in the council
+                        if not Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is not in the council")
+                        else skip;
 
-            // fetch params begin ---
-            const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
-                Some(_address) -> _address
-            |   None -> failwith("Error. NewAdminAddress not found.")
-            ];
-            // fetch params end ---
+                        // Check if removing the council member won't impact the threshold
+                        if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
+                        else skip;
 
-            // Set self as contract admin
-            s.admin := newAdminAddress;
-
-            // Set all contracts in generalContracts map to given address
-            for _contractName -> contractAddress in map s.generalContracts block {
-                case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                    Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
-                |   None -> skip
-                ];
-            } 
-        } else skip;
+                        s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
+                    } else skip;
 
 
 
-        // removeBreakGlassControl action type
-        if actionType = "removeBreakGlassControl" then block {
-            // remove break glass control on contract
-            // ensure settings (entrypoints unpaused, admin reset to governance dao) has been done
-            checkGlassIsBroken(s);          // check that glass is broken
+                    // changeCouncilMember action type
+                    if actionType = "changeCouncilMember" then block {
 
-            // Reset all contracts admin to governance contract
-            const governanceAddress : address = case s.generalContracts["governance"] of [
-                Some(_address) -> _address
-                | None -> failwith("Error. Governance Contract is not found.")
-            ];
-            s.admin := governanceAddress;
+                        // fetch params begin ---
+                        const oldCouncilMemberAddress : address = case _actionRecord.addressMap["oldCouncilMemberAddress"] of [
+                            Some(_address) -> _address
+                            | None -> failwith("Error. OldCouncilMemberAddress not found.")
+                        ];
 
-            for _contractName -> contractAddress in map s.generalContracts block {
-                case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                    Some(contr) -> operations := Tezos.transaction(governanceAddress, 0tez, contr) # operations
-                |   None -> skip
-                ];
-            };
+                        const newCouncilMemberAddress : address = case _actionRecord.addressMap["newCouncilMemberAddress"] of [
+                            Some(_address) -> _address
+                            | None -> failwith("Error. NewCouncilMemberAddress not found.")
+                        ];
 
-            // Reset glassBroken
-            s.glassBroken := False;
-        } else skip;
+                        const councilMemberName : string = case _actionRecord.stringMap["newCouncilMemberName"] of [
+                            Some(_string) -> _string
+                            | None -> failwith("Error. CouncilMemberName not found.")
+                        ];
 
-            
-        // update break glass action record status
-        _actionRecord.status              := "EXECUTED";
-        _actionRecord.executed            := True;
-        _actionRecord.executedDateTime    := Tezos.now;
-        _actionRecord.executedLevel       := Tezos.level;
-        
-        // save break glass action record
-        s.actionsLedger[actionId]         := _actionRecord;
+                        const councilMemberImage : string = case _actionRecord.stringMap["newCouncilMemberImage"] of [
+                            Some(_string) -> _string
+                            | None -> failwith("Error. CouncilMemberImage not found.")
+                        ];
 
-    } else skip;
+                        const councilMemberWebsite : string = case _actionRecord.stringMap["newCouncilMemberWebsite"] of [
+                            Some(_string) -> _string
+                            | None -> failwith("Error. CouncilMemberWebsite not found.")
+                        ];
+                        // fetch params end ---
+
+                        // Check if new council member is already in the council
+                        if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
+                        else skip;
+
+                        // Check if old council member is in the council
+                        if not Map.mem(oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
+                        else skip;
+
+                        const councilMemberInfo: councilMemberInfoType  = record[
+                            name=councilMemberName;
+                            image=councilMemberImage;
+                            website=councilMemberWebsite;
+                        ];
+
+                        s.councilMembers := Map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
+                        s.councilMembers := Map.remove(oldCouncilMemberAddress, s.councilMembers);
+                    } else skip;
+
+
+
+                    // pauseAllEntrypoints action type
+                    if actionType = "pauseAllEntrypoints" then block {
+
+                        checkGlassIsBroken(s);          // check that glass is broken
+
+                        for _contractName -> contractAddress in map s.generalContracts block {
+                            case (Tezos.get_entrypoint_opt("%pauseAll", contractAddress) : option(contract(unit))) of [
+                                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+                            |   None -> skip
+                            ];
+                        };      
+                    } else skip;
+
+
+
+                    // unpauseAllEntrypoints action type
+                    if actionType = "unpauseAllEntrypoints" then block {
+
+                        checkGlassIsBroken(s);          // check that glass is broken
+
+                        for _contractName -> contractAddress in map s.generalContracts block {
+                            case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
+                                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+                            |   None -> skip
+                            ];
+                        };            
+                    } else skip;
+
+
+
+                    // setSingleContractAdmin action type
+                    if actionType = "setSingleContractAdmin" then block {
+
+                        checkGlassIsBroken(s);          // check that glass is broken
+
+                        // fetch params begin ---
+                        const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
+                            Some(_address) -> _address
+                            | None -> failwith("Error. NewAdminAddress not found.")
+                        ];
+
+                        const targetContractAddress : address = case _actionRecord.addressMap["targetContractAddress"] of [
+                            Some(_address) -> _address
+                            | None -> failwith("Error. TargetContractAddress not found.")
+                        ];
+                        // fetch params end ---
+
+                        const setSingleContractAdminOperation : operation = Tezos.transaction(
+                            newAdminAddress, 
+                            0tez, 
+                            setAdminInContract(targetContractAddress)
+                        );
+                        operations := setSingleContractAdminOperation # operations;
+                    } else skip;
+
+
+
+                    // setAllContractsAdmin action type
+                    if actionType = "setAllContractsAdmin" then block {
+
+                        checkGlassIsBroken(s);          // check that glass is broken
+
+                        // fetch params begin ---
+                        const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
+                            Some(_address) -> _address
+                        |   None -> failwith("Error. NewAdminAddress not found.")
+                        ];
+                        // fetch params end ---
+
+                        // Set self as contract admin
+                        s.admin := newAdminAddress;
+
+                        // Set all contracts in generalContracts map to given address
+                        for _contractName -> contractAddress in map s.generalContracts block {
+                            case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
+                                Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
+                            |   None -> skip
+                            ];
+                        } 
+                    } else skip;
+
+
+
+                    // removeBreakGlassControl action type
+                    if actionType = "removeBreakGlassControl" then block {
+                        // remove break glass control on contract
+                        // ensure settings (entrypoints unpaused, admin reset to governance dao) has been done
+                        checkGlassIsBroken(s);          // check that glass is broken
+
+                        // Reset all contracts admin to governance contract
+                        const governanceAddress : address = case s.generalContracts["governance"] of [
+                            Some(_address) -> _address
+                            | None -> failwith("Error. Governance Contract is not found.")
+                        ];
+                        s.admin := governanceAddress;
+
+                        for _contractName -> contractAddress in map s.generalContracts block {
+                            case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
+                                Some(contr) -> operations := Tezos.transaction(governanceAddress, 0tez, contr) # operations
+                            |   None -> skip
+                            ];
+                        };
+
+                        // Reset glassBroken
+                        s.glassBroken := False;
+                    } else skip;
+
+                        
+                    // update break glass action record status
+                    _actionRecord.status              := "EXECUTED";
+                    _actionRecord.executed            := True;
+                    _actionRecord.executedDateTime    := Tezos.now;
+                    _actionRecord.executedLevel       := Tezos.level;
+                    
+                    // save break glass action record
+                    s.actionsLedger[actionId]         := _actionRecord;
+
+                } else skip;    
+
+
+            }
+        | _ -> skip
+    ];
 
 } with (operations, s)
 

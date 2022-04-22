@@ -67,6 +67,45 @@ type actionsLedgerType is big_map(nat, actionRecordType)
 type signActionType is (nat)
 type flushActionType is (nat)
 
+type setSingleContractAdminType is [@layout:comb] record [
+    newAdminAddress        : address;
+    targetContractAddress  : address;
+]
+
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type breakGlassLambdaActionType is 
+
+    // Break Glass
+| LambdaBreakGlass                    of (unit)
+
+    // Housekeeping Entrypoints - Glass Broken Not Required
+| LambdaSetAdmin                      of (address)
+| LambdaUpdateMetadata                of updateMetadataType
+| LambdaUpdateConfig                  of breakGlassUpdateConfigParamsType    
+| LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
+| LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+| LambdaUpdateCouncilMemberInfo       of councilMemberInfoType
+
+    // Internal Control of Council Members
+| LambdaAddCouncilMember              of councilAddMemberType
+| LambdaRemoveCouncilMember           of address
+| LambdaChangeCouncilMember           of councilChangeMemberType
+
+    // Glass Broken Required
+| LambdaSetSingleContractAdmin        of setSingleContractAdminType
+| LambdaSetAllContractsAdmin          of (address)               
+| LambdaPauseAllEntrypoints           of (unit)             
+| LambdaUnpauseAllEntrypoints         of (unit)
+| LambdaRemoveBreakGlassControl       of (unit)
+
+    // Council Signing of Actions
+| LambdaFlushAction                   of flushActionType
+| LambdaSignAction                    of signActionType
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------

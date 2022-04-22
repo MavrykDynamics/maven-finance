@@ -92,8 +92,8 @@ block {
     case governanceLambdaAction of [
         | LambdaUpdateMetadata(updateMetadataParams) -> {
                 
-                const metadataKey : string = updateMetadataParams.metadataKey;
-                const metadataHash : bytes = updateMetadataParams.metadataHash;
+                const metadataKey   : string = updateMetadataParams.metadataKey;
+                const metadataHash  : bytes  = updateMetadataParams.metadataHash;
                 
                 s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
             }

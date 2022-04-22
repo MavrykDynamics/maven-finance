@@ -9,61 +9,91 @@
 // ------------------------------------------------------------------------------
 
 (* setAdmin lambda *)
-function lambdaSetAdmin(const newAdminAddress : address; var s : treasuryStorage) : return is
+function lambdaSetAdmin(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkSenderIsAdmin(s); 
 
-    s.admin := newAdminAddress;
+    case treasuryLambdaAction of [
+        | LambdaSetAdmin(newAdminAddress) -> {
+                s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const metadataKey: string; const metadataHash: bytes; var s : treasuryStorage) : return is
+function lambdaUpdateMetadata(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
-    // Update metadata
-    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+    checkSenderIsAdmin(s);
+    
+    case treasuryLambdaAction of [
+        | LambdaUpdateMetadata(updateMetadataParams) -> {
+                
+                const metadataKey   : string = updateMetadataParams.metadataKey;
+                const metadataHash  : bytes  = updateMetadataParams.metadataHash;
+                
+                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: treasuryStorage): return is
+function lambdaUpdateWhitelistContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorage): return is
 block {
     
-    // check that sender is admin
     checkSenderIsAdmin(s);
-    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+    
+    case treasuryLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: treasuryStorage): return is
+function lambdaUpdateGeneralContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorage): return is
 block {
 
-    // check that sender is admin
     checkSenderIsAdmin(s);
-    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+    
+    case treasuryLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryStorage): return is
+function lambdaUpdateWhitelistTokenContracts(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorage): return is
 block {
 
-    // check that sender is admin
     checkSenderIsAdmin(s);
-    s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+
+    case treasuryLambdaAction of [
+        | LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
+                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+            }
+        | _ -> skip
+    ];
+
 
 } with (noOperations, s)
 
@@ -78,64 +108,92 @@ block {
 // ------------------------------------------------------------------------------
 
 (* pauseAll lambda *)
-function lambdaPauseAll(var s: treasuryStorage) : return is
+function lambdaPauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s: treasuryStorage) : return is
 block {
     
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
 
-    // set all pause configs to True
-    if s.breakGlassConfig.transferIsPaused then skip
-    else s.breakGlassConfig.transferIsPaused := True;
+    case treasuryLambdaAction of [
+        | LambdaPauseAll(_parameters) -> {
+                
+                // set all pause configs to True
+                if s.breakGlassConfig.transferIsPaused then skip
+                else s.breakGlassConfig.transferIsPaused := True;
 
-    if s.breakGlassConfig.mintMvkAndTransferIsPaused then skip
-    else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
+                if s.breakGlassConfig.mintMvkAndTransferIsPaused then skip
+                else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* unpauseAll lambda *)
-function lambdaUnpauseAll(var s : treasuryStorage) : return is
+function lambdaUnpauseAll(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
     
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
 
-    // set all pause configs to False
-    if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
-    else skip;
+    case treasuryLambdaAction of [
+        | LambdaUnpauseAll(_parameters) -> {
+                
+                // set all pause configs to False
+                if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
+                else skip;
 
-    if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
-    else skip;
+                if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
+                else skip;
+
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* togglePauseTransfer lambda *)
-function lambdaTogglePauseTransfer(var s : treasuryStorage) : return is
+function lambdaTogglePauseTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
 
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
 
-    if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
-    else s.breakGlassConfig.transferIsPaused := True;
+    case treasuryLambdaAction of [
+        | LambdaTogglePauseTransfer(_parameters) -> {
+                
+                if s.breakGlassConfig.transferIsPaused then s.breakGlassConfig.transferIsPaused := False
+                else s.breakGlassConfig.transferIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* togglePauseMintMvkAndTransfer lambda *)
-function lambdaTogglePauseMintMvkAndTransfer(var s : treasuryStorage) : return is
+function lambdaTogglePauseMintMvkAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
 
     // check that sender is admin or treasury factory
     checkSenderIsAllowed(s);
 
-    if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
-    else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
+    case treasuryLambdaAction of [
+        | LambdaTogglePauseMintTransfer(_parameters) -> {
+                
+                if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
+                else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
@@ -150,7 +208,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* transfer lambda *)
-function lambdaTransfer(const transferTokenParams : transferActionType; var s : treasuryStorage) : return is 
+function lambdaTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
@@ -164,65 +222,74 @@ block {
     // break glass check
     checkTransferIsNotPaused(s);
 
-    // const txs : list(transferDestinationType)   = transferTokenParams.txs;
-    const txs : list(transferDestinationType)   = transferTokenParams;
-    
-    const delegationAddress : address = case s.generalContracts["delegation"] of [
-        Some(_address) -> _address
-        | None -> failwith("Error. Delegation Contract is not found.")
+    var operations : list(operation) := nil;
+
+    case treasuryLambdaAction of [
+        | LambdaTransfer(transferTokenParams) -> {
+                
+                // const txs : list(transferDestinationType)   = transferTokenParams.txs;
+                const txs : list(transferDestinationType)   = transferTokenParams;
+                
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                    Some(_address) -> _address
+                    | None -> failwith("Error. Delegation Contract is not found.")
+                ];
+                
+                const mvkTokenAddress : address = s.mvkTokenAddress;
+
+                function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
+                block {
+
+                    const token        : tokenType        = destination.token;
+                    const to_          : owner            = destination.to_;
+                    const amt          : tokenAmountType  = destination.amount;
+                    const from_        : address          = Tezos.self_address; // treasury
+                    
+                    const transferTokenOperation : operation = case token of [
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address. Cannot transfer XTZ"): contract(unit)), amt)
+                        | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
+                        | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+                    ];
+
+                    accumulator := transferTokenOperation # accumulator;
+
+                    // update user's satellite balance if MVK is transferred
+                    const checkIfMvkToken : bool = case token of [
+                        Tez -> False
+                        | Fa12(_token) -> False
+                        | Fa2(token) -> block {
+                                var mvkBool : bool := False;
+                                if token.tokenContractAddress = mvkTokenAddress then mvkBool := True else mvkBool := False;                
+                            } with mvkBool        
+                    ];
+
+                    if checkIfMvkToken = True then block {
+                        
+                        const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+                            (to_),
+                            0mutez,
+                            updateSatelliteBalance(delegationAddress)
+                        );
+
+                        accumulator := updateSatelliteBalanceOperation # accumulator;
+
+                    } else skip;    
+
+                } with accumulator;
+
+                const emptyOperation : list(operation) = list[];
+                operations := List.fold(transferAccumulator, txs, emptyOperation);
+
+            }
+        | _ -> skip
     ];
-    
-    const mvkTokenAddress : address = s.mvkTokenAddress;
-
-    function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
-    block {
-
-        const token        : tokenType        = destination.token;
-        const to_          : owner            = destination.to_;
-        const amt          : tokenAmountType  = destination.amount;
-        const from_        : address          = Tezos.self_address; // treasury
-        
-        const transferTokenOperation : operation = case token of [
-            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address. Cannot transfer XTZ"): contract(unit)), amt)
-            | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
-            | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
-        ];
-
-        accumulator := transferTokenOperation # accumulator;
-
-        // update user's satellite balance if MVK is transferred
-        const checkIfMvkToken : bool = case token of [
-              Tez -> False
-            | Fa12(_token) -> False
-            | Fa2(token) -> block {
-                    var mvkBool : bool := False;
-                    if token.tokenContractAddress = mvkTokenAddress then mvkBool := True else mvkBool := False;                
-                } with mvkBool        
-        ];
-
-        if checkIfMvkToken = True then block {
-            
-            const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-                (to_),
-                0mutez,
-                updateSatelliteBalance(delegationAddress)
-            );
-
-            accumulator := updateSatelliteBalanceOperation # accumulator;
-
-        } else skip;    
-
-    } with accumulator;
-
-    const emptyOperation : list(operation) = list[];
-    const operations : list(operation) = List.fold(transferAccumulator, txs, emptyOperation);
 
 } with (operations, s)
 
 
 
 (* mintMvkAndTransfer lambda *)
-function lambdaMintMvkAndTransfer(const mintMvkAndTransferParams : mintMvkAndTransferType ; var s : treasuryStorage) : return is 
+function lambdaMintMvkAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
@@ -238,30 +305,38 @@ block {
 
     var operations : list(operation) := nil;
 
-    const to_    : address   = mintMvkAndTransferParams.to_;
-    const amt    : nat       = mintMvkAndTransferParams.amt;
 
-    const mvkTokenAddress : address = s.mvkTokenAddress;
+    case treasuryLambdaAction of [
+        | LambdaMintMvkAndTransfer(mintMvkAndTransferParams) -> {
+                
+                const to_    : address   = mintMvkAndTransferParams.to_;
+                const amt    : nat       = mintMvkAndTransferParams.amt;
 
-    const delegationAddress : address = case s.generalContracts["delegation"] of [
-      Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found.")
+                const mvkTokenAddress : address = s.mvkTokenAddress;
+
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                Some(_address) -> _address
+                | None -> failwith("Error. Delegation Contract is not found.")
+                ];
+
+                const mintMvkTokensOperation : operation = mintTokens(
+                    to_,                // to address
+                    amt,                // amount of mvk Tokens to be minted
+                    mvkTokenAddress     // mvkTokenAddress
+                ); 
+
+                const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+                    (to_),
+                    0mutez,
+                    updateSatelliteBalance(delegationAddress)
+                );
+
+                operations := mintMvkTokensOperation # operations;
+                operations := updateSatelliteBalanceOperation # operations;
+
+            }
+        | _ -> skip
     ];
-
-    const mintMvkTokensOperation : operation = mintTokens(
-        to_,                // to address
-        amt,                // amount of mvk Tokens to be minted
-        mvkTokenAddress     // mvkTokenAddress
-    ); 
-
-    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-        (to_),
-        0mutez,
-        updateSatelliteBalance(delegationAddress)
-    );
-
-    operations := mintMvkTokensOperation # operations;
-    operations := updateSatelliteBalanceOperation # operations;
 
 } with (operations, s)
 
