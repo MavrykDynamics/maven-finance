@@ -221,15 +221,15 @@ block {
                 if not Map.mem(Tezos.sender, _emergencyGovernance.voters) then skip else failwith("Error. You can only vote once for emergency governance.");
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Doorman Contract is not found.")
                 ];
                 
                 // get user staked MVK Balance
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                  Some (value) -> value
-                | None -> failwith ("Error. GetStakedBalance View not found in the Doorman Contract")
+                      Some (value) -> value
+                    | None -> failwith ("Error. GetStakedBalance View not found in the Doorman Contract")
                 ];
 
                 if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith("Error. You do not have enough staked MVK balance to vote.");
@@ -250,12 +250,12 @@ block {
                 if totalStakedMvkVotes > _emergencyGovernance.stakedMvkRequiredForBreakGlass then block {
 
                     const breakGlassContractAddress : address = case s.generalContracts["breakGlass"] of [
-                        Some(_address) -> _address
+                          Some(_address) -> _address
                         | None -> failwith("Error. Break Glass Contract is not found.")
                     ];
 
                     const governanceContractAddress : address = case s.generalContracts["governance"] of [
-                        Some(_address) -> _address
+                          Some(_address) -> _address
                         | None -> failwith("Error. Governance Contract is not found.")
                     ];
 
@@ -264,14 +264,14 @@ block {
                         unit,
                         0tez, 
                         triggerBreakGlass(breakGlassContractAddress)
-                        );
+                    );
 
                     // trigger break glass in governance contract - send operations to pause all entrypoints and change contract admin to break glass address
                     const triggerGovernanceBreakGlassOperation : operation = Tezos.transaction(
                         unit,
                         0tez, 
                         triggerBreakGlass(governanceContractAddress)
-                        );
+                    );
 
                     // update emergency governance record
                     _emergencyGovernance.executed            := True;
