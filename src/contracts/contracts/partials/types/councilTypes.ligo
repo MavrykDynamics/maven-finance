@@ -19,6 +19,7 @@ type councilActionRecordType is record [
     addressMap                 : addressMapType;
     stringMap                  : stringMapType;
     natMap                     : natMapType;
+    keyHash                    : option(key_hash);
 
     startDateTime              : timestamp;        // timestamp of when action was initiated
     startLevel                 : nat;              // block level of when action was initiated           
@@ -113,11 +114,16 @@ type councilMemberInfoType is [@layout:comb] record [
 
 type councilMembersType is map(address, councilMemberInfoType)
 
+type setBakerType is option(key_hash)
+type councilActionSetContractBakerType is [@layout:comb] record [
+    targetContractAddress  : address;
+    keyHash                : option(key_hash);
+]
+
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
     metadataHash     : bytes; 
 ]
-
 
 type setLambdaType is [@layout:comb] record [
       name                  : string;

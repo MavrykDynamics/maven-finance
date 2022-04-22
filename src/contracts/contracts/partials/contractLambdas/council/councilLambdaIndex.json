@@ -37,46 +37,54 @@
     },
     {
       "index": 9,
-      "name": "lambdaCouncilActionUpdateBlocksPerMinute"
+      "name": "lambdaCouncilActionSetBaker"
     },
     {
       "index": 10,
-      "name": "lambdaCouncilActionAddVestee"
+      "name": "lambdaCouncilActionUpdateBlocksPerMinute"
     },
     {
       "index": 11,
-      "name": "lambdaCouncilActionRemoveVestee"
+      "name": "lambdaCouncilActionAddVestee"
     },
     {
       "index": 12,
-      "name": "lambdaCouncilActionUpdateVestee"
+      "name": "lambdaCouncilActionRemoveVestee"
     },
     {
       "index": 13,
-      "name": "lambdaCouncilActionToggleVesteeLock"
+      "name": "lambdaCouncilActionUpdateVestee"
     },
     {
       "index": 14,
-      "name": "lambdaCouncilActionTransfer"
+      "name": "lambdaCouncilActionToggleVesteeLock"
     },
     {
       "index": 15,
-      "name": "lambdaCouncilActionRequestTokens"
+      "name": "lambdaCouncilActionTransfer"
     },
     {
       "index": 16,
-      "name": "lambdaCouncilActionRequestMint"
+      "name": "lambdaCouncilActionRequestTokens"
     },
     {
       "index": 17,
-      "name": "lambdaCouncilActionDropFinancialRequest"
+      "name": "lambdaCouncilActionRequestMint"
     },
     {
       "index": 18,
-      "name": "lambdaFlushAction"
+      "name": "lambdaCouncilActionSetContractBaker"
     },
     {
       "index": 19,
+      "name": "lambdaCouncilActionDropFinancialRequest"
+    },
+    {
+      "index": 20,
+      "name": "lambdaFlushAction"
+    },
+    {
+      "index": 21,
       "name": "lambdaSignAction"
     }
 ]

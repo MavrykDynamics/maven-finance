@@ -26,6 +26,27 @@ block {
 
 
 
+(* setBaker lambda *)
+function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAdmin(s); 
+
+    var operations : list(operation) := nil;
+
+    case treasuryLambdaAction of [
+        | LambdaSetBaker(keyHash) -> {
+                const setBakerOperation  : operation = Tezos.set_delegate(keyHash);
+                operations := setBakerOperation # operations;
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
 (* updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {

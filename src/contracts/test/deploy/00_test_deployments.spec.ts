@@ -408,8 +408,9 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.setLambda("lambdaDropProposal"                    , governanceLambdas[15])) // dropProposal
       .withContractCall(governance.contract.methods.setLambda("lambdaRequestTokens"                   , governanceLambdas[16])) // requestTokens
       .withContractCall(governance.contract.methods.setLambda("lambdaRequestMint"                     , governanceLambdas[17])) // requestMint
-      .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"            , governanceLambdas[18])) // dropFinancialRequest
-      .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                  , governanceLambdas[19])) // voteForRequest
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractBaker"                , governanceLambdas[18])) // setContractBaker
+      .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"            , governanceLambdas[19])) // dropFinancialRequest
+      .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                  , governanceLambdas[20])) // voteForRequest
     
       const setupGovernanceLambdasOperation = await governanceLambdaBatch.send()
       await setupGovernanceLambdasOperation.confirmation()
@@ -515,17 +516,19 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddMember"                 , councilLambdas[6]))  // councilActionAddMember
       .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveMember"              , councilLambdas[7]))  // councilActionRemoveMember
       .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionChangeMember"              , councilLambdas[8]))  // councilActionChangeMember
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateBlocksPerMinute"     , councilLambdas[9]))  // councilActionUpdateBlocksPerMinute
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddVestee"                 , councilLambdas[10])) // councilActionAddVestee
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveVestee"              , councilLambdas[11])) // councilActionRemoveVestee
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateVestee"              , councilLambdas[12])) // councilActionUpdateVestee
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionToggleVesteeLock"          , councilLambdas[13])) // councilActionToggleVesteeLock
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionTransfer"                  , councilLambdas[14])) // councilActionTransfer
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRequestTokens"             , councilLambdas[15])) // councilActionRequestTokens
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRequestMint"               , councilLambdas[16])) // councilActionRequestMint
-      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionDropFinancialRequest"      , councilLambdas[17])) // councilActionDropFinancialRequest
-      .withContractCall(council.contract.methods.setLambda("lambdaFlushAction"                            , councilLambdas[18])) // flushAction
-      .withContractCall(council.contract.methods.setLambda("lambdaSignAction"                             , councilLambdas[19])) // signAction
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionSetBaker"                  , councilLambdas[9]))  // councilActionSetBaker
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateBlocksPerMinute"     , councilLambdas[10]))  // councilActionUpdateBlocksPerMinute
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionAddVestee"                 , councilLambdas[11])) // councilActionAddVestee
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRemoveVestee"              , councilLambdas[12])) // councilActionRemoveVestee
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionUpdateVestee"              , councilLambdas[13])) // councilActionUpdateVestee
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionToggleVesteeLock"          , councilLambdas[14])) // councilActionToggleVesteeLock
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionTransfer"                  , councilLambdas[15])) // councilActionTransfer
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRequestTokens"             , councilLambdas[16])) // councilActionRequestTokens
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionRequestMint"               , councilLambdas[17])) // councilActionRequestMint
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionSetContractBaker"          , councilLambdas[18])) // councilActionSetContractBaker
+      .withContractCall(council.contract.methods.setLambda("lambdaCouncilActionDropFinancialRequest"      , councilLambdas[19])) // councilActionDropFinancialRequest
+      .withContractCall(council.contract.methods.setLambda("lambdaFlushAction"                            , councilLambdas[20])) // flushAction
+      .withContractCall(council.contract.methods.setLambda("lambdaSignAction"                             , councilLambdas[21])) // signAction
   
       const setupCouncilLambdasOperation = await councilLambdaBatch.send()
       await setupCouncilLambdasOperation.confirmation()
@@ -625,16 +628,17 @@ describe('Contracts Deployment for Tests', async () => {
       const treasuryLambdaBatch = await tezos.wallet
       .batch()
       .withContractCall(treasury.contract.methods.setLambda("lambdaSetAdmin"                               , treasuryLambdas[0]))  // setAdmin
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateMetadata"                         , treasuryLambdas[1]))  // updateMetadata
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , treasuryLambdas[2]))  // updateWhitelistContracts
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , treasuryLambdas[3]))  // updateGeneralContracts
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"          , treasuryLambdas[4]))  // updateWhitelistTokenContracts
-      .withContractCall(treasury.contract.methods.setLambda("lambdaPauseAll"                               , treasuryLambdas[5]))  // pauseAll
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUnpauseAll"                             , treasuryLambdas[6]))  // unpauseAll
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseTransfer"                    , treasuryLambdas[7]))  // togglePauseTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseMintMvkAndTransfer"          , treasuryLambdas[8]))  // togglePauseMintMvkAndTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaTransfer"                               , treasuryLambdas[8]))  // transfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaMintMvkAndTransfer"                     , treasuryLambdas[8]))  // mintMvkAndTransfer
+      .withContractCall(treasury.contract.methods.setLambda("lambdaSetBaker"                               , treasuryLambdas[1]))  // setBaker
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateMetadata"                         , treasuryLambdas[2]))  // updateMetadata
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , treasuryLambdas[3]))  // updateWhitelistContracts
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , treasuryLambdas[4]))  // updateGeneralContracts
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"          , treasuryLambdas[5]))  // updateWhitelistTokenContracts
+      .withContractCall(treasury.contract.methods.setLambda("lambdaPauseAll"                               , treasuryLambdas[6]))  // pauseAll
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUnpauseAll"                             , treasuryLambdas[7]))  // unpauseAll
+      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseTransfer"                    , treasuryLambdas[8]))  // togglePauseTransfer
+      .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseMintMvkAndTransfer"          , treasuryLambdas[9]))  // togglePauseMintMvkAndTransfer
+      .withContractCall(treasury.contract.methods.setLambda("lambdaTransfer"                               , treasuryLambdas[10]))  // transfer
+      .withContractCall(treasury.contract.methods.setLambda("lambdaMintMvkAndTransfer"                     , treasuryLambdas[11]))  // mintMvkAndTransfer
       
       const setupTreasuryLambdasOperation = await treasuryLambdaBatch.send()
       await setupTreasuryLambdasOperation.confirmation()
