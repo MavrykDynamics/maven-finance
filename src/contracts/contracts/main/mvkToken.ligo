@@ -20,6 +20,7 @@ type action is
 | UpdateInflationRate       of nat
 | AssertMetadata            of assertMetadataParams
 | Mint                      of mintParams
+| TriggerInflation          of unit
 
 ////
 // RETURN TYPES
@@ -257,18 +258,6 @@ function mint(const mintParams: mintParams; var store : mvkTokenStorage) : retur
     // Check sender is from doorman contract or vesting contract - may add treasury contract in future
     if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) or Tezos.sender = Tezos.self_address then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
-    // Check inflation rate
-    const inflation: tokenBalance = store.maximumSupply * store.inflationRate / 10000n; // Apply the rate 
-    // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
-    if store.nextInflationTimestamp < Tezos.now then {
-      // Set the new maximumSupply
-      store.maximumSupply           := store.maximumSupply + inflation;
-
-      // Update the next change date
-      store.nextInflationTimestamp  := store.nextInflationTimestamp + one_year;
-    }
-    else skip;
-
     // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorage
     const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
     if tempTotalSupply > store.maximumSupply then failwith("Maximum total supply of MVK exceeded") 
@@ -289,8 +278,27 @@ function updateInflationRate(const newInflationRate: nat; var store : mvkTokenSt
     checkSenderIsAdmin(store);
 
     // Update the inflation rate
-    if newInflationRate > 10000n then failwith("Error. The inflation rate cannot exceed 100%")
+    if newInflationRate > 2000n then failwith("Error. The inflation rate cannot exceed 20%")
     else store.inflationRate  := newInflationRate
+  } with (noOperations, store)
+
+(* Trigger inflation Entrypoint *)
+function triggerInflation(var store : mvkTokenStorage) : return is
+  block {
+    // Check if sender is admin
+    checkSenderIsAdmin(store);
+
+    // Check inflation rate
+    const inflation: tokenBalance = store.maximumSupply * store.inflationRate / 10000n; // Apply the rate 
+    // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
+    if store.nextInflationTimestamp < Tezos.now then {
+      // Set the new maximumSupply
+      store.maximumSupply           := store.maximumSupply + inflation;
+
+      // Update the next change date
+      store.nextInflationTimestamp  := Tezos.now + one_year;
+    }
+    else failwith("Error. You cannot trigger inflation now");
   } with (noOperations, store)
 
 (* Main entrypoint *)
@@ -309,5 +317,6 @@ function main (const action : action; const store : mvkTokenStorage) : return is
       | UpdateInflationRate (params)        -> updateInflationRate(params, store)
       | AssertMetadata (params)             -> assertMetadata(params, store)
       | Mint (params)                       -> mint(params, store)
+      | TriggerInflation (_params)          -> triggerInflation(store)
     ]
   )

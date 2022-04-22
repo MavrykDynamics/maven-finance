@@ -46,6 +46,7 @@ sec_year            = sec_day * 365
 error_only_administrator        = 'ONLY_ADMINISTRATOR_ALLOWED'
 error_sender_not_allowed        = 'Error. Sender is not allowed to call this entrypoint.'
 error_maximum_amount_exceeded   = 'Maximum total supply of MVK exceeded'
+error_too_soon                  = 'Error. You cannot trigger inflation now'
 
 class MVKTokenContract(TestCase):
     
@@ -115,6 +116,7 @@ class MVKTokenContract(TestCase):
 
         # Preparation
         res = self.mvkTokenContract.updateWhitelistContracts("bob", bob).interpret(storage=init_token_storage, sender=bob);
+        res = self.mvkTokenContract.triggerInflation().interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
 
         # Operation
         with self.raisesMichelsonError(error_maximum_amount_exceeded):
@@ -139,11 +141,11 @@ class MVKTokenContract(TestCase):
         currentTimestamp   = pytezos.now()
 
         # Preparation
-        res = self.mvkTokenContract.updateWhitelistContracts("bob", bob).interpret(storage=init_token_storage, sender=bob);
+        res = self.mvkTokenContract.updateWhitelistContracts("bob", bob).interpret(storage=init_token_storage, sender=bob, now=currentTimestamp);
 
         # Operation
         with self.raisesMichelsonError(error_maximum_amount_exceeded):
-            self.mvkTokenContract.mint(bob, self.MVK(10**9)).interpret(storage=res.storage, sender=bob, now=currentTimestamp);
+            self.mvkTokenContract.mint(bob, self.MVK(10**9)).interpret(storage=res.storage, sender=bob, now=currentTimestamp + 1);
 
         print('✅ Whitelist should not be able to call this entrypoint and mint tokens if the amount it wants to mint exceeds the maximum supply and a year has not passed')
 
@@ -160,7 +162,8 @@ class MVKTokenContract(TestCase):
 
         # Preparation
         res = self.mvkTokenContract.updateWhitelistContracts("bob", bob).interpret(storage=init_token_storage, sender=bob);
-
+        res = self.mvkTokenContract.triggerInflation().interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
+        
         # Operation
         res = self.mvkTokenContract.mint(bob, mintedAmount).interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
 
@@ -170,7 +173,7 @@ class MVKTokenContract(TestCase):
         newNextInflation    = int(res.storage["nextInflationTimestamp"])
         self.assertEqual(nextMaximumAmount, newMaximumSupply)
         self.assertEqual(totalSupply + mintedAmount, newTotalSupply)
-        self.assertEqual(nextInflation + sec_year, newNextInflation)
+        self.assertEqual(currentTimestamp + sec_week + 2 * sec_year, newNextInflation)
 
         print('✅ Whitelist should be able to call this entrypoint and mint tokens if the amount it wants to mint exceeds the maximum supply and a year has passed')
 
@@ -187,6 +190,7 @@ class MVKTokenContract(TestCase):
 
         # Preparation
         res = self.mvkTokenContract.updateWhitelistContracts("bob", bob).interpret(storage=init_token_storage, sender=bob);
+        res = self.mvkTokenContract.triggerInflation().interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
         res = self.mvkTokenContract.mint(bob, mintedAmount).interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
 
         # Operation
@@ -210,10 +214,12 @@ class MVKTokenContract(TestCase):
 
         # Preparation
         res = self.mvkTokenContract.updateWhitelistContracts("bob", bob).interpret(storage=init_token_storage, sender=bob);
+        res = self.mvkTokenContract.triggerInflation().interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
         res = self.mvkTokenContract.mint(bob, firstMintedAmount).interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
+        res = self.mvkTokenContract.triggerInflation().interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year * 2 + sec_week + 1);
 
         # Operation
-        res = self.mvkTokenContract.mint(bob, secondMintedAmount).interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year * 2 + sec_week);
+        res = self.mvkTokenContract.mint(bob, secondMintedAmount).interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year * 2 + sec_week + 1);
 
         # Assertions
         newMaximumSupply    = int(res.storage["maximumSupply"])
@@ -221,7 +227,7 @@ class MVKTokenContract(TestCase):
         newNextInflation    = int(res.storage["nextInflationTimestamp"])
         self.assertEqual(nextMaximumAmountTwo, newMaximumSupply)
         self.assertEqual(totalSupply + firstMintedAmount + secondMintedAmount, newTotalSupply)
-        self.assertEqual(nextInflation + sec_year * 2, newNextInflation)
+        self.assertEqual(currentTimestamp + sec_year * 3 + sec_week + 1, newNextInflation)
 
         print('✅ Whitelist should be able to call this entrypoint and mint tokens if the amount it wants to mint exceeds the maximum supply and a year has passed (test with year 2)')
 
@@ -247,6 +253,7 @@ class MVKTokenContract(TestCase):
         res = self.mvkTokenContract.updateInflationRate(inflationUpdated).interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
 
         # Test mint
+        res = self.mvkTokenContract.triggerInflation().interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
         res = self.mvkTokenContract.mint(bob, mintedAmount).interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
 
         # Assertions
@@ -256,7 +263,7 @@ class MVKTokenContract(TestCase):
         newNextInflation    = int(res.storage["nextInflationTimestamp"])
         self.assertEqual(nextMaximumAmount, newMaximumSupply)
         self.assertEqual(totalSupply + mintedAmount, newTotalSupply)
-        self.assertEqual(nextInflation + sec_year, newNextInflation)
+        self.assertEqual(currentTimestamp + 2*sec_year + sec_week, newNextInflation)
         self.assertEqual(inflationRate + 500, newInflationRate)
         self.assertEqual(newInflationRate, inflationUpdated)
         
@@ -282,6 +289,7 @@ class MVKTokenContract(TestCase):
         res = self.mvkTokenContract.updateInflationRate(inflationUpdated).interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
 
         # Test mint
+        res = self.mvkTokenContract.triggerInflation().interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
         res = self.mvkTokenContract.mint(bob, mintedAmount).interpret(storage=res.storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
 
         # Assertions
@@ -291,8 +299,52 @@ class MVKTokenContract(TestCase):
         newNextInflation    = int(res.storage["nextInflationTimestamp"])
         self.assertEqual(nextMaximumAmount, newMaximumSupply)
         self.assertEqual(totalSupply + mintedAmount, newTotalSupply)
-        self.assertEqual(nextInflation + sec_year, newNextInflation)
+        self.assertEqual(currentTimestamp + 2 * sec_year + sec_week, newNextInflation)
         self.assertEqual(inflationRate + 500, newInflationRate)
         self.assertEqual(newInflationRate, inflationUpdated)
 
         print('✅ Non-admin should not be able to call this entrypoint and update the inflation rate')
+
+    ###
+    # %triggerInflation
+    ##
+    def test_30_admin_should_trigger_inflation(self):
+        # Initial values
+        init_token_storage  = deepcopy(self.mvkTokenStorage);
+        currentTimestamp    = pytezos.now()
+        maximumSupply       = int(init_token_storage["maximumSupply"])
+        nextInflation       = int(init_token_storage["nextInflationTimestamp"])
+        inflationUpdated    = 1000;
+
+        # Operation
+        res = self.mvkTokenContract.triggerInflation().interpret(storage=init_token_storage, sender=bob, now=currentTimestamp + sec_year + sec_week);
+
+        # Assertions
+        newMaximumSupply    = int(res.storage["maximumSupply"])
+        newNextInflation    = int(res.storage["nextInflationTimestamp"])
+        self.assertEqual(currentTimestamp + 2 * sec_year + sec_week, newNextInflation)
+        
+        print('--%triggerInflation--')
+        print('✅ Admin should be able to call this entrypoint and trigger the inflation')
+
+    def test_31_non_admin_should_not_trigger_inflation(self):
+        # Initial values
+        init_token_storage  = deepcopy(self.mvkTokenStorage);
+        currentTimestamp    = pytezos.now()
+
+        # Operation
+        with self.raisesMichelsonError(error_only_administrator):
+            self.mvkTokenContract.triggerInflation().interpret(storage=init_token_storage, sender=alice, now=currentTimestamp + sec_year + sec_week);
+
+        print('✅ Non-admin should not be able to call this entrypoint and trigger the inflation')
+
+    def test_31_admin_should_not_trigger_inflation_if_not_time(self):
+        # Initial values
+        init_token_storage  = deepcopy(self.mvkTokenStorage);
+        currentTimestamp    = pytezos.now()
+
+        # Operation
+        with self.raisesMichelsonError(error_too_soon):
+            self.mvkTokenContract.triggerInflation().interpret(storage=init_token_storage, sender=bob, now=currentTimestamp);
+
+        print('✅ Admin should not be able to call this entrypoint and trigger the inflation if a year has not passed')
