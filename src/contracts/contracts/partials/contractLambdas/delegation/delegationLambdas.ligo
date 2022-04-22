@@ -451,14 +451,15 @@ block {
             var delegateRewardsRecord: satelliteRewards := case Big_map.find_opt(Tezos.source, s.satelliteRewardsLedger) of [
                 Some(_record) -> _record
             | None -> record[
-                unpaid                          = 0n;
-                paid                            = 0n;
-                participationRewardsPerShare    = satelliteRewardsRecord.accumulatedRewardsPerShare;
-                accumulatedRewardsPerShare      = 0n;
+                    unpaid                                  = 0n;
+                    participationRewardsPerShare            = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                    satelliteAccumulatedRewardsPerShare     = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                    satelliteReferenceAddress               = satelliteAddress;
                 ]
             ];
-            delegateRewardsRecord.participationRewardsPerShare    := satelliteRewardsRecord.accumulatedRewardsPerShare;
-            s.satelliteRewardsLedger[Tezos.source]                := delegateRewardsRecord;
+            delegateRewardsRecord.participationRewardsPerShare              := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+            delegateRewardsRecord.satelliteReferenceAddress                 := satelliteAddress;
+            s.satelliteRewardsLedger[Tezos.source]                          := delegateRewardsRecord;
 
             // update satellite totalDelegatedAmount balance
             satelliteRecord.totalDelegatedAmount := satelliteRecord.totalDelegatedAmount + stakedMvkBalance; 
@@ -642,14 +643,14 @@ block {
                 var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(Tezos.source, s.satelliteRewardsLedger) of [
                 Some (_rewards) -> _rewards
                 | None -> record[
-                    unpaid                          = 0n;
-                    paid                            = 0n;
-                    participationRewardsPerShare    = 0n;
-                    accumulatedRewardsPerShare      = 0n;
+                    unpaid                                      = 0n;
+                    participationRewardsPerShare                = 0n;
+                    satelliteAccumulatedRewardsPerShare         = 0n;
+                    satelliteReferenceAddress                   = Tezos.source
                 ]
                 ];
-                satelliteRewardsRecord.participationRewardsPerShare := satelliteRewardsRecord.accumulatedRewardsPerShare;
-                s.satelliteRewardsLedger[Tezos.source]              := satelliteRewardsRecord;
+                satelliteRewardsRecord.participationRewardsPerShare         := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                s.satelliteRewardsLedger[Tezos.source]                      := satelliteRewardsRecord;
                 
             }
         | _ -> skip
@@ -787,10 +788,10 @@ block {
                 if satelliteFee > rewardPerSatellite then failwith("Error. The satellite fee exceeds the actual reward") else skip;
 
                 // Update satellite record
-                const satelliteVotingPower: nat                     = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
-                satelliteRewardsRecord.accumulatedRewardsPerShare   := satelliteRewardsRecord.accumulatedRewardsPerShare + (abs(rewardPerSatellite - satelliteFee) / satelliteVotingPower);
-                satelliteRewardsRecord.unpaid                       := satelliteRewardsRecord.unpaid + satelliteFee / fixedPointAccuracy;
-                s.satelliteRewardsLedger[satelliteAddress]          := satelliteRewardsRecord;
+                const satelliteVotingPower: nat                                 = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
+                satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + (abs(rewardPerSatellite - satelliteFee) / satelliteVotingPower);
+                satelliteRewardsRecord.unpaid                                   := satelliteRewardsRecord.unpaid + satelliteFee / fixedPointAccuracy;
+                s.satelliteRewardsLedger[satelliteAddress]                      := satelliteRewardsRecord;
             }
                 
             }
@@ -933,89 +934,30 @@ block {
     var operations: list(operation) := nil;
 
     case delegationLambdaAction of [
-        | LambdaOnStakeChange(userAddress) -> {
-                const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
+        | LambdaOnSatelliteRewardPaid(userAddress) -> {
+                // Get user address
+                const userAddress: address  = userAddress;
 
-                if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
+                // Update user rewards
+                s   := updateRewards(s);
 
-                // check if user is a satellite
-                if userIsSatellite then block {
-
-                // Find doorman address
-                const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
-                    | None -> failwith("Error. Doorman Contract is not found")
-                ];
-
-                // Get user SMVK Balance
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
-                const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                    Some (value) -> value
-                | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-                ];
-
-                var satelliteRecord: satelliteRecordType := case Map.find_opt(Tezos.source, s.satelliteLedger) of [
-                    Some (_satellite) -> _satellite
-                    | None -> failwith("Error: satellite record not found.")
-                ];
-
-                // Save satellite
-                satelliteRecord.stakedMvkBalance := stakedMvkBalance;
-                s.satelliteLedger := Map.update(userAddress, Some(satelliteRecord), s.satelliteLedger);
-                }
-                else block {
-
-                // check if user has delegated to a satellite
-                const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
-                
-                if userIsDelegator then block {
-                    // Retrieve satellite account from delegationStorage
-                    var _delegatorRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
-                    Some (_delegate) -> _delegate
-                    | None -> failwith("Error: delegate record not found.")
+                // Check if user is delegate or satellite
+                if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
+                    var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
+                        Some (_record) -> _record
+                    | None -> failwith("Error. Rewards record not found")
                     ];
 
-                    const userHasActiveSatellite: bool = Map.mem(_delegatorRecord.satelliteAddress, s.satelliteLedger);
-                    if userHasActiveSatellite then block {
-                    // Find doorman address
-                    const doormanAddress : address = case s.generalContracts["doorman"] of [
-                        Some(_address) -> _address
-                        | None -> failwith("Error. Doorman Contract is not found")
+                    var _satelliteReferenceRewardsRecord: satelliteRewards  := case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
+                        Some (_record) -> _record
+                    | None -> failwith("Error. Rewards record not found")
                     ];
 
-                    // Get user SMVK Balance
-                    const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
-                    const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                        Some (value) -> value
-                    | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-                    ];
-
-                    var userSatellite: satelliteRecordType := case Map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
-                        Some (_delegatedSatellite) -> _delegatedSatellite
-                    | None -> failwith("Error: satellite record not found.")
-                    ];
-
-                    const stakeAmount: nat = abs(_delegatorRecord.delegatedSMvkBalance - stakedMvkBalance);
-
-                    // Save satellite
-                    if stakedMvkBalance > _delegatorRecord.delegatedSMvkBalance then userSatellite.totalDelegatedAmount := userSatellite.totalDelegatedAmount + stakeAmount
-                    else if stakeAmount > userSatellite.totalDelegatedAmount then failwith("Error: stakeAmount is larger than satellite's total delegated amount.")
-                    else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
-
-                    _delegatorRecord.delegatedSMvkBalance  := stakedMvkBalance;
-                    s.delegateLedger   := Map.update(userAddress, Some(_delegatorRecord), s.delegateLedger);
-                    s.satelliteLedger  := Map.update(_delegatorRecord.satelliteAddress, Some(userSatellite), s.satelliteLedger);
-                    } 
-                    // Force User to undelegate if it does not have an active satellite anymore
-                    else operations := Tezos.transaction(
-                        (unit), 
-                        0tez, 
-                        getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
-                        ) # operations;
-                }
-                else skip
-                }
-
+                    // Update record
+                    satelliteRewardsRecord.participationRewardsPerShare    := _satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                    satelliteRewardsRecord.unpaid                          := 0n;
+                    s.satelliteRewardsLedger[userAddress]                  := satelliteRewardsRecord;
+                } else skip;
             }
         | _ -> skip
     ];

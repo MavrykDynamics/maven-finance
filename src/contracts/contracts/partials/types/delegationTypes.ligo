@@ -2,10 +2,10 @@ type onStakeChangeParams is (address)
 
 
 type satelliteRewards is [@layout:comb] record [
-    unpaid                          : nat;
-    paid                            : nat;
-    participationRewardsPerShare    : nat;
-    accumulatedRewardsPerShare      : nat; // 0n if delegate
+    unpaid                                  : nat;
+    participationRewardsPerShare            : nat;
+    satelliteAccumulatedRewardsPerShare     : nat; // 0n if delegate
+    satelliteReferenceAddress               : address;
 ]
 
 // record for users choosing satellites 

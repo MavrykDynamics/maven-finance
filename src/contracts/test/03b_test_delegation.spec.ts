@@ -229,7 +229,7 @@ describe("Delegation tests", async () => {
         //         doormanStorage  = await doormanInstance.storage();
         //         var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
         //         var satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
-        //         console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), " / ", satelliteRecord.paid.toNumber(), " | ", satelliteStake.balance.toNumber())
+        //         console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
         //         // Claim operations
         //         var claimOperation = await doormanInstance.methods.compound().send();
@@ -238,7 +238,7 @@ describe("Delegation tests", async () => {
         //         doormanStorage  = await doormanInstance.storage();
         //         var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
         //         satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
-        //         console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), " / ", satelliteRecord.paid.toNumber(), " | ", satelliteStake.balance.toNumber())
+        //         console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
         //         await signerFactory(alice.sk);
         //         claimOperation = await doormanInstance.methods.compound().send();
@@ -247,7 +247,7 @@ describe("Delegation tests", async () => {
         //         doormanStorage  = await doormanInstance.storage();
         //         var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(alice.pkh)
         //         var delegateStake  = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
-        //         console.log("POST-CLAIM ALICE: ", delegateRecord.unpaid.toNumber(), " / ", delegateRecord.paid.toNumber(), " | ", delegateStake.balance.toNumber())
+        //         console.log("POST-CLAIM ALICE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
         //         await signerFactory(eve.sk);
         //         claimOperation = await doormanInstance.methods.compound().send();
@@ -256,7 +256,7 @@ describe("Delegation tests", async () => {
         //         doormanStorage  = await doormanInstance.storage();
         //         var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(eve.pkh)
         //         delegateStake  = await doormanStorage.userStakeBalanceLedger.get(eve.pkh)
-        //         console.log("POST-CLAIM EVE: ", delegateRecord.unpaid.toNumber(), " / ", delegateRecord.paid.toNumber(), " | ", delegateStake.balance.toNumber())
+        //         console.log("POST-CLAIM EVE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
         //     } catch(e){
         //         console.log(e);
         //     }
@@ -290,9 +290,8 @@ describe("Delegation tests", async () => {
 
                 // Assertions
                 assert.equal(satelliteRewards.unpaid.toNumber(), unpaidRewards)
-                assert.equal(satelliteRewards.paid.toNumber(), initSatelliteRewards.paid.toNumber())
                 assert.equal(initSatelliteSMVK.balance.toNumber(), satelliteStake.balance.toNumber())
-                console.log("PRE-UNREGISTER SATELLITE: ", satelliteRewards.unpaid.toNumber(), " / ", satelliteRewards.paid.toNumber(), " | ", satelliteStake.balance.toNumber())
+                console.log("PRE-UNREGISTER SATELLITE: ", satelliteRewards.unpaid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
                 // Unregister operation
                 const unregisterOperation   = await delegationInstance.methods.unregisterAsSatellite().send();
@@ -305,9 +304,8 @@ describe("Delegation tests", async () => {
 
                 // Assertions
                 assert.equal(satelliteRewards.unpaid.toNumber(), unpaidRewards)
-                assert.equal(satelliteRewards.paid.toNumber(), initSatelliteRewards.paid.toNumber())
                 assert.equal(initSatelliteSMVK.balance.toNumber(), satelliteStake.balance.toNumber())
-                console.log("POST-UNREGISTER SATELLITE: ", satelliteRewards.unpaid.toNumber(), " / ", satelliteRewards.paid.toNumber(), " | ", satelliteStake.balance.toNumber())
+                console.log("POST-UNREGISTER SATELLITE: ", satelliteRewards.unpaid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
                 // Undelegate operation
                 await signerFactory(alice.sk);
@@ -323,9 +321,8 @@ describe("Delegation tests", async () => {
 
                 // Assertions
                 assert.equal(delegateRewards.unpaid.toNumber(), unpaidRewards);
-                assert.equal(delegateRewards.paid.toNumber(), delegateRewards.paid.toNumber())
                 assert.equal(initAliceSMVK.balance.toNumber(), delegateStake.balance.toNumber())
-                console.log("POST-REDELEGATE ALICE: ", delegateRewards.unpaid.toNumber(), " / ", delegateRewards.paid.toNumber(), " | ", delegateStake.balance.toNumber())
+                console.log("POST-REDELEGATE ALICE: ", delegateRewards.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
                 // Satellite Claim operation
                 await signerFactory(bob.sk);
@@ -341,13 +338,12 @@ describe("Delegation tests", async () => {
                 satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
 
                 console.log("START: ", satelliteRewards)
-                console.log("POST-CLAIM SATELLITE: ", satelliteRewards.unpaid.toNumber(), " / ", satelliteRewards.paid.toNumber(), " | ", satelliteStake.balance.toNumber())
+                console.log("POST-CLAIM SATELLITE: ", satelliteRewards.unpaid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
                 // Assertions
                 assert.equal(satelliteRewards.unpaid.toNumber(), 0)
-                assert.equal(satelliteRewards.paid.toNumber(), paidRewards)
                 assert.equal(initSatelliteSMVK.balance.toNumber() + paidRewards, satelliteStake.balance.toNumber())
-                console.log("POST-UNREGISTER SATELLITE: ", satelliteRewards.unpaid.toNumber(), " / ", satelliteRewards.paid.toNumber(), " | ", satelliteStake.balance.toNumber())
+                console.log("POST-UNREGISTER SATELLITE: ", satelliteRewards.unpaid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
                 // Alice redelegate operation
                 await signerFactory(alice.sk);
@@ -360,9 +356,8 @@ describe("Delegation tests", async () => {
 
                 // Assertions
                 assert.equal(delegateRewards.unpaid.toNumber(), unpaidRewards);
-                assert.equal(delegateRewards.paid.toNumber(), delegateRewards.paid.toNumber())
                 assert.equal(initAliceSMVK.balance.toNumber(), delegateStake.balance.toNumber())
-                console.log("POST-DELEGATE ALICE: ", delegateRewards.unpaid.toNumber(), " / ", delegateRewards.paid.toNumber(), " | ", delegateStake.balance.toNumber())
+                console.log("POST-DELEGATE ALICE: ", delegateRewards.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
                 // Claims operations
                 claimOperation = await doormanInstance.methods.compound().send();
@@ -375,9 +370,8 @@ describe("Delegation tests", async () => {
                 
                 // Assertions
                 assert.equal(delegateRewards.unpaid.toNumber(), 0)
-                assert.equal(delegateRewards.paid.toNumber(), paidRewards)
                 assert.equal(initAliceSMVK.balance.toNumber() + paidRewards, delegateStake.balance.toNumber())
-                console.log("POST-CLAIM ALICE: ", delegateRewards.unpaid.toNumber(), " / ", delegateRewards.paid.toNumber(), " | ", delegateStake.balance.toNumber())
+                console.log("POST-CLAIM ALICE: ", delegateRewards.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
                 await signerFactory(eve.sk);
                 const initEveSMVK     = await doormanStorage.userStakeBalanceLedger.get(eve.pkh) 
@@ -391,10 +385,9 @@ describe("Delegation tests", async () => {
                 delegateStake  = await doormanStorage.userStakeBalanceLedger.get(eve.pkh)
                 
                 // Assertions
+                console.log("POST-CLAIM EVE: ", delegateRewards.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
                 assert.equal(delegateRewards.unpaid.toNumber(), 0)
-                assert.equal(delegateRewards.paid.toNumber(), paidRewards)
                 assert.equal(initEveSMVK.balance.toNumber() + paidRewards, delegateStake.balance.toNumber())
-                console.log("POST-CLAIM EVE: ", delegateRewards.unpaid.toNumber(), " / ", delegateRewards.paid.toNumber(), " | ", delegateStake.balance.toNumber())
 
                 // Reset -> Re-register as a Satellite
                 await signerFactory(bob.sk);
@@ -427,6 +420,7 @@ describe("Delegation tests", async () => {
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
                 const proposalReward        = governanceStorage.config.cycleVotersReward.toNumber();
+                const proposalSubmissionFee = governanceStorage.config.proposalSubmissionFeeMutez.toNumber();
 
                 // Satellite ledger
                 const firstSatelliteRecordStart     = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
@@ -445,8 +439,8 @@ describe("Delegation tests", async () => {
                 const secondSatelliteVotingPower    = secondSatellite.totalDelegatedAmount.toNumber() + secondSatellite.stakedMvkBalance.toNumber();
                 const secondSatelliteDistributed    = proposalReward / 2 - secondSatelliteFee
                 const secondSatelliteAccu           = secondSatelliteDistributed / secondSatelliteVotingPower;
-                console.log("PRE-OPERATION SATELLITE BOB: ", firstSatelliteRecordStart.unpaid.toNumber(), " / ", firstSatelliteRecordStart.paid.toNumber(), " | ", firstSatelliteStakeStart.balance.toNumber())
-                console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " / ", secondSatelliteRecordStart.paid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
+                console.log("PRE-OPERATION SATELLITE BOB: ", firstSatelliteRecordStart.unpaid.toNumber(), " | ", firstSatelliteStakeStart.balance.toNumber())
+                console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
                 // Initial governance storage operations
                 var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
@@ -463,7 +457,7 @@ describe("Delegation tests", async () => {
                 await updateGovernanceConfig.confirmation();
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send();
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: proposalSubmissionFee});
                 await proposeOperation.confirmation();
                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
                 await lockOperation.confirmation();
@@ -499,8 +493,8 @@ describe("Delegation tests", async () => {
                 // Assertions
                 assert.equal(firstSatelliteRecordNoClaim.unpaid.toNumber(), firstSatelliteRecordStart.unpaid.toNumber() + firstSatelliteFee)
                 assert.equal(secondSatelliteRecordNoClaim.unpaid.toNumber(), secondSatelliteRecordStart.unpaid.toNumber() + secondSatelliteFee)
-                console.log("POST-OPERATION SATELLITE BOB: ", firstSatelliteRecordNoClaim.unpaid.toNumber(), " / ", firstSatelliteRecordNoClaim.paid.toNumber(), " | ", firstSatelliteStakeNoClaim.balance.toNumber())
-                console.log("POST-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordNoClaim.unpaid.toNumber(), " / ", secondSatelliteRecordNoClaim.paid.toNumber(), " | ", secondSatelliteStakeNoClaim.balance.toNumber())
+                console.log("POST-OPERATION SATELLITE BOB: ", firstSatelliteRecordNoClaim.unpaid.toNumber(), " | ", firstSatelliteStakeNoClaim.balance.toNumber())
+                console.log("POST-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordNoClaim.unpaid.toNumber(), " | ", secondSatelliteStakeNoClaim.balance.toNumber())
 
                 // Claim operations
                 await signerFactory(bob.sk)
@@ -520,11 +514,9 @@ describe("Delegation tests", async () => {
 
                 // Assertions
                 assert.equal(firstSatelliteRecordEnd.unpaid.toNumber(), 0)
-                // assert.equal(firstSatelliteRecordEnd.paid.toNumber(), firstSatelliteRecordStart.paid.toNumber() + firstSatelliteFee + firstSatelliteAccu * firstSatelliteStakeStart.balance.toNumber())
                 assert.equal(secondSatelliteRecordEnd.unpaid.toNumber(), 0)
-                // assert.equal(secondSatelliteRecordEnd.paid.toNumber(), secondSatelliteRecordStart.paid.toNumber() + secondSatelliteFee + secondSatelliteAccu * secondSatelliteStakeStart.balance.toNumber())
-                console.log("POST-CLAIM SATELLITE BOB: ", firstSatelliteRecordEnd.unpaid.toNumber(), " / ", firstSatelliteRecordEnd.paid.toNumber(), " | ", firstSatelliteStakeEnd.balance.toNumber())
-                console.log("POST-CLAIM SATELLITE MALLORY: ", secondSatelliteRecordEnd.unpaid.toNumber(), " / ", secondSatelliteRecordEnd.paid.toNumber(), " | ", secondSatelliteStakeEnd.balance.toNumber())
+                console.log("POST-CLAIM SATELLITE BOB: ", firstSatelliteRecordEnd.unpaid.toNumber(), " | ", firstSatelliteStakeEnd.balance.toNumber())
+                console.log("POST-CLAIM SATELLITE MALLORY: ", secondSatelliteRecordEnd.unpaid.toNumber(), " | ", secondSatelliteStakeEnd.balance.toNumber())
 
             } catch(e){
                 console.log(e);
