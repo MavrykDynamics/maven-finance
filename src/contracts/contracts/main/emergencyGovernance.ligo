@@ -21,7 +21,7 @@ type emergencyGovernanceAction is
 
     // Housekeeping Entrypoints
   | SetAdmin                  of (address)
-  | UpdateMetadata            of (string * bytes)
+  | UpdateMetadata            of updateMetadataType
   | UpdateConfig              of emergencyUpdateConfigParamsType    
   | UpdateGeneralContracts    of updateGeneralContractsParams
 
@@ -36,6 +36,11 @@ type emergencyGovernanceAction is
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * emergencyGovernanceStorage
+
+
+// emergencyGovernance contract methods lambdas
+type emergencyGovernanceUnpackLambdaFunctionType is (emergencyGovernanceLambdaActionType * emergencyGovernanceStorage) -> return
+
 
 
 // ------------------------------------------------------------------------------
@@ -157,6 +162,26 @@ function transferTez(const to_ : contract(unit); const amt : tez) : operation is
 // Transfer Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(emergencyGovernanceUnpackLambdaFunctionType)) of [
+        Some(f) -> f(emergencyGovernanceLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -201,17 +226,18 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * emergencyGovernanceStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
 
 
 
 (* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : emergencyGovernanceStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : emergencyGovernanceStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -219,12 +245,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * emergencyGovernanceStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
 
 
 
@@ -237,12 +264,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((emergencyUpdateConfigParamsType * emergencyGovernanceStorage) -> return )) of [
-      | Some(f) -> f(updateConfigParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
 
 
 
@@ -255,12 +283,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * emergencyGovernanceStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -281,12 +310,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((triggerEmergencyControlType * emergencyGovernanceStorage) -> return )) of [
-      | Some(f) -> f(triggerEmergencyControlParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaTriggerEmergencyControl(triggerEmergencyControlParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
 
 
 
@@ -299,12 +329,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((emergencyGovernanceStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaVoteForEmergencyControl(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
 
 
 
@@ -317,12 +348,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((emergencyGovernanceStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaDropEmergencyGovernance(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Emergency Governance Entrypoints End
@@ -364,7 +396,7 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
 
         // Housekeeping Entrypoints
       | SetAdmin(parameters)                  -> setAdmin(parameters, s)
-      | UpdateMetadata(parameters)            -> updateMetadata(parameters.0, parameters.1, s)
+      | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
       | UpdateConfig(parameters)              -> updateConfig(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
 

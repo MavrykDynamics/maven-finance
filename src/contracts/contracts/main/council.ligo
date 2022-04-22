@@ -117,6 +117,8 @@ type return is list (operation) * councilStorage
 // council contract methods lambdas
 type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorage) -> return
 
+
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes Begin

@@ -26,6 +26,33 @@ type treasuryFactoryBreakGlassConfigType is record [
     untrackTreasuryIsPaused    : bool;
 ]
 
+
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type treasuryFactoryLambdaActionType is 
+
+    // Housekeeping Entrypoints
+    LambdaSetAdmin                            of (address)
+|   LambdaUpdateMetadata                      of updateMetadataType
+|   LambdaUpdateWhitelistContracts            of updateWhitelistContractsParams
+|   LambdaUpdateGeneralContracts              of updateGeneralContractsParams
+|   LambdaUpdateWhitelistTokens               of updateWhitelistTokenContractsParams
+
+    // Pause / Break Glass Entrypoints
+|   LambdaPauseAll                            of (unit)
+|   LambdaUnpauseAll                          of (unit)
+|   LambdaTogglePauseCreateTreasury           of (unit)
+|   LambdaToggleTrackTreasury                 of (unit)
+|   LambdaToggleUntrackTreasury               of (unit)
+
+    // Treasury Factory Entrypoints
+|   LambdaCreateTreasury                      of string
+|   LambdaTrackTreasury                       of address
+|   LambdaUntrackTreasury                     of address
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------

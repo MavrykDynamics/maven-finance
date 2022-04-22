@@ -33,7 +33,7 @@ type doormanAction is
 
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
-  | UpdateMetadata of (string * bytes)
+  | UpdateMetadata              of updateMetadataType
   | UpdateMinMvkAmount          of (nat)
   | UpdateWhitelistContracts    of updateWhitelistContractsParams
   | UpdateGeneralContracts      of updateGeneralContractsParams
@@ -57,6 +57,10 @@ type doormanAction is
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * doormanStorage
+
+// doorman contract methods lambdas
+type doormanUnpackLambdaFunctionType is (doormanLambdaActionType * doormanStorage) -> return
+
 
 
 // ------------------------------------------------------------------------------
@@ -290,6 +294,26 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
 // Compound Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(doormanUnpackLambdaFunctionType)) of [
+        Some(f) -> f(doormanLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -361,17 +385,18 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * doormanStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
     
-} with (res.0, res.1)
+} with response
 
 
 
 (*  updateMetadata entrypoint: update the metadata at a given key *)
-function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : doormanStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : doormanStorage) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -379,12 +404,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * doormanStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 
 
@@ -397,12 +423,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * doormanStorage) -> return )) of [
-      | Some(f) -> f(newMinMvkAmount, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateMinMvkAmount(newMinMvkAmount);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 
 
@@ -415,12 +442,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * doormanStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 
 
@@ -433,12 +461,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * doormanStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -458,12 +487,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((doormanStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaPauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
     
-} with (noOperations, res.1)
+} with response
 
 
 
@@ -476,12 +506,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((doormanStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUnpauseAll(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 
 
@@ -494,12 +525,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((doormanStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseStake(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 
 
@@ -512,12 +544,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
     
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((doormanStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseUnstake(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 
 
@@ -530,12 +563,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((doormanStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseCompound(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -556,12 +590,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case ( Bytes.unpack(lambdaBytes) : option( (nat * doormanStorage) -> return ) ) of [
-      | Some(f) -> f(stakeAmount, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaStake(stakeAmount);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 
 
@@ -574,12 +609,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * doormanStorage) -> return )) of [
-      | Some(f) -> f(unstakeAmount, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaUnstake(unstakeAmount);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 
 
@@ -592,12 +628,13 @@ block{
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((doormanStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaCompound(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 
 
@@ -610,12 +647,13 @@ block{
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((farmClaimType * doormanStorage) -> return )) of [
-      | Some(f) -> f(farmClaim, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaFarmClaim(farmClaim);
 
-} with(res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Doorman Entrypoints End
@@ -664,7 +702,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
 
         // Housekeeping Entrypoints
       | SetAdmin(parameters)                  -> setAdmin(parameters, s)
-      | UpdateMetadata(parameters)            -> updateMetadata(parameters.0, parameters.1, s)
+      | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
       | UpdateMinMvkAmount(parameters)        -> updateMinMvkAmount(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)

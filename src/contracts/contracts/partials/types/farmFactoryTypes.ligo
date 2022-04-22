@@ -77,6 +77,33 @@ type farmFactoryConfigType is record [
     blocksPerMinute        : nat;
 ]
 
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type farmFactoryLambdaActionType is 
+
+    // Housekeeping Entrypoints
+    LambdaSetAdmin                    of (address)
+|   LambdaUpdateMetadata              of updateMetadataType
+|   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
+|   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+|   LambdaUpdateBlocksPerMinute       of (nat)
+
+    // Pause / Break Glass Entrypoints
+|   LambdaPauseAll                    of (unit)
+|   LambdaUnpauseAll                  of (unit)
+|   LambdaTogglePauseCreateFarm       of (unit)
+|   LambdaTogglePauseTrackFarm        of (unit)
+|   LambdaTogglePauseUntrackFarm      of (unit)
+
+    // Farm Factory Entrypoints
+|   LambdaCreateFarm                  of createFarmType
+|   LambdaTrackFarm                   of (address)
+|   LambdaUntrackFarm                 of (address)
+
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------

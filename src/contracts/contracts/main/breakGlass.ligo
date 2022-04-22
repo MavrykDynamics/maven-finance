@@ -27,19 +27,19 @@ type breakGlassAction is
 
     // Housekeeping Entrypoints - Glass Broken Not Required
     | SetAdmin                      of (address)
-    | UpdateMetadata                of (string * bytes)
+    | UpdateMetadata                of updateMetadataType
     | UpdateConfig                  of breakGlassUpdateConfigParamsType    
     | UpdateWhitelistContracts      of updateWhitelistContractsParams
     | UpdateGeneralContracts        of updateGeneralContractsParams
     | UpdateCouncilMemberInfo       of councilMemberInfoType
     
     // Internal Control of Council Members
-    | AddCouncilMember of councilAddMemberType
-    | RemoveCouncilMember of address
-    | ChangeCouncilMember of councilChangeMemberType
+    | AddCouncilMember              of councilAddMemberType
+    | RemoveCouncilMember           of address
+    | ChangeCouncilMember           of councilChangeMemberType
     
     // Glass Broken Required
-    | SetSingleContractAdmin        of (address * address)   
+    | SetSingleContractAdmin        of setSingleContractAdminType
     | SetAllContractsAdmin          of (address)               
     | PauseAllEntrypoints           of (unit)             
     | UnpauseAllEntrypoints         of (unit)
@@ -55,6 +55,10 @@ type breakGlassAction is
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * breakGlassStorage
+
+// break glass contract methods lambdas
+type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGlassStorage) -> return
+
 
 
 // ------------------------------------------------------------------------------
@@ -152,6 +156,26 @@ function setAdminInContract(const contractAddress : address) : contract(address)
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(breakGlassUnpackLambdaFunctionType)) of [
+        Some(f) -> f(breakGlassLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -198,12 +222,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaBreakGlass(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Break Glass Entrypoint End
@@ -224,30 +249,32 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
 (* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : breakGlassStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : breakGlassStorage) : return is
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
+  
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
 
-} with (res.0, res.1)
+} with response
 
 
 
@@ -260,12 +287,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassUpdateConfigParamsType * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(updateConfigParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
@@ -278,12 +306,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
@@ -296,12 +325,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
@@ -314,11 +344,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilMemberInfoType * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(councilMemberInfo, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-} with (res.0, res.1)
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaUpdateCouncilMemberInfo(councilMemberInfo);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -338,12 +370,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilAddMemberType * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(newCouncilMember, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaAddCouncilMember(newCouncilMember);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
@@ -356,12 +389,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(councilMemberAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaRemoveCouncilMember(councilMemberAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
@@ -374,12 +408,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((councilChangeMemberType * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(changeCouncilMemberParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaChangeCouncilMember(changeCouncilMemberParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Break Glass Council Actions End - Internal Control of Council Members
@@ -400,12 +435,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaPauseAllEntrypoints(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
@@ -418,17 +454,18 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaUnpauseAllEntrypoints(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
 (*  setSingleContractAdmin entrypoint  *)
-function setSingleContractAdmin(const newAdminAddress : address; const targetContractAddress : address; var s : breakGlassStorage) : return is 
+function setSingleContractAdmin(const setSingleContractAdminParams : setSingleContractAdminType; var s : breakGlassStorage) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetSingleContractAdmin"] of [
@@ -436,12 +473,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * address * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, targetContractAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaSetSingleContractAdmin(setSingleContractAdminParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
@@ -454,12 +492,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaSetAllContractsAdmin(newAdminAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
@@ -472,12 +511,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((breakGlassStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaRemoveBreakGlassControl(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Glass Broken Required Entrypoints End
@@ -498,12 +538,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((flushActionType * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(actionId, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaFlushAction(actionId);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 
 
@@ -516,12 +557,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * breakGlassStorage) -> return )) of [
-      | Some(f) -> f(actionId, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init break glass lambda action
+    const breakGlassLambdaAction : breakGlassLambdaActionType = LambdaSignAction(actionId);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, breakGlassLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Council signing of actions Entrypoints End
@@ -573,11 +615,11 @@ function main (const action : breakGlassAction; const s : breakGlassStorage) : r
             
             // Housekeeping Entrypoints - Glass Broken Not Required
             | SetAdmin(parameters)                  -> setAdmin(parameters, s)
-            | UpdateMetadata(parameters)            -> updateMetadata(parameters.0, parameters.1, s)  
+            | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)  
             | UpdateConfig(parameters)              -> updateConfig(parameters, s)
             | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
             | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
-            | UpdateCouncilMemberInfo(parameters) -> updateCouncilMemberInfo(parameters, s)
+            | UpdateCouncilMemberInfo(parameters)   -> updateCouncilMemberInfo(parameters, s)
 
             // Break Glass Council Actions - Internal Control of Council Members
             | AddCouncilMember(parameters)          -> addCouncilMember(parameters, s)
@@ -585,7 +627,7 @@ function main (const action : breakGlassAction; const s : breakGlassStorage) : r
             | ChangeCouncilMember(parameters)       -> changeCouncilMember(parameters, s)
             
             // Glass Broken Required
-            | SetSingleContractAdmin(parameters)    -> setSingleContractAdmin(parameters.0, parameters.1, s)
+            | SetSingleContractAdmin(parameters)    -> setSingleContractAdmin(parameters, s)
             | SetAllContractsAdmin(parameters)      -> setAllContractsAdmin(parameters, s)
             | PauseAllEntrypoints(_parameters)      -> pauseAllEntrypoints(s)
             | UnpauseAllEntrypoints(_parameters)    -> unpauseAllEntrypoints(s)
