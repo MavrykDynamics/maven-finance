@@ -325,52 +325,6 @@ describe('Contracts Deployment for Tests', async () => {
     tezos = doorman.tezos
     console.log('====== break ======')
 
-    //----------------------------
-    // Set remaining contract addresses - post-deployment
-    //----------------------------
-
-    // MVK Token Contract - set general contract addresses [doorman]
-    // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
-    const mvkUpdateGeneralContractsOperation = await mvkToken.contract.methods.updateGeneralContracts("doorman", doorman.contract.address).send();
-    await mvkUpdateGeneralContractsOperation.confirmation();
-    
-    console.log('MVK Token Contract - set general contract addresses [doorman]')
-
-    const mvkUpdateWhitelistContractsOperation = await mvkToken.contract.methods.updateWhitelistContracts("doorman", doorman.contract.address).send();
-    await mvkUpdateWhitelistContractsOperation.confirmation();
-    
-    const setWhitelistVestingContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts('vesting', vesting.contract.address).send()
-    await setWhitelistVestingContractInMvkTokenOperation.confirmation()
-    
-    const setWhitelistTreasuryContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address).send()
-    await setWhitelistTreasuryContractInMvkTokenOperation.confirmation()
-
-    console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
-    
-    // Send MVK to treasury contract and council (TODO: keep?)
-    const transferToTreasury = await mvkToken.contract.methods
-      .transfer([
-        {
-          from_: bob.pkh,
-          txs: [
-            {
-              to_: treasury.contract.address,
-              token_id: 0,
-              amount: MVK(200),
-            },
-            {
-              to_: council.contract.address,
-              token_id: 0,
-              amount: MVK(15),
-            }
-          ],
-        },
-      ])
-      .send()
-    await transferToTreasury.confirmation()
-    console.log('send mvk to treasury contract and council');
-
-
     // Set Lambdas 
 
     await signerFactory(bob.sk);
@@ -683,10 +637,6 @@ describe('Contracts Deployment for Tests', async () => {
 
     console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
     
-    // Doorman Contract - set whitelist contract address [farmTreasury]
-    const updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
-    await updateGeneralContractsOperation.confirmation();
-    
     // Send MVK to treasury contract and council (TODO: keep?)
     const transferToTreasury = await mvkToken.contract.methods
       .transfer([
@@ -721,8 +671,11 @@ describe('Contracts Deployment for Tests', async () => {
     
     console.log('Doorman Contract - set general contract addresses [delegation, mvkToken, farmFactory]')
 
-    // Doorman Contract - set whitelist contract address [farmTreasury]
-    const updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
+    // Doorman Contract - set whitelist contract address [farmTreasury, satelliteTreasury]
+    var updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
+    await updateGeneralContractsOperation.confirmation();
+
+    updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address).send();
     await updateGeneralContractsOperation.confirmation();
     
 
