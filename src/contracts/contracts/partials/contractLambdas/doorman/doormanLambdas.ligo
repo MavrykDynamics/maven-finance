@@ -296,7 +296,7 @@ block {
 
               // tell the delegation contract that the reward has been paid 
               const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                (unit),
+                (Tezos.source),
                 0tez,
                 onSatelliteRewardPaid(delegationAddress)
               );
@@ -506,7 +506,7 @@ block{
 
                 // tell the delegation contract that the reward has been paid 
                 const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (unit),
+                  (Tezos.source),
                   0tez,
                   onSatelliteRewardPaid(delegationAddress)
                 );
@@ -696,7 +696,7 @@ function lambdaSatelliteRewardsClaim(const satelliteRewardsClaim: satelliteRewar
 
     // tell the delegation contract that the reward has been paid 
     const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-      (unit),
+      (delegator),
       0tez,
       onSatelliteRewardPaid(delegationAddress)
     );
