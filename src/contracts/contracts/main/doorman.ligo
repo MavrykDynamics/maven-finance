@@ -296,15 +296,11 @@ block{
 
       const satelliteUnpaidRewards: nat = case getUserRewardOpt of [
         Some (_rewards) -> block{
-
-          // Get the satellite linked to the user (if the user is a satellite, return self)
           const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", _rewards.satelliteReferenceAddress, delegationAddress);
           const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
             Some (value) -> value
           | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
           ];
-          
-          // Calculate the user unclaimed rewards
           const satelliteReward: nat  = case getUserReferenceRewardOpt of [
             Some (_referenceRewards) -> block{
               const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
@@ -315,89 +311,6 @@ block{
         } with (satelliteReward)
       | None -> 0n
       ];
-
-      // Check if user is satellite or delegate
-      // const getDelegateOptview : option (option(delegateRecordType)) = Tezos.call_view ("getDelegateOpt", user, delegationAddress);
-      // const getDelegateOpt: option(delegateRecordType) = case getDelegateOptview of [
-      //   Some (value) -> value
-      // | None -> failwith ("Error. GetUserUnpaidReward View not found in the Delegation Contract")
-      // ];
-
-      // Check if user is satellite or delegate
-      const getDelegateOptview : option (option(delegateRecordType)) = Tezos.call_view ("getDelegateOpt", user, delegationAddress);
-      const getDelegateOpt: option(delegateRecordType) = case getDelegateOptview of [
-        Some (value) -> value
-      | None -> failwith ("Error. GetDelegateOpt View not found in the Delegation Contract")
-      ];
-
-      const getSatelliteOptview : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", user, delegationAddress);
-      const getSatelliteOpt: option(satelliteRecordType) = case getSatelliteOptview of [
-        Some (value) -> value
-      | None -> failwith ("Error. GetSatelliteOpt View not found in the Delegation Contract")
-      ];
-
-      const getUserRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", user, delegationAddress);
-      const getUserRewardOpt: option(satelliteRewards) = case getUserRewardOptView of [
-        Some (value) -> value
-      | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
-      ];
-      
-      const userIsSatellite: bool = getSatelliteOpt =/= (None : option(satelliteRecordType));
-      const userIsDelegator: bool = getDelegateOpt =/= (None : option(delegateRecordType));
-
-      // Reward
-      var satelliteUnpaidRewards: nat := 0n;
-
-      // Update unclaimedRewards
-      if userIsSatellite then {
-        // Get Satellite
-        var satelliteRecord: satelliteRecordType := case getSatelliteOpt of [
-          Some (_record) -> _record
-        | None -> failwith("Error. Satellite not found")
-        ];
-
-        var satelliteRewardsRecord: satelliteRewards  := case getUserRewardOpt of [
-          Some (_record) -> _record
-        | None -> failwith("Error. Rewards record not found")
-        ];
-
-        // Calculate satellite unclaim rewards
-        const satelliteRewardsRatio: nat  = abs(satelliteRewardsRecord.accumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
-        const satelliteRewards: nat       = satelliteRecord.stakedMvkBalance * satelliteRewardsRatio;
-
-        // Update satellite
-        satelliteUnpaidRewards            := satelliteRewardsRecord.unpaid + satelliteRewards / fixedPointAccuracy;
-      } else if userIsDelegator then {
-        // Get Delegate
-        var delegateRecord: delegateRecordType := case getDelegateOpt of [
-          Some (_record) -> _record
-        | None -> failwith("Error. Delegate not found")
-        ];
-
-        var delegateRewardsRecord: satelliteRewards  := case getUserRewardOpt of [
-          Some (_record) -> _record
-        | None -> failwith("Error. Rewards record not found")
-        ];
-
-        const getUserSatelliteRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", delegateRecord.satelliteAddress, delegationAddress);
-        const getUserSatelliteRewardOpt: option(satelliteRewards) = case getUserSatelliteRewardOptView of [
-          Some (value) -> value
-        | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
-        ];
-
-        // Get Delegate satellite rewards
-        var satelliteRewardsRecord: satelliteRewards  := case getUserSatelliteRewardOpt of [
-          Some (_record) -> _record
-        | None -> failwith("Error. Rewards record not found")
-        ];
-
-        // Calculate satellite unclaim rewards
-        const delegateRewardsRatio: nat  = abs(satelliteRewardsRecord.accumulatedRewardsPerShare - delegateRewardsRecord.participationRewardsPerShare);
-        const delegateRewards: nat       = delegateRecord.delegatedSMvkBalance * delegateRewardsRatio;
-
-        // Update satellite
-        satelliteUnpaidRewards                         := delegateRewardsRecord.unpaid + delegateRewards / fixedPointAccuracy;
-      } else skip;
 
       // -- Exit fee rewards -- //
       // Calculate what fees the user missed since his/her last claim

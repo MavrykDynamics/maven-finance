@@ -190,59 +190,38 @@ function updateRewards(var s: delegationStorage): delegationStorage is
     // Get address
     const userAddress: address      = Tezos.source;
 
-    // Check if user is satellite or delegate
-    const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
-    const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
-
-    // Update unclaimedRewards
-    if userIsSatellite then {
-      // Get Satellite
-      var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
-        Some (_record) -> _record
-      | None -> failwith("Error. Satellite not found")
-      ];
-
+    if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
       var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
         Some (_record) -> _record
       | None -> failwith("Error. Rewards record not found")
       ];
 
+      const doormanAddress : address = case s.generalContracts["doorman"] of [
+          Some(_address) -> _address
+        | None -> failwith("Error. Doorman Contract is not found")
+      ];
+
+      const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
+      const stakedMvkBalance: nat = case stakedMvkBalanceView of [
+          Some (value) -> value
+        | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+      ];
+
+      const _satelliteReferenceRewardsRecord: satelliteRewards  = case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
+        Some (_referenceRecord) -> _referenceRecord
+      | None -> failwith("Error. Satellite reference rewards record not found")
+      ];
+
       // Calculate satellite unclaim rewards
-      const satelliteRewardsRatio: nat  = abs(satelliteRewardsRecord.accumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
-      const satelliteRewards: nat       = satelliteRecord.stakedMvkBalance * satelliteRewardsRatio;
+      const satelliteRewardsRatio: nat  = abs(_satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
+      const satelliteRewards: nat       = (stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
 
       // Update satellite
-      satelliteRewardsRecord.participationRewardsPerShare    := satelliteRewardsRecord.accumulatedRewardsPerShare;
-      satelliteRewardsRecord.unpaid                          := satelliteRewardsRecord.unpaid + satelliteRewards / fixedPointAccuracy;
+      satelliteRewardsRecord.participationRewardsPerShare    := _satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
+      satelliteRewardsRecord.unpaid                          := satelliteRewardsRecord.unpaid + satelliteRewards;
       s.satelliteRewardsLedger[userAddress]                  := satelliteRewardsRecord;
-
-    } else if userIsDelegator then {
-      // Get Delegate
-      var delegateRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
-        Some (_record) -> _record
-      | None -> failwith("Error. Delegate not found")
-      ];
-
-      var delegateRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-        Some (_record) -> _record
-      | None -> failwith("Error. Rewards record not found")
-      ];
-
-      // Get Delegate satellite rewards
-      var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(delegateRecord.satelliteAddress, s.satelliteRewardsLedger) of [
-        Some (_record) -> _record
-      | None -> failwith("Error. Rewards record not found")
-      ];
-
-      // Calculate satellite unclaim rewards
-      const delegateRewardsRatio: nat  = abs(satelliteRewardsRecord.accumulatedRewardsPerShare - delegateRewardsRecord.participationRewardsPerShare);
-      const delegateRewards: nat       = delegateRecord.delegatedSMvkBalance * delegateRewardsRatio;
-
-      // Update satellite
-      delegateRewardsRecord.participationRewardsPerShare   := satelliteRewardsRecord.accumulatedRewardsPerShare;
-      delegateRewardsRecord.unpaid                         := delegateRewardsRecord.unpaid + delegateRewards / fixedPointAccuracy;
-      s.satelliteRewardsLedger[userAddress]                := delegateRewardsRecord;
     } else skip;
+
   } with(s)
 
 // ------------------------------------------------------------------------------
@@ -408,77 +387,19 @@ block {
 
 (* View: get Satellite Record *)
 [@view] function getSatelliteOpt(const satelliteAddress: address; var s : delegationStorage) : option(satelliteRecordType) is
-  s.satelliteLedger[satelliteAddress]
+  Map.find_opt(satelliteAddress, s.satelliteLedger)
 
 
 
 (* View: get Satellite Record *)
 [@view] function getDelegateOpt(const delegateAddress: address; var s : delegationStorage) : option(delegateRecordType) is
-  s.delegateLedger[delegateAddress]
+  Big_map.find_opt(delegateAddress, s.delegateLedger)
 
 
 
 (* View: get User reward *)
 [@view] function getUserRewardOpt(const userAddress: address; var s : delegationStorage) : option(satelliteRewards) is
-  s.satelliteRewardsLedger[userAddress]
-
-
-
-(* View: get User unpaid reward *)
-[@view] function getUserUnpaidReward(const userAddress: address; var s : delegationStorage) : nat is
-  block{
-    // Check if user is satellite or delegate
-    const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
-    const userIsDelegator: bool = Big_map.mem(userAddress, s.delegateLedger);
-
-    // Reward
-    var unpaidReward: nat := 0n;
-
-    // Update unclaimedRewards
-    if userIsSatellite then {
-      // Get Satellite
-      var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
-        Some (_record) -> _record
-      | None -> failwith("Error. Satellite not found")
-      ];
-
-      var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-        Some (_record) -> _record
-      | None -> failwith("Error. Rewards record not found")
-      ];
-
-      // Calculate satellite unclaim rewards
-      const satelliteRewardsRatio: nat  = abs(satelliteRewardsRecord.accumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
-      const satelliteRewards: nat       = satelliteRecord.stakedMvkBalance * satelliteRewardsRatio;
-
-      // Update satellite
-      unpaidReward                          := satelliteRewardsRecord.unpaid + satelliteRewards / fixedPointAccuracy;
-    } else if userIsDelegator then {
-      // Get Delegate
-      var delegateRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
-        Some (_record) -> _record
-      | None -> failwith("Error. Delegate not found")
-      ];
-
-      var delegateRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
-        Some (_record) -> _record
-      | None -> failwith("Error. Rewards record not found")
-      ];
-
-      // Get Delegate satellite rewards
-      var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(delegateRecord.satelliteAddress, s.satelliteRewardsLedger) of [
-        Some (_record) -> _record
-      | None -> failwith("Error. Rewards record not found")
-      ];
-
-      // Calculate satellite unclaim rewards
-      const delegateRewardsRatio: nat  = abs(satelliteRewardsRecord.accumulatedRewardsPerShare - delegateRewardsRecord.participationRewardsPerShare);
-      const delegateRewards: nat       = delegateRecord.delegatedSMvkBalance * delegateRewardsRatio;
-
-      // Update satellite
-      unpaidReward                         := delegateRewardsRecord.unpaid + delegateRewards / fixedPointAccuracy;
-    } else skip;
-  } with(unpaidReward)
+  Big_map.find_opt(userAddress, s.satelliteRewardsLedger)
 
 
 
