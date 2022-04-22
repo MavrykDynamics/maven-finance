@@ -32,7 +32,7 @@ type treasuryAction is
 
     // Housekeeping Entrypoints
     | SetAdmin                       of (address)
-    | UpdateMetadata                  of (string * bytes)
+    | UpdateMetadata                 of updateMetadataType
     | UpdateWhitelistContracts       of updateWhitelistContractsParams
     | UpdateGeneralContracts         of updateGeneralContractsParams
     | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
@@ -53,6 +53,10 @@ type treasuryAction is
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * treasuryStorage
+
+// treasury contract methods lambdas
+type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasuryStorage) -> return
+
 
 
 // ------------------------------------------------------------------------------
@@ -248,6 +252,26 @@ block{
 // Transfer Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(treasuryUnpackLambdaFunctionType)) of [
+        Some(f) -> f(treasuryLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -292,17 +316,18 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * treasuryStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 
 
 (* updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : treasuryStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : treasuryStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -310,12 +335,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * treasuryStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 
 
@@ -328,12 +354,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * treasuryStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 
 
@@ -346,12 +373,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * treasuryStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 
 
@@ -364,12 +392,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistTokenContractsParams * treasuryStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistTokenContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -390,12 +419,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((treasuryStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaPauseAll(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 
 
@@ -408,12 +438,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((treasuryStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnpauseAll(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 
 
@@ -426,12 +457,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((treasuryStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseTransfer(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 
 
@@ -444,12 +476,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((treasuryStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseMintTransfer(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -470,12 +503,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((transferActionType * treasuryStorage) -> return )) of [
-      | Some(f) -> f(transferTokenParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTransfer(transferTokenParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 
 
@@ -488,12 +522,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((mintMvkAndTransferType * treasuryStorage) -> return )) of [
-      | Some(f) -> f(mintMvkAndTransferParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaMintMvkAndTransfer(mintMvkAndTransferParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Treasury Entrypoints End
@@ -540,7 +575,7 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
-        | UpdateMetadata(parameters)                    -> updateMetadata(parameters.0, parameters.1, s)
+        | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)

@@ -18,7 +18,34 @@ type stakeType is
   StakeAction of unit
 | UnstakeAction of unit
 
-type metadata is big_map (string, bytes);
+type metadata is big_map (string, bytes)
+
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type doormanLambdaActionType is 
+
+  // Housekeeping Lambdas
+  LambdaSetAdmin                    of address
+| LambdaUpdateMetadata              of updateMetadataType
+| LambdaUpdateMinMvkAmount          of (nat)
+| LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
+| LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+
+  // Pause / Break Glass Lambdas
+| LambdaPauseAll                    of (unit)
+| LambdaUnpauseAll                  of (unit)
+| LambdaTogglePauseStake            of (unit)
+| LambdaTogglePauseUnstake          of (unit)
+| LambdaTogglePauseCompound         of (unit)
+
+  // Doorman Lambdas
+| LambdaStake                       of (nat)
+| LambdaUnstake                     of (nat)
+| LambdaCompound                    of (unit)
+| LambdaFarmClaim                   of farmClaimType
 
 // ------------------------------------------------------------------------------
 // Storage

@@ -24,7 +24,7 @@ type farmAction is
 
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
-|   UpdateMetadata              of (string * bytes)
+|   UpdateMetadata              of updateMetadataType
 |   UpdateConfig                of farmUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
 |   UpdateGeneralContracts      of updateGeneralContractsParams
@@ -52,6 +52,10 @@ type farmAction is
 
 type return is list (operation) * farmStorage
 const noOperations : list (operation) = nil;
+
+// farm contract methods lambdas
+type farmUnpackLambdaFunctionType is (farmLambdaActionType * farmStorage) -> return
+
 
 
 // ------------------------------------------------------------------------------
@@ -387,6 +391,26 @@ block{
 // Farm Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(farmUnpackLambdaFunctionType)) of [
+        Some(f) -> f(farmLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -431,17 +455,18 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * farmStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
 (*  updateMetadata Entrypoint - update the metadata at a given key *)
-function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : farmStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : farmStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
@@ -449,12 +474,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * farmStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -467,12 +493,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((farmUpdateConfigParamsType * farmStorage) -> return )) of [
-      | Some(f) -> f(updateConfigParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateConfig(updateConfigParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -485,12 +512,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * farmStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -503,12 +531,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * farmStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -529,12 +558,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((nat * farmStorage) -> return )) of [
-      | Some(f) -> f(blocksPerMinute, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUpdateBlocksPerMinute(blocksPerMinute);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -547,12 +577,13 @@ block{
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((initFarmParamsType * farmStorage) -> return )) of [
-      | Some(f) -> f(initFarmParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaInitFarm(initFarmParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -565,12 +596,13 @@ block{
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((farmStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaCloseFarm(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Farm Admin Entrypoints End
@@ -591,12 +623,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((farmStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaPauseAll(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -609,12 +642,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((farmStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaUnpauseAll(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -627,12 +661,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((farmStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseDeposit(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -645,12 +680,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((farmStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseWithdraw(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -663,12 +699,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((farmStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaTogglePauseClaim(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
@@ -689,12 +726,13 @@ block{
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((tokenBalance * farmStorage) -> return )) of [
-      | Some(f) -> f(tokenAmount, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaDeposit(tokenAmount);
 
-} with(res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -707,12 +745,13 @@ block{
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((tokenBalance * farmStorage) -> return )) of [
-      | Some(f) -> f(tokenAmount, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaWithdraw(tokenAmount);
 
-} with(res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 
 
@@ -725,12 +764,13 @@ block{
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((farmStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaClaim(unit);
 
-} with(res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Farm Entrypoints End
@@ -780,7 +820,7 @@ function main (const action: farmAction; var s: farmStorage): return is
 
             // Housekeeping Entrypoints
             SetAdmin (parameters)                    -> setAdmin(parameters, s)
-        |   UpdateMetadata (parameters)              -> updateMetadata(parameters.0, parameters.1, s)
+        |   UpdateMetadata (parameters)              -> updateMetadata(parameters, s)
         |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)      -> updateGeneralContracts(parameters, s)

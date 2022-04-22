@@ -46,6 +46,30 @@ type setLambdaType is [@layout:comb] record [
 ]
 type lambdaLedgerType is big_map(string, bytes)
 
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type treasuryLambdaActionType is 
+
+  // Housekeeping Entrypoints
+| LambdaSetAdmin                       of (address)
+| LambdaUpdateMetadata                 of updateMetadataType
+| LambdaUpdateWhitelistContracts       of updateWhitelistContractsParams
+| LambdaUpdateGeneralContracts         of updateGeneralContractsParams
+| LambdaUpdateWhitelistTokens          of updateWhitelistTokenContractsParams
+
+  // Pause / Break Glass Entrypoints
+| LambdaPauseAll                       of (unit)
+| LambdaUnpauseAll                     of (unit)
+| LambdaTogglePauseTransfer            of (unit)
+| LambdaTogglePauseMintTransfer        of (unit)
+
+  // Treasury Entrypoints
+| LambdaTransfer                       of transferActionType
+| LambdaMintMvkAndTransfer             of mintMvkAndTransferType
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------

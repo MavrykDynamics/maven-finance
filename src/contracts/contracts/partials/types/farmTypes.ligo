@@ -85,6 +85,38 @@ type farmUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: farmUpdateConfigActionType;
 ]
 
+
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type farmLambdaActionType is 
+
+  // Housekeeping Entrypoints
+    LambdaSetAdmin                    of (address)
+|   LambdaUpdateMetadata              of updateMetadataType
+|   LambdaUpdateConfig                of farmUpdateConfigParamsType
+|   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
+|   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+
+    // Farm Admin Entrypoints
+|   LambdaUpdateBlocksPerMinute       of (nat)
+|   LambdaInitFarm                    of initFarmParamsType
+|   LambdaCloseFarm                   of (unit)
+
+    // Pause / Break Glass Entrypoints
+|   LambdaPauseAll                    of (unit)
+|   LambdaUnpauseAll                  of (unit)
+|   LambdaTogglePauseDeposit          of (unit)
+|   LambdaTogglePauseWithdraw         of (unit)
+|   LambdaTogglePauseClaim            of (unit)
+
+    // Farm Entrypoints
+|   LambdaDeposit                     of nat
+|   LambdaWithdraw                    of nat
+|   LambdaClaim                       of unit
+
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------

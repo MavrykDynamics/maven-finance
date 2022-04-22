@@ -49,6 +49,29 @@ type triggerEmergencyControlType is [@layout:comb] record[
 
 type metadata is big_map (string, bytes);
 
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type emergencyGovernanceLambdaActionType is 
+
+  // Housekeeping Entrypoints
+| LambdaSetAdmin                  of (address)
+| LambdaUpdateMetadata            of updateMetadataType
+| LambdaUpdateConfig              of emergencyUpdateConfigParamsType    
+| LambdaUpdateGeneralContracts    of updateGeneralContractsParams
+
+  // Emergency Governance Entrypoints
+| LambdaTriggerEmergencyControl   of triggerEmergencyControlType
+| LambdaVoteForEmergencyControl   of (unit)
+| LambdaDropEmergencyGovernance   of (unit)
+
+
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
+
 type emergencyGovernanceStorage is [@layout:comb] record [
     admin                               : address;
     config                              : emergencyConfigType;

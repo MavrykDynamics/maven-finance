@@ -9,89 +9,121 @@
 // ------------------------------------------------------------------------------
 
 (*  setAdmin lambda *)
-function lambdaSetAdmin(const newAdminAddress : address; var s : farmStorage) : return is
+function lambdaSetAdmin(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin
-    s.admin := newAdminAddress;
+    checkSenderIsAdmin(s); 
+    
+    case farmLambdaAction of [
+        | LambdaSetAdmin(newAdminAddress) -> {
+                s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
     
 } with (noOperations, s)
 
 
 
 (*  updateMetadata lambda - update the metadata at a given key *)
-function lambdaUpdateMetadata(const metadataKey: string; const metadataHash: bytes; var s : farmStorage) : return is
+function lambdaUpdateMetadata(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
     
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
-    // Update metadata
-    s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+    checkSenderIsAdmin(s);
+    
+    case farmLambdaAction of [
+        | LambdaUpdateMetadata(updateMetadataParams) -> {
+                
+                const metadataKey   : string = updateMetadataParams.metadataKey;
+                const metadataHash  : bytes  = updateMetadataParams.metadataHash;
+                
+                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (*  updateConfig lambda *)
-function lambdaUpdateConfig(const updateConfigParams : farmUpdateConfigParamsType; var s : farmStorage) : return is 
+function lambdaUpdateConfig(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is 
 block {
 
-  checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+  checkSenderIsAdmin(s); 
+  
+  case farmLambdaAction of [
+        | LambdaUpdateConfig(updateConfigParams) -> {
+                
+                const updateConfigAction    : farmUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+                const updateConfigNewValue  : farmUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
-  const updateConfigAction    : farmUpdateConfigActionType   = updateConfigParams.updateConfigAction;
-  const updateConfigNewValue  : farmUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+                case updateConfigAction of [
+                    ConfigForceRewardFromTransfer (_v)  -> block {
+                        if updateConfigNewValue =/= 1n and updateConfigNewValue =/= 0n then failwith("Configuration value error") else skip;
+                        s.config.forceRewardFromTransfer    := updateConfigNewValue = 1n;
+                    }
+                | ConfigRewardPerBlock (_v)          -> block {
+                        // check if farm has been initiated
+                        checkFarmIsInit(s);
 
-  case updateConfigAction of [
-    ConfigForceRewardFromTransfer (_v)  -> block {
-        if updateConfigNewValue =/= 1n and updateConfigNewValue =/= 0n then failwith("Configuration value error") else skip;
-        s.config.forceRewardFromTransfer    := updateConfigNewValue = 1n;
-    }
-  | ConfigRewardPerBlock (_v)          -> block {
-        // check if farm has been initiated
-        checkFarmIsInit(s);
+                        checkFarmIsInit(s);
 
-        checkFarmIsInit(s);
+                        // update farmStorage
+                        s := updateFarm(s);
 
-        // update farmStorage
-        s := updateFarm(s);
+                        // Check new reward per block
+                        const currentRewardPerBlock: nat = s.config.plannedRewards.currentRewardPerBlock;
+                        if currentRewardPerBlock > updateConfigNewValue then failwith("The new reward per block must be higher than the previous one.") else skip;
 
-        // Check new reward per block
-        const currentRewardPerBlock: nat = s.config.plannedRewards.currentRewardPerBlock;
-        if currentRewardPerBlock > updateConfigNewValue then failwith("The new reward per block must be higher than the previous one.") else skip;
+                        // Calculate new total rewards
+                        const totalClaimedRewards: nat = s.claimedRewards.unpaid+s.claimedRewards.paid;
+                        const remainingBlocks: nat = abs((s.initBlock + s.config.plannedRewards.totalBlocks) - s.lastBlockUpdate);
+                        const newTotalRewards: nat = totalClaimedRewards + remainingBlocks * updateConfigNewValue;
 
-        // Calculate new total rewards
-        const totalClaimedRewards: nat = s.claimedRewards.unpaid+s.claimedRewards.paid;
-        const remainingBlocks: nat = abs((s.initBlock + s.config.plannedRewards.totalBlocks) - s.lastBlockUpdate);
-        const newTotalRewards: nat = totalClaimedRewards + remainingBlocks * updateConfigNewValue;
+                        // Update farmStorage
+                        s.config.plannedRewards.currentRewardPerBlock := updateConfigNewValue;
+                        s.config.plannedRewards.totalRewards := newTotalRewards;
+                    }
+                ];
 
-        // Update farmStorage
-        s.config.plannedRewards.currentRewardPerBlock := updateConfigNewValue;
-        s.config.plannedRewards.totalRewards := newTotalRewards;
-  }
-  ];
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (*  updateWhitelistContracts lambda *)
-function lambdaUpdateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: farmStorage): return is
+function lambdaUpdateWhitelistContracts(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
 block {
     
-    // check that sender is admin
     checkSenderIsAdmin(s);
-    s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+    
+    case farmLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (*  updateGeneralContracts lambda *)
-function lambdaUpdateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: farmStorage): return is
+function lambdaUpdateGeneralContracts(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
 block {
 
-    // check that sender is admin
     checkSenderIsAdmin(s);
-    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+    
+    case farmLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
@@ -106,89 +138,109 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  updateBlocksPerMinute lambda *)
-function lambdaUpdateBlocksPerMinute(const blocksPerMinute: nat; var s: farmStorage) : return is
+function lambdaUpdateBlocksPerMinute(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
 block {
+    
     // check that source is admin or factory
     checkSenderOrSourceIsCouncil(s);
 
     // check if farm has been initiated
     checkFarmIsInit(s);
 
-    // update farmStorage
-    s := updateFarm(s);
+    case farmLambdaAction of [
+        | LambdaUpdateBlocksPerMinute(blocksPerMinute) -> {
+                
+                // update farmStorage
+                s := updateFarm(s);
 
-    // Check new blocksPerMinute
-    if blocksPerMinute > 0n then skip else failwith("The new block per minute should be greater than zero");
+                // Check new blocksPerMinute
+                if blocksPerMinute > 0n then skip else failwith("The new block per minute should be greater than zero");
 
-    var newcurrentRewardPerBlock: nat := 0n;
-    if s.config.infinite then {
-        newcurrentRewardPerBlock := s.config.blocksPerMinute * s.config.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / blocksPerMinute;
-    }
-    else {
-        // Unclaimed rewards
-        const totalUnclaimedRewards: nat = abs(s.config.plannedRewards.totalRewards - (s.claimedRewards.unpaid+s.claimedRewards.paid));
+                var newcurrentRewardPerBlock: nat := 0n;
+                if s.config.infinite then {
+                    newcurrentRewardPerBlock := s.config.blocksPerMinute * s.config.plannedRewards.currentRewardPerBlock * fixedPointAccuracy / blocksPerMinute;
+                }
+                else {
+                    // Unclaimed rewards
+                    const totalUnclaimedRewards: nat = abs(s.config.plannedRewards.totalRewards - (s.claimedRewards.unpaid+s.claimedRewards.paid));
 
-        // Updates rewards and total blocks accordingly
-        const blocksPerMinuteRatio: nat = s.config.blocksPerMinute * fixedPointAccuracy / blocksPerMinute;
-        const newTotalBlocks: nat = (s.config.plannedRewards.totalBlocks * fixedPointAccuracy) / blocksPerMinuteRatio;
-        const remainingBlocks: nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
-        newcurrentRewardPerBlock := (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
-        
-        // Update farmStorage
-        s.config.plannedRewards.totalBlocks := newTotalBlocks;
-    };
+                    // Updates rewards and total blocks accordingly
+                    const blocksPerMinuteRatio: nat = s.config.blocksPerMinute * fixedPointAccuracy / blocksPerMinute;
+                    const newTotalBlocks: nat = (s.config.plannedRewards.totalBlocks * fixedPointAccuracy) / blocksPerMinuteRatio;
+                    const remainingBlocks: nat = abs((s.initBlock + newTotalBlocks) - s.lastBlockUpdate);
+                    newcurrentRewardPerBlock := (totalUnclaimedRewards * fixedPointAccuracy) / remainingBlocks;
+                    
+                    // Update farmStorage
+                    s.config.plannedRewards.totalBlocks := newTotalBlocks;
+                };
 
-    // Update farmStorage
-    s.config.blocksPerMinute := blocksPerMinute;
-    s.config.plannedRewards.currentRewardPerBlock := (newcurrentRewardPerBlock/fixedPointAccuracy);
+                // Update farmStorage
+                s.config.blocksPerMinute := blocksPerMinute;
+                s.config.plannedRewards.currentRewardPerBlock := (newcurrentRewardPerBlock/fixedPointAccuracy);
+
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* initFarm lambda *)
-function lambdaInitFarm (const initFarmParams: initFarmParamsType; var s: farmStorage): return is
+function lambdaInitFarm(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
 block{
 
-    // Check if sender is admin
     checkSenderIsAdmin(s);
 
-    // Check if farm is already open
-    if s.open or s.init then failwith("This farm is already opened you cannot initialize it again") else skip;
+    case farmLambdaAction of [
+        | LambdaInitFarm(initFarmParams) -> {
+                
+                // Check if farm is already open
+                if s.open or s.init then failwith("This farm is already opened you cannot initialize it again") else skip;
 
-    // Check if the blocks per minute is greater than 0
-    if initFarmParams.blocksPerMinute <= 0n then failwith("This farm farm blocks per minute should be greater than 0") else skip;
+                // Check if the blocks per minute is greater than 0
+                if initFarmParams.blocksPerMinute <= 0n then failwith("This farm farm blocks per minute should be greater than 0") else skip;
 
-    // Check wether the farm is infinite or its total blocks has been set
-    if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
-    
-    // Update farmStorage
-    s := updateFarm(s);
-    s.initBlock := Tezos.level;
-    s.config.infinite := initFarmParams.infinite;
-    s.config.forceRewardFromTransfer := initFarmParams.forceRewardFromTransfer;
-    s.config.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
-    s.config.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
-    s.config.plannedRewards.totalRewards := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
-    s.config.blocksPerMinute := initFarmParams.blocksPerMinute;
-    s.open := True ;
-    s.init := True ;
+                // Check wether the farm is infinite or its total blocks has been set
+                if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
+                
+                // Update farmStorage
+                s := updateFarm(s);
+                s.initBlock := Tezos.level;
+                s.config.infinite := initFarmParams.infinite;
+                s.config.forceRewardFromTransfer := initFarmParams.forceRewardFromTransfer;
+                s.config.plannedRewards.currentRewardPerBlock := initFarmParams.currentRewardPerBlock;
+                s.config.plannedRewards.totalBlocks := initFarmParams.totalBlocks;
+                s.config.plannedRewards.totalRewards := s.config.plannedRewards.currentRewardPerBlock * s.config.plannedRewards.totalBlocks;
+                s.config.blocksPerMinute := initFarmParams.blocksPerMinute;
+                s.open := True ;
+                s.init := True ;
+
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (* closeFarm lambda *)
-function lambdaCloseFarm (var s: farmStorage): return is
+function lambdaCloseFarm(const farmLambdaAction : farmLambdaActionType; var s: farmStorage): return is
 block{
-    // Check sender is admin
+    
     checkSenderIsAdmin(s);
 
-    // Check if farm is open
     checkFarmIsOpen(s);
-    
-    s := updateFarm(s);
-    s.open := False ;
+
+    case farmLambdaAction of [
+        | LambdaCloseFarm(_parameters) -> {
+                
+                s := updateFarm(s);
+                s.open := False ;
+                
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
@@ -203,79 +255,113 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  pauseAll lambda *)
-function lambdaPauseAll(var s: farmStorage) : return is
+function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
 block {
-    // check that source is admin
+    
     checkSenderIsAllowed(s);
 
-    // set all pause configs to True
-    if s.breakGlassConfig.depositIsPaused then skip
-    else s.breakGlassConfig.depositIsPaused := True;
+    case farmLambdaAction of [
+        | LambdaPauseAll(_parameters) -> {
+                
+                // set all pause configs to True
+                if s.breakGlassConfig.depositIsPaused then skip
+                else s.breakGlassConfig.depositIsPaused := True;
 
-    if s.breakGlassConfig.withdrawIsPaused then skip
-    else s.breakGlassConfig.withdrawIsPaused := True;
+                if s.breakGlassConfig.withdrawIsPaused then skip
+                else s.breakGlassConfig.withdrawIsPaused := True;
 
-    if s.breakGlassConfig.claimIsPaused then skip
-    else s.breakGlassConfig.claimIsPaused := True;
+                if s.breakGlassConfig.claimIsPaused then skip
+                else s.breakGlassConfig.claimIsPaused := True;
 
+            }
+        | _ -> skip
+    ];
+    
 } with (noOperations, s)
 
 
 
 (*  unpauseAll lambda *)
-function lambdaUnpauseAll(var s : farmStorage) : return is
+function lambdaUnpauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
-    // check that source is admin
+
     checkSenderIsAllowed(s);
 
-    // set all pause configs to False
-    if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
-    else skip;
+    case farmLambdaAction of [
+        | LambdaUnpauseAll(_parameters) -> {
+                
+                // set all pause configs to False
+                if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
+                else skip;
 
-    if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
-    else skip;
+                if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
+                else skip;
 
-    if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
-    else skip;
+                if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
+                else skip;
+
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (*  togglePauseDeposit lambda *)
-function lambdaTogglePauseDeposit(var s : farmStorage) : return is
+function lambdaTogglePauseDeposit(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
-    // check that source is admin
+    
     checkSenderIsAllowed(s);
 
-    if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
-    else s.breakGlassConfig.depositIsPaused := True;
+    case farmLambdaAction of [
+        | LambdaTogglePauseDeposit(_parameters) -> {
+                
+                if s.breakGlassConfig.depositIsPaused then s.breakGlassConfig.depositIsPaused := False
+                else s.breakGlassConfig.depositIsPaused := True;
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (*  togglePauseWithdraw lambda *)
-function lambdaTogglePauseWithdraw(var s : farmStorage) : return is
+function lambdaTogglePauseWithdraw(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
-    // check that source is admin
+
     checkSenderIsAllowed(s);
 
-    if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
-    else s.breakGlassConfig.withdrawIsPaused := True;
+    case farmLambdaAction of [
+        | LambdaTogglePauseWithdraw(_parameters) -> {
+                
+                if s.breakGlassConfig.withdrawIsPaused then s.breakGlassConfig.withdrawIsPaused := False
+                else s.breakGlassConfig.withdrawIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
 
 
 (*  togglePauseClaim lambda *)
-function lambdaTogglePauseClaim(var s : farmStorage) : return is
+function lambdaTogglePauseClaim(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
-    // check that source is admin
+
     checkSenderIsAllowed(s);
 
-    if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
-    else s.breakGlassConfig.claimIsPaused := True;
+    case farmLambdaAction of [
+        | LambdaTogglePauseWithdraw(_parameters) -> {
+                
+                if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
+                else s.breakGlassConfig.claimIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
 
 } with (noOperations, s)
 
@@ -290,7 +376,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* deposit lambda *)
-function lambdaDeposit(const tokenAmount: tokenBalance; var s: farmStorage) : return is
+function lambdaDeposit(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
 block{
 
     // break glass check
@@ -299,55 +385,66 @@ block{
     // Check if farm has started
     checkFarmIsInit(s);
 
-    // Update pool farmStorage
-    s := updateFarm(s);
+    var operations : list(operation) := nil;
 
-    // Check if farm is closed or not
-    checkFarmIsOpen(s);
+    case farmLambdaAction of [
+        | LambdaDeposit(tokenAmount) -> {
+                
+                // Update pool farmStorage
+                s := updateFarm(s);
 
-    // Delegator address
-    const delegator: delegator = Tezos.sender;
+                // Check if farm is closed or not
+                checkFarmIsOpen(s);
 
-    // Check if sender as already a record
-    const existingDelegator: bool = Big_map.mem(delegator, s.delegators);
+                // Delegator address
+                const delegator: delegator = Tezos.sender;
 
-    // Prepare new delegator record
-    var delegatorRecord: delegatorRecord := record[
-        balance=0n;
-        participationMVKPerShare=s.accumulatedMVKPerShare;
-        unclaimedRewards=0n
+                // Check if sender as already a record
+                const existingDelegator: bool = Big_map.mem(delegator, s.delegators);
+
+                // Prepare new delegator record
+                var delegatorRecord: delegatorRecord := record[
+                    balance=0n;
+                    participationMVKPerShare=s.accumulatedMVKPerShare;
+                    unclaimedRewards=0n
+                ];
+
+                // Get delegator deposit and perform a claim
+                if existingDelegator then {
+                    // Update user's unclaimed rewards
+                    s := updateUnclaimedRewards(s);
+
+                    // Refresh delegator deposit with updated unclaimed rewards
+                    delegatorRecord :=  case getDelegatorDeposit(delegator, s) of [
+                        Some (_delegator) -> _delegator
+                    |   None -> failwith("Delegator not found")
+                    ];
+                    
+                }
+                else skip;
+
+                // Update delegator token balance
+                delegatorRecord.balance := delegatorRecord.balance + tokenAmount;
+
+                // Update delegators Big_map and farmTokenBalance
+                s.config.lpToken.tokenBalance := s.config.lpToken.tokenBalance + tokenAmount;
+                s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+
+                // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
+                const transferOperation: operation = transferLP(delegator, Tezos.self_address, tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
+
+                operations := transferOperation # operations;
+
+            }
+        | _ -> skip
     ];
 
-    // Get delegator deposit and perform a claim
-    if existingDelegator then {
-        // Update user's unclaimed rewards
-        s := updateUnclaimedRewards(s);
-
-        // Refresh delegator deposit with updated unclaimed rewards
-        delegatorRecord :=  case getDelegatorDeposit(delegator, s) of [
-            Some (_delegator) -> _delegator
-        |   None -> failwith("Delegator not found")
-        ];
-        
-    }
-    else skip;
-
-    // Update delegator token balance
-    delegatorRecord.balance := delegatorRecord.balance + tokenAmount;
-
-    // Update delegators Big_map and farmTokenBalance
-    s.config.lpToken.tokenBalance := s.config.lpToken.tokenBalance + tokenAmount;
-    s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
-
-    // Transfer LP tokens from sender to farm balance in LP Contract (use Allowances)
-    const operation: operation = transferLP(delegator, Tezos.self_address, tokenAmount, s.config.lpToken.tokenId, s.config.lpToken.tokenStandard, s.config.lpToken.tokenAddress);
-
-} with(list[operation], s)
+} with(operations, s)
 
 
 
 (* withdraw lambda *)
-function lambdaWithdraw(const tokenAmount: tokenBalance; var s: farmStorage) : return is
+function lambdaWithdraw(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
 block{
 
     // break glass check
@@ -356,44 +453,55 @@ block{
     // Check if farm has started
     checkFarmIsInit(s);
 
-    // Update pool farmStorage
-    s := updateFarm(s);
+    var operations : list(operation) := nil;
 
-    const delegator: delegator = Tezos.sender;
+    case farmLambdaAction of [
+        | LambdaWithdraw(tokenAmount) -> {
+                
+                // Update pool farmStorage
+                s := updateFarm(s);     
 
-    // Prepare to update user's unclaimedRewards if user already deposited tokens
-    s := updateUnclaimedRewards(s);
+                const delegator: delegator = Tezos.sender;
 
-    var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
-        Some (d) -> d
-    |   None -> failwith("DELEGATOR_NOT_FOUND")
+                // Prepare to update user's unclaimedRewards if user already deposited tokens
+                s := updateUnclaimedRewards(s);
+
+                var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
+                    Some (d) -> d
+                |   None -> failwith("DELEGATOR_NOT_FOUND")
+                ];
+
+                // Check if the delegator has enough token to withdraw
+                if tokenAmount > delegatorRecord.balance then failwith("The amount withdrawn is higher than the delegator deposit") else skip;
+                delegatorRecord.balance := abs(delegatorRecord.balance - tokenAmount);
+                s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+
+                // Check if the farm has enough token
+                if tokenAmount > s.config.lpToken.tokenBalance then failwith("The amount withdrawn is higher than the farm lp balance") else skip;
+                s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - tokenAmount);
+                
+                // Transfer LP tokens to the user from the farm balance in the LP Contract
+                const transferOperation: operation = transferLP(
+                    Tezos.self_address,
+                    delegator,
+                    tokenAmount,
+                    s.config.lpToken.tokenId, 
+                    s.config.lpToken.tokenStandard,
+                    s.config.lpToken.tokenAddress
+                );
+
+                operations := transferOperation # operations;
+
+            }
+        | _ -> skip
     ];
 
-    // Check if the delegator has enough token to withdraw
-    if tokenAmount > delegatorRecord.balance then failwith("The amount withdrawn is higher than the delegator deposit") else skip;
-    delegatorRecord.balance := abs(delegatorRecord.balance - tokenAmount);
-    s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
-
-    // Check if the farm has enough token
-    if tokenAmount > s.config.lpToken.tokenBalance then failwith("The amount withdrawn is higher than the farm lp balance") else skip;
-    s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - tokenAmount);
-    
-    // Transfer LP tokens to the user from the farm balance in the LP Contract
-    const operation: operation = transferLP(
-        Tezos.self_address,
-        delegator,
-        tokenAmount,
-        s.config.lpToken.tokenId, 
-        s.config.lpToken.tokenStandard,
-        s.config.lpToken.tokenAddress
-    );
-
-} with(list[operation], s)
+} with(operations, s)
 
 
 
 (* claim lambda *)
-function lambdaClaim(var s: farmStorage) : return is
+function lambdaClaim(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
 block{
 
     // break glass check
@@ -402,32 +510,43 @@ block{
     // Check if farm has started
     checkFarmIsInit(s);
 
-    // Update pool farmStorage
-    s := updateFarm(s);
+    var operations : list(operation) := nil;
 
-    // Update user's unclaimed rewards
-    s := updateUnclaimedRewards(s);
+    case farmLambdaAction of [
+        | LambdaClaim(_parameters) -> {
+                
+                // Update pool farmStorage
+                s := updateFarm(s);
 
-    const delegator: delegator = Tezos.sender;
+                // Update user's unclaimed rewards
+                s := updateUnclaimedRewards(s);
 
-    // Check if sender as already a record
-    var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
-        Some (r) -> r
-    |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
+                const delegator: delegator = Tezos.sender;
+
+                // Check if sender as already a record
+                var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
+                    Some (r) -> r
+                |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
+                ];
+
+                const claimedRewards: tokenBalance = delegatorRecord.unclaimedRewards;
+
+                if claimedRewards = 0n then failwith("The delegator has no rewards to claim") else skip;
+
+                // Store new unclaimedRewards value in delegator
+                delegatorRecord.unclaimedRewards := 0n;
+                s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
+
+                // Transfer sMVK rewards
+                const transferRewardOperation: operation = transferReward(delegator, claimedRewards, s);
+
+                operations := transferRewardOperation # operations;
+
+            }
+        | _ -> skip
     ];
 
-    const claimedRewards: tokenBalance = delegatorRecord.unclaimedRewards;
-
-    if claimedRewards = 0n then failwith("The delegator has no rewards to claim") else skip;
-
-    // Store new unclaimedRewards value in delegator
-    delegatorRecord.unclaimedRewards := 0n;
-    s.delegators := Big_map.update(delegator, Some (delegatorRecord), s.delegators);
-
-    // Transfer sMVK rewards
-    const operation: operation = transferReward(delegator, claimedRewards, s);
-
-} with(list[operation], s)
+} with(operations, s)
 
 // ------------------------------------------------------------------------------
 // Farm Lambdas End

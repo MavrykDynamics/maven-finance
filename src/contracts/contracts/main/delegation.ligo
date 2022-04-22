@@ -60,6 +60,8 @@ type return is list (operation) * delegationStorage
 // delegation contract methods lambdas
 type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegationStorage) -> return
 
+
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes Begin
