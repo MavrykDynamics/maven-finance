@@ -1016,6 +1016,8 @@ block {
                 if requestTokensParams.tokenType = "FA12" or requestTokensParams.tokenType = "FA2" or requestTokensParams.tokenType = "TEZ" then skip
                 else failwith("Error. Provided tokenType is invalid. Can only be TEZ/FA12/FA2");
 
+                const keyHash : option(key_hash) = (None : option(key_hash));
+
                 var newFinancialRequest : financialRequestRecordType := record [
                     requesterAddress     = Tezos.sender;
                     requestType          = "TRANSFER";
@@ -1030,6 +1032,7 @@ block {
                     tokenId              = requestTokensParams.tokenId;
                     requestPurpose       = requestTokensParams.purpose; 
                     voters               = emptyFinancialRequestVotersMap;
+                    keyHash              = keyHash;
 
                     approveVoteTotal     = 0n;
                     disapproveVoteTotal  = 0n;
@@ -1113,6 +1116,8 @@ block {
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
 
+                const keyHash : option(key_hash) = (None : option(key_hash));
+
                 var newFinancialRequest : financialRequestRecordType := record [
 
                         requesterAddress     = Tezos.sender;
@@ -1128,6 +1133,7 @@ block {
                         tokenId              = 0n;
                         requestPurpose       = requestMintParams.purpose;
                         voters               = emptyFinancialRequestVotersMap;
+                        keyHash              = keyHash;
 
                         approveVoteTotal     = 0n;
                         disapproveVoteTotal  = 0n;
@@ -1175,6 +1181,103 @@ block {
     ];
 
 } with (noOperations, s)
+
+
+
+(* setContractBaker lambda *)
+function lambdaSetContractBaker(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+block {
+  
+  checkSenderIsCouncilContract(s);
+
+  case governanceLambdaAction of [
+        | LambdaSetContractBaker(setContractBakerParams) -> {
+                
+                const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
+  
+                const mvkTokenAddress : address = s.mvkTokenAddress;
+
+                const doormanAddress : address = case s.generalContracts["doorman"] of [
+                      Some(_address) -> _address
+                    | None -> failwith("Error. Doorman Contract is not found")
+                ];
+                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
+                s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
+                      Some (value) -> value
+                    | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
+                ];
+
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                      Some(_address) -> _address
+                    | None -> failwith("Error. Delegation Contract is not found")
+                ];
+
+                const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+
+                var newFinancialRequest : financialRequestRecordType := record [
+
+                        requesterAddress     = Tezos.sender;
+                        requestType          = "SET_CONTRACT_BAKER";
+                        status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
+                        executed             = False;
+
+                        treasuryAddress      = setContractBakerParams.targetContractAddress;
+                        tokenContractAddress = mvkTokenAddress;
+                        tokenAmount          = 0n;
+                        tokenName            = "NIL"; 
+                        tokenType            = "NIL";
+                        tokenId              = 0n;
+                        requestPurpose       = "Set Contract Baker";
+                        voters               = emptyFinancialRequestVotersMap;
+                        keyHash              = setContractBakerParams.keyHash;
+
+                        approveVoteTotal     = 0n;
+                        disapproveVoteTotal  = 0n;
+
+                        snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
+                        stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
+                        stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
+
+                        requestedDateTime    = Tezos.now;               // log of when the request was submitted
+                        expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
+                    ];
+
+                const financialRequestId : nat = s.financialRequestCounter;
+
+                // save request to financial request ledger
+                s.financialRequestLedger[financialRequestId] := newFinancialRequest;
+
+                // increment financial request counter
+                s.financialRequestCounter := financialRequestId + 1n;
+
+                // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
+                const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
+                s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
+
+                // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
+                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
+                const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
+                      Some (value) -> value
+                    | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
+                ];
+
+                for satelliteAddress -> satellite in map activeSatellites block {
+                    const satelliteSnapshot : requestSatelliteSnapshotType = record [
+                        satelliteAddress      = satelliteAddress;
+                        requestId             = financialRequestId;
+                        stakedMvkBalance      = satellite.stakedMvkBalance;
+                        totalDelegatedAmount  = satellite.totalDelegatedAmount;
+                    ];
+
+                    s := requestSatelliteSnapshot(satelliteSnapshot,s);
+                }; 
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
 
 
 
@@ -1296,68 +1399,85 @@ block {
                         // send request to treasury if total approved votes exceed staked MVK required for approval
                         if newApproveVoteTotal > _financialRequest.stakedMvkRequiredForApproval then block {
 
-                        const treasuryAddress : address = _financialRequest.treasuryAddress;
+                            const treasuryAddress : address = _financialRequest.treasuryAddress;
 
-                        const councilAddress : address = case s.generalContracts["council"] of [
-                            Some(_address) -> _address
-                            | None -> failwith("Error. Council Contract is not found")
-                        ];
-
-                        if _financialRequest.requestType = "TRANSFER" then block {
-
-                            // ---- set token type ----
-                            var _tokenTransferType : tokenType := Tez;
-
-                            if  _financialRequest.tokenType = "FA12" 
-                            then block {
-                                _tokenTransferType := Fa12(_financialRequest.tokenContractAddress); 
-                            } 
-                            else skip;
-
-                            if  _financialRequest.tokenType = "FA2" 
-                            then block {
-                                _tokenTransferType := Fa2(record [
-                                    tokenContractAddress  = _financialRequest.tokenContractAddress;
-                                    tokenId               = _financialRequest.tokenId;
-                                ]); 
-                            } 
-                            else skip;
-                            // --- --- ---
-
-                            const transferTokenParams : transferActionType = list[
-                            record [
-                                to_        = councilAddress;
-                                token      = _tokenTransferType;
-                                amount     = _financialRequest.tokenAmount;
-                            ]
+                            const councilAddress : address = case s.generalContracts["council"] of [
+                                Some(_address) -> _address
+                                | None -> failwith("Error. Council Contract is not found")
                             ];
 
-                            const treasuryTransferOperation : operation = Tezos.transaction(
-                                transferTokenParams, 
-                                0tez, 
-                                sendTransferOperationToTreasury(treasuryAddress)
-                            );
+                            if _financialRequest.requestType = "TRANSFER" then block {
 
-                            operations := treasuryTransferOperation # operations;
+                                // ---- set token type ----
+                                var _tokenTransferType : tokenType := Tez;
 
-                        } else skip;
+                                if  _financialRequest.tokenType = "FA12" 
+                                then block {
+                                    _tokenTransferType := Fa12(_financialRequest.tokenContractAddress); 
+                                } 
+                                else skip;
 
-                        if _financialRequest.requestType = "MINT" then block {
-                            
-                            const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
-                                to_  = councilAddress;
-                                amt  = _financialRequest.tokenAmount;
-                            ];
+                                if  _financialRequest.tokenType = "FA2" 
+                                then block {
+                                    _tokenTransferType := Fa2(record [
+                                        tokenContractAddress  = _financialRequest.tokenContractAddress;
+                                        tokenId               = _financialRequest.tokenId;
+                                    ]); 
+                                } 
+                                else skip;
+                                // --- --- ---
 
-                            const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
-                                mintMvkAndTransferTokenParams, 
-                                0tez, 
-                                sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
-                            );
+                                const transferTokenParams : transferActionType = list[
+                                record [
+                                    to_        = councilAddress;
+                                    token      = _tokenTransferType;
+                                    amount     = _financialRequest.tokenAmount;
+                                ]
+                                ];
 
-                            operations := treasuryMintMvkAndTransferOperation # operations;
+                                const treasuryTransferOperation : operation = Tezos.transaction(
+                                    transferTokenParams, 
+                                    0tez, 
+                                    sendTransferOperationToTreasury(treasuryAddress)
+                                );
 
-                        } else skip;
+                                operations := treasuryTransferOperation # operations;
+
+                            } else skip;
+
+
+
+                            if _financialRequest.requestType = "MINT" then block {
+                                
+                                const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
+                                    to_  = councilAddress;
+                                    amt  = _financialRequest.tokenAmount;
+                                ];
+
+                                const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
+                                    mintMvkAndTransferTokenParams, 
+                                    0tez, 
+                                    sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
+                                );
+
+                                operations := treasuryMintMvkAndTransferOperation # operations;
+
+                            } else skip;
+
+
+
+                            if _financialRequest.requestType = "SET_CONTRACT_BAKER" then block {
+
+                                const keyHash : option(key_hash) = _financialRequest.keyHash;
+                                const setContractBakerOperation : operation = Tezos.transaction(
+                                    keyHash, 
+                                    0tez, 
+                                    setTreasuryBaker(_financialRequest.treasuryAddress)
+                                );
+
+                                operations := setContractBakerOperation # operations;
+
+                            } else skip;
 
                             _financialRequest.executed := True;
                             s.financialRequestLedger[financialRequestId] := _financialRequest;

@@ -73,10 +73,14 @@
     },
     {
       "index": 18,
-      "name": "lambdaDropFinancialRequest"
+      "name": "lambdaSetContractBaker"
     },
     {
       "index": 19,
+      "name": "lambdaDropFinancialRequest"
+    },
+    {
+      "index": 20,
       "name": "lambdaVoteForRequest"
     }
 ]
