@@ -745,16 +745,16 @@ block {
                 case satelliteOptView of [
                 
                     Some (value) -> case value of [
-                        Some (_satellite) -> skip
-                    | None -> failwith("Error. You need to be a satellite to vote for a governance proposal.")
+                          Some (_satellite) -> skip
+                        | None              -> failwith("Error. You need to be a satellite to vote for a governance proposal.")
                     ]
 
-                | None -> failwith ("Error. GetSatelliteOpt View not found in the Delegation Contract")
+                    | None -> failwith ("Error. GetSatelliteOpt View not found in the Delegation Contract")
 
                 ];
 
                 const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
-                    None -> failwith("Error. Snapshot of your holdings not taken. Please wait for the next governance round.")
+                      None           -> failwith("Error. Snapshot of your holdings not taken. Please wait for the next governance round.")
                     | Some(snapshot) -> snapshot
                 ];
 
@@ -845,8 +845,8 @@ block {
         | LambdaExecuteProposal(_parameters) -> {
                 
                 var proposal : proposalRecordType := case s.proposalLedger[s.timelockProposalId] of [
-                    Some(_record) -> _record
-                | None -> failwith("Error. Proposal not found.")
+                      Some(_record) -> _record
+                    | None -> failwith("Error. Proposal not found.")
                 ];
 
                 if proposal.executed = True then failwith("Error. Proposal has already been executed")
@@ -868,7 +868,7 @@ block {
                 for _title -> metadataBytes in map proposal.proposalMetadata block {
 
                     const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-                        Some(_action) -> _action
+                          Some(_action) -> _action
                         | None    -> failwith("Error. Unable to unpack proposal metadata.")
                     ];
 
@@ -886,7 +886,7 @@ block {
                 for _title -> metadataBytes in map proposal.paymentMetadata block {
 
                     const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-                        Some(_action) -> _action
+                          Some(_action) -> _action
                         | None    -> failwith("Error. Unable to unpack proposal metadata.")
                     ];
 
@@ -922,16 +922,16 @@ block {
                 
                 // check if satellite exists in the active satellites map
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
-                | None -> failwith("Error. Delegation Contract is not found")
+                      Some(_address) -> _address
+                    | None -> failwith("Error. Delegation Contract is not found")
                 ];
 
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
 
                     Some (value) -> case value of [
-                        Some (_satellite) -> skip
-                    | None -> failwith("Error. You need to be a satellite to drop a governance proposal.")
+                          Some (_satellite) -> skip
+                        | None -> failwith("Error. You need to be a satellite to drop a governance proposal.")
                     ]
                 | None -> failwith ("Error. GetSatelliteOpt View not found in the Delegation Contract")
 
@@ -943,7 +943,7 @@ block {
                 else skip;
 
                 var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
-                    None -> failwith("Error: Proposal not found in the proposal ledger.")
+                      None -> failwith("Error: Proposal not found in the proposal ledger.")
                     | Some(_proposal) -> _proposal        
                 ];
 
@@ -957,8 +957,8 @@ block {
 
                     // Remove proposal from currentRoundProposers
                     var proposerProposals   : set(nat)             := case s.currentRoundProposers[Tezos.sender] of [
-                        Some (_proposals) -> _proposals
-                    | None -> failwith("Error: Proposal not found in the current round.")
+                          Some (_proposals) -> _proposals
+                        | None -> failwith("Error: Proposal not found in the current round.")
                     ];
                     s.currentRoundProposers[Tezos.sender] := Set.remove(proposalId, proposerProposals);
 
@@ -996,18 +996,18 @@ block {
                 const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Doorman Contract is not found")
                 ];
 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Delegation Contract is not found")
                 ];
 
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
                 s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
-                    Some (value) -> value
+                      Some (value) -> value
                     | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
                 ];
 
@@ -1058,7 +1058,7 @@ block {
                 // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
                 const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
-                    Some (value) -> value
+                      Some (value) -> value
                     | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
                 ];
 
@@ -1096,18 +1096,18 @@ block {
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Doorman Contract is not found")
                 ];
 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Delegation Contract is not found")
                 ];
 
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
                 s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
-                    Some (value) -> value
+                      Some (value) -> value
                     | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
                 ];
 
@@ -1155,7 +1155,7 @@ block {
                 // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
                 const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
-                    Some (value) -> value
+                      Some (value) -> value
                     | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
                 ];
 
@@ -1188,7 +1188,7 @@ block {
         | LambdaDropFinancialRequest(requestId) -> {
                 
                 var financialRequest : financialRequestRecordType := case s.financialRequestLedger[requestId] of [
-                    Some(_request) -> _request
+                      Some(_request) -> _request
                     | None -> failwith("Error. Financial request not found. ")
                 ];
 

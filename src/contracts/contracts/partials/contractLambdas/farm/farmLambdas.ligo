@@ -467,8 +467,8 @@ block{
                 s := updateUnclaimedRewards(s);
 
                 var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
-                    Some (d) -> d
-                |   None -> failwith("DELEGATOR_NOT_FOUND")
+                        Some (d) -> d
+                    |   None -> failwith("DELEGATOR_NOT_FOUND")
                 ];
 
                 // Check if the delegator has enough token to withdraw
@@ -525,8 +525,8 @@ block{
 
                 // Check if sender as already a record
                 var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
-                    Some (r) -> r
-                |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
+                        Some (r) -> r
+                    |   None -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
                 ];
 
                 const claimedRewards: tokenBalance = delegatorRecord.unclaimedRewards;

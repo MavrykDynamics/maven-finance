@@ -420,7 +420,7 @@ block {
                 
                 // Check if the vesting has a addVestee entrypoint
                 var vestingAddress : address := case s.generalContracts["vesting"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Vesting Contract Address not found")
                 ];
                 const _checkEntrypoint: contract(addVesteeType)    = sendAddVesteeParams(vestingAddress);
@@ -435,8 +435,8 @@ block {
                 const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case getVesteeOptView of [
                     Some (_value) -> case _value of [
-                        Some (_vestee) -> failwith ("Error. This vestee already exists")
-                    |   None -> skip
+                            Some (_vestee) -> failwith ("Error. This vestee already exists")
+                        |   None -> skip
                     ]
                 |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
                 ];
@@ -499,7 +499,7 @@ block {
                 
                 // Check if the vesting has a removeVestee entrypoint
                 var vestingAddress : address := case s.generalContracts["vesting"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Vesting Contract Address not found")
                 ];
                 const _checkEntrypoint: contract(address)    = sendRemoveVesteeParams(vestingAddress);
@@ -508,8 +508,8 @@ block {
                 const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case getVesteeOptView of [
                     Some (_value) -> case _value of [
-                        Some (_vestee) -> skip
-                    |   None -> failwith ("Error. This vestee does not exist")
+                            Some (_vestee) -> skip
+                        |   None -> failwith ("Error. This vestee does not exist")
                     ]
                 |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
                 ];
@@ -568,7 +568,7 @@ block {
                 
                 // Check if the vesting has a updateVestee entrypoint
                 var vestingAddress : address := case s.generalContracts["vesting"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Vesting Contract Address not found")
                 ];
                 const _checkEntrypoint: contract(updateVesteeType)    = sendUpdateVesteeParams(vestingAddress);
@@ -583,8 +583,8 @@ block {
                 const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case getVesteeOptView of [
                     Some (_value) -> case _value of [
-                        Some (_vestee) -> skip
-                    |   None -> failwith ("Error. This vestee does not exist")
+                            Some (_vestee) -> skip
+                        |   None -> failwith ("Error. This vestee does not exist")
                     ]
                 |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
                 ];
@@ -647,7 +647,7 @@ block {
                 
                 // Check if the provided contract has a toggleVesteeLock entrypoint
                 var vestingAddress : address := case s.generalContracts["vesting"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Vesting Contract Address not found")
                 ];
                 const _checkEntrypoint: contract(address)    = sendToggleVesteeLockParams(vestingAddress);
@@ -656,8 +656,8 @@ block {
                 const getVesteeOptView : option (option(vesteeRecordType)) = Tezos.call_view ("getVesteeOpt", vesteeAddress, vestingAddress);
                 case getVesteeOptView of [
                     Some (_value) -> case _value of [
-                        Some (_vestee) -> skip
-                    |   None -> failwith ("Error. This vestee does not exist")
+                            Some (_vestee) -> skip
+                        |   None -> failwith ("Error. This vestee does not exist")
                     ]
                 |   None -> failwith ("Error. GetVesteeOpt view does not exist in the vesting contract")
                 ];
@@ -788,7 +788,7 @@ block {
                 
                 // Check if the governance has a updateVestee entrypoint
                 var govenanceAddress : address := case s.generalContracts["governance"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Governance Contract Address not found")
                 ];
                 const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(govenanceAddress);
@@ -861,7 +861,7 @@ block {
                 
                 // Check if the governance has a updateVestee entrypoint
                 var govenanceAddress : address := case s.generalContracts["governance"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Governance Contract Address not found")
                 ];
                 const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(govenanceAddress);
@@ -1052,7 +1052,7 @@ block {
         | LambdaSignAction(actionId) -> {
                 
                 var _councilActionRecord : councilActionRecordType := case s.councilActionsLedger[actionId] of [
-                    Some(_record) -> _record
+                      Some(_record) -> _record
                     | None -> failwith("Error. Council Action not found")
                 ];
 
@@ -1085,13 +1085,13 @@ block {
 
                         // fetch params begin ---
                         const flushedCouncilActionId : nat = case _councilActionRecord.natMap["actionId"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. ActionId not found.")
                         ];
                         // fetch params end ---
 
                         var flushedCouncilActionRecord : councilActionRecordType := case s.councilActionsLedger[flushedCouncilActionId] of [      
-                            Some(_record) -> _record
+                              Some(_record) -> _record
                             | None -> failwith("Error. Council Action not found")
                         ];
 
@@ -1111,11 +1111,11 @@ block {
                         
                         // fetch params begin ---
                         const newBlocksPerMinute : nat = case _councilActionRecord.natMap["newBlocksPerMinute"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. NewBlocksPerMinute not found.")
                         ];
                         const contractAddress : address = case _councilActionRecord.addressMap["contractAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. ContractAddress not found.")
                         ];
                         // fetch params end ---
@@ -1134,22 +1134,22 @@ block {
 
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. VesteeAddress not found.")
                         ];
 
                         const totalAllocatedAmount : nat = case _councilActionRecord.natMap["totalAllocatedAmount"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. TotalAllocatedAmount not found.")
                         ];
 
                         const cliffInMonths : nat = case _councilActionRecord.natMap["cliffInMonths"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. CliffInMonths not found.")
                         ];
 
                         const vestingInMonths : nat = case _councilActionRecord.natMap["vestingInMonths"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. VestingInMonths not found.")
                         ];
                         // fetch params end ---
@@ -1162,7 +1162,7 @@ block {
                         ];
 
                         var vestingAddress : address := case s.generalContracts["vesting"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. Vesting Contract Address not found")
                         ];
 
@@ -1183,14 +1183,14 @@ block {
 
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. VesteeAddress not found.")
                         ];
                         // fetch params end ---
 
 
                         var vestingAddress : address := case s.generalContracts["vesting"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. Vesting Contract Address not found")
                         ];
 
@@ -1211,22 +1211,22 @@ block {
 
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. VesteeAddress not found.")
                         ];
 
                         const newTotalAllocatedAmount : nat = case _councilActionRecord.natMap["newTotalAllocatedAmount"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. NewTotalAllocatedAmount not found.")
                         ];
 
                         const newCliffInMonths : nat = case _councilActionRecord.natMap["newCliffInMonths"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. NewCliffInMonths not found.")
                         ];
 
                         const newVestingInMonths : nat = case _councilActionRecord.natMap["newVestingInMonths"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. NewVestingInMonths not found.")
                         ];
                         // fetch params end ---
@@ -1239,7 +1239,7 @@ block {
                         ];
 
                         var vestingAddress : address := case s.generalContracts["vesting"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. Vesting Contract Address not found")
                         ];
 
@@ -1260,13 +1260,13 @@ block {
 
                         // fetch params begin ---
                         const vesteeAddress : address = case _councilActionRecord.addressMap["vesteeAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. VesteeAddress not found.")
                         ];
                         // fetch end begin ---
 
                         var vestingAddress : address := case s.generalContracts["vesting"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. Vesting Contract Address not found")
                         ];
 
@@ -1287,22 +1287,22 @@ block {
 
                         // fetch params begin ---
                         const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. CouncilMemberAddress not found.")
                         ];
 
                         const councilMemberName : string = case _councilActionRecord.stringMap["councilMemberName"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. CouncilMemberName not found.")
                         ];
 
                         const councilMemberImage : string = case _councilActionRecord.stringMap["councilMemberImage"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. CouncilMemberImage not found.")
                         ];
 
                         const councilMemberWebsite : string = case _councilActionRecord.stringMap["councilMemberWebsite"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. CouncilMemberWebsite not found.")
                         ];
                         // fetch params end ---
@@ -1327,7 +1327,7 @@ block {
 
                         // fetch params begin ---
                         const councilMemberAddress : address = case _councilActionRecord.addressMap["councilMemberAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. CouncilMemberAddress not found.")
                         ];
                         // fetch params end ---
@@ -1349,27 +1349,27 @@ block {
 
                         // fetch params begin ---
                         const oldCouncilMemberAddress : address = case _councilActionRecord.addressMap["oldCouncilMemberAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. OldCouncilMemberAddress not found.")
                         ];
 
                         const newCouncilMemberAddress : address = case _councilActionRecord.addressMap["newCouncilMemberAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. NewCouncilMemberAddress not found.")
                         ];
 
                         const newCouncilMemberName : string = case _councilActionRecord.stringMap["newCouncilMemberName"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. NewCouncilMemberName not found.")
                         ];
 
                         const newCouncilMemberImage : string = case _councilActionRecord.stringMap["newCouncilMemberImage"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. NewCouncilMemberImage not found.")
                         ];
 
                         const newCouncilMemberWebsite : string = case _councilActionRecord.stringMap["newCouncilMemberWebsite"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. NewCouncilMemberWebsite not found.")
                         ];
                         // fetch params end ---
@@ -1390,6 +1390,7 @@ block {
 
                         s.councilMembers := Map.add(newCouncilMemberAddress, councilMemberInfo, s.councilMembers);
                         s.councilMembers := Map.remove(oldCouncilMemberAddress, s.councilMembers);
+
                     } else skip;
 
 
@@ -1399,27 +1400,27 @@ block {
 
                         // fetch params begin ---
                         const receiverAddress : address = case _councilActionRecord.addressMap["receiverAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. ReceiverAddress not found.")
                         ];
 
                         const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. TokenContractAddress not found.")
                         ];
 
                         const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. TokenType not found.")
                         ];
 
                         const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. TokenAmount not found.")
                         ];
 
                         const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. TokenId not found.")
                         ];
                         // fetch params end ---
@@ -1463,37 +1464,37 @@ block {
 
                         // fetch params begin ---
                         const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. TreasuryAddress not found.")
                         ];
 
                         const tokenContractAddress : address = case _councilActionRecord.addressMap["tokenContractAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. TokenContractAddress not found.")
                         ];
 
                         const tokenType : string = case _councilActionRecord.stringMap["tokenType"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. TokenType not found.")
                         ];
 
                         const tokenName : string = case _councilActionRecord.stringMap["tokenName"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. TokenName not found.")
                         ];
 
                         const purpose : string = case _councilActionRecord.stringMap["purpose"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. Purpose not found.")
                         ];
 
                         const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. TokenAmount not found.")
                         ];
 
                         const tokenId : nat = case _councilActionRecord.natMap["tokenId"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. TokenId not found.")
                         ];
                         // fetch params end ---
@@ -1510,7 +1511,7 @@ block {
                         ];
 
                         var governanceAddress : address := case s.generalContracts["governance"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. Governance Contract Address not found")
                         ];
 
@@ -1529,24 +1530,24 @@ block {
                     if actionType = "requestMint" then block {
                         
                         var governanceAddress : address := case s.generalContracts["governance"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. Governance Contract Address not found")
                         ];
 
 
                         // fetch params begin ---
                         const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. TreasuryAddress not found.")
                         ];
 
                         const purpose : string = case _councilActionRecord.stringMap["purpose"] of [
-                            Some(_string) -> _string
+                              Some(_string) -> _string
                             | None -> failwith("Error. Purpose not found.")
                         ];
 
                         const tokenAmount : nat = case _councilActionRecord.natMap["tokenAmount"] of [
-                            Some(_nat) -> _nat
+                              Some(_nat) -> _nat
                             | None -> failwith("Error. TokenAmount not found.")
                         ];
                         // fetch params end ---
@@ -1571,13 +1572,13 @@ block {
                     if actionType = "dropFinancialRequest" then block {
                         
                         var governanceAddress : address := case s.generalContracts["governance"] of [ 
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. Governance Contract Address not found")
                         ];
 
                         // fetch params begin ---
                         const requestId : nat = case _councilActionRecord.natMap["requestId"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. RequestId not found.")
                         ];
                         // fetch params end ---
@@ -1589,6 +1590,7 @@ block {
                         );
 
                         operations := dropFinancialRequestOperation # operations;
+
                     } else skip;
 
                     // update council action record status
