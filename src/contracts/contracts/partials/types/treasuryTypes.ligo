@@ -55,6 +55,7 @@ type treasuryLambdaActionType is
 
   // Housekeeping Entrypoints
 | LambdaSetAdmin                       of (address)
+| LambdaSetBaker                       of option(key_hash)
 | LambdaUpdateMetadata                 of updateMetadataType
 | LambdaUpdateWhitelistContracts       of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts         of updateGeneralContractsParams
