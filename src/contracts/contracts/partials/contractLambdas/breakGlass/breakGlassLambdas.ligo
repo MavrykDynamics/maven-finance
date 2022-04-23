@@ -91,6 +91,9 @@ block {
                 case updateConfigAction of [
                       ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
                     | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
+                    | ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue  
+                    | ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
+                    | ConfigCouncilImageMaxLength (_v)      -> s.config.councilMemberImageMaxLength       := updateConfigNewValue  
                 ];
 
             }
@@ -190,7 +193,12 @@ block {
                 if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
                 else skip;
 
-                const addressMap : addressMapType    = map [
+                // Validate inputs
+                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+
+                const addressMap : addressMapType     = map [
                     ("councilMemberAddress" : string) -> newCouncilMember.memberAddress;
                 ];
                 const stringMap : stringMapType      = map [
@@ -311,6 +319,10 @@ block {
                 // Check if new council member is already in the council
                 if Map.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
                 else skip;
+                // Validate inputs
+                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
 
                 // Check if old council member is in the council
                 if not Map.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
@@ -818,6 +830,16 @@ block {
                             image=councilMemberImage;
                             website=councilMemberWebsite;
                         ];
+                        // Validate inputs
+                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                        if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+
+                        const councilMemberInfo: councilMemberInfoType  = record[
+                            name=councilMemberName;
+                            image=councilMemberImage;
+                            website=councilMemberWebsite;
+                        ];
 
                         if Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
                         else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
@@ -876,6 +898,11 @@ block {
                             | None -> failwith("Error. CouncilMemberWebsite not found.")
                         ];
                         // fetch params end ---
+
+                        // Validate inputs
+                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                        if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
 
                         // Check if new council member is already in the council
                         if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")

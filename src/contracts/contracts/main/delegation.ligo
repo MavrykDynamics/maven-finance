@@ -261,6 +261,7 @@ block {
         name                  = "Mavryk Satellite";
         description           = "Mavryk Satellite";
         image                 = "";
+        website               = "";
 
         registeredDateTime    = Tezos.now;
       ];

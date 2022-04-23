@@ -63,6 +63,11 @@ block {
                 case updateConfigAction of [
                       ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold := updateConfigNewValue
                     | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
+                    | ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue
+                    | ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
+                    | ConfigCouncilImageMaxLength (_v)      -> s.config.councilMemberImageMaxLength       := updateConfigNewValue  
+                    | ConfigRequestTokenNameMaxLength (_v)  -> s.config.requestTokenNameMaxLength         := updateConfigNewValue  
+                    | ConfigRequestPurposeMaxLength (_v)    -> s.config.requestPurposeMaxLength           := updateConfigNewValue  
                 ];
 
             }
@@ -122,13 +127,18 @@ block {
                 |   None -> failwith("Error. You are not a member of the council")
                 ];
                 
+                // Validate inputs
+                if String.length(councilMemberInfo.name) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                if String.length(councilMemberInfo.image) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                if String.length(councilMemberInfo.website) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+                
                 // Update member info
                 councilMember.name      := councilMemberInfo.name;
                 councilMember.website   := councilMemberInfo.website;
                 councilMember.image     := councilMemberInfo.image;
 
                 // Update storage
-                s.councilMembers[Tezos.sender]  := councilMember;    
+                s.councilMembers[Tezos.sender]  := councilMember;   
 
             }
         | _ -> skip
@@ -159,6 +169,11 @@ block {
     case councilLambdaAction of [
         | LambdaCouncilActionAddMember(newCouncilMember) -> {
 
+                // Validate inputs
+                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+
                 // Check if new council member is already in the council
                 if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
                 else skip;
@@ -169,9 +184,9 @@ block {
                         ("councilMemberAddress" : string) -> newCouncilMember.memberAddress
                     ];
                 const stringMap           : stringMapType      = map [
-                        ("councilMemberName": string)     -> newCouncilMember.memberName;
-                        ("councilMemberImage": string)    -> newCouncilMember.memberImage;
-                        ("councilMemberWebsite": string)  -> newCouncilMember.memberWebsite
+                        ("councilMemberName": string) -> newCouncilMember.memberName;
+                        ("councilMemberImage": string) -> newCouncilMember.memberImage;
+                        ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
                 ];
                 const emptyNatMap         : natMapType         = map [];
 
@@ -285,6 +300,11 @@ block {
     case councilLambdaAction of [
         | LambdaCouncilActionChangeMember(councilActionChangeMemberParams) -> {
                 
+                // Validate inputs
+                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+
                 // Check if new council member is already in the council
                 if Map.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
                 else skip;
@@ -300,9 +320,9 @@ block {
                     ("newCouncilMemberAddress" : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
                 ];
                 const stringMap           : stringMapType      = map [
-                    ("newCouncilMemberName" : string)    -> councilActionChangeMemberParams.newCouncilMemberName;
+                    ("newCouncilMemberName" : string) -> councilActionChangeMemberParams.newCouncilMemberName;
                     ("newCouncilMemberWebsite" : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-                    ("newCouncilMemberImage" : string)   -> councilActionChangeMemberParams.newCouncilMemberImage;
+                    ("newCouncilMemberImage" : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
                 ];
                 const emptyNatMap         : natMapType         = map [];
 
@@ -795,6 +815,9 @@ block {
     case councilLambdaAction of [
         | LambdaCouncilActionTransfer(councilActionTransferParams) -> {
                 
+                // Validate inputs
+                if String.length(councilActionTransferParams.purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
+
                 // Check if type is correct
                 if councilActionTransferParams.tokenType = "FA12" or
                 councilActionTransferParams.tokenType = "FA2" or
@@ -861,8 +884,12 @@ block {
     checkSenderIsCouncilMember(s);
 
     case councilLambdaAction of [
-        | LambdaCouncilRequestTokens(councilActionRequestTokensParams) -> {
-                
+        | LambdaCouncilRequestTokens(councilActionRequestTokensParams) -> {                
+
+                // Validate inputs
+                if String.length(councilActionRequestTokensParams.purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
+                if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith("Error. Request token name too long") else skip;
+
                 // Check if entrypoint exist on Governance Contract
                 var govenanceAddress : address := case s.generalContracts["governance"] of [
                       Some(_address) -> _address
@@ -939,6 +966,9 @@ block {
     case councilLambdaAction of [
         | LambdaCouncilRequestMint(councilActionRequestMintParams) -> {
                 
+                // Validate inputs
+                if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
+
                 // Check if entrypoint exists on Governance Contract
                 var govenanceAddress : address := case s.generalContracts["governance"] of [
                       Some(_address) -> _address
@@ -1260,8 +1290,12 @@ block {
                         ];
                         // fetch params end ---
 
-                        // Check if new council member is already in the council
+                        // Validate inputs
+                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                        if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
 
+                        // Check if new council member is already in the council
                         const councilMemberInfo: councilMemberInfoType  = record[
                             name=councilMemberName;
                             image=councilMemberImage;
@@ -1293,6 +1327,7 @@ block {
                         if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith("Error. Removing a council member will have an impact on the threshold. Try to adjust the threshold first.")
                         else skip;
                         s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
+
                     } else skip;
 
 
@@ -1326,6 +1361,11 @@ block {
                             | None -> failwith("Error. NewCouncilMemberWebsite not found.")
                         ];
                         // fetch params end ---
+
+                        // Validate inputs
+                        if String.length(newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                        if String.length(newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                        if String.length(newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
 
                         // Check if new council member is already in the council
                         if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
@@ -1551,6 +1591,7 @@ block {
                         
                     } else skip;    
 
+
                     // ------------------------------------------------------------------------------
                     // Council Actions for Vesting End
                     // ------------------------------------------------------------------------------
@@ -1560,6 +1601,7 @@ block {
                     // ------------------------------------------------------------------------------
                     // Financial Governance Actions Begin
                     // ------------------------------------------------------------------------------
+
 
                     // transfer action type
                     if actionType = "transfer" then block {
@@ -1666,6 +1708,9 @@ block {
                         ];
                         // fetch params end ---
 
+                        // Validate inputs
+                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
+                        if String.length(tokenName) > s.config.requestTokenNameMaxLength then failwith("Error. Request token name too long") else skip;
 
                         const requestTokensParams : councilActionRequestTokensType = record[
                             treasuryAddress       = treasuryAddress;
@@ -1719,6 +1764,9 @@ block {
                             | None -> failwith("Error. TokenAmount not found.")
                         ];
                         // fetch params end ---
+
+                        // Validate inputs
+                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
 
                         const requestMintParams : councilActionRequestMintType = record[
                             tokenAmount      = tokenAmount;
