@@ -12,6 +12,8 @@ export type mvkStorageType = {
 
   totalSupply: BigNumber;
   maximumSupply: BigNumber;
+  inflationRate: BigNumber;
+  nextInflationTimestamp: BigNumber;
 
   ledger: MichelsonMap<MichelsonMapKey, unknown>;
   operators: MichelsonMap<MichelsonMapKey, unknown>;

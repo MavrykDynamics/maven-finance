@@ -67,9 +67,9 @@ type governanceAction is
     | VoteForRequest                  of voteForRequestType
 
       // Lambda Entrypoints
-    | CallGovernanceLambdaProxy       of executeActionType
-    | SetProxyLambda                  of setProxyLambdaType
-    | SetLambda                       of setLambdaType
+    // | CallGovernanceLambdaProxy       of executeActionType
+    // | SetProxyLambda                  of setProxyLambdaType
+    // | SetLambda                       of setLambdaType
 
 
 const noOperations : list (operation) = nil;
@@ -1226,8 +1226,8 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
 
           // Lambda Entrypoints
-        | CallGovernanceLambdaProxy(parameters)       -> callGovernanceLambdaProxy(parameters, s)
-        | SetProxyLambda(parameters)                  -> setProxyLambda(parameters, s)
-        | SetLambda(parameters)                       -> setLambda(parameters, s)
+        // | CallGovernanceLambdaProxy(parameters)       -> callGovernanceLambdaProxy(parameters, s)
+        // | SetProxyLambda(parameters)                  -> setProxyLambda(parameters, s)
+        // | SetLambda(parameters)                       -> setLambda(parameters, s)
 
     ]
