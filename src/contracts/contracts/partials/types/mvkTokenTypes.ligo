@@ -71,13 +71,15 @@ type assertMetadataParams is [@layout:comb] record[
 type mintParams is (owner * tokenBalance)
 
 type mvkTokenStorage is record [
-  admin                 : address;
-  generalContracts      : generalContractsType;    // map of contract addresses
-  whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
-  metadata              : metadata;
-  token_metadata        : tokenMetadata;
-  totalSupply           : tokenBalance;
-  maximumSupply         : tokenBalance;
-  ledger                : ledger;
-  operators             : operators
+  admin                   : address;
+  generalContracts        : generalContractsType;     // map of contract addresses
+  whitelistContracts      : whitelistContractsType;   // whitelist of contracts that can access mint / onStakeChange entrypoints - doorman / vesting contract
+  metadata                : metadata;
+  token_metadata          : tokenMetadata;
+  totalSupply             : tokenBalance;
+  maximumSupply           : tokenBalance;
+  inflationRate           : nat;                      // Percentage
+  nextInflationTimestamp  : timestamp;
+  ledger                  : ledger;
+  operators               : operators
 ]

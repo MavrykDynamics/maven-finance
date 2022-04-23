@@ -344,7 +344,7 @@
 
 //                 // Assertion
 //                 console.log(expectedFinalAmount)
-//                 assert.equal(doormanStorage.logFinalAmount,expectedFinalAmount)
+//                 assert.equal(doormanStorage.logFinalAmount.toNumber(),expectedFinalAmount)
 //                 assert.equal(paidFee,firstUserReward+secondUserReward)
 //                 assert.equal(firstUserReward,firstUserExpectedReward)
 //                 assert.equal(secondUserExpectedReward,secondUserReward)

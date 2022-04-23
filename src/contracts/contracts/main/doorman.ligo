@@ -247,7 +247,7 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 // ------------------------------------------------------------------------------
 
 (*  compoundUserRewards helper function *)
-function compoundUserRewards(var s: doormanStorage): (option(operation) * doormanStorage) is 
+function compoundUserRewards(var s: doormanStorage): doormanStorage is 
   block{
     // Get User
     const user: address = Tezos.source;
@@ -259,7 +259,6 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
           participationFeesPerShare=s.accumulatedFeesPerShare;
         ]
     ];
-    var operation: option(operation) := None;
     // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
     if userRecord.balance > 0n then {
       // Calculate what fees the user missed since his/her last claim
@@ -269,26 +268,13 @@ function compoundUserRewards(var s: doormanStorage): (option(operation) * doorma
       // Increase the user balance
       userRecord.balance := userRecord.balance + userRewards;
       s.unclaimedRewards := abs(s.unclaimedRewards - userRewards);
-      // Find delegation address
-      const delegationAddress : address = case s.generalContracts["delegation"] of [
-          Some(_address) -> _address
-          | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-      ];
-      // update satellite balance if user is delegated to a satellite
-      operation := Some (
-        Tezos.transaction(
-          (Tezos.source),
-          0tez,
-          updateSatelliteBalance(delegationAddress)
-        )
-      );
     }
     else skip;
     // Set the user's participationFeesPerShare 
     userRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
     // Update the doormanStorage
     s.userStakeBalanceLedger := Big_map.update(user, Some (userRecord), s.userStakeBalanceLedger);
-  } with (operation, s)
+  } with (s)
 
 // ------------------------------------------------------------------------------
 // Compound Helper Functions End
