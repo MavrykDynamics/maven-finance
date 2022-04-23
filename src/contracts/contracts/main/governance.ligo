@@ -62,6 +62,7 @@ type governanceAction is
       // Financial Governance Entrypoints
     | RequestTokens                   of requestTokensType
     | RequestMint                     of requestMintType
+    | SetContractBaker                of setContractBakerType
     | DropFinancialRequest            of (nat)
     | VoteForRequest                  of voteForRequestType
 
@@ -131,10 +132,11 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 [@inline] const error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND                  = 21n;
 [@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 22n;
 [@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 23n;
-[@inline] const error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND                  = 24n;
+[@inline] const error_SET_BAKER_ENTRYPOINT_NOT_FOUND                        = 24n;
+[@inline] const error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND                  = 25n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                      = 25n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 26n;
+[@inline] const error_LAMBDA_NOT_FOUND                                      = 26n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 27n;
 
 // ------------------------------------------------------------------------------
 //
@@ -290,6 +292,17 @@ case (Tezos.get_entrypoint_opt(
       contractAddress) : option(contract(mintMvkAndTransferType))) of [
     Some(contr) -> contr
   | None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(mintMvkAndTransferType))
+];
+
+
+
+// helper function to set baker for treasury
+function setTreasuryBaker(const contractAddress : address) : contract(setBakerType) is
+case (Tezos.get_entrypoint_opt(
+      "%setBaker",
+      contractAddress) : option(contract(setBakerType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_SET_BAKER_ENTRYPOINT_NOT_FOUND) : contract(setBakerType))
 ];
 
 
@@ -1043,6 +1056,25 @@ block {
 
 
 
+(* setContractBaker entrypoint *)
+function setContractBaker(const setContractBakerParams : councilActionSetContractBakerType; var s : governanceStorage) : return is 
+block {
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestMint"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaSetContractBaker(setContractBakerParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
 (* dropFinancialRequest entrypoint *)
 function dropFinancialRequest(const requestId : nat; var s : governanceStorage) : return is 
 block {
@@ -1189,6 +1221,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
           // Financial Governance Entrypoints
         | RequestTokens(parameters)                   -> requestTokens(parameters, s)
         | RequestMint(parameters)                     -> requestMint(parameters, s)
+        | SetContractBaker(parameters)                -> setContractBaker(parameters, s)
         | DropFinancialRequest(parameters)            -> dropFinancialRequest(parameters, s)
         | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
 

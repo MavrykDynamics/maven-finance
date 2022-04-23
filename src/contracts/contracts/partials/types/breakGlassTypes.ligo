@@ -1,6 +1,10 @@
 type breakGlassConfigType is [@layout:comb] record [
-    threshold                   : nat;                 // min number of council members who need to agree on action
-    actionExpiryDays            : nat;                 // action expiry in number of days
+    threshold                       : nat;    // min number of council members who need to agree on action
+    actionExpiryDays                : nat;    // action expiry in number of days
+
+    councilMemberNameMaxLength      : nat;
+    councilMemberWebsiteMaxLength   : nat;
+    councilMemberImageMaxLength     : nat;
 ]
 
 type councilMemberInfoType is [@layout:comb] record [
@@ -28,8 +32,11 @@ type councilChangeMemberType is [@layout:comb] record [
 
 type breakGlassUpdateConfigNewValueType is nat
 type breakGlassUpdateConfigActionType is 
-  ConfigThreshold of unit
-| ConfigActionExpiryDays of unit
+  ConfigThreshold               of unit
+| ConfigActionExpiryDays        of unit
+| ConfigCouncilNameMaxLength    of unit
+| ConfigCouncilWebsiteMaxLength of unit
+| ConfigCouncilImageMaxLength   of unit
 type breakGlassUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue  : breakGlassUpdateConfigNewValueType; 
   updateConfigAction    : breakGlassUpdateConfigActionType;

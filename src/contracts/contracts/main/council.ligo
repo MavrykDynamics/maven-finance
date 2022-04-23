@@ -47,6 +47,7 @@ type councilLambdaActionType is
   | LambdaCouncilActionAddMember                of councilActionAddMemberType
   | LambdaCouncilActionRemoveMember             of address
   | LambdaCouncilActionChangeMember             of councilActionChangeMemberType
+  | LambdaCouncilActionSetBaker                 of setBakerType
 
     // Council Actions for Contracts
   | LambdaCouncilUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
@@ -61,9 +62,10 @@ type councilLambdaActionType is
   | LambdaCouncilActionTransfer                 of councilActionTransferType
   | LambdaCouncilRequestTokens                  of councilActionRequestTokensType
   | LambdaCouncilRequestMint                    of councilActionRequestMintType
+  | LambdaCouncilSetContractBaker               of councilActionSetContractBakerType
   | LambdaCouncilDropFinancialReq               of nat
 
-  // Council Signing of Actions
+    // Council Signing of Actions
   | LambdaFlushAction                           of flushActionType
   | LambdaSignAction                            of signActionType 
 
@@ -87,6 +89,7 @@ type councilAction is
   | CouncilActionAddMember                      of councilActionAddMemberType
   | CouncilActionRemoveMember                   of address
   | CouncilActionChangeMember                   of councilActionChangeMemberType
+  | CouncilActionSetBaker                       of setBakerType
 
     // Council Actions for Contracts
   | CouncilActionUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
@@ -101,6 +104,7 @@ type councilAction is
   | CouncilActionTransfer                       of councilActionTransferType
   | CouncilActionRequestTokens                  of councilActionRequestTokensType
   | CouncilActionRequestMint                    of councilActionRequestMintType
+  | CouncilActionSetContractBaker               of councilActionSetContractBakerType
   | CouncilActionDropFinancialReq               of nat
 
     // Council Signing of Actions
@@ -137,11 +141,12 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 [@inline] const error_REQUEST_TOKENS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND             = 8n;
 [@inline] const error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND               = 9n;
 [@inline] const error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND     = 10n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                         = 11n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                          = 12n;
+[@inline] const error_SET_CONTRACT_BAKER_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND         = 11n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                         = 12n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                          = 13n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 13n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 14n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 14n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 15n;
 
 // ------------------------------------------------------------------------------
 //
@@ -274,6 +279,15 @@ function sendDropFinancialRequestParams(const contractAddress : address) : contr
       contractAddress) : option(contract(nat))) of [
     Some(contr) -> contr
   | None -> (failwith(error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat))
+];
+
+
+function sendContractBakerParams(const contractAddress : address) : contract(councilActionSetContractBakerType) is
+  case (Tezos.get_entrypoint_opt(
+      "%setContractBaker",
+      contractAddress) : option(contract(councilActionSetContractBakerType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_SET_CONTRACT_BAKER_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(councilActionSetContractBakerType))
 ];
 
 // ------------------------------------------------------------------------------
@@ -559,17 +573,17 @@ block {
 
 
 
-(*  councilActionTransfer entrypoint  *)
-function councilActionTransfer(const councilActionTransferParams : councilActionTransferType; var s : councilStorage) : return is 
+(*  councilActionSetBaker entrypoint  *)
+function councilActionSetBaker(const councilActionSetBakerParams : setBakerType; var s : councilStorage) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionTransfer"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionSetBaker"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init council lambda action
-    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionTransfer(councilActionTransferParams);
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionSetBaker(councilActionSetBakerParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -697,6 +711,25 @@ block {
 // Council Actions for Financial Governance Begin
 // ------------------------------------------------------------------------------
 
+(*  councilActionTransfer entrypoint  *)
+function councilActionTransfer(const councilActionTransferParams : councilActionTransferType; var s : councilStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionTransfer"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilActionTransfer(councilActionTransferParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
+
+
+
 (*  councilActionRequestTokens entrypoint  *)
 function councilActionRequestTokens(const councilActionRequestTokensParams : councilActionRequestTokensType ; var s : councilStorage) : return is 
 block {
@@ -735,11 +768,30 @@ block {
 
 
 
+(*  councilActionSetContractBaker entrypoint  *)
+function councilActionSetContractBaker(const councilActionSetContractBakerParams : councilActionSetContractBakerType ; var s : councilStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilSetContractBaker"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaCouncilSetContractBaker(councilActionSetContractBakerParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
+
+
+
 (*  councilActionDropFinancialRequest entrypoint  *)
 function councilActionDropFinancialRequest(const requestId : nat ; var s : councilStorage) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionDropFinancialRequest"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilDropFinancialRequest"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -854,6 +906,7 @@ function main (const action : councilAction; const s : councilStorage) : return 
         | CouncilActionAddMember(parameters)            -> councilActionAddMember(parameters, s)
         | CouncilActionRemoveMember(parameters)         -> councilActionRemoveMember(parameters, s)
         | CouncilActionChangeMember(parameters)         -> councilActionChangeMember(parameters, s)
+        | CouncilActionSetBaker(parameters)             -> councilActionSetBaker(parameters, s)
 
         // Council actions for Contracts
         | CouncilActionUpdateBlocksPerMin(parameters)   -> councilActionUpdateBlocksPerMinute(parameters, s)
@@ -868,6 +921,7 @@ function main (const action : councilAction; const s : councilStorage) : return 
         | CouncilActionTransfer(parameters)             -> councilActionTransfer(parameters, s)
         | CouncilActionRequestTokens(parameters)        -> councilActionRequestTokens(parameters, s)
         | CouncilActionRequestMint(parameters)          -> councilActionRequestMint(parameters, s)
+        | CouncilActionSetContractBaker(parameters)     -> councilActionSetContractBaker(parameters, s)
         | CouncilActionDropFinancialReq(parameters)     -> councilActionDropFinancialRequest(parameters, s)
 
         // Council Signing of Actions 

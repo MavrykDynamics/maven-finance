@@ -261,12 +261,12 @@ block {
 
               // 1. verify that user is staking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
               if stakeAmount < s.minMvkAmount then failwith("You have to stake more MVK.")
-                else skip;
+              else skip;
 
               const mvkTokenAddress : address = s.mvkTokenAddress;
 
               const delegationAddress : address = case s.generalContracts["delegation"] of [
-                  Some(_address) -> _address
+                    Some(_address) -> _address
                   | None -> failwith("Error. Delegation Contract is not found.")
               ];
                     
@@ -356,7 +356,7 @@ block {
                 
                 // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
                 if unstakeAmount < s.minMvkAmount then failwith("You have to unstake at least 1 MVK token.")
-                  else skip;
+                else skip;
 
                 // Compound user rewards
                 const firstCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
@@ -403,7 +403,7 @@ block {
 
                 // update staked MVK total supply
                 if s.stakedMvkTotalSupply < finalUnstakeAmount then failwith("Error. You cannot unstake more than what is in the staked MVK Total supply")
-                  else skip;
+                else skip;
                 s.stakedMvkTotalSupply := abs(s.stakedMvkTotalSupply - finalUnstakeAmount);
 
                 userBalanceInStakeBalanceLedger.balance := abs(userBalanceInStakeBalanceLedger.balance - unstakeAmount); 
