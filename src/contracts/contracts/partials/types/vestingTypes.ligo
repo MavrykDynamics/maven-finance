@@ -55,6 +55,32 @@ type updateVesteeType is [@layout:comb] record [
     newVestingInMonths         : nat;
 ]
 
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type vestingLambdaActionType is 
+
+  // Housekeeping Entrypoints
+| LambdaSetAdmin                      of (address)
+| LambdaUpdateMetadata                of updateMetadataType
+| LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
+| LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+
+  // Internal Vestee Control Entrypoints
+| LambdaAddVestee                     of (addVesteeType)
+| LambdaRemoveVestee                  of (address)
+| LambdaUpdateVestee                  of (updateVesteeType)
+| LambdaToggleVesteeLock              of (address)
+
+  // Vestee Entrypoints
+| LambdaClaim                         of (unit)
+
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
+
 type vestingStorage is [@layout:comb] record [
     admin               : address;
     mvkTokenAddress     : address;

@@ -32,6 +32,7 @@ type treasuryAction is
 
     // Housekeeping Entrypoints
     | SetAdmin                       of (address)
+    | SetBaker                       of option(key_hash)
     | UpdateMetadata                 of updateMetadataType
     | UpdateWhitelistContracts       of updateWhitelistContractsParams
     | UpdateGeneralContracts         of updateGeneralContractsParams
@@ -111,18 +112,19 @@ block {
     then skip
     else{
         const treasuryFactoryAddress: address = case s.whitelistContracts["treasuryFactory"] of [
-            Some (_address) -> _address
-        |   None -> (failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED): address)
+              Some (_address) -> _address
+          |   None -> (failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED): address)
         ];
         if Tezos.sender = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED);
     };
+
 } with(unit)
 
 
 
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
-        else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 
 
@@ -173,9 +175,9 @@ function getMintEntrypointFromTokenAddress(const token_address : address) : cont
   case (Tezos.get_entrypoint_opt(
       "%mint",
       token_address) : option(contract(mintParams))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_MINT_ENTRYPOINT_NOT_FOUND) : contract(mintParams))
-  ];
+          Some(contr) -> contr
+        | None -> (failwith(error_MINT_ENTRYPOINT_NOT_FOUND) : contract(mintParams))
+      ];
 
 
 
@@ -197,9 +199,9 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
   case (Tezos.get_entrypoint_opt(
     "%onStakeChange",
     delegationAddress) : option(contract(updateSatelliteBalanceParams))) of [
-      Some(contr) -> contr
-    | None        -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_NOT_FOUND_IN_DELEGATION_CONTRACT) : contract(updateSatelliteBalanceParams))
-  ];
+        Some(contr) -> contr
+      | None        -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_NOT_FOUND_IN_DELEGATION_CONTRACT) : contract(updateSatelliteBalanceParams))
+    ];
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -220,7 +222,7 @@ function transferFa12Token(const from_: address; const to_: address; const token
         const tokenContract: contract(fa12TransferType) =
             case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
                 Some (c) -> c
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND): contract(fa12TransferType))
+              | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND): contract(fa12TransferType))
             ];
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
@@ -243,8 +245,8 @@ block{
 
     const tokenContract: contract(fa2TransferType) =
         case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
-            Some (c) -> c
-        |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(fa2TransferType))
+             Some (c) -> c
+           | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(fa2TransferType))
         ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
@@ -318,6 +320,25 @@ block {
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* setBaker entrypoint *)
+function setBaker(const keyHash : option(key_hash); var s : treasuryStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetBaker"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetBaker(keyHash);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -575,6 +596,7 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
+        | SetBaker(parameters)                          -> setBaker(parameters, s)
         | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)

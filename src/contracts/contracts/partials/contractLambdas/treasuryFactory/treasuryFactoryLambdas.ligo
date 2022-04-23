@@ -69,7 +69,7 @@ block {
 
     checkSenderIsAdmin(s);
     
-    case farmFactoryLambdaAction of [
+    case treasuryFactoryLambdaAction of [
         | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
@@ -81,7 +81,7 @@ block {
 
 
 (* updateWhitelistTokenContracts lambda *)
-function lambdaUpdateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: treasuryFactoryStorage): return is
+function lambdaUpdateWhitelistTokenContracts(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
 block {
     
     checkSenderIsAdmin(s);
@@ -129,8 +129,8 @@ block {
                 for treasuryAddress in set s.trackedTreasuries
                 block {
                     case (Tezos.get_entrypoint_opt("%pauseAll", treasuryAddress): option(contract(unit))) of [
-                        Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-                    |   None -> skip
+                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                        |   None -> skip
                     ];
                 };
 
@@ -166,8 +166,8 @@ block {
                 for treasuryAddress in set s.trackedTreasuries
                 block {
                     case (Tezos.get_entrypoint_opt("%unpauseAll", treasuryAddress): option(contract(unit))) of [
-                        Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
-                    |   None -> skip
+                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                        |   None -> skip
                     ];
                 };
 
@@ -206,7 +206,7 @@ block {
     checkSenderIsAdmin(s);
 
     case treasuryFactoryLambdaAction of [
-        | LambdaToggleTrackTreasury(newAdminAddress) -> {
+        | LambdaToggleTrackTreasury(_parameters) -> {
                 
                 if s.breakGlassConfig.trackTreasuryIsPaused then s.breakGlassConfig.trackTreasuryIsPaused := False
                 else s.breakGlassConfig.trackTreasuryIsPaused := True;
@@ -344,7 +344,7 @@ block{
         | LambdaTrackTreasury(treasuryContract) -> {
                 
                 s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-                    True  -> (failwith("Error. The provided treasury contract already exists in the trackedTreasuries set"): set(address))
+                      True  -> (failwith("Error. The provided treasury contract already exists in the trackedTreasuries set"): set(address))
                     | False -> Set.add(treasuryContract, s.trackedTreasuries)
                 ];
 
@@ -370,7 +370,7 @@ block{
         | LambdaUntrackTreasury(treasuryContract) -> {
                 
                 s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-                    True  -> Set.remove(treasuryContract, s.trackedTreasuries)
+                      True  -> Set.remove(treasuryContract, s.trackedTreasuries)
                     | False -> (failwith("Error. The provided treasury contract does not exist in the trackedTreasuries set"): set(address))
                 ];
                 
