@@ -11,8 +11,8 @@ block {
 function updateGeneralContractsMap(const updateGeneralContractsParams : updateGeneralContractsParams; const generalContracts : generalContractsType) : generalContractsType is 
   block{
 
-    const contractName    : string  = updateGeneralContractsParams.0;
-    const contractAddress : address = updateGeneralContractsParams.1; 
+    const contractName     : string  = updateGeneralContractsParams.generalContractName;
+    const contractAddress  : address = updateGeneralContractsParams.generalContractAddress; 
 
     const existingAddress: option(address) = 
       if checkInGeneralContracts(contractAddress, generalContracts) then (None : option(address)) else Some (contractAddress);

@@ -333,9 +333,10 @@ describe('Contracts Deployment for Tests', async () => {
       const governanceProxyLambdaBatch = await tezos.wallet
       .batch()
       .withContractCall(governance.contract.methods.setProxyLambda(0, governanceProxyLambdas[0])) // callGovernanceLambda
-      .withContractCall(governance.contract.methods.setProxyLambda(1, governanceProxyLambdas[1])) // updateLambdaFunction
-      .withContractCall(governance.contract.methods.setProxyLambda(2, governanceProxyLambdas[2])) // updateGovernanceConfig
-      .withContractCall(governance.contract.methods.setProxyLambda(3, governanceProxyLambdas[3])) // updateDelegationConfig
+      .withContractCall(governance.contract.methods.setProxyLambda(1, governanceProxyLambdas[1])) // updateProxyLambdaFunction
+      .withContractCall(governance.contract.methods.setProxyLambda(2, governanceProxyLambdas[2])) // setContractAdmin
+      .withContractCall(governance.contract.methods.setProxyLambda(3, governanceProxyLambdas[3])) // updateGovernanceConfig
+      .withContractCall(governance.contract.methods.setProxyLambda(4, governanceProxyLambdas[4])) // updateDelegationConfig
   
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
       await setupGovernanceProxyLambdasOperation.confirmation()
