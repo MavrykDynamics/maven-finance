@@ -121,8 +121,9 @@ type financialRequestRecordType is [@layout:comb] record [
     tokenType               : string;
     tokenId                 : nat;
     requestPurpose          : string;
-
     voters                  : financialRequestVotersMapType; 
+    keyHash                 : option(key_hash);
+
     approveVoteTotal        : nat;
     disapproveVoteTotal     : nat;
 
@@ -255,6 +256,11 @@ type requestMintType is [@layout:comb] record [
     purpose               : string;   // financial request purpose
 ]
 
+type setContractBakerType is [@layout:comb] record [
+    targetContractAddress  : address;
+    keyHash                : option(key_hash);
+]
+
 type voteForRequestChoiceType is 
   Approve of unit
 | Disapprove of unit
@@ -302,6 +308,7 @@ type governanceLambdaActionType is
   // Financial Governance Lambdas
 | LambdaRequestTokens                         of requestTokensType
 | LambdaRequestMint                           of requestMintType
+| LambdaSetContractBaker                      of setContractBakerType
 | LambdaDropFinancialRequest                  of (nat)
 | LambdaVoteForRequest                        of voteForRequestType
 
