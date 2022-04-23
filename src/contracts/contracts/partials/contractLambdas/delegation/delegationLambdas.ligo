@@ -311,12 +311,12 @@ block {
                 // check if satellite exists
                 var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
                       Some(_val) -> _val
-                    | None -> failwith("Satellite does not exist")
+                    | None       -> failwith("Satellite does not exist")
                 ];
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
                       Some(_address) -> _address
-                    | None -> failwith("Error. Doorman Contract is not found")
+                    | None           -> failwith("Error. Doorman Contract is not found")
                 ];
                 
                 // enable redelegation of satellites even if a user is delegated to a satellite already - easier alternative -> batch call undelegateFromSatellite, then delegateToSatellite
@@ -327,7 +327,7 @@ block {
                 // user is already delegated to a satellite 
                 var delegateRecord : delegateRecordType := case s.delegateLedger[Tezos.source] of [
                       Some(_delegateRecord) -> _delegateRecord
-                    | None -> failwith("Delegate Record does not exist") // failwith should not be reached as conditional check is already cleared
+                    | None                  -> failwith("Delegate Record does not exist") // failwith should not be reached as conditional check is already cleared
                 ];
 
                 const previousSatellite : address = delegateRecord.satelliteAddress; 
@@ -361,7 +361,7 @@ block {
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                       Some (value) -> value
-                    | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+                    | None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
                 ];
                 
                 // user is not delegated to a satellite
@@ -411,13 +411,13 @@ block {
 
     const doormanAddress : address = case s.generalContracts["doorman"] of [
         Some(_address) -> _address
-      | None -> failwith("Error. Doorman Contract is not found")
+      | None           -> failwith("Error. Doorman Contract is not found")
     ];
 
     const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
     const stakedMvkBalance: nat = case stakedMvkBalanceView of [
         Some (value) -> value
-      | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+      | None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
     ];
 
     case delegationLambdaAction of [
@@ -439,8 +439,8 @@ block {
                 ];
 
                 var _satelliteRecord : satelliteRecordType := case s.satelliteLedger[_delegateRecord.satelliteAddress] of [
-                    None -> emptySatelliteRecord
-                | Some(_record) -> _record
+                      None          -> emptySatelliteRecord
+                    | Some(_record) -> _record
                 ];
 
                 if _satelliteRecord.status = 1n then block {
@@ -495,13 +495,13 @@ block {
     // Get user stake balance
     const doormanAddress : address = case s.generalContracts["doorman"] of [
         Some(_address) -> _address
-      | None -> failwith("Error. Doorman Contract is not found")
+      | None           -> failwith("Error. Doorman Contract is not found")
     ];
 
     const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
     const stakedMvkBalance: nat = case stakedMvkBalanceView of [
         Some (value) -> value
-      | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+      | None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
     ];
 
     // check if satellite has sufficient staked MVK balance
@@ -526,21 +526,21 @@ block {
                 if satelliteFee > 10000n then failwith("Error. Satellite fee cannot exceeds 100%") else skip;
 
                 const satelliteRecord: satelliteRecordType = case Map.find_opt(Tezos.source, s.satelliteLedger) of [
-                    Some (_satellite) -> (failwith("Satellite already exists"): satelliteRecordType)
-                | None -> record [            
-                        status                = 1n;
-                        stakedMvkBalance      = stakedMvkBalance;
-                        satelliteFee          = satelliteFee;
-                        totalDelegatedAmount  = 0n;
+                      Some (_satellite) -> (failwith("Satellite already exists"): satelliteRecordType)
+                    | None -> record [            
+                            status                = 1n;
+                            stakedMvkBalance      = stakedMvkBalance;
+                            satelliteFee          = satelliteFee;
+                            totalDelegatedAmount  = 0n;
 
-                        name                  = name;
-                        description           = description;
-                        image                 = image;
-                        website               = website;
-                        
-                        registeredDateTime    = Tezos.now;
-                    ]
-                ];
+                            name                  = name;
+                            description           = description;
+                            image                 = image;
+                            website               = website;
+                            
+                            registeredDateTime    = Tezos.now;
+                        ]
+                    ];
 
                 // Update satellite's record
                 s.satelliteLedger[Tezos.source] := satelliteRecord;
@@ -597,7 +597,7 @@ block {
                 
                 var satelliteRecord : satelliteRecordType := case s.satelliteLedger[Tezos.sender] of [
                       Some(_val) -> _val
-                    | None -> failwith("Satellite does not exist")
+                    | None       -> failwith("Satellite does not exist")
                 ];
 
                 // init updated satellite record params
@@ -668,19 +668,19 @@ block {
                 // Find doorman address
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
                       Some(_address) -> _address
-                    | None -> failwith("Error. Doorman Contract is not found")
+                    | None           -> failwith("Error. Doorman Contract is not found")
                 ];
 
                 // Get user SMVK Balance
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                       Some (value) -> value
-                    | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+                    | None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
                 ];
 
                 var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
                       Some (_satellite) -> _satellite
-                    | None -> failwith("Error: satellite record not found.")
+                    | None              -> failwith("Error: satellite record not found.")
                 ];
 
                 // Save satellite
@@ -696,7 +696,7 @@ block {
                         // Retrieve satellite account from delegationStorage
                         var _delegatorRecord: delegateRecordType := case Big_map.find_opt(userAddress, s.delegateLedger) of [
                               Some (_delegate) -> _delegate
-                            | None -> failwith("Error: delegate record not found.")
+                            | None             -> failwith("Error: delegate record not found.")
                         ];
 
                         const userHasActiveSatellite: bool = Map.mem(_delegatorRecord.satelliteAddress, s.satelliteLedger);
@@ -704,19 +704,19 @@ block {
                         // Find doorman address
                         const doormanAddress : address = case s.generalContracts["doorman"] of [
                               Some(_address) -> _address
-                            | None -> failwith("Error. Doorman Contract is not found")
+                            | None           -> failwith("Error. Doorman Contract is not found")
                         ];
 
                         // Get user SMVK Balance
                         const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
                         const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                               Some (value) -> value
-                            | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+                            | None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
                         ];
 
                         var userSatellite: satelliteRecordType := case Map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
                               Some (_delegatedSatellite) -> _delegatedSatellite
-                            | None -> failwith("Error: satellite record not found.")
+                            | None                       -> failwith("Error: satellite record not found.")
                         ];
 
                         const stakeAmount: nat = abs(_delegatorRecord.delegatedSMvkBalance - stakedMvkBalance);
@@ -733,9 +733,9 @@ block {
                         // Force User to undelegate if it does not have an active satellite anymore
                         // else operations := Tezos.transaction((unit), 0tez, (Tezos.self("%undelegateFromSatellite"): contract(unit))) # operations;
                         else operations := Tezos.transaction(
-                            (unit), 
-                            0tez, 
-                            getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
+                                (unit), 
+                                0tez, 
+                                getUndelegateFromSatelliteEntrypoint(Tezos.self_address)
                             ) # operations;
                     }
                     else skip

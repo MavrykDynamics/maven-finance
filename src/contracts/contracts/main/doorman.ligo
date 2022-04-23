@@ -247,16 +247,17 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 // ------------------------------------------------------------------------------
 
 (*  compoundUserRewards helper function *)
-function compoundUserRewards(var s: doormanStorage): doormanStorage is 
-  block{
+function compoundUserRewards(var s: doormanStorage) : doormanStorage is 
+block{
+
     // Get User
     const user: address = Tezos.source;
     // Get the user's record, failed if it does not exists
     var userRecord: userStakeBalanceRecordType := case s.userStakeBalanceLedger[user] of [
         Some (_val) -> _val
       | None -> record[
-          balance=0n;
-          participationFeesPerShare=s.accumulatedFeesPerShare;
+          balance                   = 0n;
+          participationFeesPerShare = s.accumulatedFeesPerShare;
         ]
     ];
     // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
@@ -270,11 +271,13 @@ function compoundUserRewards(var s: doormanStorage): doormanStorage is
       s.unclaimedRewards := abs(s.unclaimedRewards - userRewards);
     }
     else skip;
+    
     // Set the user's participationFeesPerShare 
     userRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
     // Update the doormanStorage
     s.userStakeBalanceLedger := Big_map.update(user, Some (userRecord), s.userStakeBalanceLedger);
-  } with (s)
+
+} with (s)
 
 // ------------------------------------------------------------------------------
 // Compound Helper Functions End

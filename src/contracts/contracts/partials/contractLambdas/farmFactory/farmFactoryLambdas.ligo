@@ -417,7 +417,7 @@ block{
         | LambdaTrackFarm(farmContract) -> {
                 
                 s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of [
-                        True -> (failwith("The provided farm contract already exists in the trackedFarms set"): set(address))
+                        True  -> (failwith("The provided farm contract already exists in the trackedFarms set"): set(address))
                     |   False -> Set.add(farmContract, s.trackedFarms)
                 ];
 
@@ -443,7 +443,7 @@ block{
         | LambdaUntrackFarm(farmContract) -> {
                 
                 s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of [
-                        True -> Set.remove(farmContract, s.trackedFarms)
+                        True  -> Set.remove(farmContract, s.trackedFarms)
                     |   False -> (failwith("The provided farm contract does not exist in the trackedFarms set"): set(address))
                 ];
 

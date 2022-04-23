@@ -823,26 +823,23 @@ block {
                         ];
                         // fetch params end ---
 
-                        // Check if new council member is already in the council
-
-                        const councilMemberInfo: councilMemberInfoType  = record[
-                            name=councilMemberName;
-                            image=councilMemberImage;
-                            website=councilMemberWebsite;
-                        ];
+                        
+                        
                         // Validate inputs
                         if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
                         if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
                         if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
 
                         const councilMemberInfo: councilMemberInfoType  = record[
-                            name=councilMemberName;
-                            image=councilMemberImage;
-                            website=councilMemberWebsite;
+                            name    = councilMemberName;
+                            image   = councilMemberImage;
+                            website = councilMemberWebsite;
                         ];
 
+                        // Check if new council member is already in the council
                         if Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
                         else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
+
                     } else skip;
 
 
