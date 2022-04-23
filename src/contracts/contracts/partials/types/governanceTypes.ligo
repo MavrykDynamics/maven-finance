@@ -1,7 +1,24 @@
+// ------------------------------------------------------------------------------
+// General Types
+// ------------------------------------------------------------------------------
+
+
 type proposalIdType is nat
+type requestIdType is nat; 
 type metadata is big_map (string, bytes);
 
-// record for satellites
+type setProxyLambdaType is [@layout:comb] record [
+  id          : nat;
+  func_bytes  : bytes;
+]
+type updateProxyLambdaType is setProxyLambdaType
+
+
+// ------------------------------------------------------------------------------
+// Satellite Types
+// ------------------------------------------------------------------------------
+
+
 type satelliteRecordType is [@layout:comb] record [
     status                : nat;        // active: 1; inactive: 0; 
     stakedMvkBalance      : nat;        // bondAmount -> staked MVK Balance
@@ -15,8 +32,14 @@ type satelliteRecordType is [@layout:comb] record [
     registeredDateTime    : timestamp;  
 ]
 
+
+// ------------------------------------------------------------------------------
+// Governance Cycle Round Types
+// ------------------------------------------------------------------------------
+
+
 // Stores all voter data during proposal round
-type proposalRoundVoteType is (nat * timestamp)           // total voting power (MVK) * timestamp
+type proposalRoundVoteType is (nat * timestamp)                             // total voting power (MVK) * timestamp
 type passVotersMapType is map (address, proposalRoundVoteType)
 
 // Stores all voter data during voting round
@@ -24,22 +47,11 @@ type voteForProposalChoiceType is
   Yay of unit
 | Nay of unit
 | Abstain of unit
-type votingRoundVoteType is (nat * timestamp * voteForProposalChoiceType)       // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
+type votingRoundVoteType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundVoteType)
 
-type addUpdateProposalDataType is [@layout:comb] record [
-  proposalId         : nat;
-  title              : string;
-  proposalBytes      : bytes;
-]
-
-type addUpdatePaymentDataType is [@layout:comb] record [
-  proposalId         : nat;
-  title              : string;
-  paymentBytes       : bytes;
-]
 type proposalMetadataType is map (string, bytes)
-type paymentMetadataType is map (string, bytes)
+type paymentMetadataType  is map (string, bytes)
 
 type newProposalType is [@layout:comb] record [
   title              : string;
@@ -49,8 +61,6 @@ type newProposalType is [@layout:comb] record [
   proposalMetadata   : option(map(string,bytes));
   paymentMetadata    : option(map(string,bytes));
 ]
-// action title: change governance config successReward to 100000 MVK, params in bytes
-// action title: change delegation config xxx to xxx , params in bytes
 
 type proposalRecordType is [@layout:comb] record [
     
@@ -95,16 +105,22 @@ type proposalRecordType is [@layout:comb] record [
 ]
 type proposalLedgerType is big_map (nat, proposalRecordType);
 
-type requestIdType is nat; 
-// Stores all voter data for financial requests
+
+// ------------------------------------------------------------------------------
+// Financial Request Types
+// ------------------------------------------------------------------------------
+
+
 type financialRequestVoteChoiceType is 
   Approve of unit
 | Disapprove of unit
+
 type financialRequestVoteType is [@layout:comb] record [
   vote              : financialRequestVoteChoiceType;
   totalVotingPower  : nat; 
   timeVoted         : timestamp;
 ] 
+
 type financialRequestVotersMapType is map (address, financialRequestVoteType)
 
 type financialRequestRecordType is [@layout:comb] record [
@@ -160,6 +176,11 @@ type snapshotRecordType is [@layout:comb] record [
 ]
 type snapshotLedgerType is big_map (address, snapshotRecordType);
 
+
+// ------------------------------------------------------------------------------
+// Governance Config Types
+// ------------------------------------------------------------------------------
+
 type configType is [@layout:comb] record [
     
     successReward                       : nat;  // incentive reward for successful proposal
@@ -192,8 +213,8 @@ type configType is [@layout:comb] record [
     
 ]
 
-// update config types
 type governanceUpdateConfigNewValueType is nat
+
 type governanceUpdateConfigActionType is 
   ConfigSuccessReward               of unit
 | ConfigMinProposalRoundVotePct     of unit
@@ -220,25 +241,46 @@ type governanceUpdateConfigParamsType is [@layout:comb] record [
   updateConfigAction: governanceUpdateConfigActionType;
 ]
 
-// execute action variant types - start test with 2 variant action types
-// type updateGovernanceConfigType is (nat * governanceUpdateConfigActionType); // unit: type governanceUpdateConfigParamsType is (updateConfigActionType * governanceUpdateConfigNewValueType)
 type updateGovernanceConfigType is [@layout:comb] record [
-  updateConfigNewValue: nat;
-  updateConfigAction: governanceUpdateConfigActionType
+  updateConfigNewValue  : nat;
+  updateConfigAction    : governanceUpdateConfigActionType
 ]
 
-type setProxyLambdaType is [@layout:comb] record [
-  id          : nat;
-  func_bytes  : bytes;
-]
-type updateProxyLambdaType is setProxyLambdaType
-type proxyLambdaLedgerType is big_map(nat, bytes)
+
+// ------------------------------------------------------------------------------
+// Governance Storage Types
+// ------------------------------------------------------------------------------
 
 
 type roundType       is
 | Proposal                  of unit
 | Voting                    of unit
 | Timelock                  of unit
+
+type proxyLambdaLedgerType is big_map(nat, bytes)
+
+
+// ------------------------------------------------------------------------------
+// Governance Entrypoint Types
+// ------------------------------------------------------------------------------
+
+
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type addUpdateProposalDataType is [@layout:comb] record [
+  proposalId         : nat;
+  title              : string;
+  proposalBytes      : bytes;
+]
+
+type addUpdatePaymentDataType is [@layout:comb] record [
+  proposalId         : nat;
+  title              : string;
+  paymentBytes       : bytes;
+]
 
 type requestTokensType is [@layout:comb] record [
     treasuryAddress       : address;  // treasury address
@@ -264,21 +306,63 @@ type setContractBakerType is [@layout:comb] record [
 type voteForRequestChoiceType is 
   Approve of unit
 | Disapprove of unit
+
 type voteForRequestType is [@layout:comb] record [
     requestId        : nat;
     vote             : voteForRequestChoiceType;
 ]
 
-type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
+
+// ------------------------------------------------------------------------------
+// Governance Proxy Lambdas (to other contracts)
+// ------------------------------------------------------------------------------
+
+type setContractAdminType is [@layout:comb] record [
+  targetContractAddress  : address;
+  newAdminAddress        : address; 
+]
+
+type updateContractMetadataType is [@layout:comb] record [
+  targetContractAddress  : address;
+  metadataKey            : string;
+  metadataHash           : bytes; 
+]
+
+type updateContractWhitelistMapType is [@layout:comb] record [
+  targetContractAddress     : address;
+  whitelistContractName     : string;
+  whitelistContractAddress  : address; 
+]
+
+type updateContractGeneralMapType is [@layout:comb] record [
+  targetContractAddress     : address;
+  generalContractName     : string;
+  generalContractAddress  : address; 
+]
+
+type updateContractWhitelistTokenMapType is [@layout:comb] record [
+  targetContractAddress     : address;
+  tokenContractName     : string;
+  tokenContractAddress  : address; 
 ]
 
 type executeActionParamsType is 
-  UpdateLambdaFunction   of updateProxyLambdaType
-| UpdateGovernanceConfig of updateGovernanceConfigType
-| UpdateDelegationConfig of delegationUpdateConfigParamsType
+  UpdateProxyLambdaFunction          of updateProxyLambdaType
+| SetContractAdmin                   of setContractAdminType
+| UpdateContractMetadata             of updateContractMetadataType
+| UpdateContractWhitelistMap         of updateContractWhitelistMapType
+| UpdateContractGeneralMap           of updateContractGeneralMapType
+| UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
+
+| UpdateGovernanceConfig             of updateGovernanceConfigType
+| UpdateDelegationConfig             of delegationUpdateConfigParamsType
+
 type executeActionType is (executeActionParamsType)
+
+
+// ------------------------------------------------------------------------------
+// Governance Contract Lambdas
+// ------------------------------------------------------------------------------
 
 
 type governanceLambdaActionType is 
@@ -311,6 +395,11 @@ type governanceLambdaActionType is
 | LambdaSetContractBaker                      of setContractBakerType
 | LambdaDropFinancialRequest                  of (nat)
 | LambdaVoteForRequest                        of voteForRequestType
+
+
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
 
 
 type governanceStorage is [@layout:comb] record [

@@ -28,7 +28,7 @@
     "pre-compile-all-m1": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled -m true",
     
     "compile-lambdas": "ts-node scripts/cli.ts compile-lambda",
-    "compile-governanceProxy-lambdas": "yarn compile-lambdas -j contracts/partials/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo -n governanceProxyLambdas",
+    "compile-governanceProxy-lambdas": "yarn compile-lambdas -j contracts/partials/governanceProxyLambdas/governanceLambdaIndex.json -c contracts/main/governance.ligo -n governanceProxyLambdas",
     "compile-governance-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo -n governanceLambdas",
     "compile-doorman-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/doorman/doormanLambdaIndex.json -c contracts/main/doorman.ligo -n doormanLambdas",
     "compile-delegation-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/delegation/delegationLambdaIndex.json -c contracts/main/delegation.ligo -n delegationLambdas",

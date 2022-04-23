@@ -70,7 +70,7 @@ block {
     checkSenderIsAdmin(s);
     
     case farmFactoryLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateGeneralContractsParams) -> {
+        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
         | _ -> skip

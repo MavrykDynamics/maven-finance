@@ -92,7 +92,7 @@ block {
     checkSenderIsAdmin(s);
 
     case doormanLambdaAction of [
-        | LambdaUpdateWhitelistContracts(updateGeneralContractsParams) -> {
+        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
                 s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
             }
         | _ -> skip

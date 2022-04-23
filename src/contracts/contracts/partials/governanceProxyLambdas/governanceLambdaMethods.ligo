@@ -1,6 +1,6 @@
 (* CallGovernanceLambda Entrypoint *)
 function callGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceStorage) : return is
-  block {
+block {
     
     checkSenderIsAdminOrSelf(s);
 
@@ -15,19 +15,24 @@ function callGovernanceLambdaProxy(const executeAction : executeActionType; var 
       | None    -> failwith("Error. Unable to unpack CallGovernanceLambda.")
     ];
   
-  } with (res.0, s)
+} with (res.0, s)
 
-(* SetupLambdaFunction Entrypoint *)
-function setupLambdaFunction(const params : setupLambdaFunctionType; var s : governanceStorage) : return is
-  block {
+(* setProxyLambda Entrypoint *)
+function setProxyLambda(const setProxyLambdaParams : setProxyLambdaType; var s : governanceStorage) : return is
+block {
 
     checkSenderIsAdminOrSelf(s);
 
+    // assign params to constants for better code readability
+    const lambdaId     : nat   = setProxyLambdaParams.id;
+    const lambdaBytes  : bytes = setProxyLambdaParams.func_bytes;
+
+
     // save lambda in governanceLambdaLedger
-    case s.governanceLambdaLedger[params.id] of [
-      Some(_) -> failwith("Error. Lambda already in Governance Lambda Ledger.")
-    | None    -> s.governanceLambdaLedger[params.id] := params.func_bytes
+    case s.governanceLambdaLedger[lambdaId] of [
+        Some(_) -> failwith("Error. Lambda already in Governance Lambda Ledger.")
+      | None    -> s.governanceLambdaLedger[lambdaId] := lambdaBytes
     ];
 
-  } with ((nil : list(operation)), s)
+} with ((nil : list(operation)), s)
 

@@ -1,0 +1,39 @@
+[
+    {
+      "index": 0,
+      "name": "callGovernanceLambda"
+    },
+    {
+      "index": 1,
+      "name": "updateProxyLambdaFunction"
+    },
+    {
+      "index": 2,
+      "name": "setContractAdmin"
+    },
+    {
+      "index": 3,
+      "name": "updateContractMetadata"
+    },
+    {
+      "index": 4,
+      "name": "updateContractWhitelistMap"
+    },
+    {
+      "index": 5,
+      "name": "updateContractGeneralMap"
+    },
+    {
+      "index": 6,
+      "name": "updateContractWhitelistTokenMap"
+    },
+    {
+      "index": 7,
+      "name": "updateGovernanceConfig"
+    },
+    {
+      "index": 8,
+      "name": "updateDelegationConfig"
+    }
+]
+  
