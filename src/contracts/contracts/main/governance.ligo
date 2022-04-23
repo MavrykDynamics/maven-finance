@@ -120,6 +120,15 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 [@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                            = 11n;
 [@inline] const error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND               = 12n;
 
+//--- temp
+[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 13n;
+[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 13n;
+[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND         = 13n;
+[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND           = 13n;
+[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND   = 13n;
+
+//---
+
 [@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 13n;
 [@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 14n;
 [@inline] const error_START_PROPOSAL_ROUND_ENTRYPOINT_NOT_FOUND             = 15n;
@@ -184,8 +193,8 @@ function checkSenderIsDoormanContract(var s : governanceStorage) : unit is
 block{
 
   const doormanAddress : address = case s.generalContracts["doorman"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+        Some(_address) -> _address
+      | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
   ];
   
   if (Tezos.sender = doormanAddress) then skip
@@ -199,8 +208,8 @@ function checkSenderIsDelegationContract(var s : governanceStorage) : unit is
 block{
 
   const delegationAddress : address = case s.generalContracts["delegation"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+        Some(_address) -> _address
+      | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
   ];
 
   if (Tezos.sender = delegationAddress) then skip
@@ -225,8 +234,8 @@ function checkSenderIsCouncilContract(var s : governanceStorage) : unit is
 block{
 
   const councilAddress : address = case s.generalContracts["council"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_COUNCIL_CONTRACT_NOT_FOUND)
+        Some(_address) -> _address
+      | None           -> failwith(error_COUNCIL_CONTRACT_NOT_FOUND)
   ];
   
   if (Tezos.sender = councilAddress) then skip
@@ -240,8 +249,8 @@ function checkSenderIsEmergencyGovernanceContract(var s : governanceStorage) : u
 block{
 
   const emergencyGovernanceAddress : address = case s.generalContracts["emergencyGovernance"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
+        Some(_address) -> _address
+      | None           -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
 
   if (Tezos.sender = emergencyGovernanceAddress) then skip
@@ -273,6 +282,61 @@ block{
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+// governance proxy lamba helper function to get setAdmin entrypoint
+function getSetAdminEntrypoint(const contractAddress : address) : contract(address) is
+  case (Tezos.get_entrypoint_opt(
+      "%setAdmin",
+      contractAddress) : option(contract(address))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
+];
+
+
+
+// governance proxy lamba helper function to get updateMetadata entrypoint
+function getUpdateMetadataEntrypoint(const contractAddress : address) : contract(updateMetadataType) is
+  case (Tezos.get_entrypoint_opt(
+      "%updateMetadata",
+      contractAddress) : option(contract(updateMetadataType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND) : contract(updateMetadataType))
+];
+
+
+
+// governance proxy lamba helper function to get updateWhitelistContracts entrypoint
+function getUpdateWhitelistContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistContractsParams) is
+  case (Tezos.get_entrypoint_opt(
+      "%updateWhitelistContracts",
+      contractAddress) : option(contract(updateWhitelistContractsParams))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistContractsParams))
+];
+
+
+
+// governance proxy lamba helper function to get updateGeneralContracts entrypoint
+function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsParams) is
+  case (Tezos.get_entrypoint_opt(
+      "%updateGeneralContracts",
+      contractAddress) : option(contract(updateGeneralContractsParams))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
+];
+
+
+
+// governance proxy lamba helper function to get updateWhitelistTokenContracts entrypoint
+function getUpdateWhitelistTokenContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistTokenContractsParams) is
+  case (Tezos.get_entrypoint_opt(
+      "%updateWhitelistTokenContracts",
+      contractAddress) : option(contract(updateWhitelistTokenContractsParams))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistTokenContractsParams))
+];
+
+
 
 // helper function to send transfer operation to treasury
 function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
@@ -1178,7 +1242,7 @@ block{
 
 
 // Governance Proxy Lambdas (i.e. External Contracts - updateGovernanceConfig, updateDelegationConfig ...)
-#include "../partials/governance/governanceProxyLambdas.ligo"
+#include "../partials/governanceProxyLambdas/governanceProxyLambdas.ligo"
 
 
 // ------------------------------------------------------------------------------

@@ -11,8 +11,8 @@ block {
 function updateWhitelistTokenContractsMap(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; const whitelistTokenContracts : whitelistTokenContractsType) : whitelistTokenContractsType is 
   block{
     
-    const contractName     : string  = updateWhitelistTokenContractsParams.0;
-    const contractAddress  : address = updateWhitelistTokenContractsParams.1;
+    const contractName     : string  = updateWhitelistTokenContractsParams.tokenContractName;
+    const contractAddress  : address = updateWhitelistTokenContractsParams.tokenContractAddress;
     
     const existingAddress: option(address) = 
       if checkInWhitelistTokenContracts(contractAddress, whitelistTokenContracts) then (None : option(address)) else Some (contractAddress);
