@@ -442,8 +442,10 @@ block {
 
     // Check inflation rate
     const inflation: tokenBalance = store.maximumSupply * store.inflationRate / 10000n; // Apply the rate 
+    
     // Apply inflation rate on maximum supply if it has been 360 days since the last time it was updated
     if store.nextInflationTimestamp < Tezos.now then {
+      
       // Set the new maximumSupply
       store.maximumSupply           := store.maximumSupply + inflation;
 
@@ -492,4 +494,5 @@ function main (const action : action; const store : mvkTokenStorage) : return is
       | UpdateInflationRate (params)        -> updateInflationRate(params, store)
       | TriggerInflation (_params)          -> triggerInflation(store)
     ]
+
   )

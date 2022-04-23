@@ -256,8 +256,8 @@ block {
         | LambdaStake(stakeAmount) -> {
                 
               // Compound user rewards
-              const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
-              s := userCompound.1;
+              const userCompound: (doormanStorage) = compoundUserRewards(s);
+              s := userCompound;
 
               // 1. verify that user is staking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
               if stakeAmount < s.minMvkAmount then failwith("You have to stake more MVK.")
@@ -267,7 +267,7 @@ block {
 
               const delegationAddress : address = case s.generalContracts["delegation"] of [
                     Some(_address) -> _address
-                  | None -> failwith("Error. Delegation Contract is not found.")
+                  | None           -> failwith("Error. Delegation Contract is not found.")
               ];
                     
               // update user's MVK balance (stake) -> decrease user balance in mvk ledger
@@ -296,20 +296,22 @@ block {
               );
 
               // list of operations: burn mvk tokens first, then mint smvk tokens
-              operations := case userCompound.0 of [
-                  Some (compoundOperation) -> list [compoundOperation; updateSatelliteBalanceOperation; transferOperation]
-                | None                     -> list [updateSatelliteBalanceOperation; transferOperation]
-              ];
+              // operations := case userCompound.0 of [
+              //     Some (compoundOperation) -> list [compoundOperation; updateSatelliteBalanceOperation; transferOperation]
+              //   | None                     -> list [updateSatelliteBalanceOperation; transferOperation]
+              // ];
+
+              operations := list [updateSatelliteBalanceOperation; transferOperation];
               
               // 3. update record of user address with minted sMVK tokens
 
               // update user's staked balance in staked balance ledger
               var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.sender] of [
-                  Some(_val) -> _val
+                    Some(_val) -> _val
                   | None -> record[
-                    balance=0n;
-                    participationFeesPerShare=s.accumulatedFeesPerShare;
-                  ]
+                      balance=0n;
+                      participationFeesPerShare=s.accumulatedFeesPerShare;
+                    ]
               ];
               userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + stakeAmount; 
               s.userStakeBalanceLedger[Tezos.sender] := userBalanceInStakeBalanceLedger;
@@ -359,13 +361,13 @@ block {
                 else skip;
 
                 // Compound user rewards
-                const firstCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
-                s := firstCompound.1;
+                const firstCompound: (doormanStorage) = compoundUserRewards(s);
+                s := firstCompound;
 
                 const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
                 const mvkTotalSupply: nat = case mvkTotalSupplyView of [
                     Some (value) -> value
-                  | None -> (failwith ("Error. GetTotalSupply View not found in the MVK Token Contract") : nat)
+                  | None         -> (failwith ("Error. GetTotalSupply View not found in the MVK Token Contract") : nat)
                 ];
 
                 // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
@@ -394,7 +396,7 @@ block {
                 // update user's staked balance in staked balance ledger
                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.source] of [
                       Some(_val) -> _val
-                    | None -> failwith("User staked balance not found in staked balance ledger.")
+                    | None       -> failwith("User staked balance not found in staked balance ledger.")
                 ];
                 
                 // check if user has enough staked mvk to withdraw
@@ -412,8 +414,8 @@ block {
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
-                    | None -> failwith("Error. Delegation Contract is not found.")
+                      Some(_address) -> _address
+                    | None           -> failwith("Error. Delegation Contract is not found.")
                 ];
 
                 // update user's MVK balance (unstake) -> increase user balance in mvk ledger
@@ -443,19 +445,21 @@ block {
                 );
 
                 // Compound with the user new rewards if he still have sMVK after unstaking
-                const secondCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
-                s := secondCompound.1;
+                const secondCompound: (doormanStorage) = compoundUserRewards(s);
+                s := secondCompound;
 
                 // create list of operations
-                operations := case secondCompound.0 of [
-                    Some (compoundOperation) -> list[compoundOperation; updateSatelliteBalanceOperation; transferOperation]
-                  | None                     -> list[updateSatelliteBalanceOperation; transferOperation]
-                ];
+                // operations := case secondCompound.0 of [
+                //     Some (compoundOperation) -> list[compoundOperation; updateSatelliteBalanceOperation; transferOperation]
+                //   | None                     -> list[updateSatelliteBalanceOperation; transferOperation]
+                // ];
 
-                operations := case firstCompound.0 of [
-                    Some (compoundOperation) -> compoundOperation # operations
-                  | None                     -> operations
-                ];
+                // operations := case firstCompound.0 of [
+                //     Some (compoundOperation) -> compoundOperation # operations
+                //   | None                     -> operations
+                // ];
+
+                operations := list [updateSatelliteBalanceOperation; transferOperation];
 
             }
         | _ -> skip
@@ -477,13 +481,13 @@ block{
         | LambdaCompound(_parameters) -> {
                 
                 // Compound rewards
-                const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
-                s := userCompound.1;
+                const userCompound: (doormanStorage) = compoundUserRewards(s);
+                s := userCompound;
 
-                operations := case userCompound.0 of [
-                    Some (compoundOperation) -> list[compoundOperation]
-                  | None                     -> noOperations
-                ];
+                // operations := case userCompound.0 of [
+                //     Some (compoundOperation) -> list[compoundOperation]
+                //   | None                     -> noOperations
+                // ];
 
             }
         | _ -> skip
@@ -514,7 +518,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // Check if farm address is known to the farmFactory
                 const farmFactoryAddress: address = case Map.find_opt("farmFactory", s.generalContracts) of [
                       Some(_address) -> _address
-                    | None         -> failwith("Error. Farm Factory Contract is not found.")
+                    | None           -> failwith("Error. Farm Factory Contract is not found.")
                 ];
 
                 const checkFarmExistsView : option (bool) = Tezos.call_view ("checkFarmExists", farmAddress, farmFactoryAddress);
@@ -536,13 +540,13 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 const mvkMaximumSupply  : nat = mvkTotalAndMaximumSupply.1;
 
                 // Compound user rewards
-                const userCompound: (option(operation) * doormanStorage) = compoundUserRewards(s);
-                s := userCompound.1;
+                const userCompound: (doormanStorage) = compoundUserRewards(s);
+                s := userCompound;
 
                 // Update the delegation balance
                 const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
                       Some(_address) -> _address
-                    | None -> failwith("Error. Delegation Contract is not found.")
+                    | None           -> failwith("Error. Delegation Contract is not found.")
                 ];
                 const updateSatelliteBalanceOperation : operation = Tezos.transaction(
                   (delegator),
@@ -553,7 +557,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // get user's staked balance in staked balance ledger
                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[delegator] of [
                     Some (_val) -> _val
-                  | None -> record[
+                  | None  -> record[
                       balance=0n;
                       participationFeesPerShare=s.accumulatedFeesPerShare;
                     ]
@@ -568,7 +572,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 // Get treasury address from name
                 const treasuryAddress: address = case Map.find_opt("farmTreasury", s.generalContracts) of [
                     Some (v) -> v
-                  | None -> failwith("Error. Farm treasury contract not found")
+                  | None     -> failwith("Error. Farm treasury contract not found")
                 ];
 
                 // Check if MVK should force the transfer instead of checking the possibility of minting
