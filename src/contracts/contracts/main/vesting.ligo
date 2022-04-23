@@ -25,27 +25,31 @@
 
 type vestingAction is 
     
-    // Housekeeping Entrypoints
+      // Housekeeping Entrypoints
     | SetAdmin                      of (address)
-    | UpdateMetadata                of (string * bytes)
+    | UpdateMetadata                of updateMetadataType
     | UpdateWhitelistContracts      of updateWhitelistContractsParams
     | UpdateGeneralContracts        of updateGeneralContractsParams
     
-    // Internal Vestee Control Entrypoints
+      // Internal Vestee Control Entrypoints
     | AddVestee                     of (addVesteeType)
     | RemoveVestee                  of (address)
     | UpdateVestee                  of (updateVesteeType)
     | ToggleVesteeLock              of (address)
 
-    // Vestee Entrypoints
+      // Vestee Entrypoints
     | Claim                         of (unit)
 
-    // Lambda Entrypoints
+      // Lambda Entrypoints
     | SetLambda                     of setLambdaType
 
 
 const noOperations   : list (operation) = nil;
 type return is list (operation) * vestingStorage
+
+// vesting contract methods lambdas
+type vestingUnpackLambdaFunctionType is (vestingLambdaActionType * vestingStorage) -> return
+
 
 
 // ------------------------------------------------------------------------------
@@ -154,6 +158,26 @@ function mintTokens(
 // Entrypoint / General Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(vestingUnpackLambdaFunctionType)) of [
+        Some(f) -> f(vestingLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
@@ -231,30 +255,32 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * vestingStorage) -> return )) of [
-      | Some(f) -> f(newAdminAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
 
 
 
 (*  updateMetadata entrypoint - update the metadata at a given key *)
-function updateMetadata(const metadataKey: string; const metadataHash: bytes; var s : vestingStorage) : return is
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : vestingStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((string * bytes * vestingStorage) -> return )) of [
-      | Some(f) -> f(metadataKey, metadataHash, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
 
 
 
@@ -267,12 +293,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateWhitelistContractsParams * vestingStorage) -> return )) of [
-      | Some(f) -> f(updateWhitelistContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
 
 
 
@@ -285,12 +312,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateGeneralContractsParams * vestingStorage) -> return )) of [
-      | Some(f) -> f(updateGeneralContractsParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -311,12 +339,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((addVesteeType * vestingStorage) -> return )) of [
-      | Some(f) -> f(addVesteeParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaAddVestee(addVesteeParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
     
-} with (res.0, res.1)
+} with response
 
 
 
@@ -329,12 +358,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * vestingStorage) -> return )) of [
-      | Some(f) -> f(vesteeAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaRemoveVestee(vesteeAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
     
-} with (res.0, res.1)
+} with response
 
 
 
@@ -347,12 +377,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((updateVesteeType * vestingStorage) -> return )) of [
-      | Some(f) -> f(updateVesteeParams, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaUpdateVestee(updateVesteeParams);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
 
 
 
@@ -365,12 +396,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((address * vestingStorage) -> return )) of [
-      | Some(f) -> f(vesteeAddress, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaToggleVesteeLock(vesteeAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
     
-} with (res.0, res.1)
+} with response
 
 // ------------------------------------------------------------------------------
 // Internal Vestee Control Entrypoints End
@@ -391,12 +423,13 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    const res : return = case (Bytes.unpack(lambdaBytes) : option((vestingStorage) -> return )) of [
-      | Some(f) -> f(s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
+    // init vesting lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaClaim(unit);
 
-} with (res.0, res.1)
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Vestee Entrypoints End
@@ -445,7 +478,7 @@ function main (const action : vestingAction; const s : vestingStorage) : return 
 
         // Housekeeping Entrypoints
       | SetAdmin(parameters)                    -> setAdmin(parameters, s)  
-      | UpdateMetadata(parameters)              -> updateMetadata(parameters.0, parameters.1, s)
+      | UpdateMetadata(parameters)              -> updateMetadata(parameters, s)
       | UpdateWhitelistContracts(parameters)    -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)      -> updateGeneralContracts(parameters, s)
 
