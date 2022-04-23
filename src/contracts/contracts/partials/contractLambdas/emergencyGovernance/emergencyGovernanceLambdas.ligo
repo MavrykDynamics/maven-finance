@@ -125,8 +125,8 @@ block {
             else skip;
 
             const treasuryAddress : address = case s.generalContracts["treasury"] of [
-                Some(_address) -> _address
-                | None -> failwith("Error. Treasury Contract is not found.")
+                  Some(_address) -> _address
+                | None           -> failwith("Error. Treasury Contract is not found.")
             ];
 
             const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address. Cannot transfer XTZ");
@@ -134,14 +134,14 @@ block {
 
             // check if user has sufficient staked MVK to trigger emergency control
             const doormanAddress : address = case s.generalContracts["doorman"] of [
-                Some(_address) -> _address
-                | None -> failwith("Error. Doorman Contract is not found.")
+                  Some(_address) -> _address
+                | None           -> failwith("Error. Doorman Contract is not found.")
             ];
 
             const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
             const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-            Some (value) -> value
-            | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+                Some (value) -> value
+              | None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
             ];
             
             if stakedMvkBalance < s.config.minStakedMvkRequiredToTrigger 
@@ -151,8 +151,8 @@ block {
             // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
             const stakedMvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
             const stakedMvkTotalSupply: nat = case stakedMvkTotalSupplyView of [
-            Some (value) -> value
-            | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
+                Some (value) -> value
+              | None         -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
             ];
 
             var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
@@ -220,7 +220,7 @@ block {
                 else skip;
 
                 var _emergencyGovernance : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [
-                    | None -> failwith("Error. Emergency governance record not found with given id.")
+                    | None            -> failwith("Error. Emergency governance record not found with given id.")
                     | Some(_instance) -> _instance
                 ];
 
@@ -229,14 +229,14 @@ block {
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
                       Some(_address) -> _address
-                    | None -> failwith("Error. Doorman Contract is not found.")
+                    | None           -> failwith("Error. Doorman Contract is not found.")
                 ];
                 
                 // get user staked MVK Balance
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                       Some (value) -> value
-                    | None -> failwith ("Error. GetStakedBalance View not found in the Doorman Contract")
+                    | None         -> failwith ("Error. GetStakedBalance View not found in the Doorman Contract")
                 ];
 
                 if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith("Error. You do not have enough staked MVK balance to vote.");
@@ -258,12 +258,12 @@ block {
 
                     const breakGlassContractAddress : address = case s.generalContracts["breakGlass"] of [
                           Some(_address) -> _address
-                        | None -> failwith("Error. Break Glass Contract is not found.")
+                        | None           -> failwith("Error. Break Glass Contract is not found.")
                     ];
 
                     const governanceContractAddress : address = case s.generalContracts["governance"] of [
                           Some(_address) -> _address
-                        | None -> failwith("Error. Governance Contract is not found.")
+                        | None           -> failwith("Error. Governance Contract is not found.")
                     ];
 
                     // trigger break glass in break glass contract - set glassbroken to true in breakglass contract to give council members access to protected entrypoints
@@ -318,7 +318,7 @@ block {
                 else skip;
 
                 var emergencyGovernance : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [ 
-                    | None -> failwith("Error. Emergency governance record not found.")
+                    | None            -> failwith("Error. Emergency governance record not found.")
                     | Some(_instance) -> _instance
                 ];
 
