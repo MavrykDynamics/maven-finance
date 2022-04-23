@@ -89,8 +89,11 @@ block {
                 const updateConfigNewValue  : breakGlassUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                        ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
+                      ConfigThreshold (_v)                  -> if updateConfigNewValue > Set.cardinal(s.councilMembers) then failwith("Error. This config value cannot exceed the amount of members in the council") else s.config.threshold                 := updateConfigNewValue
                     | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
+                    | ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue  
+                    | ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
+                    | ConfigCouncilImageMaxLength (_v)      -> s.config.councilMemberImageMaxLength       := updateConfigNewValue  
                 ];
 
             }
@@ -190,15 +193,20 @@ block {
                 if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
                 else skip;
 
+                // Validate inputs
+                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+
                 const addressMap : addressMapType     = map [
                     ("councilMemberAddress" : string) -> newCouncilMember.memberAddress;
                 ];
-                const stringMap           : stringMapType      = map [
-                        ("councilMemberName": string) -> newCouncilMember.memberName;
-                        ("councilMemberImage": string) -> newCouncilMember.memberImage;
-                        ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
+                const stringMap : stringMapType      = map [
+                    ("councilMemberName": string) -> newCouncilMember.memberName;
+                    ("councilMemberImage": string) -> newCouncilMember.memberImage;
+                    ("councilMemberWebsite": string) -> newCouncilMember.memberWebsite
                 ];
-                const emptyNatMap : natMapType        = map [];
+                const emptyNatMap : natMapType       = map [];
 
                 var actionRecord : actionRecordType := record[
 
@@ -311,6 +319,10 @@ block {
                 // Check if new council member is already in the council
                 if Map.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
                 else skip;
+                // Validate inputs
+                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
 
                 // Check if old council member is in the council
                 if not Map.mem(councilActionChangeMemberParams.oldCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided old council member is not in the council")
@@ -320,10 +332,10 @@ block {
                     ("oldCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.oldCouncilMemberAddress;
                     ("newCouncilMemberAddress"         : string) -> councilActionChangeMemberParams.newCouncilMemberAddress;
                 ];
-                const stringMap           : stringMapType      = map [
-                    ("newCouncilMemberName" : string) -> councilActionChangeMemberParams.newCouncilMemberName;
-                    ("newCouncilMemberWebsite" : string) -> councilActionChangeMemberParams.newCouncilMemberWebsite;
-                    ("newCouncilMemberImage" : string) -> councilActionChangeMemberParams.newCouncilMemberImage;
+                const stringMap : stringMapType      = map [
+                    ("newCouncilMemberName"    : string)  -> councilActionChangeMemberParams.newCouncilMemberName;
+                    ("newCouncilMemberWebsite" : string)  -> councilActionChangeMemberParams.newCouncilMemberWebsite;
+                    ("newCouncilMemberImage"   : string)  -> councilActionChangeMemberParams.newCouncilMemberImage;
                 ];
                 const emptyNatMap : natMapType        = map [];
 
@@ -818,6 +830,16 @@ block {
                             image=councilMemberImage;
                             website=councilMemberWebsite;
                         ];
+                        // Validate inputs
+                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                        if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+
+                        const councilMemberInfo: councilMemberInfoType  = record[
+                            name=councilMemberName;
+                            image=councilMemberImage;
+                            website=councilMemberWebsite;
+                        ];
 
                         if Map.mem(councilMemberAddress, s.councilMembers) then failwith("Error. The provided council member is already in the council")
                         else s.councilMembers := Map.add(councilMemberAddress, councilMemberInfo, s.councilMembers);
@@ -877,6 +899,11 @@ block {
                         ];
                         // fetch params end ---
 
+                        // Validate inputs
+                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith("Error. Council member name too long") else skip;
+                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith("Error. Council member image link too long") else skip;
+                        if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith("Error. Council member website link too long") else skip;
+
                         // Check if new council member is already in the council
                         if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith("Error. The provided new council member is already in the council")
                         else skip;
@@ -919,8 +946,8 @@ block {
 
                         for _contractName -> contractAddress in map s.generalContracts block {
                             case (Tezos.get_entrypoint_opt("%unpauseAll", contractAddress) : option(contract(unit))) of [
-                                Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
-                            |   None -> skip
+                                    Some(contr) -> operations := Tezos.transaction(unit, 0tez, contr) # operations
+                                |   None -> skip
                             ];
                         };            
                     } else skip;
@@ -934,12 +961,12 @@ block {
 
                         // fetch params begin ---
                         const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. NewAdminAddress not found.")
                         ];
 
                         const targetContractAddress : address = case _actionRecord.addressMap["targetContractAddress"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. TargetContractAddress not found.")
                         ];
                         // fetch params end ---
@@ -950,6 +977,7 @@ block {
                             setAdminInContract(targetContractAddress)
                         );
                         operations := setSingleContractAdminOperation # operations;
+
                     } else skip;
 
 
@@ -961,8 +989,8 @@ block {
 
                         // fetch params begin ---
                         const newAdminAddress : address = case _actionRecord.addressMap["newAdminAddress"] of [
-                            Some(_address) -> _address
-                        |   None -> failwith("Error. NewAdminAddress not found.")
+                                Some(_address) -> _address
+                            |   None -> failwith("Error. NewAdminAddress not found.")
                         ];
                         // fetch params end ---
 
@@ -972,8 +1000,8 @@ block {
                         // Set all contracts in generalContracts map to given address
                         for _contractName -> contractAddress in map s.generalContracts block {
                             case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                                Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
-                            |   None -> skip
+                                    Some(contr) -> operations := Tezos.transaction(newAdminAddress, 0tez, contr) # operations
+                                |   None -> skip
                             ];
                         } 
                     } else skip;
@@ -988,22 +1016,22 @@ block {
 
                         // Reset all contracts admin to governance contract
                         const governanceAddress : address = case s.generalContracts["governance"] of [
-                            Some(_address) -> _address
+                              Some(_address) -> _address
                             | None -> failwith("Error. Governance Contract is not found.")
                         ];
                         s.admin := governanceAddress;
 
                         for _contractName -> contractAddress in map s.generalContracts block {
                             case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                                Some(contr) -> operations := Tezos.transaction(governanceAddress, 0tez, contr) # operations
-                            |   None -> skip
+                                    Some(contr) -> operations := Tezos.transaction(governanceAddress, 0tez, contr) # operations
+                                |   None -> skip
                             ];
                         };
 
                         // Reset glassBroken
                         s.glassBroken := False;
-                    } else skip;
 
+                    } else skip;
                         
                     // update break glass action record status
                     _actionRecord.status              := "EXECUTED";
