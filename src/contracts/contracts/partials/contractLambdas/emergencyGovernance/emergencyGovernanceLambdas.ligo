@@ -66,6 +66,8 @@ block {
                   | ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
                   | ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 100_000_000n then failwith("Error. This config value cannot go below 0.1SMVK") else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
                   | ConfigMinStakedMvkForTrigger (_v)             -> if updateConfigNewValue < 100_000_000n then failwith("Error. This config value cannot go below 0.1SMVK") else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
+                  | ConfigProposalTitleMaxLength (_v)             -> s.config.proposalTitleMaxLength          := updateConfigNewValue
+                  | ConfigProposalDescMaxLength (_v)              -> s.config.proposalDescMaxLength           := updateConfigNewValue
                 ];
 
             }
@@ -113,63 +115,68 @@ block {
     case emergencyGovernanceLambdaAction of [
         | LambdaTriggerEmergencyControl(triggerEmergencyControlParams) -> {
                 
-              if s.currentEmergencyGovernanceId = 0n 
-              then skip
-              else failwith("Error. There is a emergency control governance in process.");
+            if s.currentEmergencyGovernanceId = 0n 
+            then skip
+            else failwith("Error. There is a emergency control governance in process.");
 
-              // check if tez sent is equal to the required fee
-              if Tezos.amount =/= s.config.requiredFeeMutez 
-              then failwith("Error. Tez sent is not equal to required fee to trigger emergency governance.") 
-              else skip;
+            // check if tez sent is equal to the required fee
+            if Tezos.amount =/= s.config.requiredFeeMutez 
+            then failwith("Error. Tez sent is not equal to required fee to trigger emergency governance.") 
+            else skip;
 
-              const treasuryAddress : address = case s.generalContracts["treasury"] of [
-                  Some(_address) -> _address
-                  | None -> failwith("Error. Treasury Contract is not found.")
-              ];
+            const treasuryAddress : address = case s.generalContracts["treasury"] of [
+                Some(_address) -> _address
+                | None -> failwith("Error. Treasury Contract is not found.")
+            ];
 
-              const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address. Cannot transfer XTZ");
-              const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
+            const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address. Cannot transfer XTZ");
+            const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
 
-              // check if user has sufficient staked MVK to trigger emergency control
-              const doormanAddress : address = case s.generalContracts["doorman"] of [
-                  Some(_address) -> _address
+            // check if user has sufficient staked MVK to trigger emergency control
+            const doormanAddress : address = case s.generalContracts["doorman"] of [
+                Some(_address) -> _address
                 | None -> failwith("Error. Doorman Contract is not found.")
-              ];
+            ];
 
-              const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
-              const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                  Some (value) -> value
-                | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-              ];
-              
-              if stakedMvkBalance < s.config.minStakedMvkRequiredToTrigger 
-              then failwith("Error. You do not have enough staked MVK to trigger the emergency governance.") 
-              else skip;
+            const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
+            const stakedMvkBalance: nat = case stakedMvkBalanceView of [
+            Some (value) -> value
+            | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+            ];
+            
+            if stakedMvkBalance < s.config.minStakedMvkRequiredToTrigger 
+            then failwith("Error. You do not have enough staked MVK to trigger the emergency governance.") 
+            else skip;
 
-              // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
-              const stakedMvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
-              const stakedMvkTotalSupply: nat = case stakedMvkTotalSupplyView of [
-                  Some (value) -> value
-                | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
-              ];
+            // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
+            const stakedMvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
+            const stakedMvkTotalSupply: nat = case stakedMvkTotalSupplyView of [
+            Some (value) -> value
+            | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
+            ];
 
-              var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
+            var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
 
-              const title        : string  =  triggerEmergencyControlParams.title;
-              const description  : string  =  triggerEmergencyControlParams.description;
 
-              const emptyVotersMap : voterMapType = map[];
-              var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
-                  proposerAddress                  = Tezos.sender;
-                  executed                         = False;
-                  dropped                          = False;
+            const title        : string  =  triggerEmergencyControlParams.title;
+            const description  : string  =  triggerEmergencyControlParams.description;
 
-                  title                            = title;
-                  description                      = description; 
-                  voters                           = emptyVotersMap;
-                  totalStakedMvkVotes              = 0n;
-                  stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
-                  stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
+            // validate input
+            if String.length(title) > s.config.proposalTitleMaxLength then failwith("Error. Proposal title too long") else skip;
+            if String.length(description) > s.config.proposalDescMaxLength then failwith("Error. Proposal description too long") else skip;
+
+            const emptyVotersMap : voterMapType = map[];
+            var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
+                proposerAddress                  = Tezos.sender;
+                executed                         = False;
+                dropped                          = False;
+
+                title                            = title;
+                description                      = description; 
+                voters                           = emptyVotersMap;
+                totalStakedMvkVotes              = 0n;
+                stakedMvkPercentageRequired      = s.config.stakedMvkPercentageRequired;  // capture state of min required staked MVK vote percentage (e.g. 5% - as min required votes may change over time)
+                stakedMvkRequiredForBreakGlass   = stakedMvkRequiredForBreakGlass;
 
                   startDateTime                    = Tezos.now;
                   startLevel                       = Tezos.level;             
