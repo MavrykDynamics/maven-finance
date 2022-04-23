@@ -136,6 +136,11 @@ block {
                     | ConfigBlocksPerTimelockRound (_v)                 -> if updateConfigNewValue > (Tezos.level + maxRoundDuration) then failwith("Error. The duration of this round cannot exceed the maximum round duration") else s.config.blocksPerTimelockRound                  := updateConfigNewValue
                     | ConfigFinancialReqApprovalPct (_v)                -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.financialRequestApprovalPercentage      := updateConfigNewValue
                     | ConfigFinancialReqDurationDays (_v)               -> s.config.financialRequestDurationInDays          := updateConfigNewValue
+                    | ConfigProposalDatTitleMaxLength (_v)              -> s.config.proposalMetadataTitleMaxLength          := updateConfigNewValue
+                    | ConfigProposalTitleMaxLength (_v)                 -> s.config.proposalTitleMaxLength                  := updateConfigNewValue
+                    | ConfigProposalDescMaxLength (_v)                  -> s.config.proposalDescriptionMaxLength            := updateConfigNewValue
+                    | ConfigProposalInvoiceMaxLength (_v)               -> s.config.proposalInvoiceMaxLength                := updateConfigNewValue
+                    | ConfigProposalCodeMaxLength (_v)                  -> s.config.proposalSourceCodeMaxLength             := updateConfigNewValue
                 ];
 
             }
@@ -329,6 +334,12 @@ block {
                     | Some(snapshot) -> snapshot
                 ];
 
+                // validate inputs
+                if String.length(newProposal.title) > s.config.proposalTitleMaxLength then failwith("Error. Proposal title too long") else skip;
+                if String.length(newProposal.description) > s.config.proposalDescriptionMaxLength then failwith("Error. Proposal description too long") else skip;
+                if String.length(newProposal.invoice) > s.config.proposalInvoiceMaxLength then failwith("Error. Proposal invoice link too long") else skip;
+                if String.length(newProposal.sourceCode) > s.config.proposalSourceCodeMaxLength then failwith("Error. Proposal source code too long") else skip;
+
                 // minimumStakeReqPercentage - 5% -> 500 | snapshotMvkTotalSupply - mu 
                 const minimumMvkRequiredForProposalSubmission = s.config.minimumStakeReqPercentage * s.snapshotMvkTotalSupply / 10_000;
 
@@ -480,6 +491,9 @@ block {
                 const title          : string  = proposalData.title;
                 const proposalBytes  : bytes   = proposalData.proposalBytes;
 
+                // validate inputs
+                if String.length(title) > s.config.proposalMetadataTitleMaxLength then failwith("Error. Proposal metadata title too long") else skip;
+                
                 var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of [ 
                     Some(_record) -> _record
                 | None -> failwith("Error. Proposal not found.")
@@ -521,10 +535,20 @@ block {
                 const title             : string  = paymentData.title;
                 const paymentBytes      : bytes   = paymentData.paymentBytes;
 
+<<<<<<< HEAD
                 var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of [ 
                     Some(_record) -> _record
                 | None -> failwith("Error. Proposal not found.")
                 ];
+=======
+    // validate inputs
+    if String.length(title) > s.config.proposalMetadataTitleMaxLength then failwith("Error. Proposal metadata title too long") else skip;
+
+    var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of [ 
+        Some(_record) -> _record
+      | None -> failwith("Error. Proposal not found.")
+    ];
+>>>>>>> eece7c2 (String length verification added but not tested yet)
 
                 // check that proposal is not locked
                 if proposalRecord.locked = True then failwith("Error. Proposal is locked.")
@@ -745,16 +769,16 @@ block {
                 case satelliteOptView of [
                 
                     Some (value) -> case value of [
-                        Some (_satellite) -> skip
-                    | None -> failwith("Error. You need to be a satellite to vote for a governance proposal.")
+                          Some (_satellite) -> skip
+                        | None              -> failwith("Error. You need to be a satellite to vote for a governance proposal.")
                     ]
 
-                | None -> failwith ("Error. GetSatelliteOpt View not found in the Delegation Contract")
+                    | None -> failwith ("Error. GetSatelliteOpt View not found in the Delegation Contract")
 
                 ];
 
                 const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
-                    None -> failwith("Error. Snapshot of your holdings not taken. Please wait for the next governance round.")
+                      None           -> failwith("Error. Snapshot of your holdings not taken. Please wait for the next governance round.")
                     | Some(snapshot) -> snapshot
                 ];
 
@@ -845,8 +869,8 @@ block {
         | LambdaExecuteProposal(_parameters) -> {
                 
                 var proposal : proposalRecordType := case s.proposalLedger[s.timelockProposalId] of [
-                    Some(_record) -> _record
-                | None -> failwith("Error. Proposal not found.")
+                      Some(_record) -> _record
+                    | None -> failwith("Error. Proposal not found.")
                 ];
 
                 if proposal.executed = True then failwith("Error. Proposal has already been executed")
@@ -868,7 +892,7 @@ block {
                 for _title -> metadataBytes in map proposal.proposalMetadata block {
 
                     const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-                        Some(_action) -> _action
+                          Some(_action) -> _action
                         | None    -> failwith("Error. Unable to unpack proposal metadata.")
                     ];
 
@@ -886,7 +910,7 @@ block {
                 for _title -> metadataBytes in map proposal.paymentMetadata block {
 
                     const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-                        Some(_action) -> _action
+                          Some(_action) -> _action
                         | None    -> failwith("Error. Unable to unpack proposal metadata.")
                     ];
 
@@ -922,16 +946,16 @@ block {
                 
                 // check if satellite exists in the active satellites map
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
-                | None -> failwith("Error. Delegation Contract is not found")
+                      Some(_address) -> _address
+                    | None -> failwith("Error. Delegation Contract is not found")
                 ];
 
                 const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
                 case satelliteOptView of [
 
                     Some (value) -> case value of [
-                        Some (_satellite) -> skip
-                    | None -> failwith("Error. You need to be a satellite to drop a governance proposal.")
+                          Some (_satellite) -> skip
+                        | None -> failwith("Error. You need to be a satellite to drop a governance proposal.")
                     ]
                 | None -> failwith ("Error. GetSatelliteOpt View not found in the Delegation Contract")
 
@@ -943,7 +967,7 @@ block {
                 else skip;
 
                 var _proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
-                    None -> failwith("Error: Proposal not found in the proposal ledger.")
+                      None -> failwith("Error: Proposal not found in the proposal ledger.")
                     | Some(_proposal) -> _proposal        
                 ];
 
@@ -957,8 +981,8 @@ block {
 
                     // Remove proposal from currentRoundProposers
                     var proposerProposals   : set(nat)             := case s.currentRoundProposers[Tezos.sender] of [
-                        Some (_proposals) -> _proposals
-                    | None -> failwith("Error: Proposal not found in the current round.")
+                          Some (_proposals) -> _proposals
+                        | None -> failwith("Error: Proposal not found in the current round.")
                     ];
                     s.currentRoundProposers[Tezos.sender] := Set.remove(proposalId, proposerProposals);
 
@@ -985,6 +1009,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* requestTokens lambda *)
+<<<<<<< HEAD
 function lambdaRequestTokens(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
 block {
   
@@ -996,18 +1021,18 @@ block {
                 const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Doorman Contract is not found")
                 ];
 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Delegation Contract is not found")
                 ];
 
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
                 s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
-                    Some (value) -> value
+                      Some (value) -> value
                     | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
                 ];
 
@@ -1015,6 +1040,8 @@ block {
 
                 if requestTokensParams.tokenType = "FA12" or requestTokensParams.tokenType = "FA2" or requestTokensParams.tokenType = "TEZ" then skip
                 else failwith("Error. Provided tokenType is invalid. Can only be TEZ/FA12/FA2");
+
+                const keyHash : option(key_hash) = (None : option(key_hash));
 
                 var newFinancialRequest : financialRequestRecordType := record [
                     requesterAddress     = Tezos.sender;
@@ -1030,6 +1057,7 @@ block {
                     tokenId              = requestTokensParams.tokenId;
                     requestPurpose       = requestTokensParams.purpose; 
                     voters               = emptyFinancialRequestVotersMap;
+                    keyHash              = keyHash;
 
                     approveVoteTotal     = 0n;
                     disapproveVoteTotal  = 0n;
@@ -1058,7 +1086,7 @@ block {
                 // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
                 const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
-                    Some (value) -> value
+                      Some (value) -> value
                     | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
                 ];
 
@@ -1077,17 +1105,109 @@ block {
             }
         | _ -> skip
     ];
+=======
+function lambdaRequestTokens(const requestTokensParams : councilActionRequestTokensType; var s : governanceStorage) : return is 
+block {
+  
+  checkSenderIsCouncilContract(s);
+
+  const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
+
+  const doormanAddress : address = case s.generalContracts["doorman"] of [
+      Some(_address) -> _address
+    | None -> failwith("Error. Doorman Contract is not found")
+  ];
+
+  const delegationAddress : address = case s.generalContracts["delegation"] of [
+      Some(_address) -> _address
+    | None -> failwith("Error. Delegation Contract is not found")
+  ];
+
+  const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
+  s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
+      Some (value) -> value
+    | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
+  ];
+
+  const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+
+  if requestTokensParams.tokenType = "FA12" or requestTokensParams.tokenType = "FA2" or requestTokensParams.tokenType = "TEZ" then skip
+  else failwith("Error. Provided tokenType is invalid. Can only be TEZ/FA12/FA2");
+
+  var newFinancialRequest : financialRequestRecordType := record [
+    requesterAddress     = Tezos.sender;
+    requestType          = "TRANSFER";
+    status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
+    executed             = False;
+
+    treasuryAddress      = requestTokensParams.treasuryAddress;
+    tokenContractAddress = requestTokensParams.tokenContractAddress;
+    tokenAmount          = requestTokensParams.tokenAmount;
+    tokenName            = requestTokensParams.tokenName; 
+    tokenType            = requestTokensParams.tokenType;
+    tokenId              = requestTokensParams.tokenId;
+    requestPurpose       = requestTokensParams.purpose; 
+    voters               = emptyFinancialRequestVotersMap;
+
+    approveVoteTotal     = 0n;
+    disapproveVoteTotal  = 0n;
+
+    snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
+    stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
+    stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
+
+    requestedDateTime    = Tezos.now;               // log of when the request was submitted
+    expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
+  
+  ];
+
+  const financialRequestId : nat = s.financialRequestCounter;
+
+  // save request to financial request ledger
+  s.financialRequestLedger[financialRequestId] := newFinancialRequest;
+
+  // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
+  const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
+  s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
+
+  // increment financial request counter
+  s.financialRequestCounter := financialRequestId + 1n;
+
+  // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
+  const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
+  const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
+      Some (value) -> value
+    | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
+  ];
+
+  for satelliteAddress -> satellite in map activeSatellites block {
+    
+      const satelliteSnapshot : requestSatelliteSnapshotType = record [
+        satelliteAddress      = satelliteAddress;
+        requestId             = financialRequestId;
+        stakedMvkBalance      = satellite.stakedMvkBalance;
+        totalDelegatedAmount  = satellite.totalDelegatedAmount;
+      ];
+
+      s := requestSatelliteSnapshot(satelliteSnapshot,s);
+  };
+>>>>>>> eece7c2 (String length verification added but not tested yet)
 
 } with (noOperations, s)
 
 
 
 (* requestMint lambda *)
+<<<<<<< HEAD
 function lambdaRequestMint(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+=======
+function lambdaRequestMint(const requestMintParams : councilActionRequestMintType; var s : governanceStorage) : return is 
+>>>>>>> eece7c2 (String length verification added but not tested yet)
 block {
   
   checkSenderIsCouncilContract(s);
 
+<<<<<<< HEAD
   case governanceLambdaAction of [
         | LambdaRequestMint(requestMintParams) -> {
                 
@@ -1096,22 +1216,24 @@ block {
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Doorman Contract is not found")
                 ];
 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
+                      Some(_address) -> _address
                     | None -> failwith("Error. Delegation Contract is not found")
                 ];
 
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
                 s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
-                    Some (value) -> value
+                      Some (value) -> value
                     | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
                 ];
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+
+                const keyHash : option(key_hash) = (None : option(key_hash));
 
                 var newFinancialRequest : financialRequestRecordType := record [
 
@@ -1128,6 +1250,7 @@ block {
                         tokenId              = 0n;
                         requestPurpose       = requestMintParams.purpose;
                         voters               = emptyFinancialRequestVotersMap;
+                        keyHash              = keyHash;
 
                         approveVoteTotal     = 0n;
                         disapproveVoteTotal  = 0n;
@@ -1155,7 +1278,7 @@ block {
                 // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
                 const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
-                    Some (value) -> value
+                      Some (value) -> value
                     | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
                 ];
 
@@ -1178,9 +1301,210 @@ block {
 
 
 
+(* setContractBaker lambda *)
+function lambdaSetContractBaker(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+block {
+  
+  checkSenderIsCouncilContract(s);
+
+  case governanceLambdaAction of [
+        | LambdaSetContractBaker(setContractBakerParams) -> {
+                
+                const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
+  
+                const mvkTokenAddress : address = s.mvkTokenAddress;
+
+                const doormanAddress : address = case s.generalContracts["doorman"] of [
+                      Some(_address) -> _address
+                    | None -> failwith("Error. Doorman Contract is not found")
+                ];
+                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
+                s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
+                      Some (value) -> value
+                    | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
+                ];
+
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                      Some(_address) -> _address
+                    | None -> failwith("Error. Delegation Contract is not found")
+                ];
+
+                const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+
+                var newFinancialRequest : financialRequestRecordType := record [
+
+                        requesterAddress     = Tezos.sender;
+                        requestType          = "SET_CONTRACT_BAKER";
+                        status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
+                        executed             = False;
+
+                        treasuryAddress      = setContractBakerParams.targetContractAddress;
+                        tokenContractAddress = mvkTokenAddress;
+                        tokenAmount          = 0n;
+                        tokenName            = "NIL"; 
+                        tokenType            = "NIL";
+                        tokenId              = 0n;
+                        requestPurpose       = "Set Contract Baker";
+                        voters               = emptyFinancialRequestVotersMap;
+                        keyHash              = setContractBakerParams.keyHash;
+
+                        approveVoteTotal     = 0n;
+                        disapproveVoteTotal  = 0n;
+
+                        snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
+                        stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
+                        stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
+
+                        requestedDateTime    = Tezos.now;               // log of when the request was submitted
+                        expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
+                    ];
+
+                const financialRequestId : nat = s.financialRequestCounter;
+
+                // save request to financial request ledger
+                s.financialRequestLedger[financialRequestId] := newFinancialRequest;
+
+                // increment financial request counter
+                s.financialRequestCounter := financialRequestId + 1n;
+
+                // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
+                const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
+                s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
+
+                // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
+                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
+                const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
+                      Some (value) -> value
+                    | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
+                ];
+
+                for satelliteAddress -> satellite in map activeSatellites block {
+                    const satelliteSnapshot : requestSatelliteSnapshotType = record [
+                        satelliteAddress      = satelliteAddress;
+                        requestId             = financialRequestId;
+                        stakedMvkBalance      = satellite.stakedMvkBalance;
+                        totalDelegatedAmount  = satellite.totalDelegatedAmount;
+                    ];
+
+                    s := requestSatelliteSnapshot(satelliteSnapshot,s);
+                }; 
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+
 (* dropFinancialRequest lambda *)
 function lambdaDropFinancialRequest(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
 block {
+=======
+  const emptyFinancialRequestVotersMap  : financialRequestVotersMapType     = map [];
+  
+  const mvkTokenAddress : address = s.mvkTokenAddress;
+
+  const doormanAddress : address = case s.generalContracts["doorman"] of [
+      Some(_address) -> _address
+    | None -> failwith("Error. Doorman Contract is not found")
+  ];
+
+  const delegationAddress : address = case s.generalContracts["delegation"] of [
+      Some(_address) -> _address
+    | None -> failwith("Error. Delegation Contract is not found")
+  ];
+
+  const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
+  s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
+      Some (value) -> value
+    | None -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
+  ];
+
+  const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
+
+  var newFinancialRequest : financialRequestRecordType := record [
+
+        requesterAddress     = Tezos.sender;
+        requestType          = "MINT";
+        status               = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
+        executed             = False;
+
+        treasuryAddress      = requestMintParams.treasuryAddress;
+        tokenContractAddress = mvkTokenAddress;
+        tokenAmount          = requestMintParams.tokenAmount;
+        tokenName            = "MVK"; 
+        tokenType            = "FA2";
+        tokenId              = 0n;
+        requestPurpose       = requestMintParams.purpose;
+        voters               = emptyFinancialRequestVotersMap;
+
+        approveVoteTotal     = 0n;
+        disapproveVoteTotal  = 0n;
+
+        snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
+        stakedMvkPercentageForApproval     = s.config.financialRequestApprovalPercentage; 
+        stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
+
+        requestedDateTime    = Tezos.now;               // log of when the request was submitted
+        expiryDateTime       = Tezos.now + (86_400 * s.config.financialRequestDurationInDays);
+    ];
+
+  const financialRequestId : nat = s.financialRequestCounter;
+
+  // save request to financial request ledger
+  s.financialRequestLedger[financialRequestId] := newFinancialRequest;
+
+  // increment financial request counter
+  s.financialRequestCounter := financialRequestId + 1n;
+
+  // create snapshot in financialRequestSnapshotLedger (to be filled with satellite's )
+  const emptyFinancialRequestSnapshotMap  : financialRequestSnapshotMapType     = map [];
+  s.financialRequestSnapshotLedger[financialRequestId] := emptyFinancialRequestSnapshotMap;
+
+  // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
+  const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
+  const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
+      Some (value) -> value
+    | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
+  ];
+
+  for satelliteAddress -> satellite in map activeSatellites block {
+      const satelliteSnapshot : requestSatelliteSnapshotType = record [
+        satelliteAddress      = satelliteAddress;
+        requestId             = financialRequestId;
+        stakedMvkBalance      = satellite.stakedMvkBalance;
+        totalDelegatedAmount  = satellite.totalDelegatedAmount;
+      ];
+
+      s := requestSatelliteSnapshot(satelliteSnapshot,s);
+  }; 
+
+} with (noOperations, s)
+
+
+
+(* dropFinancialRequest lambda *)
+function lambdaDropFinancialRequest(const requestId : nat; var s : governanceStorage) : return is 
+block {
+
+  checkSenderIsCouncilContract(s);
+
+  var financialRequest : financialRequestRecordType := case s.financialRequestLedger[requestId] of [
+      Some(_request) -> _request
+    | None -> failwith("Error. Financial request not found. ")
+  ];
+
+  if financialRequest.executed then failwith("Error. This financial request has already been executed, it cannot be dropped") else skip;
+
+  if Tezos.now > financialRequest.expiryDateTime then failwith("Error. Financial request has expired") else skip;
+
+  financialRequest.status := False;
+  s.financialRequestLedger[requestId] := financialRequest;
+
+} with (noOperations, s);
+>>>>>>> eece7c2 (String length verification added but not tested yet)
 
   checkSenderIsCouncilContract(s);
 
@@ -1188,10 +1512,11 @@ block {
         | LambdaDropFinancialRequest(requestId) -> {
                 
                 var financialRequest : financialRequestRecordType := case s.financialRequestLedger[requestId] of [
-                    Some(_request) -> _request
+                      Some(_request) -> _request
                     | None -> failwith("Error. Financial request not found. ")
                 ];
 
+<<<<<<< HEAD
                 if financialRequest.executed then failwith("Error. This financial request has already been executed, it cannot be dropped") else skip;
 
                 if Tezos.now > financialRequest.expiryDateTime then failwith("Error. Financial request has expired") else skip;
@@ -1296,68 +1621,85 @@ block {
                         // send request to treasury if total approved votes exceed staked MVK required for approval
                         if newApproveVoteTotal > _financialRequest.stakedMvkRequiredForApproval then block {
 
-                        const treasuryAddress : address = _financialRequest.treasuryAddress;
+                            const treasuryAddress : address = _financialRequest.treasuryAddress;
 
-                        const councilAddress : address = case s.generalContracts["council"] of [
-                            Some(_address) -> _address
-                            | None -> failwith("Error. Council Contract is not found")
-                        ];
-
-                        if _financialRequest.requestType = "TRANSFER" then block {
-
-                            // ---- set token type ----
-                            var _tokenTransferType : tokenType := Tez;
-
-                            if  _financialRequest.tokenType = "FA12" 
-                            then block {
-                                _tokenTransferType := Fa12(_financialRequest.tokenContractAddress); 
-                            } 
-                            else skip;
-
-                            if  _financialRequest.tokenType = "FA2" 
-                            then block {
-                                _tokenTransferType := Fa2(record [
-                                    tokenContractAddress  = _financialRequest.tokenContractAddress;
-                                    tokenId               = _financialRequest.tokenId;
-                                ]); 
-                            } 
-                            else skip;
-                            // --- --- ---
-
-                            const transferTokenParams : transferActionType = list[
-                            record [
-                                to_        = councilAddress;
-                                token      = _tokenTransferType;
-                                amount     = _financialRequest.tokenAmount;
-                            ]
+                            const councilAddress : address = case s.generalContracts["council"] of [
+                                Some(_address) -> _address
+                                | None -> failwith("Error. Council Contract is not found")
                             ];
 
-                            const treasuryTransferOperation : operation = Tezos.transaction(
-                                transferTokenParams, 
-                                0tez, 
-                                sendTransferOperationToTreasury(treasuryAddress)
-                            );
+                            if _financialRequest.requestType = "TRANSFER" then block {
 
-                            operations := treasuryTransferOperation # operations;
+                                // ---- set token type ----
+                                var _tokenTransferType : tokenType := Tez;
 
-                        } else skip;
+                                if  _financialRequest.tokenType = "FA12" 
+                                then block {
+                                    _tokenTransferType := Fa12(_financialRequest.tokenContractAddress); 
+                                } 
+                                else skip;
 
-                        if _financialRequest.requestType = "MINT" then block {
-                            
-                            const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
-                                to_  = councilAddress;
-                                amt  = _financialRequest.tokenAmount;
-                            ];
+                                if  _financialRequest.tokenType = "FA2" 
+                                then block {
+                                    _tokenTransferType := Fa2(record [
+                                        tokenContractAddress  = _financialRequest.tokenContractAddress;
+                                        tokenId               = _financialRequest.tokenId;
+                                    ]); 
+                                } 
+                                else skip;
+                                // --- --- ---
 
-                            const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
-                                mintMvkAndTransferTokenParams, 
-                                0tez, 
-                                sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
-                            );
+                                const transferTokenParams : transferActionType = list[
+                                record [
+                                    to_        = councilAddress;
+                                    token      = _tokenTransferType;
+                                    amount     = _financialRequest.tokenAmount;
+                                ]
+                                ];
 
-                            operations := treasuryMintMvkAndTransferOperation # operations;
+                                const treasuryTransferOperation : operation = Tezos.transaction(
+                                    transferTokenParams, 
+                                    0tez, 
+                                    sendTransferOperationToTreasury(treasuryAddress)
+                                );
 
-                        } else skip;
+                                operations := treasuryTransferOperation # operations;
+
+                            } else skip;
+
+
+
+                            if _financialRequest.requestType = "MINT" then block {
+                                
+                                const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
+                                    to_  = councilAddress;
+                                    amt  = _financialRequest.tokenAmount;
+                                ];
+
+                                const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
+                                    mintMvkAndTransferTokenParams, 
+                                    0tez, 
+                                    sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
+                                );
+
+                                operations := treasuryMintMvkAndTransferOperation # operations;
+
+                            } else skip;
+
+
+
+                            if _financialRequest.requestType = "SET_CONTRACT_BAKER" then block {
+
+                                const keyHash : option(key_hash) = _financialRequest.keyHash;
+                                const setContractBakerOperation : operation = Tezos.transaction(
+                                    keyHash, 
+                                    0tez, 
+                                    setTreasuryBaker(_financialRequest.treasuryAddress)
+                                );
+
+                                operations := setContractBakerOperation # operations;
+
+                            } else skip;
 
                             _financialRequest.executed := True;
                             s.financialRequestLedger[financialRequestId] := _financialRequest;
@@ -1376,6 +1718,166 @@ block {
             }
         | _ -> skip
     ];
+=======
+(* voteForRequest lambda *)
+function lambdaVoteForRequest(const voteForRequest : voteForRequestType; var s : governanceStorage) : return is 
+block {
+  
+  // check if satellite exists in the active satellites map
+  const delegationAddress : address = case s.generalContracts["delegation"] of [
+      Some(_address) -> _address
+    | None -> failwith("Error. Delegation Contract is not found")
+  ];
+  const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", Tezos.sender, delegationAddress);
+  case satelliteOptView of [
+      Some (value) -> case value of [
+          Some (_satellite) -> skip
+        | None -> failwith("Error. You need to be a satellite to vote for a request.")
+      ]
+    | None -> failwith ("Error. GetSatelliteOpt View not found in the Delegation Contract")
+  ];
+
+  const financialRequestId : nat = voteForRequest.requestId;
+
+  var _financialRequest : financialRequestRecordType := case s.financialRequestLedger[financialRequestId] of [
+      Some(_request) -> _request
+    | None -> failwith("Error. Financial request not found. ")
+  ];
+
+  if _financialRequest.status    = False then failwith("Error. Financial request has been dropped.")          else skip;
+  if _financialRequest.executed  = True  then failwith("Error. Financial request has already been executed.") else skip;
+
+  if Tezos.now > _financialRequest.expiryDateTime then failwith("Error. Financial request has expired") else skip;
+
+  var operations : list(operation) := nil;
+
+  const financialRequestSnapshot : financialRequestSnapshotMapType = case s.financialRequestSnapshotLedger[financialRequestId] of [
+      Some(_snapshot) -> _snapshot
+    | None -> failwith("Error. Financial request snapshot not found.")
+  ]; 
+
+  const satelliteSnapshotRecord : financialRequestSnapshotRecordType = case financialRequestSnapshot[Tezos.sender] of [ 
+      Some(_record) -> _record
+    | None -> failwith("Error. Satellite not found in financial request snapshot.")
+  ];
+
+  // Save and update satellite's vote record
+  const voteType         : voteForRequestChoiceType  = voteForRequest.vote;
+  const totalVotingPower : nat                       = satelliteSnapshotRecord.totalVotingPower;
+
+  // Remove previous vote if user already voted
+  case _financialRequest.voters[Tezos.sender] of [
+      
+      Some (_voteRecord) -> case _voteRecord.vote of [
+
+        Approve(_v) -> if _voteRecord.totalVotingPower > _financialRequest.approveVoteTotal 
+                      then failwith("Error. Calculation error when changing a vote") 
+                      else _financialRequest.approveVoteTotal := abs(_financialRequest.approveVoteTotal - _voteRecord.totalVotingPower)
+
+      | Disapprove(_v) ->  if _voteRecord.totalVotingPower > _financialRequest.disapproveVoteTotal 
+                          then failwith("Error. Calculation error when changing a vote") 
+                          else _financialRequest.disapproveVoteTotal := abs(_financialRequest.disapproveVoteTotal - _voteRecord.totalVotingPower)
+
+      ]
+
+    | None -> skip
+
+  ];
+
+  const newVoteRecord : financialRequestVoteType     = record [
+      vote             = voteType;
+      totalVotingPower = totalVotingPower;
+      timeVoted        = Tezos.now;
+  ];
+
+  _financialRequest.voters[Tezos.sender] := newVoteRecord;
+
+  // Satellite cast vote and send request to Treasury if enough votes have been gathered
+  case voteType of [
+
+    Approve(_v) -> block {
+
+        const newApproveVoteTotal : nat = _financialRequest.approveVoteTotal + totalVotingPower;
+
+        _financialRequest.approveVoteTotal           := newApproveVoteTotal;
+        s.financialRequestLedger[financialRequestId] := _financialRequest;
+
+        // send request to treasury if total approved votes exceed staked MVK required for approval
+        if newApproveVoteTotal > _financialRequest.stakedMvkRequiredForApproval then block {
+
+          const treasuryAddress : address = _financialRequest.treasuryAddress;
+
+          const councilAddress : address = case s.generalContracts["council"] of [
+            Some(_address) -> _address
+            | None -> failwith("Error. Council Contract is not found")
+          ];
+
+          if _financialRequest.requestType = "TRANSFER" then block {
+
+            // ---- set token type ----
+            var _tokenTransferType : tokenType := Tez;
+
+            if  _financialRequest.tokenType = "FA12" then block {
+              _tokenTransferType := Fa12(_financialRequest.tokenContractAddress); 
+            } else skip;
+
+            if  _financialRequest.tokenType = "FA2" then block {
+              _tokenTransferType := Fa2(record [
+                tokenContractAddress  = _financialRequest.tokenContractAddress;
+                tokenId               = _financialRequest.tokenId;
+              ]); 
+            } else skip;
+            // --- --- ---
+
+            const transferTokenParams : transferActionType = list[
+              record [
+                to_        = councilAddress;
+                token      = _tokenTransferType;
+                amount     = _financialRequest.tokenAmount;
+              ]
+            ];
+
+            const treasuryTransferOperation : operation = Tezos.transaction(
+              transferTokenParams, 
+              0tez, 
+              sendTransferOperationToTreasury(treasuryAddress)
+            );
+
+            operations := treasuryTransferOperation # operations;
+
+          } else skip;
+
+          if _financialRequest.requestType = "MINT" then block {
+              
+            const mintMvkAndTransferTokenParams : mintMvkAndTransferType = record [
+              to_  = councilAddress;
+              amt  = _financialRequest.tokenAmount;
+            ];
+
+            const treasuryMintMvkAndTransferOperation : operation = Tezos.transaction(
+              mintMvkAndTransferTokenParams, 
+              0tez, 
+              sendMintMvkAndTransferOperationToTreasury(treasuryAddress)
+            );
+
+            operations := treasuryMintMvkAndTransferOperation # operations;
+
+          } else skip;
+
+          _financialRequest.executed := True;
+          s.financialRequestLedger[financialRequestId] := _financialRequest;
+
+        } else skip;
+
+    }
+
+  | Disapprove(_v) -> block {
+      const newDisapproveVoteTotal : nat            = _financialRequest.disapproveVoteTotal + totalVotingPower;
+      _financialRequest.disapproveVoteTotal        := newDisapproveVoteTotal;
+      s.financialRequestLedger[financialRequestId] := _financialRequest;
+    }
+  ];
+>>>>>>> eece7c2 (String length verification added but not tested yet)
   
 } with (operations, s)
 

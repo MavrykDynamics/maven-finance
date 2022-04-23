@@ -16,6 +16,7 @@ type newSatelliteRecordType is [@layout:comb] record [
     name                  : string;
     description           : string;
     image                 : string;
+    website               : string;
     satelliteFee          : nat;
 ]
 
@@ -23,6 +24,7 @@ type updateSatelliteRecordType is [@layout:comb] record [
     name                  : string;
     description           : string;
     image                 : string;
+    website               : string;
     satelliteFee          : nat;
 ]
 
@@ -36,6 +38,7 @@ type satelliteRecordType is [@layout:comb] record [
     name                  : string;     // string for name
     description           : string;     // string for description
     image                 : string;     // ipfs hash
+    website               : string;     // satellite website if it has one
     
     registeredDateTime    : timestamp;  
 ]
@@ -49,9 +52,14 @@ type requestSatelliteSnapshotType is  [@layout:comb] record [
 ]
 
 type delegationConfigType is [@layout:comb] record [
-    minimumStakedMvkBalance   : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required to register as delegate (in muMVK)
-    delegationRatio           : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated    
-    maxSatellites             : nat;   // 100 -> prevent any gaming of system with mass registration of satellites - can be changed through governance
+    minimumStakedMvkBalance             : nat;   // minimumStakedMvkBalance - minimum amount of staked MVK required to register as delegate (in muMVK)
+    delegationRatio                     : nat;   // delegationRatio (tbd) -   percentage to determine if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated    
+    maxSatellites                       : nat;   // 100 -> prevent any gaming of system with mass registration of satellites - can be changed through governance
+    
+    satelliteNameMaxLength              : nat;
+    satelliteDescriptionMaxLength       : nat;
+    satelliteImageMaxLength             : nat;
+    satelliteWebsiteMaxLength           : nat;
 ]
 
 type delegationBreakGlassConfigType is record [
@@ -70,6 +78,10 @@ type delegationUpdateConfigActionType is
   ConfigMinimumStakedMvkBalance of unit
 | ConfigDelegationRatio         of unit
 | ConfigMaxSatellites           of unit
+| ConfigSatNameMaxLength        of unit
+| ConfigSatDescMaxLength        of unit
+| ConfigSatImageMaxLength       of unit
+| ConfigSatWebsiteMaxLength     of unit
 type delegationUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: delegationUpdateConfigNewValueType; 
   updateConfigAction: delegationUpdateConfigActionType;

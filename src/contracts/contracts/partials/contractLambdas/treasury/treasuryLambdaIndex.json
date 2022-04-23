@@ -5,42 +5,46 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetBaker"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateWhitelistTokenContracts"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 5,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseTransfer"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseMintMvkAndTransfer"
+      "name": "lambdaTogglePauseTransfer"
     },
     {
       "index": 9,
-      "name": "lambdaTransfer"
+      "name": "lambdaTogglePauseMintMvkAndTransfer"
     },
     {
       "index": 10,
+      "name": "lambdaTransfer"
+    },
+    {
+      "index": 11,
       "name": "lambdaMintMvkAndTransfer"
     }
 ]

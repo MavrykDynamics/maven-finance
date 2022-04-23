@@ -121,8 +121,9 @@ type financialRequestRecordType is [@layout:comb] record [
     tokenType               : string;
     tokenId                 : nat;
     requestPurpose          : string;
-
     voters                  : financialRequestVotersMapType; 
+    keyHash                 : option(key_hash);
+
     approveVoteTotal        : nat;
     disapproveVoteTotal     : nat;
 
@@ -182,26 +183,37 @@ type configType is [@layout:comb] record [
 
     financialRequestApprovalPercentage  : nat;  // threshold for financial request to be approved: 67% of total staked MVK supply
     financialRequestDurationInDays      : nat;  // duration of final request before expiry
+
+    proposalMetadataTitleMaxLength      : nat;
+    proposalTitleMaxLength              : nat;
+    proposalDescriptionMaxLength        : nat;
+    proposalInvoiceMaxLength            : nat;
+    proposalSourceCodeMaxLength         : nat;
     
 ]
 
 // update config types
 type governanceUpdateConfigNewValueType is nat
 type governanceUpdateConfigActionType is 
-  ConfigSuccessReward of unit
-| ConfigMinProposalRoundVotePct of unit
-| ConfigMinProposalRoundVotesReq of unit
-| ConfigMinQuorumPercentage of unit
-| ConfigMinQuorumMvkTotal of unit
-| ConfigVotingPowerRatio of unit
-| ConfigProposalSubmissionFee of unit
-| ConfigMinimumStakeReqPercentage of unit
-| ConfigMaxProposalsPerDelegate of unit
-| ConfigBlocksPerProposalRound of unit
-| ConfigBlocksPerVotingRound of unit
-| ConfigBlocksPerTimelockRound of unit
-| ConfigFinancialReqApprovalPct of unit
-| ConfigFinancialReqDurationDays of unit
+  ConfigSuccessReward               of unit
+| ConfigMinProposalRoundVotePct     of unit
+| ConfigMinProposalRoundVotesReq    of unit
+| ConfigMinQuorumPercentage         of unit
+| ConfigMinQuorumMvkTotal           of unit
+| ConfigVotingPowerRatio            of unit
+| ConfigProposalSubmissionFee       of unit
+| ConfigMinimumStakeReqPercentage   of unit
+| ConfigMaxProposalsPerDelegate     of unit
+| ConfigBlocksPerProposalRound      of unit
+| ConfigBlocksPerVotingRound        of unit
+| ConfigBlocksPerTimelockRound      of unit
+| ConfigFinancialReqApprovalPct     of unit
+| ConfigFinancialReqDurationDays    of unit
+| ConfigProposalDatTitleMaxLength   of unit
+| ConfigProposalTitleMaxLength      of unit
+| ConfigProposalDescMaxLength       of unit
+| ConfigProposalInvoiceMaxLength    of unit
+| ConfigProposalCodeMaxLength       of unit
 
 type governanceUpdateConfigParamsType is [@layout:comb] record [
   updateConfigNewValue: governanceUpdateConfigNewValueType; 
@@ -242,6 +254,11 @@ type requestMintType is [@layout:comb] record [
     treasuryAddress       : address;  // treasury address
     tokenAmount           : nat;      // MVK token amount requested
     purpose               : string;   // financial request purpose
+]
+
+type setContractBakerType is [@layout:comb] record [
+    targetContractAddress  : address;
+    keyHash                : option(key_hash);
 ]
 
 type voteForRequestChoiceType is 
@@ -291,6 +308,7 @@ type governanceLambdaActionType is
   // Financial Governance Lambdas
 | LambdaRequestTokens                         of requestTokensType
 | LambdaRequestMint                           of requestMintType
+| LambdaSetContractBaker                      of setContractBakerType
 | LambdaDropFinancialRequest                  of (nat)
 | LambdaVoteForRequest                        of voteForRequestType
 
