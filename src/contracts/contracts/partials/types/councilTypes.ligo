@@ -1,12 +1,12 @@
 type signersType is set(address)
 
-type metadata is big_map (string, bytes);
+type metadataType is big_map (string, bytes);
 
 type addressMapType   is map(string, address);
 type stringMapType    is map(string, string);
 type natMapType       is map(string, nat);
 
-type councilActionRecordType is record [
+type councilActionRecordType is [@layout:comb] record [
 
     initiator                  : address;          // address of action initiator
     actionType                 : string;           // addVestee / updateVestee / toggleVesteeLock / addCouncilMember / removeCouncilMember / requestTokens / requestMint
@@ -30,7 +30,7 @@ type councilActionRecordType is record [
 
 type councilActionsLedgerType is big_map(nat, councilActionRecordType)
 
-type councilConfigType is record [
+type councilConfigType is [@layout:comb] record [
     threshold                       : nat;                 // min number of council members who need to agree on action
     actionExpiryDays                : nat;                 // action expiry in number of days 
     
@@ -149,7 +149,7 @@ type lambdaLedgerType is big_map(string, bytes)
 type councilStorage is [@layout:comb] record [
     admin                       : address;
     mvkTokenAddress             : address;
-    metadata                    : metadata;
+    metadata                    : metadataType;
 
     config                      : councilConfigType;
     councilMembers              : councilMembersType;  

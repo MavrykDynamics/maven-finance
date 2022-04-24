@@ -52,27 +52,25 @@ type governanceProxyLambdaFunctionType is (executeActionType * governanceProxySt
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                              = 0n;
 [@inline] const error_ONLY_SELF_ALLOWED                                       = 1n;
 [@inline] const error_ONLY_ADMIN_OR_SELF_ALLOWED                              = 2n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ADDRESS_ALLOWED       = 2n;
-[@inline] const error_ONLY_ADMIN_OR_SELF_OR_GOVERNANCE_ADDRESS_ALLOWED        = 0n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 8n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ADDRESS_ALLOWED        = 3n;
+[@inline] const error_ONLY_ADMIN_OR_SELF_OR_GOVERNANCE_ADDRESS_ALLOWED        = 4n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 5n;
 
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 13n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 13n;
-[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND         = 13n;
-[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND           = 13n;
-[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND   = 13n;
+[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 6n;
+[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 7n;
+[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND         = 8n;
+[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND           = 9n;
+[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND   = 10n;
 
-[@inline] const error_GOVERNANCE_PROPOSAL_RECORD_NOT_FOUND                    = 13n;
-[@inline] const error_GET_PROPOSAL_RECORD_VIEW_NOT_FOUND                      = 13n;
+[@inline] const error_GOVERNANCE_PROPOSAL_RECORD_NOT_FOUND                    = 11n;
+[@inline] const error_GET_PROPOSAL_RECORD_VIEW_NOT_FOUND                      = 12n;
 [@inline] const error_GOVERNANCE_PROPOSAL_ALREADY_EXECUTED                    = 13n;
-[@inline] const error_GOVERNANCE_PROPOSAL_DROPPED                             = 13n;
-[@inline] const error_GOVERNANCE_PROPOSAL_NO_DATA_TO_EXECUTE                  = 13n;
+[@inline] const error_GOVERNANCE_PROPOSAL_DROPPED                             = 14n;
+[@inline] const error_GOVERNANCE_PROPOSAL_NO_DATA_TO_EXECUTE                  = 15n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                        = 26n;
-[@inline] const error_UNABLE_TO_UNPACK_PROPOSAL_METADATA                      = 27n;
-[@inline] const error_UNABLE_TO_UNPACK_PAYMENT_METADATA                       = 27n;
-[@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA               = 27n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                 = 27n;
+[@inline] const error_LAMBDA_NOT_FOUND                                        = 16n;
+[@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA               = 17n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                 = 18n;
 
 
 // ------------------------------------------------------------------------------
