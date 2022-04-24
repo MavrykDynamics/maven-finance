@@ -59,7 +59,7 @@ export const governanceStorage: governanceStorageType = {
   proposalLedger          : MichelsonMap.fromLiteral({}),
   snapshotLedger          : MichelsonMap.fromLiteral({}),
 
-  startLevel              : new BigNumber(1),
+  // startLevel              : new BigNumber(1),
   nextProposalId          : new BigNumber(1),
   cycleCounter            : new BigNumber(1),
 
@@ -73,14 +73,12 @@ export const governanceStorage: governanceStorageType = {
   currentRoundProposals   : MichelsonMap.fromLiteral({}),
   currentRoundProposers   : MichelsonMap.fromLiteral({}),
   currentRoundVotes       : MichelsonMap.fromLiteral({}),
-
   currentRoundHighestVotedProposalId : new BigNumber(0),
   timelockProposalId                 : new BigNumber(0),
   
   snapshotMvkTotalSupply             : new BigNumber(1000000000),
   snapshotStakedMvkTotalSupply       : new BigNumber(0),
 
-  proxyLambdaLedger                  : MichelsonMap.fromLiteral({}),
   lambdaLedger                       : MichelsonMap.fromLiteral({}),
 
   financialRequestLedger             : MichelsonMap.fromLiteral({}),
