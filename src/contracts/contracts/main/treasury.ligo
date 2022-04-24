@@ -1,5 +1,5 @@
 // ------------------------------------------------------------------------------
-// Common Types
+// Common Types 
 // ------------------------------------------------------------------------------
 
 // Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
@@ -11,8 +11,13 @@
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
+// ------------------------------------------------------------------------------
+// Functional Types 
+// ------------------------------------------------------------------------------
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
+
 
 // ------------------------------------------------------------------------------
 // Contract Types

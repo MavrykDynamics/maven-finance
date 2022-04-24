@@ -1,0 +1,1 @@
+type fa12TransferType is michelson_pair(address, "from", michelson_pair(address, "to", nat, "value"), "")
