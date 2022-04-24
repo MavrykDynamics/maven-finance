@@ -5,20 +5,20 @@
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
-// Basic Lambda Begin
+// Basic Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(* callGovernanceLambda lambda *)
-function callGovernanceLambda(const executeAction : executeActionType; var s : governanceStorage) : return is
+(* executeGovernanceLambdaProxy lambda *)
+function executeGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
     checkSenderIsAdminOrSelf(s);
 
-    (* ids to match governanceLambdaIndex.json - id 0 is callGovernanceLambda *)
+    (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambdaProxy *)
     const id : nat = case executeAction of [
       
       (* Update Lambda Function *)    
-      | UpdateProxyLambdaFunction(_v)          -> 1n
+      | UpdateProxyLambda(_v)                  -> 1n
 
       (* General Controls *)    
       | SetContractAdmin(_v)                   -> 2n
@@ -28,8 +28,8 @@ block {
       | UpdateContractWhitelistTokenMap (_v)   -> 6n
       
       (* Update Configs *)    
-      | UpdateGovernanceConfig(_v)              -> 7n
-      | UpdateDelegationConfig(_v)              -> 8n
+      | UpdateGovernanceConfig(_v)             -> 7n
+      | UpdateDelegationConfig(_v)             -> 8n
 
     ];
 
@@ -38,7 +38,7 @@ block {
       | None     -> failwith("Error. Governance Proxy Lambda not found.")
     ];
 
-    // reference: type governanceProxyLambdaFunctionType is (executeActionType * governanceStorage) -> return
+    // reference: type governanceProxyLambdaFunctionType is (executeActionType * governanceProxyStorage) -> return
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
       | None    -> failwith("Error. Unable to unpack Governance Proxy Lambda.")
@@ -46,29 +46,22 @@ block {
   
 } with (res.0, s)
 
-// ------------------------------------------------------------------------------
-// Basic Lambda End
-// ------------------------------------------------------------------------------
 
 
-
-// ------------------------------------------------------------------------------
-// Update Lambdas Functions Begin
-// ------------------------------------------------------------------------------
-
-(* updateProxyLambdaFunction lambda *)
-function updateProxyLambdaFunction(const executeAction : executeActionType; var s : governanceStorage) : return is
+(* updateProxyLambda lambda *)
+function updateProxyLambda(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
     checkSenderIsAdminOrSelf(s);
 
     case executeAction of [
-        UpdateProxyLambdaFunction(params) -> {
+        UpdateProxyLambda(params) -> {
 
             // assign params to constants for better code readability
             const lambdaId     : nat   = params.id;
             const lambdaBytes  : bytes = params.func_bytes;
 
+            // allow override
             s.proxyLambdaLedger[lambdaId] := lambdaBytes
 
           }
@@ -79,7 +72,7 @@ block {
 } with (noOperations, s)
 
 // ------------------------------------------------------------------------------
-// Update Lambdas Functions End
+// Basic Lambdas End
 // ------------------------------------------------------------------------------
 
 
@@ -89,7 +82,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* setContractAdmin lambda *)
-function setContractAdmin(const executeAction : executeActionType; var s : governanceStorage) : return is
+function setContractAdmin(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
     checkSenderIsAdminOrSelf(s);
@@ -122,7 +115,7 @@ block {
 
 
 (* updateContractMetadata lambda *)
-function updateContractMetadata(const executeAction : executeActionType; var s : governanceStorage) : return is
+function updateContractMetadata(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
     checkSenderIsAdminOrSelf(s);
@@ -161,7 +154,7 @@ block {
 
 
 (* updateContractWhitelistMap lambda *)
-function updateContractWhitelistMap(const executeAction : executeActionType; var s : governanceStorage) : return is
+function updateContractWhitelistMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
     checkSenderIsAdminOrSelf(s);
@@ -200,7 +193,7 @@ block {
 
 
 (* updateContractGeneralMap lambda *)
-function updateContractGeneralMap(const executeAction : executeActionType; var s : governanceStorage) : return is
+function updateContractGeneralMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
     checkSenderIsAdminOrSelf(s);
@@ -239,7 +232,7 @@ block {
 
 
 (* updateContractWhitelistTokenMap lambda *)
-function updateContractWhitelistTokenMap(const executeAction : executeActionType; var s : governanceStorage) : return is
+function updateContractWhitelistTokenMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
     checkSenderIsAdminOrSelf(s);
@@ -280,7 +273,7 @@ block {
 // ------------------------------------------------------------------------------
 
 
-function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceStorage) : return is 
+function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
     checkSenderIsAdminOrSelf(s);
@@ -318,7 +311,8 @@ block {
 } with (operations, s)
 
 
-function updateDelegationConfig(const executeAction : executeActionType; var s : governanceStorage) : return is 
+
+function updateDelegationConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
     checkSenderIsAdminOrSelf(s);
@@ -362,6 +356,51 @@ block {
 
 } with (operations, s)
 
+
+
+// function updateDoormanConfig(const executeAction : executeActionType; var s : governanceStorage) : return is 
+// block {
+
+//     checkSenderIsAdminOrSelf(s);
+
+//     var operations: list(operation) := nil;
+
+//     case executeAction of [
+      
+//       UpdateDoormanConfig(params) -> {
+
+//         // find and get doorman contract address from the generalContracts big map
+//         const doormanAddress : address = case s.generalContracts["doorman"] of [
+//               Some(_address) -> _address
+//             | None -> failwith("Error. Doorman Contract is not found")
+//         ];
+
+//         // find and get updateConfig entrypoint of doorman contract
+//         const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+//             "%updateConfig",
+//             doormanAddress) : option(contract(nat * doormanUpdateConfigActionType))) of [
+//                   Some(contr) -> contr
+//                 | None        -> (failwith("updateConfig entrypoint in Doorman Contract not found") : contract(nat * doormanUpdateConfigActionType))
+//             ];
+
+//         // assign params to constants for better code readability
+//         const updateConfigAction   = params.updateConfigAction;
+//         const updateConfigNewValue = params.updateConfigNewValue;
+
+//         // update doorman config operation
+//         const updateDoormanConfigOperation : operation = Tezos.transaction(
+//           (updateConfigNewValue, updateConfigAction),
+//           0tez, 
+//           updateConfigEntrypoint
+//         );
+
+//         operations := updateDoormanConfigOperation # operations;
+
+//         }
+//     | _ -> skip
+//     ]
+
+// } with (operations, s)
 
 // ------------------------------------------------------------------------------
 //
