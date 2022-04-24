@@ -252,28 +252,39 @@ block{
 
     // Get User
     const user: address = Tezos.source;
+
     // Get the user's record, failed if it does not exists
     var userRecord: userStakeBalanceRecordType := case s.userStakeBalanceLedger[user] of [
         Some (_val) -> _val
       | None -> record[
-          balance                   = 0n;
-          participationFeesPerShare = s.accumulatedFeesPerShare;
+          balance                        = 0n;
+          totalExitFeeRewardsClaimed     = 0n;
+          totalSatelliteRewardsClaimed   = 0n;
+          participationFeesPerShare      = s.accumulatedFeesPerShare;
         ]
     ];
-    // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
+    // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
     if userRecord.balance > 0n then {
+      
       // Calculate what fees the user missed since his/her last claim
       const currentFeesPerShare: nat = abs(s.accumulatedFeesPerShare - userRecord.participationFeesPerShare);
+
       // Calculate the user reward based on his sMVK
       const userRewards: nat = (currentFeesPerShare * userRecord.balance) / fixedPointAccuracy;
+      
       // Increase the user balance
       userRecord.balance := userRecord.balance + userRewards;
+
+      // Increase the user total
+      userRecord.totalExitFeeRewardsClaimed := userRecord.totalExitFeeRewardsClaimed + userRewards;
+      
       s.unclaimedRewards := abs(s.unclaimedRewards - userRewards);
     }
     else skip;
     
     // Set the user's participationFeesPerShare 
     userRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
+    
     // Update the doormanStorage
     s.userStakeBalanceLedger := Big_map.update(user, Some (userRecord), s.userStakeBalanceLedger);
 

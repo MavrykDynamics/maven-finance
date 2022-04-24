@@ -146,7 +146,7 @@ block {
                         monthsClaimed            = 0n;                               // claimed number of months   
                         monthsRemaining          = vestingInMonths;                  // remaining number of months   
                         
-                        nextRedemptionTimestamp  = Tezos.now + (cliffInMonths * thirty_days);                  // timestamp of when vestee will be able to claim again (same as end of cliff timestamp)
+                        nextRedemptionTimestamp  = Tezos.now;                  // timestamp of when vestee will be able to claim again (claim at start of period; if cliff exists, will be the same as end of cliff timestamp)
                         lastClaimedTimestamp     = Tezos.now;                  // timestamp of when vestee last claimed
                     ]
                 ];    
