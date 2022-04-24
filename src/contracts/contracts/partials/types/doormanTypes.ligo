@@ -1,5 +1,7 @@
 type userStakeBalanceRecordType is [@layout:comb] record[
     balance                                : nat;
+    totalExitFeeRewardsClaimed             : nat;
+    totalSatelliteRewardsClaimed           : nat;
     participationFeesPerShare              : nat;
 ]
 type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
