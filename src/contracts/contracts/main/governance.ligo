@@ -18,12 +18,6 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// MvkToken types for transfer
-#include "../partials/types/mvkTokenTypes.ligo"
-
-// Delegation Type for updateConfig
-#include "../partials/types/delegationTypes.ligo"
-
 // Treasury Type for mint and transfers
 #include "../partials/types/treasuryTypes.ligo"
 

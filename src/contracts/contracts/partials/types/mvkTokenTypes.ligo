@@ -1,16 +1,18 @@
 
-////
-// COMMON TYPES
-////
+// ------------------------------------------------------------------------------
+// Common Types
+// ------------------------------------------------------------------------------
+
 type tokenId is nat;
 type tokenBalance is nat;
 type operator is address
 type owner is address
-type treasury is string
 
-////
-// STORAGE
-////
+
+// ------------------------------------------------------------------------------
+// Storage Types
+// ------------------------------------------------------------------------------
+
 type tokenMetadataInfo is record [
   token_id          : tokenId;
   token_info        : map(string, bytes);
@@ -69,6 +71,10 @@ type assertMetadataParams is [@layout:comb] record[
 
 (* Mint entrypoint inputs *)
 type mintParams is (owner * tokenBalance)
+
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
 
 type mvkTokenStorage is record [
   admin                   : address;
