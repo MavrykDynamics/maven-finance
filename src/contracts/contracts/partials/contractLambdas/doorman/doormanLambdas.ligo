@@ -309,8 +309,10 @@ block {
               var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.sender] of [
                     Some(_val) -> _val
                   | None -> record[
-                      balance=0n;
-                      participationFeesPerShare=s.accumulatedFeesPerShare;
+                      balance                        = 0n;
+                      totalExitFeeRewardsClaimed     = 0n;
+                      totalSatelliteRewardsClaimed   = 0n;
+                      participationFeesPerShare      = s.accumulatedFeesPerShare;
                     ]
               ];
               userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + stakeAmount; 
@@ -558,8 +560,10 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[delegator] of [
                     Some (_val) -> _val
                   | None  -> record[
-                      balance=0n;
-                      participationFeesPerShare=s.accumulatedFeesPerShare;
+                      balance                        = 0n;
+                      totalExitFeeRewardsClaimed     = 0n;
+                      totalSatelliteRewardsClaimed   = 0n;
+                      participationFeesPerShare      = s.accumulatedFeesPerShare;
                     ]
                 ];
 
@@ -616,10 +620,10 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                   // Check if provided treasury exists
                   const transferParam: transferActionType = list[
                     record[
-                      to_=Tezos.self_address;
-                      token=Fa2 (record[
-                        tokenContractAddress=mvkTokenAddress;
-                        tokenId=0n;
+                      to_   = Tezos.self_address;
+                      token = Fa2 (record[
+                        tokenContractAddress  = mvkTokenAddress;
+                        tokenId               = 0n;
                       ]);
                       amount=transferedToken;
                     ]
