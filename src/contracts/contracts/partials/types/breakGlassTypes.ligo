@@ -46,7 +46,7 @@ type addressMapType   is map(string, address);
 type stringMapType    is map(string, string);
 type natMapType       is map(string, nat);
 
-type metadata is big_map (string, bytes);
+type metadataType is big_map (string, bytes);
 
 type actionRecordType is record [
     
@@ -120,7 +120,7 @@ type breakGlassLambdaActionType is
 type breakGlassStorage is [@layout:comb] record [
     admin                       : address;               
     mvkTokenAddress             : address;
-    metadata                    : metadata;
+    metadata                    : metadataType;
     
     config                      : breakGlassConfigType;
     glassBroken                 : bool;

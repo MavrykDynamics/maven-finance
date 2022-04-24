@@ -27,7 +27,7 @@
 // Treasury types for transfer and mint
 #include "../partials/types/treasuryTypes.ligo"
 
-// General Contracts: generalContractsType, updateGeneralContractsParams
+// Council Types
 #include "../partials/types/councilTypes.ligo"
 
 // ------------------------------------------------------------------------------
