@@ -67,16 +67,11 @@ type governanceAction is
     | VoteForRequest                  of voteForRequestType
 
       // Lambda Entrypoints
-    | CallGovernanceLambdaProxy       of executeActionType
-    | SetProxyLambda                  of setProxyLambdaType
     | SetLambda                       of setLambdaType
 
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * governanceStorage
-
-// proxy lambdas -> executing proposals to external contracts within MAVRYK system
-type governanceProxyLambdaFunctionType is (executeActionType * governanceStorage) -> return
 
 // governance contract methods lambdas
 type governanceUnpackLambdaFunctionType is (governanceLambdaActionType * governanceStorage) -> return
@@ -120,14 +115,11 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 [@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                            = 11n;
 [@inline] const error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND               = 12n;
 
-//--- temp
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 13n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 13n;
-[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND         = 13n;
-[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND           = 13n;
-[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND   = 13n;
-
-//---
+// temp
+[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                        = 13n;
+// [@inline] const error_EXECUTE_GOVERNANCE_PROPOSAL_ENTRYPOINT_NOT_FOUND      = 13n;
+[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND        = 13n;
+//
 
 [@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 13n;
 [@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 14n;
@@ -288,53 +280,31 @@ function getSetAdminEntrypoint(const contractAddress : address) : contract(addre
   case (Tezos.get_entrypoint_opt(
       "%setAdmin",
       contractAddress) : option(contract(address))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
-];
+          Some(contr) -> contr
+        | None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
+      ];
 
 
 
-// governance proxy lamba helper function to get updateMetadata entrypoint
-function getUpdateMetadataEntrypoint(const contractAddress : address) : contract(updateMetadataType) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateMetadata",
-      contractAddress) : option(contract(updateMetadataType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND) : contract(updateMetadataType))
-];
+// governance proxy lamba helper function to get executeGovernanceProposal entrypoint
+// function getExecuteGovernanceProposalEntrypoint(const contractAddress : address) : contract(bytes) is
+// case (Tezos.get_entrypoint_opt(
+//       "%executeGovernanceProposal",
+//       contractAddress) : option(contract(bytes))) of [
+//           Some(contr) -> contr
+//         | None        -> (failwith(error_EXECUTE_GOVERNANCE_PROPOSAL_ENTRYPOINT_NOT_FOUND) : contract(bytes))
+//       ];
 
 
 
-// governance proxy lamba helper function to get updateWhitelistContracts entrypoint
-function getUpdateWhitelistContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistContractsParams) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateWhitelistContracts",
-      contractAddress) : option(contract(updateWhitelistContractsParams))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistContractsParams))
-];
-
-
-
-// governance proxy lamba helper function to get updateGeneralContracts entrypoint
-function getUpdateGeneralContractsEntrypoint(const contractAddress : address) : contract(updateGeneralContractsParams) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateGeneralContracts",
-      contractAddress) : option(contract(updateGeneralContractsParams))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateGeneralContractsParams))
-];
-
-
-
-// governance proxy lamba helper function to get updateWhitelistTokenContracts entrypoint
-function getUpdateWhitelistTokenContractsEntrypoint(const contractAddress : address) : contract(updateWhitelistTokenContractsParams) is
-  case (Tezos.get_entrypoint_opt(
-      "%updateWhitelistTokenContracts",
-      contractAddress) : option(contract(updateWhitelistTokenContractsParams))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND) : contract(updateWhitelistTokenContractsParams))
-];
+// governance proxy lamba helper function to get executeGovernanceProposal entrypoint
+function getExecuteGovernanceActionEntrypoint(const contractAddress : address) : contract(bytes) is
+case (Tezos.get_entrypoint_opt(
+      "%executeGovernanceAction",
+      contractAddress) : option(contract(bytes))) of [
+          Some(contr) -> contr
+        | None        -> (failwith(error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND) : contract(bytes))
+      ];
 
 
 
@@ -343,9 +313,9 @@ function sendTransferOperationToTreasury(const contractAddress : address) : cont
 case (Tezos.get_entrypoint_opt(
       "%transfer",
       contractAddress) : option(contract(transferActionType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
-];
+          Some(contr) -> contr
+        | None        -> (failwith(error_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
+      ];
 
 
 
@@ -430,13 +400,13 @@ block {
 
 
 // helper function to send operation to governance lambda
-function sendOperationToGovernanceLambda(const _p : unit) : contract(executeActionType) is
-  case (Tezos.get_entrypoint_opt(
-      "%callGovernanceLambdaProxy",
-      Tezos.self_address) : option(contract(executeActionType))) of [
-          Some(contr) -> contr
-        | None -> (failwith(error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND) : contract(executeActionType))
-      ];  
+// function sendOperationToGovernanceLambda(const _p : unit) : contract(executeActionType) is
+//   case (Tezos.get_entrypoint_opt(
+//       "%callGovernanceLambdaProxy",
+//       Tezos.self_address) : option(contract(executeActionType))) of [
+//           Some(contr) -> contr
+//         | None -> (failwith(error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND) : contract(executeActionType))
+//       ];  
 
 
 
@@ -722,6 +692,25 @@ block {
 // ------------------------------------------------------------------------------
 //
 // Helper Functions End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get Proposal Record *)
+[@view] function getProposalRecordView(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
+  s.proposalLedger[proposalId]
+
+
+// ------------------------------------------------------------------------------
+//
+// Views End
 //
 // ------------------------------------------------------------------------------
 
@@ -1124,7 +1113,7 @@ block {
 function setContractBaker(const setContractBakerParams : councilActionSetContractBakerType; var s : governanceStorage) : return is 
 block {
   
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestMint"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetContractBaker"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -1185,44 +1174,6 @@ block {
 // Lambda Entrypoints Begin
 // ------------------------------------------------------------------------------
 
-(* callGovernanceLambda entrypoint *)
-function callGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceStorage) : return is
-block {
-    
-    checkSenderIsAdminOrSelf(s);
-
-    const governanceLambdaBytes : bytes = case s.proxyLambdaLedger[0n] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
-    const res : return = case (Bytes.unpack(governanceLambdaBytes) : option(governanceProxyLambdaFunctionType)) of [
-        Some(f) -> f(executeAction, s)
-      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-    ];
-  
-} with (res.0, res.1)
-
-
-
-(* setProxyLambda entrypoint *)
-function setProxyLambda(const setProxyLambdaParams : setProxyLambdaType; var s : governanceStorage) : return is
-block {
-
-    checkSenderIsAdminOrSelf(s);
-
-    // init parameters
-    const id          : nat   = setProxyLambdaParams.id;
-    const func_bytes  : bytes = setProxyLambdaParams.func_bytes;
-
-    // set proxy lambda in proxyLambdaLedger - allow override of lambdas
-    s.proxyLambdaLedger[id] := func_bytes;
-
-} with (noOperations, s)
-
-
-
 (* setLambda entrypoint *)
 function setLambda(const setLambdaParams: setLambdaType; var s: governanceStorage): return is
 block{
@@ -1238,12 +1189,6 @@ block{
     s.lambdaLedger[lambdaName] := lambdaBytes;
 
 } with(noOperations, s)
-
-
-
-// Governance Proxy Lambdas (i.e. External Contracts - updateGovernanceConfig, updateDelegationConfig ...)
-#include "../partials/governanceProxyLambdas/governanceProxyLambdas.ligo"
-
 
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
@@ -1290,8 +1235,6 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
 
           // Lambda Entrypoints
-        | CallGovernanceLambdaProxy(parameters)       -> callGovernanceLambdaProxy(parameters, s)
-        | SetProxyLambda(parameters)                  -> setProxyLambda(parameters, s)
         | SetLambda(parameters)                       -> setLambda(parameters, s)
 
     ]

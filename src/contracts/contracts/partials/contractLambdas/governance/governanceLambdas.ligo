@@ -879,42 +879,66 @@ block {
                 else skip;
 
                 // update proposal executed boolean to True
-                proposal.executed            := True;
+                proposal.executed                      := True;
                 s.proposalLedger[s.timelockProposalId] := proposal;    
+
+                // const triggerExecuteGovernanceProposalInGovernanceProxyOperation : operation = Tezos.transaction(
+                //         proposal.id,
+                //         0tez,
+                //         executeGovernanceProposal(s.governanceProxyAddress)
+                //     );
+                
+                // operations := triggerExecuteGovernanceProposalInGovernanceProxyOperation # operations;
 
                 // loop proposal metadata for execution
                 for _title -> metadataBytes in map proposal.proposalMetadata block {
 
-                    const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-                          Some(_action) -> _action
-                        | None    -> failwith("Error. Unable to unpack proposal metadata.")
-                    ];
+                    // const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
+                    //       Some(_action) -> _action
+                    //     | None    -> failwith("Error. Unable to unpack proposal metadata.")
+                    // ];
 
-                    const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
-                        executeAction,
+                    // const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
+                    //     executeAction,
+                    //     0tez,
+                    //     sendOperationToGovernanceLambda(unit)
+                    // );
+
+                    // operations := sendActionToGovernanceLambdaOperation # operations;
+
+                    const sendProposalActionToGovernanceProxyForExecutionOperation : operation = Tezos.transaction(
+                        metadataBytes,
                         0tez,
-                        sendOperationToGovernanceLambda(unit)
+                        getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
                     );
-
-                    operations := sendActionToGovernanceLambdaOperation # operations;
                 
+                    operations := sendProposalActionToGovernanceProxyForExecutionOperation # operations;
+
                 };     
 
                 // loop payment metadata for execution
                 for _title -> metadataBytes in map proposal.paymentMetadata block {
 
-                    const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-                          Some(_action) -> _action
-                        | None    -> failwith("Error. Unable to unpack proposal metadata.")
-                    ];
+                    // const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
+                    //       Some(_action) -> _action
+                    //     | None    -> failwith("Error. Unable to unpack proposal metadata.")
+                    // ];
 
-                    const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
-                        executeAction,
+                    // const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
+                    //     executeAction,
+                    //     0tez,
+                    //     sendOperationToGovernanceLambda(unit)
+                    // );
+
+                    // operations := sendActionToGovernanceLambdaOperation # operations;
+
+                    const sendPaymentActionToGovernanceProxyForExecutionOperation : operation = Tezos.transaction(
+                        metadataBytes,
                         0tez,
-                        sendOperationToGovernanceLambda(unit)
+                        getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
                     );
-
-                    operations := sendActionToGovernanceLambdaOperation # operations;
+                
+                    operations := sendPaymentActionToGovernanceProxyForExecutionOperation # operations;
                 
                 };     
 

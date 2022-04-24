@@ -16,7 +16,7 @@ export type governanceStorageType = {
   proposalLedger          : MichelsonMap<MichelsonMapKey, unknown>;
   snapshotLedger          : MichelsonMap<MichelsonMapKey, unknown>;
 
-  startLevel              : BigNumber;
+  // startLevel              : BigNumber;
   nextProposalId          : BigNumber;
   cycleCounter            : BigNumber;
 
@@ -37,7 +37,6 @@ export type governanceStorageType = {
   snapshotMvkTotalSupply             : BigNumber;
   snapshotStakedMvkTotalSupply       : BigNumber;
 
-  proxyLambdaLedger                  : MichelsonMap<MichelsonMapKey, unknown>;
   lambdaLedger                       : MichelsonMap<MichelsonMapKey, unknown>;
 
   financialRequestLedger             : MichelsonMap<MichelsonMapKey, unknown>;
