@@ -104,8 +104,8 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND    = 18n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                      = 18n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 19n;
+[@inline] const error_LAMBDA_NOT_FOUND                                      = 19n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 20n;
 
 // ------------------------------------------------------------------------------
 //

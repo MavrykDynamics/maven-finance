@@ -339,6 +339,8 @@ block{
             Some (value) -> value
           | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
           ];
+          
+          // Calculate the user unclaimed rewards
           const satelliteReward: nat  = case getUserReferenceRewardOpt of [
             Some (_referenceRewards) -> block{
               const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
