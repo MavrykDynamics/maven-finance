@@ -544,7 +544,7 @@ block {
                 else skip;
 
                 // check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.sender then failwith("Error. Only the proposer can add or update data.")
+                if proposalRecord.proposerAddress =/= Tezos.source then failwith("Error. Only the proposer can add or update data.")
                 else skip;
 
                 // Add or update data to proposal
@@ -588,7 +588,7 @@ block {
                 else skip;
 
                 // check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.sender then failwith("Error. Only the proposer can add or update data.")
+                if proposalRecord.proposerAddress =/= Tezos.source then failwith("Error. Only the proposer can add or update data.")
                 else skip;
 
                 // Add or update data to proposal
@@ -1000,7 +1000,10 @@ block {
                 
                     operations := sendPaymentActionToGovernanceProxyForExecutionOperation # operations;
                 
-                };     
+                };
+
+                // Send reward to proposer
+                operations  := sendRewardToProposer(s) # operations;
 
             }
         | _ -> skip
