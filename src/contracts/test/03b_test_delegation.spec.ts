@@ -269,34 +269,49 @@ describe("Delegation tests", async () => {
                 // Initial Values
                 delegationStorage           = await delegationInstance.storage();
                 doormanStorage              = await doormanInstance.storage();
+                mvkTokenStorage             = await mvkTokenInstance.storage();
                 const reward                = MVK(100);
                 const initSatelliteSMVK     = await doormanStorage.userStakeBalanceLedger.get(bob.pkh) 
                 const initSatelliteRewards  = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
+                
+                var satelliteTest           = await delegationStorage.satelliteLedger.get(bob.pkh);
+                var aliceTest               = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+                var eveTest                 = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
+
                 const initSatelliteRecord   = await delegationStorage.satelliteLedger.get(bob.pkh);
+                const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress.address);
                 const satelliteVotingPower  = initSatelliteRecord.totalDelegatedAmount.toNumber() + initSatelliteRecord.stakedMvkBalance.toNumber();
                 const satelliteFee          = initSatelliteRecord.satelliteFee.toNumber();
 
                 // Distribute Operation
-                const distributeOperation = await delegationInstance.methods.distributeReward([bob.pkh, mallory.pkh],reward).send();
+                const distributeOperation       = await delegationInstance.methods.distributeReward([bob.pkh, mallory.pkh],reward).send();
                 await distributeOperation.confirmation();
-                delegationStorage = await delegationInstance.storage();
-                doormanStorage  = await doormanInstance.storage();
-                const satelliteFeeReward  = satelliteFee / 10000 * reward/2
-                const distributedReward     = reward / 2 - satelliteFeeReward
+
+                // var claimOperation = await doormanInstance.methods.compound().send();
+                // await claimOperation.confirmation()
+                delegationStorage               = await delegationInstance.storage();
+                doormanStorage                  = await doormanInstance.storage();
+                mvkTokenStorage                 = await mvkTokenInstance.storage();
+                const satelliteFeeReward        = satelliteFee / 10000 * reward/2
+                const distributedReward         = reward / 2 - satelliteFeeReward
                 const accumulatedRewardPerShare = distributedReward / satelliteVotingPower
-                var unpaidRewards   = initSatelliteRewards.unpaid.toNumber() + satelliteFeeReward
-                var satelliteRewards = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
-                var satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
+                var unpaidRewards               = initSatelliteRewards.unpaid.toNumber() + satelliteFeeReward + initSatelliteSMVK.balance.toNumber() * accumulatedRewardPerShare
+                var satelliteRewards            = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
+                var satelliteStake              = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
+                var doormanBalance              = await mvkTokenStorage.ledger.get(doormanAddress.address);
+                satelliteTest                   = await delegationStorage.satelliteLedger.get(bob.pkh);
+                aliceTest                       = await doormanStorage.userStakeBalanceLedger.get(alice.pkh);
+                eveTest                         = await doormanStorage.userStakeBalanceLedger.get(eve.pkh);
 
                 // Assertions
                 assert.equal(satelliteRewards.unpaid.toNumber(), unpaidRewards)
                 assert.equal(initSatelliteSMVK.balance.toNumber(), satelliteStake.balance.toNumber())
+                assert.equal(doormanBalance.toNumber(), initDoormanBalance.toNumber() + reward)
                 console.log("PRE-UNREGISTER SATELLITE: ", satelliteRewards.unpaid.toNumber(), " | ", satelliteStake.balance.toNumber())
 
                 // Unregister operation
                 const unregisterOperation   = await delegationInstance.methods.unregisterAsSatellite().send();
                 await unregisterOperation.confirmation();
-                var unpaidRewards   = unpaidRewards + initSatelliteSMVK.balance.toNumber() * accumulatedRewardPerShare
                 delegationStorage   = await delegationInstance.storage();
                 doormanStorage      = await doormanInstance.storage();
                 satelliteRewards    = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
@@ -420,7 +435,6 @@ describe("Delegation tests", async () => {
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
                 const proposalReward        = governanceStorage.config.cycleVotersReward.toNumber();
-                const proposalSubmissionFee = governanceStorage.config.proposalSubmissionFeeMutez.toNumber();
 
                 // Satellite ledger
                 const firstSatelliteRecordStart     = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
@@ -453,11 +467,12 @@ describe("Delegation tests", async () => {
                 await updateGovernanceConfig.confirmation();
                 updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
                 await updateGovernanceConfig.confirmation();
-                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinimumStakeReqPercentage").send();
+                updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
                 await updateGovernanceConfig.confirmation();
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
-                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: proposalSubmissionFee});
+
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode).send({amount: 1});
                 await proposeOperation.confirmation();
                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
                 await lockOperation.confirmation();

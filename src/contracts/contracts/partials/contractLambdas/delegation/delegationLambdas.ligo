@@ -328,13 +328,13 @@ block {
     // check that sender is not a satellite
     checkSenderIsNotSatellite(s);
 
-    // Update unclaimed rewards
-    s := updateRewards(s);
-
     var operations : list(operation) := nil;
 
     case delegationLambdaAction of [
         | LambdaDelegateToSatellite(satelliteAddress) -> {
+
+            // Update unclaimed rewards
+            s := updateRewards(s);
             
             // check if satellite exists
             var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
@@ -754,51 +754,89 @@ block {
 
     checkDistributeRewardIsNotPaused(s);
 
+    // Operation list
+    var operations: list(operation) := nil;
+
+    // Check sender is a whitelist contract
+    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
+
     case delegationLambdaAction of [
         | LambdaDistributeReward(distributeRewardParams) -> {
                 
-            // Check sender is a whitelist contract
-            if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
-
             // Get variables from parameters
             const elligibleSatellites: set(address) = distributeRewardParams.elligibleSatellites;
             const totalReward: nat = distributeRewardParams.totalSMvkReward;
+
+            // Send the rewards from the treasury to the doorman contract
+            const treasuryAddress: address  = case Map.find_opt("satelliteTreasury", s.generalContracts) of [
+                Some (_treasury) -> _treasury
+            |   None -> failwith("Error. Satellite treasury contract not found")
+            ];
+            const doormanAddress: address  = case Map.find_opt("doorman", s.generalContracts) of [
+                Some (_treasury) -> _treasury
+            |   None -> failwith("Error. Doorman contract not found")
+            ];
+            // Check if provided treasury exists
+            const transferParam: transferActionType = list[
+                record[
+                to_=doormanAddress;
+                token=Fa2 (record[
+                    tokenContractAddress=s.mvkTokenAddress;
+                    tokenId=0n;
+                ]);
+                amount=totalReward;
+                ]
+            ];
+
+            const transferOperation: operation = Tezos.transaction(
+                transferParam,
+                0tez,
+                sendTransferOperationToTreasury(treasuryAddress)
+            );
+            operations := transferOperation # operations;
 
             // Calculate reward for each satellite
             const elligibleSatellitesAmount: nat = Set.cardinal(elligibleSatellites);
             const rewardPerSatellite: nat = totalReward * fixedPointAccuracy / elligibleSatellitesAmount ;
 
             for satelliteAddress in set elligibleSatellites 
-            block {
-                // Get satellite
-                var satelliteRecord: satelliteRecordType  := case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
-                    Some (_record) -> _record
-                | None -> failwith("Error. Satellite not found")
-                ];
+                block {
+                    // Get satellite
+                    var satelliteRecord: satelliteRecordType  := case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
+                        Some (_record) -> _record
+                    | None -> failwith("Error. Satellite not found")
+                    ];
 
-                var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
-                    Some (_record) -> _record
-                | None -> failwith("Error. Rewards record not found")
-                ];
+                    var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
+                        Some (_record) -> _record
+                    | None -> failwith("Error. Rewards record not found")
+                    ];
 
-                // Calculate satellite fee portion in reward
-                const satelliteFee: nat       = satelliteRecord.satelliteFee * rewardPerSatellite / 10000n;
+                    // Calculate satellite fee portion in reward
+                    const satelliteFee: nat         = satelliteRecord.satelliteFee * rewardPerSatellite / 10000n;
+                    const satelliteFeeReward: nat   = satelliteFee / fixedPointAccuracy;
 
-                // Check if the fee is not too big
-                if satelliteFee > rewardPerSatellite then failwith("Error. The satellite fee exceeds the actual reward") else skip;
+                    // Check if the fee is not too big
+                    if satelliteFee > rewardPerSatellite then failwith("Error. The satellite fee exceeds the actual reward") else skip;
 
-                // Update satellite record
-                const satelliteVotingPower: nat                                 = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
-                satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + (abs(rewardPerSatellite - satelliteFee) / satelliteVotingPower);
-                satelliteRewardsRecord.unpaid                                   := satelliteRewardsRecord.unpaid + satelliteFee / fixedPointAccuracy;
-                s.satelliteRewardsLedger[satelliteAddress]                      := satelliteRewardsRecord;
-            }
+                    // Update satellite record
+                    const satelliteVotingPower: nat                                 = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
+                    satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + (abs(rewardPerSatellite - satelliteFee) / satelliteVotingPower);
+
+                    // Calculate satellite unclaim rewards
+                    const satelliteRewardsRatio: nat  = abs(satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
+                    const satelliteRewards: nat       = (satelliteRecord.stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
+
+                    satelliteRewardsRecord.participationRewardsPerShare             := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                    satelliteRewardsRecord.unpaid                                   := satelliteRewardsRecord.unpaid + satelliteFeeReward + satelliteRewards;
+                    s.satelliteRewardsLedger[satelliteAddress]                      := satelliteRewardsRecord;
+                }
                 
             }
         | _ -> skip
     ];
 
-} with (noOperations, s)
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Satellite Lambdas End
