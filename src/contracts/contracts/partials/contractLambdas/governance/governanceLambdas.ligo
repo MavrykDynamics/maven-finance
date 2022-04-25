@@ -374,6 +374,8 @@ block {
 
                     successReward           = s.config.successReward;          // log of successful proposal reward for voters - may change over time
                     executed                = False;                           // boolean: executed set to true if proposal is executed
+                    isSuccessful            = False;                           // boolean: set to true if proposal is successful (gone from voting round to timelock round)
+                    paymentProcessed        = False;                           // boolean: set to true if proposal payment has been processed 
                     locked                  = False;                           // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
                     
                     passVoteCount           = 0n;                              // proposal round: pass votes count (to proceed to voting round)
@@ -867,7 +869,7 @@ block {
                     | None -> failwith("Error. Proposal not found.")
                 ];
 
-                if proposal.executed = True then failwith("Error. Proposal has already been executed")
+                if proposal.executed = True then failwith("Error. Proposal has already been executed.")
                 else skip;
 
                 // verify that proposal is active and has not been dropped
@@ -878,33 +880,13 @@ block {
                 if Map.size(proposal.proposalMetadata) = 0n then failwith("Error. No data to execute.")
                 else skip;
 
-                // update proposal executed boolean to True
+                // update proposal executed and isSucessful boolean to True
                 proposal.executed                      := True;
+                proposal.isSuccessful                  := True;
                 s.proposalLedger[s.timelockProposalId] := proposal;    
-
-                // const triggerExecuteGovernanceProposalInGovernanceProxyOperation : operation = Tezos.transaction(
-                //         proposal.id,
-                //         0tez,
-                //         executeGovernanceProposal(s.governanceProxyAddress)
-                //     );
-                
-                // operations := triggerExecuteGovernanceProposalInGovernanceProxyOperation # operations;
 
                 // loop proposal metadata for execution
                 for _title -> metadataBytes in map proposal.proposalMetadata block {
-
-                    // const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-                    //       Some(_action) -> _action
-                    //     | None    -> failwith("Error. Unable to unpack proposal metadata.")
-                    // ];
-
-                    // const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
-                    //     executeAction,
-                    //     0tez,
-                    //     sendOperationToGovernanceLambda(unit)
-                    // );
-
-                    // operations := sendActionToGovernanceLambdaOperation # operations;
 
                     const sendProposalActionToGovernanceProxyForExecutionOperation : operation = Tezos.transaction(
                         metadataBytes,
@@ -914,23 +896,64 @@ block {
                 
                     operations := sendProposalActionToGovernanceProxyForExecutionOperation # operations;
 
-                };     
+                };      
+
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* processProposalPayment lambda *)
+function lambdaProcessProposalPayment(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+block {
+    
+    // Steps Overview: 
+    // 1. verify that user is the proposer of the successful proposal
+    // 2. verify that proposal is successful
+    // 3. verify that payment for proposal has not been processed
+    // 4. verify that proposal is active and has not been dropped
+    // 5. verify that there is at least one proposal metadata to execute
+    // 6. process payment for proposal - list of operations to send to governance proxy contract to execute
+
+    var operations : list(operation) := nil;
+
+    case governanceLambdaAction of [
+        | LambdaProcessProposalPayment(proposalId) -> {
+                
+                var proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
+                      Some(_record) -> _record
+                    | None -> failwith("Error. Proposal not found.")
+                ];
+
+                // verify that sender is the satellite that proposed the proposal
+                if Tezos.sender =/= proposal.proposerAddress then failwith("Error. Only the proposer can process payment for his proposal.")
+                else skip;
+
+                // verify that proposal is successful
+                if proposal.isSuccessful = False then failwith("Error. Proposal is not successful.")
+                else skip;
+
+                // verify that payment for proposal has not been processed
+                if proposal.paymentProcessed = True then failwith("Error. Payment for proposal has already been processed.")
+                else skip;
+
+                // verify that proposal is active and has not been dropped
+                if proposal.status = "DROPPED" then failwith("Error: Proposal has been dropped.")
+                else skip;
+
+                // check that there is at least one proposal metadata to execute
+                if Map.size(proposal.paymentMetadata) = 0n then failwith("Error. No payment data to execute.")
+                else skip;
+
+                // update proposal paymentProcessed boolean to True
+                proposal.paymentProcessed              := True;
+                s.proposalLedger[s.timelockProposalId] := proposal;    
 
                 // loop payment metadata for execution
                 for _title -> metadataBytes in map proposal.paymentMetadata block {
-
-                    // const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-                    //       Some(_action) -> _action
-                    //     | None    -> failwith("Error. Unable to unpack proposal metadata.")
-                    // ];
-
-                    // const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
-                    //     executeAction,
-                    //     0tez,
-                    //     sendOperationToGovernanceLambda(unit)
-                    // );
-
-                    // operations := sendActionToGovernanceLambdaOperation # operations;
 
                     const sendPaymentActionToGovernanceProxyForExecutionOperation : operation = Tezos.transaction(
                         metadataBytes,

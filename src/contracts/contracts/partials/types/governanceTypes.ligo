@@ -68,6 +68,8 @@ type proposalRecordType is [@layout:comb] record [
 
     successReward        : nat;                     // log of successful proposal reward for voters - may change over time
     executed             : bool;                    // true / false
+    isSuccessful         : bool;                    // true / false
+    paymentProcessed     : bool;                    // true / false
     locked               : bool;                    // true / false
     
     passVoteCount        : nat;                     // proposal round: pass votes count - number of satellites
@@ -331,6 +333,7 @@ type governanceLambdaActionType is
 | LambdaLockProposal                          of proposalIdType
 | LambdaVotingRoundVote                       of (voteForProposalChoiceType)
 | LambdaExecuteProposal                       of (unit)
+| LambdaProcessProposalPayment                of proposalIdType
 | LambdaDropProposal                          of proposalIdType
 
   // Financial Governance Lambdas
@@ -349,43 +352,47 @@ type governanceLambdaActionType is
 type governanceStorage is [@layout:comb] record [
     
     admin                             : address;
-    mvkTokenAddress                   : address;
     metadata                          : metadata;
     config                            : governanceConfigType;
 
+    mvkTokenAddress                   : address;
+    governanceProxyAddress            : address;     
+  
     whitelistContracts                : whitelistContractsType;      
     whitelistTokenContracts           : whitelistTokenContractsType;      
     generalContracts                  : generalContractsType; 
     
     proposalLedger                    : proposalLedgerType;
     snapshotLedger                    : snapshotLedgerType;
-
-    nextProposalId                     : nat;                // counter of next proposal id
-    cycleCounter                       : nat;                // counter of current cycle 
     
     // current round state variables - will be flushed periodically
-    currentRound                       : roundType;          // proposal, voting, timelock
-    currentBlocksPerProposalRound      : nat;  // to determine duration of proposal round
-    currentBlocksPerVotingRound        : nat;  // to determine duration of voting round
-    currentBlocksPerTimelockRound      : nat;  // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
-    currentRoundStartLevel             : nat;                // current round starting block level
-    currentRoundEndLevel               : nat;                // current round ending block level
-    currentCycleEndLevel               : nat;                // current cycle (proposal + voting) ending block level 
-    currentRoundProposals              : map(nat, nat);      // proposal id, total positive votes in MVK
+    currentRound                       : roundType;               // proposal, voting, timelock
+    currentBlocksPerProposalRound      : nat;                     // to determine duration of proposal round
+    currentBlocksPerVotingRound        : nat;                     // to determine duration of voting round
+    currentBlocksPerTimelockRound      : nat;                     // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+    currentRoundStartLevel             : nat;                     // current round starting block level
+    currentRoundEndLevel               : nat;                     // current round ending block level
+    currentCycleEndLevel               : nat;                     // current cycle (proposal + voting) ending block level 
+    currentRoundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
     currentRoundProposers              : map(address, set(nat));  // proposer, 
-    currentRoundVotes                  : map(address, nat);  // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    currentRoundHighestVotedProposalId  : nat;        // set to 0 if there is no proposal currently, if not set to proposal id
-    timelockProposalId                  : nat;        // set to 0 if there is proposal in timelock, if not set to proposal id
+    currentRoundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
+    
+    nextProposalId                      : nat;                    // counter of next proposal id
+    cycleCounter                        : nat;                    // counter of current cycle 
+    currentRoundHighestVotedProposalId  : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id
+    timelockProposalId                  : nat;                    // set to 0 if there is proposal in timelock, if not set to proposal id
 
-    snapshotMvkTotalSupply              : nat;             // snapshot of total MVK supply - for quorum calculation use
-    snapshotStakedMvkTotalSupply        : nat;             // snapshot of total staked MVK supply - for financial request decision making 
+    snapshotMvkTotalSupply              : nat;                    // snapshot of total MVK supply - for quorum calculation use
+    snapshotStakedMvkTotalSupply        : nat;                    // snapshot of total staked MVK supply - for financial request decision making 
 
+    // financial governance storage 
     financialRequestLedger              : financialRequestLedgerType;
     financialRequestSnapshotLedger      : financialRequestSnapshotLedgerType;
     financialRequestCounter             : nat;
 
+    // lambda storage
     lambdaLedger                        : lambdaLedgerType;             // governance contract lambdas
 
-    governanceProxyAddress              : address;     
+    
 
 ]
