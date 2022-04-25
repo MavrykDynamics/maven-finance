@@ -328,13 +328,13 @@ block {
     // check that sender is not a satellite
     checkSenderIsNotSatellite(s);
 
-    // Update unclaimed rewards
-    s := updateRewards(s);
-
     var operations : list(operation) := nil;
 
     case delegationLambdaAction of [
         | LambdaDelegateToSatellite(satelliteAddress) -> {
+
+            // Update unclaimed rewards
+            s := updateRewards(s);
             
             // check if satellite exists
             var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
@@ -716,9 +716,8 @@ block {
     // Operation list
     var operations: list(operation) := nil;
 
-    // Overall steps:
-    // 1. check if sender's address exists in satelliteLedger
-    // 2. update satellite records
+    // Check sender is a whitelist contract
+    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
 
     case delegationLambdaAction of [
         | LambdaDistributeReward(distributeRewardParams) -> {

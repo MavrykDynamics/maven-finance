@@ -696,7 +696,7 @@ function lambdaSatelliteRewardsClaim(const satelliteRewardsClaim: satelliteRewar
     // Check sender is delegation contract
     if Tezos.sender = delegationAddress then skip else failwith("Error. Only the delegation contract can access this entrypoint");
 
-    // tell the delegation contract that the reward has been paid 
+    // tell the delegation contract that the reward has been paid with the compound operation
     const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
       (delegator),
       0tez,
