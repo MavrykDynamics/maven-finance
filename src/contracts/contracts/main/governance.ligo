@@ -51,6 +51,7 @@ type governanceAction is
     | LockProposal                    of proposalIdType      
     | VotingRoundVote                 of (voteForProposalChoiceType)    
     | ExecuteProposal                 of (unit)
+    | ProcessProposalPayment          of proposalIdType
     | DropProposal                    of proposalIdType
 
       // Financial Governance Entrypoints
@@ -59,6 +60,9 @@ type governanceAction is
     | SetContractBaker                of setContractBakerType
     | DropFinancialRequest            of (nat)
     | VoteForRequest                  of voteForRequestType
+
+      // Satellite Governance Entrypoints
+    // | SuspendSatellite                of suspendSatelliteType
 
       // Lambda Entrypoints
     | SetLambda                       of setLambdaType
@@ -1038,6 +1042,25 @@ block {
 
 
 
+// (* processProposalPayment entrypoint *)
+function processProposalPayment(var s : governanceStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaProcessProposalPayment"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaExecuteProposal(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
 // (* dropProposal entrypoint *)
 function dropProposal(const proposalId : proposalIdType; var s : governanceStorage) : return is 
 block {
@@ -1219,6 +1242,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | LockProposal(parameters)                    -> lockProposal(parameters, s)
         | VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
         | ExecuteProposal(_parameters)                -> executeProposal(s)
+        | ProcessProposalPayment(_parameters)         -> processProposalPayment(s)
         | DropProposal(parameters)                    -> dropProposal(parameters, s)
 
           // Financial Governance Entrypoints
@@ -1227,6 +1251,9 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | SetContractBaker(parameters)                -> setContractBaker(parameters, s)
         | DropFinancialRequest(parameters)            -> dropFinancialRequest(parameters, s)
         | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
+
+          // Satellite Governance Entrypoints
+        // | SuspendSatellite(parameters)                   -> suspendSatellite(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                       -> setLambda(parameters, s)
