@@ -8,11 +8,7 @@ import { MVK, zeroAddress } from '../test/helpers/Utils'
 import { governanceStorageType } from '../test/types/governanceStorageType'
 
 const config = {
-<<<<<<< HEAD
     successReward                       : MVK(10),
-=======
-    successReward                       : 10000,
->>>>>>> 9abe9d5 (Governance contract submission proposal fee implementation + refactoring on factories to handle bytes for metadata + delegation contract satellite reward distribution through governance working)
     cycleVotersReward                   : MVK(100),
 
     minProposalRoundVotePercentage      : 1000,
@@ -35,7 +31,6 @@ const config = {
     blocksPerTimelockRound              : 5760,
 
     financialRequestApprovalPercentage  : 6700,
-<<<<<<< HEAD
     financialRequestDurationInDays      : 3,
 
     proposalMetadataTitleMaxLength      : 400,
@@ -43,9 +38,6 @@ const config = {
     proposalDescriptionMaxLength        : 400,
     proposalInvoiceMaxLength            : 400,
     proposalSourceCodeMaxLength         : 400
-=======
-    financialRequestDurationInDays      : 3
->>>>>>> 9abe9d5 (Governance contract submission proposal fee implementation + refactoring on factories to handle bytes for metadata + delegation contract satellite reward distribution through governance working)
 }
 
 const metadata = MichelsonMap.fromLiteral({
