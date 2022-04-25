@@ -17,15 +17,17 @@
 type tokenSaleAction is 
 
     // Default Entrypoint to Receive Tez
-  | Default             of unit
+  | Default                     of unit
     
     // Housekeeping Entrypoints
-  | SetAdmin            of address
-  | UpdateMetadata      of updateMetadataType
-  | UpdateConfig        of tokenSaleUpdateConfigActionType
+  | SetAdmin                    of address
+  | UpdateMetadata              of updateMetadataType
+  | UpdateConfig                of tokenSaleUpdateConfigActionType
 
     // Token Sale Entrypoints
-  | BuyTokens           of nat
+  | AddToWhitelist              of list(address)
+  | RemoveFromWhitelist         of list(address)
+  | BuyTokens                   of nat
   
   
 const noOperations : list (operation) = nil;
@@ -41,20 +43,19 @@ type return is list (operation) * tokenSaleStorage
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                              = 0n;
 [@inline] const error_ONLY_SELF_ALLOWED                                       = 1n;
-[@inline] const error_ONLY_ADMIN_OR_SELF_ALLOWED                              = 2n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ADDRESS_ALLOWED       = 2n;
-[@inline] const error_ONLY_ADMIN_OR_SELF_OR_GOVERNANCE_ADDRESS_ALLOWED        = 0n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 8n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                              = 8n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 2n;
 
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 13n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 13n;
+[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 3n;
+[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 4n;
 
-
-[@inline] const error_LAMBDA_NOT_FOUND                                        = 26n;
-[@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA               = 27n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                 = 27n;
-
+[@inline] const error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 5n;
+[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                              = 6n;
+[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                          = 7n;
+[@inline] const error_USER_IS_NOT_WHITELISTED                                 = 8n;
+[@inline] const error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED                = 9n;
+[@inline] const error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED                    = 10n;
+[@inline] const error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 11n;
+[@inline] const error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 12n;
 
 // ------------------------------------------------------------------------------
 //
@@ -105,6 +106,13 @@ block {
     if Big_map.mem(userWalletAddress, s.whitelistedAddresses) then inWhitelistAddressesMap := True else inWhitelistAddressesMap := False;
 
 } with inWhitelistAddressesMap
+
+
+
+function addToWhitelist (const newUserAddress : address; var whitelistedAddresses : whitelistedAddressesType) : whitelistedAddressesType is {
+  whitelistedAddresses [newUserAddress] := True 
+} with whitelistedAddresses
+
 
 
 function mutezToNatural(const amt : tez) : nat is amt / 1mutez;
@@ -186,7 +194,8 @@ block {
       | ConfigMaxAmountPerWalletTotal (_v)    -> s.config.maxAmountPerWalletTotal        := _v
       | ConfigWhitelistStartTimestamp (_v)    -> s.config.whitelistStartTimestamp        := _v  
       | ConfigWhitelistEndTimestamp (_v)      -> s.config.whitelistEndTimestamp          := _v  
-      | ConfigMaxAmountCap (_v)               -> s.config.maxAmountCap                   := _v  
+      | ConfigWhitelistMaxAmountCap (_v)      -> s.config.whitelistMaxAmountCap          := _v  
+      | ConfigOverallMaxAmountCap (_v)        -> s.config.overallMaxAmountCap            := _v  
   ];
 
 } with (noOperations, s)
@@ -200,24 +209,84 @@ block {
 // Token Sale Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+(*  addToWhitelist entrypoint *)
+function addToWhitelist(const userAddressList : list(address); var s : tokenSaleStorage) : return is
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  checkSenderIsAdmin(s); // check that sender is admin
+
+  // loop to add user addresses to whitelist
+  for newUserAddress in list userAddressList block {
+    s.whitelistedAddresses[newUserAddress] := True;
+  }
+
+} with (noOperations, s)
+
+
+
+(*  removeFromWhitelist entrypoint *)
+function removeFromWhitelist(const userAddressList : list(address); var s : tokenSaleStorage) : return is
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  checkSenderIsAdmin(s); // check that sender is admin
+
+  // loop to remove user addresses from whitelist
+  for removeUserAddress in list userAddressList block {
+    remove (removeUserAddress : address) from map s.whitelistedAddresses;
+  }
+
+} with (noOperations, s)
+
+
+
 (*  buyTokens entrypoint *)
 function buyTokens(const amountInTez : nat; var s : tokenSaleStorage) : return is
 block {
     
+      // check if sale has started
       checkTokenSaleHasStarted(s);
 
       // check if tez sent is equal to amount specified
       if Tezos.amount =/= naturalToMutez(amountInTez)
-      then failwith("Error. Tez sent is not equal to amountInTez.") 
+      then failwith(error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ) 
       else skip;
 
+      // init operations
       var operations : list(operation) := nil;
 
-      // send amount to treasury
-      const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, "Error. Treasury Contract not found.");
-      const transferAmountToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
+      // check if whitelist sale has started
+      if Tezos.now < s.config.whitelistStartTimestamp then failwith(error_WHITELIST_SALE_HAS_NOT_STARTED) else skip;
 
-      operations := transferAmountToTreasuryOperation # operations;
+      // check if whitelist sale has ended -> proceed to public sale
+      if Tezos.now > s.config.whitelistEndTimestamp then skip 
+      
+      // whitelist sale has started
+      else if Tezos.now > s.config.whitelistStartTimestamp then block {
+
+          // check if user is whitelisted
+          if checkInWhitelistAddresses(Tezos.sender, s) then skip else failwith(error_USER_IS_NOT_WHITELISTED);
+
+          // find or create whitelist user token sale record
+          var whitelistUserTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.sender] of [
+              Some(_record) -> _record
+            | None           -> record [
+                amount     = 0n;
+                lastBought = Tezos.now;
+              ]
+          ];
+
+          // check if max amount per whitelist wallet has been exceeded
+          if whitelistUserTokenSaleRecord.amount + amountInTez > s.config.maxAmountPerWhitelistWallet then failwith(error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED) else skip;
+
+          // check if whitelist max amount cap has been exceeded
+          const newWhitelistAmountTotal : nat = s.whitelistAmountTotal + amountInTez;
+          if newWhitelistAmountTotal > s.config.whitelistMaxAmountCap then failwith(error_WHITELIST_MAX_AMOUNT_CAP_REACHED) else s.whitelistAmountTotal := newWhitelistAmountTotal;
+      } 
+
+      // public sale has started      
+      else skip;
 
       // find or create user token sale record
       var userTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.sender] of [
@@ -228,8 +297,20 @@ block {
           ]
       ];
 
+      // check if max amount per wallet total has been exceeded
+      if userTokenSaleRecord.amount + amountInTez > s.config.maxAmountPerWalletTotal then failwith(error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED) else skip;
+
+      // check if overall max amount cap has been exceeded
+      const newOverallAmountTotal : nat = s.overallAmountTotal + amountInTez;
+      if newOverallAmountTotal > s.config.overallMaxAmountCap then failwith(error_OVERALL_MAX_AMOUNT_CAP_REACHED) else s.overallAmountTotal := newOverallAmountTotal;
+
+      // send amount to treasury
+      const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, "Error. Treasury Contract not found.");
+      const transferAmountToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
+      operations := transferAmountToTreasuryOperation # operations;
+
       // update token sale ledger
-      userTokenSaleRecord.amount      := userTokenSaleRecord.amount + mutezToNatural(Tezos.amount);
+      userTokenSaleRecord.amount      := userTokenSaleRecord.amount + amountInTez;
       userTokenSaleRecord.lastBought  := Tezos.now;
       s.tokenSaleLedger[Tezos.sender] := userTokenSaleRecord;
 
@@ -261,6 +342,8 @@ function main (const action : tokenSaleAction; const s : tokenSaleStorage) : ret
         | UpdateConfig(parameters)                -> updateConfig(parameters, s)
 
           // Token Sale Entrypoints
+        | AddToWhitelist(parameters)              -> addToWhitelist(parameters, s)
+        | RemoveFromWhitelist(parameters)         -> removeFromWhitelist(parameters, s)
         | BuyTokens(parameters)                   -> buyTokens(parameters, s)
         
     ]

@@ -6,9 +6,12 @@ type tokenSaleConfigType is [@layout:comb] record [
     maxWhitelistCount            : nat;
     maxAmountPerWhitelistWallet  : nat;
     maxAmountPerWalletTotal      : nat; 
+    
     whitelistStartTimestamp      : timestamp;
     whitelistEndTimestamp        : timestamp;
-    maxAmountCap                 : nat;  
+    
+    whitelistMaxAmountCap        : nat;    
+    overallMaxAmountCap          : nat;  
 ]
 
 type tokenSaleUpdateConfigActionType is 
@@ -17,11 +20,14 @@ type tokenSaleUpdateConfigActionType is
 | ConfigMaxAmountPerWalletTotal         of nat
 | ConfigWhitelistStartTimestamp         of timestamp
 | ConfigWhitelistEndTimestamp           of timestamp
-| ConfigMaxAmountCap                    of nat
+| ConfigWhitelistMaxAmountCap           of nat
+| ConfigOverallMaxAmountCap             of nat
 
 type tokenSaleUpdateConfigParamsType is tokenSaleUpdateConfigActionType
 
 type whitelistedAddressesType is big_map(userAddressType, bool)
+
+type updateWhitelistAddressesType is list(address)
 
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
@@ -48,9 +54,10 @@ type tokenSaleStorage is record [
     treasuryAddress             : address;
     mvkTokenAddress             : address;
 
-    tokenSaleHasStarted         : bool;
-
     whitelistedAddresses        : whitelistedAddressesType;
-
     tokenSaleLedger             : tokenSaleLedgerType;
+
+    tokenSaleHasStarted         : bool;
+    whitelistAmountTotal        : nat;
+    overallAmountTotal          : nat; 
 ]
