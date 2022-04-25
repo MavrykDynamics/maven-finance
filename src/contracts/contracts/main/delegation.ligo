@@ -8,6 +8,9 @@
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
+// General Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams
+#include "../partials/whitelistTokenContractsType.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -17,6 +20,12 @@
 
 // Delegation Types
 #include "../partials/types/delegationTypes.ligo"
+
+// MVK Token Type
+#include "../partials/types/mvkTokenTypes.ligo"
+
+// Treasury Type
+#include "../partials/types/treasuryTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
@@ -93,8 +102,10 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 [@inline] const error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IS_PAUSED          = 16n;
 [@inline] const error_DISTRIBUTE_REWARD_ENTRYPOINT_IS_PAUSED                = 17n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                      = 18n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 19n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND    = 18n;
+
+[@inline] const error_LAMBDA_NOT_FOUND                                      = 19n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 20n;
 
 // ------------------------------------------------------------------------------
 //
@@ -293,6 +304,16 @@ function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address)
     Some(contr) -> contr
   | None -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(unit))
 ];
+
+
+
+function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
+  case (Tezos.get_entrypoint_opt(
+      "%transfer",
+      contractAddress) : option(contract(transferActionType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
+  ];
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
