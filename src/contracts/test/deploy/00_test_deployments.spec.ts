@@ -290,8 +290,9 @@ describe('Contracts Deployment for Tests', async () => {
       "delegation"   : delegation.contract.address,
     });
     treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
-      governance: governance.contract.address,
-      doorman: doorman.contract.address
+      governance  : governance.contract.address,
+      doorman     : doorman.contract.address,
+      delegation  : delegation.contract.address
     })
     treasuryStorage.whitelistTokenContracts = MichelsonMap.fromLiteral({
       mvk       : mvkToken.contract.address,
@@ -743,7 +744,7 @@ describe('Contracts Deployment for Tests', async () => {
 
 
 
-    // Delegation Contract - set general contract addresses [governance]
+    // Delegation Contract - set general contract addresses [governance, satelliteTreasury]
     // Delegation Contract - set whitelist contract addresses [treasury, governance]
     const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts('governance', governance.contract.address).send()
     await setGovernanceContractAddressInDelegationOperation.confirmation()
@@ -754,7 +755,10 @@ describe('Contracts Deployment for Tests', async () => {
     const setWhitelistGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts('governance', governance.contract.address).send();
     await setWhitelistGovernanceContractAddressInDelegationOperation.confirmation()
 
-    console.log('Delegation Contract - set general contract addresses [governance]')
+    const setGeneralSatelliteTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address).send();
+    await setGeneralSatelliteTreasuryContractAddressInDelegationOperation.confirmation();
+
+    console.log('Delegation Contract - set general contract addresses [governance, satelliteTreasury]')
     console.log('Delegation Contract - set whitelist contract addresses [treasury, governance]')
 
 

@@ -296,11 +296,15 @@ block{
 
       const satelliteUnpaidRewards: nat = case getUserRewardOpt of [
         Some (_rewards) -> block{
+
+          // Get the satellite linked to the user (if the user is a satellite, return self)
           const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", _rewards.satelliteReferenceAddress, delegationAddress);
           const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
             Some (value) -> value
           | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
           ];
+          
+          // Calculate the user unclaimed rewards
           const satelliteReward: nat  = case getUserReferenceRewardOpt of [
             Some (_referenceRewards) -> block{
               const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
