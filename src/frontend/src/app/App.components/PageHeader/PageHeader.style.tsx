@@ -7,20 +7,29 @@ export const PageHeaderStyled = styled.div<{ backgroundImageSrc: string }>`
   background-size: cover;
   background-position: top right;
   background-repeat: no-repeat;
-  border-radius: 24px;
+  border-radius: 15px;
   width: 100%;
-  height: 150px;
-  position: relative;
+  height: 160px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  overflow: visible;
+  padding: 0 0 0 40px;
 `
 
 export const PageHeaderTextArea = styled.div`
-  margin: 40px 0 0 40px;
-  position: absolute;
-  max-width: 35%;
+  max-width: 45%;
+  width: max-content;
+  overflow: visible;
   > h1 {
     color: ${backgroundColor};
     font-size: 25px;
     margin: 0;
+
+    &::after {
+      background-color: #ff8486;
+    }
   }
 
   > p {
@@ -31,33 +40,34 @@ export const PageHeaderTextArea = styled.div`
 `
 
 export const PageHeaderForegroundImageContainer = styled.div`
-  width: 100%;
-  height: 150px;
+  width: fit-content;
+  height: 100%;
   display: flex;
   justify-content: flex-end;
+  align-items: self-end;
   overflow: visible;
 `
 
 export const PageHeaderForegroundImage = styled.img<{ page: string; src: string }>`
   width: ${({ page }) => {
     switch (page) {
-      case 'staking':
       case 'governance':
-        return `70%`
       case 'dashboard':
-        return '50%'
+      case 'staking':
+        return 'fit-content'
       case 'vaults':
-        return '65%'
       default:
-        return '100%'
+        return 'fit-content'
     }
   }};
   height: ${({ page }) => {
     switch (page) {
       case 'farms':
         return '150px'
+      case 'dashboard':
+        return '160px'
       default:
-        return '180px'
+        return '160px'
     }
   }};
   /*

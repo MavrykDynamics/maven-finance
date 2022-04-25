@@ -37,7 +37,7 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
 
   &.secondary {
     color: ${({ theme }) => theme.primaryColor};
-    background-color: ${({ theme }) => theme.containerColor};
+    background-color: ${({ theme }) => theme.backgroundColor};
     border: 1.5px solid ${({ theme }) => theme.primaryColor};
   }
 
@@ -69,6 +69,17 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   &.votingAbstain {
     color: ${({ theme }) => theme.subTextColor};
     background-color: ${({ theme }) => theme.containerColor};
+  }
+
+  &.actionPrimary {
+    color: ${({ theme }) => theme.backgroundColor};
+    background-color: ${({ theme }) => theme.primaryButton};
+  }
+
+  &.actionSecondary {
+    color: ${({ theme }) => theme.primaryColor};
+    background-color: ${({ theme }) => theme.backgroundColor};
+    border: 1.5px solid ${({ theme }) => theme.primaryColor};
   }
 `
 
@@ -123,6 +134,14 @@ export const ButtonIcon = styled.svg<{ theme: MavrykTheme }>`
   &.glassBroken {
     stroke: ${({ theme }) => theme.downColor};
   }
+
+  &.actionPrimary {
+    stroke: ${({ theme }) => theme.backgroundColor};
+  }
+
+  &.actionSecondary {
+    stroke: ${({ theme }) => theme.primaryColor};
+  }
 `
 
 const turn = keyframes`
@@ -153,5 +172,13 @@ export const ButtonLoadingIcon = styled.svg<{ theme: MavrykTheme }>`
 
   &.transparent {
     stroke: ${({ theme }) => theme.textColor};
+  }
+
+  &.actionPrimary {
+    stroke: ${({ theme }) => theme.backgroundColor};
+  }
+
+  &.actionSecondary {
+    stroke: ${({ theme }) => theme.primaryColor};
   }
 `

@@ -9,6 +9,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   height: 100%;
   min-height: 100vh;
+  max-width: 1270px;
 `
 
 export const GridPage = styled.div`
@@ -17,6 +18,7 @@ export const GridPage = styled.div`
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-gap: 30px;
+  max-width: 1270px;
 
   @media (max-width: 1900px) {
     grid-template-columns: repeat(5, 1fr);

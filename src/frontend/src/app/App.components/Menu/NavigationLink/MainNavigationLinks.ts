@@ -5,7 +5,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     title: 'Dashboard',
     id: 1,
     path: '/dashboard',
-    icon: 'grid',
+    icon: 'menu-compass',
     protectedRoute: false,
     subPages: [
       { id: 57483, subTitle: 'Overview', subPath: '/dashboard', protectedRoute: false },
@@ -25,7 +25,7 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     title: 'Staking',
     id: 2,
     path: '/',
-    icon: 'coins',
+    icon: 'menu-staking',
     protectedRoute: false,
   },
   {

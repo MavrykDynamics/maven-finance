@@ -1,5 +1,4 @@
 import { State } from '../../reducers'
-import governanceAddress from '../../deployments/governanceAddress.json'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { getGovernanceStorage } from '../Governance/Governance.actions'
@@ -17,7 +16,7 @@ export const adminChangeGovernancePeriod =
       return
     }
     try {
-      const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
       console.log('contract', contract)
       //startProposalRound
       let transaction

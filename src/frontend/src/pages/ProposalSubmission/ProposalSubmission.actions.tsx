@@ -25,7 +25,7 @@ export const submitProposal =
     }
 
     try {
-      const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
       console.log('contract', contract)
 
       const transaction = await contract?.methods.propose(form.title, form.description, form.ipfs).send()
@@ -75,7 +75,7 @@ export const updateProposal =
     }
 
     try {
-      const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
       console.log('contract', contract)
 
       const transaction = await contract?.methods
@@ -127,7 +127,7 @@ export const lockProposal = (proposalId: number, accountPkh?: string) => async (
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('contract', contract)
 
     const transaction = await contract?.methods.lockProposal(proposalId).send()
@@ -177,7 +177,7 @@ export const submitFinancialRequestData =
     }
 
     try {
-      const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
       console.log('contract', contract)
 
       // TODO: finish implementation once the financial request methods are set up in contract

@@ -41,34 +41,6 @@ export const SlidingTabButtonsView = ({
           loading={loading}
         />
       ))}
-
-      {/*<TabButton*/}
-      {/*  buttonRef={firstButtonRef}*/}
-      {/*  text={'Stage 1'}*/}
-      {/*  buttonId={1}*/}
-      {/*  onClick={handleButtonClick}*/}
-      {/*  generalClasses={generalClasses}*/}
-      {/*  buttonActiveStatus={buttonActiveStatus.buttonOne}*/}
-      {/*  loading={loading}*/}
-      {/*/>*/}
-      {/*<TabButton*/}
-      {/*  buttonRef={secondButtonRef}*/}
-      {/*  text={'Stage 2'}*/}
-      {/*  buttonId={2}*/}
-      {/*  onClick={handleButtonClick}*/}
-      {/*  generalClasses={generalClasses}*/}
-      {/*  buttonActiveStatus={buttonActiveStatus.buttonTwo}*/}
-      {/*  loading={loading}*/}
-      {/*/>*/}
-      {/*<TabButton*/}
-      {/*  buttonRef={thirdButtonRef}*/}
-      {/*  text={'Stage 3'}*/}
-      {/*  buttonId={3}*/}
-      {/*  onClick={handleButtonClick}*/}
-      {/*  generalClasses={generalClasses}*/}
-      {/*  buttonActiveStatus={buttonActiveStatus.buttonThree}*/}
-      {/*  loading={loading}*/}
-      {/*/>*/}
     </SlidingTabButtonsStyled>
   )
 }

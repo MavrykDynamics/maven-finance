@@ -16,10 +16,9 @@ export const DoormanStatsGrid = styled.div<{ theme: MavrykTheme }>`
 
   > div {
     color: ${({ theme }) => theme.subTextColor};
-  }
-
-  > p {
-    color: ${({ theme }) => theme.primaryColor};
-    margin-top: 0;
+    > p {
+      color: ${({ theme }) => theme.primaryColor};
+      margin-top: 0;
+    }
   }
 `

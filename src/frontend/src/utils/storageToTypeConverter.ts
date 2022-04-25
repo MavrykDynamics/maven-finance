@@ -28,6 +28,8 @@ import {
   ProposalVote,
   SnapshotRecordType,
 } from './TypesAndInterfaces/Governance'
+import { ContractAddressesState } from '../reducers/contractAddresses'
+import treasuryAddress from '../deployments/treasuryAddress.json'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
@@ -76,22 +78,26 @@ export default function storageToTypeConverter(contract: string, storage: any): 
       res = convertToGovernanceStorageType(storage)
       setItemInStorage('GovernanceStorage', res)
       break
+    case 'satelliteRecord':
+      res = convertToSatelliteRecordInterface(storage)
+      break
   }
 
   return res
 }
-function convertToContractAddressesType(storage: any) {
+function convertToContractAddressesType(storage: any): ContractAddressesState {
   return {
-    farm: storage.farm[0],
-    farmFactory: storage.farm_factory[0],
-    delegation: storage.delegation[0],
-    doorman: storage.doorman[0],
-    mvkToken: storage.mvk_token[0],
-    governance: storage.delegation[0],
-    emergencyGovernance: storage.delegation[0],
-    breakGlass: storage.delegation[0],
-    council: storage.delegation[0],
-    treasury: storage.delegation[0],
+    farmAddress: { address: storage.farm[0].address },
+    farmFactoryAddress: { address: storage.farm_factory[0].address },
+    delegationAddress: { address: storage.delegation[0].address },
+    doormanAddress: { address: storage.doorman[0].address },
+    mvkTokenAddress: { address: storage.mvk_token[0].address },
+    governanceAddress: { address: storage.governance[0].address },
+    emergencyGovernanceAddress: { address: storage.emergency_governance[0].address },
+    breakGlassAddress: { address: storage.break_glass[0].address },
+    councilAddress: { address: storage.council[0].address },
+    treasuryAddress: { address: storage.delegation[0].address },
+    vestingAddress: { address: storage.vesting[0].address },
   }
 }
 
@@ -117,82 +123,82 @@ function convertToMvkTokenStorageType(storage: any): MvkTokenStorage {
 }
 
 function convertToDelegationStorageType(storage: any): DelegationStorage {
-  const satelliteMap: SatelliteRecord[] = []
-  const temp = storage.satellite_records.map((item: any) => {
-    const totalDelegatedAmount = item.delegation_records.reduce(
-      (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
-      0,
-    )
-    const proposalVotingHistory: SatelliteProposalVotingHistory[] = [],
-      financialRequestsVotes: SatelliteFinancialRequestVotingHistory[] = []
-
-    item.governance_proposal_records_votes.forEach(
-      (vote: {
-        id: any
-        current_round_vote: any
-        governance_proposal_record_id: any
-        round: any
-        timestamp: string | number | Date
-        vote: any
-        voter_id: any
-        voting_power: string
-        governance_proposal_record: any
-      }) => {
-        const newRequestVote: SatelliteProposalVotingHistory = {
-          id: vote.id,
-          currentRoundVote: vote.current_round_vote,
-          governanceProposalRecordId: vote.governance_proposal_record_id,
-          round: vote.round,
-          timestamp: new Date(vote.timestamp),
-          vote: vote.vote,
-          voterId: vote.voter_id,
-          votingPower: calcWithoutMu(vote.voting_power),
-          requestData: vote.governance_proposal_record,
-        }
-        proposalVotingHistory.push(newRequestVote)
-      },
-    )
-    item.governance_financial_requests_votes.forEach(
-      (vote: {
-        id: any
-        governance_financial_request_id: any
-        round: any
-        timestamp: string | number | Date
-        vote: any
-        voter_id: any
-        voting_power: string
-        governance_financial_request: any
-      }) => {
-        const newRequestVote: SatelliteFinancialRequestVotingHistory = {
-          id: vote.id,
-          governanceFinancialRequestId: vote.governance_financial_request_id,
-          timestamp: new Date(vote.timestamp),
-          vote: vote.vote,
-          voterId: vote.voter_id,
-          votingPower: calcWithoutMu(vote.voting_power),
-          requestData: vote.governance_financial_request,
-        }
-        financialRequestsVotes.push(newRequestVote)
-      },
-    )
-    const newSatelliteRecord: SatelliteRecord = {
-      address: item.user_id,
-      description: item.description,
-      image: item.image,
-      mvkBalance: String(calcWithoutMu(item.user.mvk_balance)),
-      sMvkBalance: String(calcWithoutMu(item.user.smvk_balance)),
-      name: item.name,
-      registeredDateTime: new Date(item.registered_datetime),
-      satelliteFee: calcWithoutMu(item.fee),
-      active: item.active,
-      totalDelegatedAmount: String(calcWithoutMu(totalDelegatedAmount)),
-      unregisteredDateTime: new Date(item.unregistered_datetime),
-      proposalVotingHistory,
-      financialRequestsVotes,
-    }
-    satelliteMap.push(newSatelliteRecord)
-    return true
-  })
+  const satelliteMap: SatelliteRecord[] = convertToSatelliteRecordsInterface(storage.satellite_records)
+  // const temp = storage.satellite_records.map((item: any) => {
+  //   const totalDelegatedAmount = item.delegation_records.reduce(
+  //     (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
+  //     0,
+  //   )
+  //   const proposalVotingHistory: SatelliteProposalVotingHistory[] = [],
+  //     financialRequestsVotes: SatelliteFinancialRequestVotingHistory[] = []
+  //
+  //   item.governance_proposal_records_votes.forEach(
+  //     (vote: {
+  //       id: any
+  //       current_round_vote: any
+  //       governance_proposal_record_id: any
+  //       round: any
+  //       timestamp: string | number | Date
+  //       vote: any
+  //       voter_id: any
+  //       voting_power: string
+  //       governance_proposal_record: any
+  //     }) => {
+  //       const newRequestVote: SatelliteProposalVotingHistory = {
+  //         id: vote.id,
+  //         currentRoundVote: vote.current_round_vote,
+  //         governanceProposalRecordId: vote.governance_proposal_record_id,
+  //         round: vote.round,
+  //         timestamp: new Date(vote.timestamp),
+  //         vote: vote.vote,
+  //         voterId: vote.voter_id,
+  //         votingPower: calcWithoutMu(vote.voting_power),
+  //         requestData: vote.governance_proposal_record,
+  //       }
+  //       proposalVotingHistory.push(newRequestVote)
+  //     },
+  //   )
+  //   item.governance_financial_requests_votes.forEach(
+  //     (vote: {
+  //       id: any
+  //       governance_financial_request_id: any
+  //       round: any
+  //       timestamp: string | number | Date
+  //       vote: any
+  //       voter_id: any
+  //       voting_power: string
+  //       governance_financial_request: any
+  //     }) => {
+  //       const newRequestVote: SatelliteFinancialRequestVotingHistory = {
+  //         id: vote.id,
+  //         governanceFinancialRequestId: vote.governance_financial_request_id,
+  //         timestamp: new Date(vote.timestamp),
+  //         vote: vote.vote,
+  //         voterId: vote.voter_id,
+  //         votingPower: calcWithoutMu(vote.voting_power),
+  //         requestData: vote.governance_financial_request,
+  //       }
+  //       financialRequestsVotes.push(newRequestVote)
+  //     },
+  //   )
+  //   const newSatelliteRecord: SatelliteRecord = {
+  //     address: item.user_id,
+  //     description: item.description,
+  //     image: item.image,
+  //     mvkBalance: calcWithoutMu(item.user.mvk_balance),
+  //     sMvkBalance: calcWithoutMu(item.user.smvk_balance),
+  //     name: item.name,
+  //     registeredDateTime: new Date(item.registered_datetime),
+  //     satelliteFee: parseFloat(item.fee),
+  //     active: item.active,
+  //     totalDelegatedAmount: calcWithoutMu(totalDelegatedAmount),
+  //     unregisteredDateTime: new Date(item.unregistered_datetime),
+  //     proposalVotingHistory,
+  //     financialRequestsVotes,
+  //   }
+  //   satelliteMap.push(newSatelliteRecord)
+  //   return true
+  // })
 
   return {
     breakGlassConfig: {
@@ -212,6 +218,90 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
   }
 }
 
+function convertToSatelliteRecordsInterface(satelliteRecordObject: any): SatelliteRecord[] {
+  const satelliteRecords: SatelliteRecord[] = []
+  satelliteRecordObject.map((item: any) => {
+    const newSatelliteRecord = convertToSatelliteRecordInterface(item)
+    satelliteRecords.push(newSatelliteRecord)
+    return true
+  })
+  return satelliteRecords
+}
+
+function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecord {
+  const totalDelegatedAmount = satelliteRecord.delegation_records.reduce(
+    (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
+    0,
+  )
+  const proposalVotingHistory: SatelliteProposalVotingHistory[] = [],
+    financialRequestsVotes: SatelliteFinancialRequestVotingHistory[] = []
+
+  satelliteRecord.governance_proposal_records_votes.forEach(
+    (vote: {
+      id: any
+      current_round_vote: any
+      governance_proposal_record_id: any
+      round: any
+      timestamp: string | number | Date
+      vote: any
+      voter_id: any
+      voting_power: string
+      governance_proposal_record: any
+    }) => {
+      const newRequestVote: SatelliteProposalVotingHistory = {
+        id: vote.id,
+        currentRoundVote: vote.current_round_vote,
+        governanceProposalRecordId: vote.governance_proposal_record_id,
+        round: vote.round,
+        timestamp: new Date(vote.timestamp),
+        vote: vote.vote,
+        voterId: vote.voter_id,
+        votingPower: calcWithoutMu(vote.voting_power),
+        requestData: vote.governance_proposal_record,
+      }
+      proposalVotingHistory.push(newRequestVote)
+    },
+  )
+  satelliteRecord.governance_financial_requests_votes.forEach(
+    (vote: {
+      id: any
+      governance_financial_request_id: any
+      round: any
+      timestamp: string | number | Date
+      vote: any
+      voter_id: any
+      voting_power: string
+      governance_financial_request: any
+    }) => {
+      const newRequestVote: SatelliteFinancialRequestVotingHistory = {
+        id: vote.id,
+        governanceFinancialRequestId: vote.governance_financial_request_id,
+        timestamp: new Date(vote.timestamp),
+        vote: vote.vote,
+        voterId: vote.voter_id,
+        votingPower: calcWithoutMu(vote.voting_power),
+        requestData: vote.governance_financial_request,
+      }
+      financialRequestsVotes.push(newRequestVote)
+    },
+  )
+  const newSatelliteRecord: SatelliteRecord = {
+    address: satelliteRecord.user_id,
+    description: satelliteRecord.description,
+    image: satelliteRecord.image,
+    mvkBalance: calcWithoutMu(satelliteRecord.user.mvk_balance),
+    sMvkBalance: calcWithoutMu(satelliteRecord.user.smvk_balance),
+    name: satelliteRecord.name,
+    registeredDateTime: new Date(satelliteRecord.registered_datetime),
+    satelliteFee: parseFloat(satelliteRecord.fee),
+    active: satelliteRecord.active,
+    totalDelegatedAmount: calcWithoutMu(totalDelegatedAmount),
+    unregisteredDateTime: new Date(satelliteRecord.unregistered_datetime),
+    proposalVotingHistory,
+    financialRequestsVotes,
+  }
+  return newSatelliteRecord
+}
 function convertToFarmStorageType(storage: any): FarmStorage[] {
   const farms: FarmStorage[] = []
   storage.forEach((farmItem: any) => {

@@ -1,6 +1,6 @@
 export const SATELLITE_RECORDS_QUERY = `
-  query GetSatelliteRecords {
-    satellite_record {
+  query GetSatelliteRecord($_eq: String = "") {
+    satellite_record(where: {user_id: {_eq: $_eq}}) {
       delegation_id
       fee
       image
@@ -14,6 +14,10 @@ export const SATELLITE_RECORDS_QUERY = `
         user {
           smvk_balance
         }
+      }
+      user {
+        smvk_balance
+        mvk_balance
       }
       governance_financial_requests_votes {
         governance_financial_request_id
@@ -72,5 +76,8 @@ export const SATELLITE_RECORDS_QUERY = `
   }
 `
 
-export const SATELLITE_RECORDS_QUERY_NAME = 'GetSatelliteRecords'
-export const SATELLITE_RECORDS_QUERY_VARIABLES = {}
+export const SATELLITE_RECORDS_QUERY_NAME = 'GetSatelliteRecord'
+export function SATELLITE_RECORDS_QUERY_VARIABLES(address: string): Record<string, any> {
+  /* prettier-ignore */
+  return { _eq: address }
+}

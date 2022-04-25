@@ -7,16 +7,23 @@ import {
   StakeUnstakeActionCard,
   StakeUnstakeBalance,
   StakeUnstakeButtonGrid,
-  StakeUnstakeCard, StakeUnstakeErrorMessage,
-  StakeUnstakeInput,
-  StakeUnstakeInputCheck, StakeUnstakeInputColumn,
+  StakeUnstakeCard,
+  StakeUnstakeInputColumn,
   StakeUnstakeInputGrid,
-  StakeUnstakeInputLabel,
   StakeUnstakeMax,
   StakeUnstakeMin,
   StakeUnstakeRate,
   StakeUnstakeStyled,
 } from './StakeUnstake.style'
+import { Input } from '../../../app/App.components/Input/Input.controller'
+import { isValidNumberValue, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import {
+  StakeUnstakeForm,
+  StakeUnstakeFormInputStatus,
+  ValidStakeUnstakeForm,
+} from '../../../utils/TypesAndInterfaces/Forms'
+import { useDispatch } from 'react-redux'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../app/App.components/Button/Button.constants'
 
 type StakeUnstakeViewProps = {
   myMvkTokenBalance?: number
@@ -35,57 +42,107 @@ export const StakeUnstakeView = ({
   loading,
   accountPkh,
 }: StakeUnstakeViewProps) => {
-  const [inputAmount, setInputAmount] = useState(1)
-  const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState(true)
+  const dispatch = useDispatch()
+  const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
+  const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState<ValidStakeUnstakeForm>({ amount: false })
+  const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
 
   const onUseMaxClick = (actionType: string) => {
     switch (actionType) {
       case 'STAKE':
-        setInputAmount(Number(myMvkTokenBalance))
+        setInputAmount({ amount: Number(myMvkTokenBalance) })
         break
       case 'UNSTAKE':
       default:
-        setInputAmount(Number(userStakeBalance))
+        setInputAmount({ amount: Number(userStakeBalance) })
         break
     }
   }
+
   const checkInputIsOk = () => {
-    if (Number(inputAmount) && inputAmount >= 1) {
-      setStakeUnstakeValueOK(true)
-    } else if (accountPkh) {
-      setStakeUnstakeValueOK(false)
+    let validityCheckResult = false
+    setStakeUnstakeValueError('')
+    if (accountPkh) {
+      validityCheckResult = isValidNumberValue(
+        inputAmount.amount,
+        1,
+        Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)),
+      )
+    } else {
+      validityCheckResult = isValidNumberValue(inputAmount.amount, 1)
     }
+    setStakeUnstakeValueOK({ amount: validityCheckResult })
+    setStakeUnstakeInputStatus({ amount: validityCheckResult ? 'success' : 'error' })
   }
 
   const onInputChange = (e: any) => {
-    setInputAmount(e.target.value)
-    checkInputIsOk()
+    setInputAmount({ amount: e.target.value })
   }
 
   const handleStakeUnstakeClick = (actionType: string) => {
-    if (!Number(inputAmount)) {
-      setStakeUnstakeValueError('Stake/Unstake value is not a valid number')
-      setStakeUnstakeValueOK(false)
-    } else if (inputAmount < 1) {
-      setStakeUnstakeValueError('Stake/Unstake value must be 1 or more')
-      setStakeUnstakeValueOK(false)
-    } else if (accountPkh && inputAmount > Number(myMvkTokenBalance) && actionType === 'STAKE') {
-      setStakeUnstakeValueOK(false)
-      setStakeUnstakeValueError('Stake value cannot exceed your MVK balance')
-    } else if (accountPkh && inputAmount > Number(userStakeBalance) && actionType === 'UNSTAKE') {
-      setStakeUnstakeValueError('Unstake value cannot exceed your Total MVK Staked')
-    } else {
-      switch (actionType) {
-        case 'STAKE':
-          stakeCallback(inputAmount)
-          break
-        case 'UNSTAKE':
-        default:
-          unstakeCallback(inputAmount)
-          break
+    let validityCheckResult = isValidNumberValue(inputAmount.amount, 1)
+    if (!validityCheckResult) setStakeUnstakeValueError('Stake/Unstake value must be 1 or more')
+    if (accountPkh) {
+      if (actionType === 'STAKE') {
+        validityCheckResult = isValidNumberValue(inputAmount.amount, 1, Number(myMvkTokenBalance))
+      } else {
+        validityCheckResult = isValidNumberValue(inputAmount.amount, 1, Number(userStakeBalance))
       }
     }
+    setStakeUnstakeValueOK({ amount: validityCheckResult })
+    setStakeUnstakeInputStatus({ amount: validityCheckResult ? 'success' : 'error' })
+
+    switch (actionType) {
+      case 'STAKE':
+        handleStakeAction()
+        // stakeCallback(inputAmount.amount)
+        break
+      case 'UNSTAKE':
+      default:
+        handleUnstakeAction()
+        // unstakeCallback(inputAmount.amount)
+        break
+    }
+    // if (!Number(inputAmount)) {
+    //   setStakeUnstakeInputStatus('error')
+    //   setStakeUnstakeValueError('Stake/Unstake value is not a valid number')
+    //   setStakeUnstakeValueOK(false)
+    // } else if (inputAmount < 1) {
+    //   setStakeUnstakeInputStatus('error')
+    //   setStakeUnstakeValueError('Stake/Unstake value must be 1 or more')
+    //   setStakeUnstakeValueOK(false)
+    // } else if (accountPkh && inputAmount > Number(myMvkTokenBalance) && actionType === 'STAKE') {
+    //   setStakeUnstakeInputStatus('error')
+    //   setStakeUnstakeValueError('Stake value cannot exceed your MVK balance')
+    //   setStakeUnstakeValueOK(false)
+    // } else if (accountPkh && inputAmount > Number(userStakeBalance) && actionType === 'UNSTAKE') {
+    //   setStakeUnstakeInputStatus('error')
+    //   setStakeUnstakeValueError('Unstake value cannot exceed your Total MVK Staked')
+    //   setStakeUnstakeValueOK(false)
+    // } else {
+    //   setStakeUnstakeInputStatus('success')
+    //   switch (actionType) {
+    //     case 'STAKE':
+    //       handleStakeAction()
+    //       // stakeCallback(inputAmount.amount)
+    //       break
+    //     case 'UNSTAKE':
+    //     default:
+    //       handleUnstakeAction()
+    //       // unstakeCallback(inputAmount.amount)
+    //       break
+    //   }
+    // }
+  }
+
+  const handleStakeAction = () => {
+    const inputIsValid = validateFormAndThrowErrors(dispatch, stakeUnstakeValueOK)
+    if (inputIsValid) stakeCallback(inputAmount.amount)
+  }
+  const handleUnstakeAction = () => {
+    const inputIsValid = validateFormAndThrowErrors(dispatch, stakeUnstakeValueOK)
+    if (inputIsValid) unstakeCallback(inputAmount.amount)
   }
   return (
     <StakeUnstakeStyled>
@@ -98,22 +155,31 @@ export const StakeUnstakeView = ({
               <StakeUnstakeMax onClick={() => onUseMaxClick('UNSTAKE')}>Max Unstake</StakeUnstakeMax>
               <StakeUnstakeMax onClick={() => onUseMaxClick('STAKE')}>Max Stake</StakeUnstakeMax>
             </div>
-            <StakeUnstakeInputCheck inputOk={stakeUnstakeValueOK} accountPkh={accountPkh}>
-              <StakeUnstakeInput type="number" value={inputAmount} onChange={onInputChange} />
-              <StakeUnstakeInputLabel>MVK</StakeUnstakeInputLabel>
-            </StakeUnstakeInputCheck>
-            <StakeUnstakeErrorMessage inputOk={stakeUnstakeValueOK} accountPkh={accountPkh}>
-              {stakeUnstakeValueError}
-            </StakeUnstakeErrorMessage>
+            <Input
+              type={'number'}
+              placeholder={String(inputAmount.amount)}
+              onChange={onInputChange}
+              onBlur={checkInputIsOk}
+              value={inputAmount.amount}
+              pinnedText={'MVK'}
+              inputStatus={stakeUnstakeInputStatus.amount}
+              errorMessage={stakeUnstakeValueError}
+            />
             <StakeUnstakeRate>1 MVK ≈ $0.25</StakeUnstakeRate>
           </StakeUnstakeInputColumn>
         </StakeUnstakeInputGrid>
         <StakeUnstakeButtonGrid>
-          <Button text="Stake" icon="in" loading={loading} onClick={() => handleStakeUnstakeClick('STAKE')} />
+          <Button
+            text="Stake"
+            kind={ACTION_PRIMARY}
+            icon="in"
+            loading={loading}
+            onClick={() => handleStakeUnstakeClick('STAKE')}
+          />
           <Button
             text="Unstake"
             icon="out"
-            kind="secondary"
+            kind={ACTION_SECONDARY}
             loading={loading}
             onClick={() => handleStakeUnstakeClick('UNSTAKE')}
           />

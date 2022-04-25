@@ -2,11 +2,12 @@ import * as React from 'react'
 import * as PropTypes from 'prop-types'
 import { IPFSUploaderStatusType } from './IPFSUploader.controller'
 import {
+  IpfsUploadedImageContainer,
+  IPFSUploaderStyled,
   UploaderFileSelector,
   UploadIcon,
   UploadIconContainer,
-} from '../../../pages/BecomeSatellite/BecomeSatellite.style'
-import { IpfsUploadedImageContainer, IPFSUploaderStyled } from './IPFSUploader.style'
+} from './IPFSUploader.style'
 import { Ref } from 'react'
 
 type IPFSUploaderViewProps = {

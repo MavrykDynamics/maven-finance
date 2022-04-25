@@ -1,6 +1,5 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import delegationAddress from 'deployments/delegationAddress.json'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from 'pages/Doorman/Doorman.actions'
 import { State } from 'reducers'
 import {
@@ -113,7 +112,7 @@ export const delegate = (satelliteAddress: string) => async (dispatch: any, getS
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.delegateToSatellite(satelliteAddress).send()
     console.log('transaction', transaction)
@@ -163,7 +162,7 @@ export const undelegate = (satelliteAddress: string) => async (dispatch: any, ge
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.undelegateFromSatellite(satelliteAddress).send()
     console.log('transaction', transaction)

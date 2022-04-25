@@ -20,7 +20,8 @@ import {
 } from '../pages/BecomeSatellite/BecomeSatellite.actions'
 import { MichelsonMap } from '@taquito/taquito'
 import { getItemFromStorage } from '../utils/storage'
-import { DelegateRecord, DelegationStorage } from '../utils/TypesAndInterfaces/Delegation'
+import { DelegateRecord, DelegationStorage, SatelliteRecord } from '../utils/TypesAndInterfaces/Delegation'
+import { GET_SATELLITE_BY_ADDRESS } from '../pages/SatelliteDetails/SatelliteDetails.actions'
 
 export const DELEGATE = 'DELEGATE'
 export const UNDELEGATE = 'UNDELEGATE'
@@ -30,6 +31,7 @@ export interface DelegationState {
   delegationStorage: DelegationStorage
   amount?: number
   error?: any
+  currentSatellite: SatelliteRecord
 }
 
 const defaultDelegationStorage: DelegationStorage = {
@@ -51,12 +53,26 @@ const defaultDelegationStorage: DelegationStorage = {
 const delegationDefaultState: DelegationState = {
   delegationStorage: getItemFromStorage('DelegationStorage') || defaultDelegationStorage,
   amount: 0,
+  currentSatellite: {
+    active: false,
+    address: '',
+    description: '',
+    image: '',
+    mvkBalance: 0,
+    name: '',
+    registeredDateTime: new Date(),
+    sMvkBalance: 0,
+    satelliteFee: 0,
+    totalDelegatedAmount: 0,
+    unregisteredDateTime: new Date(),
+  },
 }
 
 export function delegation(state = delegationDefaultState, action: any): DelegationState {
   switch (action.type) {
     case GET_DELEGATION_STORAGE:
       return {
+        ...state,
         delegationStorage: action.delegationStorage,
       }
     case DELEGATE_REQUEST:
@@ -148,6 +164,12 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
         ...state,
         type: SATELLITE_ACTION,
         error: action.error,
+      }
+    case GET_SATELLITE_BY_ADDRESS:
+      return {
+        ...state,
+        type: SATELLITE_ACTION,
+        currentSatellite: action.currentSatellite,
       }
     default:
       return state

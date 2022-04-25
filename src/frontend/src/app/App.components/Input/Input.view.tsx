@@ -1,8 +1,16 @@
 import * as React from 'react'
 import * as PropTypes from 'prop-types'
 
-import { InputStyled, InputComponent, InputStatus, InputIcon, InputErrorMessage } from './Input.style'
-import { InputStatusType } from './Input.controller'
+import {
+  InputStyled,
+  InputComponent,
+  InputStatus,
+  InputIcon,
+  InputErrorMessage,
+  InputLabel,
+  InputComponentContainer,
+} from './Input.style'
+import { InputKind, InputStatusType } from './Input.controller'
 
 type InputViewProps = {
   icon?: string
@@ -15,6 +23,8 @@ type InputViewProps = {
   type: string
   errorMessage?: string
   disabled?: boolean
+  pinnedText?: string
+  kind?: InputKind
 }
 
 export const InputView = ({
@@ -28,8 +38,12 @@ export const InputView = ({
   type,
   errorMessage,
   disabled,
+  pinnedText,
+  kind,
 }: InputViewProps) => {
+  let classNames = kind
   let status = inputStatus !== undefined ? inputStatus : 'none'
+  classNames += ` ${status}`
   return (
     <InputStyled id={'inputStyled'}>
       {icon && (
@@ -37,19 +51,22 @@ export const InputView = ({
           <use xlinkHref={`/icons/sprites.svg#${icon}`} />
         </InputIcon>
       )}
-      <InputComponent
-        id={'inputComponent'}
-        type={type}
-        name={name}
-        className={status}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        autoComplete={name}
-        disabled={disabled}
-      />
-      <InputStatus className={status} />
+      <InputComponentContainer>
+        <InputComponent
+          id={'inputComponent'}
+          type={type}
+          name={name}
+          className={classNames}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          autoComplete={name}
+          disabled={disabled}
+        />
+        {pinnedText && <InputLabel className={classNames}>{pinnedText}</InputLabel>}
+        <InputStatus className={classNames} />
+      </InputComponentContainer>
       {errorMessage && <InputErrorMessage>{errorMessage}</InputErrorMessage>}
     </InputStyled>
   )

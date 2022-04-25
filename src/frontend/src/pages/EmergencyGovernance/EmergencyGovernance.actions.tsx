@@ -1,5 +1,4 @@
 import { State } from '../../reducers'
-import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
 import { HIDE_EXIT_FEE_MODAL } from '../Doorman/ExitFeeModal/ExitFeeModal.actions'
@@ -68,7 +67,7 @@ export const submitEmergencyGovernanceProposal =
     }
 
     try {
-      const contract = await state.wallet.tezos?.wallet.at(emergencyGovernanceAddress.address)
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.emergencyGovernanceAddress.address)
       console.log('contract', contract)
       const transaction = await contract?.methods.triggerEmergencyControl(form.title, form.description).send()
       console.log('transaction', transaction)

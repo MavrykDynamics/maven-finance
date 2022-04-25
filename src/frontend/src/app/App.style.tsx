@@ -1,10 +1,11 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../styles/interfaces'
 
-export const AppStyled = styled.div`
+export const AppStyled = styled.div<{ theme: MavrykTheme }>`
   min-height: 100vh;
   display: grid;
   grid-template-columns: 270px auto;
+  background-color: ${({ theme }) => theme.containerColor};
 `
 
 export const AppBg = styled.div<{ theme: MavrykTheme }>`

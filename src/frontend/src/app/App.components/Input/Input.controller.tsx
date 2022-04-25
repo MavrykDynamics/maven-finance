@@ -4,6 +4,7 @@ import * as React from 'react'
 import { InputView } from './Input.view'
 
 export type InputStatusType = 'success' | 'error' | '' | undefined
+export type InputKind = 'primary' | 'search'
 type InputProps = {
   icon?: string
   placeholder: string
@@ -15,6 +16,8 @@ type InputProps = {
   type: string
   errorMessage?: string
   disabled?: boolean
+  pinnedText?: string
+  kind?: InputKind
 }
 
 export const Input = ({
@@ -28,6 +31,8 @@ export const Input = ({
   type,
   errorMessage,
   disabled,
+  pinnedText,
+  kind,
 }: InputProps) => {
   return (
     <InputView
@@ -41,6 +46,8 @@ export const Input = ({
       inputStatus={inputStatus}
       errorMessage={errorMessage}
       disabled={disabled}
+      pinnedText={pinnedText}
+      kind={kind}
     />
   )
 }
@@ -56,6 +63,7 @@ Input.propTypes = {
   type: PropTypes.string,
   errorMessage: PropTypes.string,
   disabled: PropTypes.bool,
+  kind: PropTypes.string,
 }
 
 Input.defaultProps = {
@@ -65,4 +73,5 @@ Input.defaultProps = {
   value: undefined,
   inputStatus: undefined,
   type: 'text',
+  kind: 'primary',
 }

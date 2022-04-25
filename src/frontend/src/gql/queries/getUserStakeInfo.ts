@@ -1,4 +1,4 @@
-export const USER_STAKE_BALANCE_STORAGE_QUERY = `
+export const USER_STAKE_BALANCE_QUERY = `
 query GetUserStakeBalance($_eq: String = "") {
   doorman {
     stake_accounts(where: {address: {_eq: $_eq}}) {

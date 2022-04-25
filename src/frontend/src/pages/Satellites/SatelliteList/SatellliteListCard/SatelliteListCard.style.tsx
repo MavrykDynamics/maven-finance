@@ -15,11 +15,12 @@ export const SatelliteCardTopRow = styled.div`
   padding: 35px 35px 20px 35px;
 `
 
-export const SatelliteCardRow = styled.div`
+export const SatelliteCardRow = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   padding: 15px;
   justify-content: center;
   font-size: 14px;
+  color: ${({ theme }) => theme.primaryColor};
 `
 
 export const SatelliteProfileImageContainer = styled.div`

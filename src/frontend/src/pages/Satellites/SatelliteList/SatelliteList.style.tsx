@@ -21,8 +21,8 @@ export const SatelliteListEmptyContainer = styled.div<{ theme: MavrykTheme }>`
 export const SatelliteSearchFilter = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.backgroundColor};
   display: flex;
-  align-items: baseline;
-  padding: 10px;
+  align-items: center;
+  padding: 0 10px;
   margin-top: 30px;
   border-radius: 10px;
   color: ${({ theme }) => theme.subTextColor};

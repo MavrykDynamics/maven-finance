@@ -69,11 +69,11 @@ export interface SatelliteRecord {
   name: string
   image: string
   description: string
-  satelliteFee: string | number
+  satelliteFee: number
   active: boolean
-  mvkBalance: string
-  sMvkBalance: string
-  totalDelegatedAmount: string
+  mvkBalance: number
+  sMvkBalance: number
+  totalDelegatedAmount: number
   registeredDateTime: Date
   unregisteredDateTime: Date | null
   proposalVotingHistory?: SatelliteProposalVotingHistory[]
