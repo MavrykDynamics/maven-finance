@@ -332,6 +332,10 @@ block {
 
     case delegationLambdaAction of [
         | LambdaDelegateToSatellite(satelliteAddress) -> {
+<<<<<<< HEAD
+=======
+
+>>>>>>> d7626c8 (Satellite Rewards Distribution fixed)
             // Update unclaimed rewards
             s := updateRewards(s);
             
@@ -715,9 +719,8 @@ block {
     // Operation list
     var operations: list(operation) := nil;
 
-    // Overall steps:
-    // 1. check if sender's address exists in satelliteLedger
-    // 2. update satellite records
+    // Check sender is a whitelist contract
+    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
 
     case delegationLambdaAction of [
         | LambdaDistributeReward(distributeRewardParams) -> {
