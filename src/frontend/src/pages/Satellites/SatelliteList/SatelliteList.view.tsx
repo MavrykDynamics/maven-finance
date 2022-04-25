@@ -11,6 +11,10 @@ import { darkMode, lightMode } from '../../../styles'
 import { useSelector } from 'react-redux'
 import { State } from '../../../reducers'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
+import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
+import * as React from 'react'
+import { useState } from 'react'
+import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 
 type SatelliteListViewProps = {
   loading: boolean
@@ -83,14 +87,49 @@ const ListWithSatellites = ({
       color: darkThemeEnabled ? darkMode.subTextColor : lightMode.subTextColor,
     }),
   }
+  const itemsForDropDown = [
+    { text: 'Lowest Fee', value: 'satelliteFee' },
+    { text: 'Highest Fee', value: 'satelliteFee' },
+    { text: 'Delegated MVK', value: 'totalDelegatedAmount' },
+    { text: 'Participation', value: 'participation' },
+  ]
+  const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
+  const [ddIsOpen, setDdIsOpen] = useState(false)
+  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(undefined)
+
+  const handleClickDropdown = () => {
+    setDdIsOpen(!ddIsOpen)
+  }
+  const handleOnClickDropdownItem = (e: any) => {
+    const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
+    setChosenDdItem(chosenItem)
+    setDdIsOpen(!ddIsOpen)
+    handleSelect(chosenItem.value)
+  }
+
   return (
     <SatelliteListStyled>
       <SatelliteSearchFilter>
-        <Input type="text" placeholder="Search by address..." onChange={handleSearch} onBlur={() => {}} />
-        <SelectContainer>
-          <p>Order by:</p>
-          <Select styles={customStyles} options={selectOptions} onChange={handleSelect} />
-        </SelectContainer>
+        <Input
+          type="text"
+          kind={'search'}
+          placeholder="Search by address..."
+          onChange={handleSearch}
+          onBlur={() => {}}
+        />
+        <DropdownContainer>
+          <h4>Order By:</h4>
+          <DropDown
+            clickOnDropDown={handleClickDropdown}
+            placeholder={ddItems[0]}
+            onChange={handleSelect}
+            isOpen={ddIsOpen}
+            itemSelected={chosenDdItem?.text}
+            items={ddItems}
+            onBlur={() => {}}
+            clickOnItem={(e) => handleOnClickDropdownItem(e)}
+          />{' '}
+        </DropdownContainer>
       </SatelliteSearchFilter>
       {satelliteFound === false && <SatelliteListEmptyContainer>Satellite Not Found</SatelliteListEmptyContainer>}
       {satellitesList.map((item, index) => {

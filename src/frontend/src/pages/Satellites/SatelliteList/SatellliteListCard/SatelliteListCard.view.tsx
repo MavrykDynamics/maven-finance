@@ -35,7 +35,7 @@ export const SatelliteListCard = ({
   userStakedBalance,
   satelliteUserIsDelegatedTo,
 }: SatelliteListCardViewProps) => {
-  const totalDelegatedMVK = parseFloat(satellite.totalDelegatedAmount)
+  const totalDelegatedMVK = satellite.totalDelegatedAmount
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   return (

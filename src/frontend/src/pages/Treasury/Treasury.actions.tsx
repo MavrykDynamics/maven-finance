@@ -1,17 +1,8 @@
 import { State } from '../../reducers'
-import treasuryAddress from '../../deployments/councilAddress.json'
-import councilAddress from '../../deployments/councilAddress.json'
-import vestingAddress from '../../deployments/vestingAddress.json'
+import treasuryAddress from '../../deployments/treasuryAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
-import {
-  COUNCIL_STORAGE_QUERY,
-  COUNCIL_STORAGE_QUERY_NAME,
-  COUNCIL_STORAGE_QUERY_VARIABLE,
-  EMERGENCY_GOVERNANCE_STORAGE_QUERY,
-  EMERGENCY_GOVERNANCE_STORAGE_QUERY_NAME,
-  EMERGENCY_GOVERNANCE_STORAGE_QUERY_VARIABLE,
-} from '../../gql/queries'
+import { COUNCIL_STORAGE_QUERY, COUNCIL_STORAGE_QUERY_NAME, COUNCIL_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 
 export const GET_TREASURY_STORAGE = 'GET_TREASURY_STORAGE'
@@ -23,11 +14,12 @@ export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: any,
   //   return
   // }
   // TODO: Change address used to that of the Treasury when possible
+  console.log(state.contractAddresses)
   const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(treasuryAddress.address)
+    ? await state.wallet.tezos?.wallet.at(state.contractAddresses.treasuryAddress.address)
     : await new TezosToolkit(
         (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(treasuryAddress.address)
+      ).contract.at(state.contractAddresses.treasuryAddress.address)
 
   const storage = await (contract as any).storage()
   console.log('Printing out Treasury storage:\n', storage)
@@ -76,10 +68,10 @@ export const getVestingStorage = (accountPkh?: string) => async (dispatch: any, 
   //   return
   // }
   const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(vestingAddress.address)
+    ? await state.wallet.tezos?.wallet.at(state.contractAddresses.vestingAddress.address)
     : await new TezosToolkit(
         (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(vestingAddress.address)
+      ).contract.at(state.contractAddresses.vestingAddress.address)
 
   const storage = await (contract as any).storage()
   console.log('Printing out Vesting storage:\n', storage)

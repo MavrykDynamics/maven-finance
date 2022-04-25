@@ -44,6 +44,17 @@ export const DropDownView = ({
         }}
       >
         {itemSelected !== undefined ? itemSelected : placeholder}
+        <span>
+          {isOpen ? (
+            <svg>
+              <use xlinkHref={`/icons/sprites.svg#arrow-up`} />
+            </svg>
+          ) : (
+            <svg>
+              <use xlinkHref={`/icons/sprites.svg#arrow-down`} />
+            </svg>
+          )}
+        </span>
       </DropDownMenu>
       {isOpen && (
         <DropDownListContainer id={'dropDownListContainer'}>

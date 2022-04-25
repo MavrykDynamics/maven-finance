@@ -1,4 +1,4 @@
-import { getInitialData } from '../gql/fetchGraphQL'
+import { fetchFromIndexer, getInitialData } from '../gql/fetchGraphQL'
 import storageToTypeConverter from '../utils/storageToTypeConverter'
 
 import { GET_DOORMAN_STORAGE, GET_MVK_TOKEN_STORAGE } from '../pages/Doorman/Doorman.actions'
@@ -15,6 +15,11 @@ import {
   SET_GOVERNANCE_PHASE,
   SET_PAST_PROPOSALS,
 } from '../pages/Governance/Governance.actions'
+import {
+  CONTRACT_ADDRESSES_QUERY,
+  CONTRACT_ADDRESSES_QUERY_NAME,
+  CONTRACT_ADDRESSES_QUERY_VARIABLE,
+} from '../gql/queries'
 
 export const RECAPTCHA_REQUEST = 'RECAPTCHA_REQUEST'
 export const recaptchaRequest = () => (dispatch: any) => {
@@ -40,6 +45,8 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   const councilStorage = storageToTypeConverter('council', res[7].council[0])
   const vestingStorage = storageToTypeConverter('vesting', res[8].vesting[0])
   const governanceStorage = storageToTypeConverter('governance', res[9])
+
+  // if (addressesStorage) updateContractAddresses(addressesStorage)
 
   const currentEmergencyGovernanceId = emergencyGovernanceStorage.currentEmergencyGovernanceId
   dispatch({
@@ -69,6 +76,8 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   })
 
   //dispatching all the different actions into the redux
+  dispatch({ type: GET_CONTRACT_ADDRESSES, addresses: addressesStorage })
+
   dispatch({
     type: GET_DOORMAN_STORAGE,
     storage: doormanStorage,
@@ -112,4 +121,17 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   })
 
   dispatch({ type: SET_PAST_PROPOSALS, pastProposals: governanceStorage.proposalLedger })
+}
+
+export const GET_CONTRACT_ADDRESSES = 'GET_CONTRACT_ADDRESSES'
+export const getContractAddresses = () => async (dispatch: any, getState: any) => {
+  const storage = await fetchFromIndexer(
+    CONTRACT_ADDRESSES_QUERY,
+    CONTRACT_ADDRESSES_QUERY_NAME,
+    CONTRACT_ADDRESSES_QUERY_VARIABLE,
+  )
+
+  const convertedStorage = storageToTypeConverter('contractAddress', storage.mvk_token[0])
+
+  dispatch({ type: GET_CONTRACT_ADDRESSES, addresses: convertedStorage })
 }

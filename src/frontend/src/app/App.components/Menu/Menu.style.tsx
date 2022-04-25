@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components/macro'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const moveDown = keyframes`
   from {
@@ -8,7 +9,7 @@ export const moveDown = keyframes`
     transform: translateY(0rem);
   }
 `
-export const MenuStyled = styled.div`
+export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
   position: relative;
   text-align: center;
   width: 270px;
@@ -17,7 +18,7 @@ export const MenuStyled = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
+  background-color: ${({ theme }) => theme.backgroundColor};
   > div {
     width: 100%;
     max-width: 270px;

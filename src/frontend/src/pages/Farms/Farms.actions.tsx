@@ -1,13 +1,10 @@
 import { State } from '../../reducers'
-import farmAddress from '../../deployments/farmAddress.json'
-import farmFactoryAddress from '../../deployments/farmFactoryAddress.json'
 import { TezosToolkit } from '@taquito/taquito'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
-import { HIDE_EXIT_FEE_MODAL } from '../Doorman/ExitFeeModal/ExitFeeModal.actions'
 import { getDoormanStorage, getMvkTokenStorage, getUserData } from '../Doorman/Doorman.actions'
 import { PRECISION_NUMBER } from '../../utils/constants'
 
@@ -50,10 +47,10 @@ export const getFarmFactoryStorage = (accountPkh?: string) => async (dispatch: a
   // }
   // TODO: Change address used to that of the Farm Factory address when possible
   const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(farmFactoryAddress.address)
+    ? await state.wallet.tezos?.wallet.at(state.contractAddresses.farmFactoryAddress.address)
     : await new TezosToolkit(
         (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(farmFactoryAddress.address)
+      ).contract.at(state.contractAddresses.farmFactoryAddress.address)
 
   const storage = await (contract as any).storage()
   console.log('Printing out Farm Factory storage:\n', storage)

@@ -19,6 +19,7 @@ import { farmFactory, FarmFactoryState } from './farmFactory'
 import { preferences, PreferencesState } from './preferences'
 import { modal, ModalState } from './modal'
 import { user, UserState } from './user'
+import { contractAddresses, ContractAddressesState } from './contractAddresses'
 
 export const reducers = combineReducers({
   loading,
@@ -40,6 +41,7 @@ export const reducers = combineReducers({
   preferences,
   modal,
   user,
+  contractAddresses,
 })
 
 export interface State {
@@ -62,4 +64,5 @@ export interface State {
   preferences: PreferencesState
   modal: ModalState
   user: UserState
+  contractAddresses: ContractAddressesState
 }

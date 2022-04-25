@@ -4,14 +4,20 @@ import { MavrykTheme } from '../../../styles/interfaces'
 export const InputStyled = styled.div`
   position: relative;
   margin-bottom: 5px;
+  width: 100%;
+`
+
+export const InputComponentContainer = styled.div<{ theme: MavrykTheme }>`
+  display: block;
+  position: relative;
 `
 
 export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   width: 100%;
   height: 50px;
   background-color: ${({ theme }) => theme.placeholderColor};
-  font-weight: 600;
-  border: none;
+  font-weight: 500;
+  border: 1px solid ${({ theme }) => theme.placeholderColor};
   margin: 10px 0;
   color: ${({ theme }) => theme.subTextColor};
   -webkit-appearance: none;
@@ -22,12 +28,17 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   border-radius: 6px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
+  font-size: 22px;
 
-  &::placeholder {
+  &.search {
     color: ${({ theme }) => theme.subTextColor};
   }
+  &::placeholder:not(.search) {
+    color: ${({ theme }) => theme.inputPlaceholder};
+  }
+
   &:disabled {
-    background: ${({ theme }) => theme.backgroundTextColor};
+    background: ${({ theme }) => theme.placeholderColor};
     color: ${({ theme }) => theme.subTextColor};
   }
 
@@ -49,13 +60,31 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   }
 
   &.success {
-    border-color: ${({ theme }) => theme.upColor};
+    border: 1px solid ${({ theme }) => theme.upColor};
     color: ${({ theme }) => theme.upColor};
     &:focus {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.upColor}7F;
     }
   }
 `
+
+export const InputLabel = styled.div<{ theme: MavrykTheme }>`
+  position: absolute;
+  right: 35px;
+  top: 15px;
+  color: ${({ theme }) => theme.placeholderColor};
+  font-size: 22px;
+  font-weight: 600;
+
+  &.error {
+    color: ${({ theme }) => theme.downColor};
+  }
+
+  &.success {
+    color: ${({ theme }) => theme.upColor};
+  }
+`
+
 const zoomIn = keyframes`
   from {
     transform:scale(.2);
@@ -70,10 +99,9 @@ const zoomIn = keyframes`
 export const InputStatus = styled.div`
   display: block;
   position: absolute;
-  top: 25px;
+  top: 18px;
   right: 10px;
   z-index: 1;
-  margin-top: -10px;
   line-height: 13px;
   text-align: center;
   visibility: visible;

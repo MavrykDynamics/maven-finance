@@ -28,10 +28,11 @@ import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.contr
 import { DOWN } from '../../app/App.components/StatusFlag/StatusFlag.constants'
 
 type SatelliteDetailsViewProps = {
-  satellite: SatelliteRecord | undefined
+  satellite: SatelliteRecord
   loading: boolean
   delegateCallback: (address: string) => void
   undelegateCallback: (address: string) => void
+  userStakedBalanceInSatellite: number
 }
 
 export const SatelliteDetailsView = ({
@@ -39,15 +40,10 @@ export const SatelliteDetailsView = ({
   loading,
   delegateCallback,
   undelegateCallback,
+  userStakedBalanceInSatellite,
 }: SatelliteDetailsViewProps) => {
-  const totalDelegatedMVK =
-      parseFloat(satellite?.totalDelegatedAmount || '0') > 0
-        ? parseFloat(satellite?.totalDelegatedAmount || '0') / 100000
-        : 0,
-    myDelegatedMVK =
-      parseFloat(satellite?.totalDelegatedAmount || '0') > 0
-        ? parseFloat(satellite?.totalDelegatedAmount || '0') / 100000
-        : 0
+  const totalDelegatedMVK = satellite.totalDelegatedAmount
+  const myDelegatedMVK = userStakedBalanceInSatellite
 
   const options: HTMLReactParserOptions = {
     replace: (domNode: any) => {

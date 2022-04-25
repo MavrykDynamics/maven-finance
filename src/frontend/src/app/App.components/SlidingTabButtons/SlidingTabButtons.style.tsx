@@ -31,10 +31,6 @@ export const SlidingTabButtonsStyled = styled.div<{ theme: MavrykTheme }>`
   border-radius: 20px;
   //transition: background-color 5ms ease-in-out;
 
-  > button {
-    background-color: ${({ theme }) => theme.connectWalletBackgroundColor};
-  }
-
   > * {
     &:first-child {
       margin-left: 2px;
@@ -57,11 +53,10 @@ export const ButtonStyled = styled.button<{ buttonActive: boolean; theme: Mavryk
   border-radius: ${BUTTON_RADIUS};
   user-select: none;
   color: ${({ buttonActive, theme }) => (buttonActive ? theme.backgroundColor : theme.primaryColor)};
-
+  background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.primaryColor : theme.backgroundColor)};
   &.clicked {
     //animation: ${clickSlide} 4s ease 0s 1 normal forwards;
-    background-color: ${({ buttonActive, theme }) =>
-      buttonActive ? theme.primaryColor : theme.connectWalletBackgroundColor};
+    background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.primaryColor : theme.backgroundColor)};
   }
 
   &.loading {

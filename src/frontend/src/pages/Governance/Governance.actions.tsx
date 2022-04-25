@@ -163,7 +163,7 @@ export const proposalRoundVote = (proposalId: number) => async (dispatch: any, g
   const state: State = getState()
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.proposalRoundVote(proposalId).send()
     console.log('transaction', transaction)
@@ -200,7 +200,7 @@ export const votingRoundVote = (vote: number) => async (dispatch: any, getState:
   const state: State = getState()
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.votingRoundVote(vote).send()
     console.log('transaction', transaction)
@@ -241,7 +241,7 @@ export const startProposalRound = () => async (dispatch: any, getState: any) => 
   const state: State = getState()
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.startProposalRound().send()
     console.log('transaction', transaction)
@@ -277,7 +277,7 @@ export const startVotingRound = () => async (dispatch: any, getState: any) => {
   const state: State = getState()
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(governanceAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.governanceAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.startProposalRound().send()
     console.log('transaction', transaction)

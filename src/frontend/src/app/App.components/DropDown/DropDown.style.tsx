@@ -9,9 +9,12 @@ export const DropDownStyled = styled.div`
 
 export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
-  display: block;
+  display: flex;
+  flex-direction: row;
   position: relative;
-  height: 40px;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
   padding: 12px 16px 12px 16px;
   border-width: 1px;
   border-style: solid;
@@ -20,6 +23,17 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
   background-color: ${({ theme }) => theme.backgroundColor};
+
+  span {
+    padding: 12px;
+    > svg {
+      height: 8px;
+      width: 13px;
+      stroke: ${({ theme }) => theme.subTextColor};
+      stroke-width: 5px;
+      fill: none;
+    }
+  }
 `
 
 export const DropDownListContainer = styled.div`
@@ -49,4 +63,18 @@ export const DropDownList = styled.ul<{ theme: MavrykTheme }>`
 export const DropDownListItem = styled.li`
   list-style: none;
   margin-bottom: 0.8em;
+`
+
+export const DropdownContainer = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  > h4 {
+    margin-right: 15px;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+
+  #dropDownListContainer {
+  }
 `

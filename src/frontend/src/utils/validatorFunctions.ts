@@ -1,4 +1,4 @@
-import { AllValidFormTypes, ValidSubmitProposalForm } from './TypesAndInterfaces/Forms'
+import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
 import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
 
@@ -6,7 +6,6 @@ const isIPFS = require('is-ipfs')
 /**
  * File contains different functions used to validate input throughout the dapp
  */
-
 export function isJsonString(input: string) {
   try {
     JSON.parse(input)
@@ -38,6 +37,18 @@ export function isNotAllWhitespace(input: string) {
 export function isHexadecimalByteString(input: string) {
   const a = parseInt(input, 16)
   return a.toString(16) === input
+}
+
+export function isValidNumberValue(input: number, minValue?: number, maxValue?: number) {
+  if (minValue && !maxValue) {
+    return input >= minValue
+  } else if (!minValue && maxValue) {
+    return input <= maxValue
+  } else if (minValue && maxValue) {
+    return input >= minValue && input <= maxValue
+  } else {
+    return input > 0
+  }
 }
 
 export function getFormErrors(form: AllValidFormTypes) {

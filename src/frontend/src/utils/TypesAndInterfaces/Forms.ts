@@ -12,6 +12,7 @@ export type AllValidFormTypes =
   | ValidFinancialRequestForm
   | ValidRegisterAsSatelliteForm
   | ValidEmergencyGovernanceProposalForm
+  | ValidStakeUnstakeForm
 
 export type SubmitProposalForm = {
   title: string
@@ -102,4 +103,16 @@ export type EmergencyGovernanceProposalFormInputStatus = {
   amountMVKtoTriggerBreakGlass: InputStatusType
   description: InputStatusType
   screenshots: InputStatusType
+}
+
+export type StakeUnstakeForm = {
+  amount: number
+}
+
+export type ValidStakeUnstakeForm = {
+  amount: boolean | undefined
+}
+
+export type StakeUnstakeFormInputStatus = {
+  amount: InputStatusType
 }

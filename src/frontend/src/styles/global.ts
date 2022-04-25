@@ -61,7 +61,7 @@ h4 {
   margin: 0;
   
   &.primary {
-    color: ${({ theme }) => theme.primaryColor};
+    color: ${({ theme }) => theme.textColor};
   }
 
   &.secondary {

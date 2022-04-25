@@ -1,10 +1,11 @@
-import { DropdownContainer, FarmTopBarStyled, StakedToggleContainer } from './FarmTopBar.style'
+import { FarmTopBarStyled, StakedToggleContainer } from './FarmTopBar.style'
 import * as React from 'react'
 import Toggle from 'react-toggle'
 import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
 import { useState } from 'react'
+import { DropdownContainer } from '../../../app/App.components/DropDown/DropDown.style'
 
 export type FarmTopBarViewProps = {
   loading: boolean

@@ -24,7 +24,7 @@ export const registerAsSatellite =
     }
 
     try {
-      const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
+      const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
       console.log('contract', contract)
 
       const transaction = await contract?.methods
@@ -73,7 +73,7 @@ export const updateSatelliteRecord = (form: RegisterAsSatelliteForm) => async (d
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
     console.log('contract', contract)
 
     const transaction = await contract?.methods
@@ -122,7 +122,7 @@ export const unregisterAsSatellite = () => async (dispatch: any, getState: any) 
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(delegationAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
     console.log('contract', contract)
 
     const transaction = await contract?.methods.unregisterAsSatellite().send()

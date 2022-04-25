@@ -19,7 +19,7 @@ import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { calcWithoutMu } from '../../utils/calcFunctions'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
-import { USER_INFO_QUERY, USER_INFO_QUERY_NAME, USER_INFO_QUERY_VARIABLES } from '../../gql/queries/getUserInfo'
+import { USER_INFO_QUERY, USER_INFO_QUERY_NAME, USER_INFO_QUERY_VARIABLES } from '../../gql/queries'
 import { UserData } from '../../utils/TypesAndInterfaces/User'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
@@ -82,9 +82,9 @@ export const stake = (amount: number) => async (dispatch: any, getState: any) =>
   }
 
   try {
-    const mvkTokenContract = await state.wallet.tezos?.wallet.at(mvkTokenAddress.address)
-    const doormanContract = await state.wallet.tezos?.wallet.at(doormanAddress.address)
-    console.log('MvkToken contract', doormanContract)
+    const mvkTokenContract = await state.wallet.tezos?.wallet.at(state.contractAddresses.mvkTokenAddress.address)
+    const doormanContract = await state.wallet.tezos?.wallet.at(state.contractAddresses.doormanAddress.address)
+    console.log('MvkToken contract', mvkTokenContract)
     console.log('Doorman contract', doormanContract)
 
     const addOperators = [
@@ -166,7 +166,7 @@ export const unstake = (amount: number) => async (dispatch: any, getState: any) 
   }
 
   try {
-    const contract = await state.wallet.tezos?.wallet.at(doormanAddress.address)
+    const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.doormanAddress.address)
     console.log('contract', contract)
     const transaction = await contract?.methods.unstake(amount * PRECISION_NUMBER).send()
     console.log('transaction', transaction)

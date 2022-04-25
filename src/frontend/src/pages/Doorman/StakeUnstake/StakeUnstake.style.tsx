@@ -51,6 +51,7 @@ export const StakeUnstakeInputGrid = styled.div`
 `
 
 export const StakeUnstakeMin = styled.div`
+  color: ${({ theme }) => theme.textColor};
   font-size: 12px;
   font-weight: 600;
   float: left;
@@ -58,7 +59,8 @@ export const StakeUnstakeMin = styled.div`
   margin-left: 10px;
 `
 
-export const StakeUnstakeMax = styled.button`
+export const StakeUnstakeMax = styled.button<{ theme: MavrykTheme }>`
+  color: ${({ theme }) => theme.textColor};
   font: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -67,24 +69,10 @@ export const StakeUnstakeMax = styled.button`
   margin-right: 10px;
   text-decoration: underline;
   background: none;
-  color: inherit;
   border: none;
   padding: 0;
   cursor: pointer;
   outline: inherit;
-`
-export const StakeUnstakeInputCheck = styled.div<{ inputOk: boolean; accountPkh?: string; theme: MavrykTheme }>`
-  height: 50px;
-  width: 100%;
-  border: 1px;
-  border-style: ${({ inputOk, accountPkh }) => (inputOk ? (accountPkh ? 'solid' : 'hidden') : 'solid')};
-  border-color: ${({ inputOk, accountPkh, theme }) =>
-    accountPkh ? (inputOk ? theme.upColor : theme.downColor) : 'none'};
-  margin: 10px 0;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 `
 export const StakeUnstakeErrorMessage = styled.div<{ inputOk: boolean; accountPkh?: string; theme: MavrykTheme }>`
   color: ${({ inputOk, theme }) => (inputOk ? theme.upColor : theme.downColor)};
