@@ -175,136 +175,136 @@
 #         print('new admin:')
 #         print(newAdmin)
 
-#     def test_01_non_admin_set_admin(self):
-#         init_doorman_storage = deepcopy(self.doormanStorage)
+#     # def test_01_non_admin_set_admin(self):
+#     #     init_doorman_storage = deepcopy(self.doormanStorage)
 
-#         # Initial values
-#         previousAdmin = init_doorman_storage['admin']
-#         newAdmin = previousAdmin
+#     #     # Initial values
+#     #     previousAdmin = init_doorman_storage['admin']
+#     #     newAdmin = previousAdmin
 
-#         # Operation
-#         with self.raisesMichelsonError(error_only_administrator):
-#             res = self.doormanContract.setAdmin(bob).interpret(storage=init_doorman_storage, sender=alice)
-#             # Check new admin
-#             newAdmin = res.storage['admin']
+#     #     # Operation
+#     #     with self.raisesMichelsonError(error_only_administrator):
+#     #         res = self.doormanContract.setAdmin(bob).interpret(storage=init_doorman_storage, sender=alice)
+#     #         # Check new admin
+#     #         newAdmin = res.storage['admin']
 
-#         self.assertEqual(bob, previousAdmin)
-#         self.assertEqual(bob, newAdmin)
+#     #     self.assertEqual(bob, previousAdmin)
+#     #     self.assertEqual(bob, newAdmin)
 
-#         print('----')
-#         print('✅ Non-admin tries to set another admin')
-#         print('previous admin:')
-#         print(previousAdmin)
-#         print('new admin:')
-#         print(newAdmin)
+#     #     print('----')
+#     #     print('✅ Non-admin tries to set another admin')
+#     #     print('previous admin:')
+#     #     print(previousAdmin)
+#     #     print('new admin:')
+#     #     print(newAdmin)
 
-#     ###
-#     # %pauseAll
-#     ##
-#     def test_20_admin_call_entrypoint(self):
-#         init_doorman_storage = deepcopy(self.doormanStorage)
+#     # ###
+#     # # %pauseAll
+#     # ##
+#     # def test_20_admin_call_entrypoint(self):
+#     #     init_doorman_storage = deepcopy(self.doormanStorage)
 
-#         # Initial values
-#         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-#         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
-#         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
-#         stakeAmount = self.MVK(2)
-#         unstakeAmount = self.MVK()
+#     #     # Initial values
+#     #     stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
+#     #     unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
+#     #     compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
+#     #     stakeAmount = self.MVK(2)
+#     #     unstakeAmount = self.MVK()
 
-#         # Operation
-#         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
+#     #     # Operation
+#     #     res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
 
-#         # Final values
-#         finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-#         finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
-#         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+#     #     # Final values
+#     #     finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
+#     #     finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+#     #     finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
 
-#         # Tests operations
-#         with self.raisesMichelsonError(error_stake_paused):
-#             res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
+#     #     # Tests operations
+#     #     with self.raisesMichelsonError(error_stake_paused):
+#     #         res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
         
-#         with self.raisesMichelsonError(error_unstake_paused):
-#             res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob)
+#     #     with self.raisesMichelsonError(error_unstake_paused):
+#     #         res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob)
         
-#         with self.raisesMichelsonError(error_compound_paused):
-#             res = self.doormanContract.compound().interpret(storage=res.storage, sender=bob)
+#     #     with self.raisesMichelsonError(error_compound_paused):
+#     #         res = self.doormanContract.compound().interpret(storage=res.storage, sender=bob)
 
-#         self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
-#         self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
-#         self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
-#         self.assertNotEqual(compoundIsPaused, finalCompoundIsPaused)
+#     #     self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
+#     #     self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
+#     #     self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
+#     #     self.assertNotEqual(compoundIsPaused, finalCompoundIsPaused)
 
-#         print('----')
-#         print('✅ Admin tries to pause all entrypoints')
-#         print('stake is paused:')
-#         print(finalStakeIsPaused)
-#         print('unstake is paused:')
-#         print(finalUnstakeIsPaused)
-#         print('compound is paused:')
-#         print(finalCompoundIsPaused)
+#     #     print('----')
+#     #     print('✅ Admin tries to pause all entrypoints')
+#     #     print('stake is paused:')
+#     #     print(finalStakeIsPaused)
+#     #     print('unstake is paused:')
+#     #     print(finalUnstakeIsPaused)
+#     #     print('compound is paused:')
+#     #     print(finalCompoundIsPaused)
 
-#     def test_21_non_admin_call_entrypoint(self):
-#         init_doorman_storage = deepcopy(self.doormanStorage)
+#     # def test_21_non_admin_call_entrypoint(self):
+#     #     init_doorman_storage = deepcopy(self.doormanStorage)
 
-#         # Initial values
-#         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-#         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
-#         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
-#         finalStakeIsPaused = stakeIsPaused
-#         finalUnstakeIsPaused = unstakeIsPaused
-#         finalCompoundIsPaused = compoundIsPaused
+#     #     # Initial values
+#     #     stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
+#     #     unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
+#     #     compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
+#     #     finalStakeIsPaused = stakeIsPaused
+#     #     finalUnstakeIsPaused = unstakeIsPaused
+#     #     finalCompoundIsPaused = compoundIsPaused
 
-#         # Operation
-#         with self.raisesMichelsonError(error_only_administrator):
-#             res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=alice)
+#     #     # Operation
+#     #     with self.raisesMichelsonError(error_only_administrator):
+#     #         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=alice)
 
-#             # Final values
-#             finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-#             finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
-#             finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+#     #         # Final values
+#     #         finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
+#     #         finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+#     #         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
 
-#         self.assertEqual(stakeIsPaused, finalStakeIsPaused)
-#         self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
-#         self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
+#     #     self.assertEqual(stakeIsPaused, finalStakeIsPaused)
+#     #     self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
+#     #     self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
 
-#         print('----')
-#         print('✅ Non-admin tries to pause all entrypoints')
-#         print('stake is paused:')
-#         print(finalStakeIsPaused)
-#         print('unstake is paused:')
-#         print(finalUnstakeIsPaused)
-#         print('compound is paused:')
-#         print(finalCompoundIsPaused)
+#     #     print('----')
+#     #     print('✅ Non-admin tries to pause all entrypoints')
+#     #     print('stake is paused:')
+#     #     print(finalStakeIsPaused)
+#     #     print('unstake is paused:')
+#     #     print(finalUnstakeIsPaused)
+#     #     print('compound is paused:')
+#     #     print(finalCompoundIsPaused)
 
-#     ###
-#     # %unpauseAll
-#     ##
-#     def test_22_admin_call_entrypoint(self):
-#         init_doorman_storage = deepcopy(self.doormanStorage)
-#         init_mvk_storage = deepcopy(self.mvkTokenStorage)
+#     # ###
+#     # # %unpauseAll
+#     # ##
+#     # def test_22_admin_call_entrypoint(self):
+#     #     init_doorman_storage = deepcopy(self.doormanStorage)
+#     #     init_mvk_storage = deepcopy(self.mvkTokenStorage)
 
-#         # Initial values
-#         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
-#         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
-#         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
-#         stakeAmount = self.MVK(2)
-#         unstakeAmount = self.MVK()
-#         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
+#     #     # Initial values
+#     #     stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
+#     #     unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
+#     #     compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
+#     #     stakeAmount = self.MVK(2)
+#     #     unstakeAmount = self.MVK()
+#     #     res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
 
-#         # Paused values
-#         pauseStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
-#         pauseUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
-#         pauseCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+#     #     # Paused values
+#     #     pauseStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
+#     #     pauseUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
+#     #     pauseCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
 
-#         # Operation
-#         res = self.doormanContract.unpauseAll().interpret(storage=res.storage, sender=bob)
+#     #     # Operation
+#     #     res = self.doormanContract.unpauseAll().interpret(storage=res.storage, sender=bob)
 
-#         # Tests operations
-#         res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
-#         res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-#             mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-#         })
-#         res = self.doormanContract.compound().interpret(storage=res.storage, sender=bob)
+#     #     # Tests operations
+#     #     res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
+#     #     res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
+#     #         mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
+#     #     })
+#     #     res = self.doormanContract.compound().interpret(storage=res.storage, sender=bob)
         
 #         # Final values
 #         finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
