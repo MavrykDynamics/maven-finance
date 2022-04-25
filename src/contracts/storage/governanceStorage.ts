@@ -8,7 +8,7 @@ import { MVK, zeroAddress } from '../test/helpers/Utils'
 import { governanceStorageType } from '../test/types/governanceStorageType'
 
 const config = {
-    successReward                       : 10000,
+    successReward                       : MVK(10),
     cycleVotersReward                   : MVK(100),
 
     minProposalRoundVotePercentage      : 1000,
