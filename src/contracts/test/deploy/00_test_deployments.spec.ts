@@ -679,7 +679,7 @@ describe('Contracts Deployment for Tests', async () => {
             {
               to_: treasury.contract.address,
               token_id: 0,
-              amount: MVK(200),
+              amount: MVK(1000),
             },
             {
               to_: council.contract.address,

@@ -17,6 +17,7 @@ import doormanAddress from '../deployments/doormanAddress.json';
 import delegationAddress from '../deployments/delegationAddress.json';
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 import governanceAddress from '../deployments/governanceAddress.json';
+import treasuryAddress from '../deployments/treasuryAddress.json';
 
 describe("Delegation tests", async () => {
     var utils: Utils;
@@ -217,50 +218,50 @@ describe("Delegation tests", async () => {
             await signerFactory(bob.sk)
         });
         
-        // it('Reward distribution tests #1', async () => {
-        //     try{
-        //         // Initial Values
-        //         delegationStorage = await delegationInstance.storage();
+        it('Reward distribution tests #1', async () => {
+            try{
+                // Initial Values
+                delegationStorage = await delegationInstance.storage();
 
-        //         // Distribute Operation
-        //         const distributeOperation = await delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send();
-        //         await distributeOperation.confirmation();
-        //         delegationStorage = await delegationInstance.storage();
-        //         doormanStorage  = await doormanInstance.storage();
-        //         var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
-        //         var satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
-        //         console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
+                // Distribute Operation
+                const distributeOperation = await delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send();
+                await distributeOperation.confirmation();
+                delegationStorage = await delegationInstance.storage();
+                doormanStorage  = await doormanInstance.storage();
+                var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
+                var satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
+                console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
-        //         // Claim operations
-        //         var claimOperation = await doormanInstance.methods.compound().send();
-        //         await claimOperation.confirmation()
-        //         delegationStorage = await delegationInstance.storage();
-        //         doormanStorage  = await doormanInstance.storage();
-        //         var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
-        //         satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
-        //         console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
+                // Claim operations
+                var claimOperation = await doormanInstance.methods.compound().send();
+                await claimOperation.confirmation()
+                delegationStorage = await delegationInstance.storage();
+                doormanStorage  = await doormanInstance.storage();
+                var satelliteRecord = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
+                satelliteStake  = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
+                console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
-        //         await signerFactory(alice.sk);
-        //         claimOperation = await doormanInstance.methods.compound().send();
-        //         await claimOperation.confirmation()
-        //         delegationStorage = await delegationInstance.storage();
-        //         doormanStorage  = await doormanInstance.storage();
-        //         var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(alice.pkh)
-        //         var delegateStake  = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
-        //         console.log("POST-CLAIM ALICE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
+                await signerFactory(alice.sk);
+                claimOperation = await doormanInstance.methods.compound().send();
+                await claimOperation.confirmation()
+                delegationStorage = await delegationInstance.storage();
+                doormanStorage  = await doormanInstance.storage();
+                var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(alice.pkh)
+                var delegateStake  = await doormanStorage.userStakeBalanceLedger.get(alice.pkh)
+                console.log("POST-CLAIM ALICE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
-        //         await signerFactory(eve.sk);
-        //         claimOperation = await doormanInstance.methods.compound().send();
-        //         await claimOperation.confirmation()
-        //         delegationStorage = await delegationInstance.storage();
-        //         doormanStorage  = await doormanInstance.storage();
-        //         var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(eve.pkh)
-        //         delegateStake  = await doormanStorage.userStakeBalanceLedger.get(eve.pkh)
-        //         console.log("POST-CLAIM EVE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
-        //     } catch(e){
-        //         console.log(e);
-        //     }
-        // });
+                await signerFactory(eve.sk);
+                claimOperation = await doormanInstance.methods.compound().send();
+                await claimOperation.confirmation()
+                delegationStorage = await delegationInstance.storage();
+                doormanStorage  = await doormanInstance.storage();
+                var delegateRecord = await delegationStorage.satelliteRewardsLedger.get(eve.pkh)
+                delegateStake  = await doormanStorage.userStakeBalanceLedger.get(eve.pkh)
+                console.log("POST-CLAIM EVE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
+            } catch(e){
+                console.log(e);
+            }
+        });
 
         it('Reward distribution tests #2', async () => {
             try{
@@ -550,5 +551,60 @@ describe("Delegation tests", async () => {
                 console.log(e);
             }
         });
+
+        it('Whitelist should not be able to call this entrypoint if the doorman contract is not referenced in the storage', async () => {
+            try{
+                // Initial Values
+                delegationStorage = await delegationInstance.storage();
+
+                // Preparation operation
+                var updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+                await updateGeneralContractsOperation.confirmation();
+
+                // Distribute Operation
+                await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
+
+                // Reset operation
+                updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+                await updateGeneralContractsOperation.confirmation();
+            }
+            catch(e) {
+                console.log(e)
+            }
+        })
+
+        it('Whitelist should not be able to call this entrypoint if the satellite treasury contract is not referenced in the storage', async () => {
+            try{
+                // Initial Values
+                delegationStorage = await delegationInstance.storage();
+
+                // Preparation operation
+                var updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
+                await updateGeneralContractsOperation.confirmation();
+
+                // Distribute Operation
+                await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
+
+                // Reset operation
+                updateGeneralContractsOperation   = await delegationInstance.methods.updateGeneralContracts("satelliteTreasury", treasuryAddress.address).send();
+                await updateGeneralContractsOperation.confirmation();
+            }
+            catch(e) {
+                console.log(e)
+            }
+        })
+
+        it('Whitelist should not be able to call this entrypoint if one of the provided satellites does not exist', async () => {
+            try{
+                // Initial Values
+                delegationStorage = await delegationInstance.storage();
+
+                // Distribute Operation
+                await chai.expect(delegationInstance.methods.distributeReward([bob.pkh, trudy.pkh],MVK(50)).send()).to.be.rejected;
+            }
+            catch(e) {
+                console.log(e)
+            }
+        })
     });
 });
