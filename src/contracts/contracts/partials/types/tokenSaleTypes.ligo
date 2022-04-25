@@ -3,7 +3,7 @@ type userAddressType                is address
 type metadataType                   is big_map (string, bytes);
 
 type tokenSaleConfigType is [@layout:comb] record [
-    maxWhitelistCount            : nat;
+    maxWhitelistCount            : nat; 
     maxAmountPerWhitelistWallet  : nat;
     maxAmountPerWalletTotal      : nat; 
     
