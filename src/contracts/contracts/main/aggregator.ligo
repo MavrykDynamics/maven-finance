@@ -325,6 +325,30 @@ function updateRewards (const store: aggregatorStorage) : oracleRewardsMVKType i
 // ------------------------------------------------------------------------------
 
 (*  addOracle entrypoint  *)
+function default(const s : aggregatorStorage) : return is
+block {
+    skip
+} with (noOperations, s)
+
+
+
+(*  updateOwner entrypoint  *)
+function updateOwner(const newOwner: ownerType; const store: aggregatorStorage): return is
+block{
+  checkOwnership(store);
+} with (noOperations, store with record[owner=newOwner])
+
+
+
+(*  updateAggregatorConfig entrypoint  *)
+function updateAggregatorConfig(const newAggregatorConfig: aggregatorConfigType; const store: aggregatorStorage): return is
+block{
+  checkOwnership(store);
+} with (noOperations, store with record[aggregatorConfig=newAggregatorConfig])
+
+
+
+(*  addOracle entrypoint  *)
 function addOracle(const oracleAddress: address; const store: aggregatorStorage): return is
   if isOracleAddress(oracleAddress, store.oracleAddresses) then failwith ("You can't add an already present whitelisted oracle")
   else block{
@@ -344,6 +368,7 @@ function removeOracle(const oracleAddress: address; const store: aggregatorStora
 
 
 
+(*  requestRateUpdate entrypoint  *)
 function requestRateUpdate(const store: aggregatorStorage): return is
   block{
     checkMaintainership(store);
@@ -379,6 +404,7 @@ function requestRateUpdate(const store: aggregatorStorage): return is
 
 
 
+(*  requestRateUpdateDeviation entrypoint  *)
 function requestRateUpdateDeviation(const params: setObservationCommitType; const store: aggregatorStorage): return is
   block{
     checkIfWhiteListed(store);
@@ -420,6 +446,7 @@ function requestRateUpdateDeviation(const params: setObservationCommitType; cons
 
 
 
+(*  setObservationCommit entrypoint  *)
 function setObservationCommit(const params: setObservationCommitType; const store: aggregatorStorage): return is
   block{
    checkIfWhiteListed(store);
@@ -439,6 +466,7 @@ function setObservationCommit(const params: setObservationCommitType; const stor
 
 
 
+(*  setObservationReveal entrypoint  *)
 function setObservationReveal(const params: setObservationRevealType; const store: aggregatorStorage): return is
   block{
    checkIfWhiteListed(store);
@@ -480,15 +508,10 @@ function setObservationReveal(const params: setObservationRevealType; const stor
 
 [@view] function decimals (const _ : unit ; const store: aggregatorStorage) : nat is store.aggregatorConfig.decimals;
 
-  function updateAggregatorConfig(const newAggregatorConfig: aggregatorConfigType; const store: aggregatorStorage): return is
-    block{
-      checkOwnership(store);
-    } with (noOperations, store with record[aggregatorConfig=newAggregatorConfig])
 
-  function updateOwner(const newOwner: ownerType; const store: aggregatorStorage): return is
-    block{
-      checkOwnership(store);
-    } with (noOperations, store with record[owner=newOwner])
+  
+
+
 
   function withdrawRewardXTZ(const receiver_: address; const store: aggregatorStorage): return is
     block{
@@ -504,6 +527,8 @@ function setObservationReveal(const params: setObservationRevealType; const stor
       const operation = Tezos.transaction(Unit, reward, receiver);
   } with (list[operation],store with record[oracleRewardsXTZ = newOracleRewards])
 
+
+
   function withdrawRewardMVK(const receiver: address; const store: aggregatorStorage): return is
     block{
       checkIfWhiteListed(store);
@@ -512,10 +537,8 @@ function setObservationReveal(const params: setObservationRevealType; const stor
       const operation: operation = transferFa2Token(Tezos.self_address, receiver, reward, 0n, store.mvkTokenAddress);
   } with (list[operation],store with record[oracleRewardsMVK = newOracleRewards])
 
-function default(const s : aggregatorStorage) : return is
-block {
-    skip
-} with (noOperations, s)
+
+
 
 // ------------------------------------------------------------------------------
 //
