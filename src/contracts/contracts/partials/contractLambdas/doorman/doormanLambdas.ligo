@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
 block {
 
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
     
     case doormanLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
