@@ -358,14 +358,14 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(7, governanceProxyLambdas[7])) // updateGovernanceConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[8])) // updateDelegationConfig
   
-    //   const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
-    //   await setupGovernanceProxyLambdasOperation.confirmation()
-    //   console.log("Governance Proxy Lambdas Setup")
+      const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
+      await setupGovernanceProxyLambdasOperation.confirmation()
+      console.log("Governance Proxy Lambdas Setup")
   
 
       // Governance Setup Lambdas
       console.log("governance contract address: "+governance.contract.address);
-      const governanceLambdaBatch = await tezos.wallet
+      const governanceLambdaFirstBatch = await tezos.wallet
       .batch()
       .withContractCall(governance.contract.methods.setLambda("lambdaBreakGlass"                      , governanceLambdas[0]))  // breakGlass
       .withContractCall(governance.contract.methods.setLambda("lambdaSetAdmin"                        , governanceLambdas[1]))  // setAdmin
@@ -378,6 +378,12 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.setLambda("lambdaStartNextRound"                  , governanceLambdas[8]))  // startNextRound
       .withContractCall(governance.contract.methods.setLambda("lambdaPropose"                         , governanceLambdas[9]))  // propose
       .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdateProposalData"           , governanceLambdas[10]))  // addUpdateProposalData
+    
+      const setupGovernanceFirstLambdasOperation = await governanceLambdaFirstBatch.send()
+      await setupGovernanceFirstLambdasOperation.confirmation()
+
+      const governanceLambdaSecondBatch = await tezos.wallet
+      .batch()
       .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdatePaymentData"            , governanceLambdas[11])) // addUpdatePaymentData
       .withContractCall(governance.contract.methods.setLambda("lambdaLockProposal"                    , governanceLambdas[12])) // lockProposal
       .withContractCall(governance.contract.methods.setLambda("lambdaProposalRoundVote"               , governanceLambdas[13])) // proposalRoundVote
@@ -390,8 +396,8 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"            , governanceLambdas[20])) // dropFinancialRequest
       .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                  , governanceLambdas[21])) // voteForRequest
     
-      const setupGovernanceLambdasOperation = await governanceLambdaBatch.send()
-      await setupGovernanceLambdasOperation.confirmation()
+      const setupGovernanceSecondLambdasOperation = await governanceLambdaSecondBatch.send()
+      await setupGovernanceSecondLambdasOperation.confirmation()
       console.log("Governance Lambdas Setup")
 
 

@@ -51,7 +51,7 @@ type doormanAction is
     // Doorman Entrypoints
   | Stake                       of (nat)
   | Unstake                     of (nat)
-  | Compound                    of (unit)
+  | Compound                    of (address)
   | FarmClaim                   of farmClaimType
 
     // Lambda Entrypoints
@@ -262,14 +262,11 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 // ------------------------------------------------------------------------------
 
 (*  compoundUserRewards helper function *)
-function compoundUserRewards(var s: doormanStorage) : doormanStorage is 
-block{
-
-    // Get User
-    const user: address = Tezos.sender;    
+function compoundUserRewards(const userAddress: address; var s: doormanStorage) : doormanStorage is 
+block{ 
     
     // Get the user's record
-    var userRecord: userStakeBalanceRecordType := case s.userStakeBalanceLedger[user] of [
+    var userRecord: userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
         Some (_val) -> _val
       | None -> record[
           balance                       = 0n;
@@ -290,77 +287,7 @@ block{
 
       // -- Satellite rewards -- //
       // Check if user is satellite or delegate
-      const getUserRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", user, delegationAddress);
-      const getUserRewardOpt: option(satelliteRewards) = case getUserRewardOptView of [
-        Some (value) -> value
-      | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
-      ];
-
-      const satelliteUnpaidRewards: nat = case getUserRewardOpt of [
-        Some (_rewards) -> block{
-
-          // Get the satellite linked to the user (if the user is a satellite, return self)
-          const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", _rewards.satelliteReferenceAddress, delegationAddress);
-          const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
-            Some (value) -> value
-          | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
-          ];
-          
-          // Calculate the user unclaimed rewards
-          const satelliteReward: nat  = case getUserReferenceRewardOpt of [
-            Some (_referenceRewards) -> block{
-              const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
-              const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
-            } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
-          | None -> failwith("Error. Satellite reference rewards record not found")
-          ];
-        } with (satelliteReward)
-      | None -> 0n
-      ];
-
-      // Check if user is satellite or delegate
-      // const getDelegateOptview : option (option(delegateRecordType)) = Tezos.call_view ("getDelegateOpt", user, delegationAddress);
-      // const getDelegateOpt: option(delegateRecordType) = case getDelegateOptview of [
-      //   Some (value) -> value
-      // | None -> failwith ("Error. GetUserUnpaidReward View not found in the Delegation Contract")
-      // ];
-
-      // Check if user is satellite or delegate
-      const getUserRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", user, delegationAddress);
-      const getUserRewardOpt: option(satelliteRewards) = case getUserRewardOptView of [
-        Some (value) -> value
-      | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
-      ];
-
-      const satelliteUnpaidRewards: nat = case getUserRewardOpt of [
-        Some (_rewards) -> block{
-          const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", _rewards.satelliteReferenceAddress, delegationAddress);
-          const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
-            Some (value) -> value
-          | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
-          ];
-          
-          // Calculate the user unclaimed rewards
-          const satelliteReward: nat  = case getUserReferenceRewardOpt of [
-            Some (_referenceRewards) -> block{
-              const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
-              const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
-            } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
-          | None -> failwith("Error. Satellite reference rewards record not found")
-          ];
-        } with (satelliteReward)
-      | None -> 0n
-      ];
-
-      // Check if user is satellite or delegate
-      // const getDelegateOptview : option (option(delegateRecordType)) = Tezos.call_view ("getDelegateOpt", user, delegationAddress);
-      // const getDelegateOpt: option(delegateRecordType) = case getDelegateOptview of [
-      //   Some (value) -> value
-      // | None -> failwith ("Error. GetUserUnpaidReward View not found in the Delegation Contract")
-      // ];
-
-      // Check if user is satellite or delegate
-      const getUserRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", user, delegationAddress);
+      const getUserRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", userAddress, delegationAddress);
       const getUserRewardOpt: option(satelliteRewards) = case getUserRewardOptView of [
         Some (value) -> value
       | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
@@ -401,7 +328,7 @@ block{
     // Set the user's participationFeesPerShare 
     userRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
     // Update the doormanStorage
-    s.userStakeBalanceLedger[user]  := userRecord;
+    s.userStakeBalanceLedger[userAddress]  := userRecord;
 
 } with (s)
 
@@ -735,7 +662,7 @@ block {
 
 
 (*  compound entrypoint *)
-function compound(var s: doormanStorage): return is
+function compound(const userAddress: address; var s: doormanStorage): return is
 block{
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCompound"] of [
@@ -744,7 +671,7 @@ block{
     ];
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaCompound(unit);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaCompound(userAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -832,7 +759,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
         // Doorman Entrypoints
       | Stake(parameters)                     -> stake(parameters, s)  
       | Unstake(parameters)                   -> unstake(parameters, s)
-      | Compound(_parameters)                 -> compound(s)
+      | Compound(parameters)                  -> compound(parameters, s)
       | FarmClaim(parameters)                 -> farmClaim(parameters, s)
 
         // Lambda Entrypoints

@@ -46,7 +46,7 @@ type doormanLambdaActionType is
   // Doorman Lambdas
 | LambdaStake                       of (nat)
 | LambdaUnstake                     of (nat)
-| LambdaCompound                    of (unit)
+| LambdaCompound                    of (address)
 | LambdaFarmClaim                   of farmClaimType
 
 // ------------------------------------------------------------------------------

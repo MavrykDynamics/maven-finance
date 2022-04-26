@@ -256,7 +256,7 @@ block {
         | LambdaStake(stakeAmount) -> {
                 
               // Compound user rewards
-              s := compoundUserRewards(s);
+              s := compoundUserRewards(Tezos.sender, s);
 
               // 1. verify that user is staking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
               if stakeAmount < s.minMvkAmount then failwith("You have to stake more MVK.")
@@ -365,7 +365,7 @@ block {
                   else skip;
 
                 // Compound user rewards
-                s := compoundUserRewards(s);
+                s := compoundUserRewards(Tezos.source, s);
 
                 const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
                 const mvkTotalSupply: nat = case mvkTotalSupplyView of [
@@ -490,10 +490,10 @@ block{
     var operations : list(operation) := nil;
 
     case doormanLambdaAction of [
-        | LambdaCompound(_parameters) -> {
+        | LambdaCompound(userAddress) -> {
                 
                 // Compound rewards
-                s := compoundUserRewards(s);
+                s := compoundUserRewards(userAddress, s);
                 
                 // Find delegation address
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
@@ -502,11 +502,11 @@ block{
                 ];
 
                 // update satellite balance if user is delegated to a satellite
-                const onStakeChangeOperation: operation = Tezos.transaction((Tezos.sender), 0tez, updateSatelliteBalance(delegationAddress));
+                const onStakeChangeOperation: operation = Tezos.transaction((userAddress), 0tez, updateSatelliteBalance(delegationAddress));
 
                 // tell the delegation contract that the reward has been paid 
                 const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (Tezos.sender),
+                  (userAddress),
                   0tez,
                   onSatelliteRewardPaid(delegationAddress)
                 );
@@ -563,7 +563,7 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 const mvkMaximumSupply: nat = mvkTotalAndMaximumSupply.1;
 
                 // Compound user rewards
-                s := compoundUserRewards(s);
+                s := compoundUserRewards(delegator, s);
 
                 // Update the delegation balance
                 const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [

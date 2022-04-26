@@ -249,7 +249,7 @@ describe("Delegation tests", async () => {
                 console.log("PRE-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
                 // Claim operations
-                var claimOperation = await doormanInstance.methods.compound().send();
+                var claimOperation = await doormanInstance.methods.compound(bob.pkh).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
@@ -258,7 +258,7 @@ describe("Delegation tests", async () => {
                 console.log("POST-CLAIM SATELLITE: ", satelliteRecord.unpaid.toNumber(), satelliteStake.balance.toNumber())
 
                 await signerFactory(alice.sk);
-                claimOperation = await doormanInstance.methods.compound().send();
+                claimOperation = await doormanInstance.methods.compound(alice.pkh).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
@@ -267,7 +267,7 @@ describe("Delegation tests", async () => {
                 console.log("POST-CLAIM ALICE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
                 await signerFactory(eve.sk);
-                claimOperation = await doormanInstance.methods.compound().send();
+                claimOperation = await doormanInstance.methods.compound(eve.pkh).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
@@ -362,7 +362,7 @@ describe("Delegation tests", async () => {
                 satelliteRewards = await delegationStorage.satelliteRewardsLedger.get(bob.pkh)
                 console.log("START: ", satelliteRewards)
 
-                var claimOperation = await doormanInstance.methods.compound().send();
+                var claimOperation = await doormanInstance.methods.compound(bob.pkh).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
@@ -392,7 +392,7 @@ describe("Delegation tests", async () => {
                 console.log("POST-DELEGATE ALICE: ", delegateRewards.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
 
                 // Claims operations
-                claimOperation = await doormanInstance.methods.compound().send();
+                claimOperation = await doormanInstance.methods.compound(alice.pkh).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
@@ -408,7 +408,7 @@ describe("Delegation tests", async () => {
                 await signerFactory(eve.sk);
                 const initEveSMVK     = await doormanStorage.userStakeBalanceLedger.get(eve.pkh) 
                 const initEveRewards  = await delegationStorage.satelliteRewardsLedger.get(eve.pkh)
-                claimOperation = await doormanInstance.methods.compound().send();
+                claimOperation = await doormanInstance.methods.compound(eve.pkh).send();
                 await claimOperation.confirmation()
                 delegationStorage = await delegationInstance.storage();
                 doormanStorage  = await doormanInstance.storage();
@@ -479,11 +479,12 @@ describe("Delegation tests", async () => {
                 console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
                 // Prepare proposal metadata
-                const configSuccessRewardParam = governanceInstance.methods.callGovernanceLambdaProxy(
+                var governanceProxyInstance    = await utils.tezos.contract.at(governanceStorage.governanceProxyAddress);
+                const configSuccessRewardParam = governanceProxyInstance.methods.executeGovernanceAction(
                     'updateGovernanceConfig', 995, 'configSuccessReward'
                 ).toTransferParams();
                 const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-                const callGovernanceLambdaEntrypointType = await governanceInstance.entrypoints.entrypoints.callGovernanceLambdaProxy;
+                const callGovernanceLambdaEntrypointType = await governanceInstance.entrypoints.entrypoints.executeGovernanceAction;
     
                 const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
                     data: configSuccessRewardParamValue,
@@ -566,10 +567,10 @@ describe("Delegation tests", async () => {
 
                 // Claim operations
                 await signerFactory(bob.sk)
-                var claimOperation  = await doormanInstance.methods.compound().send();
+                var claimOperation  = await doormanInstance.methods.compound(bob.pkh).send();
                 await claimOperation.confirmation();
                 await signerFactory(mallory.sk)
-                claimOperation  = await doormanInstance.methods.compound().send();
+                claimOperation  = await doormanInstance.methods.compound(mallory.pkh).send();
                 await claimOperation.confirmation();
 
                 // Final values
@@ -631,11 +632,13 @@ describe("Delegation tests", async () => {
                 console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
                 // Prepare proposal metadata
-                const configSuccessRewardParam = governanceInstance.methods.callGovernanceLambdaProxy(
+                var governanceProxyInstance    = await utils.tezos.contract.at(governanceStorage.governanceProxyAddress);
+                console.log(governanceProxyInstance.methods)
+                const configSuccessRewardParam = governanceProxyInstance.methods.executeGovernanceAction(
                     'updateGovernanceConfig', 995, 'configSuccessReward'
                 ).toTransferParams();
                 const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-                const callGovernanceLambdaEntrypointType = await governanceInstance.entrypoints.entrypoints.callGovernanceLambdaProxy;
+                const callGovernanceLambdaEntrypointType = await governanceInstance.entrypoints.entrypoints.executeGovernanceAction;
     
                 const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
                     data: configSuccessRewardParamValue,
@@ -645,9 +648,9 @@ describe("Delegation tests", async () => {
                 var packedUpdateConfigSuccessRewardParam;
                 if (updateConfigSuccessRewardPacked) {
                     packedUpdateConfigSuccessRewardParam = updateConfigSuccessRewardPacked.packed
-                    // console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
+                    console.log('packed success reward param: ' + packedUpdateConfigSuccessRewardParam);
                 } else {
-                throw `packing failed`
+                  throw `packing failed`
                 };
 
                 const proposalMetadata      = MichelsonMap.fromLiteral({
@@ -718,10 +721,10 @@ describe("Delegation tests", async () => {
 
                 // Claim operations
                 await signerFactory(bob.sk)
-                var claimOperation  = await doormanInstance.methods.compound().send();
+                var claimOperation  = await doormanInstance.methods.compound(bob.pkh).send();
                 await claimOperation.confirmation();
                 await signerFactory(mallory.sk)
-                claimOperation  = await doormanInstance.methods.compound().send();
+                claimOperation  = await doormanInstance.methods.compound(mallory.pkh).send();
                 await claimOperation.confirmation();
 
                 // Final values
