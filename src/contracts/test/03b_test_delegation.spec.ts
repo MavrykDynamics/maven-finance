@@ -90,10 +90,12 @@ describe("Delegation tests", async () => {
                 const bobSatelliteName                  = "New Satellite (Bob)";
                 const bobSatelliteDescription           = "New Satellite Description (Bob)";
                 const bobSatelliteImage                 = "https://placeholder.com/300";
+                const bobSatelliteWebsite               = "https://placeholder.com/300";
                 const bobSatelliteFee                   = "1000"; // 10% fee
                 const mallorySatelliteName              = "New Satellite (Mallory)";
                 const mallorySatelliteDescription       = "New Satellite Description (Mallory)";
                 const mallorySatelliteImage             = "https://placeholder.com/300";
+                const mallorySatelliteWebsite           = "https://placeholder.com/300";
                 const mallorySatelliteFee               = "2000"; // 20% fee
 
                 // Register Bob
@@ -115,7 +117,8 @@ describe("Delegation tests", async () => {
                     .registerAsSatellite(
                         bobSatelliteName, 
                         bobSatelliteDescription, 
-                        bobSatelliteImage, 
+                        bobSatelliteImage,
+                        bobSatelliteWebsite,
                         bobSatelliteFee
                     ).send();
                 await registerAsSatelliteOperation.confirmation();
@@ -141,6 +144,7 @@ describe("Delegation tests", async () => {
                         mallorySatelliteName, 
                         mallorySatelliteDescription, 
                         mallorySatelliteImage, 
+                        mallorySatelliteWebsite,
                         mallorySatelliteFee
                     ).send();
                 await registerAsSatelliteOperation.confirmation();
@@ -422,12 +426,14 @@ describe("Delegation tests", async () => {
                 const bobSatelliteName                  = "New Satellite (Bob)";
                 const bobSatelliteDescription           = "New Satellite Description (Bob)";
                 const bobSatelliteImage                 = "https://placeholder.com/300";
+                const bobSatelliteWebsite               = "https://placeholder.com/300";
                 const bobSatelliteFee                   = "1000"; // 10% fee
                 const registerAsSatelliteOperation = await delegationInstance.methods
                     .registerAsSatellite(
                         bobSatelliteName, 
                         bobSatelliteDescription, 
-                        bobSatelliteImage, 
+                        bobSatelliteImage,
+                        bobSatelliteWebsite, 
                         bobSatelliteFee
                     ).send();
                 await registerAsSatelliteOperation.confirmation();

@@ -260,6 +260,7 @@
 //                 const satelliteName           = "New Satellite (Eve)";
 //                 const satelliteDescription    = "New Satellite Description (Eve)";
 //                 const satelliteImage          = "https://placeholder.com/300";
+//                 const satelliteWebsite        = "https://placeholder.com/300";
 //                 const satelliteFee            = "700";
 
 //                 // Bob assigns doorman contract as an operator
@@ -290,6 +291,7 @@
 //                         satelliteName, 
 //                         satelliteDescription, 
 //                         satelliteImage, 
+//                         satelliteWebsite,
 //                         satelliteFee
 //                     ).send();
 //                 await registerAsSatelliteOperation.confirmation();
@@ -302,6 +304,7 @@
 //                 // Bob's satellite details
 //                 assert.equal(afterDelegationLedgerBob.name,                   satelliteName);
 //                 assert.equal(afterDelegationLedgerBob.description,            satelliteDescription);
+//                 assert.equal(afterDelegationLedgerBob.website,                satelliteWebsite);
 //                 assert.equal(afterDelegationLedgerBob.stakedMvkBalance,       userStake);
 //                 assert.equal(afterDelegationLedgerBob.satelliteFee,           satelliteFee);
 //                 assert.equal(afterDelegationLedgerBob.totalDelegatedAmount,   0);
@@ -322,6 +325,7 @@
 //                 const isPausedStart     = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
 //                 const satelliteName           = "New Satellite (Eve)";
 //                 const satelliteDescription    = "New Satellite Description (Eve)";
+//                 const satelliteWebsite        = "https://placeholder.com/300";
 //                 const satelliteImage          = "https://placeholder.com/300";
 //                 const satelliteFee            = "700";
 
@@ -338,6 +342,7 @@
 //                         satelliteName, 
 //                         satelliteDescription, 
 //                         satelliteImage, 
+//                         satelliteWebsite,
 //                         satelliteFee
 //                     ).send()
 //                 ).to.be.rejected;
@@ -367,6 +372,7 @@
 //                 const satelliteName           = "New Satellite (Eve)";
 //                 const satelliteDescription    = "New Satellite Description (Eve)";
 //                 const satelliteImage          = "https://placeholder.com/300";
+//                 const satelliteWebsite        = "https://placeholder.com/300";
 //                 const satelliteFee            = "700";
 
 //                 // Bob assigns doorman contract as an operator
@@ -391,6 +397,7 @@
 //                         satelliteName, 
 //                         satelliteDescription, 
 //                         satelliteImage, 
+//                         satelliteWebsite,
 //                         satelliteFee
 //                     ).send()
 //                 ).to.be.rejected;
@@ -410,6 +417,7 @@
 //                 const doormanContractAddress  = doormanAddress.address;
 //                 const satelliteName           = "New Satellite (Eve)";
 //                 const satelliteDescription    = "New Satellite Description (Eve)";
+//                 const satelliteWebsite        = "https://placeholder.com/300";
 //                 const satelliteImage          = "https://placeholder.com/300";
 //                 const satelliteFee            = "700";
 
@@ -434,7 +442,8 @@
 //                     .registerAsSatellite(
 //                         satelliteName, 
 //                         satelliteDescription, 
-//                         satelliteImage, 
+//                         satelliteImage,
+//                         satelliteWebsite,
 //                         satelliteFee
 //                     ).send()
 //                 ).to.be.rejected;
@@ -456,6 +465,7 @@
 //                 const doormanContractAddress  = doormanAddress.address;
 //                 const satelliteName           = "New Satellite (Eve)";
 //                 const satelliteDescription    = "New Satellite Description (Eve)";
+//                 const satelliteWebsite        = "https://placeholder.com/300";
 //                 const satelliteImage          = "https://placeholder.com/300";
 //                 const satelliteFee            = "700";
 
@@ -480,7 +490,8 @@
 //                     .registerAsSatellite(
 //                         satelliteName, 
 //                         satelliteDescription, 
-//                         satelliteImage, 
+//                         satelliteImage,
+//                         satelliteWebsite,
 //                         satelliteFee
 //                     ).send()
 //                 ).to.be.rejected;
@@ -503,6 +514,7 @@
 //             const doormanContractAddress  = doormanAddress.address;
 //             const satelliteName           = "New Satellite (Alice)";
 //             const satelliteDescription    = "New Satellite Description (Alice)";
+//             const satelliteWebsite        = "https://placeholder.com/300";
 //             const satelliteImage          = "https://placeholder.com/300";
 //             const satelliteFee            = "700";
 
@@ -527,6 +539,7 @@
 //                     satelliteName, 
 //                     satelliteDescription, 
 //                     satelliteImage, 
+//                     satelliteWebsite,
 //                     satelliteFee
 //                 ).send();
 //             await registerAsSatelliteOperation.confirmation();
@@ -608,12 +621,14 @@
 //                 const satelliteRecord           = await delegationStorage.satelliteLedger.get(eve.pkh);
 //                 const satelliteName             = satelliteRecord.name;
 //                 const satelliteDescription      = satelliteRecord.description;
+//                 const satelliteWebsite          = satelliteRecord.website;
 //                 const satelliteImage            = satelliteRecord.image;
 //                 const satelliteFee              = satelliteRecord.satelliteFee;
 
 
 //                 const updatedSatelliteName           = "Updated Satellite (Eve)";
 //                 const updatedSatelliteDescription    = "Updated Satellite Description (Eve)";
+//                 const updatedSatelliteWebsite        = "https://placeholder.com/300";
 //                 const updatedSatelliteImage          = "https://placeholder.com/300";
 //                 const updatedSatelliteFee            = "500";
 
@@ -622,7 +637,8 @@
 //                     .updateSatelliteRecord(
 //                         updatedSatelliteName, 
 //                         updatedSatelliteDescription, 
-//                         updatedSatelliteImage, 
+//                         updatedSatelliteImage,
+//                         updatedSatelliteWebsite,
 //                         updatedSatelliteFee
 //                     ).send();
 //                 await updateOperation.confirmation();
@@ -634,10 +650,12 @@
 //                 // Bob's satellite details
 //                 assert.strictEqual(updatedSatelliteRecord.name,                   updatedSatelliteName);
 //                 assert.strictEqual(updatedSatelliteRecord.description,            updatedSatelliteDescription);
+//                 assert.strictEqual(updatedSatelliteRecord.website,            updatedSatelliteWebsite);
 //                 assert.equal(updatedSatelliteRecord.satelliteFee,           updatedSatelliteFee);
 //                 assert.strictEqual(updatedSatelliteRecord.image,   updatedSatelliteImage);
 //                 assert.notStrictEqual(updatedSatelliteRecord.name,                   satelliteName);
 //                 assert.notStrictEqual(updatedSatelliteRecord.description,            satelliteDescription);
+//                 assert.notStrictEqual(updatedSatelliteRecord.website,            satelliteWebsite);
 //                 assert.notEqual(updatedSatelliteRecord.satelliteFee,           satelliteFee);
 //                 assert.strictEqual(updatedSatelliteRecord.image,   satelliteImage);
 //             } catch(e){
@@ -651,6 +669,7 @@
 //                 await signerFactory(mallory.sk);
 //                 const updatedSatelliteName          = "New Satellite (Eve)";
 //                 const updatedSatelliteDescription   = "New Satellite Description (Eve)";
+//                 const updatedSatelliteWebsite       = "https://placeholder.com/300";
 //                 const updatedSatelliteImage         = "https://placeholder.com/300";
 //                 const updatedSatelliteFee           = "500";
 
@@ -660,6 +679,7 @@
 //                         updatedSatelliteName, 
 //                         updatedSatelliteDescription, 
 //                         updatedSatelliteImage, 
+//                         updatedSatelliteWebsite,
 //                         updatedSatelliteFee
 //                     ).send()
 //                 ).to.be.rejected;
@@ -675,6 +695,7 @@
 //                 const isPausedStart     = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
 //                 const updatedSatelliteName          = "New Satellite (Eve)";
 //                 const updatedSatelliteDescription   = "New Satellite Description (Eve)";
+//                 const updatedSatelliteWebsite       = "https://placeholder.com/300";
 //                 const updatedSatelliteImage         = "https://placeholder.com/300";
 //                 const updatedSatelliteFee           = "500";
 
@@ -692,7 +713,8 @@
 //                     .updateSatelliteRecord(
 //                         updatedSatelliteName, 
 //                         updatedSatelliteDescription, 
-//                         updatedSatelliteImage, 
+//                         updatedSatelliteImage,
+//                         updatedSatelliteWebsite,
 //                         updatedSatelliteFee
 //                     ).send()
 //                 ).to.be.rejected;
@@ -913,6 +935,7 @@
 //                 const doormanContractAddress  = doormanAddress.address;
 //                 const satelliteName           = "New Satellite (Oscar)";
 //                 const satelliteDescription    = "New Satellite Description (Oscar)";
+//                 const satelliteWebsite        = "https://placeholder.com/300";
 //                 const satelliteImage          = "https://placeholder.com/300";
 //                 const satelliteFee            = "800";
 
@@ -943,7 +966,8 @@
 //                     .registerAsSatellite(
 //                         satelliteName, 
 //                         satelliteDescription, 
-//                         satelliteImage, 
+//                         satelliteImage,
+//                         satelliteWebsite,
 //                         satelliteFee
 //                     ).send();
 //                 await registerAsSatelliteOperation.confirmation();
@@ -956,6 +980,7 @@
 //                 // Bob's satellite details
 //                 assert.equal(afterDelegationLedgerBob.name,                   satelliteName);
 //                 assert.equal(afterDelegationLedgerBob.description,            satelliteDescription);
+//                 assert.equal(afterDelegationLedgerBob.website,                satelliteWebsite);
 //                 assert.equal(afterDelegationLedgerBob.stakedMvkBalance,       userStake);
 //                 assert.equal(afterDelegationLedgerBob.satelliteFee,           satelliteFee);
 //                 assert.equal(afterDelegationLedgerBob.totalDelegatedAmount,   0);
@@ -1236,6 +1261,7 @@
 //                 const isPausedStart     = delegationStorage.breakGlassConfig.registerAsSatelliteIsPaused
 //                 const satelliteName           = "New Satellite (Eve)";
 //                 const satelliteDescription    = "New Satellite Description (Eve)";
+//                 const satelliteWebsite        = "https://placeholder.com/300";
 //                 const satelliteImage          = "https://placeholder.com/300";
 //                 const satelliteFee            = "700";
 
@@ -1252,6 +1278,7 @@
 //                         satelliteName, 
 //                         satelliteDescription, 
 //                         satelliteImage, 
+//                         satelliteWebsite,
 //                         satelliteFee
 //                     ).send()
 //                 ).to.be.rejected;
@@ -1338,6 +1365,7 @@
 //                 const isPausedStart     = delegationStorage.breakGlassConfig.updateSatelliteRecordIsPaused
 //                 const updatedSatelliteName          = "New Satellite (Eve)";
 //                 const updatedSatelliteDescription   = "New Satellite Description (Eve)";
+//                 const updatedSatelliteWebsite       = "https://placeholder.com/300";
 //                 const updatedSatelliteImage         = "https://placeholder.com/300";
 //                 const updatedSatelliteFee           = "500";
 
@@ -1354,6 +1382,7 @@
 //                         updatedSatelliteName, 
 //                         updatedSatelliteDescription, 
 //                         updatedSatelliteImage, 
+//                         updatedSatelliteWebsite,
 //                         updatedSatelliteFee
 //                     ).send()
 //                 ).to.be.rejected;

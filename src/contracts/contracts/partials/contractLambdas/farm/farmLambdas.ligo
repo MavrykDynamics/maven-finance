@@ -414,10 +414,10 @@ block{
                     // Update user's unclaimed rewards
                     s := updateUnclaimedRewards(s);
 
-                    // Refresh delegator deposit with updated unclaimed rewards
-                    delegatorRecord :=  case getDelegatorDeposit(delegator, s) of [
-                            Some (_delegator) -> _delegator
-                        |   None              -> failwith("Delegator not found")
+                    // Refresh depositor deposit with updated unclaimed rewards
+                    depositorRecord :=  case getDepositorDeposit(depositor, s) of [
+                        Some (_depositor)   -> _depositor
+                    |   None                -> failwith("Depositor not found")
                     ];
                     
                 }
@@ -466,9 +466,9 @@ block{
                 // Prepare to update user's unclaimedRewards if user already deposited tokens
                 s := updateUnclaimedRewards(s);
 
-                var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
-                        Some (d) -> d
-                    |   None     -> failwith("DELEGATOR_NOT_FOUND")
+                var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [
+                    Some (d)    -> d
+                |   None        -> failwith("DEPOSITOR_NOT_FOUND")
                 ];
 
                 // Check if the depositor has enough token to withdraw
@@ -524,9 +524,9 @@ block{
                 const depositor: depositor = Tezos.sender;
 
                 // Check if sender as already a record
-                var delegatorRecord: delegatorRecord := case getDelegatorDeposit(delegator, s) of [
-                        Some (r) -> r
-                    |   None     -> (failwith("DELEGATOR_NOT_FOUND"): delegatorRecord)
+                var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [
+                    Some (r)        -> r
+                |   None            -> (failwith("DEPOSITOR_NOT_FOUND"): depositorRecord)
                 ];
 
                 const claimedRewards: tokenBalance = depositorRecord.unclaimedRewards;

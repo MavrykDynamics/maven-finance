@@ -30,8 +30,8 @@ const config = {
     blocksPerVotingRound                : 14400,
     blocksPerTimelockRound              : 5760,
 
-    financialRequestApprovalPercentage : 6700,
-    financialRequestDurationInDays     : 3,
+    financialRequestApprovalPercentage  : 6700,
+    financialRequestDurationInDays      : 3,
 
     proposalMetadataTitleMaxLength      : 400,
     proposalTitleMaxLength              : 400,
@@ -89,6 +89,7 @@ export const governanceStorage: governanceStorageType = {
   snapshotMvkTotalSupply             : new BigNumber(1000000000),
   snapshotStakedMvkTotalSupply       : new BigNumber(0),
 
+  proxyLambdaLedger                  : MichelsonMap.fromLiteral({}),
   lambdaLedger                       : MichelsonMap.fromLiteral({}),
 
   financialRequestLedger             : MichelsonMap.fromLiteral({}),

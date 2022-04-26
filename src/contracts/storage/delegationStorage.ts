@@ -5,14 +5,13 @@ const { bob } = require('../scripts/sandbox/accounts')
 import { delegationStorageType } from "../test/types/delegationStorageType";
 
 const config = {
-    minimumStakedMvkBalance : 100000000,
-    delegationRatio         : 1000,
-    maxSatellites           : 100,
-
+    minimumStakedMvkBalance             : 100000000,
+    delegationRatio                     : 1000,
+    maxSatellites                       : 100,
     satelliteNameMaxLength              : 400,
     satelliteDescriptionMaxLength       : 400,
     satelliteImageMaxLength             : 400,
-    satelliteWebsiteMaxLength           : 400
+    satelliteWebsiteMaxLength           : 400,
 }
 
 const breakGlassConfig = {
