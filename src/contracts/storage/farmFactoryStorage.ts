@@ -19,6 +19,7 @@ export const farmFactoryStorage: farmFactoryStorageType = {
   admin                 : bob.pkh,
   metadata              : metadata,
   mvkTokenAddress       : "",
+  governanceAddress     : "",
   config                : new BigNumber(2),
   breakGlassConfig      : {
     createFarmIsPaused  : false,

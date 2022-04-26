@@ -309,6 +309,8 @@ type voteForRequestType is [@layout:comb] record [
     vote             : voteForRequestChoiceType;
 ]
 
+type whitelistDevelopersType is set(address)
+
 // ------------------------------------------------------------------------------
 // Governance Contract Lambdas
 // ------------------------------------------------------------------------------
@@ -318,6 +320,7 @@ type governanceLambdaActionType is
   
   // Break Glass Entrypoint
 | LambdaBreakGlass                            of (unit)
+| LambdaPropagateBreakGlass                   of (unit)
 
   // Housekeeping Lambdas
 | LambdaSetAdmin                              of address
@@ -362,9 +365,11 @@ type governanceStorage is [@layout:comb] record [
     mvkTokenAddress                   : address;
     governanceProxyAddress            : address;     
   
-    whitelistContracts                : whitelistContractsType;      
+    whitelistContracts                : whitelistContractsType;
     whitelistTokenContracts           : whitelistTokenContractsType;      
-    generalContracts                  : generalContractsType; 
+    generalContracts                  : generalContractsType;
+
+    whitelistDevelopers               : whitelistDevelopersType;
     
     proposalLedger                    : proposalLedgerType;
     snapshotLedger                    : snapshotLedgerType;

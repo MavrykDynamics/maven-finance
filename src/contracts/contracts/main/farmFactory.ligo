@@ -27,6 +27,7 @@ type farmFactoryAction is
 
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
+|   SetGovernance               of (address)
 |   UpdateMetadata              of updateMetadataType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
 |   UpdateGeneralContracts      of updateGeneralContractsParams
@@ -63,16 +64,18 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                                          = 1n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 2n;
-[@inline] const error_COUNCIL_CONTRACT_NOT_WHITELISTED                                       = 3n;
+[@inline] const error_ONLY_GOVERNANCE_ALLOWED                                                = 1n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
+[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                                          = 3n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 4n;
+[@inline] const error_COUNCIL_CONTRACT_NOT_WHITELISTED                                       = 5n;
 
-[@inline] const error_CREATE_FARM_ENTRYPOINT_IS_PAUSED                                       = 4n;
-[@inline] const error_TRACK_FARM_ENTRYPOINT_IS_PAUSED                                        = 5n;
-[@inline] const error_UNTRACK_FARM_ENTRYPOINT_IS_PAUSED                                      = 6n;
+[@inline] const error_CREATE_FARM_ENTRYPOINT_IS_PAUSED                                       = 6n;
+[@inline] const error_TRACK_FARM_ENTRYPOINT_IS_PAUSED                                        = 7n;
+[@inline] const error_UNTRACK_FARM_ENTRYPOINT_IS_PAUSED                                      = 8n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 7n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 8n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 9n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 10n;
 
 // ------------------------------------------------------------------------------
 //
@@ -91,6 +94,18 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : farmFactoryStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernance(var s : farmFactoryStorage) : unit is
+    if (Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(const s: farmFactoryStorage): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
@@ -244,6 +259,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : farmFactoryStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farmFactory lambda action
+    const farmFactoryLambdaAction : farmFactoryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmFactoryLambdaAction, s);
 
 } with response
 
@@ -539,6 +573,7 @@ function main (const action: farmFactoryAction; var s: farmFactoryStorage): retu
         
             // Housekeeping Entrypoints
             SetAdmin (parameters)                   -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)              -> setGovernance(parameters, s)
         |   UpdateMetadata (parameters)             -> updateMetadata(parameters, s)
         |   UpdateWhitelistContracts (parameters)   -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)     -> updateGeneralContracts(parameters, s)

@@ -13,11 +13,28 @@ function lambdaSetAdmin(const treasuryLambdaAction : treasuryLambdaActionType; v
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
 
     case treasuryLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+block {
+    
+    checkSenderIsGovernance(s);
+
+    case treasuryLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
             }
         | _ -> skip
     ];

@@ -13,24 +13,61 @@ function lambdaBreakGlass(const governanceLambdaAction : governanceLambdaActionT
 block {
 
     // Steps Overview:
-    // 1. set admin to breakglass address in major contracts (doorman, delegation etc)
-    // 2. send pause all operations to main contracts
+    // 1. set admin to breakglass address in governance contract
 
     // check that sender is from emergency governance contract 
     checkSenderIsEmergencyGovernanceContract(s);
-
-    var operations : list(operation) := nil;
 
     case governanceLambdaAction of [
         | LambdaBreakGlass(_parameters) -> {
                 
                 const _breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
                       Some(_address) -> _address
-                    | None           -> failwith("Error. Break Glass Contract is not found")
+                    | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
                 ];
 
                 // Set self admin to breakGlass
                 s.admin := _breakGlassAddress;
+
+            }
+        | _ -> skip
+    ];
+    
+} with (noOperations, s)
+
+
+
+(*  propagateBreakGlass lambda *)
+function lambdaPropagateBreakGlass(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+block {
+
+    // Steps Overview:
+    // 1. set admin to breakglass address in major contracts (doorman, delegation etc)
+    // 2. send pause all operations to main contracts
+
+    // check that sender is from break glass contract
+    checkSenderIsBreakGlassContract(s);
+
+    var operations : list(operation) := nil;
+
+    case governanceLambdaAction of [
+        | LambdaPropagateBreakGlass(_parameters) -> {
+                
+                // Check if glass is broken
+                const _breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
+                ];
+
+                // if s.admin =/= _breakGlassAddress then failwith("Error. ")
+
+                const getGlassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, _breakGlassAddress);
+                const glassBroken: bool = case getGlassBrokenView of [
+                      Some (_glassBroken) -> _glassBroken
+                    | None -> failwith ("Error. GetGlassBroken View not found in the Break Glass Contract")
+                ];
+
+                if glassBroken then skip else failwith("Error. The glass is not broken");
 
                 for _contractName -> contractAddress in map s.generalContracts block {
                     
@@ -52,7 +89,7 @@ block {
         | _ -> skip
     ];
     
-} with (operations, s)
+} with(operations, s)
 
 // ------------------------------------------------------------------------------
 // Break Glass Lambda End

@@ -36,6 +36,7 @@ type doormanAction is
 
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
+  | SetGovernance               of (address)
   | UpdateMetadata              of updateMetadataType
   | UpdateMinMvkAmount          of (nat)
   | UpdateWhitelistContracts    of updateWhitelistContractsParams
@@ -89,22 +90,23 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                          = 0n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                            = 1n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                     = 2n;
-[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                    = 3n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                   = 4n;
-[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                       = 5n;
+[@inline] const error_ONLY_GOVERNANCE_ALLOWED                                             = 1n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                            = 2n;
+[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                     = 3n;
+[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                    = 4n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                   = 5n;
+[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                       = 6n;
 
-[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                          = 6n;
-[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                        = 7n;
-[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                       = 8n;
-[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND         = 9n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                     = 10n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                  = 11n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND     = 12n;
+[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                          = 7n;
+[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                        = 8n;
+[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                       = 9n;
+[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND         = 10n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                     = 11n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                  = 12n;
+[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND     = 13n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                    = 13n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                             = 14n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                    = 14n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                             = 15n;
 
 // ------------------------------------------------------------------------------
 //
@@ -124,9 +126,15 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : breakGlassStorage) : unit is
+function checkSenderIsAllowed(var s : doormanStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernance(var s : doormanStorage) : unit is
+    if (Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
 
 
 
@@ -446,6 +454,25 @@ block {
 
 
 
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : doormanStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);
+
+} with response
+
+
+
 (*  updateMetadata entrypoint: update the metadata at a given key *)
 function updateMetadata(const updateMetadataParams : updateMetadataType; var s : doormanStorage) : return is
 block {
@@ -752,7 +779,8 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
     case action of [
 
         // Housekeeping Entrypoints
-      | SetAdmin(parameters)                  -> setAdmin(parameters, s)
+        SetAdmin(parameters)                  -> setAdmin(parameters, s)
+      | SetGovernance(parameters)             -> setGovernance(parameters, s)
       | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
       | UpdateMinMvkAmount(parameters)        -> updateMinMvkAmount(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)

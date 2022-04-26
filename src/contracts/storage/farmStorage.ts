@@ -63,6 +63,7 @@ const metadata = MichelsonMap.fromLiteral({
 export const farmStorage: farmStorageType = {
   admin                     : bob.pkh,
   mvkTokenAddress           : "",
+  governanceAddress         : "",
   metadata                  : metadata,
   config                    : {
                                 lpToken                  : lpToken,

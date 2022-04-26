@@ -141,6 +141,57 @@ type setLambdaType is [@layout:comb] record [
 ]
 type lambdaLedgerType is big_map(string, bytes)
 
+type addVesteeType is [@layout:comb] record [
+    vesteeAddress           : address;
+    totalAllocatedAmount    : nat;
+    cliffInMonths           : nat;
+    vestingInMonths         : nat;
+]
+
+type updateVesteeType is [@layout:comb] record [
+    vesteeAddress              : address;
+    newTotalAllocatedAmount    : nat;
+    newCliffInMonths           : nat;
+    newVestingInMonths         : nat;
+]
+
+// Council Methods to Lambda Action Type
+type councilLambdaActionType is 
+
+    // Housekeeping Lambdas
+    LambdaSetAdmin                              of address
+  | LambdaSetGovernance                         of address
+  | LambdaUpdateMetadata                        of updateMetadataType
+  | LambdaUpdateConfig                          of councilUpdateConfigParamsType
+  | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
+  | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
+  | LambdaUpdateCouncilMemberInfo               of councilMemberInfoType
+
+    // Council Actions for Internal Control
+  | LambdaCouncilActionAddMember                of councilActionAddMemberType
+  | LambdaCouncilActionRemoveMember             of address
+  | LambdaCouncilActionChangeMember             of councilActionChangeMemberType
+  | LambdaCouncilActionSetBaker                 of setBakerType
+
+    // Council Actions for Contracts
+  | LambdaCouncilUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
+
+    // Council Actions for Vesting
+  | LambdaCouncilActionAddVestee                of addVesteeType
+  | LambdaCouncilActionRemoveVestee             of address
+  | LambdaCouncilActionUpdateVestee             of updateVesteeType
+  | LambdaCouncilToggleVesteeLock               of address
+
+    // Council Actions for Financial Governance
+  | LambdaCouncilActionTransfer                 of councilActionTransferType
+  | LambdaCouncilRequestTokens                  of councilActionRequestTokensType
+  | LambdaCouncilRequestMint                    of councilActionRequestMintType
+  | LambdaCouncilSetContractBaker               of councilActionSetContractBakerType
+  | LambdaCouncilDropFinancialReq               of nat
+
+    // Council Signing of Actions
+  | LambdaFlushAction                           of flushActionType
+  | LambdaSignAction                            of signActionType 
 
 // ------------------------------------------------------------------------------
 // Storage

@@ -5,47 +5,47 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateConfig"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseDelegateToSatellite"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseUndelegateSatellite"
+      "name": "lambdaTogglePauseDelegateToSatellite"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseRegisterSatellite"
+      "name": "lambdaTogglePauseUndelegateSatellite"
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseUnregisterSatellite"
+      "name": "lambdaTogglePauseRegisterSatellite"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseUpdateSatellite"
+      "name": "lambdaTogglePauseUnregisterSatellite"
     },
     {
       "index": 12,

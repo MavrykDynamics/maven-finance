@@ -5,6 +5,8 @@ export type treasuryFactoryStorageType = {
   
   admin                     : string;
   mvkTokenAddress           : string;
+  governanceAddress         : string;
+
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 
   trackedTreasuries         : Array<unknown>;
