@@ -31,6 +31,7 @@ export const treasuryFactoryStorage: treasuryFactoryStorageType = {
   
   admin                     : bob.pkh,
   mvkTokenAddress           : "",
+  governanceAddress         : "",
   metadata                  : metadata,
 
   trackedTreasuries         : [],

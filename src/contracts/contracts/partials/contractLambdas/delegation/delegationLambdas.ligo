@@ -25,6 +25,23 @@ block {
 
 
 
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
+block {
+    
+    checkSenderIsGovernance(s);
+
+    case delegationLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (* updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
 block {

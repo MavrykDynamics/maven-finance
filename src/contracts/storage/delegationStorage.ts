@@ -42,6 +42,7 @@ export const delegationStorage: delegationStorageType = {
   
   admin               : bob.pkh,
   mvkTokenAddress     : "",
+  governanceAddress   : "",
   metadata            : metadata,
   
   config              : config,

@@ -32,6 +32,7 @@ type doormanLambdaActionType is
 
   // Housekeeping Lambdas
   LambdaSetAdmin                    of address
+| LambdaSetGovernance               of (address)
 | LambdaUpdateMetadata              of updateMetadataType
 | LambdaUpdateMinMvkAmount          of (nat)
 | LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams

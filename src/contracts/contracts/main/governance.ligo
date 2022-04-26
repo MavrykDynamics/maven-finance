@@ -32,7 +32,8 @@
 type governanceAction is 
 
       // Break Glass Entrypoint
-    | BreakGlass                      of (unit)
+      BreakGlass                      of (unit)
+    | PropagateBreakGlass             of (unit)
 
       // Housekeeping Entrypoints
     | SetAdmin                        of (address)
@@ -107,36 +108,38 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 [@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                       = 5n;
 [@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                         = 6n;
 [@inline] const error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED            = 7n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                     = 8n;
+[@inline] const error_ONLY_BREAK_GLASS_CONTRACT_ALLOWED                     = 8n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                     = 9n;
 
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                            = 9n;
-[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                         = 10n;
-[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                            = 11n;
-[@inline] const error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND               = 12n;
+[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                            = 10n;
+[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                         = 11n;
+[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                            = 12n;
+[@inline] const error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND               = 13n;
+[@inline] const error_BREAK_GLASS_CONTRACT_NOT_FOUND                        = 14n;
 
 // temp
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                        = 13n;
+[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                        = 15n;
 // [@inline] const error_EXECUTE_GOVERNANCE_PROPOSAL_ENTRYPOINT_NOT_FOUND      = 13n;
-[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND        = 13n;
+[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND        = 16n;
 //
 
-[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 13n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 14n;
-[@inline] const error_START_PROPOSAL_ROUND_ENTRYPOINT_NOT_FOUND             = 15n;
-[@inline] const error_EXECUTE_PROPOSAL_ENTRYPOINT_NOT_FOUND                 = 16n;
-[@inline] const error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_NOT_FOUND         = 17n;
-[@inline] const error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND          = 18n;
-[@inline] const error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND     = 19n;
+[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 17n;
+[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 18n;
+[@inline] const error_START_PROPOSAL_ROUND_ENTRYPOINT_NOT_FOUND             = 19n;
+[@inline] const error_EXECUTE_PROPOSAL_ENTRYPOINT_NOT_FOUND                 = 20n;
+[@inline] const error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_NOT_FOUND         = 21n;
+[@inline] const error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND          = 22n;
+[@inline] const error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND     = 23n;
 
-[@inline] const error_VIEW_GET_TOTAL_SUPPLY_NOT_FOUND                       = 20n;
-[@inline] const error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND                  = 21n;
-[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 22n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 23n;
-[@inline] const error_SET_BAKER_ENTRYPOINT_NOT_FOUND                        = 24n;
-[@inline] const error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND                  = 25n;
+[@inline] const error_VIEW_GET_TOTAL_SUPPLY_NOT_FOUND                       = 24n;
+[@inline] const error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND                  = 25n;
+[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 26n;
+[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 27n;
+[@inline] const error_SET_BAKER_ENTRYPOINT_NOT_FOUND                        = 28n;
+[@inline] const error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND                  = 29n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                      = 26n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 27n;
+[@inline] const error_LAMBDA_NOT_FOUND                                      = 30n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 31n;
 
 // ------------------------------------------------------------------------------
 //
@@ -246,6 +249,21 @@ block{
 
   if (Tezos.sender = emergencyGovernanceAddress) then skip
   else failwith(error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED);
+
+} with unit
+
+
+
+function checkSenderIsBreakGlassContract(var s : governanceStorage) : unit is
+block{
+
+  const breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
+        Some(_address) -> _address
+      | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
+  ];
+
+  if (Tezos.sender = breakGlassAddress) then skip
+  else failwith(error_ONLY_BREAK_GLASS_CONTRACT_ALLOWED);
 
 } with unit
 
@@ -774,6 +792,9 @@ block {
 [@view] function getProposalRecordView(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
   s.proposalLedger[proposalId]
 
+(* View: get Whitelist developers Record *)
+[@view] function getWhitelistDevelopers(const _: unit; var s : governanceStorage) : whitelistDevelopersType is
+  s.whitelistDevelopers
 
 // ------------------------------------------------------------------------------
 //
@@ -821,6 +842,25 @@ block {
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaBreakGlass(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+    
+} with response
+
+
+
+(*  propagateBreakGlass entrypoint *)
+function propagateBreakGlass(var s : governanceStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPropagateBreakGlass"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaPropagateBreakGlass(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1312,6 +1352,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
 
           // Break Glass Entrypoint
         | BreakGlass(_parameters)                     -> breakGlass(s)
+        | PropagateBreakGlass(_parameters)            -> propagateBreakGlass(s)
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                        -> setAdmin(parameters, s)

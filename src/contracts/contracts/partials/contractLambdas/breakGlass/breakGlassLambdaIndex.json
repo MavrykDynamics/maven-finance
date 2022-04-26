@@ -5,67 +5,74 @@
     },
     {
       "index": 1,
-      "name": "lambdaSetAdmin"
+      "name": "lambdaPropagateBreakGlass"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetAdmin"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateConfig"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 5,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 6,
-      "name": "lambdaUpdateCouncilMemberInfo"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 7,
-      "name": "lambdaAddCouncilMember"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 8,
-      "name": "lambdaRemoveCouncilMember"
+      "name": "lambdaUpdateCouncilMemberInfo"
     },
     {
       "index": 9,
-      "name": "lambdaChangeCouncilMember"
+      "name": "lambdaAddCouncilMember"
     },
     {
       "index": 10,
-      "name": "lambdaPauseAllEntrypoints"
+      "name": "lambdaRemoveCouncilMember"
     },
     {
       "index": 11,
-      "name": "lambdaUnpauseAllEntrypoints"
+      "name": "lambdaChangeCouncilMember"
     },
     {
       "index": 12,
-      "name": "lambdaSetSingleContractAdmin"
+      "name": "lambdaPauseAllEntrypoints"
     },
     {
       "index": 13,
-      "name": "lambdaSetAllContractsAdmin"
+      "name": "lambdaUnpauseAllEntrypoints"
     },
     {
       "index": 14,
-      "name": "lambdaRemoveBreakGlassControl"
+      "name": "lambdaSetSingleContractAdmin"
     },
     {
       "index": 15,
-      "name": "lambdaFlushAction"
+      "name": "lambdaSetAllContractsAdmin"
     },
     {
       "index": 16,
+      "name": "lambdaRemoveBreakGlassControl"
+    },
+    {
+      "index": 17,
+      "name": "lambdaFlushAction"
+    },
+    {
+      "index": 18,
       "name": "lambdaSignAction"
     }
 ]
-  

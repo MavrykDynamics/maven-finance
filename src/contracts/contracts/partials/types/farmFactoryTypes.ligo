@@ -85,6 +85,7 @@ type farmFactoryLambdaActionType is
 
     // Housekeeping Entrypoints
     LambdaSetAdmin                    of (address)
+|   LambdaSetGovernance               of (address)
 |   LambdaUpdateMetadata              of updateMetadataType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
@@ -111,6 +112,7 @@ type farmFactoryStorage is [@layout:comb] record[
     admin                  : address;
     metadata               : metadata;
     mvkTokenAddress        : address;
+    governanceAddress      : address;
     config                 : farmFactoryConfigType;
     breakGlassConfig       : farmFactoryBreakGlassConfigType;
 

@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
     
     case farmLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
@@ -21,6 +21,23 @@ block {
         | _ -> skip
     ];
     
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
+block {
+    
+    checkSenderIsGovernance(s);
+
+    case farmLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
 } with (noOperations, s)
 
 

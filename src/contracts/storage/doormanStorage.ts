@@ -26,6 +26,7 @@ const metadata = MichelsonMap.fromLiteral({
 export const doormanStorage: doormanStorageType = {
   admin                     : bob.pkh,
   mvkTokenAddress           : "",
+  governanceAddress         : "",
   metadata                  : metadata,
 
   minMvkAmount              : new BigNumber(MVK(1)),

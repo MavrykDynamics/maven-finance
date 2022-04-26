@@ -24,6 +24,7 @@ type farmAction is
 
     // Housekeeping Entrypoints
     SetAdmin                    of (address)
+|   SetGovernance               of (address)
 |   UpdateMetadata              of updateMetadataType
 |   UpdateConfig                of farmUpdateConfigParamsType
 |   UpdateWhitelistContracts    of updateWhitelistContractsParams
@@ -81,26 +82,28 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                                          = 1n;
-[@inline] const error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED                                 = 2n;
-[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                                             = 3n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 4n;
+[@inline] const error_ONLY_GOVERNANCE_ALLOWED                                                = 1n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
+[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                                          = 3n;
+[@inline] const error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED                                 = 4n;
+[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                                             = 5n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 6n;
 
-[@inline] const error_FARM_NOT_INITIATED                                                     = 5n;
-[@inline] const error_FARM_IS_CLOSED                                                         = 6n;
-[@inline] const error_DEPOSIT_ENTRYPOINT_IS_PAUSED                                           = 7n;
-[@inline] const error_WITHDRAW_ENTRYPOINT_IS_PAUSED                                          = 8n;
-[@inline] const error_CLAIM_ENTRYPOINT_IS_PAUSED                                             = 9n;
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND_IN_GENERAL_CONTRACTS                        = 10n;
-[@inline] const error_FARM_CLAIM_ENTRYPOINT_NOT_FOUND_IN_DOORMAN_CONTRACT                    = 11n;
-[@inline] const error_DEPOSITOR_NOT_FOUND                                                    = 12n;
-[@inline] const error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE         = 13n;
-[@inline] const error_DEPOSITOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD                    = 14n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA12_CONTRACT_NOT_FOUND                      = 15n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA2_CONTRACT_NOT_FOUND                       = 16n;
+[@inline] const error_FARM_NOT_INITIATED                                                     = 7n;
+[@inline] const error_FARM_IS_CLOSED                                                         = 8n;
+[@inline] const error_DEPOSIT_ENTRYPOINT_IS_PAUSED                                           = 9n;
+[@inline] const error_WITHDRAW_ENTRYPOINT_IS_PAUSED                                          = 10n;
+[@inline] const error_CLAIM_ENTRYPOINT_IS_PAUSED                                             = 11n;
+[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND_IN_GENERAL_CONTRACTS                        = 12n;
+[@inline] const error_FARM_CLAIM_ENTRYPOINT_NOT_FOUND_IN_DOORMAN_CONTRACT                    = 13n;
+[@inline] const error_DELEGATOR_NOT_FOUND                                                    = 14n;
+[@inline] const error_DELEGATOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE         = 15n;
+[@inline] const error_DELEGATOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD                    = 16n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA12_CONTRACT_NOT_FOUND                      = 17n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA2_CONTRACT_NOT_FOUND                       = 18n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 17n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 18n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 19n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 20n;
 
 // ------------------------------------------------------------------------------
 //
@@ -120,8 +123,20 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function getDepositorDeposit(const depositor: depositor; const s: farmStorage): option(depositorRecord) is
-    Big_map.find_opt(depositor, s.depositors)
+function checkSenderIsAllowed(var s : farmStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernance(var s : farmStorage) : unit is
+    if (Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
+
+
+
+function getDelegatorDeposit(const delegator: delegator; const s: farmStorage): option(delegatorRecord) is
+    Big_map.find_opt(delegator, s.delegators)
 
 
 
@@ -460,6 +475,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : farmStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init farm lambda action
+    const farmLambdaAction : farmLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);
 
 } with response
 
@@ -820,6 +854,7 @@ function main (const action: farmAction; var s: farmStorage): return is
 
             // Housekeeping Entrypoints
             SetAdmin (parameters)                    -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)               -> setGovernance(parameters, s)
         |   UpdateMetadata (parameters)              -> updateMetadata(parameters, s)
         |   UpdateConfig (parameters)                -> updateConfig(parameters, s)
         |   UpdateWhitelistContracts (parameters)    -> updateWhitelistContracts(parameters, s)

@@ -12,11 +12,28 @@
 function lambdaSetAdmin(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
 block {
     
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
     
     case treasuryFactoryLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorage) : return is
+block {
+    
+    checkSenderIsGovernance(s);
+
+    case treasuryFactoryLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
             }
         | _ -> skip
     ];
@@ -265,7 +282,6 @@ block{
                 // Add TreasuryFactory Address to whitelistContracts of created treasury
                 const treasuryWhitelistContracts : whitelistContractsType = map[
                     ("treasuryFactory") -> (Tezos.self_address: address);
-                    ("governance") -> (s.admin : address);
                 ];
                 const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
 
@@ -292,6 +308,7 @@ block{
                 const originatedTreasuryStorage : treasuryStorage = record[
                     admin                     = s.admin;                         // admin will be the governance contract
                     mvkTokenAddress           = s.mvkTokenAddress;
+                    governanceAddress         = s.governanceAddress;
                     metadata                  = treasuryMetadata;
 
                     breakGlassConfig          = treasuryBreakGlassConfig;

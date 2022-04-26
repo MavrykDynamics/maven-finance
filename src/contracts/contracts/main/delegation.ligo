@@ -33,6 +33,7 @@ type delegationAction is
 
       // Housekeeping Entrypoints
     | SetAdmin                          of (address)
+    | SetGovernance                     of (address)
     | UpdateMetadata                    of updateMetadataType
     | UpdateConfig                      of delegationUpdateConfigParamsType
     | UpdateWhitelistContracts          of updateWhitelistContractsParams
@@ -81,20 +82,21 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                            = 0n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED              = 1n;
-[@inline] const error_ONLY_SELF_ALLOWED                                     = 2n;
-[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                         = 3n;
-[@inline] const error_ONLY_GOVERNANCE_CONTRACT_ALLOWED                      = 4n;
-[@inline] const error_ONLY_SATELLITE_ALLOWED                                = 5n;
-[@inline] const error_SATELLITE_NOT_ALLOWED                                 = 6n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                     = 7n;
+[@inline] const error_ONLY_GOVERNANCE_ALLOWED                               = 1n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED              = 2n;
+[@inline] const error_ONLY_SELF_ALLOWED                                     = 3n;
+[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                         = 4n;
+[@inline] const error_ONLY_GOVERNANCE_CONTRACT_ALLOWED                      = 5n;
+[@inline] const error_ONLY_SATELLITE_ALLOWED                                = 6n;
+[@inline] const error_SATELLITE_NOT_ALLOWED                                 = 7n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                     = 8n;
 
-[@inline] const error_SATELLITE_NOT_FOUND                                   = 8n;
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                            = 9n;
-[@inline] const error_GOVERNANCE_CONTRACT_NOT_FOUND                         = 10n;
+[@inline] const error_SATELLITE_NOT_FOUND                                   = 9n;
+[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                            = 10n;
+[@inline] const error_GOVERNANCE_CONTRACT_NOT_FOUND                         = 11n;
 
-[@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_NOT_FOUND            = 11n;
-[@inline] const error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND        = 12n;
+[@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_NOT_FOUND            = 12n;
+[@inline] const error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND        = 13n;
 
 [@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IS_PAUSED            = 12n;
 [@inline] const error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IS_PAUSED        = 13n;
@@ -126,9 +128,15 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : breakGlassStorage) : unit is
+function checkSenderIsAllowed(var s : delegationStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernance(var s : delegationStorage) : unit is
+    if (Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
 
 
 
@@ -472,6 +480,25 @@ block {
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
     
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : delegationStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
 } with response
 
 
@@ -928,7 +955,8 @@ function main (const action : delegationAction; const s : delegationStorage) : r
   } with (case action of [    
 
           // Housekeeping Entrypoints
-        | SetAdmin(parameters)                          -> setAdmin(parameters, s)  
+          SetAdmin(parameters)                          -> setAdmin(parameters, s) 
+        | SetGovernance(parameters)                     -> setGovernance(parameters, s) 
         | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)

@@ -55,6 +55,23 @@ block {
 
 
 
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorage) : return is
+block {
+    
+    checkSenderIsGovernance(s);
+
+    case breakGlassLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (* updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is
 block {
@@ -486,6 +503,59 @@ block {
 
 
 
+(*  propagateBreakGlass lambda  *)
+function lambdaPropagateBreakGlass(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
+block {
+
+    // Overall steps:
+    // 1. Check that glass has been broken
+    // 2. Check that sender is a council member
+    // 3. Create and save new action record, set the sender as a signer of the action
+    // 4. Increment action counter
+
+    checkGlassIsBroken(s);         
+    checkSenderIsCouncilMember(s);
+
+    case breakGlassLambdaAction of [
+        | LambdaSetSingleContractAdmin(_parameters) -> {
+
+                const emptyAddressMap  : addressMapType      = map [];
+                const emptyStringMap   : stringMapType   = map [];
+                const emptyNatMap      : natMapType      = map [];
+
+                var actionRecord : actionRecordType := record[
+
+                    initiator             = Tezos.sender;
+                    status                = "PENDING";
+                    actionType            = "propagateBreakGlass";
+                    executed              = False;
+
+                    signers               = set[Tezos.sender];
+                    signersCount          = 1n;
+
+                    addressMap            = emptyAddressMap;
+                    stringMap             = emptyStringMap;
+                    natMap                = emptyNatMap;
+
+                    startDateTime         = Tezos.now;
+                    startLevel            = Tezos.level;             
+                    executedDateTime      = Tezos.now;
+                    executedLevel         = Tezos.level;
+                    expirationDateTime    = Tezos.now + (86_400 * s.config.actionExpiryDays);
+                ];
+                s.actionsLedger[s.actionCounter] := actionRecord; 
+
+                // increment action counter
+                s.actionCounter := s.actionCounter + 1n;
+                
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  setSingleContractAdmin lambda  *)
 function lambdaSetSingleContractAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType; var s : breakGlassStorage) : return is 
 block {
@@ -507,6 +577,16 @@ block {
 
                 // Check if the provided contract has a setAdmin entrypoint
                 const _checkEntrypoint: contract(address)    = setAdminInContract(targetContractAddress);
+
+                // Check if the admin address is part of the whitelistDeveloper map
+                const getWhitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+                const whitelistDevelopers: whitelistDevelopersType = case getWhitelistDevelopersView of [
+                    Some (value) -> value
+                |   None -> failwith (error_VIEW_GET_WHITELIST_DEVELOPERS_NOT_FOUND)
+                ];
+                // TODO -> Only whitelisted devs? Not governance or breakGlass
+                if Set.mem(newAdminAddress, whitelistDevelopers) then skip
+                else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                 const addressMap   : addressMapType      = map [
                     ("newAdminAddress"       : string) -> newAdminAddress;
@@ -563,6 +643,16 @@ block {
 
     case breakGlassLambdaAction of [
         | LambdaSetAllContractsAdmin(newAdminAddress) -> {
+
+                // Check if the admin address is part of the whitelistDeveloper map
+                const getWhitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+                const whitelistDevelopers: whitelistDevelopersType = case getWhitelistDevelopersView of [
+                    Some (value) -> value
+                |   None -> failwith (error_VIEW_GET_WHITELIST_DEVELOPERS_NOT_FOUND)
+                ];
+                // TODO -> Only whitelisted devs? Not governance or breakGlass
+                if Set.mem(newAdminAddress, whitelistDevelopers) then skip
+                else failwith(error_DEVELOPER_NOT_WHITELISTED);
                 
                 const addressMap   : addressMapType      = map [
                     ("newAdminAddress" : string) -> newAdminAddress;
@@ -951,6 +1041,26 @@ block {
 
 
 
+                    // propagateBreakGlass action type
+                    if actionType = "propagateBreakGlass" then block {
+
+                        checkGlassIsBroken(s);          // check that glass is broken
+
+                        const propagateBreakGlassEntrypoint: contract(unit) = case (Tezos.get_entrypoint_opt("%propagateBreakGlass", s.governanceAddress) : option(contract(unit))) of [
+                            Some (contr)        -> contr
+                        |   None                -> failwith("Error. PropagateBreakGlass entrypoint not found in the governance contract")
+                        ];
+                        const propagateBreakGlassOperation : operation = Tezos.transaction(
+                            unit, 
+                            0tez, 
+                            propagateBreakGlassEntrypoint
+                        );
+                        operations := propagateBreakGlassOperation # operations;
+
+                    } else skip;
+
+
+
                     // setSingleContractAdmin action type
                     if actionType = "setSingleContractAdmin" then block {
 
@@ -967,6 +1077,16 @@ block {
                             | None -> failwith("Error. TargetContractAddress not found.")
                         ];
                         // fetch params end ---
+
+                        // Check if the admin address is part of the whitelistDeveloper map
+                        const getWhitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+                        const whitelistDevelopers: whitelistDevelopersType = case getWhitelistDevelopersView of [
+                            Some (value) -> value
+                        |   None -> failwith (error_VIEW_GET_WHITELIST_DEVELOPERS_NOT_FOUND)
+                        ];
+                        // TODO -> Only whitelisted devs? Not governance or breakGlass
+                        if Set.mem(newAdminAddress, whitelistDevelopers) then skip
+                        else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                         const setSingleContractAdminOperation : operation = Tezos.transaction(
                             newAdminAddress, 
@@ -990,6 +1110,16 @@ block {
                             |   None -> failwith("Error. NewAdminAddress not found.")
                         ];
                         // fetch params end ---
+
+                        // Check if the admin address is part of the whitelistDeveloper map
+                        const getWhitelistDevelopersView : option (whitelistDevelopersType) = Tezos.call_view ("getWhitelistDevelopers", unit, s.governanceAddress);
+                        const whitelistDevelopers: whitelistDevelopersType = case getWhitelistDevelopersView of [
+                            Some (value) -> value
+                        |   None -> failwith (error_VIEW_GET_WHITELIST_DEVELOPERS_NOT_FOUND)
+                        ];
+                        // TODO -> Only whitelisted devs? Not governance or breakGlass
+                        if Set.mem(newAdminAddress, whitelistDevelopers) then skip
+                        else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                         // Set self as contract admin
                         s.admin := newAdminAddress;
@@ -1016,7 +1146,7 @@ block {
 
                         for _contractName -> contractAddress in map s.generalContracts block {
                             case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                                    Some(contr) -> operations := Tezos.transaction(governanceAddress, 0tez, contr) # operations
+                                    Some(contr) -> operations := Tezos.transaction(s.governanceAddress, 0tez, contr) # operations
                                 |   None -> skip
                             ];
                         };
