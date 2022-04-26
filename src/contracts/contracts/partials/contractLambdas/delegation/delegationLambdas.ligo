@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    checkSenderIsAllowed(s); // check that sender is admin or governance contract (i.e. Governance DAO contract address)
 
     case delegationLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {

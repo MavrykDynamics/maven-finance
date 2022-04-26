@@ -149,6 +149,7 @@ type lambdaLedgerType is big_map(string, bytes)
 type councilStorage is [@layout:comb] record [
     admin                       : address;
     mvkTokenAddress             : address;
+    governanceAddress           : address;
     metadata                    : metadataType;
 
     config                      : councilConfigType;

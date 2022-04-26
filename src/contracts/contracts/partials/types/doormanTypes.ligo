@@ -57,6 +57,7 @@ type doormanLambdaActionType is
 type doormanStorage is [@layout:comb] record [
   admin                     : address;
   mvkTokenAddress           : address;
+  governanceAddress         : address;
   metadata                  : metadata;
   
   minMvkAmount              : nat;

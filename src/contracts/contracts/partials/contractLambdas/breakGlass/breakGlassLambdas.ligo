@@ -42,7 +42,7 @@ block {
 function lambdaSetAdmin(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorage) : return is
 block {
     
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     case breakGlassLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
@@ -1012,11 +1012,7 @@ block {
                         checkGlassIsBroken(s);          // check that glass is broken
 
                         // Reset all contracts admin to governance contract
-                        const governanceAddress : address = case s.generalContracts["governance"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Governance Contract is not found.")
-                        ];
-                        s.admin := governanceAddress;
+                        s.admin := s.governanceAddress;
 
                         for _contractName -> contractAddress in map s.generalContracts block {
                             case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [

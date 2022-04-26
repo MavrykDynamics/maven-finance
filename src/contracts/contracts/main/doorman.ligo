@@ -88,23 +88,23 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                            = 0n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                       = 1n;
-[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                      = 2n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                     = 3n;
-[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                         = 4n;
+[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                          = 0n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                            = 1n;
+[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                     = 2n;
+[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                    = 3n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                   = 4n;
+[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                       = 5n;
 
-[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                            = 5n;
-[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                          = 6n;
-[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                         = 7n;
-[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND           = 9n;
-[@inline] const error_ON_SATELLITE_REWARD_PAID_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND  = 10n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                       = 11n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                    = 12n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND       = 13n;
+[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                          = 6n;
+[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                        = 7n;
+[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                       = 8n;
+[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND         = 9n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                     = 10n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                  = 11n;
+[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND     = 12n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                      = 14n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                               = 15n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                    = 13n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                             = 14n;
 
 // ------------------------------------------------------------------------------
 //
@@ -123,6 +123,12 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : breakGlassStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(var s : doormanStorage) : unit is
   if (Tezos.sender = s.admin) then unit

@@ -79,6 +79,7 @@ type emergencyGovernanceLambdaActionType is
 
 type emergencyGovernanceStorage is [@layout:comb] record [
     admin                               : address;
+    governanceAddress                   : address;
     config                              : emergencyConfigType;
     mvkTokenAddress                     : address;
     metadata                            : metadata;
