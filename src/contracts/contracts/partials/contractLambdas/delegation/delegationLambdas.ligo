@@ -332,10 +332,6 @@ block {
 
     case delegationLambdaAction of [
         | LambdaDelegateToSatellite(satelliteAddress) -> {
-<<<<<<< HEAD
-=======
-
->>>>>>> d7626c8 (Satellite Rewards Distribution fixed)
             // Update unclaimed rewards
             s := updateRewards(s);
             
