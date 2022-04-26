@@ -260,7 +260,7 @@ block{
     var operations: list(operation) := nil;
 
     case treasuryFactoryLambdaAction of [
-        | LambdaCreateTreasury(treasuryName) -> {
+        | LambdaCreateTreasury(treasuryMetadata) -> {
                 
                 // Add TreasuryFactory Address to whitelistContracts of created treasury
                 const treasuryWhitelistContracts : whitelistContractsType = map[

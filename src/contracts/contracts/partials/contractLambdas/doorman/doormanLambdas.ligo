@@ -472,7 +472,7 @@ block {
                 );
 
                 // fill a list of operations
-                operations : list(operation) := list[transferOperation; onSatelliteRewardPaidOperation; updateSatelliteBalanceOperation]
+                operations := list[transferOperation; onSatelliteRewardPaidOperation; updateSatelliteBalanceOperation]
             }
         | _ -> skip
     ];
@@ -666,41 +666,6 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
         | _ -> skip
     ];
 
-} with(operations, s)
-
-
-
-(* satelliteRewardsClaim lambda *)
-function lambdaSatelliteRewardsClaim(const satelliteRewardsClaim: satelliteRewardsClaimType; var s: doormanStorage): return is
-  block{
-    // Get variables
-    const user: address = satelliteRewardsClaim.0; 
-    const rewardsPerShare: nat  = satelliteRewardsClaim.1;
-
-    // Compound user rewards
-    s := compoundUserRewards(s);
-
-    // Update the delegation balance
-    const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
-        Some(_address) -> _address
-        | None -> failwith("Error. Delegation Contract is not found.")
-    ];
-    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-      (user),
-      0tez,
-      updateSatelliteBalance(delegationAddress)
-    );
-
-    // Check sender is delegation contract
-    if Tezos.sender = delegationAddress then skip else failwith("Error. Only the delegation contract can access this entrypoint");
-
-    // tell the delegation contract that the reward has been paid with the compound operation
-    const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-      (delegator),
-      0tez,
-      onSatelliteRewardPaid(delegationAddress)
-    );
-    operations  := onSatelliteRewardPaidOperation # operations;
 } with(operations, s)
 
 // ------------------------------------------------------------------------------
