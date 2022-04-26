@@ -131,6 +131,7 @@ describe('Contracts Deployment for Tests', async () => {
 
     
     governanceStorage.mvkTokenAddress  = mvkToken.contract.address
+    governanceStorage.governanceProxyAddress  = mvkToken.contract.address // TODO: REPLACE
     governanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation" : delegation.contract.address,
       "doorman"    : doorman.contract.address
@@ -357,9 +358,9 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(7, governanceProxyLambdas[7])) // updateGovernanceConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[8])) // updateDelegationConfig
   
-      const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
-      await setupGovernanceProxyLambdasOperation.confirmation()
-      console.log("Governance Proxy Lambdas Setup")
+    //   const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
+    //   await setupGovernanceProxyLambdasOperation.confirmation()
+    //   console.log("Governance Proxy Lambdas Setup")
   
 
       // Governance Setup Lambdas

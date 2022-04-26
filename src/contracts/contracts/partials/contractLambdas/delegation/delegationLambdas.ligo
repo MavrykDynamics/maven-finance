@@ -338,39 +338,9 @@ block {
             
             // check if satellite exists
             var _checkSatelliteExists : satelliteRecordType := case s.satelliteLedger[satelliteAddress] of [
-                    Some(_val) -> _val
-                | None       -> failwith("Satellite does not exist")
+                Some(_val) -> _val
+                | None -> failwith("Satellite does not exist")
             ];
-
-            const doormanAddress : address = case s.generalContracts["doorman"] of [
-                    Some(_address) -> _address
-                | None           -> failwith("Error. Doorman Contract is not found")
-            ];
-            
-            // enable redelegation of satellites even if a user is delegated to a satellite already - easier alternative -> batch call undelegateFromSatellite, then delegateToSatellite
-            // get delegate record if exists, if not create a new delegate record
-
-            // check if user is delegated to a satellite or not
-            if Big_map.mem(Tezos.source, s.delegateLedger) then block {
-            // user is already delegated to a satellite 
-            var delegateRecord : delegateRecordType := case s.delegateLedger[Tezos.source] of [
-                    Some(_delegateRecord) -> _delegateRecord
-                | None                  -> failwith("Delegate Record does not exist") // failwith should not be reached as conditional check is already cleared
-            ];
-
-            const previousSatellite : address = delegateRecord.satelliteAddress; 
-
-            // check that new satellite is not the same as previously delegated satellite
-            if previousSatellite = satelliteAddress then failwith("You are already delegated to this satellite")
-            else skip;
-
-            //   const delegateToSatellite : contract(address) = Tezos.self("%delegateToSatellite");
-            const delegateToSatelliteOperation : operation = Tezos.transaction(
-                (satelliteAddress),
-                0tez, 
-                // delegateToSatellite
-                getDelegateToSatelliteEntrypoint(Tezos.self_address)
-            );
 
             const doormanAddress : address = case s.generalContracts["doorman"] of [
             Some(_address) -> _address
@@ -388,18 +358,7 @@ block {
                 | None -> failwith("Delegate Record does not exist") // failwith should not be reached as conditional check is already cleared
             ];
 
-            const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
-            const stakedMvkBalance: nat = case stakedMvkBalanceView of [
-                    Some (value) -> value
-                | None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
-            ];
-            
-            // user is not delegated to a satellite
-            var delegateRecord : delegateRecordType := record [
-                satelliteAddress  = satelliteAddress;
-                delegatedDateTime = Tezos.now;
-                delegatedSMvkBalance     = stakedMvkBalance;
-            ];
+            const previousSatellite : address = delegateRecord.satelliteAddress; 
 
             // check that new satellite is not the same as previously delegated satellite
             if previousSatellite = satelliteAddress then failwith("You are already delegated to this satellite")

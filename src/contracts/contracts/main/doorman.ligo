@@ -272,8 +272,10 @@ block{
     var userRecord: userStakeBalanceRecordType := case s.userStakeBalanceLedger[user] of [
         Some (_val) -> _val
       | None -> record[
-          balance=0n;
-          participationFeesPerShare=s.accumulatedFeesPerShare;
+          balance                       = 0n;
+          participationFeesPerShare     = s.accumulatedFeesPerShare;
+          totalExitFeeRewardsClaimed    = 0n;
+          totalSatelliteRewardsClaimed  = 0n;
         ]
     ];
 
@@ -322,8 +324,10 @@ block{
       // Calculate the user reward based on his sMVK
       const exitFeeRewards: nat = (currentFeesPerShare * userRecord.balance) / fixedPointAccuracy;
       // Increase the user balance
-      userRecord.balance := userRecord.balance + exitFeeRewards + satelliteUnpaidRewards;
-      s.unclaimedRewards := abs(s.unclaimedRewards - exitFeeRewards);
+      userRecord.totalExitFeeRewardsClaimed   := userRecord.totalExitFeeRewardsClaimed + exitFeeRewards;
+      userRecord.totalSatelliteRewardsClaimed := userRecord.totalSatelliteRewardsClaimed + satelliteUnpaidRewards;
+      userRecord.balance                      := userRecord.balance + exitFeeRewards + satelliteUnpaidRewards;
+      s.unclaimedRewards                      := abs(s.unclaimedRewards - exitFeeRewards);
     }
     else skip;
     // Set the user's participationFeesPerShare 

@@ -8,15 +8,14 @@ import { MVK, zeroAddress } from "../test/helpers/Utils";
 import { emergencyGovernanceStorageType } from '../test/types/emergencyGovernanceStorageType'
 
 const config = {
-  decimals : 4,
-  voteExpiryDays: 3,
-  requiredFeeMutez: 10000000,
-  stakedMvkPercentageRequired: 10000,
-  minStakedMvkRequiredToVote: MVK(5),
-  minStakedMvkRequiredToTrigger: MVK(10),
-
-  proposalTitleMaxLength            : 400,
-  proposalDescMaxLength             : 400
+  decimals                        : 4,
+  voteExpiryDays                  : 3,
+  requiredFeeMutez                : 10000000,
+  stakedMvkPercentageRequired     : 10000,
+  minStakedMvkRequiredToVote      : MVK(5),
+  minStakedMvkRequiredToTrigger   : MVK(10),
+  proposalTitleMaxLength          : 400,
+  proposalDescMaxLength           : 400,
 }
 
 const metadata = MichelsonMap.fromLiteral({
