@@ -29,6 +29,7 @@ type treasuryFactoryLambdaActionType is
 
     // Housekeeping Entrypoints
     LambdaSetAdmin                            of (address)
+|   LambdaSetGovernance                       of (address)
 |   LambdaUpdateMetadata                      of updateMetadataType
 |   LambdaUpdateWhitelistContracts            of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts              of updateGeneralContractsParams
@@ -53,6 +54,7 @@ type treasuryFactoryLambdaActionType is
 type treasuryFactoryStorage is [@layout:comb] record[
     admin                      : address;
     mvkTokenAddress            : address;
+    governanceAddress          : address;
     metadata                   : metadata;
 
     trackedTreasuries          : set(address);

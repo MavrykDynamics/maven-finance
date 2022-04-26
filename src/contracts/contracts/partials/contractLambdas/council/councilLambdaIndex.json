@@ -5,86 +5,90 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateConfig"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaUpdateCouncilMemberInfo"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaCouncilActionAddMember"
+      "name": "lambdaUpdateCouncilMemberInfo"
     },
     {
       "index": 7,
-      "name": "lambdaCouncilActionRemoveMember"
+      "name": "lambdaCouncilActionAddMember"
     },
     {
       "index": 8,
-      "name": "lambdaCouncilActionChangeMember"
+      "name": "lambdaCouncilActionRemoveMember"
     },
     {
       "index": 9,
-      "name": "lambdaCouncilActionSetBaker"
+      "name": "lambdaCouncilActionChangeMember"
     },
     {
       "index": 10,
-      "name": "lambdaCouncilActionUpdateBlocksPerMinute"
+      "name": "lambdaCouncilActionSetBaker"
     },
     {
       "index": 11,
-      "name": "lambdaCouncilActionAddVestee"
+      "name": "lambdaCouncilActionUpdateBlocksPerMinute"
     },
     {
       "index": 12,
-      "name": "lambdaCouncilActionRemoveVestee"
+      "name": "lambdaCouncilActionAddVestee"
     },
     {
       "index": 13,
-      "name": "lambdaCouncilActionUpdateVestee"
+      "name": "lambdaCouncilActionRemoveVestee"
     },
     {
       "index": 14,
-      "name": "lambdaCouncilActionToggleVesteeLock"
+      "name": "lambdaCouncilActionUpdateVestee"
     },
     {
       "index": 15,
-      "name": "lambdaCouncilActionTransfer"
+      "name": "lambdaCouncilActionToggleVesteeLock"
     },
     {
       "index": 16,
-      "name": "lambdaCouncilActionRequestTokens"
+      "name": "lambdaCouncilActionTransfer"
     },
     {
       "index": 17,
-      "name": "lambdaCouncilActionRequestMint"
+      "name": "lambdaCouncilActionRequestTokens"
     },
     {
       "index": 18,
-      "name": "lambdaCouncilActionSetContractBaker"
+      "name": "lambdaCouncilActionRequestMint"
     },
     {
       "index": 19,
-      "name": "lambdaCouncilActionDropFinancialRequest"
+      "name": "lambdaCouncilActionSetContractBaker"
     },
     {
       "index": 20,
-      "name": "lambdaFlushAction"
+      "name": "lambdaCouncilActionDropFinancialRequest"
     },
     {
       "index": 21,
+      "name": "lambdaFlushAction"
+    },
+    {
+      "index": 22,
       "name": "lambdaSignAction"
     }
 ]

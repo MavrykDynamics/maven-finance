@@ -20,7 +20,8 @@
 type emergencyGovernanceAction is 
 
     // Housekeeping Entrypoints
-  | SetAdmin                  of (address)
+    SetAdmin                  of (address)
+  | SetGovernance             of (address)
   | UpdateMetadata            of updateMetadataType
   | UpdateConfig              of emergencyUpdateConfigParamsType    
   | UpdateGeneralContracts    of updateGeneralContractsParams
@@ -66,16 +67,17 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                          = 0n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED            = 1n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                     = 2n;
-[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                       = 3n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                   = 4n;
+[@inline] const error_ONLY_GOVERNANCE_ALLOWED                             = 1n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED            = 2n;
+[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                     = 3n;
+[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                       = 4n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                   = 5n;
 
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                          = 5n;
-[@inline] const error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND                    = 6n;
+[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                          = 6n;
+[@inline] const error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND                    = 7n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                    = 7n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                             = 8n;
+[@inline] const error_LAMBDA_NOT_FOUND                                    = 8n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                             = 9n;
 
 // ------------------------------------------------------------------------------
 //
@@ -95,9 +97,15 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : breakGlassStorage) : unit is
+function checkSenderIsAllowed(var s : emergencyGovernanceStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernance(var s : emergencyGovernanceStorage) : unit is
+    if (Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
 
 
 
@@ -238,6 +246,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : emergencyGovernanceStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);
 
 } with response
 
@@ -403,6 +430,7 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
 
         // Housekeeping Entrypoints
       | SetAdmin(parameters)                  -> setAdmin(parameters, s)
+      | SetGovernance(parameters)            -> setGovernance(parameters, s)
       | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
       | UpdateConfig(parameters)              -> updateConfig(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)

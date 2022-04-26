@@ -37,6 +37,7 @@ type treasuryAction is
 
     // Housekeeping Entrypoints
     | SetAdmin                       of (address)
+    | SetGovernance                  of (address)
     | SetBaker                       of option(key_hash)
     | UpdateMetadata                 of updateMetadataType
     | UpdateWhitelistContracts       of updateWhitelistContractsParams
@@ -72,18 +73,20 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED                                 = 1n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 2n;
+[@inline] const error_ONLY_GOVERNANCE_ALLOWED                                                = 1n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
+[@inline] const error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED                                 = 3n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 4n;
 
-[@inline] const error_TRANSFER_ENTRYPOINT_IS_PAUSED                                          = 3n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IS_PAUSED                             = 4n;
-[@inline] const error_MINT_ENTRYPOINT_NOT_FOUND                                              = 5n;
-[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_NOT_FOUND_IN_DELEGATION_CONTRACT            = 6n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                         = 7n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                          = 8n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IS_PAUSED                                          = 5n;
+[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IS_PAUSED                             = 6n;
+[@inline] const error_MINT_ENTRYPOINT_NOT_FOUND                                              = 7n;
+[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_NOT_FOUND_IN_DELEGATION_CONTRACT            = 8n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                         = 9n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                          = 10n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 9n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 10n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 11n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 12n;
 
 // ------------------------------------------------------------------------------
 //
@@ -102,6 +105,18 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : treasuryStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernance(var s : treasuryStorage) : unit is
+    if (Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(var s : treasuryStorage) : unit is
     if (Tezos.sender = s.admin) then unit
@@ -328,6 +343,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : treasuryStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);
 
 } with response
 
@@ -601,6 +635,7 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
+        | SetGovernance(parameters)                    -> setGovernance(parameters, s)
         | SetBaker(parameters)                          -> setBaker(parameters, s)
         | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)

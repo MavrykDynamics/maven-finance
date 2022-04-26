@@ -26,6 +26,23 @@ block {
 
 
 
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorage) : return is
+block {
+    
+    checkSenderIsGovernance(s);
+
+    case councilLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const councilLambdaAction : councilLambdaActionType; var s : councilStorage) : return is
 block {

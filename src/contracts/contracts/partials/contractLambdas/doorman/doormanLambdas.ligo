@@ -25,6 +25,23 @@ block {
 
 
 
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+block {
+    
+    checkSenderIsGovernance(s);
+
+    case doormanLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
 block {

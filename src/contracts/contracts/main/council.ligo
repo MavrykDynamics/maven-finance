@@ -32,53 +32,15 @@
 
 // ------------------------------------------------------------------------------
 
-// Council Methods to Lambda Action Type
-type councilLambdaActionType is 
-
-    // Housekeeping Lambdas
-    LambdaSetAdmin                              of address
-  | LambdaUpdateMetadata                        of updateMetadataType
-  | LambdaUpdateConfig                          of councilUpdateConfigParamsType
-  | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
-  | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
-  | LambdaUpdateCouncilMemberInfo               of councilMemberInfoType
-
-    // Council Actions for Internal Control
-  | LambdaCouncilActionAddMember                of councilActionAddMemberType
-  | LambdaCouncilActionRemoveMember             of address
-  | LambdaCouncilActionChangeMember             of councilActionChangeMemberType
-  | LambdaCouncilActionSetBaker                 of setBakerType
-
-    // Council Actions for Contracts
-  | LambdaCouncilUpdateBlocksPerMin             of councilActionUpdateBlocksPerMinType
-
-    // Council Actions for Vesting
-  | LambdaCouncilActionAddVestee                of addVesteeType
-  | LambdaCouncilActionRemoveVestee             of address
-  | LambdaCouncilActionUpdateVestee             of updateVesteeType
-  | LambdaCouncilToggleVesteeLock               of address
-
-    // Council Actions for Financial Governance
-  | LambdaCouncilActionTransfer                 of councilActionTransferType
-  | LambdaCouncilRequestTokens                  of councilActionRequestTokensType
-  | LambdaCouncilRequestMint                    of councilActionRequestMintType
-  | LambdaCouncilSetContractBaker               of councilActionSetContractBakerType
-  | LambdaCouncilDropFinancialReq               of nat
-
-    // Council Signing of Actions
-  | LambdaFlushAction                           of flushActionType
-  | LambdaSignAction                            of signActionType 
-
-
-
 // Council Main Entrypoint Actions
 type councilAction is 
 
     // Default Entrypoint to Receive Tez
-  | Default                                     of unit
+    Default                                     of unit
 
     // Housekeeping Actions
   | SetAdmin                                    of address
+  | SetGovernance                               of (address)
   | UpdateMetadata                              of updateMetadataType
   | UpdateConfig                                of councilUpdateConfigParamsType
   | UpdateWhitelistContracts                    of updateWhitelistContractsParams
@@ -130,24 +92,25 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 1n;
-[@inline] const error_ONLY_COUNCIL_MEMBERS_ALLOWED                                           = 2n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 3n;
+[@inline] const error_ONLY_GOVERNANCE_ALLOWED                                                = 1n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
+[@inline] const error_ONLY_COUNCIL_MEMBERS_ALLOWED                                           = 3n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 4n;
 
-[@inline] const error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_NOT_FOUND                             = 4n;
-[@inline] const error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                    = 5n;
-[@inline] const error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                 = 6n;
-[@inline] const error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                 = 7n;
-[@inline] const error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND            = 8n;
-[@inline] const error_REQUEST_TOKENS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND             = 9n;
-[@inline] const error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND               = 10n;
-[@inline] const error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND     = 11n;
-[@inline] const error_SET_CONTRACT_BAKER_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND         = 12n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                         = 13n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                          = 14n;
+[@inline] const error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_NOT_FOUND                             = 5n;
+[@inline] const error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                    = 6n;
+[@inline] const error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                 = 7n;
+[@inline] const error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                 = 8n;
+[@inline] const error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND            = 9n;
+[@inline] const error_REQUEST_TOKENS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND             = 10n;
+[@inline] const error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND               = 11n;
+[@inline] const error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND     = 12n;
+[@inline] const error_SET_CONTRACT_BAKER_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND         = 13n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                         = 14n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                          = 15n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 15n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 16n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 16n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 17n;
 
 // ------------------------------------------------------------------------------
 //
@@ -166,9 +129,15 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
-function checkSenderIsAllowed(var s : breakGlassStorage) : unit is
+function checkSenderIsAllowed(var s : councilStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernance(var s : councilStorage) : unit is
+    if (Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
 
 
 
@@ -411,6 +380,25 @@ block {
 
     // init council lambda action
     const councilLambdaAction : councilLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : councilStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const councilLambdaAction : councilLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, councilLambdaAction, s);
@@ -898,10 +886,11 @@ function main (const action : councilAction; const s : councilStorage) : return 
     case action of [
       
           // Default Entrypoint to Receive Tez
-        | Default(_params)                              -> ((nil : list(operation)), s)
+          Default(_params)                              -> ((nil : list(operation)), s)
 
         // Housekeeping Actions
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
+        | SetGovernance(parameters)                     -> setGovernance(parameters, s)
         | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)  
         | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)

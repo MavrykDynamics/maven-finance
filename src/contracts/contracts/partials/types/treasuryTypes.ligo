@@ -40,6 +40,7 @@ type treasuryLambdaActionType is
 
   // Housekeeping Entrypoints
 | LambdaSetAdmin                       of (address)
+| LambdaSetGovernance                  of (address)
 | LambdaSetBaker                       of option(key_hash)
 | LambdaUpdateMetadata                 of updateMetadataType
 | LambdaUpdateWhitelistContracts       of updateWhitelistContractsParams
@@ -63,6 +64,7 @@ type treasuryLambdaActionType is
 type treasuryStorage is [@layout:comb] record [
     admin                      : address;
     mvkTokenAddress            : address;
+    governanceAddress          : address;
     metadata                   : metadata;
     
     breakGlassConfig           : treasuryBreakGlassConfigType;

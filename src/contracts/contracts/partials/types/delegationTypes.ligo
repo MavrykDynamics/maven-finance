@@ -121,6 +121,7 @@ type delegationLambdaActionType is
 
   // Housekeeping Lambdas
   LambdaSetAdmin                              of address
+| LambdaSetGovernance                         of (address)
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of delegationUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams

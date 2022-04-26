@@ -33,6 +33,7 @@ type treasuryFactoryAction is
 
         // Housekeeping Entrypoints
         SetAdmin                            of (address)
+    |   SetGovernance                       of (address)
     |   UpdateMetadata                      of updateMetadataType
     |   UpdateWhitelistContracts            of updateWhitelistContractsParams
     |   UpdateGeneralContracts              of updateGeneralContractsParams
@@ -69,14 +70,16 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 1n;
+[@inline] const error_ONLY_GOVERNANCE_ALLOWED                                                = 1n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 3n;
 
-[@inline] const error_CREATE_TREASURY_ENTRYPOINT_IS_PAUSED                                   = 2n;
-[@inline] const error_TRACK_TREASURY_ENTRYPOINT_IS_PAUSED                                    = 3n;
-[@inline] const error_UNTRACK_TREASURY_ENTRYPOINT_NOT_FOUND                                  = 4n;
+[@inline] const error_CREATE_TREASURY_ENTRYPOINT_IS_PAUSED                                   = 4n;
+[@inline] const error_TRACK_TREASURY_ENTRYPOINT_IS_PAUSED                                    = 5n;
+[@inline] const error_UNTRACK_TREASURY_ENTRYPOINT_NOT_FOUND                                  = 6n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 5n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 6n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 7n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 8n;
 
 // ------------------------------------------------------------------------------
 //
@@ -95,6 +98,18 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : treasuryFactoryStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernance(var s : treasuryFactoryStorage) : unit is
+    if (Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(const s: treasuryFactoryStorage): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
@@ -236,6 +251,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : treasuryFactoryStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasuryFactory lambda action
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);
 
 } with response
 
@@ -531,6 +565,7 @@ function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorag
 
             // Housekeeping Entrypoints
             SetAdmin (parameters)                       -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)                  -> setGovernance(parameters, s)
         |   UpdateMetadata (parameters)                 -> updateMetadata(parameters, s)
         |   UpdateWhitelistContracts (parameters)       -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)

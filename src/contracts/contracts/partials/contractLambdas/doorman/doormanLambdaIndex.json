@@ -5,46 +5,50 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateMinMvkAmount"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMinMvkAmount"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseUnstake"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaStake"
+      "name": "lambdaTogglePauseUnstake"
     },
     {
       "index": 9,
-      "name": "lambdaUnstake"
+      "name": "lambdaStake"
     },
     {
       "index": 10,
-      "name": "lambdaCompound"
+      "name": "lambdaUnstake"
     },
     {
       "index": 11,
+      "name": "lambdaCompound"
+    },
+    {
+      "index": 12,
       "name": "lambdaFarmClaim"
     }
 ]

@@ -12,11 +12,28 @@
 function lambdaSetAdmin(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
 block {
     
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     case farmFactoryLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage) : return is
+block {
+    
+    checkSenderIsGovernance(s);
+
+    case farmFactoryLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
             }
         | _ -> skip
     ];
@@ -340,6 +357,7 @@ block{
                 const originatedFarmStorage : farmStorage = record[
                     admin                   = s.admin;                   // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
                     mvkTokenAddress         = s.mvkTokenAddress;
+                    governanceAddress       = s.governanceAddress;
                     metadata                = farmMetadata;
 
                     config                  = farmConfig;

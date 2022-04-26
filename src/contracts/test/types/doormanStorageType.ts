@@ -4,6 +4,7 @@ import { BigNumber } from "bignumber.js";
 export type doormanStorageType = {
   admin                     : string;
   mvkTokenAddress           : string;
+  governanceAddress         : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 
   minMvkAmount              : BigNumber;

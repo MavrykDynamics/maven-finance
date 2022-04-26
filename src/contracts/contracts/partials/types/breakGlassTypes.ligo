@@ -84,6 +84,8 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes; 
 ]
 
+type whitelistDevelopersType is set(address)
+
 type breakGlassLambdaActionType is 
 
     // Break Glass
@@ -91,6 +93,7 @@ type breakGlassLambdaActionType is
 
     // Housekeeping Entrypoints - Glass Broken Not Required
 | LambdaSetAdmin                      of (address)
+| LambdaSetGovernance               of (address)
 | LambdaUpdateMetadata                of updateMetadataType
 | LambdaUpdateConfig                  of breakGlassUpdateConfigParamsType    
 | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
@@ -103,6 +106,7 @@ type breakGlassLambdaActionType is
 | LambdaChangeCouncilMember           of councilChangeMemberType
 
     // Glass Broken Required
+| LambdaPropagateBreakGlass           of (unit)
 | LambdaSetSingleContractAdmin        of setSingleContractAdminType
 | LambdaSetAllContractsAdmin          of (address)               
 | LambdaPauseAllEntrypoints           of (unit)             
