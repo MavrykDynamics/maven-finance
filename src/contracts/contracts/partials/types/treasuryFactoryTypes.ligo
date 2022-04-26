@@ -42,7 +42,7 @@ type treasuryFactoryLambdaActionType is
 |   LambdaToggleUntrackTreasury               of (unit)
 
     // Treasury Factory Entrypoints
-|   LambdaCreateTreasury                      of string
+|   LambdaCreateTreasury                      of bytes
 |   LambdaTrackTreasury                       of address
 |   LambdaUntrackTreasury                     of address
 

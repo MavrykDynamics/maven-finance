@@ -438,7 +438,7 @@ block{
     ];
 
     // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaCreateTreasury(treasuryName);
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaCreateTreasury(treasuryMetadata);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
