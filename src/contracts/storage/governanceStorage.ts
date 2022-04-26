@@ -30,7 +30,13 @@ const config = {
     blocksPerTimelockRound    : 5760,
 
     financialRequestApprovalPercentage : 6700,
-    financialRequestDurationInDays     : 3
+    financialRequestDurationInDays     : 3,
+
+    proposalMetadataTitleMaxLength      : 400,
+    proposalTitleMaxLength              : 400,
+    proposalDescriptionMaxLength        : 400,
+    proposalInvoiceMaxLength            : 400,
+    proposalSourceCodeMaxLength         : 400
 }
 
 const metadata = MichelsonMap.fromLiteral({
@@ -49,6 +55,7 @@ export const governanceStorage: governanceStorageType = {
   
   admin                   : bob.pkh,
   mvkTokenAddress         : "",
+  governanceProxyAddress  : zeroAddress,
   metadata                : metadata,
   config                  : config,
   

@@ -318,6 +318,7 @@ type governanceLambdaActionType is
 
   // Housekeeping Lambdas
 | LambdaSetAdmin                              of address
+| LambdaSetGovernanceProxyAddress             of address
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of governanceUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
