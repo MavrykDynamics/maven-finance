@@ -11,6 +11,12 @@ import { councilStorageType } from '../test/types/councilStorageType'
 const config = {
   threshold: 3, // 3 council members required
   actionExpiryDays: 2, // 2 days
+
+  councilMemberNameMaxLength      : 400,
+  councilMemberWebsiteMaxLength   : 400,
+  councilMemberImageMaxLength     : 400,
+  requestTokenNameMaxLength       : 400,
+  requestPurposeMaxLength         : 400
 }
 
 const metadata = MichelsonMap.fromLiteral({

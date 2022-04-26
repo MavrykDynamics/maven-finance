@@ -13,7 +13,10 @@ const config = {
   requiredFeeMutez: 10000000,
   stakedMvkPercentageRequired: 10000,
   minStakedMvkRequiredToVote: MVK(5),
-  minStakedMvkRequiredToTrigger: MVK(10)
+  minStakedMvkRequiredToTrigger: MVK(10),
+
+  proposalTitleMaxLength            : 400,
+  proposalDescMaxLength             : 400
 }
 
 const metadata = MichelsonMap.fromLiteral({

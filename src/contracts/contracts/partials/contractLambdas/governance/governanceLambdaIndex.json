@@ -9,78 +9,82 @@
     },
     {
       "index": 2,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernanceProxyAddress"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateConfig"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 5,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUpdateWhitelistTokenContracts"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 7,
-      "name": "lambdaStartNextRound"
+      "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
       "index": 8,
-      "name": "lambdaPropose"
+      "name": "lambdaStartNextRound"
     },
     {
       "index": 9,
-      "name": "lambdaAddUpdateProposalData"
+      "name": "lambdaPropose"
     },
     {
       "index": 10,
-      "name": "lambdaAddUpdatePaymentData"
+      "name": "lambdaAddUpdateProposalData"
     },
     {
       "index": 11,
-      "name": "lambdaLockProposal"
+      "name": "lambdaAddUpdatePaymentData"
     },
     {
       "index": 12,
-      "name": "lambdaProposalRoundVote"
+      "name": "lambdaLockProposal"
     },
     {
       "index": 13,
-      "name": "lambdaVotingRoundVote"
+      "name": "lambdaProposalRoundVote"
     },
     {
       "index": 14,
-      "name": "lambdaExecuteProposal"
+      "name": "lambdaVotingRoundVote"
     },
     {
       "index": 15,
-       "name": "lambdaDropProposal"
+      "name": "lambdaExecuteProposal"
     },
     {
       "index": 16,
-       "name": "lambdaRequestTokens"
+       "name": "lambdaDropProposal"
     },
     {
       "index": 17,
-      "name": "lambdaRequestMint"
+       "name": "lambdaRequestTokens"
     },
     {
       "index": 18,
-      "name": "lambdaSetContractBaker"
+      "name": "lambdaRequestMint"
     },
     {
       "index": 19,
-      "name": "lambdaDropFinancialRequest"
+      "name": "lambdaSetContractBaker"
     },
     {
       "index": 20,
+      "name": "lambdaDropFinancialRequest"
+    },
+    {
+      "index": 21,
       "name": "lambdaVoteForRequest"
     }
 ]

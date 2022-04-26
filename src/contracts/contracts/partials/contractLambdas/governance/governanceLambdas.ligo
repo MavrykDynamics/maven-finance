@@ -83,6 +83,24 @@ block {
 
 
 
+(*  setGovernanceProxyAddress lambda *)
+function lambdaSetGovernanceProxyAddress(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+block {
+    
+    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    
+    checkSenderIsAdmin(s); // check that sender is admin
+    
+    case governanceLambdaAction of [
+        | LambdaSetGovernanceProxyAddress(newGovernanceProxyAddress) -> {
+                s.governanceProxyAddress := newGovernanceProxyAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
 (* updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
 block {
