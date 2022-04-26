@@ -36,6 +36,7 @@ type governanceAction is
 
       // Housekeeping Entrypoints
     | SetAdmin                        of (address)
+    | SetGovernanceProxyAddress       of (address)
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceUpdateConfigParamsType
     | UpdateWhitelistContracts        of updateWhitelistContractsParams
@@ -787,6 +788,26 @@ block {
 
 
 
+
+(*  setGovernanceProxyAddress entrypoint *)
+function setGovernanceProxyAddress(const newGovernanceProxyAddress : address; var s : governanceStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernanceProxyAddress"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaSetGovernanceProxyAddress(newGovernanceProxyAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
 // (* updateMetadata entrypoint - update the metadata at a given key *)
 function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceStorage) : return is
 block {
@@ -1227,6 +1248,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                        -> setAdmin(parameters, s)
+        | SetGovernanceProxyAddress(parameters)       -> setGovernanceProxyAddress(parameters, s)
         | UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                    -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
