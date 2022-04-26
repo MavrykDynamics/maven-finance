@@ -41,6 +41,7 @@ import { Doorman } from '../helpers/doormanHelper'
 import { Delegation } from '../helpers/delegationHelper'
 import { MvkToken } from '../helpers/mvkHelper'
 import { Governance } from '../helpers/governanceHelper'
+import { GovernanceProxy } from '../helpers/governanceProxyHelper'
 import { BreakGlass } from '../helpers/breakGlassHelper'
 import { EmergencyGovernance } from '../helpers/emergencyGovernanceHelper'
 import { Vesting } from '../helpers/vestingHelper'
@@ -57,6 +58,7 @@ import { doormanStorage } from '../../storage/doormanStorage'
 import { delegationStorage } from '../../storage/delegationStorage'
 import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { governanceStorage } from '../../storage/governanceStorage'
+import { governanceProxyStorage } from '../../storage/governanceProxyStorage'
 import { breakGlassStorage } from '../../storage/breakGlassStorage'
 import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceStorage'
 import { vestingStorage } from '../../storage/vestingStorage'
@@ -75,6 +77,7 @@ describe('Contracts Deployment for Tests', async () => {
   var mvkToken: MvkToken
   var delegation: Delegation
   var governance: Governance
+  var governanceProxy: GovernanceProxy
   var breakGlass: BreakGlass
   var emergencyGovernance: EmergencyGovernance
   var vesting: Vesting
@@ -126,6 +129,7 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('delegationAddress', delegation.contract.address)
     console.log('Delegation Contract deployed at:', delegation.contract.address)
 
+    
     governanceStorage.mvkTokenAddress  = mvkToken.contract.address
     governanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation" : delegation.contract.address,
@@ -135,6 +139,16 @@ describe('Contracts Deployment for Tests', async () => {
 
     await saveContractAddress('governanceAddress', governance.contract.address)
     console.log('Governance Contract deployed at:', governance.contract.address)
+
+
+    governanceProxyStorage.governanceAddress = governance.contract.address;
+    governanceProxyStorage.mvkTokenAddress = mvkToken.contract.address;
+    governanceProxy = await GovernanceProxy.originate(utils.tezos, governanceProxyStorage);
+
+    await saveContractAddress('governanceProxyAddress', governanceProxy.contract.address)
+    console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
+
+
 
     emergencyGovernanceStorage.mvkTokenAddress  = mvkToken.contract.address
     emergencyGovernanceStorage.generalContracts = MichelsonMap.fromLiteral({
@@ -332,11 +346,15 @@ describe('Contracts Deployment for Tests', async () => {
     // Governance Setup Proxy Lambdas (external contracts)
       const governanceProxyLambdaBatch = await tezos.wallet
       .batch()
-      .withContractCall(governance.contract.methods.setProxyLambda(0, governanceProxyLambdas[0])) // callGovernanceLambda
-      .withContractCall(governance.contract.methods.setProxyLambda(1, governanceProxyLambdas[1])) // updateProxyLambdaFunction
-      .withContractCall(governance.contract.methods.setProxyLambda(2, governanceProxyLambdas[2])) // setContractAdmin
-      .withContractCall(governance.contract.methods.setProxyLambda(3, governanceProxyLambdas[3])) // updateGovernanceConfig
-      .withContractCall(governance.contract.methods.setProxyLambda(4, governanceProxyLambdas[4])) // updateDelegationConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(0, governanceProxyLambdas[0])) // executeGovernanceLambdaProxy
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(1, governanceProxyLambdas[1])) // updateProxyLambda
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(2, governanceProxyLambdas[2])) // setContractAdmin
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(3, governanceProxyLambdas[3])) // updateContractMetadata
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(4, governanceProxyLambdas[4])) // updateContractWhitelistMap
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(5, governanceProxyLambdas[5])) // updateContractGeneralMap
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(6, governanceProxyLambdas[6])) // updateContractWhitelistTokenMap
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(7, governanceProxyLambdas[7])) // updateGovernanceConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[8])) // updateDelegationConfig
   
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
       await setupGovernanceProxyLambdasOperation.confirmation()
@@ -349,25 +367,26 @@ describe('Contracts Deployment for Tests', async () => {
       .batch()
       .withContractCall(governance.contract.methods.setLambda("lambdaBreakGlass"                      , governanceLambdas[0]))  // breakGlass
       .withContractCall(governance.contract.methods.setLambda("lambdaSetAdmin"                        , governanceLambdas[1]))  // setAdmin
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateMetadata"                  , governanceLambdas[2]))  // updateMetadata
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateConfig"                    , governanceLambdas[3]))  // updateConfig
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistContracts"        , governanceLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateGeneralContracts"          , governanceLambdas[5]))  // updateGeneralContracts
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"   , governanceLambdas[6]))  // updateWhitelistTokenContracts
-      .withContractCall(governance.contract.methods.setLambda("lambdaStartNextRound"                  , governanceLambdas[7]))  // startNextRound
-      .withContractCall(governance.contract.methods.setLambda("lambdaPropose"                         , governanceLambdas[8]))  // propose
-      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdateProposalData"           , governanceLambdas[9]))  // addUpdateProposalData
-      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdatePaymentData"            , governanceLambdas[10])) // addUpdatePaymentData
-      .withContractCall(governance.contract.methods.setLambda("lambdaLockProposal"                    , governanceLambdas[11])) // lockProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaProposalRoundVote"               , governanceLambdas[12])) // proposalRoundVote
-      .withContractCall(governance.contract.methods.setLambda("lambdaVotingRoundVote"                 , governanceLambdas[13])) // votingRoundVote
-      .withContractCall(governance.contract.methods.setLambda("lambdaExecuteProposal"                 , governanceLambdas[14])) // executeProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaDropProposal"                    , governanceLambdas[15])) // dropProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaRequestTokens"                   , governanceLambdas[16])) // requestTokens
-      .withContractCall(governance.contract.methods.setLambda("lambdaRequestMint"                     , governanceLambdas[17])) // requestMint
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractBaker"                , governanceLambdas[18])) // setContractBaker
-      .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"            , governanceLambdas[19])) // dropFinancialRequest
-      .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                  , governanceLambdas[20])) // voteForRequest
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetGovernanceProxyAddress"       , governanceLambdas[2]))  // setGovernanceProxyAddress
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateMetadata"                  , governanceLambdas[3]))  // updateMetadata
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateConfig"                    , governanceLambdas[4]))  // updateConfig
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistContracts"        , governanceLambdas[5]))  // updateWhitelistContracts
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateGeneralContracts"          , governanceLambdas[6]))  // updateGeneralContracts
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"   , governanceLambdas[7]))  // updateWhitelistTokenContracts
+      .withContractCall(governance.contract.methods.setLambda("lambdaStartNextRound"                  , governanceLambdas[8]))  // startNextRound
+      .withContractCall(governance.contract.methods.setLambda("lambdaPropose"                         , governanceLambdas[9]))  // propose
+      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdateProposalData"           , governanceLambdas[10]))  // addUpdateProposalData
+      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdatePaymentData"            , governanceLambdas[11])) // addUpdatePaymentData
+      .withContractCall(governance.contract.methods.setLambda("lambdaLockProposal"                    , governanceLambdas[12])) // lockProposal
+      .withContractCall(governance.contract.methods.setLambda("lambdaProposalRoundVote"               , governanceLambdas[13])) // proposalRoundVote
+      .withContractCall(governance.contract.methods.setLambda("lambdaVotingRoundVote"                 , governanceLambdas[14])) // votingRoundVote
+      .withContractCall(governance.contract.methods.setLambda("lambdaExecuteProposal"                 , governanceLambdas[15])) // executeProposal
+      .withContractCall(governance.contract.methods.setLambda("lambdaDropProposal"                    , governanceLambdas[16])) // dropProposal
+      .withContractCall(governance.contract.methods.setLambda("lambdaRequestTokens"                   , governanceLambdas[17])) // requestTokens
+      .withContractCall(governance.contract.methods.setLambda("lambdaRequestMint"                     , governanceLambdas[18])) // requestMint
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractBaker"                , governanceLambdas[19])) // setContractBaker
+      .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"            , governanceLambdas[20])) // dropFinancialRequest
+      .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                  , governanceLambdas[21])) // voteForRequest
     
       const setupGovernanceLambdasOperation = await governanceLambdaBatch.send()
       await setupGovernanceLambdasOperation.confirmation()
@@ -755,7 +774,11 @@ describe('Contracts Deployment for Tests', async () => {
     const setTreasuryFactoryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('treasuryFactory', treasuryFactory.contract.address).send()
     await setTreasuryFactoryContractInGovernanceOperation.confirmation()
 
+    const setGovernanceProxyContractInGovernanceOperation = await governance.contract.methods.setGovernanceProxyAddress(governanceProxy.contract.address).send()
+    await setGovernanceProxyContractInGovernanceOperation.confirmation()
+
     console.log('Governance Contract - set general contract addresses [emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]')
+    console.log('Governance Contract - set governance proxy address')
 
 
 

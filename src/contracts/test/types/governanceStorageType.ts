@@ -5,6 +5,7 @@ import { BigNumber } from "bignumber.js";
 export type governanceStorageType = {
   admin: string;
   mvkTokenAddress: string;
+  governanceProxyAddress: string;
   metadata: MichelsonMap<MichelsonMapKey, unknown>;
 
   config: {};
