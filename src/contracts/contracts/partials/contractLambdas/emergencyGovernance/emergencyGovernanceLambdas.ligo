@@ -13,7 +13,7 @@ function lambdaSetAdmin(const emergencyGovernanceLambdaAction : emergencyGoverna
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
 
     case emergencyGovernanceLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
@@ -261,10 +261,7 @@ block {
                         | None           -> failwith("Error. Break Glass Contract is not found.")
                     ];
 
-                    const governanceContractAddress : address = case s.generalContracts["governance"] of [
-                          Some(_address) -> _address
-                        | None           -> failwith("Error. Governance Contract is not found.")
-                    ];
+                    const governanceContractAddress : address = s.governanceAddress;
 
                     // trigger break glass in break glass contract - set glassbroken to true in breakglass contract to give council members access to protected entrypoints
                     const triggerBreakGlassOperation : operation = Tezos.transaction(

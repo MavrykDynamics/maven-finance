@@ -120,6 +120,7 @@ type breakGlassLambdaActionType is
 type breakGlassStorage is [@layout:comb] record [
     admin                       : address;               
     mvkTokenAddress             : address;
+    governanceAddress           : address;
     metadata                    : metadataType;
     
     config                      : breakGlassConfigType;

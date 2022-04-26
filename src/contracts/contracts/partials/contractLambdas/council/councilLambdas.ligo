@@ -13,7 +13,7 @@ function lambdaSetAdmin(const councilLambdaAction : councilLambdaActionType; var
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkSenderIsAllowed(s); // check that sender is admin
 
     case councilLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
@@ -891,10 +891,7 @@ block {
                 if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith("Error. Request token name too long") else skip;
 
                 // Check if entrypoint exist on Governance Contract
-                var govenanceAddress : address := case s.generalContracts["governance"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Governance Contract Address not found")
-                ];
+                var govenanceAddress : address := s.governanceAddress;
                 const _checkEntrypoint : contract(councilActionRequestTokensType) = sendRequestTokensParams(govenanceAddress);
 
                 // Check if type is correct
@@ -970,10 +967,7 @@ block {
                 if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith("Error. Request purpose too long") else skip;
 
                 // Check if entrypoint exists on Governance Contract
-                var govenanceAddress : address := case s.generalContracts["governance"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Governance Contract Address not found")
-                ];
+                var govenanceAddress : address := s.governanceAddress;
                 const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(govenanceAddress);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -1036,10 +1030,7 @@ block {
         | LambdaCouncilSetContractBaker(councilActionSetContractBakerParams) -> {
 
                 // Check if entrypoint exist on Governance contract
-                var govenanceAddress : address := case s.generalContracts["governance"] of [
-                      Some(_address) -> _address
-                    | None -> failwith("Error. Governance Contract Address not found")
-                ];
+                var govenanceAddress : address := s.governanceAddress;
                 const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendContractBakerParams(govenanceAddress);
 
                 const keyHash : option(key_hash) = councilActionSetContractBakerParams.keyHash; 
@@ -1722,10 +1713,7 @@ block {
                             purpose               = purpose;
                         ];
 
-                        var governanceAddress : address := case s.generalContracts["governance"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Governance Contract Address not found")
-                        ];
+                        var governanceAddress : address := s.governanceAddress;
 
                         const requestTokensOperation : operation = Tezos.transaction(
                             requestTokensParams,
@@ -1742,10 +1730,7 @@ block {
                     // requestMint action type
                     if actionType = "requestMint" then block {
                         
-                        var governanceAddress : address := case s.generalContracts["governance"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Governance Contract Address not found")
-                        ];
+                        var governanceAddress : address := s.governanceAddress;
 
 
                         // fetch params begin ---
@@ -1789,10 +1774,7 @@ block {
                     // setContractBaker action type
                     if actionType = "setContractBaker" then block {
                         
-                        var governanceAddress : address := case s.generalContracts["governance"] of [
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Governance Contract Address not found")
-                        ];
+                        var governanceAddress : address := s.governanceAddress;
 
                         // fetch params begin ---
                         const targetContractAddress : address = case _councilActionRecord.addressMap["targetContractAddress"] of [
@@ -1821,10 +1803,7 @@ block {
                     // dropFinancialRequest action type
                     if actionType = "dropFinancialRequest" then block {
                         
-                        var governanceAddress : address := case s.generalContracts["governance"] of [ 
-                              Some(_address) -> _address
-                            | None -> failwith("Error. Governance Contract Address not found")
-                        ];
+                        var governanceAddress : address := s.governanceAddress;
 
                         // fetch params begin ---
                         const requestId : nat = case _councilActionRecord.natMap["requestId"] of [
