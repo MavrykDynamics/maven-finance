@@ -580,8 +580,10 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[delegator] of [
                   Some (_val) -> _val
                 | None -> record[
-                    balance=0n;
-                    participationFeesPerShare=s.accumulatedFeesPerShare;
+                    balance                         = 0n;
+                    participationFeesPerShare       = s.accumulatedFeesPerShare;
+                    totalExitFeeRewardsClaimed      = 0n;
+                    totalSatelliteRewardsClaimed    = 0n; 
                   ]
                 ];
 

@@ -213,6 +213,7 @@ type governanceUpdateConfigNewValueType is nat
 
 type governanceUpdateConfigActionType is 
   ConfigSuccessReward               of unit
+| ConfigCycleVotersReward           of unit
 | ConfigMinProposalRoundVotePct     of unit
 | ConfigMinProposalRoundVotesReq    of unit
 | ConfigMinQuorumPercentage         of unit
