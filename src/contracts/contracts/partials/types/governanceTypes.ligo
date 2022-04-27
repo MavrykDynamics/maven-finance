@@ -396,7 +396,6 @@ type governanceStorage is [@layout:comb] record [
     financialRequestCounter             : nat;
 
     // lambda storage
-    proxyLambdaLedger                   : proxyLambdaLedgerType;   // lambdas to external contracts used in executing proposals
     lambdaLedger                        : lambdaLedgerType;             // governance contract lambdas
 
     
