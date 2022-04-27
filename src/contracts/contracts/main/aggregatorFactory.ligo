@@ -15,6 +15,15 @@
 // Aggregator Factory Types
 #include "../partials/types/aggregatorFactoryTypes.ligo"
 
+type aggregatorFactoryLambdaActionType is 
+
+  | LambdaCreateAggregator            of createAggregatorParamsType
+  | LambdaAddSatellite                of (address)
+  | LambdaBanSatellite                of (address)
+  | LambdaUpdateAggregatorConfig      of updateAggregatorConfigParamsType
+  | LambdaUpdateAggregatorAdmin       of updateAggregatorAdminParamsType
+
+
 // ------------------------------------------------------------------------------
 
 type aggregatorFactoryAction is
@@ -268,7 +277,6 @@ block{
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
-
 
 
 // ------------------------------------------------------------------------------
