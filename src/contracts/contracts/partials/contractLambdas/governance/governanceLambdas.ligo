@@ -933,7 +933,10 @@ block {
                 
                     operations := sendProposalActionToGovernanceProxyForExecutionOperation # operations;
 
-                };      
+                };
+
+                // Send reward to proposer
+                operations  := sendRewardToProposer(s) # operations;
 
             }
         | _ -> skip
@@ -1001,9 +1004,6 @@ block {
                     operations := sendPaymentActionToGovernanceProxyForExecutionOperation # operations;
                 
                 };
-
-                // Send reward to proposer
-                operations  := sendRewardToProposer(s) # operations;
 
             }
         | _ -> skip
