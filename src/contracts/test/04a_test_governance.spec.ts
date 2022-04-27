@@ -3420,7 +3420,7 @@ describe("Governance tests", async () => {
 
                     // Check admin
                     if(storage.hasOwnProperty('admin') && storage.admin!==breakGlassAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceAddress.address).send();
+                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
                         await setAdminOperation.confirmation()
                     }
                 }
@@ -3491,7 +3491,7 @@ describe("Governance tests", async () => {
 
                     // Check admin
                     if(storage.hasOwnProperty('admin') && storage.admin!==governanceAddress.address && storage.admin!==breakGlassAddress.address){
-                        var setAdminOperation   = await contract.methods.setAdmin(governanceAddress.address).send();
+                        var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
                         await setAdminOperation.confirmation()
                     }
                 }
