@@ -10,8 +10,17 @@
 // Aggregator Types
 #include "../partials/types/aggregatorTypes.ligo"
 
+type metadata is big_map (string, bytes);
+
 type trackedAggregatorsType is map (string * string, address);
 type trackedSatelliteType is set (address);
+
+type aggregatorMetadataType is record[
+    name                     : string;
+    description              : string;
+    version                  : string;
+    authors                  : string;
+]
 
 type createAggregatorParamsType is string * string * [@layout:comb] record[
   oracleAddresses: oracleAddressesType;
@@ -30,16 +39,26 @@ type updateAggregatorAdminParamsType is record [
   adminAddress: address;
 ];
 
-type storage is record [
+type aggregatorFactoryStorage is record [
     admin: address;
     mvkTokenAddress: address;
     trackedAggregators: trackedAggregatorsType;
     trackedSatellite: trackedSatelliteType;
 ]
 
+type aggregatorFactoryLambdaActionType is 
+
+  | LambdaCreateAggregator            of createAggregatorParamsType
+  | LambdaAddSatellite                of (address)
+  | LambdaBanSatellite                of (address)
+  | LambdaUpdateAggregatorConfig      of updateAggregatorConfigParamsType
+  | LambdaUpdateAggregatorAdmin       of updateAggregatorAdminParamsType
+
+
 // ------------------------------------------------------------------------------
 
 type aggregatorFactoryAction is
+    
     | CreateAggregator            of createAggregatorParamsType
     | AddSatellite                of (address)
     | BanSatellite                of (address)
@@ -47,16 +66,12 @@ type aggregatorFactoryAction is
     | UpdateAggregatorAdmin       of updateAggregatorAdminParamsType
 
 const noOperations : list (operation) = nil;
-type return is list (operation) * storage;
+type return is list (operation) * aggregatorFactoryStorage;
+
 type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorage) -> (operation * address);
 
-
-[@view] function getAggregator (const pair : string*string ; const store: storage) : address is block {
-  const aggregatorAddress : address = case store.trackedAggregators[pair] of [
-    Some(_address) -> _address
-    | None -> failwith("Error. Aggregator not found.")
-  ];
-} with (aggregatorAddress)
+// aggregator factory contract methods lambdas
+type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaActionType * aggregatorFactoryStorage) -> return
 
 
 // ------------------------------------------------------------------------------
@@ -69,7 +84,7 @@ type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorage) ->
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAdmin(const s: storage): unit is
+function checkSenderIsAdmin(const s: aggregatorFactoryStorage): unit is
   if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
   else unit
 
@@ -79,7 +94,14 @@ function checkIfAddressContainInTrackedSatelliteSet(const satelliteAddress: addr
   if not (trackedSatellite contains satelliteAddress) then failwith("You can't perform things on a not registered satellite")
   else unit
 
+// ------------------------------------------------------------------------------
+// Admin Helper Functions End
+// ------------------------------------------------------------------------------
 
+
+// ------------------------------------------------------------------------------
+// Factory Helper Functions Begin
+// ------------------------------------------------------------------------------
 
 const createAggregatorFunc: createAggregatorFuncType =
 [%Michelson ( {| { UNPPAIIR ;
@@ -89,7 +111,15 @@ const createAggregatorFunc: createAggregatorFuncType =
           PAIR } |}
 : createAggregatorFuncType)];
 
+// ------------------------------------------------------------------------------
+// Factory Helper Functions End
+// ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
 
 function addOracleOperation(const aggregatorAddress: address; const satelliteAddress: address): operation is
 block{
@@ -133,6 +163,9 @@ block{
         ];
 } with (Tezos.transaction(adminAddress, 0tez, tokenContract))
 
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //
@@ -140,6 +173,26 @@ block{
 //
 // ------------------------------------------------------------------------------
 
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get aggregator *)
+[@view] function getAggregator (const pair : string*string ; const s : aggregatorFactoryStorage) : address is block {
+  const aggregatorAddress : address = case s.trackedAggregators[pair] of [
+    Some(_address) -> _address
+    | None -> failwith("Error. Aggregator not found.")
+  ];
+} with (aggregatorAddress)
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
 
 
 // ------------------------------------------------------------------------------
@@ -149,7 +202,7 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  createAggregator entrypoint  *)
-function createAggregator(const createAggregatorParams: createAggregatorParamsType; var s: storage): return is
+function createAggregator(const createAggregatorParams: createAggregatorParamsType; var s: aggregatorFactoryStorage): return is
 block {
 
     checkSenderIsAdmin(s);
@@ -172,12 +225,24 @@ block {
 
     const aggregatorLambdaLedger : big_map(string, bytes) = Big_map.empty;
 
+    const aggregatorMetadataPlain : aggregatorMetadataType = record[
+        name                    = "MAVRYK Aggregator";
+        description             = "MAVRYK Aggregator Contract";
+        version                 =  "v1.0.0";
+        authors                 = "MAVRYK Dev Team <contact@mavryk.finance>";
+    ];
+    const aggregatorMetadata : metadata = Big_map.literal (list [
+        ("", Bytes.pack(aggregatorMetadataPlain));
+    ]);
+
     // new Aggregator Storage declaration
     const originatedAggregatorStorage : aggregatorStorage = record [
 
       admin                     = createAggregatorParams.2.admin;
-      mvkTokenAddress           = s.mvkTokenAddress;
+      metadata                  = aggregatorMetadata;
       config                    = createAggregatorParams.2.aggregatorConfig;
+      
+      mvkTokenAddress           = s.mvkTokenAddress;
 
       round                     = 0n;
       switchBlock               = 0n;
@@ -208,8 +273,25 @@ block {
 } with(list[aggregatorOrigination.0], s)
 
 
+
+(*  addSatellite entrypoint  *)
+function addSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
+block{
+    
+    checkSenderIsAdmin(s);
+    const newSet: trackedSatelliteType = Set.add (satelliteAddress, s.trackedSatellite);
+    var operations : list(operation) := nil;
+    for _key -> value in map s.trackedAggregators block {
+        const operation = addOracleOperation(value, satelliteAddress);
+        operations := operation # operations;
+    }
+
+} with (operations,s with record[trackedSatellite = newSet])
+
+
+
 (*  banSatellite entrypoint  *)
-function banSatellite(const satelliteAddress: address; var s: storage): return is
+function banSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
 block{
 
     checkSenderIsAdmin(s);
@@ -226,23 +308,8 @@ block{
 
 
 
-(*  addSatellite entrypoint  *)
-function addSatellite(const satelliteAddress: address; var s: storage): return is
-block{
-    
-    checkSenderIsAdmin(s);
-    const newSet: trackedSatelliteType = Set.add (satelliteAddress, s.trackedSatellite);
-    var operations : list(operation) := nil;
-    for _key -> value in map s.trackedAggregators block {
-        const operation = addOracleOperation(value, satelliteAddress);
-        operations := operation # operations;
-    }
-
-} with (operations,s with record[trackedSatellite = newSet])
-
-
 (*  updateAggregatorConfig entrypoint  *)
-function updateAggregatorConfig(const updateAggregatorConfigParams: updateAggregatorConfigParamsType; var s: storage): return is
+function updateAggregatorConfig(const updateAggregatorConfigParams: updateAggregatorConfigParamsType; var s: aggregatorFactoryStorage): return is
 block{
     
     checkSenderIsAdmin(s);
@@ -251,8 +318,9 @@ block{
 } with (list[operation],s)
 
 
+
 (*  updateAggregatorAdmin entrypoint  *)
-function updateAggregatorAdmin(const updateAggregatorAdminParams: updateAggregatorAdminParamsType; var s: storage): return is
+function updateAggregatorAdmin(const updateAggregatorAdminParams: updateAggregatorAdminParamsType; var s: aggregatorFactoryStorage): return is
 block{
     checkSenderIsAdmin(s);
     const operation = updateAggregatorAdminOperation(updateAggregatorAdminParams.satelliteAddress, updateAggregatorAdminParams.adminAddress);
@@ -269,7 +337,7 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : aggregatorFactoryAction; const s : storage) : return is
+function main (const action : aggregatorFactoryAction; const s : aggregatorFactoryStorage) : return is
 
     case action of [
       
