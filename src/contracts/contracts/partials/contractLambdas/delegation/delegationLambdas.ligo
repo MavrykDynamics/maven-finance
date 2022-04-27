@@ -29,7 +29,7 @@ block {
 function lambdaSetGovernance(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is
 block {
     
-    checkSenderIsGovernance(s);
+    checkSenderIsGovernanceProxy(s);
 
     case delegationLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {

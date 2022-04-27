@@ -22,17 +22,18 @@ block {
 
       (* General Controls *)    
       | SetContractAdmin (_v)                  -> 2n
-      | UpdateContractMetadata (_v)            -> 3n
-      | UpdateContractWhitelistMap (_v)        -> 4n
-      | UpdateContractGeneralMap (_v)          -> 5n
-      | UpdateContractWhitelistTokenMap (_v)   -> 6n
+      | SetContractGovernance (_v)             -> 3n
+      | UpdateContractMetadata (_v)            -> 4n
+      | UpdateContractWhitelistMap (_v)        -> 5n
+      | UpdateContractGeneralMap (_v)          -> 6n
+      | UpdateContractWhitelistTokenMap (_v)   -> 7n
       
       (* Update Configs *)    
-      | UpdateGovernanceConfig (_v)            -> 7n
-      | UpdateDelegationConfig (_v)            -> 8n
+      | UpdateGovernanceConfig (_v)            -> 8n
+      | UpdateDelegationConfig (_v)            -> 9n
 
       (* BreakGlass Control *)
-      | UpdateWhitelistDevelopersSet (_v)      -> 9n
+      | UpdateWhitelistDevelopersSet (_v)      -> 10n
 
     ];
 
@@ -107,6 +108,39 @@ block {
             );
 
             operations := setNewAdminOperation # operations;
+
+          }
+
+      | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* setContractGovernance lambda *)
+function setContractGovernance(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+block {
+    
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+        SetContractGovernance(setContractGovernanceParams) -> {
+
+            // assign params to constants for better code readability
+            const targetContractAddress  : address   = setContractGovernanceParams.targetContractAddress;
+            const newGovernanceAddress   : address   = setContractGovernanceParams.newGovernanceAddress;
+
+            // set new governance operation
+            const setNewGovernanceOperation : operation = Tezos.transaction(
+              newGovernanceAddress,
+              0tez, 
+              getSetGovernanceEntrypoint(targetContractAddress)
+            );
+
+            operations := setNewGovernanceOperation # operations;
 
           }
 
@@ -374,10 +408,10 @@ block {
 
         // find and get updateConfig entrypoint of delegation contract
         const updateWhitelistDevelopersSetEntrypoint = case (Tezos.get_entrypoint_opt(
-            "%updateWhitelistDevelopersSet",
+            "%updateWhitelistDevelopers",
             s.governanceAddress) : option(contract(address))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateWhitelistDevelopersSet entrypoint in Governance Contract not found") : contract(address))
+                | None        -> (failwith("updateWhitelistDevelopers entrypoint in Governance Contract not found") : contract(address))
             ];
 
         // update delegation config operation

@@ -29,7 +29,7 @@ block {
 function lambdaSetGovernance(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorage) : return is
 block {
     
-    checkSenderIsGovernance(s);
+    checkSenderIsGovernanceProxy(s);
 
     case treasuryFactoryLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {

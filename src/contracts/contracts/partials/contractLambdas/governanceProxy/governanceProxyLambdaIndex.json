@@ -13,30 +13,34 @@
   },
   {
     "index": 3,
-    "name": "updateContractMetadata"
+    "name": "setContractGovernance"
   },
   {
     "index": 4,
-    "name": "updateContractWhitelistMap"
+    "name": "updateContractMetadata"
   },
   {
     "index": 5,
-    "name": "updateContractGeneralMap"
+    "name": "updateContractWhitelistMap"
   },
   {
     "index": 6,
-    "name": "updateContractWhitelistTokenMap"
+    "name": "updateContractGeneralMap"
   },
   {
     "index": 7,
-    "name": "updateGovernanceConfig"
+    "name": "updateContractWhitelistTokenMap"
   },
   {
     "index": 8,
-    "name": "updateDelegationConfig"
+    "name": "updateGovernanceConfig"
   },
   {
     "index": 9,
+    "name": "updateDelegationConfig"
+  },
+  {
+    "index": 10,
     "name": "updateWhitelistDevelopersSet"
   }
 ]

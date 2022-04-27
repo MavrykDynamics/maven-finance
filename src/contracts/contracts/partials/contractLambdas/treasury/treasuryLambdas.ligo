@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
     
-    checkSenderIsGovernance(s);
+    checkSenderIsGovernanceProxy(s);
 
     case treasuryLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {

@@ -146,6 +146,16 @@ case (Tezos.get_entrypoint_opt(
       ];
 
 
+// // governance proxy lamba helper function to get setGovernance entrypoint
+// function getSetGovernanceEntrypoint(const contractAddress : address) : contract(address) is
+// case (Tezos.get_entrypoint_opt(
+//       "%setGovernance",
+//       contractAddress) : option(contract(address))) of [
+//           Some(contr) -> contr
+//         | None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
+//       ];
+
+
 
 // governance proxy lamba helper function to get updateMetadata entrypoint
 function getUpdateMetadataEntrypoint(const contractAddress : address) : contract(updateMetadataType) is
