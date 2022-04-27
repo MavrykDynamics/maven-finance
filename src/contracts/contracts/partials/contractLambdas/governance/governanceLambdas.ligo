@@ -46,7 +46,7 @@ block {
     // 2. send pause all operations to main contracts
 
     // check that sender is from break glass contract
-    checkSenderIsBreakGlassContract(s);
+    checkSenderIsAdmin(s);
 
     var operations : list(operation) := nil;
 
@@ -58,8 +58,6 @@ block {
                       Some(_address) -> _address
                     | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
                 ];
-
-                // if s.admin =/= _breakGlassAddress then failwith("Error. ")
 
                 const getGlassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, _breakGlassAddress);
                 const glassBroken: bool = case getGlassBrokenView of [

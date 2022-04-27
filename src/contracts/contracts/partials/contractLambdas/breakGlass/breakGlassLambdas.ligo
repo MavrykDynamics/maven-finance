@@ -517,7 +517,7 @@ block {
     checkSenderIsCouncilMember(s);
 
     case breakGlassLambdaAction of [
-        | LambdaSetSingleContractAdmin(_parameters) -> {
+        | LambdaPropagateBreakGlass(_parameters) -> {
 
                 const emptyAddressMap  : addressMapType      = map [];
                 const emptyStringMap   : stringMapType   = map [];
@@ -584,8 +584,7 @@ block {
                     Some (value) -> value
                 |   None -> failwith (error_VIEW_GET_WHITELIST_DEVELOPERS_NOT_FOUND)
                 ];
-                // TODO -> Only whitelisted devs? Not governance or breakGlass
-                if Set.mem(newAdminAddress, whitelistDevelopers) then skip
+                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = s.governanceAddress or newAdminAddress = Tezos.self_address then skip
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                 const addressMap   : addressMapType      = map [
@@ -649,9 +648,8 @@ block {
                 const whitelistDevelopers: whitelistDevelopersType = case getWhitelistDevelopersView of [
                     Some (value) -> value
                 |   None -> failwith (error_VIEW_GET_WHITELIST_DEVELOPERS_NOT_FOUND)
-                ];
-                // TODO -> Only whitelisted devs? Not governance or breakGlass
-                if Set.mem(newAdminAddress, whitelistDevelopers) then skip
+                ];                
+                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = s.governanceAddress or newAdminAddress = Tezos.self_address then skip
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
                 
                 const addressMap   : addressMapType      = map [
@@ -1084,8 +1082,7 @@ block {
                             Some (value) -> value
                         |   None -> failwith (error_VIEW_GET_WHITELIST_DEVELOPERS_NOT_FOUND)
                         ];
-                        // TODO -> Only whitelisted devs? Not governance or breakGlass
-                        if Set.mem(newAdminAddress, whitelistDevelopers) then skip
+                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = s.governanceAddress or newAdminAddress = Tezos.self_address then skip
                         else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                         const setSingleContractAdminOperation : operation = Tezos.transaction(
@@ -1117,8 +1114,7 @@ block {
                             Some (value) -> value
                         |   None -> failwith (error_VIEW_GET_WHITELIST_DEVELOPERS_NOT_FOUND)
                         ];
-                        // TODO -> Only whitelisted devs? Not governance or breakGlass
-                        if Set.mem(newAdminAddress, whitelistDevelopers) then skip
+                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = s.governanceAddress or newAdminAddress = Tezos.self_address then skip
                         else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                         // Set self as contract admin
