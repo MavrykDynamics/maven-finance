@@ -18,18 +18,21 @@ block {
     const id : nat = case executeAction of [
       
       (* Update Lambda Function *)    
-      | UpdateProxyLambda(_v)                  -> 1n
+      | UpdateProxyLambda (_v)                 -> 1n
 
       (* General Controls *)    
-      | SetContractAdmin(_v)                   -> 2n
-      | UpdateContractMetadata(_v)             -> 3n
+      | SetContractAdmin (_v)                  -> 2n
+      | UpdateContractMetadata (_v)            -> 3n
       | UpdateContractWhitelistMap (_v)        -> 4n
       | UpdateContractGeneralMap (_v)          -> 5n
       | UpdateContractWhitelistTokenMap (_v)   -> 6n
       
       (* Update Configs *)    
-      | UpdateGovernanceConfig(_v)             -> 7n
-      | UpdateDelegationConfig(_v)             -> 8n
+      | UpdateGovernanceConfig (_v)            -> 7n
+      | UpdateDelegationConfig (_v)            -> 8n
+
+      (* BreakGlass Control *)
+      | UpdateWhitelistDevelopersSet (_v)      -> 9n
 
     ];
 
@@ -354,6 +357,41 @@ block {
     | _ -> skip
     ]
 
+} with (operations, s)
+
+
+
+function updateWhitelistDevelopersSet(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateWhitelistDevelopersSet(developer) -> {
+
+        // find and get updateConfig entrypoint of delegation contract
+        const updateWhitelistDevelopersSetEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateWhitelistDevelopersSet",
+            governanceAddress) : option(contract(address))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("updateWhitelistDevelopersSet entrypoint in Governance Contract not found") : contract(address))
+            ];
+
+        // update delegation config operation
+        const updateWhitelistDevelopersSetOperation : operation = Tezos.transaction(
+          (developer),
+          0tez, 
+          updateWhitelistDevelopersSetEntrypoint
+          );
+
+        operations := updateWhitelistDevelopersSetOperation # operations;
+
+        }
+    | _ -> skip
+    ]
 } with (operations, s)
 
 
