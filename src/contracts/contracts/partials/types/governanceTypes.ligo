@@ -330,6 +330,7 @@ type governanceLambdaActionType is
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
 | LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsParams
+| LambdaUpdateWhitelistDevelopers             of (address)   
 
   // Governance Cycle Lambdas
 | LambdaStartNextRound                        of (bool)
@@ -366,10 +367,9 @@ type governanceStorage is [@layout:comb] record [
     governanceProxyAddress            : address;     
   
     whitelistContracts                : whitelistContractsType;
-    whitelistTokenContracts           : whitelistTokenContractsType;      
+    whitelistTokenContracts           : whitelistTokenContractsType;
+    whitelistDevelopers               : whitelistDevelopersType;  
     generalContracts                  : generalContractsType;
-
-    whitelistDevelopers               : whitelistDevelopersType;
     
     proposalLedger                    : proposalLedgerType;
     snapshotLedger                    : snapshotLedgerType;

@@ -43,6 +43,7 @@ type governanceAction is
     | UpdateWhitelistContracts        of updateWhitelistContractsParams
     | UpdateGeneralContracts          of updateGeneralContractsParams
     | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
+    | UpdateWhitelistDevelopers       of (address)
     
       // Governance Cycle Entrypoints
     | StartNextRound                  of bool
@@ -1009,6 +1010,24 @@ block {
 
 } with response
 
+
+
+// (*  updateWhitelistDevelopers entrypoint *)
+function updateWhitelistDevelopers(const developer: address; var s: governanceStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistDevelopers"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistDevelopers(developer);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -1362,6 +1381,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
+        | UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
 
           // Governance Cycle Entrypoints
         | StartNextRound(parameters)                  -> startNextRound(parameters, s)
