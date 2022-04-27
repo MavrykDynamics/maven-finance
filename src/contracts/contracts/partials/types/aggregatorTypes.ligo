@@ -73,10 +73,12 @@ type transferDestination is [@layout:comb] record[
   token_id: nat;
   amount: nat;
 ];
+
 type transfer is [@layout:comb] record[
   from_: address;
   txs: list(transferDestination);
 ];
+
 type newTransferType is list(transfer);
 type satelliteRecordType is [@layout:comb] record [
     status                : nat;        // active: 1; inactive: 0; 

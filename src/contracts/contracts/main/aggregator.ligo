@@ -113,6 +113,9 @@ function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
+// ------------------------------------------------------------------------------
+// Admin Helper Functions End
+// ------------------------------------------------------------------------------
 
 
 function checkTezosAmount(const s: aggregatorStorage): unit is
@@ -315,6 +318,11 @@ function getRewardAmountXTZ(const oracleAddress: address; const s: aggregatorSto
     | None -> 0n
   ]
 
+function getRewardAmountXTZ(const oracleAddress: address; const s: aggregatorStorage) : nat is
+  case Map.find_opt(oracleAddress, s.oracleRewardsXTZ) of [
+      Some (v) -> (v)
+    | None -> 0n
+  ]
 
 
 function updateRewards (const s: aggregatorStorage) : oracleRewardsMVKType is block {
@@ -474,6 +482,34 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get last completed round price *)
+[@view] function lastCompletedRoundPrice (const _ : unit ; const s: aggregatorStorage) : lastCompletedRoundPriceReturnType is block {
+  const withDecimal : lastCompletedRoundPriceReturnType = record [
+    price= s.lastCompletedRoundPrice.price;
+    percentOracleResponse= s.lastCompletedRoundPrice.percentOracleResponse;
+    round= s.lastCompletedRoundPrice.round;
+    decimals= s.config.decimals;
+  ]
+} with (withDecimal)
+
+(* View: get decimals *)
+[@view] function decimals (const _ : unit ; const s: aggregatorStorage) : nat is s.config.decimals;
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
+
+  
 
 
 // ------------------------------------------------------------------------------
@@ -720,6 +756,9 @@ block{
 // Reward Entrypoints End
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+// Reward Entrypoints End
+// ------------------------------------------------------------------------------
 
 
 // ------------------------------------------------------------------------------
