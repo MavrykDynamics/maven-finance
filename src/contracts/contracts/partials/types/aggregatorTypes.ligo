@@ -1,6 +1,7 @@
 type adminType is address;
 type maintainerType is address;
 
+type metadataType is big_map (string, bytes);
 
 type observationCommitsType    is map (address, bytes);
 type observationRevealsType    is map (address, nat);
@@ -91,12 +92,22 @@ type satelliteRecordType is [@layout:comb] record [
     registeredDateTime    : timestamp;  
 ]
 
+type updateMetadataType is [@layout:comb] record [
+    metadataKey      : string;
+    metadataHash     : bytes; 
+]
+
+type setLambdaType is [@layout:comb] record [
+      name                  : string;
+      func_bytes            : bytes;
+]
 type lambdaLedgerType is big_map(string, bytes)
 
 type aggregatorLambdaActionType is 
 
     // Housekeeping Entrypoints
   | LambdaSetAdmin                      of setAdminParams
+  | LambdaUpdateMetadata                of updateMetadataType
   | LambdaUpdateConfig                  of updateConfigParams
   | LambdaAddOracle                     of addOracleParams
   | LambdaRemoveOracle                  of address
@@ -118,8 +129,10 @@ type aggregatorLambdaActionType is
 type aggregatorStorage is [@layout:comb] record [
     
     admin                     : adminType;
-    mvkTokenAddress           : address;
+    metadata                  : metadataType;
     config                    : aggregatorConfigType;
+
+    mvkTokenAddress           : address;
 
     round                     : nat;
     switchBlock               : nat;

@@ -1,0 +1,46 @@
+[
+  {
+    "index": 0,
+    "name": "lambdaSetAdmin"
+  },
+  {
+    "index": 1,
+    "name": "lambdaUpdateMetadata"
+  },
+  {
+    "index": 2,
+    "name": "lambdaUpdateConfig"
+  },
+  {
+    "index": 3,
+    "name": "lambdaAddOracle"
+  },
+  {
+    "index": 4,
+    "name": "lambdaRemoveOracle"
+  },
+  {
+    "index": 5,
+    "name": "lambdaRequestRateUpdate"
+  },
+  {
+    "index": 6,
+    "name": "lambdaRequestRateUpdateDeviation"
+  },
+  {
+    "index": 7,
+    "name": "lambdaSetObservationCommit"
+  },
+  {
+    "index": 8,
+    "name": "lambdaSetObservationReveal"
+  },
+  {
+    "index": 9,
+    "name": "lambdaWithdrawRewardXTZ"
+  },
+  {
+    "index": 10,
+    "name": "lambdaWithdrawRewardMVK"
+  }  
+]

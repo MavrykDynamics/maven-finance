@@ -18,6 +18,7 @@ type aggegatorAction is
 
     // Housekeeping Entrypoints
   | SetAdmin                      of setAdminParams
+  | UpdateMetadata                of updateMetadataType
   | UpdateConfig                  of updateConfigParams
   | AddOracle                     of addOracleParams
   | RemoveOracle                  of address
@@ -42,6 +43,39 @@ type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggrega
 
 // ------------------------------------------------------------------------------
 //
+// Error Codes Begin
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                             = 0n;
+[@inline] const error_ONLY_MAINTAINER_ALLOWED                                = 1n;
+[@inline] const error_ONLY_AUTHORIZED_ORACLES_ALLOWED                        = 2n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                      = 3n;
+[@inline] const error_NOT_ENOUGH_TEZ_RECEIVED                                = 4n;
+
+[@inline] const error_WRONG_ROUND_NUMBER                                     = 5n;
+[@inline] const error_LAST_ROUND_IS_NOT_COMPLETE                             = 6n;
+[@inline] const error_YOU_CANNOT_COMMIT_NOW                                  = 7n;
+[@inline] const error_YOU_CANNOT_REVEAL_NOW                                  = 8n;
+[@inline] const error_NOT_ENOUGH_TEZ_IN_CONTRACT_TO_WITHDRAW                 = 9n;
+[@inline] const error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT                     = 10n;
+[@inline] const error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL                     = 11n;
+[@inline] const error_ORACLE_DID_NOT_ANSWER                                  = 12n;
+
+[@inline] const error_GET_SATELLITE_OPT_VIEW_NOT_FOUND                       = 13n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND        = 14n;
+
+[@inline] const error_LAMBDA_NOT_FOUND                                       = 15n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                = 16n;
+
+// ------------------------------------------------------------------------------
+//
+// Error Codes End
+//
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
+//
 // Helper Functions Begin
 //
 // ------------------------------------------------------------------------------
@@ -51,25 +85,31 @@ type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggrega
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAdmin(const s: aggregatorStorage): unit is
-  if Tezos.sender =/= s.admin then failwith("Only admin can do this action")
+  if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
 
 
 
 function checkMaintainership(const s: aggregatorStorage): unit is
-  if Tezos.sender =/= s.config.maintainer then failwith("Only maintainer can do this action")
+  if Tezos.sender =/= s.config.maintainer then failwith(error_ONLY_MAINTAINER_ALLOWED)
   else unit
 
 
 
 function checkIfWhiteListed(const s: aggregatorStorage): unit is
-  if not Map.mem(Tezos.sender, s.oracleAddresses) then failwith("Only authorized oracle contract can do this action")
+  if not Map.mem(Tezos.sender, s.oracleAddresses) then failwith(error_ONLY_AUTHORIZED_ORACLES_ALLOWED)
   else unit
 
 
 
+function checkNoAmount(const _p : unit) : unit is
+    if (Tezos.amount = 0tez) then unit
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+
+
+
 function checkTezosAmount(const s: aggregatorStorage): unit is
-  if Tezos.amount < (s.config.minimalTezosAmountDeviationTrigger * 1tez) then failwith("You should send XTZ to call this entrypoint")
+  if Tezos.amount < (s.config.minimalTezosAmountDeviationTrigger * 1tez) then failwith(error_NOT_ENOUGH_TEZ_RECEIVED)
   else unit
 
 // ------------------------------------------------------------------------------
@@ -88,43 +128,43 @@ function isOracleAddress(const contractAddress: address; const oracleAddresses: 
 
 
 function checkIfCorrectRound(const round: nat; const s: aggregatorStorage): unit is
-  if round =/= s.round then failwith("Wrong round number")
+  if round =/= s.round then failwith(error_WRONG_ROUND_NUMBER)
   else unit
 
 
 
 function checkIfLastRoundCompleted(const s: aggregatorStorage): unit is
-  if s.lastCompletedRoundPrice.round =/= s.round then failwith("Last round is not completed")
+  if s.lastCompletedRoundPrice.round =/= s.round then failwith(error_LAST_ROUND_IS_NOT_COMPLETE)
   else unit
 
 
 
 function checkIfTimeToCommit(const s: aggregatorStorage): unit is
-  if (s.switchBlock =/= 0n and Tezos.level > s.switchBlock) then failwith("You cannot commit now")
+  if (s.switchBlock =/= 0n and Tezos.level > s.switchBlock) then failwith(error_YOU_CANNOT_COMMIT_NOW)
   else unit
 
 
 
 function checkIfTimeToReveal(const s: aggregatorStorage): unit is
-  if (s.switchBlock = 0n or Tezos.level <= s.switchBlock) then failwith("You cannot reveal now")
+  if (s.switchBlock = 0n or Tezos.level <= s.switchBlock) then failwith(error_YOU_CANNOT_REVEAL_NOW)
   else unit
 
 
 
 function checkEnoughXTZInTheContract(const amountToSend: tez; const s: aggregatorStorage): unit is
-  if (Tezos.balance + s.deviationTriggerInfos.amount) < amountToSend then failwith("Not enought XTZ in the contract to withdraw")
+  if (Tezos.balance + s.deviationTriggerInfos.amount) < amountToSend then failwith(error_NOT_ENOUGH_TEZ_IN_CONTRACT_TO_WITHDRAW)
   else unit
 
 
 
 function checkIfOracleAlreadyAnsweredCommit(const s: aggregatorStorage): unit is
-  if (Map.mem(Tezos.sender, s.observationCommits)) then failwith("Oracle already answer a commit")
+  if (Map.mem(Tezos.sender, s.observationCommits)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT)
   else unit
 
 
 
 function checkIfOracleAlreadyAnsweredReveal(const s: aggregatorStorage): unit is
-  if (Map.mem(Tezos.sender, s.observationReveals)) then failwith("Oracle already answer a reveal")
+  if (Map.mem(Tezos.sender, s.observationReveals)) then failwith(error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL)
   else unit
 
 
@@ -136,7 +176,7 @@ function hasherman (const s : bytes) : bytes is Crypto.sha256 (s)
 function getObservationCommit(const addressKey: address; const observationCommits: observationCommitsType) : bytes is
   case Map.find_opt(addressKey, observationCommits) of [
       Some (v) -> (v)
-    | None -> failwith("Oracle didn't answer")
+    | None -> failwith(error_ORACLE_DID_NOT_ANSWER)
   ]
 
 
@@ -280,7 +320,7 @@ function updateRewards (const s: aggregatorStorage) : oracleRewardsMVKType is bl
     const satelliteOptView : option(satelliteRecordType) = Tezos.call_view ("getSatelliteOpt", key, s.mvkTokenAddress);
     const satelliteOpt: satelliteRecordType = case satelliteOptView of [
         Some (value) -> value
-      | None -> (failwith ("Error. GetSatelliteOpt View not found in the Doorman Contract") : satelliteRecordType)
+      | None -> (failwith (error_GET_SATELLITE_OPT_VIEW_NOT_FOUND) : satelliteRecordType)
     ];
 
     // totalVotingPower calcultation
@@ -331,7 +371,7 @@ block{
     const tokenContract: contract(newTransferType) =
         case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of [
               Some (c) -> c
-          |   None -> (failwith("Transfer entrypoint not found in Token contract"): contract(newTransferType))
+          |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND): contract(newTransferType))
         ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
@@ -397,6 +437,23 @@ block {
 
 // ------------------------------------------------------------------------------
 //
+// Lambda Methods Begin
+//
+// ------------------------------------------------------------------------------
+
+// Aggregator Lambdas:
+#include "../partials/contractLambdas/aggregator/aggregatorLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Methods End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
 // Entrypoints Begin
 //
 // ------------------------------------------------------------------------------
@@ -432,34 +489,79 @@ block{
 
 
 
+(*  updateMetadata entrypoint  *)
+function updateMetadata(const updateMetadataParams: updateMetadataType; const s: aggregatorStorage): return is
+block{
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
+
+
+
 (*  updateConfig entrypoint  *)
 function updateConfig(const newConfig: aggregatorConfigType; const s: aggregatorStorage): return is
 block{
-  checkSenderIsAdmin(s);
-} with (noOperations, s with record[config=newConfig])
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaUpdateConfig(newConfig);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
 
 
 
 (*  addOracle entrypoint  *)
 function addOracle(const oracleAddress: address; const s: aggregatorStorage): return is
+block{
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddOracle"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-  if isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't add an already present whitelisted oracle")
-  else block{
-    checkSenderIsAdmin(s);
-    const updatedWhiteListedContract: oracleAddressesType = Map.update(oracleAddress, Some( True), s.oracleAddresses);
-  } with (noOperations, s with record[oracleAddresses = updatedWhiteListedContract])
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaAddOracle(oracleAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
 
 
 
 (*  removeOracle entrypoint  *)
 function removeOracle(const oracleAddress: address; const s: aggregatorStorage): return is
+block{
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveOracle"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-  if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't remove a not present whitelisted oracle")
-  else block{
-    checkSenderIsAdmin(s);
-    const updatedWhiteListedContract: oracleAddressesType = Map.remove(oracleAddress, s.oracleAddresses);
-  } with (noOperations, s with record[ oracleAddresses = updatedWhiteListedContract ])
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaRemoveOracle(oracleAddress);
 
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
@@ -474,141 +576,76 @@ function removeOracle(const oracleAddress: address; const s: aggregatorStorage):
 (*  requestRateUpdate entrypoint  *)
 function requestRateUpdate(const s: aggregatorStorage): return is
 block{
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdate"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    checkMaintainership(s);
-    
-    const newRound: nat = s.round + 1n;
-    const emptyMapCommit : observationCommitsType = map [];
-    const emptyMapReveals : observationRevealsType = map [];
-    var operations : list(operation) := nil;
-    var newDeviationTriggerInfos: deviationTriggerInfosType := s.deviationTriggerInfos;
-    if (s.deviationTriggerInfos.amount =/= 0tez) then { // -> previous round = deviation trigger
-      newDeviationTriggerInfos :=
-            record[
-                oracleAddress=Tezos.sender;
-                amount=0tez;
-                roundPrice=0n;
-            ];
-      if ( // if deviation > or < % deviation trigger
-        (s.lastCompletedRoundPrice.price * (10000n + s.config.perthousandDeviationTrigger) / 10000n > s.deviationTriggerInfos.roundPrice) or
-        (s.lastCompletedRoundPrice.price * abs (10000n - s.config.perthousandDeviationTrigger) / 10000n < s.deviationTriggerInfos.roundPrice)) then {
-        const receiver : contract (unit) =
-          case (Tezos.get_contract_opt (s.deviationTriggerInfos.oracleAddress) : option(contract(unit))) of [
-            Some (contract) -> contract
-          | None  -> (failwith ("Not a contract") : contract (unit))
-          ];
-        const operation = Tezos.transaction(Unit, s.deviationTriggerInfos.amount, receiver);
-        operations := operation # operations;
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaRequestRateUpdate(unit);
 
-      } else skip;
-    } else skip;
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
 
-    const newOracleRewardsMVK: oracleRewardsMVKType = updateRewards(s);
-    const newOracleRewardsXTZ = Map.update(Tezos.sender, Some (getRewardAmountXTZ(Tezos.sender, s) + s.config.rewardAmountXTZ), s.oracleRewardsXTZ);
-
-} with (operations, s with record[round=newRound; observationReveals=emptyMapReveals; observationCommits=emptyMapCommit; deviationTriggerInfos=newDeviationTriggerInfos; switchBlock=0n; oracleRewardsXTZ=newOracleRewardsMVK; oracleRewardsXTZ = newOracleRewardsXTZ])
+} with response
 
 
 
 (*  requestRateUpdateDeviation entrypoint  *)
 function requestRateUpdateDeviation(const params: setObservationCommitType; const s: aggregatorStorage): return is
 block{
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestRateUpdateDeviation"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    checkIfWhiteListed(s);
-    checkIfCorrectRound(abs(params.roundId - 1), s);
-    checkIfLastRoundCompleted(s);
-    checkTezosAmount(s);
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaRequestRateUpdDeviation(params);
 
-    const newRound: nat = s.round + 1n;
-    const newObservationCommits = map[
-            ((Tezos.sender : address)) -> params.sign];
-    const emptyMapReveals : observationRevealsType = map [];
-    var operations : list(operation) := nil;
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
 
-    if (s.deviationTriggerInfos.amount =/= 0tez and
-    (
-     (s.lastCompletedRoundPrice.price * (10000n + s.config.perthousandDeviationTrigger / 2n) / 10000n < s.deviationTriggerInfos.roundPrice)
-     or
-     (s.lastCompletedRoundPrice.price * abs (10000n - s.config.perthousandDeviationTrigger / 2n) / 10000n > s.deviationTriggerInfos.roundPrice))
-    ) then { // -> previous round = deviation trigger
-        const receiver : contract (unit) =
-          case (Tezos.get_contract_opt (s.deviationTriggerInfos.oracleAddress) : option(contract(unit))) of [
-            Some (contract) -> contract
-          | None  -> (failwith ("Not a contract") : contract (unit))
-          ];
-        const operation = Tezos.transaction(Unit, s.deviationTriggerInfos.amount, receiver);
-        operations := operation # operations;
-
-    } else skip;
-
-    const newDeviationTriggerInfos: deviationTriggerInfosType =
-          record[
-              oracleAddress=Tezos.sender;
-              amount=Tezos.amount;
-              roundPrice= s.lastCompletedRoundPrice.price;
-          ];
-    
-    const newOracleRewardsMVK: oracleRewardsMVKType = updateRewards(s);
-    const newOracleRewardsXTZ = Map.update(Tezos.sender, Some (getRewardAmountXTZ(Tezos.sender, s) + s.config.rewardAmountXTZ), s.oracleRewardsXTZ);
-
-} with (operations, s with record[round=newRound; observationCommits=newObservationCommits; observationReveals=emptyMapReveals; deviationTriggerInfos=newDeviationTriggerInfos; switchBlock=0n; oracleRewardsXTZ=newOracleRewardsMVK; oracleRewardsXTZ = newOracleRewardsXTZ])
+} with response
 
 
 
 (*  setObservationCommit entrypoint  *)
 function setObservationCommit(const params: setObservationCommitType; const s: aggregatorStorage): return is
 block{
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationCommit"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-   checkIfWhiteListed(s);
-   checkIfTimeToCommit(s);
-   checkIfCorrectRound(params.roundId, s);
-   checkIfOracleAlreadyAnsweredCommit(s);
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetObservationCommit(params);
 
-   const observationsDataUpdated: observationCommitsType = Map.update(( Tezos.sender ), Some( params.sign ), s.observationCommits);
-   const numberOfObservationForRound: nat = Map.size (observationsDataUpdated);
-   var percentOracleResponse := numberOfObservationForRound * 100n / Map.size (s.oracleAddresses);
-   var newSwitchBlock: nat := s.switchBlock;
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
 
-   if ((percentOracleResponse >= s.config.percentOracleThreshold) and s.switchBlock = 0n) then {
-     newSwitchBlock := Tezos.level + s.config.numberBlocksDelay;
-   } else skip 
-
-} with (noOperations, s with record[observationCommits=observationsDataUpdated; switchBlock=newSwitchBlock])
+} with response
 
 
 
 (*  setObservationReveal entrypoint  *)
 function setObservationReveal(const params: setObservationRevealType; const s: aggregatorStorage): return is
 block{
-
-   checkIfWhiteListed(s);
-   checkIfTimeToReveal(s);
-   checkIfCorrectRound(params.roundId, s);
-   checkIfOracleAlreadyAnsweredReveal(s);
-
-    const oracleCommit: bytes = getObservationCommit(Tezos.sender, s.observationCommits);
-    const hashedPack: bytes = hasherman(Bytes.pack (params.priceSalted));
-    if (hashedPack = oracleCommit)
-    then failwith("This reveal does not match your commitment")
-    else skip;
-   const price: nat = params.priceSalted.0;
-   const observationsDataUpdated: observationRevealsType = Map.update(( Tezos.sender ), Some( price ), s.observationReveals);
-   const oracleWhiteListedSize: nat = Map.size (s.oracleAddresses);
-   const numberOfObservationForRound: nat = Map.size (observationsDataUpdated);
-
-   var newLastCompletedRoundPrice := s.lastCompletedRoundPrice;
-   var percentOracleResponse := numberOfObservationForRound * 100n / oracleWhiteListedSize;
-
-   if (percentOracleResponse >= s.config.percentOracleThreshold) then {
-    const median: nat = getMedianFromMap(pivotObservationMap(observationsDataUpdated), numberOfObservationForRound);
-    newLastCompletedRoundPrice := record [
-      round= s.round;
-      price= median;
-      percentOracleResponse= percentOracleResponse;
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetObservationReveal"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
-   } else skip
 
-} with (noOperations, s with record[observationReveals=observationsDataUpdated; lastCompletedRoundPrice = newLastCompletedRoundPrice])
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetObservationReveal(params);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
 
 // ------------------------------------------------------------------------------
 // Oracle Entrypoints End
@@ -621,37 +658,39 @@ block{
 // ------------------------------------------------------------------------------
 
 (*  withdrawRewardXTZ entrypoint  *)
-function withdrawRewardXTZ(const receiver_: address; const s: aggregatorStorage): return is
+function withdrawRewardXTZ(const receiver: address; const s: aggregatorStorage): return is
 block{
-
-    checkIfWhiteListed(s);
-
-    const reward: tez = getRewardAmountXTZ(Tezos.sender, s) * 1mutez;
-    checkEnoughXTZInTheContract(reward, s);
-    const newOracleRewards = Map.update(Tezos.sender, Some (0n), s.oracleRewardsXTZ);
-    const receiver : contract (unit) =
-    case (Tezos.get_contract_opt (receiver_) : option(contract(unit))) of [
-        Some (contract) -> contract
-      | None  -> (failwith ("Not a contract") : contract (unit))
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawRewardXTZ"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
-    
-    const operation = Tezos.transaction(Unit, reward, receiver);
-    
-} with (list[operation],s with record[oracleRewardsXTZ = newOracleRewards])
 
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaWithdrawRewardXTZ(receiver);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
 
 
 (*  withdrawRewardMVK entrypoint  *)
 function withdrawRewardMVK(const receiver: address; const s: aggregatorStorage): return is
 block{
+  
+  const lambdaBytes : bytes = case s.lambdaLedger["lambdaWithdrawRewardMVK"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    checkIfWhiteListed(s);
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaWithdrawRewardMVK(receiver);
 
-    const reward = getRewardAmountMVK(Tezos.sender, s) * s.config.rewardAmountMVK;
-    const newOracleRewards = Map.update(Tezos.sender, Some (0n), s.oracleRewardsMVK);
-    const operation: operation = transferFa2Token(Tezos.self_address, receiver, reward, 0n, s.mvkTokenAddress);
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
 
-} with (list[operation],s with record[oracleRewardsMVK = newOracleRewards])
+} with response
 
 // ------------------------------------------------------------------------------
 // Reward Entrypoints End
@@ -669,23 +708,24 @@ block{
 function main (const action : aggegatorAction; const aggregatorStorage : aggregatorStorage) : return is
   case action of [
 
-    | Default (_u)                          -> default(aggregatorStorage)
+    | Default (_parameters)                     -> default(aggregatorStorage)
       
       // Housekeeping Entrypoints
-    | SetAdmin (params)                     -> setAdmin(params, aggregatorStorage)
-    | UpdateConfig (params)                 -> updateConfig(params, aggregatorStorage)
-    | AddOracle (c)                         -> addOracle(c, aggregatorStorage)
-    | RemoveOracle (c)                      -> removeOracle(c, aggregatorStorage)
+    | SetAdmin (parameters)                     -> setAdmin(parameters, aggregatorStorage)
+    | UpdateMetadata (parameters)               -> updateMetadata(parameters, aggregatorStorage)
+    | UpdateConfig (parameters)                 -> updateConfig(parameters, aggregatorStorage)
+    | AddOracle (parameters)                    -> addOracle(parameters, aggregatorStorage)
+    | RemoveOracle (parameters)                 -> removeOracle(parameters, aggregatorStorage)
 
       // Oracle Entrypoints
-    | RequestRateUpdate (_u)                -> requestRateUpdate(aggregatorStorage)
-    | RequestRateUpdateDeviation (params)   -> requestRateUpdateDeviation(params, aggregatorStorage)
-    | SetObservationCommit (params)         -> setObservationCommit(params, aggregatorStorage)
-    | SetObservationReveal (params)         -> setObservationReveal(params, aggregatorStorage)
+    | RequestRateUpdate (_parameters)           -> requestRateUpdate(aggregatorStorage)
+    | RequestRateUpdateDeviation (parameters)   -> requestRateUpdateDeviation(parameters, aggregatorStorage)
+    | SetObservationCommit (parameters)         -> setObservationCommit(parameters, aggregatorStorage)
+    | SetObservationReveal (parameters)         -> setObservationReveal(parameters, aggregatorStorage)
 
       // Reward Entrypoints
-    | WithdrawRewardXTZ (params)            -> withdrawRewardXTZ(params, aggregatorStorage)
-    | WithdrawRewardMVK (params)            -> withdrawRewardMVK(params, aggregatorStorage)
+    | WithdrawRewardXTZ (parameters)            -> withdrawRewardXTZ(parameters, aggregatorStorage)
+    | WithdrawRewardMVK (parameters)            -> withdrawRewardMVK(parameters, aggregatorStorage)
   ];
 
 (*
