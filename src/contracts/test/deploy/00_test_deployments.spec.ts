@@ -131,7 +131,6 @@ describe('Contracts Deployment for Tests', async () => {
 
     
     governanceStorage.mvkTokenAddress  = mvkToken.contract.address
-    governanceStorage.governanceProxyAddress  = mvkToken.contract.address // TODO: REPLACE
     governanceStorage.generalContracts = MichelsonMap.fromLiteral({
       "delegation" : delegation.contract.address,
       "doorman"    : doorman.contract.address

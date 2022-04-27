@@ -89,7 +89,6 @@ export const governanceStorage: governanceStorageType = {
   snapshotMvkTotalSupply             : new BigNumber(1000000000),
   snapshotStakedMvkTotalSupply       : new BigNumber(0),
 
-  proxyLambdaLedger                  : MichelsonMap.fromLiteral({}),
   lambdaLedger                       : MichelsonMap.fromLiteral({}),
 
   financialRequestLedger             : MichelsonMap.fromLiteral({}),
