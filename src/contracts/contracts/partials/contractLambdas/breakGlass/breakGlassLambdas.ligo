@@ -59,7 +59,7 @@ block {
 function lambdaSetGovernance(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorage) : return is
 block {
     
-    checkSenderIsGovernance(s);
+    checkSenderIsGovernanceProxy(s);
 
     case breakGlassLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {
@@ -1137,12 +1137,19 @@ block {
                         // ensure settings (entrypoints unpaused, admin reset to governance dao) has been done
                         checkGlassIsBroken(s);          // check that glass is broken
 
-                        // Reset all contracts admin to governance contract
-                        s.admin := s.governanceAddress;
+                        // Reset all contracts admin to governance proxy contract
+                        // Get governance proxy address first
+                        const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+                        const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+                            Some (value) -> value
+                        | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
+                        ];
+
+                        s.admin := governanceProxyAddress;
 
                         for _contractName -> contractAddress in map s.generalContracts block {
                             case (Tezos.get_entrypoint_opt("%setAdmin", contractAddress) : option(contract(address))) of [
-                                    Some(contr) -> operations := Tezos.transaction(s.governanceAddress, 0tez, contr) # operations
+                                    Some(contr) -> operations := Tezos.transaction(governanceProxyAddress, 0tez, contr) # operations
                                 |   None -> skip
                             ];
                         };

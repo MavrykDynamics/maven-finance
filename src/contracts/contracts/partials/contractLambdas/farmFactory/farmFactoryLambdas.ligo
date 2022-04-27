@@ -29,7 +29,7 @@ block {
 function lambdaSetGovernance(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage) : return is
 block {
     
-    checkSenderIsGovernance(s);
+    checkSenderIsGovernanceProxy(s);
 
     case farmFactoryLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {

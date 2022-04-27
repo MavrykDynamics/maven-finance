@@ -797,6 +797,10 @@ block {
 [@view] function getWhitelistDevelopers(const _: unit; var s : governanceStorage) : whitelistDevelopersType is
   s.whitelistDevelopers
 
+(* View: get current governance proxy contract *)
+[@view] function getGovernanceProxyAddress(const _: unit; var s : governanceStorage) : address is
+  s.governanceProxyAddress
+
 // ------------------------------------------------------------------------------
 //
 // Views End

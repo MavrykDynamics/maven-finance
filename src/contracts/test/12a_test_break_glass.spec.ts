@@ -18,6 +18,7 @@
 // import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 // import councilAddress from '../deployments/councilAddress.json';
 // import governanceAddress from '../deployments/governanceAddress.json';
+// import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
 // import emergencyGovernanceAddress from '../deployments/emergencyGovernanceAddress.json';
 // import breakGlassAddress from '../deployments/breakGlassAddress.json';
 // import vestingAddress from '../deployments/vestingAddress.json';
@@ -713,7 +714,7 @@
 //                     updateConfigOperation         = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
 //                     await updateConfigOperation.confirmation();
 
-//                     var setAdminOperation         = await governanceInstance.methods.setAdmin(governanceAddress.address).send();
+//                     var setAdminOperation         = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                     await setAdminOperation.confirmation();
 
 //                     for (let entry of generalContracts){
@@ -722,8 +723,8 @@
 //                         var storage:any     = await contract.storage();
 
 //                         // Check admin
-//                         if(storage.hasOwnProperty('admin') && storage.admin!==governanceAddress.address && storage.admin!==breakGlassAddress.address){
-//                             setAdminOperation   = await contract.methods.setAdmin(governanceAddress.address).send();
+//                         if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
+//                             setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
 //                             await setAdminOperation.confirmation()
 //                         }
 //                     }

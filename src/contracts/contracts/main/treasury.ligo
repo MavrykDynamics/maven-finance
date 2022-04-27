@@ -73,7 +73,7 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_GOVERNANCE_ALLOWED                                                = 1n;
+[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                                                = 1n;
 [@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
 [@inline] const error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED                                 = 3n;
 [@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 4n;
@@ -107,14 +107,24 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : treasuryStorage) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+        Some (value) -> value
+    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
+    ];
+    if (Tezos.sender = s.admin or Tezos.sender = governanceProxyAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsGovernance(var s : treasuryStorage) : unit is
-    if (Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
+function checkSenderIsGovernanceProxy(var s : treasuryStorage) : unit is
+    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+        Some (value) -> value
+    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
+    ];
+    if (Tezos.sender = governanceProxyAddress) then unit
+        else failwith(error_ONLY_GOVERNANCE_PROXY_ALLOWED);
 
 
 

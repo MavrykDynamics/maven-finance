@@ -29,7 +29,7 @@ block {
 function lambdaSetGovernance(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
 block {
     
-    checkSenderIsGovernance(s);
+    checkSenderIsGovernanceProxy(s);
 
     case doormanLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {

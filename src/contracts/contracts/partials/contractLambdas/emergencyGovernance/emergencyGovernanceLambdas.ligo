@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType; var s : emergencyGovernanceStorage) : return is
 block {
     
-    checkSenderIsGovernance(s);
+    checkSenderIsGovernanceProxy(s);
 
     case emergencyGovernanceLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {
