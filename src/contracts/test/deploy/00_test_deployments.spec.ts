@@ -121,16 +121,16 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('governanceAddress', governance.contract.address)
     console.log('Governance Contract deployed at:', governance.contract.address)
 
-    doormanStorage.governanceAddress = governance.contract.address
-    doormanStorage.mvkTokenAddress  = mvkToken.contract.address
+    doormanStorage.governanceAddress  = governance.contract.address
+    doormanStorage.mvkTokenAddress    = mvkToken.contract.address
     doorman = await Doorman.originate(utils.tezos, doormanStorage)
 
     await saveContractAddress('doormanAddress', doorman.contract.address)
     console.log('Doorman Contract deployed at:', doorman.contract.address)
 
     delegationStorage.governanceAddress = governance.contract.address
-    delegationStorage.mvkTokenAddress  = mvkToken.contract.address
-    delegationStorage.generalContracts = MichelsonMap.fromLiteral({
+    delegationStorage.mvkTokenAddress   = mvkToken.contract.address
+    delegationStorage.generalContracts  = MichelsonMap.fromLiteral({
       doorman: doorman.contract.address,
     })
     delegationStorage.whitelistContracts = MichelsonMap.fromLiteral({
@@ -141,21 +141,6 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('delegationAddress', delegation.contract.address)
     console.log('Delegation Contract deployed at:', delegation.contract.address)
 
-    
-    governanceStorage.mvkTokenAddress  = mvkToken.contract.address
-    governanceStorage.generalContracts = MichelsonMap.fromLiteral({
-      "delegation" : delegation.contract.address,
-      "doorman"    : doorman.contract.address
-    });
-    governance = await Governance.originate(utils.tezos,governanceStorage);
-
-    await saveContractAddress('governanceAddress', governance.contract.address)
-    console.log('Governance Contract deployed at:', governance.contract.address)
-
-    governanceProxyStorage.generalContracts = MichelsonMap.fromLiteral({
-      "delegation" : delegation.contract.address,
-      "doorman"    : doorman.contract.address
-    });
     governanceProxyStorage.governanceAddress = governance.contract.address;
     governanceProxyStorage.mvkTokenAddress = mvkToken.contract.address;
     governanceProxy = await GovernanceProxy.originate(utils.tezos, governanceProxyStorage);
@@ -163,8 +148,7 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('governanceProxyAddress', governanceProxy.contract.address)
     console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
 
-
-
+    emergencyGovernanceStorage.governanceAddress = governance.contract.address
     emergencyGovernanceStorage.mvkTokenAddress  = mvkToken.contract.address
     emergencyGovernanceStorage.generalContracts = MichelsonMap.fromLiteral({
       governance: governance.contract.address,
@@ -375,6 +359,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(6, governanceProxyLambdas[6])) // updateContractWhitelistTokenMap
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(7, governanceProxyLambdas[7])) // updateGovernanceConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[8])) // updateDelegationConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(9, governanceProxyLambdas[9])) // updateDelegationConfig
   
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
       await setupGovernanceProxyLambdasOperation.confirmation()
