@@ -22,7 +22,7 @@ type satelliteRecordType is [@layout:comb] record [
     description           : string;     // string for description
     image                 : string;     // ipfs hash
     website               : string;     // satellite website if it has one
-
+    
     registeredDateTime    : timestamp;  
 ]
 

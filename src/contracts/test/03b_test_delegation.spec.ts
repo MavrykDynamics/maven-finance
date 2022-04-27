@@ -66,8 +66,6 @@ describe("Delegation tests", async () => {
         mvkTokenStorage   = await mvkTokenInstance.storage();
         governanceStorage = await governanceInstance.storage();
 
-        console.log(doormanStorage.generalContracts)
-
         console.log('-- -- -- -- -- Delegation Tests -- -- -- --')
         console.log('Doorman Contract deployed at:', doormanInstance.address);
         console.log('Delegation Contract deployed at:', delegationInstance.address);
@@ -229,8 +227,12 @@ describe("Delegation tests", async () => {
                 await delegationOperation.confirmation();
 
                 await signerFactory(bob.sk)
+
+                // Set delegation admin in order for the packed data to work
+                const setDoormanAdmin        = await doormanInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                await setDoormanAdmin.confirmation();
             } catch (e){
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         });
         beforeEach("Set signer to admin", async () => {
@@ -278,7 +280,7 @@ describe("Delegation tests", async () => {
                 delegateStake  = await doormanStorage.userStakeBalanceLedger.get(eve.pkh)
                 console.log("POST-CLAIM EVE: ", delegateRecord.unpaid.toNumber(), " | ", delegateStake.balance.toNumber())
             } catch(e){
-                console.log(e);
+                console.dir(e, {depth: 5});
             }
         });
 
@@ -441,7 +443,7 @@ describe("Delegation tests", async () => {
                     ).send();
                 await registerAsSatelliteOperation.confirmation();
             } catch(e){
-                console.log(e);
+                console.dir(e, {depth: 5});
             }
         });
 
@@ -483,7 +485,7 @@ describe("Delegation tests", async () => {
 
                 // Prepare proposal metadata
                 const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-                    'updateGovernanceConfig', 995, 'configSuccessReward'
+                    'updateContractGeneralMap', doormanAddress.address, 'bob', bob.pkh
                 ).toTransferParams();
                 const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
                 const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
@@ -545,6 +547,7 @@ describe("Delegation tests", async () => {
                 // Restart proposal round
                 nextRoundOperation              = await governanceInstance.methods.startNextRound(true).send();
                 await nextRoundOperation.confirmation();
+
                 nextRoundOperation              = await governanceInstance.methods.startNextRound(true).send();
                 await nextRoundOperation.confirmation();
                 governanceStorage               = await governanceInstance.storage();
@@ -562,8 +565,6 @@ describe("Delegation tests", async () => {
 
                 // Assertions
                 assert.equal(finalDoormanBalance.toNumber(), initDoormanBalance.toNumber() + proposalReward + proposerReward)
-                // assert.equal(firstSatelliteRecordNoClaim.unpaid.toNumber(), firstSatelliteRecordStart.unpaid.toNumber() + firstSatelliteFee)
-                // assert.equal(secondSatelliteRecordNoClaim.unpaid.toNumber(), secondSatelliteRecordStart.unpaid.toNumber() + secondSatelliteFee)
                 console.log("POST-OPERATION SATELLITE BOB: ", firstSatelliteRecordNoClaim.unpaid.toNumber(), " | ", firstSatelliteStakeNoClaim.balance.toNumber())
                 console.log("POST-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordNoClaim.unpaid.toNumber(), " | ", secondSatelliteStakeNoClaim.balance.toNumber())
 
@@ -593,8 +594,9 @@ describe("Delegation tests", async () => {
                 console.log("POST-CLAIM SATELLITE BOB: ", firstSatelliteRecordEnd.unpaid.toNumber(), " | ", firstSatelliteStakeEnd.balance.toNumber())
                 console.log("POST-CLAIM SATELLITE MALLORY: ", secondSatelliteRecordEnd.unpaid.toNumber(), " | ", secondSatelliteStakeEnd.balance.toNumber())
 
+                // Reset admin to Bob
             } catch(e){
-                console.log(e);
+                console.dir(e, {depth: 5});
             }
         });
 
@@ -636,7 +638,7 @@ describe("Delegation tests", async () => {
                 // Prepare proposal metadata
                 console.log(governanceProxyInstance.methods)
                 const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
-                    'updateGovernanceConfig', 995, 'configSuccessReward'
+                    'updateContractGeneralMap', doormanAddress.address, 'bob', bob.pkh
                 ).toTransferParams();
                 const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
                 const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
@@ -715,8 +717,6 @@ describe("Delegation tests", async () => {
 
                 // Assertions
                 assert.equal(finalDoormanBalance.toNumber(), initDoormanBalance.toNumber() + proposalReward)
-                // assert.equal(firstSatelliteRecordNoClaim.unpaid.toNumber(), firstSatelliteRecordStart.unpaid.toNumber() + firstSatelliteFee)
-                // assert.equal(secondSatelliteRecordNoClaim.unpaid.toNumber(), secondSatelliteRecordStart.unpaid.toNumber() + secondSatelliteFee)
                 console.log("POST-OPERATION SATELLITE BOB: ", firstSatelliteRecordNoClaim.unpaid.toNumber(), " | ", firstSatelliteStakeNoClaim.balance.toNumber())
                 console.log("POST-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordNoClaim.unpaid.toNumber(), " | ", secondSatelliteStakeNoClaim.balance.toNumber())
 
@@ -746,7 +746,7 @@ describe("Delegation tests", async () => {
                 console.log("POST-CLAIM SATELLITE BOB: ", firstSatelliteRecordEnd.unpaid.toNumber(), " | ", firstSatelliteStakeEnd.balance.toNumber())
                 console.log("POST-CLAIM SATELLITE MALLORY: ", secondSatelliteRecordEnd.unpaid.toNumber(), " | ", secondSatelliteStakeEnd.balance.toNumber()) 
             } catch(e){
-                console.log(e);
+                console.dir(e, {depth: 5});
             }
         });
 
@@ -759,7 +759,7 @@ describe("Delegation tests", async () => {
                 await signerFactory(alice.sk);
                 await chai.expect(delegationInstance.methods.distributeReward([bob.pkh],MVK(50)).send()).to.be.rejected;
             } catch(e){
-                console.log(e);
+                console.dir(e, {depth: 5});
             }
         });
 
@@ -780,7 +780,7 @@ describe("Delegation tests", async () => {
                 await updateGeneralContractsOperation.confirmation();
             }
             catch(e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 
@@ -801,7 +801,7 @@ describe("Delegation tests", async () => {
                 await updateGeneralContractsOperation.confirmation();
             }
             catch(e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
 
@@ -814,7 +814,7 @@ describe("Delegation tests", async () => {
                 await chai.expect(delegationInstance.methods.distributeReward([bob.pkh, trudy.pkh],MVK(50)).send()).to.be.rejected;
             }
             catch(e) {
-                console.log(e)
+                console.dir(e, {depth: 5});
             }
         })
     });

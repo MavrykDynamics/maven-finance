@@ -141,7 +141,10 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('governanceAddress', governance.contract.address)
     console.log('Governance Contract deployed at:', governance.contract.address)
 
-
+    governanceProxyStorage.generalContracts = MichelsonMap.fromLiteral({
+      "delegation" : delegation.contract.address,
+      "doorman"    : doorman.contract.address
+    });
     governanceProxyStorage.governanceAddress = governance.contract.address;
     governanceProxyStorage.mvkTokenAddress = mvkToken.contract.address;
     governanceProxy = await GovernanceProxy.originate(utils.tezos, governanceProxyStorage);
