@@ -67,7 +67,7 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                          = 0n;
-[@inline] const error_ONLY_GOVERNANCE_ALLOWED                             = 1n;
+[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                             = 1n;
 [@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED            = 2n;
 [@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                     = 3n;
 [@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                       = 4n;
@@ -98,14 +98,19 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : emergencyGovernanceStorage) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+        Some (value) -> value
+    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
+    ];
+    if (Tezos.sender = s.admin or Tezos.sender = governanceProxyAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
-function checkSenderIsGovernance(var s : emergencyGovernanceStorage) : unit is
+function checkSenderIsGovernanceProxy(var s : emergencyGovernanceStorage) : unit is
     if (Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_GOVERNANCE_ALLOWED);
+        else failwith(error_ONLY_GOVERNANCE_PROXY_ALLOWED);
 
 
 

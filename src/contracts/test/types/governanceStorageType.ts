@@ -12,7 +12,7 @@ export type governanceStorageType = {
 
   whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>;
   whitelistTokenContracts : MichelsonMap<MichelsonMapKey, unknown>;
-  whitelistDevelopers     : MichelsonMap<MichelsonMapKey, unknown>;
+  whitelistDevelopers     : Array<string>;
   generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
   proposalLedger          : MichelsonMap<MichelsonMapKey, unknown>;
