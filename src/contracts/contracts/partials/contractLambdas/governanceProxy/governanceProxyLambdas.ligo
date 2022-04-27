@@ -375,7 +375,7 @@ block {
         // find and get updateConfig entrypoint of delegation contract
         const updateWhitelistDevelopersSetEntrypoint = case (Tezos.get_entrypoint_opt(
             "%updateWhitelistDevelopersSet",
-            governanceAddress) : option(contract(address))) of [
+            s.governanceAddress) : option(contract(address))) of [
                   Some(contr) -> contr
                 | None        -> (failwith("updateWhitelistDevelopersSet entrypoint in Governance Contract not found") : contract(address))
             ];
