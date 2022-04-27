@@ -62,6 +62,7 @@ export const governanceStorage: governanceStorageType = {
   
   whitelistContracts      : MichelsonMap.fromLiteral({}),
   whitelistTokenContracts : MichelsonMap.fromLiteral({}),
+  whitelistDevelopers     : MichelsonMap.fromLiteral({}),
   generalContracts        : MichelsonMap.fromLiteral({}),
 
   proposalLedger          : MichelsonMap.fromLiteral({}),

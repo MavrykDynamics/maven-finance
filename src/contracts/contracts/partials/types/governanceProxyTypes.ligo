@@ -121,6 +121,7 @@ type executeActionParamsType is
 
 | UpdateGovernanceConfig             of updateGovernanceConfigType
 | UpdateDelegationConfig             of delegationUpdateConfigParamsType
+| UpdateWhitelistDevelopersSet       of (address)
 // | UpdateDoormanConfig                of doormanUpdateConfigParamsType
 
 type executeActionType is (executeActionParamsType)

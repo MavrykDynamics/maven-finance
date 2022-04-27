@@ -259,6 +259,26 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  updateWhitelistDevelopersContracts lambda *)
+function lambdaUpdateWhitelistDevelopers(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    case governanceLambdaAction of [
+        | LambdaUpdateWhitelistDevelopers(developer) -> 
+            if Set.mem(developer, s.whitelistDevelopers) then 
+                s.whitelistDevelopers := Set.remove(developer, s.whitelistDevelopers)
+            else 
+                s.whitelistDevelopers := Set.add(developer, s.whitelistDevelopers)
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
