@@ -703,8 +703,8 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get Proposal Record *)
-[@view] function getProposalRecordView(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
-  s.proposalLedger[proposalId]
+// [@view] function getProposalRecordView(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
+//   s.proposalLedger[proposalId]
 
 
 // ------------------------------------------------------------------------------
