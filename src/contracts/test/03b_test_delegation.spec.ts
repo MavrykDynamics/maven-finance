@@ -17,6 +17,7 @@ import doormanAddress from '../deployments/doormanAddress.json';
 import delegationAddress from '../deployments/delegationAddress.json';
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 import governanceAddress from '../deployments/governanceAddress.json';
+import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
 import treasuryAddress from '../deployments/treasuryAddress.json';
 import { MichelsonMap } from "@taquito/taquito";
 
@@ -28,6 +29,7 @@ describe("Delegation tests", async () => {
     let delegationInstance;
     let mvkTokenInstance;
     let governanceInstance;
+    let governanceProxyInstance;
 
     let doormanStorage;
     let delegationStorage;
@@ -53,10 +55,11 @@ describe("Delegation tests", async () => {
         utils = new Utils();
         await utils.init(bob.sk);
         
-        doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
-        delegationInstance = await utils.tezos.contract.at(delegationAddress.address);
-        mvkTokenInstance   = await utils.tezos.contract.at(mvkTokenAddress.address);
-        governanceInstance = await utils.tezos.contract.at(governanceAddress.address);
+        doormanInstance         = await utils.tezos.contract.at(doormanAddress.address);
+        delegationInstance      = await utils.tezos.contract.at(delegationAddress.address);
+        mvkTokenInstance        = await utils.tezos.contract.at(mvkTokenAddress.address);
+        governanceInstance      = await utils.tezos.contract.at(governanceAddress.address);
+        governanceProxyInstance = await utils.tezos.contract.at(governanceProxyAddress.address);
             
         doormanStorage    = await doormanInstance.storage();
         delegationStorage = await delegationInstance.storage();
@@ -479,12 +482,11 @@ describe("Delegation tests", async () => {
                 console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
                 // Prepare proposal metadata
-                var governanceProxyInstance    = await utils.tezos.contract.at(governanceStorage.governanceProxyAddress);
-                const configSuccessRewardParam = governanceProxyInstance.methods.executeGovernanceAction(
+                const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
                     'updateGovernanceConfig', 995, 'configSuccessReward'
                 ).toTransferParams();
                 const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-                const callGovernanceLambdaEntrypointType = await governanceInstance.entrypoints.entrypoints.executeGovernanceAction;
+                const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
     
                 const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
                     data: configSuccessRewardParamValue,
@@ -632,13 +634,12 @@ describe("Delegation tests", async () => {
                 console.log("PRE-OPERATION SATELLITE MALLORY: ", secondSatelliteRecordStart.unpaid.toNumber(), " | ", secondSatelliteStakeStart.balance.toNumber())
 
                 // Prepare proposal metadata
-                var governanceProxyInstance    = await utils.tezos.contract.at(governanceStorage.governanceProxyAddress);
                 console.log(governanceProxyInstance.methods)
-                const configSuccessRewardParam = governanceProxyInstance.methods.executeGovernanceAction(
+                const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
                     'updateGovernanceConfig', 995, 'configSuccessReward'
                 ).toTransferParams();
                 const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-                const callGovernanceLambdaEntrypointType = await governanceInstance.entrypoints.entrypoints.executeGovernanceAction;
+                const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
     
                 const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
                     data: configSuccessRewardParamValue,
