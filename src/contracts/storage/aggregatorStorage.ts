@@ -2,7 +2,7 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 
 import { BigNumber } from 'bignumber.js'
 
-const { bob } = require('../scripts/sandbox/accounts')
+const { bob, eve, mallory } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from '../test/helpers/Utils'
 
@@ -31,21 +31,39 @@ const metadata = MichelsonMap.fromLiteral({
   ).toString('hex'),
 })
 
+const oracleAddresses = MichelsonMap.fromLiteral({
+  [bob.pkh] : true,
+  [eve.pkh] : true,
+  [mallory.pkh] : true,
+});
+
+const deviationTriggerInfos = {
+  oracleAddress : bob.pkh,
+  amount : 0,
+  roundPrice: 0,
+}
+
+const lastCompletedRoundPrice = {
+  round: 0,
+  price: 0,
+  percentOracleResponse: 0
+}
+
 export const aggregatorStorage: aggregatorStorageType = {
 
   admin                     : bob.pkh,
-  mvkTokenAddress           : "",
-  // metadata              : metadata,
-  
   config                    : config,
+  metadata                  : metadata,
   
+  mvkTokenAddress           : zeroAddress,
+
   round                     : new BigNumber(0),
   switchBlock               : new BigNumber(1),
 
   oracleAddresses           : MichelsonMap.fromLiteral({}),
   
-  deviationTriggerInfos     : MichelsonMap.fromLiteral({}),
-  lastCompletedRoundPrice   : MichelsonMap.fromLiteral({}),
+  deviationTriggerInfos     : deviationTriggerInfos,
+  lastCompletedRoundPrice   : lastCompletedRoundPrice,
   
   observationCommits        : MichelsonMap.fromLiteral({}),
   observationReveals        : MichelsonMap.fromLiteral({}),

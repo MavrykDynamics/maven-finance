@@ -2,6 +2,8 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
+// Set Lambda Types
+#include "../partials/functionalTypes/setLambdaTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -27,6 +29,9 @@ type aggregatorFactoryAction is
     | AddSatellite                of (address)
     | BanSatellite                of (address)
     | CreateAggregator            of createAggregatorParamsType
+
+      // Lambda Entrypoints
+    | SetLambda                   of setLambdaType
     
 
 const noOperations : list (operation) = nil;
@@ -366,6 +371,30 @@ block {
 // Aggregator Factory Entrypoints Begin
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorFactoryStorage): return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
+
+} with(noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Entrypoints End
@@ -389,4 +418,7 @@ function main (const action : aggregatorFactoryAction; const s : aggregatorFacto
       | AddSatellite (parameters)             -> addSatellite(parameters, s)
       | BanSatellite (parameters)             -> banSatellite(parameters, s)
       | CreateAggregator (parameters)         -> createAggregator(parameters, s)
+
+        // Lambda Entrypoints
+      | SetLambda(parameters)                 -> setLambda(parameters, s)
     ]
