@@ -41,7 +41,10 @@ type aggregatorFactoryAction is
 
       // Lambda Entrypoints
     | SetLambda                   of setLambdaType
+<<<<<<< HEAD
     | SetProductLambda            of setLambdaType
+=======
+>>>>>>> 1) Fix bugs for deployment of Aggregator and AggregatorFactory
     
 
 const noOperations : list (operation) = nil;
@@ -400,13 +403,7 @@ block{
 
 } with(noOperations, s)
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateAggregator"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
 
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaCreateAggregator(createAggregatorParams);
 
 (* setProductLambda entrypoint *)
 function setProductLambda(const setLambdaParams: setLambdaType; var s: aggregatorFactoryStorage): return is
