@@ -8,6 +8,8 @@ import BigNumber from 'bignumber.js';
 import { WalletParamsWithKind } from '@taquito/taquito/dist/types/wallet/wallet';
 import { CommonService } from './common.service';
 import { CronJob } from 'cron';
+import { CommitStorageService } from './commit-storage.service';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class DeviationTriggerService implements OnModuleInit {
@@ -21,6 +23,7 @@ export class DeviationTriggerService implements OnModuleInit {
     private readonly priceService: PriceService,
     private readonly txManagerService: TxManagerService,
     private readonly commonService: CommonService,
+    private readonly commitStorageService: CommitStorageService,
     oracleConfig: OracleConfig
   ) {
     this.workAtLoss = oracleConfig.workAtLoss;
@@ -36,7 +39,9 @@ export class DeviationTriggerService implements OnModuleInit {
       try {
         await this.triggerDeviationIfNeeded();
       } catch (e) {
-        this.logger.error(`Uncaught error in triggerDeviationIfNeeded: ${e.toString()}`)
+        this.logger.error(
+          `Uncaught error in triggerDeviationIfNeeded: ${e.toString()}`
+        );
       }
     });
 
@@ -149,11 +154,15 @@ export class DeviationTriggerService implements OnModuleInit {
           .toNumber()}‰ > ${thresholdPerthousand}‰ (${lastPrice} -> ${newPrice}))`
       );
       const salt = (Math.random() + 1).toString(36).substring(7);
-      const sign = await toolkit.signer.sign(this.commonService.getSetObservationCommitDataToSign(newPrice,salt));
+      const commitData = this.commonService.getCommitData(newPrice, salt);
+
+      const commitDataHash = createHash('sha256')
+        .update(commitData)
+        .digest('hex');
 
       const op = aggregator.methods.requestRateUpdateDeviation(
         nextRound,
-        sign.sig
+        commitDataHash
       );
 
       const transferParams = {
@@ -175,13 +184,21 @@ export class DeviationTriggerService implements OnModuleInit {
           return null;
         }
       }
-      this.txManagerService.saveCommitData(nextRound.toNumber(), newPrice, salt, aggregatorSmartContractAddress);
+
+      await this.commitStorageService.saveCommitData(
+        nextRound,
+        newPrice,
+        salt,
+        aggregatorSmartContractAddress
+      );
       return {
         kind: OpKind.TRANSACTION,
         ...transferParams,
       };
     } else {
-      console.log(`no deviation found: [newPrice]: ${newPrice} | [lastPrice]: ${lastPrice}`)
+      console.log(
+        `no deviation found: [newPrice]: ${newPrice} | [lastPrice]: ${lastPrice}`
+      );
     }
 
     return null;

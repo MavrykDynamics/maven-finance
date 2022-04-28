@@ -10,6 +10,7 @@ import { WithdrawService } from './withdraw.service';
 import { TxManagerModule } from '@mavryk-oracle-node/tx-manager';
 import { DeviationTriggerService } from './deviation-trigger.service';
 import { CommonService } from './common.service';
+import { CommitStorageService } from './commit-storage.service';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { CommonService } from './common.service';
   ],
   controllers: [],
   providers: [
+    CommitStorageService,
     SetObservationService,
     PriceService,
     WithdrawService,
