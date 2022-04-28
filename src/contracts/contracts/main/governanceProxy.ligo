@@ -288,9 +288,7 @@ block {
 
 (* dataDataPackingHelper entrypoint *)
 function dataDataPackingHelper(const _governanceAction : executeActionType; var s : governanceProxyStorage) : return is 
-block {
-    skip;
-} with (noOperations, s)
+  (noOperations, s)
 
 
 
