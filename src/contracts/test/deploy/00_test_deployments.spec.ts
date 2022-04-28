@@ -345,7 +345,7 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('mockFa2TokenAddress', mockFa2Token.contract.address)
     console.log('Mock Fa2 Token Contract deployed at:', mockFa2Token.contract.address)
 
-
+    aggregatorStorage.mvkTokenAddress = mvkToken.contract.address;
     aggregator = await Aggregator.originate(
       utils.tezos,
       aggregatorStorage
@@ -354,6 +354,8 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('aggregatorAddress', aggregator.contract.address)
     console.log('Aggregator Contract deployed at:', aggregator.contract.address)
 
+    
+    aggregatorFactoryStorage.mvkTokenAddress = mvkToken.contract.address;
     aggregatorFactory = await AggregatorFactory.originate(
       utils.tezos,
       aggregatorFactoryStorage

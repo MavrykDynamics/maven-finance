@@ -5,17 +5,18 @@ import { BigNumber } from "bignumber.js";
 export type aggregatorStorageType = {
   
   admin                     : string;
-  mvkTokenAddress           : string;
+  metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
   config                    : {};
-  // metadata            : MichelsonMap<MichelsonMapKey, unknown>;
+
+  mvkTokenAddress           : string;
 
   round                     : BigNumber;
   switchBlock               : BigNumber;
   
   oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
   
-  deviationTriggerInfos     : MichelsonMap<MichelsonMapKey, unknown>;
-  lastCompletedRoundPrice   : MichelsonMap<MichelsonMapKey, unknown>;
+  deviationTriggerInfos     : {};
+  lastCompletedRoundPrice   : {};
 
   observationCommits        : MichelsonMap<MichelsonMapKey, unknown>;
   observationReveals        : MichelsonMap<MichelsonMapKey, unknown>;
