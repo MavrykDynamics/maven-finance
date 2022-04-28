@@ -309,6 +309,16 @@ type voteForRequestType is [@layout:comb] record [
     vote             : voteForRequestChoiceType;
 ]
 
+type setContractAdminType is [@layout:comb] record [
+    newContractAdmin        : address;
+    targetContractAddress   : address;
+]
+
+type setContractGovernanceType is [@layout:comb] record [
+    newContractGovernance   : address;
+    targetContractAddress   : address;
+]
+
 type whitelistDevelopersType is set(address)
 
 // ------------------------------------------------------------------------------
@@ -330,7 +340,9 @@ type governanceLambdaActionType is
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts                of updateGeneralContractsParams
 | LambdaUpdateWhitelistTokens                 of updateWhitelistTokenContractsParams
-| LambdaUpdateWhitelistDevelopers             of (address)   
+| LambdaUpdateWhitelistDevelopers             of (address)
+| LambdaSetContractAdmin                      of setContractAdminType
+| LambdaSetContractGovernance                 of setContractGovernanceType
 
   // Governance Cycle Lambdas
 | LambdaStartNextRound                        of (bool)

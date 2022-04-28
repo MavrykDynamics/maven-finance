@@ -113,10 +113,6 @@ describe('Contracts Deployment for Tests', async () => {
 
     governanceStorage.whitelistDevelopers = [alice.pkh, bob.pkh]
     governanceStorage.mvkTokenAddress     = mvkToken.contract.address
-    governanceStorage.generalContracts    = MichelsonMap.fromLiteral({
-      "delegation" : delegation.contract.address,
-      "doorman"    : doorman.contract.address
-    });
     governance = await Governance.originate(utils.tezos,governanceStorage);
 
     await saveContractAddress('governanceAddress', governance.contract.address)
@@ -160,9 +156,9 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('emergencyGovernanceAddress', emergencyGovernance.contract.address)
     console.log('Emergency Governance Contract deployed at:', emergencyGovernance.contract.address)
 
-    vestingStorage.mvkTokenAddress  = mvkToken.contract.address
-    vestingStorage.generalContracts = MichelsonMap.fromLiteral({
-      "mvkToken"   : mvkToken.contract.address,
+    vestingStorage.governanceAddress  = governance.contract.address
+    vestingStorage.mvkTokenAddress    = mvkToken.contract.address
+    vestingStorage.generalContracts   = MichelsonMap.fromLiteral({
       "doorman"    : doorman.contract.address,
       "delegation" : delegation.contract.address,
     });
@@ -362,6 +358,14 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[8])) // updateGovernanceConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(9, governanceProxyLambdas[9])) // updateDelegationConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(10, governanceProxyLambdas[10])) // updateDelegationConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(11, governanceProxyLambdas[11])) // createFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(12, governanceProxyLambdas[12])) // trackFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(13, governanceProxyLambdas[13])) // untrackFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(14, governanceProxyLambdas[14])) // createTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[15])) // trackTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[16])) // untrackTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[17])) // updateInflationRate
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[18])) // triggerInflation
   
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
       await setupGovernanceProxyLambdasOperation.confirmation()
@@ -612,14 +616,15 @@ describe('Contracts Deployment for Tests', async () => {
       const vestingLambdaBatch = await tezos.wallet
       .batch()
       .withContractCall(vesting.contract.methods.setLambda("lambdaSetAdmin"                               , vestingLambdas[0]))  // setAdmin
-      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateMetadata"                         , vestingLambdas[1]))  // updateMetadata
-      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , vestingLambdas[2]))  // updateWhitelistContracts
-      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , vestingLambdas[3]))  // updateGeneralContracts
-      .withContractCall(vesting.contract.methods.setLambda("lambdaAddVestee"                              , vestingLambdas[4]))  // addVestee
-      .withContractCall(vesting.contract.methods.setLambda("lambdaRemoveVestee"                           , vestingLambdas[5]))  // removeVestee
-      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateVestee"                           , vestingLambdas[6]))  // updateVestee
-      .withContractCall(vesting.contract.methods.setLambda("lambdaToggleVesteeLock"                       , vestingLambdas[7]))  // toggleVesteeLock
-      .withContractCall(vesting.contract.methods.setLambda("lambdaClaim"                                  , vestingLambdas[8]))  // claim
+      .withContractCall(vesting.contract.methods.setLambda("lambdaSetGovernance"                          , vestingLambdas[1]))  // setGovernance
+      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateMetadata"                         , vestingLambdas[2]))  // updateMetadata
+      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateWhitelistContracts"               , vestingLambdas[3]))  // updateWhitelistContracts
+      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateGeneralContracts"                 , vestingLambdas[4]))  // updateGeneralContracts
+      .withContractCall(vesting.contract.methods.setLambda("lambdaAddVestee"                              , vestingLambdas[5]))  // addVestee
+      .withContractCall(vesting.contract.methods.setLambda("lambdaRemoveVestee"                           , vestingLambdas[6]))  // removeVestee
+      .withContractCall(vesting.contract.methods.setLambda("lambdaUpdateVestee"                           , vestingLambdas[7]))  // updateVestee
+      .withContractCall(vesting.contract.methods.setLambda("lambdaToggleVesteeLock"                       , vestingLambdas[8]))  // toggleVesteeLock
+      .withContractCall(vesting.contract.methods.setLambda("lambdaClaim"                                  , vestingLambdas[9]))  // claim
       
       const setupVestingLambdasOperation = await vestingLambdaBatch.send()
       await setupVestingLambdasOperation.confirmation()
@@ -675,6 +680,9 @@ describe('Contracts Deployment for Tests', async () => {
     //----------------------------
     // Set remaining contract addresses - post-deployment
     //----------------------------
+    // MVK Token Contract - set governance contract address
+    const mvkSetGovernanceAddressOperation = await mvkToken.contract.methods.setGovernance(governance.contract.address).send();
+    await mvkSetGovernanceAddressOperation.confirmation();
 
     // MVK Token Contract - set general contract addresses [doorman]
     // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
@@ -787,9 +795,15 @@ describe('Contracts Deployment for Tests', async () => {
 
 
 
-    // Governance Contract - set contract addresses [emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
+    // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
     const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address).send()
     await setEmergencyGovernanceContractInGovernanceOperation.confirmation()
+
+    const setDoormanContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('doorman', doorman.contract.address).send()
+    await setDoormanContractInGovernanceOperation.confirmation()
+
+    const setDelegationContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('delegation', delegation.contract.address).send()
+    await setDelegationContractInGovernanceOperation.confirmation()
     
     const setBreakGlassContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address).send()
     await setBreakGlassContractInGovernanceOperation.confirmation()
@@ -812,7 +826,7 @@ describe('Contracts Deployment for Tests', async () => {
     const setGovernanceProxyContractInGovernanceOperation = await governance.contract.methods.setGovernanceProxyAddress(governanceProxy.contract.address).send()
     await setGovernanceProxyContractInGovernanceOperation.confirmation()
 
-    console.log('Governance Contract - set general contract addresses [emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]')
+    console.log('Governance Contract - set general contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]')
     console.log('Governance Contract - set governance proxy address')
 
 

@@ -86,6 +86,11 @@ type setContractAdminType is [@layout:comb] record [
   newAdminAddress        : address; 
 ]
 
+type setContractGovernanceType is [@layout:comb] record [
+  targetContractAddress  : address;
+  newGovernanceAddress   : address; 
+]
+
 type updateContractMetadataType is [@layout:comb] record [
   targetContractAddress  : address;
   metadataKey            : string;
@@ -114,6 +119,7 @@ type executeActionParamsType is
 
   UpdateProxyLambda                  of setProxyLambdaType
 | SetContractAdmin                   of setContractAdminType
+| SetContractGovernance              of setContractGovernanceType
 | UpdateContractMetadata             of updateContractMetadataType
 | UpdateContractWhitelistMap         of updateContractWhitelistMapType
 | UpdateContractGeneralMap           of updateContractGeneralMapType
@@ -121,8 +127,20 @@ type executeActionParamsType is
 
 | UpdateGovernanceConfig             of updateGovernanceConfigType
 | UpdateDelegationConfig             of delegationUpdateConfigParamsType
-| UpdateWhitelistDevelopersSet       of (address)
 // | UpdateDoormanConfig                of doormanUpdateConfigParamsType
+
+| UpdateWhitelistDevelopersSet       of (address)
+
+| CreateFarm                         of createFarmType
+| TrackFarm                          of (address)
+| UntrackFarm                        of (address)
+
+| CreateTreasury                     of bytes
+| TrackTreasury                      of (address)
+| UntrackTreasury                    of (address)
+
+| UpdateMvkInflationRate             of (nat)
+| TriggerMvkInflation                of unit
 
 type executeActionType is (executeActionParamsType)
 

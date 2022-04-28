@@ -123,26 +123,6 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : farmStorage) : unit is
-    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
-        Some (value) -> value
-    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
-    ];
-    if (Tezos.sender = s.admin or Tezos.sender = governanceProxyAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-function checkSenderIsGovernanceProxy(var s : farmStorage) : unit is
-    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
-        Some (value) -> value
-    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
-    ];
-    if (Tezos.sender = governanceProxyAddress) then unit
-        else failwith(error_ONLY_GOVERNANCE_PROXY_ALLOWED);
-
 
 
 function getDelegatorDeposit(const delegator: delegator; const s: farmStorage): option(delegatorRecord) is
@@ -181,7 +161,7 @@ function checkSenderIsAllowed(const s: farmStorage): unit is
 block {
 
     // First check because a farm without a facory should still be accessible
-    if Tezos.sender = s.admin then skip
+    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress then skip
     else{
         const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
                 Some (_address) -> _address

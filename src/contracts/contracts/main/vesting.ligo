@@ -26,7 +26,8 @@
 type vestingAction is 
     
       // Housekeeping Entrypoints
-    | SetAdmin                      of (address)
+      SetAdmin                      of (address)
+    | SetGovernance                 of (address)
     | UpdateMetadata                of updateMetadataType
     | UpdateWhitelistContracts      of updateWhitelistContractsParams
     | UpdateGeneralContracts        of updateGeneralContractsParams
@@ -76,13 +77,14 @@ const thirty_days    : int              = one_day * 30;
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 1n;
+[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 1n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 2n;
 
-[@inline] const error_MINT_ENTRYPOINT_NOT_FOUND                                              = 2n;
-[@inline] const error_VESTEE_NOT_FOUND                                                       = 3n;
+[@inline] const error_MINT_ENTRYPOINT_NOT_FOUND                                              = 3n;
+[@inline] const error_VESTEE_NOT_FOUND                                                       = 4n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 4n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 5n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 5n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 6n;
 
 // ------------------------------------------------------------------------------
 //
@@ -101,6 +103,11 @@ const thirty_days    : int              = one_day * 30;
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+function checkSenderIsAllowed(var s : vestingStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(var s : vestingStorage) : unit is
     if (Tezos.sender = s.admin) then unit
@@ -260,6 +267,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : vestingStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const vestingLambdaAction : vestingLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, vestingLambdaAction, s);
 
 } with response
 
@@ -478,6 +504,7 @@ function main (const action : vestingAction; const s : vestingStorage) : return 
 
         // Housekeeping Entrypoints
       | SetAdmin(parameters)                    -> setAdmin(parameters, s)  
+      | SetGovernance(parameters)               -> setGovernance(parameters, s)
       | UpdateMetadata(parameters)              -> updateMetadata(parameters, s)
       | UpdateWhitelistContracts(parameters)    -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)      -> updateGeneralContracts(parameters, s)

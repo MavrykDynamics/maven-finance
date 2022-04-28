@@ -64,6 +64,7 @@ type vestingLambdaActionType is
 
   // Housekeeping Entrypoints
 | LambdaSetAdmin                      of (address)
+| LambdaSetGovernance                 of (address)
 | LambdaUpdateMetadata                of updateMetadataType
 | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
@@ -84,6 +85,7 @@ type vestingLambdaActionType is
 type vestingStorage is [@layout:comb] record [
     admin               : address;
     mvkTokenAddress     : address;
+    governanceAddress   : address;
     metadata            : metadata;
 
     whitelistContracts  : whitelistContractsType;      

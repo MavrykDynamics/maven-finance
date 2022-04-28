@@ -76,6 +76,7 @@ const nextInflationTimestamp  = Math.round(currentTimestamp.getTime() / 1000);
 
 export const mvkStorage: mvkStorageType = {
   admin: bob.pkh,
+  governanceAddress: bob.pkh,
   
   generalContracts: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),

@@ -25,6 +25,23 @@ block {
 
 
 
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const vestingLambdaAction : vestingLambdaActionType;  var s : vestingStorage) : return is
+block {
+    
+    checkSenderIsAllowed(s);
+
+    case vestingLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is
 block {

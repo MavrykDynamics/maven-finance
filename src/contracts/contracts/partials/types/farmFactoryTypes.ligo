@@ -52,15 +52,6 @@ type farmMetadataType is record[
     authors                  : string;
 ]
 
-type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
-const createFarmFunc: createFarmFuncType =
-[%Michelson ( {| { UNPPAIIR ;
-                  CREATE_CONTRACT
-#include "../../compiled/farm.tz"
-        ;
-          PAIR } |}
-: createFarmFuncType)];
-
 type initFarmParamsType is record[
     totalBlocks: nat;
     currentRewardPerBlock: nat;
