@@ -74,6 +74,8 @@ type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggrega
 //
 // ------------------------------------------------------------------------------
 
+
+
 // ------------------------------------------------------------------------------
 //
 // Helper Functions Begin
@@ -705,27 +707,27 @@ block{
 
 
 (* main entrypoint *)
-function main (const action : aggegatorAction; const aggregatorStorage : aggregatorStorage) : return is
+function main (const action : aggegatorAction; const s : aggregatorStorage) : return is
   case action of [
 
-    | Default (_parameters)                     -> default(aggregatorStorage)
+    | Default (_parameters)                     -> default(s)
       
       // Housekeeping Entrypoints
-    | SetAdmin (parameters)                     -> setAdmin(parameters, aggregatorStorage)
-    | UpdateMetadata (parameters)               -> updateMetadata(parameters, aggregatorStorage)
-    | UpdateConfig (parameters)                 -> updateConfig(parameters, aggregatorStorage)
-    | AddOracle (parameters)                    -> addOracle(parameters, aggregatorStorage)
-    | RemoveOracle (parameters)                 -> removeOracle(parameters, aggregatorStorage)
+    | SetAdmin (parameters)                     -> setAdmin(parameters, s)
+    | UpdateMetadata (parameters)               -> updateMetadata(parameters, s)
+    | UpdateConfig (parameters)                 -> updateConfig(parameters, s)
+    | AddOracle (parameters)                    -> addOracle(parameters, s)
+    | RemoveOracle (parameters)                 -> removeOracle(parameters, s)
 
       // Oracle Entrypoints
-    | RequestRateUpdate (_parameters)           -> requestRateUpdate(aggregatorStorage)
-    | RequestRateUpdateDeviation (parameters)   -> requestRateUpdateDeviation(parameters, aggregatorStorage)
-    | SetObservationCommit (parameters)         -> setObservationCommit(parameters, aggregatorStorage)
-    | SetObservationReveal (parameters)         -> setObservationReveal(parameters, aggregatorStorage)
+    | RequestRateUpdate (_parameters)           -> requestRateUpdate(s)
+    | RequestRateUpdateDeviation (parameters)   -> requestRateUpdateDeviation(parameters, s)
+    | SetObservationCommit (parameters)         -> setObservationCommit(parameters, s)
+    | SetObservationReveal (parameters)         -> setObservationReveal(parameters, s)
 
       // Reward Entrypoints
-    | WithdrawRewardXTZ (parameters)            -> withdrawRewardXTZ(parameters, aggregatorStorage)
-    | WithdrawRewardMVK (parameters)            -> withdrawRewardMVK(parameters, aggregatorStorage)
+    | WithdrawRewardXTZ (parameters)            -> withdrawRewardXTZ(parameters, s)
+    | WithdrawRewardMVK (parameters)            -> withdrawRewardMVK(parameters, s)
   ];
 
 (*

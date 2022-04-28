@@ -394,6 +394,4 @@ type governanceStorage is [@layout:comb] record [
     // lambda storage
     lambdaLedger                        : lambdaLedgerType;             // governance contract lambdas
 
-    
-
 ]

@@ -9,7 +9,8 @@ import { Mutex } from 'async-mutex';
 import BigNumber from 'bignumber.js';
 import { WalletParamsWithKind } from '@taquito/taquito/dist/types/wallet/wallet';
 import { CommonService } from './common.service';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+import { CommitStorageService } from './commit-storage.service';
+import { createHash } from 'crypto';
 
 @Injectable()
 export class SetObservationService {
@@ -21,6 +22,7 @@ export class SetObservationService {
     private readonly priceService: PriceService,
     private readonly txManagerService: TxManagerService,
     private readonly commonService: CommonService,
+    private readonly commitStorageService: CommitStorageService,
     oracleConfig: OracleConfig
   ) {
     this.workAtLoss = oracleConfig.workAtLoss;
@@ -37,7 +39,10 @@ export class SetObservationService {
     const ops = await Promise.all(
       Array.from(aggregators.entries()).map(
         async ([pair, aggregatorSmartContractAddress]) =>
-          this.getSetObservationCommitOpOrNull(pair, aggregatorSmartContractAddress)
+          this.getSetObservationCommitOpOrNull(
+            pair,
+            aggregatorSmartContractAddress
+          )
       )
     );
 
@@ -74,7 +79,7 @@ export class SetObservationService {
     });
   }
 
-  @Cron("*/3 * * * * *")
+  @Cron('*/3 * * * * *')
   private async setObservationRevealIfNeeded(): Promise<void> {
     if (this.mutex.isLocked()) {
       return;
@@ -89,7 +94,10 @@ export class SetObservationService {
     const ops = await Promise.all(
       Array.from(aggregators.entries()).map(
         async ([pair, aggregatorSmartContractAddress]) =>
-          this.getSetObservationRevealOpOrNull(pair, aggregatorSmartContractAddress)
+          this.getSetObservationRevealOpOrNull(
+            pair,
+            aggregatorSmartContractAddress
+          )
       )
     );
 
@@ -199,14 +207,18 @@ export class SetObservationService {
 
     const price = await this.priceService.getPrice(decimals, pair);
     const salt = (Math.random() + 1).toString(36).substring(7);
-    const sign = await toolkit.signer.sign(this.commonService.getSetObservationCommitDataToSign(price,salt));
+    const commitData = this.commonService.getCommitData(price, salt);
+
+    const commitDataHash = createHash('sha256')
+      .update(commitData)
+      .digest('hex');
 
     this.logger.log(
       `[${aggregatorSmartContractAddress}] Sending observationCommit on pair ${pair[0]}/${pair[1]}: ${price} for round ${round}`
     );
 
     const op = aggregator.methods
-      .setObservationCommit(round, sign.sig)
+      .setObservationCommit(round, commitDataHash)
       .toTransferParams();
 
     const estimate = await toolkit.estimate.transfer(op);
@@ -222,7 +234,12 @@ export class SetObservationService {
         return null;
       }
     }
-    this.txManagerService.saveCommitData(round.toNumber(), price, salt, aggregatorSmartContractAddress);
+    await this.commitStorageService.saveCommitData(
+      round,
+      price,
+      salt,
+      aggregatorSmartContractAddress
+    );
     return {
       kind: OpKind.TRANSACTION,
       ...op,
@@ -247,7 +264,11 @@ export class SetObservationService {
       aggregatorConfig: { rewardAmountXTZ },
     }: AggregatorStorage = await aggregator.storage();
 
-    if (switchBlock === undefined || switchBlock === null || switchBlock?.toNumber() == 0) {
+    if (
+      switchBlock === undefined ||
+      switchBlock === null ||
+      switchBlock?.toNumber() == 0
+    ) {
       //this.logger.warn(`Not the time to commit`);
       return null;
     }
@@ -275,12 +296,15 @@ export class SetObservationService {
     if (blockResponse.metadata.level_info?.level === undefined) {
       return null;
     }
-    if (blockResponse.metadata.level_info?.level <= switchBlock.toNumber()){
+    if (blockResponse.metadata.level_info?.level <= switchBlock.toNumber()) {
       //this.logger.warn(`Soon..`);
       return null;
     }
 
-    const commitData = this.txManagerService.getCommitData(round.toNumber(),aggregatorSmartContractAddress);
+    const commitData = await this.commitStorageService.getCommitData(
+      round,
+      aggregatorSmartContractAddress
+    );
     if (commitData === null) {
       this.logger.error(`Problem to retrieve commit data..`);
       return null;

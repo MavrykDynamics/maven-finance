@@ -28,7 +28,8 @@
     "pre-compile-all-m1": "rm -rf ./contracts/compiled && ts-node scripts/cli.ts compile -p contracts/main -o contracts/compiled -m true",
     
     "compile-lambdas": "ts-node scripts/cli.ts compile-lambda",
-    "compile-aggregator-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/aggregator/aggregatorLambdaIndex.json -c contracts/main/aggregator.ligo -n aggregatorProxyLambdas",
+    "compile-aggregator-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/aggregator/aggregatorLambdaIndex.json -c contracts/main/aggregator.ligo -n aggregatorLambdas",
+    "compile-aggregatorFactory-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/aggregatorFactory/aggregatorFactoryLambdaIndex.json -c contracts/main/aggregatorFactory.ligo -n aggregatorFactoryLambdas",
     "compile-governanceProxy-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/governanceProxy/governanceProxyLambdaIndex.json -c contracts/main/governanceProxy.ligo -n governanceProxyLambdas",
     "compile-governance-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/governance/governanceLambdaIndex.json -c contracts/main/governance.ligo -n governanceLambdas",
     "compile-doorman-lambdas": "yarn compile-lambdas -j contracts/partials/contractLambdas/doorman/doormanLambdaIndex.json -c contracts/main/doorman.ligo -n doormanLambdas",
@@ -44,7 +45,7 @@
     
     "compile-all-lambdas-1": "yarn compile-governanceProxy-lambdas && yarn compile-governance-lambdas && yarn compile-doorman-lambdas && yarn compile-delegation-lambdas && yarn compile-breakGlass-lambdas && yarn compile-council-lambdas && yarn compile-emergencyGovernance-lambdas",
     "compile-all-lambdas-2": "yarn compile-farm-lambdas && yarn compile-farmFactory-lambdas && yarn compile-vesting-lambdas && yarn compile-treasury-lambdas && yarn compile-treasuryFactory-lambdas",
-    "compile-all-lambdas-3": "yarn compile-aggregator-lambdas",
+    "compile-all-lambdas-3": "yarn compile-aggregator-lambdas && yarn compile-aggregatorFactory-lambdas",
 
     "compile": "yarn pre-compile-all && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build && yarn compile-all-lambdas-3 && yarn compile-all-lambdas-1  && yarn compile-all-lambdas-2",
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
