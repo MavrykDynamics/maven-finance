@@ -188,11 +188,11 @@
 //             console.log("---") // break
 
 //             // add lambda to proposal - config success reward
-//             const configSuccessRewardParam = governanceInstance.methods.callGovernanceLambdaProxy(
+//             const configSuccessRewardParam = governanceProxyInstance.methods.dataPackingHelper(
 //                 'updateGovernanceConfig', 995, 'configSuccessReward'
 //             ).toTransferParams();
 //             const configSuccessRewardParamValue = configSuccessRewardParam.parameter.value;
-//             const callGovernanceLambdaEntrypointType = await governanceInstance.entrypoints.entrypoints.callGovernanceLambdaProxy;
+//             const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
 //             const updateConfigSuccessRewardPacked = await utils.tezos.rpc.packData({
 //                 data: configSuccessRewardParamValue,
@@ -212,7 +212,7 @@
 //             await bobAddsConfigSuccessRewardDataOperation.confirmation();
 
 //             // add lambda to proposal - config success reward
-//             const configMinQuorumMvkTotalParam = governanceInstance.methods.callGovernanceLambdaProxy(
+//             const configMinQuorumMvkTotalParam = governanceProxyInstance.methods.dataPackingHelper(
 //                 'updateGovernanceConfig', 42000, 'configMinQuorumMvkTotal'
 //             ).toTransferParams();
 //             const configMinQuorumMvkTotalParamValue = configMinQuorumMvkTotalParam.parameter.value;
@@ -420,11 +420,11 @@
 //     //         await bobCreatesNewProposalOperation.confirmation();
 
 //     //         // config delegation max satellite
-//     //         const configDelegationMaxSatellitesParam = governanceInstance.methods.callGovernanceLambdaProxy(
+//     //         const configDelegationMaxSatellitesParam = governanceProxyInstance.methods.dataPackingHelper(
 //     //             'updateDelegationConfig', 555, 'configMaxSatellites'
 //     //         ).toTransferParams();
 //     //         const configDelegationMaxSatelliteParamValue = configDelegationMaxSatellitesParam.parameter.value;
-//     //         const callGovernanceLambdaEntrypointType = await governanceInstance.entrypoints.entrypoints.callGovernanceLambdaProxy;
+//     //         const callGovernanceLambdaEntrypointType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
 
 //     //         const updateConfigDelegationMaxSatellitePacked = await utils.tezos.rpc.packData({
 //     //             data: configDelegationMaxSatelliteParamValue,
@@ -443,7 +443,7 @@
 //     //         await bobAddsConfigDelegationMaxSatelliteOperation.confirmation();
 
 //     //         // config success reward
-//     //         const configVotingPowerRatioParam = governanceInstance.methods.callGovernanceLambdaProxy(
+//     //         const configVotingPowerRatioParam = governanceProxyInstance.methods.dataPackingHelper(
 //     //             'updateGovernanceConfig', 25000, 'configVotingPowerRatio'
 //     //         ).toTransferParams();
 //     //         const configVotingPowerRatioParamValue = configVotingPowerRatioParam.parameter.value;

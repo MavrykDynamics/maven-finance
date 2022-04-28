@@ -32,6 +32,7 @@
 type governanceProxyAction is 
   | SetProxyLambda               of setProxyLambdaType
   | ExecuteGovernanceAction      of (bytes)
+  | DataPackingHelper            of executeActionType
   // | ExecuteGovernanceProposal    of proposalIdType
   // | CallGovernanceLambdaProxy    of executeActionType
 
@@ -285,6 +286,12 @@ block {
 
 
 
+(* dataDataPackingHelper entrypoint *)
+function dataDataPackingHelper(const _governanceAction : executeActionType; var s : governanceProxyStorage) : return is 
+  (noOperations, s)
+
+
+
 // (* executeGovernanceProposal entrypoint *)
 // function executeGovernanceProposal(const proposalId : nat; var s : governanceProxyStorage) : return is 
 // block {
@@ -391,6 +398,7 @@ function main (const action : governanceProxyAction; const s : governanceProxySt
         
         | SetProxyLambda(parameters)              -> setProxyLambda(parameters, s)
         | ExecuteGovernanceAction(parameters)     -> executeGovernanceAction(parameters, s)
+        | DataPackingHelper(parameters)           -> dataDataPackingHelper(parameters, s)
         // | ExecuteGovernanceProposal(parameters)   -> executeGovernanceProposal(parameters, s)
         // | CallGovernanceLambdaProxy(parameters)   -> callGovernanceLambdaProxy(parameters, s)
 

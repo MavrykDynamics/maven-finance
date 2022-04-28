@@ -12,7 +12,7 @@
 function executeGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelf(s);
+    checkSenderIsAdminOrSelfOrGovernance(s);
 
     (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambdaProxy *)
     const id : nat = case executeAction of [
@@ -52,7 +52,7 @@ block {
 function updateProxyLambda(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelf(s);
+    checkSenderIsAdminOrSelfOrGovernance(s);
 
     case executeAction of [
         UpdateProxyLambda(params) -> {
@@ -85,7 +85,7 @@ block {
 function setContractAdmin(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelf(s);
+    checkSenderIsAdminOrSelfOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -118,7 +118,7 @@ block {
 function updateContractMetadata(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelf(s);
+    checkSenderIsAdminOrSelfOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -157,7 +157,7 @@ block {
 function updateContractWhitelistMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelf(s);
+    checkSenderIsAdminOrSelfOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -196,7 +196,7 @@ block {
 function updateContractGeneralMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelf(s);
+    checkSenderIsAdminOrSelfOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -235,7 +235,7 @@ block {
 function updateContractWhitelistTokenMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelf(s);
+    checkSenderIsAdminOrSelfOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -276,7 +276,7 @@ block {
 function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelf(s);
+    checkSenderIsAdminOrSelfOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -286,7 +286,7 @@ block {
         // find and get updateConfig entrypoint of governance contract
         const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
             "%updateConfig",
-            Tezos.self_address) : option(contract(nat * governanceUpdateConfigActionType))) of [
+            s.governanceAddress) : option(contract(nat * governanceUpdateConfigActionType))) of [
                   Some(contr) -> contr
                 | None        -> (failwith("updateConfig entrypoint in Governance Contract not found") : contract(nat * governanceUpdateConfigActionType))
             ];
@@ -315,7 +315,7 @@ block {
 function updateDelegationConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelf(s);
+    checkSenderIsAdminOrSelfOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -361,7 +361,7 @@ block {
 // function updateDoormanConfig(const executeAction : executeActionType; var s : governanceStorage) : return is 
 // block {
 
-//     checkSenderIsAdminOrSelf(s);
+//     checkSenderIsAdminOrSelfOrGovernance(s);
 
 //     var operations: list(operation) := nil;
 
