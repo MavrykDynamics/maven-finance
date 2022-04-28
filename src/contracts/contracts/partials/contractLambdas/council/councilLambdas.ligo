@@ -30,7 +30,8 @@ block {
 function lambdaSetGovernance(const councilLambdaAction : councilLambdaActionType;  var s : councilStorage) : return is
 block {
     
-    checkSenderIsGovernanceProxy(s);
+    checkNoAmount(Unit); // entrypoint should not receive any tez amount
+    checkSenderIsAllowed(s);
 
     case councilLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {

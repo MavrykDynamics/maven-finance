@@ -98,19 +98,8 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : emergencyGovernanceStorage) : unit is
-    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
-        Some (value) -> value
-    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
-    ];
-    if (Tezos.sender = s.admin or Tezos.sender = governanceProxyAddress) then unit
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-function checkSenderIsGovernanceProxy(var s : emergencyGovernanceStorage) : unit is
-    if (Tezos.sender = s.governanceAddress) then unit
-        else failwith(error_ONLY_GOVERNANCE_PROXY_ALLOWED);
 
 
 

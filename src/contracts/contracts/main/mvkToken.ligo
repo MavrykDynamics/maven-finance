@@ -21,6 +21,7 @@ type action is
 
   // Housekeeping Entrypoints
   SetAdmin                  of address
+| SetGovernance             of address
 | UpdateWhitelistContracts  of updateWhitelistContractsParams
 | UpdateGeneralContracts    of updateGeneralContractsParams
 
@@ -68,6 +69,12 @@ const one_year       : int              = one_day * 365;
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : mvkTokenStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith("ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED");
+
+
 
 function checkSenderIsAdmin(const store: mvkTokenStorage): unit is
   if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
@@ -238,6 +245,17 @@ block {
 
   checkSenderIsAdmin(store);
   store.admin := newAdminAddress;
+
+} with (noOperations, store)
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var store : mvkTokenStorage) : return is
+block {
+    
+  checkSenderIsAllowed(store);
+  store.governanceAddress := newGovernanceAddress;
 
 } with (noOperations, store)
 
@@ -480,6 +498,7 @@ function main (const action : action; const store : mvkTokenStorage) : return is
 
         // Housekeeping Entrypoints
         SetAdmin (params)                   -> setAdmin(params, store)
+      | SetGovernance (params)              -> setGovernance(params, store)
       | UpdateWhitelistContracts (params)   -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params)     -> updateGeneralContracts(params, store)
 

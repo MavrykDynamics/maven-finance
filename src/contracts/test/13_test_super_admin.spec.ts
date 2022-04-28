@@ -23,6 +23,7 @@ import emergencyGovernanceAddress from '../deployments/emergencyGovernanceAddres
 import breakGlassAddress from '../deployments/breakGlassAddress.json';
 import vestingAddress from '../deployments/vestingAddress.json';
 import treasuryAddress from '../deployments/treasuryAddress.json';
+import { MichelsonMap } from "@taquito/taquito";
 
 describe("Break Glass Super Admin tests", async () => {
     var utils: Utils;
@@ -121,10 +122,73 @@ describe("Break Glass Super Admin tests", async () => {
                         await updateConfigOperation.confirmation();
                         updateConfigOperation         = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
                         await updateConfigOperation.confirmation();
+                        updateConfigOperation = await breakGlassInstance.methods.updateConfig(2,"configThreshold").send();
+                        await updateConfigOperation.confirmation();
 
+                        // Initial governance storage operations
+                        var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
+                        await updateGovernanceConfig.confirmation();
+                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
+                        await updateGovernanceConfig.confirmation();
+                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
+                        await updateGovernanceConfig.confirmation();
+                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotePct").send();
+                        await updateGovernanceConfig.confirmation();
+                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
+                        await updateGovernanceConfig.confirmation();
+                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
+                        await updateGovernanceConfig.confirmation();
+
+                        // Register Alice and Bob as satellites
+                        var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                        {
+                            add_operator: {
+                                owner    : bob.pkh,
+                                operator : doormanAddress.address,
+                                token_id : 0,
+                            },
+                        }])
+                        .send()
+                        await updateOperatorsOperation.confirmation();
+                        var stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
+                        await stakeOperation.confirmation();
+                        var registerAsSatelliteOperation = await delegationInstance.methods
+                            .registerAsSatellite(
+                                "Bob", 
+                                "Bob description", 
+                                "Bob image", 
+                                "Bob website",
+                                1000
+                            ).send();
+                        await registerAsSatelliteOperation.confirmation();
+
+                        await signerFactory(alice.sk)
+                        var updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
+                        {
+                            add_operator: {
+                                owner    : alice.pkh,
+                                operator : doormanAddress.address,
+                                token_id : 0,
+                            },
+                        }])
+                        .send()
+                        await updateOperatorsOperation.confirmation();
+                        stakeOperation = await doormanInstance.methods.stake(MVK(100)).send();
+                        await stakeOperation.confirmation();
+                        var registerAsSatelliteOperation = await delegationInstance.methods
+                            .registerAsSatellite(
+                                "Alice", 
+                                "Alice description", 
+                                "Alice image", 
+                                "Alice website",
+                                1000
+                            ).send();
+                        await registerAsSatelliteOperation.confirmation();
+
+                        // Set all contracts admin to proxy
+                        await signerFactory(bob.sk)
                         var setAdminOperation         = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
                         await setAdminOperation.confirmation();
-
                         for (let entry of generalContracts){
                             // Get contract storage
                             var contract        = await utils.tezos.contract.at(entry[1]);
@@ -136,27 +200,7 @@ describe("Break Glass Super Admin tests", async () => {
                                 await setAdminOperation.confirmation()
                             }
                         }
-
-                        // User stake more to trigger break glass
-                        await signerFactory(mallory.sk);
-                        const stakeAmount           = MVK(10)
-                        const updateOperatorsOperation = await mvkTokenInstance.methods.update_operators([
-                        {
-                            add_operator: {
-                                owner: mallory.pkh,
-                                operator: doormanAddress.address,
-                                token_id: 0,
-                            },
-                        }])
-                        .send()
-                        await updateOperatorsOperation.confirmation();
             
-                        const stakeOperation    = await doormanInstance.methods.stake(stakeAmount).send();
-                        await stakeOperation.confirmation();
-
-                        const stakeRecord       = await doormanStorage.userStakeBalanceLedger.get(mallory.pkh);
-                        assert.notEqual(stakeRecord.balance, 0);
-
                         const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
                             "Test emergency governance", 
                             "For tests"
@@ -170,10 +214,7 @@ describe("Break Glass Super Admin tests", async () => {
                         breakGlassStorage       = await breakGlassInstance.storage();
                         const glassBroken       = breakGlassStorage.glassBroken;
                         assert.equal(glassBroken, true);
-
-                        // Update config to reduce threshold
-                        var updateConfigOperation = await breakGlassInstance.methods.updateConfig(2,"configThreshold").send();
-                        await updateConfigOperation.confirmation();
+                        console.log("GLASS BROKEN: ", glassBroken)
                     }
                     catch (e){
                         console.dir(e, {depth: 5})
@@ -196,10 +237,10 @@ describe("Break Glass Super Admin tests", async () => {
 
 
                         // Operation
-                        await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send()).to.be.rejected;
+                        await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
 
                         // Assertions
-                        assert.strictEqual(whitelistedDevelopers.contains(newAdmin), false)
+                        assert.strictEqual(whitelistedDevelopers.includes(newAdmin), false)
                     }
                     catch (e){
                         console.dir(e, {depth: 5})
@@ -222,7 +263,7 @@ describe("Break Glass Super Admin tests", async () => {
                         const proposalSourceCode    = "Proposal Source Code";
 
                         // Preparation
-                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
+                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
                         await setSingleContractAdminOperation.confirmation();
 
                         // Remove User from whitelisted dev
@@ -249,19 +290,7 @@ describe("Break Glass Super Admin tests", async () => {
                             "Metadata#1": packedUpdateUpdateWhitelistDevelopersParam
                         });
 
-                        // Initial governance storage operations
-                        var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerVotingRound").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotePct").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
-                        await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
-                        await updateGovernanceConfig.confirmation();
+                        // Start governance rounds
                         var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
                         await nextRoundOperation.confirmation();
 
@@ -289,8 +318,8 @@ describe("Break Glass Super Admin tests", async () => {
                         // Mid values
                         governanceStorage   = await governanceInstance.storage();
                         const whitelistedDevelopersEnd = await governanceStorage.whitelistDevelopers;
-                        assert.strictEqual(whitelistedDevelopers.contains(newAdmin), true)
-                        assert.strictEqual(whitelistedDevelopersEnd.contains(newAdmin), false)
+                        assert.strictEqual(whitelistedDevelopers.includes(newAdmin), true)
+                        assert.strictEqual(whitelistedDevelopersEnd.includes(newAdmin), false)
 
                         // Operation
                         await signerFactory(alice.sk);
@@ -305,12 +334,19 @@ describe("Break Glass Super Admin tests", async () => {
                     try{
                         // Initial values
                         governanceStorage           = await governanceInstance.storage();
+                        breakGlassStorage           = await breakGlassInstance.storage();
                         const newAdmin              = alice.pkh;
                         const targetContract        = doormanAddress.address;
+                        const breakGlassActionID    = breakGlassStorage.actionCounter;
 
                         // Operation
-                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
+                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
                         await setSingleContractAdminOperation.confirmation();
+
+                        // Sign action
+                        await signerFactory(alice.sk);
+                        const signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                        await signActionOperation.confirmation();
 
                         // Final values
                         governanceStorage           = await governanceInstance.storage();
@@ -318,7 +354,7 @@ describe("Break Glass Super Admin tests", async () => {
                         const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
 
                         // Assertions
-                        assert.strictEqual(whitelistedDevelopers.contains(newAdmin), true);
+                        assert.strictEqual(whitelistedDevelopers.includes(newAdmin), true);
                         assert.strictEqual(doormanStorage.admin, newAdmin);
                     }
                     catch (e){
@@ -330,20 +366,24 @@ describe("Break Glass Super Admin tests", async () => {
                     try{
                         // Initial values
                         governanceStorage           = await governanceInstance.storage();
+                        breakGlassStorage           = await breakGlassInstance.storage();
                         const newAdmin              = governanceAddress.address;
                         const targetContract        = delegationAddress.address;
+                        const breakGlassActionID    = breakGlassStorage.actionCounter;
 
                         // Operation
-                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
+                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
                         await setSingleContractAdminOperation.confirmation();
 
+                        // Sign action
+                        await signerFactory(alice.sk);
+                        const signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                        await signActionOperation.confirmation();
+
                         // Final values
-                        governanceStorage           = await governanceInstance.storage();
                         delegationStorage           = await delegationInstance.storage();
-                        const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
 
                         // Assertions
-                        assert.strictEqual(whitelistedDevelopers.contains(newAdmin), true);
                         assert.strictEqual(delegationStorage.admin, newAdmin);
                     }
                     catch (e){
@@ -357,18 +397,21 @@ describe("Break Glass Super Admin tests", async () => {
                         governanceStorage           = await governanceInstance.storage();
                         const newAdmin              = breakGlassAddress.address;
                         const targetContract        = emergencyGovernanceAddress.address;
+                        const breakGlassActionID    = breakGlassStorage.actionCounter;
 
                         // Operation
-                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(targetContract, newAdmin).send();
+                        const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
                         await setSingleContractAdminOperation.confirmation();
 
+                        // Sign action
+                        await signerFactory(alice.sk);
+                        const signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                        await signActionOperation.confirmation();
+
                         // Final values
-                        governanceStorage           = await governanceInstance.storage();
                         emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
-                        const whitelistedDevelopers = await governanceStorage.whitelistDevelopers;
 
                         // Assertions
-                        assert.strictEqual(whitelistedDevelopers.contains(newAdmin), true);
                         assert.strictEqual(emergencyGovernanceStorage.admin, newAdmin);
                     }
                     catch (e){

@@ -106,26 +106,6 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function checkSenderIsAllowed(var s : treasuryStorage) : unit is
-    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
-        Some (value) -> value
-    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
-    ];
-    if (Tezos.sender = s.admin or Tezos.sender = governanceProxyAddress) then unit
-        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-function checkSenderIsGovernanceProxy(var s : treasuryStorage) : unit is
-    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
-        Some (value) -> value
-    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
-    ];
-    if (Tezos.sender = governanceProxyAddress) then unit
-        else failwith(error_ONLY_GOVERNANCE_PROXY_ALLOWED);
-
 
 
 function checkSenderIsAdmin(var s : treasuryStorage) : unit is
@@ -138,7 +118,7 @@ function checkSenderIsAllowed(const s: treasuryStorage): unit is
 block {
     
     // First check because a treasury without a factory should still be accessible
-    if Tezos.sender = s.admin 
+    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress
     then skip
     else{
         const treasuryFactoryAddress: address = case s.whitelistContracts["treasuryFactory"] of [
@@ -645,7 +625,7 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
-        | SetGovernance(parameters)                    -> setGovernance(parameters, s)
+        | SetGovernance(parameters)                     -> setGovernance(parameters, s)
         | SetBaker(parameters)                          -> setBaker(parameters, s)
         | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
