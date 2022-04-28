@@ -21,7 +21,8 @@ type satelliteRecordType is [@layout:comb] record [
     name                  : string;     // string for name
     description           : string;     // string for description
     image                 : string;     // ipfs hash
-    
+    website               : string;     // satellite website if it has one
+
     registeredDateTime    : timestamp;  
 ]
 
