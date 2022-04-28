@@ -64,4 +64,11 @@ export class OracleConfig {
     format: Boolean,
   })
   public workWhenRewardPoolLow: boolean;
+
+  @Property({
+    default: '/tmp/database.db',
+    env: 'COMMIT_DATA_DB_FILE',
+    format: String,
+  })
+  public commitDataDbFile: string;
 }

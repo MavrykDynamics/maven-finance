@@ -10,68 +10,59 @@
 // Aggregator Types
 #include "../partials/types/aggregatorTypes.ligo"
 
-type metadata is big_map (string, bytes);
-
-type trackedAggregatorsType is map (string * string, address);
-type trackedSatelliteType is set (address);
-
-type aggregatorMetadataType is record[
-    name                     : string;
-    description              : string;
-    version                  : string;
-    authors                  : string;
-]
-
-type createAggregatorParamsType is string * string * [@layout:comb] record[
-  oracleAddresses: oracleAddressesType;
-  mvkTokenAddress: address;
-  aggregatorConfig: aggregatorConfigType;
-  admin: adminType;
-];
-
-type updateAggregatorConfigParamsType is record [
-  satelliteAddress: address;
-  aggregatorConfig: aggregatorConfigType;
-];
-
-type updateAggregatorAdminParamsType is record [
-  satelliteAddress: address;
-  adminAddress: address;
-];
-
-type aggregatorFactoryStorage is record [
-    admin: address;
-    mvkTokenAddress: address;
-    trackedAggregators: trackedAggregatorsType;
-    trackedSatellite: trackedSatelliteType;
-]
-
-type aggregatorFactoryLambdaActionType is 
-
-  | LambdaCreateAggregator            of createAggregatorParamsType
-  | LambdaAddSatellite                of (address)
-  | LambdaBanSatellite                of (address)
-  | LambdaUpdateAggregatorConfig      of updateAggregatorConfigParamsType
-  | LambdaUpdateAggregatorAdmin       of updateAggregatorAdminParamsType
-
+// Aggregator Factory Types
+#include "../partials/types/aggregatorFactoryTypes.ligo"
 
 // ------------------------------------------------------------------------------
 
 type aggregatorFactoryAction is
     
-    | CreateAggregator            of createAggregatorParamsType
+      // Housekeeping Entrypoints
+    | SetAdmin                    of setAdminParams
+    | UpdateMetadata              of updateMetadataType
+
+      // Aggregator Factory Entrypoints
+    | UpdateAggregatorAdmin       of updateAggregatorAdminParamsType
+    | UpdateAggregatorConfig      of updateAggregatorConfigParamsType
     | AddSatellite                of (address)
     | BanSatellite                of (address)
-    | UpdateAggregatorConfig      of updateAggregatorConfigParamsType
-    | UpdateAggregatorAdmin       of updateAggregatorAdminParamsType
+    | CreateAggregator            of createAggregatorParamsType
+    
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * aggregatorFactoryStorage;
 
-type createAggregatorFuncType is (option(key_hash) * tez * aggregatorStorage) -> (operation * address);
-
 // aggregator factory contract methods lambdas
 type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaActionType * aggregatorFactoryStorage) -> return
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Error Codes Begin
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                             = 0n;
+[@inline] const error_ONLY_MAINTAINER_ALLOWED                                = 1n;
+[@inline] const error_ACTION_FAILED_AS_SATELLITE_IS_NOT_REGISTERED           = 2n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                      = 3n;
+
+[@inline] const error_ADD_ORACLE_ENTRYPOINT_NOT_FOUND                        = 4n;
+[@inline] const error_REMOVE_ORACLE_ENTRYPOINT_NOT_FOUND                     = 5n;
+[@inline] const error_UPDATE_AGGREGATOR_CONFIG_ENTRYPOINT_NOT_FOUND          = 6n;
+[@inline] const error_UPDATE_ADMIN_ENTRYPOINT_NOT_FOUND                      = 7n;
+[@inline] const error_AGGREGATOR_IN_GET_AGGREGATOR_VIEW_NOT_FOUND            = 8n;
+
+[@inline] const error_LAMBDA_NOT_FOUND                                       = 9n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                = 10n;
+
+// ------------------------------------------------------------------------------
+//
+// Error Codes End
+//
+// ------------------------------------------------------------------------------
+
 
 
 // ------------------------------------------------------------------------------
@@ -85,34 +76,23 @@ type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaAction
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAdmin(const s: aggregatorFactoryStorage): unit is
-  if Tezos.sender =/= s.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
+  if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
   else unit
+
+
+
+function checkNoAmount(const _p : unit) : unit is
+    if (Tezos.amount = 0tez) then unit
+    else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 
 
 function checkIfAddressContainInTrackedSatelliteSet(const satelliteAddress: address; const trackedSatellite: trackedSatelliteType): unit is
-  if not (trackedSatellite contains satelliteAddress) then failwith("You can't perform things on a not registered satellite")
+  if not (trackedSatellite contains satelliteAddress) then failwith(error_ACTION_FAILED_AS_SATELLITE_IS_NOT_REGISTERED)
   else unit
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
-// ------------------------------------------------------------------------------
-
-
-// ------------------------------------------------------------------------------
-// Factory Helper Functions Begin
-// ------------------------------------------------------------------------------
-
-const createAggregatorFunc: createAggregatorFuncType =
-[%Michelson ( {| { UNPPAIIR ;
-                  CREATE_CONTRACT
-#include "../compiled/aggregator.tz"
-        ;
-          PAIR } |}
-: createAggregatorFuncType)];
-
-// ------------------------------------------------------------------------------
-// Factory Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -126,7 +106,7 @@ block{
     const tokenContract: contract(address) =
         case (Tezos.get_entrypoint_opt("%addOracle", aggregatorAddress): option(contract(address))) of [
               Some (c) -> c
-          |   None -> (failwith("addOracle entrypoint not found in agregator contract"): contract(address))
+          |   None -> (failwith(error_ADD_ORACLE_ENTRYPOINT_NOT_FOUND): contract(address))
         ];
 } with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
 
@@ -137,7 +117,7 @@ block{
     const tokenContract: contract(address) =
         case (Tezos.get_entrypoint_opt("%removeOracle", aggregatorAddress): option(contract(address))) of [
               Some (c) -> c
-          |   None -> (failwith("removeOracle entrypoint not found in agregator contract"): contract(address))
+          |   None -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_NOT_FOUND): contract(address))
         ];
 } with (Tezos.transaction(satelliteAddress, 0tez, tokenContract))
 
@@ -148,7 +128,7 @@ block{
     const tokenContract: contract(aggregatorConfigType) =
         case (Tezos.get_entrypoint_opt("%updateAggregatorConfig", aggregatorAddress): option(contract(aggregatorConfigType))) of [
               Some (c) -> c
-          |   None -> (failwith("updateAggregatorConfig entrypoint not found in agregator contract"): contract(aggregatorConfigType))
+          |   None -> (failwith(error_UPDATE_AGGREGATOR_CONFIG_ENTRYPOINT_NOT_FOUND): contract(aggregatorConfigType))
         ];
 } with (Tezos.transaction(newAggregatorConfig, 0tez, tokenContract))
 
@@ -159,12 +139,32 @@ block{
     const tokenContract: contract(address) =
         case (Tezos.get_entrypoint_opt("%updateAdmin", aggregatorAddress): option(contract(address))) of [
               Some (c) -> c
-          |   None -> (failwith("updateAdmin entrypoint not found in aggregator contract"): contract(address))
+          |   None -> (failwith(error_UPDATE_ADMIN_ENTRYPOINT_NOT_FOUND): contract(address))
         ];
 } with (Tezos.transaction(adminAddress, 0tez, tokenContract))
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(aggregatorFactoryUnpackLambdaFunctionType)) of [
+        Some(f) -> f(aggregatorFactoryLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
+
+// ------------------------------------------------------------------------------
+// Lambda Helper Functions End
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
@@ -184,7 +184,7 @@ block{
 [@view] function getAggregator (const pair : string*string ; const s : aggregatorFactoryStorage) : address is block {
   const aggregatorAddress : address = case s.trackedAggregators[pair] of [
     Some(_address) -> _address
-    | None -> failwith("Error. Aggregator not found.")
+    | None -> failwith(error_AGGREGATOR_IN_GET_AGGREGATOR_VIEW_NOT_FOUND)
   ];
 } with (aggregatorAddress)
 
@@ -195,116 +195,96 @@ block{
 // ------------------------------------------------------------------------------
 
 
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Methods Begin
+//
+// ------------------------------------------------------------------------------
+
+// Aggregator Factory Lambdas:
+#include "../partials/contractLambdas/aggregatorFactory/aggregatorFactoryLambdas.ligo"
+
+// ------------------------------------------------------------------------------
+//
+// Lambda Methods End
+//
+// ------------------------------------------------------------------------------
+
+
+
 // ------------------------------------------------------------------------------
 //
 // Entrypoints Begin
 //
 // ------------------------------------------------------------------------------
 
-(*  createAggregator entrypoint  *)
-function createAggregator(const createAggregatorParams: createAggregatorParamsType; var s: aggregatorFactoryStorage): return is
-block {
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
 
-    checkSenderIsAdmin(s);
-
-    // createAggregator parameters declaration
-    const observationCommits: observationCommitsType = map[];
-    const observationReveals: observationRevealsType = map[];
-    const lastCompletedRoundPrice = record[
-          round= 0n;
-          price= 0n;
-          percentOracleResponse= 0n;
-      ];
-    const oracleRewardsXTZ: oracleRewardsXTZType = map[];
-    const oracleRewardsMVK: oracleRewardsMVKType = map[];
-    const deviationTriggerInfos: deviationTriggerInfosType = record[
-      oracleAddress=Tezos.sender;
-      amount=0tez;
-      roundPrice=0n;
-    ];
-
-    const aggregatorLambdaLedger : big_map(string, bytes) = Big_map.empty;
-
-    const aggregatorMetadataPlain : aggregatorMetadataType = record[
-        name                    = "MAVRYK Aggregator";
-        description             = "MAVRYK Aggregator Contract";
-        version                 =  "v1.0.0";
-        authors                 = "MAVRYK Dev Team <contact@mavryk.finance>";
-    ];
-    const aggregatorMetadata : metadata = Big_map.literal (list [
-        ("", Bytes.pack(aggregatorMetadataPlain));
-    ]);
-
-    // new Aggregator Storage declaration
-    const originatedAggregatorStorage : aggregatorStorage = record [
-
-      admin                     = createAggregatorParams.2.admin;
-      metadata                  = aggregatorMetadata;
-      config                    = createAggregatorParams.2.aggregatorConfig;
-      
-      mvkTokenAddress           = s.mvkTokenAddress;
-
-      round                     = 0n;
-      switchBlock               = 0n;
-
-      oracleAddresses           = createAggregatorParams.2.oracleAddresses;
-      
-      deviationTriggerInfos     = deviationTriggerInfos;
-      lastCompletedRoundPrice   = lastCompletedRoundPrice;
-      
-      observationCommits        = observationCommits;
-      observationReveals        = observationReveals;
-      
-      oracleRewardsXTZ          = oracleRewardsXTZ;
-      oracleRewardsMVK          = oracleRewardsMVK;      
-
-      lambdaLedger              = aggregatorLambdaLedger;
-      
-    ];
-
-    // contract origination
-    const aggregatorOrigination: (operation * address) = createAggregatorFunc(
-        (None: option(key_hash)),
-        0tez,
-        originatedAggregatorStorage
-    );
-    s.trackedAggregators := Map.add((createAggregatorParams.0, createAggregatorParams.1), aggregatorOrigination.1, s.trackedAggregators)
-
-} with(list[aggregatorOrigination.0], s)
-
-
-
-(*  addSatellite entrypoint  *)
-function addSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
+(*  setAdmin entrypoint  *)
+function setAdmin(const newAdminAddress: adminType; const s: aggregatorFactoryStorage): return is
 block{
-    
-    checkSenderIsAdmin(s);
-    const newSet: trackedSatelliteType = Set.add (satelliteAddress, s.trackedSatellite);
-    var operations : list(operation) := nil;
-    for _key -> value in map s.trackedAggregators block {
-        const operation = addOracleOperation(value, satelliteAddress);
-        operations := operation # operations;
-    }
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-} with (operations,s with record[trackedSatellite = newSet])
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
 
 
 
-(*  banSatellite entrypoint  *)
-function banSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
+(*  updateMetadata entrypoint  *)
+function updateMetadata(const updateMetadataParams: updateMetadataType; const s: aggregatorFactoryStorage): return is
+block{
+  
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Aggregator Factory Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  updateAggregatorAdmin entrypoint  *)
+function updateAggregatorAdmin(const updateAggregatorAdminParams: updateAggregatorAdminParamsType; var s: aggregatorFactoryStorage): return is
 block{
 
-    checkSenderIsAdmin(s);
-    checkIfAddressContainInTrackedSatelliteSet(satelliteAddress, s.trackedSatellite);
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorAdmin"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-    const newSet: trackedSatelliteType = Set.remove (satelliteAddress, s.trackedSatellite);
-    var operations : list(operation) := nil;
-    for _key -> value in map s.trackedAggregators block {
-        const operation = removeOracleOperation(value, satelliteAddress);
-      operations := operation # operations;
-    }
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateAggregatorAdmin(updateAggregatorAdminParams);
 
-} with (operations,s with record[trackedSatellite = newSet])
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
 
 
 
@@ -312,21 +292,79 @@ block{
 function updateAggregatorConfig(const updateAggregatorConfigParams: updateAggregatorConfigParamsType; var s: aggregatorFactoryStorage): return is
 block{
     
-    checkSenderIsAdmin(s);
-    const operation = updateAggregatorConfigOperation(updateAggregatorConfigParams.satelliteAddress, updateAggregatorConfigParams.aggregatorConfig);
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorConfig"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-} with (list[operation],s)
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateAggregatorConfig(updateAggregatorConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);    
+
+} with response
 
 
 
-(*  updateAggregatorAdmin entrypoint  *)
-function updateAggregatorAdmin(const updateAggregatorAdminParams: updateAggregatorAdminParamsType; var s: aggregatorFactoryStorage): return is
+(*  addSatellite entrypoint  *)
+function addSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
 block{
-    checkSenderIsAdmin(s);
-    const operation = updateAggregatorAdminOperation(updateAggregatorAdminParams.satelliteAddress, updateAggregatorAdminParams.adminAddress);
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
-} with (list[operation],s)
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaAddSatellite(satelliteAddress);
 
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
+
+
+(*  banSatellite entrypoint  *)
+function banSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaBanSatellite"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaBanSatellite(satelliteAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
+
+
+(*  createAggregator entrypoint  *)
+function createAggregator(const createAggregatorParams: createAggregatorParamsType; var s: aggregatorFactoryStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateAggregator"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaCreateAggregator(createAggregatorParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Aggregator Factory Entrypoints Begin
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //
@@ -340,10 +378,15 @@ block{
 function main (const action : aggregatorFactoryAction; const s : aggregatorFactoryStorage) : return is
 
     case action of [
-      
-      | CreateAggregator (parameters)         -> createAggregator(parameters, s)
+
+        // Housekeeping Entrypoints
+      | SetAdmin (parameters)                 -> setAdmin(parameters, s)
+      | UpdateMetadata (parameters)           -> updateMetadata(parameters, s)
+
+        // Aggregator Factory Entrypoints  
+      | UpdateAggregatorAdmin (parameters)    -> updateAggregatorAdmin(parameters, s)
+      | UpdateAggregatorConfig (parameters)   -> updateAggregatorConfig(parameters, s)
       | AddSatellite (parameters)             -> addSatellite(parameters, s)
       | BanSatellite (parameters)             -> banSatellite(parameters, s)
-      | UpdateAggregatorConfig (parameters)   -> updateAggregatorConfig(parameters, s)
-      | UpdateAggregatorAdmin (parameters)    -> updateAggregatorAdmin(parameters, s)
+      | CreateAggregator (parameters)         -> createAggregator(parameters, s)
     ]

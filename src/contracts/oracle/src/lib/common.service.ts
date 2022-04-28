@@ -9,8 +9,7 @@ import {
 import { ContractProvider, TezosToolkit } from '@taquito/taquito';
 import { InMemorySigner } from '@taquito/signer';
 import BigNumber from 'bignumber.js';
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const codec = require("@taquito/michel-codec")
+import { packDataBytes } from '@taquito/michel-codec';
 
 @Injectable()
 export class CommonService implements OnModuleInit {
@@ -139,11 +138,16 @@ export class CommonService implements OnModuleInit {
     return ops.filter((op) => op !== null) as T[];
   }
 
-
-  public getSetObservationCommitDataToSign(price: BigNumber, salt: string){
-    const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] }; 
-    const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-    const priceCodec = codec.packDataBytes(data,typ);
+  public getCommitData(price: BigNumber, salt: string) {
+    const data: any = {
+      prim: 'Pair',
+      args: [{ int: price.toString() }, { string: salt }],
+    };
+    const typ: any = {
+      prim: 'pair',
+      args: [{ prim: 'int' }, { prim: 'string' }],
+    };
+    const priceCodec = packDataBytes(data, typ);
     return priceCodec.bytes;
   }
 }
