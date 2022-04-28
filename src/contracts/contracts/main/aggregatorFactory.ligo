@@ -400,7 +400,13 @@ block{
 
 } with(noOperations, s)
 
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateAggregator"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
 
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaCreateAggregator(createAggregatorParams);
 
 (* setProductLambda entrypoint *)
 function setProductLambda(const setLambdaParams: setLambdaType; var s: aggregatorFactoryStorage): return is
