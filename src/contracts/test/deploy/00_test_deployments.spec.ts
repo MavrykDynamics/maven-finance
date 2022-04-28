@@ -383,7 +383,6 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('aggregatorFactoryAddress', aggregatorFactory.contract.address)
     console.log('Aggregator Factory Contract deployed at:', aggregatorFactory.contract.address)
 
-
     /* ---- ---- ---- ---- ---- */
 
     tezos = doorman.tezos
