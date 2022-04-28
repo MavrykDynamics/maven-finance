@@ -2,6 +2,8 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
+// Set Lambda Types
+#include "../partials/functionalTypes/setLambdaTypes.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
@@ -32,6 +34,9 @@ type aggegatorAction is
     // Reward Entrypoints
   | WithdrawRewardXTZ             of withdrawRewardXTZParams
   | WithdrawRewardMVK             of withdrawRewardMVKParams
+
+    // Lambda Entrypoints
+  | SetLambda                     of setLambdaType
   
 const noOperations : list (operation) = nil;
 type return is list (operation) * aggregatorStorage
@@ -698,6 +703,30 @@ block{
 // Reward Entrypoints End
 // ------------------------------------------------------------------------------
 
+
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams : setLambdaType; var s : aggregatorStorage): return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
+
+} with(noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
+
 // ------------------------------------------------------------------------------
 //
 // Entrypoints End
@@ -728,6 +757,9 @@ function main (const action : aggegatorAction; const s : aggregatorStorage) : re
       // Reward Entrypoints
     | WithdrawRewardXTZ (parameters)            -> withdrawRewardXTZ(parameters, s)
     | WithdrawRewardMVK (parameters)            -> withdrawRewardMVK(parameters, s)
+
+      // Lambda Entrypoints
+    | SetLambda(parameters)                     -> setLambda(parameters, s)
   ];
 
 (*

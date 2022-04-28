@@ -5,7 +5,7 @@ type lambdaLedgerType is big_map(string, bytes)
 type trackedAggregatorsType is map (string * string, address);
 type trackedSatelliteType is set (address);
 
-type aggregatorMetadataType is record[
+type aggregatorMetadataType is [@layout:comb] record[
     name                     : string;
     description              : string;
     version                  : string;
@@ -28,12 +28,12 @@ const createAggregatorFunc: createAggregatorFuncType =
           PAIR } |}
 : createAggregatorFuncType)];
 
-type updateAggregatorConfigParamsType is record [
+type updateAggregatorConfigParamsType is [@layout:comb] record [
   satelliteAddress: address;
   aggregatorConfig: aggregatorConfigType;
 ];
 
-type updateAggregatorAdminParamsType is record [
+type updateAggregatorAdminParamsType is [@layout:comb] record [
   satelliteAddress: address;
   adminAddress: address;
 ];
@@ -55,7 +55,7 @@ type aggregatorFactoryLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 
-type aggregatorFactoryStorage is record [
+type aggregatorFactoryStorage is [@layout:comb] record [
     admin               : address;
     metadata            : metadataType;
     
