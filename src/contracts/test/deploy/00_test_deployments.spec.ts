@@ -347,7 +347,6 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Mock Fa2 Token Contract deployed at:', mockFa2Token.contract.address)
 
 
-<<<<<<< HEAD
     governanceProxyStorage.generalContracts   = MichelsonMap.fromLiteral({
       "delegation"            : delegation.contract.address,
       "doorman"               : doorman.contract.address,
@@ -365,7 +364,8 @@ describe('Contracts Deployment for Tests', async () => {
 
     await saveContractAddress('governanceProxyAddress', governanceProxy.contract.address)
     console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
-=======
+
+    aggregatorStorage.mvkTokenAddress = mvkToken.contract.address;
     aggregator = await Aggregator.originate(
       utils.tezos,
       aggregatorStorage
@@ -374,6 +374,7 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('aggregatorAddress', aggregator.contract.address)
     console.log('Aggregator Contract deployed at:', aggregator.contract.address)
 
+    aggregatorFactoryStorage.mvkTokenAddress = mvkToken.contract.address;
     aggregatorFactory = await AggregatorFactory.originate(
       utils.tezos,
       aggregatorFactoryStorage
@@ -381,7 +382,7 @@ describe('Contracts Deployment for Tests', async () => {
 
     await saveContractAddress('aggregatorFactoryAddress', aggregatorFactory.contract.address)
     console.log('Aggregator Factory Contract deployed at:', aggregatorFactory.contract.address)
->>>>>>> Complete Aggregator Factory Lambdas
+
 
     /* ---- ---- ---- ---- ---- */
 
