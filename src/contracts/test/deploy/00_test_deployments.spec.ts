@@ -28,7 +28,11 @@ import farmFactoryLambdas from '../../build/lambdas/farmFactoryLambdas.json'
 import vestingLambdas from '../../build/lambdas/vestingLambdas.json'
 import treasuryLambdas from '../../build/lambdas/treasuryLambdas.json'
 import treasuryFactoryLambdas from '../../build/lambdas/treasuryFactoryLambdas.json'
+import aggregatorLambdas from '../../build/lambdas/aggregatorLambdas.json'
+import aggregatorFactoryLambdas from '../../build/lambdas/aggregatorFactoryLambdas.json'
 
+import { Aggregator } from '../helpers/aggregatorHelper'
+import { AggregatorFactory } from '../helpers/aggregatorFactoryHelper'
 import { Doorman } from '../helpers/doormanHelper'
 import { Delegation } from '../helpers/delegationHelper'
 import { MvkToken } from '../helpers/mvkHelper'
@@ -47,6 +51,9 @@ import { TreasuryFactory } from '../helpers/treasuryFactoryHelper'
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
 import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
 
+
+import { aggregatorStorage } from '../../storage/aggregatorStorage'
+import { aggregatorFactoryStorage } from '../../storage/aggregatorFactoryStorage'
 import { doormanStorage } from '../../storage/doormanStorage'
 import { delegationStorage } from '../../storage/delegationStorage'
 import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
@@ -66,7 +73,11 @@ import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
 
 describe('Contracts Deployment for Tests', async () => {
+  
   var utils: Utils
+
+  var aggregator: Aggregator
+  var aggregatorFactory: AggregatorFactory
   var doorman: Doorman
   var mvkToken: MvkToken
   var delegation: Delegation
@@ -336,6 +347,7 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Mock Fa2 Token Contract deployed at:', mockFa2Token.contract.address)
 
 
+<<<<<<< HEAD
     governanceProxyStorage.generalContracts   = MichelsonMap.fromLiteral({
       "delegation"            : delegation.contract.address,
       "doorman"               : doorman.contract.address,
@@ -353,6 +365,23 @@ describe('Contracts Deployment for Tests', async () => {
 
     await saveContractAddress('governanceProxyAddress', governanceProxy.contract.address)
     console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
+=======
+    aggregator = await Aggregator.originate(
+      utils.tezos,
+      aggregatorStorage
+    )
+
+    await saveContractAddress('aggregatorAddress', aggregator.contract.address)
+    console.log('Aggregator Contract deployed at:', aggregator.contract.address)
+
+    aggregatorFactory = await AggregatorFactory.originate(
+      utils.tezos,
+      aggregatorFactoryStorage
+    )
+
+    await saveContractAddress('aggregatorFactoryAddress', aggregatorFactory.contract.address)
+    console.log('Aggregator Factory Contract deployed at:', aggregatorFactory.contract.address)
+>>>>>>> Complete Aggregator Factory Lambdas
 
     /* ---- ---- ---- ---- ---- */
 
@@ -802,10 +831,44 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStakeMvk"                     , treasuryLambdas[16]))  // stakeMvk
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstakeMvk"                   , treasuryLambdas[17]))  // unstakeMvk
 
-      
       const setupTreasuryFactoryProductLambdasOperation = await treasuryFactoryProductLambdaBatch.send()
       await setupTreasuryFactoryProductLambdasOperation.confirmation()
       console.log("Treasury Factory Product Lambdas Setup")
+
+      // Aggregator Setup Lambdas
+      const aggregatorLambdaBatch = await tezos.wallet
+      .batch()
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetAdmin"                           , aggregatorLambdas[0]))  // setAdmin
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateMetadata"                     , aggregatorLambdas[1]))  // updateMetadata
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateConfig"                       , aggregatorLambdas[2]))  // updateConfig
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateAddOracle"                    , aggregatorLambdas[3]))  // addOracle
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateRemoveOracle"                 , aggregatorLambdas[4]))  // removeOracle
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdate"                  , aggregatorLambdas[5]))  // requestRateUpdate
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdateDeviation"         , aggregatorLambdas[6]))  // requestRateUpdateDeviation
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationCommit"               , aggregatorLambdas[7]))  // setObservationCommit
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationReveal"               , aggregatorLambdas[8]))  // setObservationReveal
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardXTZ"                  , aggregatorLambdas[9]))  // withdrawRewardXTZ
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaWithdrawRewardMVK"                  , aggregatorLambdas[10])) // withdrawRewardMVK 
+
+      const setupAggregatorLambdasOperation = await aggregatorLambdaBatch.send()
+      await setupAggregatorLambdasOperation.confirmation()
+      console.log("Aggregator Lambdas Setup")
+
+
+      // Aggregator Factory Setup Lambdas
+      const aggregatorFactoryLambdaBatch = await tezos.wallet
+      .batch()
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaSetAdmin"                           , aggregatorFactoryLambdas[0]))  // setAdmin
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateMetadata"                     , aggregatorFactoryLambdas[1]))  // updateMetadata
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateAggregatorAdmin"              , aggregatorFactoryLambdas[2]))  // updateAggregatorAdmin
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaUpdateAggregatorConfig"             , aggregatorFactoryLambdas[3]))  // updateAggregatorConfig
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaAddSatellite"                       , aggregatorFactoryLambdas[4]))  // addSatellite
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaBanSatellite"                       , aggregatorFactoryLambdas[5]))  // banSatellite
+      .withContractCall(aggregatorFactory.contract.methods.setLambda("lambdaCreateAggregator"                   , aggregatorFactoryLambdas[6]))  // createAggregator
+
+      const setupAggregatorFactoryLambdasOperation = await aggregatorFactoryLambdaBatch.send()
+      await setupAggregatorFactoryLambdasOperation.confirmation()
+      console.log("AggregatorFactory Lambdas Setup")
 
     // Set Lambdas End
 
