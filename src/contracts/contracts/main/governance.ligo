@@ -44,6 +44,8 @@ type governanceAction is
     | UpdateGeneralContracts          of updateGeneralContractsParams
     | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
     | UpdateWhitelistDevelopers       of (address)
+    | SetContractAdmin                of setContractAdminType
+    | SetContractGovernance           of setContractGovernanceType
     
       // Governance Cycle Entrypoints
     | StartNextRound                  of bool
@@ -101,46 +103,48 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                            = 0n;
-[@inline] const error_ONLY_SELF_ALLOWED                                     = 1n;
-[@inline] const error_ONLY_ADMIN_OR_SELF_ALLOWED                            = 2n;
-[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                         = 3n;
-[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                      = 4n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                       = 5n;
-[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                         = 6n;
-[@inline] const error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED            = 7n;
-[@inline] const error_ONLY_BREAK_GLASS_CONTRACT_ALLOWED                     = 8n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                     = 9n;
+[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                              = 0n;
+[@inline] const error_ONLY_SELF_ALLOWED                                                       = 1n;
+[@inline] const error_ONLY_ADMIN_OR_SELF_ALLOWED                                              = 2n;
+[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                                           = 3n;
+[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                        = 4n;
+[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                         = 5n;
+[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                                           = 6n;
+[@inline] const error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED                              = 7n;
+[@inline] const error_ONLY_BREAK_GLASS_CONTRACT_CONTRACT_ALLOWED                              = 8n;
+[@inline] const error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED       = 9n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                       = 10n;
 
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                            = 10n;
-[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                         = 11n;
-[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                            = 12n;
-[@inline] const error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND               = 13n;
-[@inline] const error_BREAK_GLASS_CONTRACT_NOT_FOUND                        = 14n;
+[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                                              = 11n;
+[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                           = 12n;
+[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                                              = 13n;
+[@inline] const error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND                                 = 14n;
+[@inline] const error_BREAK_GLASS_CONTRACT_NOT_FOUND                                          = 15n;
 
-// temp
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                        = 15n;
-// [@inline] const error_EXECUTE_GOVERNANCE_PROPOSAL_ENTRYPOINT_NOT_FOUND      = 13n;
-[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND        = 16n;
-//
+// temp                 
+[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                                          = 16n;
+[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND                                     = 17n;
+// [@inline] const error_EXECUTE_GOVERNANCE_PROPOSAL_ENTRYPOINT_NOT_FOUND                        = 13n;
+[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND                          = 18n;
+//                  
 
-[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 17n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 18n;
-[@inline] const error_START_PROPOSAL_ROUND_ENTRYPOINT_NOT_FOUND             = 19n;
-[@inline] const error_EXECUTE_PROPOSAL_ENTRYPOINT_NOT_FOUND                 = 20n;
-[@inline] const error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_NOT_FOUND         = 21n;
-[@inline] const error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND          = 22n;
-[@inline] const error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND     = 23n;
+[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                                           = 19n;
+[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND                              = 20n;
+[@inline] const error_START_PROPOSAL_ROUND_ENTRYPOINT_NOT_FOUND                               = 21n;
+[@inline] const error_EXECUTE_PROPOSAL_ENTRYPOINT_NOT_FOUND                                   = 22n;
+[@inline] const error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_NOT_FOUND                           = 23n;
+[@inline] const error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND                            = 24n;
+[@inline] const error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND                       = 25n;
 
-[@inline] const error_VIEW_GET_TOTAL_SUPPLY_NOT_FOUND                       = 24n;
-[@inline] const error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND                  = 25n;
-[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 26n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 27n;
-[@inline] const error_SET_BAKER_ENTRYPOINT_NOT_FOUND                        = 28n;
-[@inline] const error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND                  = 29n;
+[@inline] const error_VIEW_GET_TOTAL_SUPPLY_NOT_FOUND                                         = 26n;
+[@inline] const error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND                                    = 27n;
+[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                                           = 28n;
+[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND                              = 29n;
+[@inline] const error_SET_BAKER_ENTRYPOINT_NOT_FOUND                                          = 30n;
+[@inline] const error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND                                    = 31n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                      = 30n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 31n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                        = 32n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                 = 33n;
 
 // ------------------------------------------------------------------------------
 //
@@ -255,21 +259,6 @@ block{
 
 
 
-function checkSenderIsBreakGlassContract(var s : governanceStorage) : unit is
-block{
-
-  const breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
-        Some(_address) -> _address
-      | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
-  ];
-
-  if (Tezos.sender = breakGlassAddress) then skip
-  else failwith(error_ONLY_BREAK_GLASS_CONTRACT_ALLOWED);
-
-} with unit
-
-
-
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
@@ -304,14 +293,14 @@ function getSetAdminEntrypoint(const contractAddress : address) : contract(addre
 
 
 
-// governance proxy lamba helper function to get executeGovernanceProposal entrypoint
-// function getExecuteGovernanceProposalEntrypoint(const contractAddress : address) : contract(bytes) is
-// case (Tezos.get_entrypoint_opt(
-//       "%executeGovernanceProposal",
-//       contractAddress) : option(contract(bytes))) of [
-//           Some(contr) -> contr
-//         | None        -> (failwith(error_EXECUTE_GOVERNANCE_PROPOSAL_ENTRYPOINT_NOT_FOUND) : contract(bytes))
-//       ];
+// governance proxy lamba helper function to get setGovernance entrypoint
+function getSetGovernanceEntrypoint(const contractAddress : address) : contract(address) is
+  case (Tezos.get_entrypoint_opt(
+      "%setGovernance",
+      contractAddress) : option(contract(address))) of [
+          Some(contr) -> contr
+        | None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND) : contract(address))
+      ];
 
 
 
@@ -1032,6 +1021,45 @@ block {
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
 
 } with response
+
+
+
+// (*  setContractAdmin entrypoint *)
+function setContractAdmin(const setContractAdminParams: setContractAdminType; var s: governanceStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetContractAdmin"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaSetContractAdmin(setContractAdminParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
+// (*  setContractGovernance entrypoint *)
+function setContractGovernance(const setContractGovernanceParams: setContractGovernanceType; var s: governanceStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetContractGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaSetContractGovernance(setContractGovernanceParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -1386,6 +1414,8 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
         | UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
+        | SetContractAdmin(parameters)                -> setContractAdmin(parameters, s)
+        | SetContractGovernance(parameters)           -> setContractGovernance(parameters, s)
 
           // Governance Cycle Entrypoints
         | StartNextRound(parameters)                  -> startNextRound(parameters, s)

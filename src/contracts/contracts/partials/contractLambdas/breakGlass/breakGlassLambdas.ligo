@@ -59,7 +59,7 @@ block {
 function lambdaSetGovernance(const breakGlassLambdaAction : breakGlassLambdaActionType;  var s : breakGlassStorage) : return is
 block {
     
-    checkSenderIsGovernanceProxy(s);
+    checkSenderIsAllowed(s);
 
     case breakGlassLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {

@@ -32,9 +32,22 @@ block {
       | UpdateGovernanceConfig (_v)            -> 8n
       | UpdateDelegationConfig (_v)            -> 9n
 
-      (* BreakGlass Control *)
+      (* Governance Control *)
       | UpdateWhitelistDevelopersSet (_v)      -> 10n
 
+      (* Farm Control *)
+      | CreateFarm (_v)                        -> 11n
+      | TrackFarm (_v)                         -> 12n
+      | UntrackFarm (_v)                       -> 13n
+
+      (* Treasury Control *)
+      | CreateTreasury (_v)                    -> 14n
+      | TrackTreasury (_v)                     -> 15n
+      | UntrackTreasury (_v)                   -> 16n
+
+      (* MVK Token Control *)
+      | UpdateMvkInflationRate (_v)            -> 17n
+      | TriggerMvkInflation (_v)               -> 18n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -422,6 +435,322 @@ block {
           );
 
         operations := updateWhitelistDevelopersSetOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function createFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      CreateFarm(createFarmParams) -> {
+
+        // find and get farmFactory contract address from the generalContracts map
+        const farmFactoryAddress : address = case s.generalContracts["farmFactory"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Farm Factory Contract is not found")
+        ];
+
+        // find and get createFarm entrypoint of farmFactory contract
+        const createFarmEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%createFarm",
+            farmFactoryAddress) : option(contract(createFarmType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("createFarm entrypoint in Farm Factory Contract not found") : contract(createFarmType))
+            ];
+
+        // create a farm
+        const createFarmOperation : operation = Tezos.transaction(
+          (createFarmParams),
+          0tez, 
+          createFarmEntrypoint
+          );
+
+        operations := createFarmOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function trackFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      TrackFarm(trackFarmParams) -> {
+
+        // find and get farmFactory contract address from the generalContracts map
+        const farmFactoryAddress : address = case s.generalContracts["farmFactory"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Farm Factory Contract is not found")
+        ];
+
+        // find and get trackFarm entrypoint of farmFactory contract
+        const trackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%trackFarm",
+            farmFactoryAddress) : option(contract(address))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("trackFarm entrypoint in Farm Factory Contract not found") : contract(address))
+            ];
+
+        // track a farm
+        const trackFarmOperation : operation = Tezos.transaction(
+          (trackFarmParams),
+          0tez, 
+          trackFarmEntrypoint
+          );
+
+        operations := trackFarmOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function untrackFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UntrackFarm(untrackFarmParams) -> {
+
+        // find and get farmFactory contract address from the generalContracts map
+        const farmFactoryAddress : address = case s.generalContracts["farmFactory"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Farm Factory Contract is not found")
+        ];
+
+        // find and get untrack entrypoint of farmFactory contract
+        const untrackFarmEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%untrackFarm",
+            farmFactoryAddress) : option(contract(address))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("untrackFarm entrypoint in Farm Factory Contract not found") : contract(address))
+            ];
+
+        // untrack a farm
+        const untrackFarmOperation : operation = Tezos.transaction(
+          (untrackFarmParams),
+          0tez, 
+          untrackFarmEntrypoint
+          );
+
+        operations := untrackFarmOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function createTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      CreateTreasury(createTreasuryParams) -> {
+
+        // find and get treasuryFactory contract address from the generalContracts map
+        const treasuryFactoryAddress : address = case s.generalContracts["treasuryFactory"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Treasury Factory Contract is not found")
+        ];
+
+        // find and get createTreasury entrypoint of treasuryFactory contract
+        const createTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%createTreasury",
+            treasuryFactoryAddress) : option(contract(bytes))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("createTreasury entrypoint in Farm Factory Contract not found") : contract(bytes))
+            ];
+
+        // create a new treasury
+        const createTreasuryOperation : operation = Tezos.transaction(
+          (createTreasuryParams),
+          0tez, 
+          createTreasuryEntrypoint
+          );
+
+        operations := createTreasuryOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function trackTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      TrackTreasury(trackTreasuryParams) -> {
+
+        // find and get treasuryFactory contract address from the generalContracts map
+        const treasuryFactoryAddress : address = case s.generalContracts["treasuryFactory"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Treasury Factory Contract is not found")
+        ];
+
+        // find and get trackTreasury entrypoint of treasuryFactory contract
+        const trackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%trackTreasury",
+            treasuryFactoryAddress) : option(contract(address))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("trackFarm entrypoint in Treasury Factory Contract not found") : contract(address))
+            ];
+
+        // track a treasury
+        const trackTreasuryOperation : operation = Tezos.transaction(
+          (trackTreasuryParams),
+          0tez, 
+          trackTreasuryEntrypoint
+          );
+
+        operations := trackTreasuryOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function untrackTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UntrackTreasury(untrackTreasuryParams) -> {
+
+        // find and get treasuryFactory contract address from the generalContracts map
+        const treasuryFactoryAddress : address = case s.generalContracts["treasuryFactory"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Treasury Factory Contract is not found")
+        ];
+
+        // find and get untrackTreasury entrypoint of treasuryFactory contract
+        const untrackTreasuryEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%untrackTreasury",
+            treasuryFactoryAddress) : option(contract(address))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("untrackTreasury entrypoint in Treasury Factory Contract not found") : contract(address))
+            ];
+
+        // untrack a treasury
+        const untrackTreasuryOperation : operation = Tezos.transaction(
+          (untrackTreasuryParams),
+          0tez, 
+          untrackTreasuryEntrypoint
+          );
+
+        operations := untrackTreasuryOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function updateMvkInflationRate(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateMvkInflationRate(newInflationRate) -> {
+
+        // find and get updateInflationRate entrypoint of MVK Token contract
+        const updateInflationRateEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateInflationRate",
+            s.mvkTokenAddress) : option(contract(nat))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("updateInflationRate entrypoint in MVK Token Contract not found") : contract(nat))
+            ];
+
+        // untrack a treasury
+        const updateInflationRateOperation : operation = Tezos.transaction(
+          (newInflationRate),
+          0tez, 
+          updateInflationRateEntrypoint
+          );
+
+        operations := updateInflationRateOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function triggerMvkInflation(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelf(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      TriggerMvkInflation(_parameter) -> {
+
+        // find and get updateInflationRate entrypoint of MVK Token contract
+        const triggerInflationEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%triggerInflation",
+            s.mvkTokenAddress) : option(contract(unit))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("triggerInflation entrypoint in MVK Token Contract not found") : contract(unit))
+            ];
+
+        // untrack a treasury
+        const triggerInflationOperation : operation = Tezos.transaction(
+          (unit),
+          0tez, 
+          triggerInflationEntrypoint
+          );
+
+        operations := triggerInflationOperation # operations;
 
         }
     | _ -> skip

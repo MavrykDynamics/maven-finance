@@ -42,5 +42,37 @@
   {
     "index": 10,
     "name": "updateWhitelistDevelopersSet"
+  },
+  {
+    "index": 11,
+    "name": "createFarm"
+  },
+  {
+    "index": 12,
+    "name": "trackFarm"
+  },
+  {
+    "index": 13,
+    "name": "untrackFarm"
+  },
+  {
+    "index": 14,
+    "name": "createTreasury"
+  },
+  {
+    "index": 15,
+    "name": "trackTreasury"
+  },
+  {
+    "index": 16,
+    "name": "untrackTreasury"
+  },
+  {
+    "index": 17,
+    "name": "updateMvkInflationRate"
+  },
+  {
+    "index": 18,
+    "name": "triggerMvkInflation"
   }
 ]

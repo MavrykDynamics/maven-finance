@@ -23,6 +23,15 @@
 
 // ------------------------------------------------------------------------------
 
+type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
+const createFarmFunc: createFarmFuncType =
+[%Michelson ( {| { UNPPAIIR ;
+                  CREATE_CONTRACT
+#include "../compiled/farm.tz"
+        ;
+          PAIR } |}
+: createFarmFuncType)];
+
 type farmFactoryAction is
 
     // Housekeeping Entrypoints
@@ -96,24 +105,9 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : farmFactoryStorage) : unit is
-    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
-        Some (value) -> value
-    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
-    ];
-    if (Tezos.sender = s.admin or Tezos.sender = governanceProxyAddress) then unit
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-function checkSenderIsGovernanceProxy(var s : farmFactoryStorage) : unit is
-    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
-        Some (value) -> value
-    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
-    ];
-    if (Tezos.sender = governanceProxyAddress) then unit
-        else failwith(error_ONLY_GOVERNANCE_PROXY_ALLOWED);
+        
 
 
 function checkSenderIsAdmin(const s: farmFactoryStorage): unit is

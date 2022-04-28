@@ -109,6 +109,19 @@ block {
     
     case governanceLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
+
+                // Check if the desired admin is a whitelisted dev or the current proxy address
+                if not Set.mem(newAdminAddress, s.whitelistDevelopers) and newAdminAddress =/= s.governanceProxyAddress then {
+                    // Check if the admin is the breakGlass
+                    const _breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
+                        Some(_address) -> _address
+                        | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
+                    ];
+                    if newAdminAddress = _breakGlassAddress then skip
+                    else failwith(error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED)
+                }
+                else skip;
+                
                 s.admin := newAdminAddress;
             }
         | _ -> skip
@@ -276,6 +289,56 @@ block {
     ];
 
 } with (noOperations, s)
+
+
+
+(*  setContractAdmin lambda *)
+function lambdaSetContractAdmin(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    // Operations list
+    var operations: list(operation) := nil;
+
+    case governanceLambdaAction of [
+        | LambdaSetContractAdmin(setContractAdminParams) ->
+            // Set admin of new contract
+            operations := Tezos.transaction(
+                (setContractAdminParams.newContractAdmin), 
+                0tez, 
+                getSetAdminEntrypoint(setContractAdminParams.targetContractAddress)
+            ) # operations
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  setContractGovernance lambda *)
+function lambdaSetContractGovernance(const governanceLambdaAction : governanceLambdaActionType; var s: governanceStorage): return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    // Operations list
+    var operations: list(operation) := nil;
+
+    case governanceLambdaAction of [
+        | LambdaSetContractGovernance(setContractGovernanceParams) ->
+            // Set admin of new contract
+            operations := Tezos.transaction(
+                (setContractGovernanceParams.newContractGovernance), 
+                0tez, 
+                getSetGovernanceEntrypoint(setContractGovernanceParams.targetContractAddress)
+            ) # operations
+        | _ -> skip
+    ];
+
+} with (operations, s)
 
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End

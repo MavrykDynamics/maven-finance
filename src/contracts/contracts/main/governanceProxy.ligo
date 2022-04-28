@@ -24,6 +24,18 @@
 // Governance Type
 #include "../partials/types/governanceTypes.ligo"
 
+// Farm Type
+#include "../partials/types/farmTypes.ligo"
+
+// FarmFactory Type
+#include "../partials/types/farmFactoryTypes.ligo"
+
+// Treasury Type
+#include "../partials/types/treasuryTypes.ligo"
+
+// TreasuryFactory Type
+#include "../partials/types/treasuryFactoryTypes.ligo"
+
 // Governance Proxy Types
 #include "../partials/types/governanceProxyTypes.ligo"
 
@@ -58,20 +70,21 @@ type governanceProxyLambdaFunctionType is (executeActionType * governanceProxySt
 [@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 5n;
 
 [@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 6n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 7n;
-[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND         = 8n;
-[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND           = 9n;
-[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND   = 10n;
+[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND                     = 7n;
+[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 8n;
+[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND         = 9n;
+[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND           = 10n;
+[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND   = 11n;
 
-[@inline] const error_GOVERNANCE_PROPOSAL_RECORD_NOT_FOUND                    = 11n;
-[@inline] const error_GET_PROPOSAL_RECORD_VIEW_NOT_FOUND                      = 12n;
-[@inline] const error_GOVERNANCE_PROPOSAL_ALREADY_EXECUTED                    = 13n;
-[@inline] const error_GOVERNANCE_PROPOSAL_DROPPED                             = 14n;
-[@inline] const error_GOVERNANCE_PROPOSAL_NO_DATA_TO_EXECUTE                  = 15n;
+[@inline] const error_GOVERNANCE_PROPOSAL_RECORD_NOT_FOUND                    = 12n;
+[@inline] const error_GET_PROPOSAL_RECORD_VIEW_NOT_FOUND                      = 13n;
+[@inline] const error_GOVERNANCE_PROPOSAL_ALREADY_EXECUTED                    = 14n;
+[@inline] const error_GOVERNANCE_PROPOSAL_DROPPED                             = 15n;
+[@inline] const error_GOVERNANCE_PROPOSAL_NO_DATA_TO_EXECUTE                  = 16n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                        = 16n;
-[@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA               = 17n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                 = 18n;
+[@inline] const error_LAMBDA_NOT_FOUND                                        = 17n;
+[@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA               = 18n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                 = 19n;
 
 
 // ------------------------------------------------------------------------------
@@ -146,14 +159,14 @@ case (Tezos.get_entrypoint_opt(
       ];
 
 
-// // governance proxy lamba helper function to get setGovernance entrypoint
-// function getSetGovernanceEntrypoint(const contractAddress : address) : contract(address) is
-// case (Tezos.get_entrypoint_opt(
-//       "%setGovernance",
-//       contractAddress) : option(contract(address))) of [
-//           Some(contr) -> contr
-//         | None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
-//       ];
+// governance proxy lamba helper function to get setGovernance entrypoint
+function getSetGovernanceEntrypoint(const contractAddress : address) : contract(address) is
+case (Tezos.get_entrypoint_opt(
+      "%setGovernance",
+      contractAddress) : option(contract(address))) of [
+          Some(contr) -> contr
+        | None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND) : contract(address))
+      ];
 
 
 

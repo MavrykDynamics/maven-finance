@@ -70,7 +70,7 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                                                = 1n;
+[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                                          = 1n;
 [@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
 [@inline] const error_ONLY_COUNCIL_MEMBERS_ALLOWED                                           = 3n;
 [@inline] const error_ONLY_EMERGENCY_CONTRACT_ALLOWED                                        = 4n;
@@ -81,10 +81,11 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND                             = 8n;
 
 [@inline] const error_VIEW_GET_WHITELIST_DEVELOPERS_NOT_FOUND                                = 9n;
-[@inline] const error_DEVELOPER_NOT_WHITELISTED                                              = 10n;
+[@inline] const error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND                            = 10n;
+[@inline] const error_DEVELOPER_NOT_WHITELISTED                                              = 11n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 11n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 12n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 12n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 13n;
 
 // ------------------------------------------------------------------------------
 //
@@ -105,24 +106,8 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 // ------------------------------------------------------------------------------
 
 function checkSenderIsAllowed(var s : breakGlassStorage) : unit is
-    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
-        Some (value) -> value
-    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
-    ];
-    if (Tezos.sender = s.admin or Tezos.sender = governanceProxyAddress) then unit
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
         else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-function checkSenderIsGovernanceProxy(var s : breakGlassStorage) : unit is
-    const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
-    const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
-        Some (value) -> value
-    | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
-    ];
-    if (Tezos.sender = governanceProxyAddress) then unit
-        else failwith(error_ONLY_GOVERNANCE_PROXY_ALLOWED);
 
 
 
