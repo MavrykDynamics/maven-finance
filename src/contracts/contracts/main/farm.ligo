@@ -96,9 +96,9 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 [@inline] const error_CLAIM_ENTRYPOINT_IS_PAUSED                                             = 11n;
 [@inline] const error_DOORMAN_CONTRACT_NOT_FOUND_IN_GENERAL_CONTRACTS                        = 12n;
 [@inline] const error_FARM_CLAIM_ENTRYPOINT_NOT_FOUND_IN_DOORMAN_CONTRACT                    = 13n;
-[@inline] const error_DELEGATOR_NOT_FOUND                                                    = 14n;
-[@inline] const error_DELEGATOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE         = 15n;
-[@inline] const error_DELEGATOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD                    = 16n;
+[@inline] const error_DEPOSITOR_NOT_FOUND                                                    = 14n;
+[@inline] const error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE         = 15n;
+[@inline] const error_DEPOSITOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD                    = 16n;
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA12_CONTRACT_NOT_FOUND                      = 17n;
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA2_CONTRACT_NOT_FOUND                       = 18n;
 
@@ -125,8 +125,8 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 
 
 
-function getDelegatorDeposit(const delegator: delegator; const s: farmStorage): option(delegatorRecord) is
-    Big_map.find_opt(delegator, s.delegators)
+function getDepositorDeposit(const depositor: depositor; const s: farmStorage): option(depositorRecord) is
+    Big_map.find_opt(depositor, s.depositors)
 
 
 

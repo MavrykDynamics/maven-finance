@@ -91,6 +91,12 @@ type setContractGovernanceType is [@layout:comb] record [
   newGovernanceAddress   : address; 
 ]
 
+type setContractLambdaType is [@layout:comb] record [
+  targetContractAddress   : address;
+  name                    : string;
+  func_bytes              : bytes;
+]
+
 type updateContractMetadataType is [@layout:comb] record [
   targetContractAddress  : address;
   metadataKey            : string;
@@ -120,6 +126,7 @@ type executeActionParamsType is
   UpdateProxyLambda                  of setProxyLambdaType
 | SetContractAdmin                   of setContractAdminType
 | SetContractGovernance              of setContractGovernanceType
+| SetContractLambda                  of setContractLambdaType
 | UpdateContractMetadata             of updateContractMetadataType
 | UpdateContractWhitelistMap         of updateContractWhitelistMapType
 | UpdateContractGeneralMap           of updateContractGeneralMapType

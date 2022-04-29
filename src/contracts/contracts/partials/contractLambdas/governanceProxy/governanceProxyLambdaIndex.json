@@ -17,62 +17,66 @@
   },
   {
     "index": 4,
-    "name": "updateContractMetadata"
+    "name": "setContractGovernance"
   },
   {
     "index": 5,
-    "name": "updateContractWhitelistMap"
+    "name": "updateContractMetadata"
   },
   {
     "index": 6,
-    "name": "updateContractGeneralMap"
+    "name": "updateContractWhitelistMap"
   },
   {
     "index": 7,
-    "name": "updateContractWhitelistTokenMap"
+    "name": "updateContractGeneralMap"
   },
   {
     "index": 8,
-    "name": "updateGovernanceConfig"
+    "name": "updateContractWhitelistTokenMap"
   },
   {
     "index": 9,
-    "name": "updateDelegationConfig"
+    "name": "updateGovernanceConfig"
   },
   {
     "index": 10,
-    "name": "updateWhitelistDevelopersSet"
+    "name": "updateDelegationConfig"
   },
   {
     "index": 11,
-    "name": "createFarm"
+    "name": "updateWhitelistDevelopersSet"
   },
   {
     "index": 12,
-    "name": "trackFarm"
+    "name": "createFarm"
   },
   {
     "index": 13,
-    "name": "untrackFarm"
+    "name": "trackFarm"
   },
   {
     "index": 14,
-    "name": "createTreasury"
+    "name": "untrackFarm"
   },
   {
     "index": 15,
-    "name": "trackTreasury"
+    "name": "createTreasury"
   },
   {
     "index": 16,
-    "name": "untrackTreasury"
+    "name": "trackTreasury"
   },
   {
     "index": 17,
-    "name": "updateMvkInflationRate"
+    "name": "untrackTreasury"
   },
   {
     "index": 18,
+    "name": "updateMvkInflationRate"
+  },
+  {
+    "index": 19,
     "name": "triggerMvkInflation"
   }
 ]

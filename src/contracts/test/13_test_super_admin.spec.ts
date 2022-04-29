@@ -132,9 +132,15 @@ describe("Break Glass Super Admin tests", async () => {
                         await updateGovernanceConfig.confirmation();
                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configBlocksPerTimelockRound").send();
                         await updateGovernanceConfig.confirmation();
-                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotePct").send();
+                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
                         await updateGovernanceConfig.confirmation();
                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinProposalRoundVotesReq").send();
+                        await updateGovernanceConfig.confirmation();
+                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
+                        await updateGovernanceConfig.confirmation();
+                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
+                        await updateGovernanceConfig.confirmation();
+                        updateGovernanceConfig      = await governanceInstance.methods.updateConfig(1, "configMinQuorumMvkTotal").send();
                         await updateGovernanceConfig.confirmation();
                         updateGovernanceConfig      = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
                         await updateGovernanceConfig.confirmation();
@@ -215,6 +221,30 @@ describe("Break Glass Super Admin tests", async () => {
                         const glassBroken       = breakGlassStorage.glassBroken;
                         assert.equal(glassBroken, true);
                         console.log("GLASS BROKEN: ", glassBroken)
+
+                        // Break glass action to set govenance admin to bob
+                        await signerFactory(bob.sk)
+                        breakGlassStorage   = await breakGlassInstance.storage();
+                        var breakGlassActionID    = breakGlassStorage.actionCounter;
+                        const propagateActionOperation    = await breakGlassInstance.methods.propagateBreakGlass().send();
+                        await propagateActionOperation.confirmation();
+
+                        // Sign action propagate action
+                        await signerFactory(alice.sk);
+                        var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                        await signActionOperation.confirmation();
+
+                        // Set admin action
+                        await signerFactory(bob.sk);
+                        breakGlassStorage   = await breakGlassInstance.storage();
+                        breakGlassActionID    = breakGlassStorage.actionCounter;
+                        const setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, governanceAddress.address).send();
+                        await setAdminActionOperation.confirmation()
+
+                        // Sign set admin propagate action
+                        await signerFactory(alice.sk);
+                        signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+                        await signActionOperation.confirmation();
                     }
                     catch (e){
                         console.dir(e, {depth: 5})
@@ -300,7 +330,7 @@ describe("Break Glass Super Admin tests", async () => {
                         await lockOperation.confirmation();
                         var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                         await voteOperation.confirmation();
-                        await signerFactory(mallory.sk);
+                        await signerFactory(alice.sk);
                         voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
                         await voteOperation.confirmation();
                         await signerFactory(bob.sk);
@@ -310,14 +340,28 @@ describe("Break Glass Super Admin tests", async () => {
                         // Votes operation -> both satellites vote
                         var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
                         await votingRoundVoteOperation.confirmation();
-                        await signerFactory(mallory.sk);
+                        await signerFactory(alice.sk);
                         votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
                         await votingRoundVoteOperation.confirmation();
                         await signerFactory(bob.sk);
 
-                        // Mid values
                         governanceStorage   = await governanceInstance.storage();
+                        console.log(governanceStorage.admin)
+
+                        // Execute proposal
+                        nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                        await nextRoundOperation.confirmation();
+                        nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                        await nextRoundOperation.confirmation();
+
+                        // Final values
+                        governanceStorage   = await governanceInstance.storage();
+                        const proposal      = await governanceStorage.proposalLedger.get(proposalId);
                         const whitelistedDevelopersEnd = await governanceStorage.whitelistDevelopers;
+                        console.log("DEVS: ", whitelistedDevelopersEnd)
+                        console.log("PROPOSAL: ", proposal)
+
+                        // Assertions
                         assert.strictEqual(whitelistedDevelopers.includes(newAdmin), true)
                         assert.strictEqual(whitelistedDevelopersEnd.includes(newAdmin), false)
 
@@ -336,7 +380,7 @@ describe("Break Glass Super Admin tests", async () => {
                         governanceStorage           = await governanceInstance.storage();
                         breakGlassStorage           = await breakGlassInstance.storage();
                         const newAdmin              = alice.pkh;
-                        const targetContract        = doormanAddress.address;
+                        const targetContract        = delegationAddress.address;
                         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
                         // Operation
@@ -368,7 +412,7 @@ describe("Break Glass Super Admin tests", async () => {
                         governanceStorage           = await governanceInstance.storage();
                         breakGlassStorage           = await breakGlassInstance.storage();
                         const newAdmin              = governanceAddress.address;
-                        const targetContract        = delegationAddress.address;
+                        const targetContract        = councilAddress.address;
                         const breakGlassActionID    = breakGlassStorage.actionCounter;
 
                         // Operation

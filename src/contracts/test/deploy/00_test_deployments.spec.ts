@@ -70,6 +70,7 @@ import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
 import { lpStorage } from "../../storage/testLPTokenStorage";
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
+import { delegationStorageType } from "test/types/delegationStorageType";
 
 describe('Contracts Deployment for Tests', async () => {
   var utils: Utils
@@ -351,21 +352,22 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(1, governanceProxyLambdas[1])) // updateProxyLambda
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(2, governanceProxyLambdas[2])) // setContractAdmin
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(3, governanceProxyLambdas[3])) // setContractGovernance
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(4, governanceProxyLambdas[4])) // updateContractMetadata
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(5, governanceProxyLambdas[5])) // updateContractWhitelistMap
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(6, governanceProxyLambdas[6])) // updateContractGeneralMap
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(7, governanceProxyLambdas[7])) // updateContractWhitelistTokenMap
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[8])) // updateGovernanceConfig
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(9, governanceProxyLambdas[9])) // updateDelegationConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(4, governanceProxyLambdas[4])) // setContractLambda
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(5, governanceProxyLambdas[5])) // updateContractMetadata
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(6, governanceProxyLambdas[6])) // updateContractWhitelistMap
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(7, governanceProxyLambdas[7])) // updateContractGeneralMap
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[8])) // updateContractWhitelistTokenMap
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(9, governanceProxyLambdas[9])) // updateGovernanceConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(10, governanceProxyLambdas[10])) // updateDelegationConfig
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(11, governanceProxyLambdas[11])) // createFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(12, governanceProxyLambdas[12])) // trackFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(13, governanceProxyLambdas[13])) // untrackFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(14, governanceProxyLambdas[14])) // createTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[15])) // trackTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[16])) // untrackTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[17])) // updateInflationRate
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[18])) // triggerInflation
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(11, governanceProxyLambdas[11])) // updateDelegationConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(12, governanceProxyLambdas[12])) // createFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(13, governanceProxyLambdas[13])) // trackFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(14, governanceProxyLambdas[14])) // untrackFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[15])) // createTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[16])) // trackTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[17])) // untrackTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[18])) // updateInflationRate
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(19, governanceProxyLambdas[19])) // triggerInflation
   
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
       await setupGovernanceProxyLambdasOperation.confirmation()
@@ -437,26 +439,26 @@ describe('Contracts Deployment for Tests', async () => {
       .batch()
       .withContractCall(delegation.contract.methods.setLambda("lambdaSetAdmin"                           , delegationLambdas[0]))  // setAdmin
       .withContractCall(delegation.contract.methods.setLambda("lambdaSetGovernance"                      , delegationLambdas[1]))  // setGovernance
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateMetadata"                     , delegationLambdas[1]))  // updateMetadata
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateConfig"                       , delegationLambdas[2]))  // updateConfig
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateWhitelistContracts"           , delegationLambdas[3]))  // updateWhitelistContracts
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateGeneralContracts"             , delegationLambdas[4]))  // updateGeneralContracts
-      .withContractCall(delegation.contract.methods.setLambda("lambdaPauseAll"                           , delegationLambdas[5]))  // pauseAll
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUnpauseAll"                         , delegationLambdas[6]))  // unpauseAll
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseDelegateToSatellite"     , delegationLambdas[7]))  // togglePauseDelegateToSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUndelegateSatellite"     , delegationLambdas[8]))  // togglePauseUndelegateSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseRegisterSatellite"       , delegationLambdas[9]))  // togglePauseRegisterSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUnregisterSatellite"     , delegationLambdas[10])) // togglePauseUnregisterSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUpdateSatellite"         , delegationLambdas[11])) // togglePauseUpdateSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseDistributeReward"        , delegationLambdas[12])) // togglePauseDistributeReward
-      .withContractCall(delegation.contract.methods.setLambda("lambdaDelegateToSatellite"                , delegationLambdas[13])) // delegateToSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUndelegateFromSatellite"            , delegationLambdas[14])) // undelegateFromSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaRegisterAsSatellite"                , delegationLambdas[15])) // registerAsSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUnregisterAsSatellite"              , delegationLambdas[16])) // unregisterAsSatellite
-      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateSatelliteRecord"              , delegationLambdas[17])) // updateSatelliteRecord
-      .withContractCall(delegation.contract.methods.setLambda("lambdaDistributeReward"                   , delegationLambdas[18])) // distributeReward
-      .withContractCall(delegation.contract.methods.setLambda("lambdaOnStakeChange"                      , delegationLambdas[19])) // onStakeChange
-      .withContractCall(delegation.contract.methods.setLambda("lambdaOnSatelliteRewardPaid"              , delegationLambdas[20])) // onSatelliteRewardPaid
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateMetadata"                     , delegationLambdas[2]))  // updateMetadata
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateConfig"                       , delegationLambdas[3]))  // updateConfig
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateWhitelistContracts"           , delegationLambdas[4]))  // updateWhitelistContracts
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateGeneralContracts"             , delegationLambdas[5]))  // updateGeneralContracts
+      .withContractCall(delegation.contract.methods.setLambda("lambdaPauseAll"                           , delegationLambdas[6]))  // pauseAll
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUnpauseAll"                         , delegationLambdas[7]))  // unpauseAll
+      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseDelegateToSatellite"     , delegationLambdas[8]))  // togglePauseDelegateToSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUndelegateSatellite"     , delegationLambdas[9]))  // togglePauseUndelegateSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseRegisterSatellite"       , delegationLambdas[10])) // togglePauseRegisterSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUnregisterSatellite"     , delegationLambdas[11])) // togglePauseUnregisterSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseUpdateSatellite"         , delegationLambdas[12])) // togglePauseUpdateSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaTogglePauseDistributeReward"        , delegationLambdas[13])) // togglePauseDistributeReward
+      .withContractCall(delegation.contract.methods.setLambda("lambdaDelegateToSatellite"                , delegationLambdas[14])) // delegateToSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUndelegateFromSatellite"            , delegationLambdas[15])) // undelegateFromSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaRegisterAsSatellite"                , delegationLambdas[16])) // registerAsSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUnregisterAsSatellite"              , delegationLambdas[17])) // unregisterAsSatellite
+      .withContractCall(delegation.contract.methods.setLambda("lambdaUpdateSatelliteRecord"              , delegationLambdas[18])) // updateSatelliteRecord
+      .withContractCall(delegation.contract.methods.setLambda("lambdaDistributeReward"                   , delegationLambdas[19])) // distributeReward
+      .withContractCall(delegation.contract.methods.setLambda("lambdaOnStakeChange"                      , delegationLambdas[20])) // onStakeChange
+      .withContractCall(delegation.contract.methods.setLambda("lambdaOnSatelliteRewardPaid"              , delegationLambdas[21])) // onSatelliteRewardPaid
     
       const setupDelegationLambdasOperation = await delegationLambdaBatch.send()
       await setupDelegationLambdasOperation.confirmation()
@@ -734,11 +736,7 @@ describe('Contracts Deployment for Tests', async () => {
     var updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address).send();
     await updateGeneralContractsOperation.confirmation();
 
-    // Doorman Contract - set whitelist contract address [farmTreasury, satelliteTreasury]
     var updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
-    await updateGeneralContractsOperation.confirmation();
-
-    updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address).send();
     await updateGeneralContractsOperation.confirmation();
     
     console.log('Doorman Contract - set general contract addresses [delegation, farmTreasury, satelliteTreasury, farmFactory]')
@@ -778,20 +776,12 @@ describe('Contracts Deployment for Tests', async () => {
 
     // Delegation Contract - set general contract addresses [governance, satelliteTreasury]
     // Delegation Contract - set whitelist contract addresses [treasury, governance]
-    const setGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts('governance', governance.contract.address).send()
-    await setGovernanceContractAddressInDelegationOperation.confirmation()
-
     const setWhitelistTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address).send();
     await setWhitelistTreasuryContractAddressInDelegationOperation.confirmation()
-    
-    const setWhitelistGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts('governance', governance.contract.address).send();
-    await setWhitelistGovernanceContractAddressInDelegationOperation.confirmation()
-
     const setGeneralSatelliteTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address).send();
     await setGeneralSatelliteTreasuryContractAddressInDelegationOperation.confirmation();
-
-    console.log('Delegation Contract - set general contract addresses [governance, satelliteTreasury]')
-    console.log('Delegation Contract - set whitelist contract addresses [treasury, governance]')
+    console.log('Delegation Contract - set general contract addresses [satelliteTreasury]')
+    console.log('Delegation Contract - set whitelist contract addresses [treasury]')
 
 
 
