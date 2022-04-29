@@ -46,7 +46,7 @@ type treasuryFactoryAction is
     |   TogglePauseUntrackTreasury          of (unit)
 
         // Treasury Factory Entrypoints
-    |   CreateTreasury                      of string
+    |   CreateTreasury                      of bytes
     |   TrackTreasury                       of address
     |   UntrackTreasury                     of address
 
@@ -429,7 +429,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* createTreasury entrypoint *)
-function createTreasury(const treasuryName: string; var s: treasuryFactoryStorage): return is 
+function createTreasury(const treasuryMetadata: bytes; var s: treasuryFactoryStorage): return is 
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCreateTreasury"] of [
@@ -438,7 +438,7 @@ block{
     ];
 
     // init treasuryFactory lambda action
-    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaCreateTreasury(treasuryName);
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaCreateTreasury(treasuryMetadata);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  

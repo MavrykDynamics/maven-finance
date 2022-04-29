@@ -13,10 +13,11 @@ function updateWhitelistContractsMap(const updateWhitelistContractsParams: updat
     
     const contractName     : string  = updateWhitelistContractsParams.whitelistContractName;
     const contractAddress  : address = updateWhitelistContractsParams.whitelistContractAddress;
-    
-    const existingAddress: option(address) = 
-      if checkInWhitelistContracts(contractAddress, whitelistContracts) then (None : option(address)) else Some (contractAddress);
 
+    const existingAddress: option(address) = case Map.find_opt(contractName, whitelistContracts) of [
+      Some (_address) -> if _address = contractAddress then (None : option(address)) else (Some (contractAddress): option(address))
+    |  None -> (Some (contractAddress): option(address))
+    ];
     const updatedWhitelistContracts: whitelistContractsType = 
       Map.update(
         contractName, 

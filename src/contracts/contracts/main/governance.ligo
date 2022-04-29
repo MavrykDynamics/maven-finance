@@ -368,6 +368,10 @@ case (Tezos.get_entrypoint_opt(
   | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND) : contract(addUpdatePaymentDataType))
 ];
 
+
+
+function transferTez(const to_ : contract(unit); const amt : tez) : operation is Tezos.transaction(unit, amt, to_)
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
@@ -560,6 +564,68 @@ block {
 
 
 // helper function to setup new proposal round
+function sendRewardsToVoters(var s: governanceStorage): operation is
+  block{
+    // Get all voting satellite
+    const highestVotedProposalId: nat   = s.currentRoundHighestVotedProposalId;
+    const proposal: proposalRecordType  = case Big_map.find_opt(highestVotedProposalId, s.proposalLedger) of [
+      Some (_record) -> _record
+    | None -> failwith("Error. Highest voted proposal not found")
+    ];
+    const voters: votersMapType         = proposal.voters;
+    
+    // Get voters
+    var votersAddresses: set(address)   := Set.empty;
+    function getVotersAddresses(const voters: set(address); const voter: address * votingRoundVoteType): set(address) is
+      Set.add(voter.0, voters);
+    var votersAddresses := Map.fold(getVotersAddresses, voters, votersAddresses);
+
+    // Get rewards
+    const roundReward: nat  = s.currentCycleTotalVotersReward;
+
+    // Send rewards to all satellites
+    const delegationAddress : address = case s.generalContracts["delegation"] of [
+      Some(_address) -> _address
+      | None -> failwith("Error. Delegation Contract is not found")
+    ];
+    const distributeRewardsEntrypoint: contract(set(address) * nat) =
+      case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
+        Some(contr) -> contr
+      | None -> (failwith("Error. DistributeReward entrypoint not found in Delegation contract."): contract(set(address) * nat))
+    ];
+    const distributeOperation: operation = Tezos.transaction((votersAddresses, roundReward), 0tez, distributeRewardsEntrypoint);
+  } with(distributeOperation)
+
+
+
+function sendRewardToProposer(var s: governanceStorage): operation is
+  block{
+    // Get all voting satellite
+    const timelockProposalId: nat   = s.timelockProposalId;
+    const proposal: proposalRecordType  = case Big_map.find_opt(timelockProposalId, s.proposalLedger) of [
+      Some (_record) -> _record
+    | None -> failwith("Error. Timelock proposal not found")
+    ];
+    const proposerAddress: address         = proposal.proposerAddress;
+    
+    // Get rewards
+    const proposerReward: nat  = proposal.successReward;
+
+    // Send rewards to the proposer
+    const delegationAddress : address = case s.generalContracts["delegation"] of [
+      Some(_address) -> _address
+      | None -> failwith("Error. Delegation Contract is not found")
+    ];
+    const distributeRewardsEntrypoint: contract(set(address) * nat) =
+      case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
+        Some(contr) -> contr
+      | None -> (failwith("Error. DistributeReward entrypoint not found in Delegation contract."): contract(set(address) * nat))
+    ];
+    const distributeOperation: operation = Tezos.transaction((set[proposerAddress], proposerReward), 0tez, distributeRewardsEntrypoint);
+  } with(distributeOperation)
+
+
+
 function setupProposalRound(var s: governanceStorage): governanceStorage is
 block {
 
@@ -575,6 +641,7 @@ block {
     s.currentRoundStartLevel               := Tezos.level;
     s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
     s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
+    s.currentCycleTotalVotersReward        := s.config.cycleVotersReward;
     s.currentRoundProposals                := emptyProposalMap;    // flush proposals
     s.currentRoundProposers                := emptyProposerMap;    // flush proposals
     s.currentRoundVotes                    := emptyVotesMap;       // flush voters
@@ -607,8 +674,9 @@ block {
       // create or retrieve satellite snapshot from snapshotLedger in governanceStorage
       var satelliteSnapshotRecord : snapshotRecordType := getSatelliteSnapshotRecord(satelliteAddress, s);
 
-      // calculate total voting power 
-      const maxTotalVotingPower = abs(mvkBalance * 10000 / s.config.votingPowerRatio);
+      // calculate total voting power
+      var maxTotalVotingPower: nat := mvkBalance * 10000n / s.config.votingPowerRatio;
+      if s.config.votingPowerRatio = 0n then maxTotalVotingPower := mvkBalance * 10000n else skip;
       const mvkBalanceAndTotalDelegatedAmount = mvkBalance + totalDelegatedAmount; 
       var totalVotingPower : nat := 0n;
       if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
@@ -965,7 +1033,6 @@ block {
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
 
 } with response
-
 
 
 // (* addUpdatePaymentData entrypoint *)

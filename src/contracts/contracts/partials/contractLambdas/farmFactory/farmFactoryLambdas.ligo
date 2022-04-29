@@ -264,10 +264,10 @@ function lambdaCreateFarm(const farmFactoryLambdaAction : farmFactoryLambdaActio
 block{
 
     // Check if Sender is admin
-    checkSenderIsAdmin(s);
+        checkSenderIsAdmin(s);
 
-    // Break glass check
-    checkCreateFarmIsNotPaused(s);
+        // Break glass check
+        checkCreateFarmIsNotPaused(s);
 
     var operations : list(operation) := nil;
 
@@ -294,7 +294,7 @@ block{
                 ];
 
                 // Create needed records for farm contract
-                const farmDelegators : big_map(delegator, delegatorRecord) = Big_map.empty;
+                const farmDepositors : big_map(depositor, depositorRecord) = Big_map.empty;
                 const farmClaimedRewards : claimedRewards = record[
                     paid=0n;
                     unpaid=0n;
@@ -327,34 +327,10 @@ block{
                 ];
 
                 // Prepare Farm Metadata
-                const farmMetadataDescription   : string   = "MAVRYK Farm Contract";
-                const farmMetadataVersion       : string   = "v1.0.0";
-                
-                const farmMetadataLPAddress     : address  = farmLPToken.tokenAddress;
-                const farmMetadataLPOrigin      : string   = createFarmParams.lpTokenOrigin;
-                const farmMetadataToken0Symbol  : string   = createFarmParams.tokenPair.token0.symbol;
-                const farmMetadataToken1Symbol  : string   = createFarmParams.tokenPair.token1.symbol ;
-
-                const farmMetadataName          : string   = "MAVRYK " ^ farmMetadataToken0Symbol ^ "-" ^ farmMetadataToken1Symbol ^ " Farm";
-                const farmMetadataAuthors       : string   = "MAVRYK Dev Team <contact@mavryk.finance>";
-
-                const farmMetadataPlain : farmMetadataType = record[
-                    name                    = farmMetadataName;
-                    description             = farmMetadataDescription;
-                    version                 = farmMetadataVersion;
-
-                    liquidityPairToken      = record[
-                        tokenAddress        = farmMetadataLPAddress;
-                        origin              = farmMetadataLPOrigin;
-                        token0              = createFarmParams.tokenPair.token0;
-                        token1              = createFarmParams.tokenPair.token1;
-                    ];
-                    
-                    authors                 = farmMetadataAuthors;
-                ];
-                const farmMetadata : metadata = Big_map.literal (list [
-                    ("", Bytes.pack(farmMetadataPlain));
-                ]);
+                const farmMetadata: metadata = Big_map.literal (list [
+                    ("", Bytes.pack("tezos-storage:data"));
+                    ("data", createFarmParams.metadata);
+                ]); 
                 const farmLambdaLedger : big_map(string, bytes) = Big_map.empty;
 
                 // Check wether the farm is infinite or its total blocks has been set
@@ -376,7 +352,7 @@ block{
                     lastBlockUpdate         = Tezos.level;
                     accumulatedMVKPerShare  = 0n;
                     claimedRewards          = farmClaimedRewards;
-                    delegators              = farmDelegators;
+                    depositors              = farmDepositors;
                     open                    = True ;
                     init                    = True;
                     initBlock               = Tezos.level;

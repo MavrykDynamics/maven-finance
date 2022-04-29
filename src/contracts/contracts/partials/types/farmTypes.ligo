@@ -1,15 +1,15 @@
-
 // ------------------------------------------------------------------------------
 // Common Types
 // ------------------------------------------------------------------------------
 
-type delegator is address
+type depositor is address
 type tokenBalance is nat
 
-type delegatorRecord is [@layout:comb] record[
-    balance: tokenBalance;
-    participationMVKPerShare: tokenBalance;
-    unclaimedRewards: tokenBalance;
+type depositorRecord is [@layout:comb] record[
+    balance                         : tokenBalance;
+    participationMVKPerShare        : nat;
+    unclaimedRewards                : tokenBalance;
+    claimedRewards                  : tokenBalance;
 ]
 type claimedRewards is [@layout:comb] record[
     unpaid: tokenBalance;
@@ -135,7 +135,7 @@ type farmStorage is [@layout:comb] record[
     lastBlockUpdate         : nat;
     accumulatedMVKPerShare  : tokenBalance;
     claimedRewards          : claimedRewards;
-    delegators              : big_map(delegator, delegatorRecord);
+    depositors              : big_map(depositor, depositorRecord);
     open                    : bool;
     init                    : bool;
     initBlock               : nat;

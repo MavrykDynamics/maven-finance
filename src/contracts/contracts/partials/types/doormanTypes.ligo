@@ -2,6 +2,7 @@ type userStakeBalanceRecordType is [@layout:comb] record[
     balance                                : nat;
     totalExitFeeRewardsClaimed             : nat;
     totalSatelliteRewardsClaimed           : nat;
+    totalFarmRewardsClaimed                : nat;
     participationFeesPerShare              : nat;
 ]
 type userStakeBalanceLedgerType is big_map(address, userStakeBalanceRecordType)
@@ -46,7 +47,7 @@ type doormanLambdaActionType is
   // Doorman Lambdas
 | LambdaStake                       of (nat)
 | LambdaUnstake                     of (nat)
-| LambdaCompound                    of (unit)
+| LambdaCompound                    of (address)
 | LambdaFarmClaim                   of farmClaimType
 
 // ------------------------------------------------------------------------------
