@@ -138,7 +138,7 @@ type delegationLambdaActionType is
 
   // Delegation Lambdas
 | LambdaDelegateToSatellite                   of (address)
-| LambdaUndelegateFromSatellite               of (unit)
+| LambdaUndelegateFromSatellite               of (address)
 
   // Satellite Lambdas
 | LambdaRegisterAsSatellite                   of newSatelliteRecordType

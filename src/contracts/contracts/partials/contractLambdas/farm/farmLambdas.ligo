@@ -404,9 +404,10 @@ block{
 
                 // Prepare new depositor record
                 var depositorRecord: depositorRecord := record[
-                    balance=0n;
-                    participationMVKPerShare=s.accumulatedMVKPerShare;
-                    unclaimedRewards=0n
+                    balance                     =0n;
+                    participationMVKPerShare    =s.accumulatedMVKPerShare;
+                    unclaimedRewards            =0n;
+                    claimedRewards              =0n;
                 ];
 
                 // Get depositor deposit and perform a claim
