@@ -9,9 +9,8 @@ import { zeroAddress } from '../test/helpers/Utils'
 import { councilStorageType } from '../test/types/councilStorageType'
 
 const config = {
-  threshold: 3, // 3 council members required
-  actionExpiryDays: 2, // 2 days
-
+  threshold                       : 3, // 3 council members required
+  actionExpiryDays                : 2, // 2 days
   councilMemberNameMaxLength      : 400,
   councilMemberWebsiteMaxLength   : 400,
   councilMemberImageMaxLength     : 400,

@@ -27,6 +27,9 @@
 // Treasury types for farmClaim
 #include "../partials/types/treasuryTypes.ligo"
 
+// Delegation types for compound
+#include "../partials/types/delegationTypes.ligo"
+
 // ------------------------------------------------------------------------------
 
 type doormanAction is 
@@ -48,7 +51,7 @@ type doormanAction is
     // Doorman Entrypoints
   | Stake                       of (nat)
   | Unstake                     of (nat)
-  | Compound                    of (unit)
+  | Compound                    of (address)
   | FarmClaim                   of farmClaimType
 
     // Lambda Entrypoints
@@ -85,22 +88,23 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                          = 0n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                     = 1n;
-[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                    = 2n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                   = 3n;
-[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                       = 4n;
+[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                            = 0n;
+[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                       = 1n;
+[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                      = 2n;
+[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                     = 3n;
+[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                         = 4n;
 
-[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                          = 5n;
-[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                        = 6n;
-[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                       = 7n;
-[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND         = 8n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                     = 9n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                  = 10n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND     = 11n;
+[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                            = 5n;
+[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                          = 6n;
+[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                         = 7n;
+[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND           = 9n;
+[@inline] const error_ON_SATELLITE_REWARD_PAID_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND  = 10n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                       = 11n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                    = 12n;
+[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND       = 13n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                    = 12n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                             = 13n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                      = 14n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                               = 15n;
 
 // ------------------------------------------------------------------------------
 //
@@ -206,6 +210,17 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
 
 
 
+// helper function to update satellite's balance
+function onSatelliteRewardPaid(const delegationAddress : address) : contract(address) is
+  case (Tezos.get_entrypoint_opt(
+      "%onSatelliteRewardPaid",
+      delegationAddress) : option(contract(address))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_ON_SATELLITE_REWARD_PAID_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
+];
+
+
+
 // helper function to get transfer entrypoint
 function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(transferType) is
   case (Tezos.get_entrypoint_opt(
@@ -247,46 +262,76 @@ function sendMintMvkAndTransferOperationToTreasury(const contractAddress : addre
 // ------------------------------------------------------------------------------
 
 (*  compoundUserRewards helper function *)
-function compoundUserRewards(var s: doormanStorage) : doormanStorage is 
-block{
-
-    // Get User
-    const user: address = Tezos.source;
-
-    // Get the user's record, failed if it does not exists
-    var userRecord: userStakeBalanceRecordType := case s.userStakeBalanceLedger[user] of [
+function compoundUserRewards(const userAddress: address; var s: doormanStorage) : doormanStorage is 
+block{ 
+    
+    // Get the user's record
+    var userRecord: userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
         Some (_val) -> _val
       | None -> record[
-          balance                        = 0n;
-          totalExitFeeRewardsClaimed     = 0n;
-          totalSatelliteRewardsClaimed   = 0n;
-          participationFeesPerShare      = s.accumulatedFeesPerShare;
+          balance                       = 0n;
+          participationFeesPerShare     = s.accumulatedFeesPerShare;
+          totalExitFeeRewardsClaimed    = 0n;
+          totalSatelliteRewardsClaimed  = 0n;
+          totalFarmRewardsClaimed       = 0n;
         ]
     ];
-    // Check if the user has more than 0 MVK staked. If he/she hasn't, he cannot earn rewards
+
+    // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
     if userRecord.balance > 0n then {
+
+      // Get delegation contract
+      const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
+          Some (_address) -> _address
+        | None -> failwith("Error. Delegation Contract is not found.")
+      ];
       
+      // -- Satellite rewards -- //
+      // Check if user is satellite or delegate
+      const getUserRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", userAddress, delegationAddress);
+      const getUserRewardOpt: option(satelliteRewards) = case getUserRewardOptView of [
+        Some (value) -> value
+      | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
+      ];
+
+      const satelliteUnpaidRewards: nat = case getUserRewardOpt of [
+        Some (_rewards) -> block{
+          const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", _rewards.satelliteReferenceAddress, delegationAddress);
+          const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
+            Some (value) -> value
+          | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
+          ];
+          
+          // Calculate the user unclaimed rewards
+          const satelliteReward: nat  = case getUserReferenceRewardOpt of [
+            Some (_referenceRewards) -> block{
+              const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
+              const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
+            } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
+          | None -> failwith("Error. Satellite reference rewards record not found")
+          ];
+        } with (satelliteReward)
+      | None -> 0n
+      ];
+
+      // -- Exit fee rewards -- //
       // Calculate what fees the user missed since his/her last claim
       const currentFeesPerShare: nat = abs(s.accumulatedFeesPerShare - userRecord.participationFeesPerShare);
-
       // Calculate the user reward based on his sMVK
-      const userRewards: nat = (currentFeesPerShare * userRecord.balance) / fixedPointAccuracy;
+      const exitFeeRewards: nat = (currentFeesPerShare * userRecord.balance) / fixedPointAccuracy;
+
       
       // Increase the user balance
-      userRecord.balance := userRecord.balance + userRewards;
-
-      // Increase the user total
-      userRecord.totalExitFeeRewardsClaimed := userRecord.totalExitFeeRewardsClaimed + userRewards;
-      
-      s.unclaimedRewards := abs(s.unclaimedRewards - userRewards);
+      userRecord.totalExitFeeRewardsClaimed   := userRecord.totalExitFeeRewardsClaimed + exitFeeRewards;
+      userRecord.totalSatelliteRewardsClaimed := userRecord.totalSatelliteRewardsClaimed + satelliteUnpaidRewards;
+      userRecord.balance                      := userRecord.balance + exitFeeRewards + satelliteUnpaidRewards;
+      s.unclaimedRewards                      := abs(s.unclaimedRewards - exitFeeRewards);
     }
     else skip;
-    
     // Set the user's participationFeesPerShare 
     userRecord.participationFeesPerShare := s.accumulatedFeesPerShare;
-    
     // Update the doormanStorage
-    s.userStakeBalanceLedger := Big_map.update(user, Some (userRecord), s.userStakeBalanceLedger);
+    s.userStakeBalanceLedger[userAddress]  := userRecord;
 
 } with (s)
 
@@ -620,7 +665,7 @@ block {
 
 
 (*  compound entrypoint *)
-function compound(var s: doormanStorage): return is
+function compound(const userAddress: address; var s: doormanStorage): return is
 block{
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaCompound"] of [
@@ -629,7 +674,7 @@ block{
     ];
 
     // init doorman lambda action
-    const doormanLambdaAction : doormanLambdaActionType = LambdaCompound(unit);
+    const doormanLambdaAction : doormanLambdaActionType = LambdaCompound(userAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
@@ -717,7 +762,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
         // Doorman Entrypoints
       | Stake(parameters)                     -> stake(parameters, s)  
       | Unstake(parameters)                   -> unstake(parameters, s)
-      | Compound(_parameters)                 -> compound(s)
+      | Compound(parameters)                  -> compound(parameters, s)
       | FarmClaim(parameters)                 -> farmClaim(parameters, s)
 
         // Lambda Entrypoints

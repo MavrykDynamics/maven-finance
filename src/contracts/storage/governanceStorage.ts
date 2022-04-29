@@ -3,34 +3,35 @@ import { BigNumber } from 'bignumber.js'
 
 const { bob, alice } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from '../test/helpers/Utils'
+import { MVK, zeroAddress } from '../test/helpers/Utils'
 
 import { governanceStorageType } from '../test/types/governanceStorageType'
 
 const config = {
-    successReward             : 10000,
+    successReward                       : MVK(10),
+    cycleVotersReward                   : MVK(100),
 
-    minProposalRoundVotePercentage : 1000,
-    minProposalRoundVotesRequired  : 10000,
+    minProposalRoundVotePercentage      : 1000,
+    minProposalRoundVotesRequired       : 10000,
 
-    minQuorumPercentage       : 1000,
-    minQuorumMvkTotal         : 10000,
+    minQuorumPercentage                 : 1000,
+    minQuorumMvkTotal                   : 10000,
 
-    votingPowerRatio          : 10000,
-    proposalSubmissionFee     : 10000000, // 10 tez
-    minimumStakeReqPercentage : 10,       // 0.01% for testing: change to 10,000 later -> 10%
-    maxProposalsPerDelegate   : 20,
+    votingPowerRatio                    : 10000,
+    proposalSubmissionFeeMutez          : 1000000, // 1 tez
+    minimumStakeReqPercentage           : 10,       // 0.01% for testing: change to 10,000 later -> 10%
+    maxProposalsPerDelegate             : 20,
 
-    newBlockTimeLevel         : 0,
-    newBlocksPerMinute        : 0,
-    blocksPerMinute           : 2,
+    newBlockTimeLevel                   : 0,
+    newBlocksPerMinute                  : 0,
+    blocksPerMinute                     : 2,
 
-    blocksPerProposalRound    : 14400,
-    blocksPerVotingRound      : 14400,
-    blocksPerTimelockRound    : 5760,
+    blocksPerProposalRound              : 14400,
+    blocksPerVotingRound                : 14400,
+    blocksPerTimelockRound              : 5760,
 
-    financialRequestApprovalPercentage : 6700,
-    financialRequestDurationInDays     : 3,
+    financialRequestApprovalPercentage  : 6700,
+    financialRequestDurationInDays      : 3,
 
     proposalMetadataTitleMaxLength      : 400,
     proposalTitleMaxLength              : 400,
@@ -80,6 +81,8 @@ export const governanceStorage: governanceStorageType = {
   currentRoundProposals   : MichelsonMap.fromLiteral({}),
   currentRoundProposers   : MichelsonMap.fromLiteral({}),
   currentRoundVotes       : MichelsonMap.fromLiteral({}),
+  currentCycleTotalVotersReward: new BigNumber(0),
+
   currentRoundHighestVotedProposalId : new BigNumber(0),
   timelockProposalId                 : new BigNumber(0),
   

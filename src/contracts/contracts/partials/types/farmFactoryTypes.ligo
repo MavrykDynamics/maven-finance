@@ -2,7 +2,7 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
-type delegator is address
+type depositor is address
 type tokenBalance is nat
 type metadata is big_map (string, bytes);
 
@@ -32,12 +32,11 @@ type farmTokenPair is [@layout:comb] record [
 ]
 
 type createFarmType is [@layout:comb] record[
-    forceRewardFromTransfer  : bool;
-    infinite                 : bool;
-    plannedRewards           : farmPlannedRewards;
-    lpTokenOrigin            : string;
-    tokenPair                : farmTokenPair;
-    lpToken                  : farmLpToken;
+    forceRewardFromTransfer : bool;
+    infinite                : bool;
+    plannedRewards          : farmPlannedRewards;
+    metadata                : bytes;
+    lpToken                 : farmLpToken;
 ]
 
 type farmMetadataType is record[

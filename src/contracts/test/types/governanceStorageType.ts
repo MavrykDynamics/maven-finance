@@ -21,16 +21,17 @@ export type governanceStorageType = {
   nextProposalId          : BigNumber;
   cycleCounter            : BigNumber;
 
-  currentRound            : any;
+  currentRound                      : any;
   currentBlocksPerProposalRound     : BigNumber;
   currentBlocksPerVotingRound       : BigNumber;
   currentBlocksPerTimelockRound     : BigNumber;
-  currentRoundStartLevel  : BigNumber;
-  currentRoundEndLevel    : BigNumber;
-  currentCycleEndLevel    : BigNumber;
-  currentRoundProposals   : MichelsonMap<MichelsonMapKey, unknown>;
-  currentRoundProposers   : MichelsonMap<MichelsonMapKey, unknown>;
-  currentRoundVotes       : MichelsonMap<MichelsonMapKey, unknown>;
+  currentRoundStartLevel            : BigNumber;
+  currentRoundEndLevel              : BigNumber;
+  currentCycleEndLevel              : BigNumber;
+  currentRoundProposals             : MichelsonMap<MichelsonMapKey, unknown>;
+  currentRoundProposers             : MichelsonMap<MichelsonMapKey, unknown>;
+  currentRoundVotes                 : MichelsonMap<MichelsonMapKey, unknown>;
+  currentCycleTotalVotersReward     : BigNumber;
 
   currentRoundHighestVotedProposalId : BigNumber;
   timelockProposalId                 : BigNumber;
