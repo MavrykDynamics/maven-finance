@@ -81,7 +81,7 @@ export const governanceStorage: governanceStorageType = {
   currentRoundProposals   : MichelsonMap.fromLiteral({}),
   currentRoundProposers   : MichelsonMap.fromLiteral({}),
   currentRoundVotes       : MichelsonMap.fromLiteral({}),
-  currentCycleVotersReward: new BigNumber(0),
+  currentCycleTotalVotersReward: new BigNumber(0),
 
   currentRoundHighestVotedProposalId : new BigNumber(0),
   timelockProposalId                 : new BigNumber(0),

@@ -31,7 +31,7 @@ export type governanceStorageType = {
   currentRoundProposals             : MichelsonMap<MichelsonMapKey, unknown>;
   currentRoundProposers             : MichelsonMap<MichelsonMapKey, unknown>;
   currentRoundVotes                 : MichelsonMap<MichelsonMapKey, unknown>;
-  currentCycleVotersReward          : BigNumber;
+  currentCycleTotalVotersReward     : BigNumber;
 
   currentRoundHighestVotedProposalId : BigNumber;
   timelockProposalId                 : BigNumber;
