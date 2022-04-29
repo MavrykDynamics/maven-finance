@@ -296,7 +296,7 @@ block {
 
               // tell the delegation contract that the reward has been paid 
               const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                (Tezos.source),
+                (Tezos.sender),
                 0tez,
                 onSatelliteRewardPaid(delegationAddress)
               );

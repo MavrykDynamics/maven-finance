@@ -50,7 +50,7 @@ type delegationAction is
 
       // Delegation Entrypoints
     | DelegateToSatellite               of (address)    
-    | UndelegateFromSatellite           of (unit)
+    | UndelegateFromSatellite           of (address)
     
       // Satellite Entrypoints
     | RegisterAsSatellite               of newSatelliteRecordType
@@ -196,11 +196,8 @@ function checkNoAmount(const _p : unit) : unit is
 // Rewards Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function updateRewards(var s: delegationStorage): delegationStorage is
+function updateRewards(const userAddress: address; var s: delegationStorage): delegationStorage is
   block{
-    // Get address
-    const userAddress: address      = Tezos.source;
-
     if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
       var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
         Some (_record) -> _record
@@ -297,12 +294,12 @@ function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : c
 
 
 
-function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address) : contract(unit) is
+function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address) : contract(address) is
   case (Tezos.get_entrypoint_opt(
       "%undelegateFromSatellite",
-      delegationAddress) : option(contract(unit))) of [
+      delegationAddress) : option(contract(address))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(unit))
+  | None -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(address))
 ];
 
 
@@ -736,7 +733,7 @@ block {
 
 
 (* undelegateFromSatellite entrypoint *)
-function undelegateFromSatellite(var s : delegationStorage) : return is
+function undelegateFromSatellite(const userAddress: address; var s : delegationStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUndelegateFromSatellite"] of [
@@ -745,7 +742,7 @@ block {
     ];
 
     // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaUndelegateFromSatellite(unit);
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUndelegateFromSatellite(userAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
@@ -945,7 +942,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         
           // Delegation Entrypoints
         | DelegateToSatellite(parameters)               -> delegateToSatellite(parameters, s)
-        | UndelegateFromSatellite(_parameters)          -> undelegateFromSatellite(s)
+        | UndelegateFromSatellite(parameters)           -> undelegateFromSatellite(parameters, s)
         
           // Satellite Entrypoints
         | RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)

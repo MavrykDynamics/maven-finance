@@ -1055,7 +1055,7 @@
 //                 const isPausedEnd       = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
 
 //                 await signerFactory(eve.sk);
-//                 await chai.expect(delegationInstance.methods.undelegateFromSatellite().send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.undelegateFromSatellite(eve.pkh).send()).to.be.rejected;
 
 //                 // Reset admin
 //                 await signerFactory(bob.sk)
@@ -1134,7 +1134,7 @@
 //                 const initDelegateRecord    = await delegationStorage.delegateLedger.get(alice.pkh);
 
 //                 // Operation
-//                 const delegationOperation   = await delegationInstance.methods.undelegateFromSatellite(eve.pkh).send();
+//                 const delegationOperation   = await delegationInstance.methods.undelegateFromSatellite(alice.pkh).send();
 //                 await delegationOperation.confirmation();
 
 //                 // Final Values
@@ -1227,7 +1227,7 @@
 //                 delegationStorage       = await delegationInstance.storage();
 //                 const isPausedEnd       = delegationStorage.breakGlassConfig.undelegateFromSatelliteIsPaused
 
-//                 await chai.expect(delegationInstance.methods.undelegateFromSatellite().send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.undelegateFromSatellite(bob.pkh).send()).to.be.rejected;
 
 //                 // Reset admin
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseUndelegateSatellite().send();
@@ -1955,7 +1955,7 @@
 
 //     //         // Eve undelegates from Bob's satellite
 //     //         await signerFactory(eve.sk);               
-//     //         const eveUndelegatesFromBobSatelliteOperation = await delegationInstance.methods.undelegateFromSatellite(bob.pkh).send();
+//     //         const eveUndelegatesFromBobSatelliteOperation = await delegationInstance.methods.undelegateFromSatellite(eve.pkh).send();
 //     //         await eveUndelegatesFromBobSatelliteOperation.confirmation();
             
 //     //         // Check details of satellite
@@ -2027,7 +2027,7 @@
 
 //     //         // Alice undelegates from Mallory's satellite
 //     //         await signerFactory(alice.sk);               
-//     //         const aliceUndelegatesFromMallorySatelliteOperation = await delegationInstance.methods.undelegateFromSatellite(mallory.pkh).send();
+//     //         const aliceUndelegatesFromMallorySatelliteOperation = await delegationInstance.methods.undelegateFromSatellite(alice.pkh).send();
 //     //         await aliceUndelegatesFromMallorySatelliteOperation.confirmation();
             
 //     //         // Satellite should not exist after it has been unregistered
