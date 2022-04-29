@@ -340,7 +340,7 @@ block {
                 if emergencyGovernance.executed then failwith("Error: This emergency governance proposal has been executed.")
                 else skip;
 
-                if emergencyGovernance.proposerAddress =/= Tezos.sender then failwith("Error: You do not have permission to drop this emergency governance.")
+                if emergencyGovernance.proposerAddress =/= Tezos.source then failwith("Error: You do not have permission to drop this emergency governance.")
                 else skip;
 
                 emergencyGovernance.dropped := True; 

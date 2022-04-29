@@ -740,7 +740,7 @@ block {
                 ];
 
                 // check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.sender then failwith("Error. Only the proposer can add or update data.")
+                if proposalRecord.proposerAddress =/= Tezos.source then failwith("Error. Only the proposer can lock the proposal.")
                 else skip;
 
                 // check that proposal is not locked
