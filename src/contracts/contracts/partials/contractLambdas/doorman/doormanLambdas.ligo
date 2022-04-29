@@ -314,6 +314,7 @@ block {
                       balance                        = 0n;
                       totalExitFeeRewardsClaimed     = 0n;
                       totalSatelliteRewardsClaimed   = 0n;
+                      totalFarmRewardsClaimed        = 0n;
                       participationFeesPerShare      = s.accumulatedFeesPerShare;
                     ]
               ];
@@ -583,11 +584,13 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                       balance                        = 0n;
                       totalExitFeeRewardsClaimed     = 0n;
                       totalSatelliteRewardsClaimed   = 0n;
+                      totalFarmRewardsClaimed        = 0n;
                       participationFeesPerShare      = s.accumulatedFeesPerShare;
                     ]
                 ];
 
-                userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + claimAmount; 
+                userBalanceInStakeBalanceLedger.balance                 := userBalanceInStakeBalanceLedger.balance + claimAmount; 
+                userBalanceInStakeBalanceLedger.totalFarmRewardsClaimed := userBalanceInStakeBalanceLedger.totalFarmRewardsClaimed + claimAmount;
                 s.userStakeBalanceLedger[delegator] := userBalanceInStakeBalanceLedger;
 
                 // update staked MVK total supply

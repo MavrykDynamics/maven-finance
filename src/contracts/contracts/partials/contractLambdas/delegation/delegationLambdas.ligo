@@ -410,6 +410,7 @@ block {
                 Some(_record) -> _record
             | None -> record[
                     unpaid                                  = 0n;
+                    paid                                    = 0n;
                     participationRewardsPerShare            = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
                     satelliteAccumulatedRewardsPerShare     = satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
                     satelliteReferenceAddress               = satelliteAddress;
@@ -602,6 +603,7 @@ block {
                 Some (_rewards) -> _rewards
                 | None -> record[
                     unpaid                                      = 0n;
+                    paid                                        = 0n;
                     participationRewardsPerShare                = 0n;
                     satelliteAccumulatedRewardsPerShare         = 0n;
                     satelliteReferenceAddress                   = Tezos.source
@@ -722,7 +724,7 @@ block {
         | LambdaDistributeReward(distributeRewardParams) -> {
                 
             // Get variables from parameters
-            const elligibleSatellites: set(address) = distributeRewardParams.elligibleSatellites;
+            const eligibleSatellites: set(address) = distributeRewardParams.eligibleSatellites;
             const totalReward: nat = distributeRewardParams.totalSMvkReward;
 
             // Send the rewards from the treasury to the doorman contract
@@ -754,10 +756,10 @@ block {
             operations := transferOperation # operations;
 
             // Calculate reward for each satellite
-            const elligibleSatellitesAmount: nat = Set.cardinal(elligibleSatellites);
-            const rewardPerSatellite: nat = totalReward * fixedPointAccuracy / elligibleSatellitesAmount ;
+            const eligibleSatellitesCount: nat = Set.cardinal(eligibleSatellites);
+            const rewardPerSatellite: nat = totalReward * fixedPointAccuracy / eligibleSatellitesCount ;
 
-            for satelliteAddress in set elligibleSatellites 
+            for satelliteAddress in set eligibleSatellites 
                 block {
                     // Get satellite
                     var satelliteRecord: satelliteRecordType  := case Map.find_opt(satelliteAddress, s.satelliteLedger) of [
@@ -780,13 +782,7 @@ block {
                     // Update satellite record
                     const satelliteVotingPower: nat                                 = satelliteRecord.totalDelegatedAmount + satelliteRecord.stakedMvkBalance;
                     satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare      := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare + (abs(rewardPerSatellite - satelliteFee) / satelliteVotingPower);
-
-                    // Calculate satellite unclaim rewards
-                    const satelliteRewardsRatio: nat  = abs(satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare - satelliteRewardsRecord.participationRewardsPerShare);
-                    const satelliteRewards: nat       = (satelliteRecord.stakedMvkBalance * satelliteRewardsRatio) / fixedPointAccuracy;
-
-                    satelliteRewardsRecord.participationRewardsPerShare             := satelliteRewardsRecord.satelliteAccumulatedRewardsPerShare;
-                    satelliteRewardsRecord.unpaid                                   := satelliteRewardsRecord.unpaid + satelliteFeeReward + satelliteRewards;
+                    satelliteRewardsRecord.unpaid                                   := satelliteRewardsRecord.unpaid + satelliteFeeReward;
                     s.satelliteRewardsLedger[satelliteAddress]                      := satelliteRewardsRecord;
                 }
                 
@@ -951,6 +947,7 @@ block {
 
                     // Update record
                     satelliteRewardsRecord.participationRewardsPerShare    := _satelliteReferenceRewardsRecord.satelliteAccumulatedRewardsPerShare;
+                    satelliteRewardsRecord.paid                            := satelliteRewardsRecord.paid + satelliteRewardsRecord.unpaid;
                     satelliteRewardsRecord.unpaid                          := 0n;
                     s.satelliteRewardsLedger[userAddress]                  := satelliteRewardsRecord;
                 } else skip;

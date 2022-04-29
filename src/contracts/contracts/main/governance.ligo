@@ -581,7 +581,7 @@ function sendRewardsToVoters(var s: governanceStorage): operation is
     var votersAddresses := Map.fold(getVotersAddresses, voters, votersAddresses);
 
     // Get rewards
-    const roundReward: nat  = s.currentCycleVotersReward;
+    const roundReward: nat  = s.currentCycleTotalVotersReward;
 
     // Send rewards to all satellites
     const delegationAddress : address = case s.generalContracts["delegation"] of [
@@ -641,7 +641,7 @@ block {
     s.currentRoundStartLevel               := Tezos.level;
     s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
     s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
-    s.currentCycleVotersReward             := s.config.cycleVotersReward;
+    s.currentCycleTotalVotersReward        := s.config.cycleVotersReward;
     s.currentRoundProposals                := emptyProposalMap;    // flush proposals
     s.currentRoundProposers                := emptyProposerMap;    // flush proposals
     s.currentRoundVotes                    := emptyVotesMap;       // flush voters

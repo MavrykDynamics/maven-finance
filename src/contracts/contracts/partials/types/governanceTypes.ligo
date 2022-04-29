@@ -380,7 +380,7 @@ type governanceStorage is [@layout:comb] record [
     currentRoundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
     currentRoundProposers              : map(address, set(nat));  // proposer, 
     currentRoundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    currentCycleVotersReward            : nat;
+    currentCycleTotalVotersReward      : nat;
 
     nextProposalId                      : nat;                    // counter of next proposal id
     cycleCounter                        : nat;                    // counter of current cycle 

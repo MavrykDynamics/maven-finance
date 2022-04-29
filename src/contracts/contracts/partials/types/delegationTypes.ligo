@@ -3,6 +3,7 @@ type onStakeChangeParams is (address)
 
 type satelliteRewards is [@layout:comb] record [
     unpaid                                  : nat;
+    paid                                    : nat;
     participationRewardsPerShare            : nat;
     satelliteAccumulatedRewardsPerShare     : nat; // 0n if delegate
     satelliteReferenceAddress               : address;
@@ -13,7 +14,6 @@ type delegateRecordType is [@layout:comb] record [
     satelliteAddress                : address;
     delegatedDateTime               : timestamp;
     delegatedSMvkBalance            : nat;
-    // fee -> custom delegate fee for satellite
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
@@ -107,8 +107,8 @@ type updateMetadataType is [@layout:comb] record [
 ]
 
 type distributeRewardTypes is [@layout:comb] record [
-    elligibleSatellites  : set(address);
-    totalSMvkReward      : nat;
+    eligibleSatellites    : set(address);
+    totalSMvkReward       : nat;
 ]
 
 type setLambdaType is [@layout:comb] record [
@@ -154,8 +154,8 @@ type delegationLambdaActionType is
 // Storage
 // ------------------------------------------------------------------------------
 type distributeRewardsTypes is [@layout:comb] record [
-    elligibleSatellites  : set(address);
-    totalSMvkReward      : nat;
+    eligibleSatellites    : set(address);
+    totalSMvkReward       : nat;
 ]
 
 type delegationStorage is [@layout:comb] record [
