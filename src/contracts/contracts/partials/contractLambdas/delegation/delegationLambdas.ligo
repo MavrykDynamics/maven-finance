@@ -739,7 +739,7 @@ block {
     var operations: list(operation) := nil;
 
     // Check sender is a whitelist contract
-    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
+    if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) or Tezos.sender = s.governanceAddress then skip else failwith("Error. Sender is not in whitelisted contracts.");
 
     case delegationLambdaAction of [
         | LambdaDistributeReward(distributeRewardParams) -> {
@@ -842,7 +842,7 @@ block {
         | LambdaOnStakeChange(userAddress) -> {
                 const userIsSatellite: bool = Map.mem(userAddress, s.satelliteLedger);
 
-                if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then skip else failwith("Error. Sender is not in whitelisted contracts.");
+                if checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) or Tezos.sender = s.governanceAddress then skip else failwith("Error. Sender is not in whitelisted contracts.");
 
                 // Update unclaimed rewards
                 s := updateRewards(userAddress, s);

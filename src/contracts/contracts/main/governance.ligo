@@ -303,7 +303,7 @@ function getSetGovernanceEntrypoint(const contractAddress : address) : contract(
       ];
 
 
-
+      
 // governance proxy lamba helper function to get executeGovernanceProposal entrypoint
 function getExecuteGovernanceActionEntrypoint(const contractAddress : address) : contract(bytes) is
 case (Tezos.get_entrypoint_opt(
