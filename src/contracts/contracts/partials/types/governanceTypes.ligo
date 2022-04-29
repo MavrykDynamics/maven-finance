@@ -22,7 +22,7 @@ type satelliteRecordType is [@layout:comb] record [
     description           : string;     // string for description
     image                 : string;     // ipfs hash
     website               : string;     // satellite website if it has one
-
+    
     registeredDateTime    : timestamp;  
 ]
 
@@ -179,6 +179,7 @@ type snapshotLedgerType is big_map (address, snapshotRecordType);
 type governanceConfigType is [@layout:comb] record [
     
     successReward                       : nat;  // incentive reward for successful proposal
+    cycleVotersReward                   : nat;  // Reward sent then split to all voters at the end of a voting round
 
     minProposalRoundVotePercentage      : nat; // percentage of staked MVK votes required to pass proposal round
     minProposalRoundVotesRequired       : nat; // amount of staked MVK votes required to pass proposal round
@@ -187,7 +188,7 @@ type governanceConfigType is [@layout:comb] record [
     minQuorumMvkTotal                   : nat;  // minimum quorum in MVK
 
     votingPowerRatio                    : nat;  // votingPowerRatio (e.g. 10% -> 10_000) - percentage to determine satellie's max voting power and if satellite is overdelegated (requires more staked MVK to be staked) or underdelegated - similar to self-bond percentage in tezos
-    proposalSubmissionFee               : nat;  // e.g. 10 tez per submitted proposal
+    proposalSubmissionFeeMutez          : tez;  // e.g. 10 tez per submitted proposal
     minimumStakeReqPercentage           : nat;  // minimum amount of MVK required in percentage of total staked MVK supply (e.g. 0.01%)
     maxProposalsPerDelegate             : nat;  // number of active proposals delegate can have at any given time
 
@@ -212,12 +213,13 @@ type governanceUpdateConfigNewValueType is nat
 
 type governanceUpdateConfigActionType is 
   ConfigSuccessReward               of unit
+| ConfigCycleVotersReward           of unit
 | ConfigMinProposalRoundVotePct     of unit
 | ConfigMinProposalRoundVotesReq    of unit
 | ConfigMinQuorumPercentage         of unit
 | ConfigMinQuorumMvkTotal           of unit
 | ConfigVotingPowerRatio            of unit
-| ConfigProposalSubmissionFee       of unit
+| ConfigProposeFeeMutez             of unit
 | ConfigMinimumStakeReqPercentage   of unit
 | ConfigMaxProposalsPerDelegate     of unit
 | ConfigBlocksPerProposalRound      of unit
@@ -378,7 +380,8 @@ type governanceStorage is [@layout:comb] record [
     currentRoundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
     currentRoundProposers              : map(address, set(nat));  // proposer, 
     currentRoundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    
+    currentCycleTotalVotersReward      : nat;
+
     nextProposalId                      : nat;                    // counter of next proposal id
     cycleCounter                        : nat;                    // counter of current cycle 
     currentRoundHighestVotedProposalId  : nat;                    // set to 0 if there is no proposal currently, if not set to proposal id

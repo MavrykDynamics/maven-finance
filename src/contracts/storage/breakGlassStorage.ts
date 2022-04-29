@@ -9,11 +9,11 @@ import { zeroAddress } from '../test/helpers/Utils'
 import { breakGlassStorageType } from '../test/types/breakGlassStorageType'
 
 const config = {
-    threshold                  : 3,
-    actionExpiryDays           : 3,
+    threshold                       : 3,
+    actionExpiryDays                : 3,
     councilMemberNameMaxLength      : 400,
     councilMemberWebsiteMaxLength   : 400,
-    councilMemberImageMaxLength     : 400
+    councilMemberImageMaxLength     : 400,
 }
 
 const metadata = MichelsonMap.fromLiteral({

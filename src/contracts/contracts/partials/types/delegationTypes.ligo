@@ -1,11 +1,19 @@
 type onStakeChangeParams is (address)
 
 
+type satelliteRewards is [@layout:comb] record [
+    unpaid                                  : nat;
+    paid                                    : nat;
+    participationRewardsPerShare            : nat;
+    satelliteAccumulatedRewardsPerShare     : nat; // 0n if delegate
+    satelliteReferenceAddress               : address;
+];
+
 // record for users choosing satellites 
 type delegateRecordType is [@layout:comb] record [
-    satelliteAddress      : address;
-    delegatedDateTime     : timestamp;
-    delegatedSMvkBalance  : nat;
+    satelliteAddress                : address;
+    delegatedDateTime               : timestamp;
+    delegatedSMvkBalance            : nat;
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
@@ -44,6 +52,8 @@ type satelliteRecordType is [@layout:comb] record [
 ]
 type satelliteLedgerType is map (address, satelliteRecordType)
 
+type satelliteRewardsLedgerType is map (address, satelliteRewards)
+
 type requestSatelliteSnapshotType is  [@layout:comb] record [
     satelliteAddress      : address;
     requestId             : nat; 
@@ -71,6 +81,8 @@ type delegationBreakGlassConfigType is record [
     unregisterAsSatelliteIsPaused    : bool;
 
     updateSatelliteRecordIsPaused    : bool;
+
+    distributeRewardIsPaused         : bool;
 ]
 
 type delegationUpdateConfigNewValueType is nat
@@ -91,7 +103,12 @@ type metadata is big_map (string, bytes);
 
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
-    metadataHash     : bytes; 
+    metadataHash     : bytes;
+]
+
+type distributeRewardTypes is [@layout:comb] record [
+    eligibleSatellites    : set(address);
+    totalSMvkReward       : nat;
 ]
 
 type setLambdaType is [@layout:comb] record [
@@ -117,36 +134,44 @@ type delegationLambdaActionType is
 | LambdaPauseRegisterSatellite                of (unit)
 | LambdaPauseUnregisterSatellite              of (unit)
 | LambdaPauseUpdateSatellite                  of (unit)
+| LambdaPauseDistributeReward                 of (unit)
 
   // Delegation Lambdas
 | LambdaDelegateToSatellite                   of (address)
-| LambdaUndelegateFromSatellite               of (unit)
+| LambdaUndelegateFromSatellite               of (address)
 
   // Satellite Lambdas
 | LambdaRegisterAsSatellite                   of newSatelliteRecordType
 | LambdaUnregisterAsSatellite                 of (unit)
 | LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
+| LambdaDistributeReward                      of distributeRewardTypes
 
   // General Lambdas
 | LambdaOnStakeChange                         of onStakeChangeParams
+| LambdaOnSatelliteRewardPaid                 of address
 
 // ------------------------------------------------------------------------------
 // Storage
 // ------------------------------------------------------------------------------
+type distributeRewardsTypes is [@layout:comb] record [
+    eligibleSatellites    : set(address);
+    totalSMvkReward       : nat;
+]
 
 type delegationStorage is [@layout:comb] record [
-    admin                : address;
-    mvkTokenAddress      : address;
-    metadata             : metadata;
-    
-    config               : delegationConfigType;
+    admin                   : address;
+    mvkTokenAddress         : address;
+    metadata                : metadata;
 
-    whitelistContracts   : whitelistContractsType;      
-    generalContracts     : generalContractsType;
+    config                  : delegationConfigType;
 
-    breakGlassConfig     : delegationBreakGlassConfigType;
-    delegateLedger       : delegateLedgerType;
-    satelliteLedger      : satelliteLedgerType;
+    whitelistContracts      : whitelistContractsType;      
+    generalContracts        : generalContractsType;
 
-    lambdaLedger         : lambdaLedgerType;   
+    breakGlassConfig        : delegationBreakGlassConfigType;
+    delegateLedger          : delegateLedgerType;
+    satelliteLedger         : satelliteLedgerType;
+    satelliteRewardsLedger  : satelliteRewardsLedgerType;
+
+    lambdaLedger            : lambdaLedgerType;   
 ]
