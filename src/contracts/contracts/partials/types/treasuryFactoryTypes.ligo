@@ -4,15 +4,6 @@
 
 type metadata is big_map (string, bytes);
 
-type createTreasuryFuncType is (option(key_hash) * tez * treasuryStorage) -> (operation * address)
-const createTreasuryFunc: createTreasuryFuncType =
-[%Michelson ( {| { UNPPAIIR ;
-                  CREATE_CONTRACT
-#include "../../compiled/treasury.tz"
-        ;
-          PAIR } |}
-: createTreasuryFuncType)];
-
 type treasuryFactoryBreakGlassConfigType is record [
     createTreasuryIsPaused     : bool;
     trackTreasuryIsPaused      : bool;
