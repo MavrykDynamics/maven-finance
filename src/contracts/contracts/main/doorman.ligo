@@ -273,18 +273,19 @@ block{
           participationFeesPerShare     = s.accumulatedFeesPerShare;
           totalExitFeeRewardsClaimed    = 0n;
           totalSatelliteRewardsClaimed  = 0n;
+          totalFarmRewardsClaimed       = 0n;
         ]
-    ];
-
-    // Get delegation contract
-    const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
-        Some (_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found.")
     ];
 
     // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
     if userRecord.balance > 0n then {
 
+      // Get delegation contract
+      const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
+          Some (_address) -> _address
+        | None -> failwith("Error. Delegation Contract is not found.")
+      ];
+      
       // -- Satellite rewards -- //
       // Check if user is satellite or delegate
       const getUserRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", userAddress, delegationAddress);
@@ -318,6 +319,8 @@ block{
       const currentFeesPerShare: nat = abs(s.accumulatedFeesPerShare - userRecord.participationFeesPerShare);
       // Calculate the user reward based on his sMVK
       const exitFeeRewards: nat = (currentFeesPerShare * userRecord.balance) / fixedPointAccuracy;
+
+      
       // Increase the user balance
       userRecord.totalExitFeeRewardsClaimed   := userRecord.totalExitFeeRewardsClaimed + exitFeeRewards;
       userRecord.totalSatelliteRewardsClaimed := userRecord.totalSatelliteRewardsClaimed + satelliteUnpaidRewards;

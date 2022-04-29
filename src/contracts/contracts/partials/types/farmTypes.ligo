@@ -6,9 +6,10 @@ type depositor is address
 type tokenBalance is nat
 
 type depositorRecord is [@layout:comb] record[
-    balance: tokenBalance;
-    participationMVKPerShare: tokenBalance;
-    unclaimedRewards: tokenBalance;
+    balance                         : tokenBalance;
+    participationMVKPerShare        : nat;
+    unclaimedRewards                : tokenBalance;
+    claimedRewards                  : tokenBalance;
 ]
 type claimedRewards is [@layout:comb] record[
     unpaid: tokenBalance;

@@ -534,7 +534,8 @@ block{
                 if claimedRewards = 0n then failwith("The depositor has no rewards to claim") else skip;
 
                 // Store new unclaimedRewards value in depositor
-                depositorRecord.unclaimedRewards := 0n;
+                depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;
+                depositorRecord.unclaimedRewards    := 0n;
                 s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
                 // Transfer sMVK rewards
