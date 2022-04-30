@@ -1,0 +1,58 @@
+[
+  {
+    "index": 0,
+    "name": "lambdaSetAdmin"
+  },
+  {
+    "index": 1,
+    "name": "lambdaUpdateMetadata"
+  },
+  {
+    "index": 2,
+    "name": "lambdaUpdateConfig"
+  },
+  {
+    "index": 3,
+    "name": "lambdaUpdateWhitelistContracts"
+  },
+  {
+    "index": 4,
+    "name": "lambdaUpdateGeneralContracts"
+  },
+  {
+    "index": 5,
+    "name": "lambdaSuspendSatellite"
+  },
+  {
+    "index": 6,
+    "name": "lambdaUnsuspendSatellite"
+  },
+  {
+    "index": 7,
+    "name": "lambdaBanSatellite"
+  },
+  {
+    "index": 8,
+    "name": "lambdaUnbanSatellite"
+  },
+  {
+    "index": 9,
+    "name": "lambdaRemoveAllSatelliteOracles"
+  },
+  {
+    "index": 10,
+    "name": "lambdaAddOracleToAggregator"
+  },
+  {
+    "index": 11,
+    "name": "lambdaRemoveOracleInAggregator"
+  },
+  {
+    "index": 12,
+    "name": "lambdaVoteForAction"
+  },
+  {
+    "index": 13,
+    "name": "lambdaDropAction"
+  }
+]
