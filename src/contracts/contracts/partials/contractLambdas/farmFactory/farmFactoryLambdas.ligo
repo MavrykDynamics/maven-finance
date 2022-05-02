@@ -139,7 +139,7 @@ block {
 function lambdaPauseAll(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     var operations : list(operation) := nil;
 
@@ -176,7 +176,7 @@ block {
 function lambdaUnpauseAll(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     var operations: list(operation) := nil;
 

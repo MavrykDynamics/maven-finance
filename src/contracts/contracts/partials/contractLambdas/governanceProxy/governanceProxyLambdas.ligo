@@ -32,23 +32,30 @@ block {
       (* Update Configs *)    
       | UpdateGovernanceConfig (_v)            -> 9n
       | UpdateDelegationConfig (_v)            -> 10n
+      | UpdateEmergencyConfig (_v)             -> 11n
+      | UpdateBreakGlassConfig (_v)            -> 12n
+      | UpdateCouncilConfig (_v)               -> 13n
+      | UpdateFarmConfig (_v)                  -> 14n
+      | UpdateDoormanMinMvkAmount (_v)         -> 15n
 
       (* Governance Control *)
-      | UpdateWhitelistDevelopersSet (_v)      -> 11n
+      | UpdateWhitelistDevelopersSet (_v)      -> 16n
 
       (* Farm Control *)
-      | CreateFarm (_v)                        -> 12n
-      | TrackFarm (_v)                         -> 13n
-      | UntrackFarm (_v)                       -> 14n
+      | CreateFarm (_v)                        -> 17n
+      | TrackFarm (_v)                         -> 18n
+      | UntrackFarm (_v)                       -> 19n
+      | InitFarm (_v)                          -> 20n
+      | CloseFarm (_v)                         -> 21n
 
       (* Treasury Control *)
-      | CreateTreasury (_v)                    -> 15n
-      | TrackTreasury (_v)                     -> 16n
-      | UntrackTreasury (_v)                   -> 17n
+      | CreateTreasury (_v)                    -> 22n
+      | TrackTreasury (_v)                     -> 23n
+      | UntrackTreasury (_v)                   -> 24n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 18n
-      | TriggerMvkInflation (_v)               -> 19n
+      | UpdateMvkInflationRate (_v)            -> 25n
+      | TriggerMvkInflation (_v)               -> 26n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -449,6 +456,227 @@ block {
 
 
 
+function updateEmergencyConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateEmergencyConfig(params) -> {
+
+        // find and get emergency governance contract address from the generalContracts big map
+        const emergencyAddress : address = case s.generalContracts["emergencyGovernance"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Emergency Governance Contract is not found")
+        ];
+
+        // find and get updateConfig entrypoint of emergency governance contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            emergencyAddress) : option(contract(nat * emergencyUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("updateConfig entrypoint in Emergency Governance Contract not found") : contract(nat * emergencyUpdateConfigActionType))
+            ];
+
+        // assign params to constants for better code readability
+        const updateConfigAction   = params.updateConfigAction;
+        const updateConfigNewValue = params.updateConfigNewValue;
+
+        // update emergency governance config operation
+        const updateEmergencyConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateEmergencyConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateCouncilConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateCouncilConfig(params) -> {
+
+        // find and get council contract address from the generalContracts big map
+        const councilAddress : address = case s.generalContracts["council"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Council Contract is not found")
+        ];
+
+        // find and get updateConfig entrypoint of council contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            councilAddress) : option(contract(nat * councilUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("updateConfig entrypoint in Council Contract not found") : contract(nat * councilUpdateConfigActionType))
+            ];
+
+        // assign params to constants for better code readability
+        const updateConfigAction   = params.updateConfigAction;
+        const updateConfigNewValue = params.updateConfigNewValue;
+
+        // update council config operation
+        const updateCouncilConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateCouncilConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateFarmConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateFarmConfig(params) -> {
+
+        // assign params to constants for better code readability
+        const farmAddress           = params.targetFarmAddress;
+        const updateConfigAction    = params.farmConfig.updateConfigAction;
+        const updateConfigNewValue  = params.farmConfig.updateConfigNewValue;
+
+        // find and get updateConfig entrypoint of farm contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            farmAddress) : option(contract(nat * farmUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("updateConfig entrypoint in Farm Contract not found") : contract(nat * farmUpdateConfigActionType))
+            ];
+
+        // update farm config operation
+        const updateFarmConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateFarmConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateBreakGlassConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateBreakGlassConfig(params) -> {
+
+        // find and get break glass contract address from the generalContracts big map
+        const breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Break Glass Contract is not found")
+        ];
+
+        // find and get updateConfig entrypoint of break glass contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            breakGlassAddress) : option(contract(nat * breakGlassUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("updateConfig entrypoint in Break Glass Contract not found") : contract(nat * breakGlassUpdateConfigActionType))
+            ];
+
+        // assign params to constants for better code readability
+        const updateConfigAction   = params.updateConfigAction;
+        const updateConfigNewValue = params.updateConfigNewValue;
+
+        // update break glass config operation
+        const updateBreakGlassConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateBreakGlassConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateDoormanMinMvkAmount(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateDoormanMinMvkAmount(newMinMvkAmount) -> {
+
+        // find and get doorman contract address from the generalContracts map
+        const doormanAddress : address = case s.generalContracts["doorman"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Doorman Contract is not found")
+        ];
+
+        // find and get updateConfig entrypoint of farm contract
+        const updateMinMvkAmountEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateMinMvkAmount",
+            doormanAddress) : option(contract(nat))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("updateMinMvkAmount entrypoint in Doorman Contract not found") : contract(nat))
+            ];
+
+        // update farm config operation
+        const updateDoormanConfigOperation : operation = Tezos.transaction(
+          (newMinMvkAmount),
+          0tez, 
+          updateMinMvkAmountEntrypoint
+          );
+
+        operations := updateDoormanConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
 function updateWhitelistDevelopersSet(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
@@ -599,6 +827,80 @@ block {
           );
 
         operations := untrackFarmOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function initFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      InitFarm(initFarmParams) -> {
+
+        // assign params to constants for better code readability
+        const targetFarmAddress       : address             = initFarmParams.targetFarmAddress;
+        const farmInitConfig          : initFarmParamsType  = initFarmParams.farmConfig;
+
+        // find and get initFarm entrypoint of farm contract
+        const initFarmEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%initFarm",
+            targetFarmAddress) : option(contract(initFarmParamsType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("initFarm entrypoint in Farm Contract not found") : contract(initFarmParamsType))
+            ];
+
+        // init a farm
+        const initFarmOperation : operation = Tezos.transaction(
+          (farmInitConfig),
+          0tez, 
+          initFarmEntrypoint
+          );
+
+        operations := initFarmOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function closeFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      CloseFarm(farmAddress) -> {
+
+        // find and get closeFarm entrypoint of farm contract
+        const closeFarmEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%closeFarm",
+            farmAddress) : option(contract(unit))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("closeFarm entrypoint in Farm Contract not found") : contract(unit))
+            ];
+
+        // close a farm
+        const closeFarmOperation : operation = Tezos.transaction(
+          (unit),
+          0tez, 
+          closeFarmEntrypoint
+          );
+
+        operations := closeFarmOperation # operations;
 
         }
     | _ -> skip

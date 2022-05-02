@@ -82,7 +82,7 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                            = 0n;
-[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                               = 1n;
+[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                         = 1n;
 [@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED              = 2n;
 [@inline] const error_ONLY_SELF_ALLOWED                                     = 3n;
 [@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                         = 4n;

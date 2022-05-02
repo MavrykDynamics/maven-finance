@@ -52,10 +52,10 @@ type farmMetadataType is record[
     authors                  : string;
 ]
 
-type initFarmParamsType is record[
-    totalBlocks: nat;
-    currentRewardPerBlock: nat;
-]
+// type initFarmParamsType is record[
+//     totalBlocks: nat;
+//     currentRewardPerBlock: nat;
+// ]
 
 type farmFactoryBreakGlassConfigType is record [
     createFarmIsPaused     : bool;
