@@ -12,7 +12,7 @@
 function lambdaSetAdmin(const vestingLambdaAction : vestingLambdaActionType; var s : vestingStorage) : return is
 block {
     
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
 
     case vestingLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
