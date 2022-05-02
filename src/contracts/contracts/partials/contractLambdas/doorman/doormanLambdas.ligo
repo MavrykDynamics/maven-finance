@@ -131,7 +131,7 @@ block {
 function lambdaPauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     case doormanLambdaAction of [
       | LambdaPauseAll(_parameters) -> {
@@ -158,7 +158,7 @@ block {
 function lambdaUnpauseAll(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     case doormanLambdaAction of [
       | LambdaUnpauseAll(_parameters) -> {

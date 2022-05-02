@@ -111,14 +111,24 @@ type updateContractWhitelistMapType is [@layout:comb] record [
 
 type updateContractGeneralMapType is [@layout:comb] record [
   targetContractAddress     : address;
-  generalContractName     : string;
-  generalContractAddress  : address; 
+  generalContractName       : string;
+  generalContractAddress    : address; 
 ]
 
 type updateContractWhitelistTokenMapType is [@layout:comb] record [
   targetContractAddress     : address;
-  tokenContractName     : string;
-  tokenContractAddress  : address; 
+  tokenContractName         : string;
+  tokenContractAddress      : address; 
+]
+
+type targetFarmUpdateConfigParamsType is [@layout:comb] record [
+  targetFarmAddress         : address;
+  farmConfig                : farmUpdateConfigParamsType;
+]
+
+type targetFarmInitType is [@layout:comb] record [
+  targetFarmAddress         : address;
+  farmConfig                : initFarmParamsType;
 ]
 
 type executeActionParamsType is 
@@ -134,13 +144,19 @@ type executeActionParamsType is
 
 | UpdateGovernanceConfig             of updateGovernanceConfigType
 | UpdateDelegationConfig             of delegationUpdateConfigParamsType
-// | UpdateDoormanConfig                of doormanUpdateConfigParamsType
+| UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
+| UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType
+| UpdateCouncilConfig                of councilUpdateConfigParamsType
+| UpdateFarmConfig                   of targetFarmUpdateConfigParamsType
+| UpdateDoormanMinMvkAmount          of (nat)
 
 | UpdateWhitelistDevelopersSet       of (address)
 
 | CreateFarm                         of createFarmType
 | TrackFarm                          of (address)
 | UntrackFarm                        of (address)
+| InitFarm                           of (targetFarmInitType)
+| CloseFarm                          of (address)
 
 | CreateTreasury                     of bytes
 | TrackTreasury                      of (address)

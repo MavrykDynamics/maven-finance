@@ -45,38 +45,66 @@
   },
   {
     "index": 11,
-    "name": "updateWhitelistDevelopersSet"
+    "name": "updateEmergencyConfig"
   },
   {
     "index": 12,
-    "name": "createFarm"
+    "name": "updateBreakGlassConfig"
   },
   {
     "index": 13,
-    "name": "trackFarm"
+    "name": "updateCouncilConfig"
   },
   {
     "index": 14,
-    "name": "untrackFarm"
+    "name": "updateFarmConfig"
   },
   {
     "index": 15,
-    "name": "createTreasury"
+    "name": "updateDoormanMinMvkAmount"
   },
   {
     "index": 16,
-    "name": "trackTreasury"
+    "name": "updateWhitelistDevelopersSet"
   },
   {
     "index": 17,
-    "name": "untrackTreasury"
+    "name": "createFarm"
   },
   {
     "index": 18,
-    "name": "updateMvkInflationRate"
+    "name": "trackFarm"
   },
   {
     "index": 19,
+    "name": "untrackFarm"
+  },
+  {
+    "index": 20,
+    "name": "initFarm"
+  },
+  {
+    "index": 21,
+    "name": "closeFarm"
+  },
+  {
+    "index": 22,
+    "name": "createTreasury"
+  },
+  {
+    "index": 23,
+    "name": "trackTreasury"
+  },
+  {
+    "index": 24,
+    "name": "untrackTreasury"
+  },
+  {
+    "index": 25,
+    "name": "updateMvkInflationRate"
+  },
+  {
+    "index": 26,
     "name": "triggerMvkInflation"
   }
 ]

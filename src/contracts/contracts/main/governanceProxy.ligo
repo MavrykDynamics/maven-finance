@@ -21,6 +21,18 @@
 // Delegation Type for updateConfig
 #include "../partials/types/delegationTypes.ligo"
 
+// BreakGlass Type
+#include "../partials/types/farmTypes.ligo"
+
+// Break Glass Type
+#include "../partials/types/breakGlassTypes.ligo"
+
+// Emergency Governance Type
+#include "../partials/types/emergencyGovernanceTypes.ligo"
+
+// Council Type
+#include "../partials/types/councilTypes.ligo"
+
 // Governance Type
 #include "../partials/types/governanceTypes.ligo"
 
