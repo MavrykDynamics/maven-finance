@@ -469,6 +469,7 @@ describe('Contracts Deployment for Tests', async () => {
     
     cfmmTezFa2TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
     cfmmTezFa2TokenStorage.lpTokenAddress             = lpTokenMockFa2Xtz.contract.address;
+    cfmmTezFa2TokenStorage.lpTokensTotal              = new BigNumber(200000000); // 200 LP Tokens - 1:10 ratio
     cfmmTezFa2TokenStorage.tokenName                  = "mockFa2";
     cfmmTezFa2TokenStorage.tokenAddress               = mockFa2Token.contract.address;
     cfmmTezMockFa2Token = await CfmmTezFa2Token.originate(
@@ -481,6 +482,7 @@ describe('Contracts Deployment for Tests', async () => {
 
     cfmmTezFa12TokenStorage.usdmTokenControllerAddress = usdmTokenController.contract.address;
     cfmmTezFa12TokenStorage.lpTokenAddress             = lpTokenMockFa12Xtz.contract.address;
+    cfmmTezFa12TokenStorage.lpTokensTotal              = new BigNumber(100000000); // 100 LP Tokens - 1:20 ratio
     cfmmTezFa12TokenStorage.tokenName                  = "mockFa12";
     cfmmTezFa12TokenStorage.tokenAddress               = mockFa12Token.contract.address;
     cfmmTezMockFa12Token = await CfmmTezFa12Token.originate(
@@ -984,6 +986,30 @@ describe('Contracts Deployment for Tests', async () => {
     await setUsdmTokenControllerInUsdmTokenWhitelistOperation.confirmation();
     console.log('USDM Token Controller set in USDM Token whitelist')
 
+
+    const setCfmmContractAddressInLpTokenMockFa2TokenXtzOperation = await lpTokenMockFa2Xtz.contract.methods
+      .updateWhitelistContracts("cfmm", cfmmTezMockFa2Token.contract.address)
+      .send();  
+    await setCfmmContractAddressInLpTokenMockFa2TokenXtzOperation.confirmation();
+    console.log('cfmm (XTZ/MockFa2Token) contract address set in LP Token (MockFa2Token/XTZ) whitelist')
+
+    const setCfmmContractAddressInMockFa2TokenControllerOperation = await usdmTokenController.contract.methods
+      .updateCfmmAddressLedger("mockFa2Token", cfmmTezMockFa2Token.contract.address)
+      .send();  
+    await setCfmmContractAddressInMockFa2TokenControllerOperation.confirmation();
+    console.log('cfmm (XTZ/MockFa2Token) contract address set in USDM Token Controller CFMM Address Ledger')
+
+    const setCfmmContractAddressInLpTokenMockFa12TokenXtzOperation = await lpTokenMockFa12Xtz.contract.methods
+      .updateWhitelistContracts("cfmm", cfmmTezMockFa12Token.contract.address)
+      .send();  
+    await setCfmmContractAddressInLpTokenMockFa12TokenXtzOperation.confirmation();
+    console.log('cfmm (XTZ/MockFa12Token) contract address set in LP Token (MockFa12Token/XTZ) whitelist')
+
+    const setCfmmContractAddressInMockFa12TokenControllerOperation = await usdmTokenController.contract.methods
+      .updateCfmmAddressLedger("mockFa12Token", cfmmTezMockFa12Token.contract.address)
+      .send();  
+    await setCfmmContractAddressInMockFa12TokenControllerOperation.confirmation();
+    console.log('cfmm (XTZ/MockFa12Token) contract address set in USDM Token Controller CFMM Address Ledger')
 
 
 

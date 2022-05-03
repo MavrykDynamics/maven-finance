@@ -1287,6 +1287,7 @@ describe("USDM Token Controller tests", async () => {
             const cfmmXtzUsdmStorage = await cfmmTezUsdmInstance.storage();
             assert.equal(cfmmXtzUsdmStorage.cashPool, 1);
 
+            // 1:4 ratio - 1 tez to 4 USDM Tokens
             const tezAmount   = 500;
             const mutezAmount = 500000000;
             const aliceTransferTezToCfmmOperation = await utils.tezos.contract.transfer(
@@ -1300,6 +1301,58 @@ describe("USDM Token Controller tests", async () => {
             // updated cash pool
             const updatedCfmmXtzUsdmStorage = await cfmmTezUsdmInstance.storage();
             assert.equal(updatedCfmmXtzUsdmStorage.cashPool, mutezAmount + 1);
+
+        });
+
+        it('user (alice) can deposit tez into the CFMM (XTZ/MockFa2Token) cash pool', async () => {
+    
+            // init variables
+            await signerFactory(alice.sk);
+
+            // initial cash pool of 0
+            const cfmmXtzMockFa2TokenStorage = await cfmmTezMockFa2TokenInstance.storage();
+            assert.equal(cfmmXtzMockFa2TokenStorage.cashPool, 1);
+
+            // 1:10 ratio - 1 tez to 10 Mock FA2 Tokens
+            const tezAmount   = 200;
+            const mutezAmount = 200000000;
+            const aliceTransferTezToCfmmOperation = await utils.tezos.contract.transfer(
+                    { 
+                        to:     cfmmTezMockFa2TokenAddress.address, 
+                        amount: tezAmount
+                    }
+                );
+            await aliceTransferTezToCfmmOperation.confirmation();
+
+            // updated cash pool
+            const updatedCfmmXtzMockFa2Storage = await cfmmTezMockFa2TokenInstance.storage();
+            assert.equal(updatedCfmmXtzMockFa2Storage.cashPool, mutezAmount + 1);
+
+        });
+
+        it('user (alice) can deposit tez into the CFMM (XTZ/MockFa12Token) cash pool', async () => {
+    
+            // init variables
+            await signerFactory(alice.sk);
+
+            // initial cash pool of 0
+            const cfmmXtzMockFa12TokenStorage = await cfmmTezMockFa12TokenInstance.storage();
+            assert.equal(cfmmXtzMockFa12TokenStorage.cashPool, 1);
+
+            // 1:10 ratio - 1 tez to 20 Mock FA12 Tokens
+            const tezAmount   = 100;
+            const mutezAmount = 100000000;
+            const aliceTransferTezToCfmmOperation = await utils.tezos.contract.transfer(
+                    { 
+                        to:     cfmmTezMockFa12TokenAddress.address, 
+                        amount: tezAmount
+                    }
+                );
+            await aliceTransferTezToCfmmOperation.confirmation();
+
+            // updated cash pool
+            const updatedCfmmXtzMockFa12Storage = await cfmmTezMockFa12TokenInstance.storage();
+            assert.equal(updatedCfmmXtzMockFa12Storage.cashPool, mutezAmount + 1);
 
         });
 
@@ -1328,10 +1381,10 @@ describe("USDM Token Controller tests", async () => {
             const initialLpTokensTotal          = cfmmXtzUsdmStorage.lpTokensTotal;
 
             // init parameters - assume 1 XTZ = 4 USDM i.e. 1 xtz = $4 USD
-            const cashDeposited       = 25000000;          // 25 XTZ
             const deadline            = new Date(Date.now() + (600 * 60));
+            const cashDeposited       = 25000000;         // 25 XTZ
             const maxTokensDeposited  = 100000000;        // 100 USDM Tokens
-            const minLpTokensMinted   = 24000000;         // 24 LP Tokens
+            const minLpTokensMinted   = 24999999;         // 24 LP Tokens
             const owner               = alice.pkh;        // alice
 
             // USDM Token: add cfmm as operator for alice
@@ -1395,19 +1448,22 @@ describe("USDM Token Controller tests", async () => {
             const initialTokenPool                 = cfmmXtzMockFa2TokenStorage.tokenPool;
             const initialLpTokensTotal             = cfmmXtzMockFa2TokenStorage.lpTokensTotal;
 
+            console.log("cfmm mock fa2 token / xtz storage");
+            console.log(cfmmXtzMockFa2TokenStorage);
+
             // init parameters - assume 1 XTZ = 2 Mock FA2 Toknes
-            const cashDeposited       = 25000000;          // 25 XTZ
             const deadline            = new Date(Date.now() + (600 * 60));
-            const maxTokensDeposited  = 50000000;         // 50 Mock FA2 Tokens
-            const minLpTokensMinted   = 24000000;         // min 24 LP Tokens
-            const owner               = alice.pkh;        // alice
+            const cashDeposited       = 25000000;           // 25 XTZ
+            const maxTokensDeposited  = 251000000;          // 249.9 Mock FA2 Tokens
+            const minLpTokensMinted   = 24999999;           // min 24.9 LP Tokens
+            const owner               = alice.pkh;          // alice
 
             // MockFA2 Token: add cfmm as operator for alice
             const updateOperatorsOperation = await mockFa2TokenInstance.methods.update_operators([
                 {
                     add_operator: {
                         owner: alice.pkh,
-                        operator: cfmmTezUsdmAddress.address,
+                        operator: cfmmTezMockFa2TokenAddress.address,
                         token_id: 0,
                     },
                 }])
@@ -1435,9 +1491,13 @@ describe("USDM Token Controller tests", async () => {
             // check that alice has received LP tokens 
             assert.equal(updatedAliceMockFa2XtzLpTokenBalance, minLpTokensMinted); // 25000000 i.e. 25 LP Tokens
 
+            // calculate values
+            const tokensDeposited = Math.floor((cashDeposited * initialTokenPool) / initialCashPool);
+            const newTokenPool = tokensDeposited + initialTokenPool.toNumber() + 1;
+
             // check CFMM pool
             assert.equal(updatedCashPool, initialCashPool.toNumber() + cashDeposited);
-            assert.equal(updatedTokenPool, initialTokenPool.toNumber() + maxTokensDeposited);
+            assert.equal(updatedTokenPool, newTokenPool);
             assert.equal(updatedLpTokensTotal, initialLpTokensTotal.toNumber() + minLpTokensMinted);
 
             // console.log("--- --- --- --- --- --- --- --- --- ---");
@@ -1464,11 +1524,26 @@ describe("USDM Token Controller tests", async () => {
             const initialLpTokensTotal              = cfmmXtzMockFa12TokenStorage.lpTokensTotal;
 
             // init parameters - assume 1 XTZ = 2 Mock FA12 Toknes
-            const cashDeposited       = 25000000;          // 25 XTZ
             const deadline            = new Date(Date.now() + (600 * 60));
-            const maxTokensDeposited  = 50000000;         // 50 Mock FA2 Tokens
-            const minLpTokensMinted   = 24000000;         // 24 LP Tokens
+            const cashDeposited       = 25000000;         // 25 XTZ
+            const maxTokensDeposited  = 501000000;        // 50 Mock FA12 Tokens
+            const minLpTokensMinted   = 24999999;         // 24.9 LP Tokens
             const owner               = alice.pkh;        // alice
+
+            // alice resets mock FA12 tokens allowance then set new allowance to deposit amount
+            // reset token allowance
+            const resetTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                cfmmTezMockFa12TokenAddress.address,
+                0
+            ).send();
+            await resetTokenAllowance.confirmation();
+
+            // set new token allowance
+            const setNewTokenAllowance = await mockFa12TokenInstance.methods.approve(
+                cfmmTezMockFa12TokenAddress.address,
+                maxTokensDeposited
+            ).send();
+            await setNewTokenAllowance.confirmation();
 
             // user (alice) adds liquidity to cfmm
             const aliceAddsLiquidityOperation = await cfmmTezMockFa12TokenInstance.methods.addLiquidity(
@@ -1489,11 +1564,15 @@ describe("USDM Token Controller tests", async () => {
             const updatedLpTokensTotal                     = updatedCfmmXtzMockFa12TokenStorage.lpTokensTotal;
 
             // check that alice has received LP tokens 
-            assert.equal(updatedAliceMockFa12XtzLpTokenBalance, minLpTokensMinted); // 25000000 i.e. 25 LP Tokens
+            assert.equal(updatedAliceMockFa12XtzLpTokenBalance.balance, minLpTokensMinted); // 25000000 i.e. 25 LP Tokens
+
+            // calculate values
+            const tokensDeposited = Math.floor((cashDeposited * initialTokenPool) / initialCashPool);
+            const newTokenPool = tokensDeposited + initialTokenPool.toNumber() + 1;
 
             // check CFMM pool
             assert.equal(updatedCashPool, initialCashPool.toNumber() + cashDeposited);
-            assert.equal(updatedTokenPool, initialTokenPool.toNumber() + maxTokensDeposited);
+            assert.equal(updatedTokenPool, newTokenPool);
             assert.equal(updatedLpTokensTotal, initialLpTokensTotal.toNumber() + minLpTokensMinted);
 
             // console.log("--- --- --- --- --- --- --- --- --- ---");

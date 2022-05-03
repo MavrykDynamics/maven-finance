@@ -31,6 +31,8 @@ type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) /
 type collateralTokenRecordType is [@layout:comb] record [
     tokenContractAddress    : address;
     tokenType               : tokenType; // from vaultType.ligo partial - Tez, FA12, FA2
+    oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
+    oracleAddress           : address;   // zeroAddress if no oracle
 ]
 type collateralTokenLedgerType is map(string, collateralTokenRecordType) 
 
@@ -67,11 +69,12 @@ type updateCfmmAddressLedgerActionType is [@layout:comb] record [
     cfmmAddress                 : address;
 ]
 
-
 type updateCollateralTokenLedgerActionType is [@layout:comb] record [
     tokenName                   : string;
     tokenContractAddress        : address;
     tokenType                   : tokenType;
+    oracleType                  : string;
+    oracleAddress               : address;
 ]
 
 type updateVaultTokenAddressesActionType is [@layout:comb] record [
@@ -309,13 +312,21 @@ function updateCollateralTokenLedger(const updateCollateralTokenLedgerParams: up
 
     checkSenderIsAdmin(s); // check that sender is admin
 
-    const tokenName             : string    = updateCollateralTokenLedgerParams.tokenName;
-    const tokenContractAddress  : address   = updateCollateralTokenLedgerParams.tokenContractAddress;
-    const tokenType             : tokenType = updateCollateralTokenLedgerParams.tokenType;
+    const tokenName             : string      = updateCollateralTokenLedgerParams.tokenName;
+    const tokenContractAddress  : address     = updateCollateralTokenLedgerParams.tokenContractAddress;
+    const tokenType             : tokenType   = updateCollateralTokenLedgerParams.tokenType;
+    const oracleType            : oracleType  = updateCollateralTokenLedgerParams.oracleType;
+    var oracleAddress         : address       = updateCollateralTokenLedgerParams.oracleAddress;
+
+    if oracleType = "cfmm" then block {
+        oracleAddress := zeroAddress;
+    } else skip;
     
     const collateralTokenRecord : collateralTokenRecordType = record [
         tokenContractAddress = tokenContractAddress;
         tokenType            = tokenType;
+        oracleType           = oracleType;
+        oracleAddress        = oracleAddress;
     ];
 
     const existingToken: option(collateralTokenRecordType) = 
@@ -447,8 +458,8 @@ block {
     const tokenName         : string            = onPriceActionParams.tokenName;
 
     const cfmmAddress : address = case s.cfmmAddressLedger[tokenName] of 
-        Some(_address) -> _address
-        | None -> failwith("Error. CFMM Address not found in CFMM Ledger.")
+          Some(_address) -> _address
+        | None           -> failwith("Error. CFMM Address not found in CFMM Ledger.")
     end;
 
     // check if sender is from the cfmm address
