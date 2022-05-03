@@ -80,6 +80,7 @@ export const mockFa12TokenStorage: mockFa12TokenStorageType = {
   admin: alice.pkh,
   metadata: metadata,
   token_metadata: token_metadata,
+  whitelistContracts  : MichelsonMap.fromLiteral({}),
   totalSupply: initialSupply,
   ledger: ledger,
 };
