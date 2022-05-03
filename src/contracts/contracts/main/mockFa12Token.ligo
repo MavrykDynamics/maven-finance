@@ -1,4 +1,8 @@
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
 type trusted is address;
+type tokenBalance is nat;
 type amt is nat;
 type token_id is nat;
 
@@ -13,10 +17,13 @@ type token_metadata_info is record [
   token_info        : map(string, bytes);
 ]
 
+type ledger is big_map(address, account)
+
 type storage is record [
     admin           : address;
     metadata        : big_map (string, bytes);
     token_metadata  : big_map(token_id, token_metadata_info);
+    whitelistContracts    : whitelistContractsType;  // whitelist of contracts that can access mint / mintOrBurn entrypoints
     totalSupply     : amt;
     ledger          : big_map (address, account);
   ]
@@ -36,6 +43,12 @@ type totalSupplyParams is (unit * contract(amt))
 type mintParams is (address * nat)
 type burnParams is (address * nat)
 
+(* MintOrBurn entrypoint *)
+type mintOrBurnParams is [@layout:comb] record [
+    quantity  : int;
+    target    : address;
+]
+
 (* Valid entry points *)
 type entryAction is
   | Transfer of transferParams
@@ -43,6 +56,8 @@ type entryAction is
   | GetBalance of balanceParams
   | GetAllowance of allowanceParams
   | GetTotalSupply of totalSupplyParams
+  | UpdateWhitelistContracts  of updateWhitelistContractsParams
+  | MintOrBurn                of mintOrBurnParams
   | Mint of mintParams
   | Burn of burnParams
 
@@ -58,7 +73,7 @@ function checkNoAmount(const _p : unit) : unit is
 // admin helper functions end ---------------------------------------------------------
 
 (* Helper function to get account *)
-function getAccount (const addr : address; const s : storage) : account is
+function getAccount(const addr : address; const s : storage) : account is
   block {
     var acct : account :=
       record [
@@ -120,7 +135,7 @@ function transfer (const from_ : address; const to_ : address; const value : amt
   } with (noOperations, s)
 
 (* Approve an amt to be spent by another address in the name of the sender *)
-function approve (const spender : address; const value : amt; var s : storage) : return is
+function approve(const spender : address; const value : amt; var s : storage) : return is
   block {
 
     (* Create or get sender account *)
@@ -142,6 +157,19 @@ function approve (const spender : address; const value : amt; var s : storage) :
 
   } with (noOperations, s)
 
+// function getAccount(const owner : address; const store : storage) : account is
+//   case Big_map.find_opt(owner, store.ledger) of
+//     Some (v) -> v
+//   | None -> block {
+//       const emptyMap : map(trusted, amt) = map[];
+//       const newRecord = record [
+//           balance = 0n;
+//           allowances = emptyMap;
+//         ]
+//     } with newRecord
+//   end
+
+
 (* View function that forwards the balance of source to a contract *)
 function getBalance (const owner : address; const contr : contract(amt); var s : storage) : return is
   block {
@@ -160,6 +188,10 @@ function getTotalSupply (const contr : contract(amt); var s : storage) : return 
   block {
     skip
   } with (list [transaction(s.totalSupply, 0tz, contr)], s)
+
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
 
 
 (* Mint tokens to an address, only callable by admin *)
@@ -206,6 +238,71 @@ function burn (const from_ : address; const value : amt; var s : storage) : retu
     
   } with (noOperations, s)
 
+
+(* MintOrBurn Entrypoint *)
+function mintOrBurn(const mintOrBurnParams: mintOrBurnParams; var store : storage) : return is
+block {
+
+  // check sender is from cfmm contract
+  if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+
+  const quantity        : int      = mintOrBurnParams.quantity;
+  const targetAddress   : address  = mintOrBurnParams.target;
+
+  if quantity < 0 then block {
+    // burn LP Token
+
+    // get target balance
+    var userAccount : account := getAccount(targetAddress, store);
+
+    (* Balance check *)
+    if userAccount.balance < abs(quantity) then
+      failwith("NotEnoughBalance")
+    else skip;
+
+
+    (* Update target balance *)
+    
+    const targetNewBalance = abs(userAccount.balance - quantity);
+    const emptyAllowanceMap : map(trusted, amt) = map[];
+    const newAccount : account = record [
+      balance    = targetNewBalance;
+      allowances = emptyAllowanceMap;
+    ];
+
+    const newTotalSupply : tokenBalance = abs(store.totalSupply - quantity);
+
+    (* Update storage *)
+    const updatedLedger : ledger = Big_map.update(targetAddress, Some(newAccount), store.ledger);
+
+    store.ledger       := updatedLedger;
+    store.totalSupply  := newTotalSupply;
+
+  } else block {
+    // mint LP Token
+
+    // Update target's balance
+    const userAccount : account = getAccount(targetAddress, store);
+    const targetNewBalance  : tokenBalance = userAccount.balance + abs(quantity);
+    const emptyAllowanceMap : map(trusted, amt) = map[];
+    const newAccount : account = record [
+      balance    = targetNewBalance;
+      allowances = emptyAllowanceMap;
+    ];
+
+    const newTotalSupply    : tokenBalance = store.totalSupply + abs(quantity);
+    
+
+    // Update storage
+    const updatedLedger     : ledger = Big_map.update(targetAddress, Some(newAccount), store.ledger);
+  
+    store.ledger       := updatedLedger;
+    store.totalSupply  := newTotalSupply;
+  };
+
+} with (noOperations, store)
+
+
 (* Main entrypoint *)
 function main (const action : entryAction; var s : storage) : return is
   block {
@@ -216,6 +313,8 @@ function main (const action : entryAction; var s : storage) : return is
     | GetBalance(params) -> getBalance(params.0, params.1, s)
     | GetAllowance(params) -> getAllowance(params.0.0, params.0.1, params.1, s)
     | GetTotalSupply(params) -> getTotalSupply(params.1, s)    
+    | UpdateWhitelistContracts (params)  -> updateWhitelistContracts(params, s)
+    | MintOrBurn(params)                 -> mintOrBurn(params, s)
     | Mint(params) -> mint(params.0, params.1, s)
     | Burn(params) -> burn(params.0, params.1, s)
   end;
