@@ -21,7 +21,7 @@ export const cfmmTezFa2TokenStorage: cfmmTezFa2TokenStorageType = {
 
     tokenName                     : "",
     tokenAddress                  : zeroAddress,
-    tokenPool                     : new BigNumber(2000000000),  // init token pool to 2000 USDM tokens
+    tokenPool                     : new BigNumber(2000000000),  // init token pool to 2000 tokens
     tokenId                       : new BigNumber(0),
 
     lpTokenAddress                : zeroAddress,
