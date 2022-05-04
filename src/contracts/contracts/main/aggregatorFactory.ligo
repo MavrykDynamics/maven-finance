@@ -41,10 +41,7 @@ type aggregatorFactoryAction is
 
       // Lambda Entrypoints
     | SetLambda                   of setLambdaType
-<<<<<<< HEAD
     | SetProductLambda            of setLambdaType
-=======
->>>>>>> 1) Fix bugs for deployment of Aggregator and AggregatorFactory
     
 
 const noOperations : list (operation) = nil;
