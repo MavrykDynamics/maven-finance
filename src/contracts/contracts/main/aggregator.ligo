@@ -323,13 +323,26 @@ function updateRewards (const s: aggregatorStorage) : oracleRewardsMVKType is bl
   var total: nat := 0n;
   for key -> _value in map s.observationReveals block {
 
+    const emptySatelliteRecord: satelliteRecordType = record[
+          status = 0n;
+          stakedMvkBalance = 0n;
+          satelliteFee = 0n;
+          totalDelegatedAmount  = 0n;
+          name  = "";
+          description = "";
+          image = "";
+          website = "";
+          registeredDateTime = Tezos.now;
+      ];
+
     // view call getSatelliteOpt to delegation contract
     const satelliteOptView : option(satelliteRecordType) = Tezos.call_view ("getSatelliteOpt", key, s.mvkTokenAddress);
     const satelliteOpt: satelliteRecordType = case satelliteOptView of [
         Some (value) -> value
-      | None -> (failwith (error_GET_SATELLITE_OPT_VIEW_NOT_FOUND) : satelliteRecordType)
+      | None -> (emptySatelliteRecord)
     ];
 
+    if (satelliteOpt.status =/= 0n) then {
     // totalVotingPower calcultation
     const votingPowerRatio = 10000n;
     const maxTotalVotingPower = abs(satelliteOpt.stakedMvkBalance * 10000 / votingPowerRatio);
@@ -341,6 +354,9 @@ function updateRewards (const s: aggregatorStorage) : oracleRewardsMVKType is bl
     // totalVotingPower storage + total updated
     empty := Map.update(key, Some (totalVotingPower), empty);
     total := total + totalVotingPower;
+    } else skip;
+
+
   };
   var newOracleRewardsMVK: oracleRewardsMVKType := s.oracleRewardsMVK;
 
