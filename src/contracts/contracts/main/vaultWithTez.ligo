@@ -19,10 +19,10 @@ function checkSenderIsAdmin(var s : vaultTezStorage) : unit is
 function getRegisterDepositEntrypointFromContractAddress(const contractAddress : address) : contract(registerTezDepositType) is
   case (Tezos.get_entrypoint_opt(
       "%registerDeposit",
-      contractAddress) : option(contract(registerTezDepositType))) of
+      contractAddress) : option(contract(registerTezDepositType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(registerTezDepositType))
-  end;
+  ]
 
 (* VaultWithdrawTez Entrypoint *)
 function vaultWithdrawTez(const vaultWithdrawParams : vaultWithdrawTezType; var s : vaultTezStorage) : vaultTezReturn is 
@@ -60,10 +60,10 @@ block {
     if Tezos.sender = s.handle.owner then isOwnerCheck := True else isOwnerCheck := False;
 
     // check if sender is a whitelisted depositor
-    const isAbleToDeposit : bool = case s.depositors of
+    const isAbleToDeposit : bool = case s.depositors of [
         | Any -> True
         | Whitelist(_depositors) -> _depositors contains Tezos.sender
-    end;
+    ];
     
     // check that sender is either the vault owner or a depositor
     if isOwnerCheck = True or isAbleToDeposit = True then block {
@@ -99,15 +99,15 @@ block {
         // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
         // if AllowAccount and bool is true, then add account to Whitelist set; else remove account from Whitelist set
         const emptyWhitelistSet : set(address) = set[];
-        const depositors : depositorsType = case editDepositorParams of 
+        const depositors : depositorsType = case editDepositorParams of [
             | AllowAny(_allow) -> if _allow then Any else Whitelist(emptyWhitelistSet)
             | AllowAccount(_account) -> block {
-                const editDepositors : depositorsType = case s.depositors of 
+                const editDepositors : depositorsType = case s.depositors of [
                     | Any -> failwith("Error. Set any off first")
                     | Whitelist(_depositors) -> Whitelist(if _account.0 then Set.add(_account.1, _depositors) else Set.remove(_account.1, _depositors))  
-                end;
+                ];
             } with editDepositors
-        end;
+        ];
         
         // update depositors
         s.depositors := depositors;
@@ -117,9 +117,9 @@ block {
 } with (noOperations, s)
 
 function main (const vaultAction : vaultActionType; const s : vaultTezStorage) : vaultTezReturn is 
-    case vaultAction of
+    case vaultAction of [
         | VaultWithdrawTez(parameters)      -> vaultWithdrawTez(parameters, s)
         | VaultDelegateTez(parameters)      -> vaultDelegateTez(parameters, s)
         | VaultDepositTez(_parameters)      -> vaultDepositTez(s)
         | VaultEditTezDepositor(parameters) -> vaultEditTezDepositor(parameters, s)
-    end
+    ]

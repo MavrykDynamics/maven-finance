@@ -203,6 +203,14 @@ function getTotalSupply (const contr : contract(amt); var s : storage) : return 
 // Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
 #include "../partials/whitelistContractsMethod.ligo"
 
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var store: storage): return is
+block {
+
+    checkSenderIsAdmin(store);
+    store.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, store.whitelistContracts);
+
+} with (noOperations, store)
 
 (* Mint tokens to an address, only callable by admin *)
 function mint (const to_ : address; const value : amt; var s : storage) : return is
@@ -254,7 +262,7 @@ function mintOrBurn(const mintOrBurnParams: mintOrBurnParams; var store : storag
 block {
 
   // check sender is from cfmm contract
-  if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+  if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
   const quantity        : int      = mintOrBurnParams.quantity;
   const targetAddress   : address  = mintOrBurnParams.target;
