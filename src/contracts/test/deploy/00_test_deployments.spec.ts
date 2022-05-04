@@ -345,7 +345,7 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('mockFa2TokenAddress', mockFa2Token.contract.address)
     console.log('Mock Fa2 Token Contract deployed at:', mockFa2Token.contract.address)
 
-    aggregatorStorage.mvkTokenAddress = mvkToken.contract.address;
+    aggregatorStorage.mvkTokenAddress = delegation.contract.address;
     aggregator = await Aggregator.originate(
       utils.tezos,
       aggregatorStorage
@@ -679,8 +679,8 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(aggregator.contract.methods.setLambda("lambdaSetAdmin"                           , aggregatorLambdas[0]))  // setAdmin
       .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateMetadata"                     , aggregatorLambdas[1]))  // updateMetadata
       .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateConfig"                       , aggregatorLambdas[2]))  // updateConfig
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateAddOracle"                    , aggregatorLambdas[3]))  // addOracle
-      .withContractCall(aggregator.contract.methods.setLambda("lambdaUpdateRemoveOracle"                 , aggregatorLambdas[4]))  // removeOracle
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaAddOracle"                          , aggregatorLambdas[3]))  // addOracle
+      .withContractCall(aggregator.contract.methods.setLambda("lambdaRemoveOracle"                       , aggregatorLambdas[4]))  // removeOracle
       .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdate"                  , aggregatorLambdas[5]))  // requestRateUpdate
       .withContractCall(aggregator.contract.methods.setLambda("lambdaRequestRateUpdateDeviation"         , aggregatorLambdas[6]))  // requestRateUpdateDeviation
       .withContractCall(aggregator.contract.methods.setLambda("lambdaSetObservationCommit"               , aggregatorLambdas[7]))  // setObservationCommit
