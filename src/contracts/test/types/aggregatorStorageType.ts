@@ -6,7 +6,17 @@ export type aggregatorStorageType = {
   
   admin                     : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
-  config                    : {};
+  
+  config                    : {
+    decimals: BigNumber;
+    percentOracleThreshold: BigNumber;
+    rewardAmountXTZ: BigNumber;
+    rewardAmountMVK: BigNumber;
+    minimalTezosAmountDeviationTrigger: BigNumber;
+    perthousandDeviationTrigger: BigNumber;
+    maintainer: string;
+    numberBlocksDelay: BigNumber;
+  };
 
   mvkTokenAddress           : string;
 
@@ -15,8 +25,17 @@ export type aggregatorStorageType = {
   
   oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
   
-  deviationTriggerInfos     : {};
-  lastCompletedRoundPrice   : {};
+  deviationTriggerInfos: {
+    oracleAddress: string;
+    amount: BigNumber;
+    roundPrice: BigNumber;
+  };
+
+  lastCompletedRoundPrice: {
+    round: BigNumber;
+    price: BigNumber;
+    percentOracleResponse: BigNumber;
+  };
 
   observationCommits        : MichelsonMap<MichelsonMapKey, unknown>;
   observationReveals        : MichelsonMap<MichelsonMapKey, unknown>;
