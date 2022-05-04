@@ -84,20 +84,21 @@ type governanceProxyLambdaFunctionType is (executeActionType * governanceProxySt
 [@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 6n;
 [@inline] const error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND                     = 7n;
 [@inline] const error_SET_LAMBDA_ENTRYPOINT_NOT_FOUND                         = 8n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 9n;
-[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND         = 10n;
-[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND           = 11n;
-[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND   = 12n;
+[@inline] const error_SET_PRODUCT_LAMBDA_ENTRYPOINT_NOT_FOUND                 = 9n;
+[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 10n;
+[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND         = 11n;
+[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND           = 12n;
+[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND   = 13n;
 
-[@inline] const error_GOVERNANCE_PROPOSAL_RECORD_NOT_FOUND                    = 13n;
-[@inline] const error_GET_PROPOSAL_RECORD_VIEW_NOT_FOUND                      = 14n;
-[@inline] const error_GOVERNANCE_PROPOSAL_ALREADY_EXECUTED                    = 15n;
-[@inline] const error_GOVERNANCE_PROPOSAL_DROPPED                             = 16n;
-[@inline] const error_GOVERNANCE_PROPOSAL_NO_DATA_TO_EXECUTE                  = 17n;
+[@inline] const error_GOVERNANCE_PROPOSAL_RECORD_NOT_FOUND                    = 14n;
+[@inline] const error_GET_PROPOSAL_RECORD_VIEW_NOT_FOUND                      = 15n;
+[@inline] const error_GOVERNANCE_PROPOSAL_ALREADY_EXECUTED                    = 16n;
+[@inline] const error_GOVERNANCE_PROPOSAL_DROPPED                             = 17n;
+[@inline] const error_GOVERNANCE_PROPOSAL_NO_DATA_TO_EXECUTE                  = 18n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                        = 18n;
-[@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA               = 19n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                 = 20n;
+[@inline] const error_LAMBDA_NOT_FOUND                                        = 19n;
+[@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA               = 20n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                 = 21n;
 
 
 // ------------------------------------------------------------------------------
@@ -190,6 +191,17 @@ function getSetLambdaEntrypoint(const contractAddress : address) : contract(setL
       contractAddress) : option(contract(setLambdaType))) of [
           Some(contr) -> contr
         | None        -> (failwith(error_SET_LAMBDA_ENTRYPOINT_NOT_FOUND) : contract(setLambdaType))
+      ];
+
+
+
+// governance proxy lamba helper function to get setProductLambda entrypoint
+function getSetProductLambdaEntrypoint(const contractAddress : address) : contract(setLambdaType) is
+  case (Tezos.get_entrypoint_opt(
+      "%setProductLambda",
+      contractAddress) : option(contract(setLambdaType))) of [
+          Some(contr) -> contr
+        | None        -> (failwith(error_SET_PRODUCT_LAMBDA_ENTRYPOINT_NOT_FOUND) : contract(setLambdaType))
       ];
 
 

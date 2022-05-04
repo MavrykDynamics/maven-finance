@@ -43,9 +43,6 @@ export const doormanStorage: doormanStorageType = {
 
   stakedMvkTotalSupply      : new BigNumber(0),
   unclaimedRewards          : new BigNumber(0),
-  
-  logExitFee                : new BigNumber(1),
-  logFinalAmount            : new BigNumber(1),
 
   accumulatedFeesPerShare   : new BigNumber(0),
   

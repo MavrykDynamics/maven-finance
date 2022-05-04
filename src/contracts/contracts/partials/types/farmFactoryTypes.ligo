@@ -113,4 +113,5 @@ type farmFactoryStorage is [@layout:comb] record[
     trackedFarms           : set(address);
 
     lambdaLedger           : lambdaLedgerType;
+    farmLambdaLedger       : lambdaLedgerType;
 ]

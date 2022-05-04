@@ -19,4 +19,6 @@ export type farmFactoryStorageType = {
   trackedFarms          : Array<unknown>;
 
   lambdaLedger          : MichelsonMap<MichelsonMapKey, unknown>;
+  farmLambdaLedger      : MichelsonMap<MichelsonMapKey, unknown>;
+
 };

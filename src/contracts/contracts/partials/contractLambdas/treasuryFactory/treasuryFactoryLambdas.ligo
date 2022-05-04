@@ -279,9 +279,15 @@ block{
     case treasuryFactoryLambdaAction of [
         | LambdaCreateTreasury(treasuryMetadata) -> {
                 
-                // Add TreasuryFactory Address to whitelistContracts of created treasury
+                // Add TreasuryFactory Address and Governance proxy Address to whitelistContracts of created treasury
+                const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+                const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+                    Some (value) -> value
+                | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
+                ];
                 const treasuryWhitelistContracts : whitelistContractsType = map[
                     ("treasuryFactory") -> (Tezos.self_address: address);
+                    ("governanceProxy") -> (governanceProxyAddress);
                 ];
                 const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
 
@@ -303,7 +309,7 @@ block{
                     ("", Bytes.pack("tezos-storage:data"));
                     ("data", treasuryMetadata)
                 ]);
-                const treasuryLambdaLedger : big_map(string, bytes) = Big_map.empty;
+                const treasuryLambdaLedger : map(string, bytes) = s.treasuryLambdaLedger;
 
                 const originatedTreasuryStorage : treasuryStorage = record[
                     admin                     = s.admin;                         // admin will be the governance contract
