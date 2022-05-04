@@ -200,6 +200,10 @@ function getTotalSupply (const contr : contract(amt); var s : storage) : return 
 #include "../partials/whitelistContractsMethod.ligo"
 
 
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+
 (* Mint tokens to an address, only callable by admin *)
 function mint (const to_ : address; const value : amt; var s : storage) : return is
   block {

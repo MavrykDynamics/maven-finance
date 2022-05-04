@@ -229,25 +229,10 @@ block {
     // init emergencyGovernance lambda action
     const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaSetAdmin(newAdminAddress);
 
-<<<<<<< HEAD
     // init response
     const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
-=======
-    // set min MVK total required in emergency governance record based on temp MVK total supply
-    const emergencyGovernanceProposalId : nat = abs(s.nextEmergencyGovernanceProposalId - 1n);
-    var emergencyGovernanceRecord : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[emergencyGovernanceProposalId] of
-        | Some(_governanceRecord) -> _governanceRecord
-        | None -> failwith("Error. Emergency Governance Record not found.")
-    end;
->>>>>>> USDM Token Controller - Liquidate vault logic for multi-asset proportional liquidation
 
 } with response
-
-<<<<<<< HEAD
-=======
-    emergencyGovernanceRecord.stakedMvkRequiredForTrigger      := stakedMvkRequiredForTrigger;
-    s.emergencyGovernanceLedger[emergencyGovernanceProposalId] := emergencyGovernanceRecord;    
->>>>>>> USDM Token Controller - Liquidate vault logic for multi-asset proportional liquidation
 
 
 (* updateMetadata entrypoint - update the metadata at a given key *)
@@ -274,10 +259,13 @@ function updateConfig(const updateConfigParams : emergencyUpdateConfigParamsType
 block {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
 =======
+=======
+>>>>>>> 2c4c7293398c6c75642bbaa1199cc35a10e282b5
     // Steps Overview:
     // 1. check that there is no currently active emergency governance being voted on
     // 2. operation to MVK token contract to get total supply -> then update temp total supply and emergency governce record min MVK required
