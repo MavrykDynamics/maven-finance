@@ -1,111 +1,49 @@
-type counterIdType is nat
-type metadataType is big_map (string, bytes)
-type lambdaLedgerType is big_map(string, bytes)
-
-type governanceSatelliteConfigType is [@layout:comb] record [
-    
-    governanceSatelliteApprovalPercentage  : nat;  // threshold for satellite governance to be approved: 67% of total staked MVK supply
-    governanceSatelliteDurationInDays      : nat;  // duration of satellite governance before expiry
-
-    governancePurposeMaxLength             : nat;
-]
-
-type governanceSatelliteVoteChoiceType is 
-  Approve of unit
-| Disapprove of unit
-
-type governanceSatelliteVoteType is [@layout:comb] record [
-  vote              : governanceSatelliteVoteChoiceType;
-  totalVotingPower  : nat; 
-  timeVoted         : timestamp;
-] 
-
-type governanceSatelliteVotersMapType is map (address, governanceSatelliteVoteType)
-
-type governanceSatelliteRecordType is [@layout:comb] record [
-    initiator                          : address;
-    status                             : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
-    executed                           : bool;                  // false on creation; set to true when financial request is executed successfully
-    
-    governanceType                     : string;                // "MINT" or "TRANSFER"
-    governancePurpose                  : string;
-    voters                             : governanceSatelliteVotersMapType; 
-
-    approveVoteTotal                   : nat;
-    disapproveVoteTotal                : nat;
-
-    snapshotStakedMvkTotalSupply       : nat;
-    stakedMvkPercentageForApproval     : nat; 
-    stakedMvkRequiredForApproval       : nat; 
-
-    requestedDateTime                  : timestamp;           // log of when the request was submitted
-    expiryDateTime                     : timestamp;               
-]
-type governanceSatelliteLedgerType is big_map (nat, governanceSatelliteRecordType);
-
-type governanceSatelliteSnapshotRecordType is [@layout:comb] record [
-    totalMvkBalance           : nat;      // log of satellite's total mvk balance for this counter
-    totalDelegatedAmount      : nat;      // log of satellite's total delegated amount 
-    totalVotingPower          : nat;      // log calculated total voting power 
-]
-type governanceSatelliteSnapshotMapType is map (address, governanceSatelliteSnapshotRecordType)
-type governanceSatelliteSnapshotLedgerType is big_map (counterIdType, governanceSatelliteSnapshotMapType);
-
-type governanceSatelliteLambdaActionType is 
-
-  // Satellite Governance
-| LambdaSuspendSatellite              of (address)
-| LambdaUnsuspendSatellite            of (address)
-| LambdaBanSatellite                  of (address)
-| LambdaUnbanSatellite                of (address)
-
-  // Satellite Oracle Governance
-| LambdaRemoveAllSatelliteOracles     of (address)
-| LambdaAddOracleToAggregator         of (nat)
-| LambdaRemoveOracleInAggregator      of (nat)
-
-  // Governance Actions
-| LambdaVoteForAction                 of (nat)
-| LambdaDropAction                    of (nat)
-
 // ------------------------------------------------------------------------------
-// Storage
+// Common Types
 // ------------------------------------------------------------------------------
 
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
 
-type governanceSatelliteStorage is record [
-    admin                                   : address;
-    metadata                                : metadataType;
-    config                                  : governanceSatelliteConfigType;
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
 
-    mvkTokenAddress                         : address;
-    governanceProxyAddress                  : address; 
-    
-    // governance satellite storage 
-    governanceSatelliteLedger               : governanceSatelliteLedgerType;
-    governanceSatelliteSnapshotLedger       : governanceSatelliteSnapshotLedgerType;
-    governanceSatelliteCounter              : nat;
+// Set Lambda Types
+#include "../partials/functionalTypes/setLambdaTypes.ligo"
 
-    // lambda storage
-    lambdaLedger                            : lambdaLedgerType;             // governance satellite contract lambdas 
-]
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
+
+// Governance Satellite Types
+#include "../partials/types/governanceSatelliteTypes.ligo"
+
+// ------------------------------------------------------------------------------
+
 
 type governanceSatelliteAction is 
-    
+      
+      // Housekeeping Actions
+    | SetAdmin                      of address
+    | UpdateMetadata                of updateMetadataType
+    | UpdateConfig                  of governanceSatelliteUpdateConfigParamsType
+    | UpdateWhitelistContracts      of updateWhitelistContractsParams
+    | UpdateGeneralContracts        of updateGeneralContractsParams
+
       // Satellite Governance
-    | SuspendSatellite              of (address)
-    | UnsuspendSatellite            of (address)
-    | BanSatellite                  of (address)
-    | UnbanSatellite                of (address)
+    | SuspendSatellite              of suspendSatelliteActionType
+    | UnsuspendSatellite            of unsuspendSatelliteActionType
+    | BanSatellite                  of banSatelliteActionType
+    | UnbanSatellite                of unbanSatelliteActionType
 
       // Satellite Oracle Governance
-    | RemoveAllSatelliteOracles     of (address)
-    | AddOracleToAggregator         of (nat)
-    | RemoveOracleInAggregator      of (nat)
+    | RemoveAllSatelliteOracles     of removeAllSatelliteOraclesActionType
+    | AddOracleToAggregator         of addOracleToAggregatorActionType
+    | RemoveOracleInAggregator      of removeOracleInAggregatorActionType
 
       // Governance Actions
-    | VoteForAction                 of (nat)
-    | DropAction                    of (nat)
+    | DropAction                    of dropActionType
+    | VoteForAction                 of voteForActionType
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * governanceSatelliteStorage
@@ -128,11 +66,12 @@ type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaAc
 [@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                      = 3n;
 [@inline] const error_NOT_ENOUGH_TEZ_RECEIVED                                = 4n;
 
-[@inline] const error_GET_SATELLITE_OPT_VIEW_NOT_FOUND                       = 13n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND        = 14n;
+[@inline] const error_GET_SATELLITE_OPT_VIEW_NOT_FOUND                       = 5n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND        = 6n;
+[@inline] const error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND         = 7n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                       = 15n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                = 16n;
+[@inline] const error_LAMBDA_NOT_FOUND                                       = 8n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                = 9n;
 
 // ------------------------------------------------------------------------------
 //
@@ -163,8 +102,60 @@ function checkNoAmount(const _p : unit) : unit is
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
 
 
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+
+
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// General Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function setSatelliteSnapshot(const satelliteSnapshot : actionSatelliteSnapshotType; var s : governanceSatelliteStorage) : governanceSatelliteStorage is 
+block {
+    // init variables
+    const actionId              : nat     = satelliteSnapshot.actionId;
+    const satelliteAddress      : address = satelliteSnapshot.satelliteAddress;
+    const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
+    const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
+
+    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / s.config.votingPowerRatio);
+    const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
+    var totalVotingPower : nat := 0n;
+    if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
+    else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
+
+    var satelliteSnapshotRecord : governanceSatelliteSnapshotRecordType := record [
+        totalMvkBalance         = stakedMvkBalance; 
+        totalDelegatedAmount    = totalDelegatedAmount; 
+        totalVotingPower        = totalVotingPower;
+      ];
+    
+    var governanceSatelliteActionSnapshot : governanceSatelliteSnapshotMapType := case s.governanceSatelliteSnapshotLedger[actionId] of [ 
+        None -> failwith(error_GOVERNANCE_SATELLITE_ACTION_SNAPSHOT_NOT_FOUND)
+      | Some(snapshot) -> snapshot
+    ];
+
+    // update governance satellite snapshot map with record of satellite's total voting power
+    governanceSatelliteActionSnapshot[satelliteAddress]       := satelliteSnapshotRecord;
+
+    // update governance satellite snapshot ledger bigmap with updated satellite's details
+    s.governanceSatelliteSnapshotLedger[actionId]   := governanceSatelliteActionSnapshot;
+
+} with (s)
+
+// ------------------------------------------------------------------------------
+// General Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -219,11 +210,114 @@ block {
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  setAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var s : governanceSatelliteStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+
+
+(*  updateMetadata entrypoint - update the metadata at a given key *)
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceSatelliteStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+
+
+(*  updateConfig entrypoint  *)
+function updateConfig(const updateConfigParams : governanceSatelliteUpdateConfigParamsType; var s : governanceSatelliteStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateConfig"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateConfig(updateConfigParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+
+
+(*  updateWhitelistContracts entrypoint  *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceSatelliteStorage): return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+
+
+(*  updateGeneralContracts entrypoint  *)
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceSatelliteStorage): return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init council lambda action
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Satellite Governance Entrypoints Begin
 // ------------------------------------------------------------------------------
 
 (*  suspendSatellite entrypoint  *)
-function suspendSatellite(const satelliteAddress : address ; var s : governanceSatelliteStorage) : return is 
+function suspendSatellite(const suspendSatelliteParams : suspendSatelliteActionType ; var s : governanceSatelliteStorage) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaSuspendSatellite"] of [
@@ -232,7 +326,7 @@ block {
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSuspendSatellite(satelliteAddress);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaSuspendSatellite(suspendSatelliteParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -242,7 +336,7 @@ block {
 
 
 (*  unsuspendSatellite entrypoint  *)
-function unsuspendSatellite(const satelliteAddress : address ; var s : governanceSatelliteStorage) : return is 
+function unsuspendSatellite(const unsuspendSatelliteParams : unsuspendSatelliteActionType ; var s : governanceSatelliteStorage) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnsuspendSatellite"] of [
@@ -251,7 +345,7 @@ block {
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUnsuspendSatellite(satelliteAddress);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUnsuspendSatellite(unsuspendSatelliteParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -261,7 +355,7 @@ block {
 
 
 (*  banSatellite entrypoint  *)
-function banSatellite(const satelliteAddress : address; var s : governanceSatelliteStorage) : return is 
+function banSatellite(const banSatelliteParams : banSatelliteActionType; var s : governanceSatelliteStorage) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaBanSatellite"] of [
@@ -270,7 +364,7 @@ block {
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaBanSatellite(satelliteAddress);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaBanSatellite(banSatelliteParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -280,7 +374,7 @@ block {
 
 
 (*  unbanSatellite entrypoint  *)
-function unbanSatellite(const satelliteAddress : address; var s : governanceSatelliteStorage) : return is 
+function unbanSatellite(const unbanSatelliteParams : unbanSatelliteActionType; var s : governanceSatelliteStorage) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnbanSatellite"] of [
@@ -289,7 +383,7 @@ block {
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUnbanSatellite(satelliteAddress);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaUnbanSatellite(unbanSatelliteParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -307,7 +401,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  removeAllSatelliteOracles entrypoint  *)
-function removeAllSatelliteOracles(const satelliteAddress : address; var s : governanceSatelliteStorage) : return is 
+function removeAllSatelliteOracles(const removeAllSatelliteOraclesParams : removeAllSatelliteOraclesActionType; var s : governanceSatelliteStorage) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveAllSatelliteOracles"] of [
@@ -316,7 +410,7 @@ block {
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRemoveAllSatelliteOracles(satelliteAddress);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRemoveAllSatelliteOracles(removeAllSatelliteOraclesParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -326,7 +420,7 @@ block {
 
 
 (*  addOracleToAggregator entrypoint  *)
-function addOracleToAggregator(const _parameters : nat; var s : governanceSatelliteStorage) : return is 
+function addOracleToAggregator(const addOracleToAggregatorParams : addOracleToAggregatorActionType; var s : governanceSatelliteStorage) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddOracleToAggregator"] of [
@@ -335,7 +429,7 @@ block {
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaAddOracleToAggregator(_parameters);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaAddOracleToAggregator(addOracleToAggregatorParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -345,7 +439,7 @@ block {
 
 
 (*  removeOracleInAggregator entrypoint  *)
-function removeOracleInAggregator(const _parameters : nat; var s : governanceSatelliteStorage) : return is 
+function removeOracleInAggregator(const removeOracleInAggregatorParams : removeOracleInAggregatorActionType; var s : governanceSatelliteStorage) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaRemoveOracleInAggregator"] of [
@@ -354,7 +448,7 @@ block {
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRemoveOracleInAggregator(_parameters);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaRemoveOracleInAggregator(removeOracleInAggregatorParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -372,7 +466,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  voteForAction entrypoint  *)
-function voteForAction(const governanceActionCounter : nat; var s : governanceSatelliteStorage) : return is 
+function voteForAction(const voteForActionParams : voteForActionType; var s : governanceSatelliteStorage) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVoteForAction"] of [
@@ -381,7 +475,7 @@ block {
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaVoteForAction(governanceActionCounter);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaVoteForAction(voteForActionParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -391,7 +485,7 @@ block {
 
 
 (*  dropAction entrypoint  *)
-function dropAction(const governanceActionCounter : nat; var s : governanceSatelliteStorage) : return is 
+function dropAction(const dropActionParams : dropActionType; var s : governanceSatelliteStorage) : return is 
 block {
     
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDropAction"] of [
@@ -400,7 +494,7 @@ block {
     ];
 
     // init governance satellite lambda action
-    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaDropAction(governanceActionCounter);
+    const governanceSatelliteLambdaAction : governanceSatelliteLambdaActionType = LambdaDropAction(dropActionParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceSatelliteLambdaAction, s);
@@ -423,6 +517,13 @@ block {
 function main (const action : governanceSatelliteAction; const s : governanceSatelliteStorage) : return is 
     case action of [
         
+          // Housekeeping Actions
+        | SetAdmin(parameters)                      -> setAdmin(parameters, s)
+        | UpdateMetadata(parameters)                -> updateMetadata(parameters, s)  
+        | UpdateConfig(parameters)                  -> updateConfig(parameters, s)
+        | UpdateWhitelistContracts(parameters)      -> updateWhitelistContracts(parameters, s)
+        | UpdateGeneralContracts(parameters)        -> updateGeneralContracts(parameters, s)
+
           // Satellite Governance 
         | SuspendSatellite(parameters)              -> suspendSatellite(parameters, s)
         | UnsuspendSatellite(parameters)            -> unsuspendSatellite(parameters, s)
@@ -430,12 +531,12 @@ function main (const action : governanceSatelliteAction; const s : governanceSat
         | UnbanSatellite(parameters)                -> unbanSatellite(parameters, s)
 
           // Satellite Oracle Governance
-        | RemoveAllSatelliteOracles(parameters)     ->removeAllSatelliteOracles(parameters, s)
+        | RemoveAllSatelliteOracles(parameters)     -> removeAllSatelliteOracles(parameters, s)
         | AddOracleToAggregator(parameters)         -> addOracleToAggregator(parameters, s)
         | RemoveOracleInAggregator(parameters)      -> removeOracleInAggregator(parameters, s)
 
           // Governance Actions
-        | VoteForAction(parameters)                 -> voteForAction(parameters, s)
         | DropAction(parameters)                    -> dropAction(parameters, s)
+        | VoteForAction(parameters)                 -> voteForAction(parameters, s)
 
     ]
