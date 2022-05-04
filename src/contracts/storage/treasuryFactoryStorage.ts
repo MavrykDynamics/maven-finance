@@ -41,6 +41,7 @@ export const treasuryFactoryStorage: treasuryFactoryStorageType = {
   whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
   generalContracts          : MichelsonMap.fromLiteral({}),
 
-  lambdaLedger              : MichelsonMap.fromLiteral({})
+  lambdaLedger              : MichelsonMap.fromLiteral({}),
+  treasuryLambdaLedger      : MichelsonMap.fromLiteral({})
 
 };

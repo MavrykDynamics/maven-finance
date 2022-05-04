@@ -112,7 +112,7 @@
 //             const bobStakeAmount                  = MVK(10);
 //             const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
 //             await bobStakeAmountOperation.confirmation();                        
-//             const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "700").send();
+//             const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "700").send();
 //             await bobRegisterAsSatelliteOperation.confirmation();
 
 //             // Alice stakes 100 MVK tokens and registers as a satellite 
@@ -132,7 +132,7 @@
 //             const aliceStakeAmount                  = MVK(10);
 //             const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
 //             await aliceStakeAmountOperation.confirmation();                        
-//             const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "700").send();
+//             const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "700").send();
 //             await aliceRegisterAsSatelliteOperation.confirmation();
 
 //             // Setup funds in Treasury for request tokens later
@@ -190,13 +190,15 @@
 //             try{
 
 //                 // some init constants
-//                 var councilStorage             = await councilInstance.storage();
-//                 const councilActionId          = councilStorage.actionCounter;
-//                 const councilContractAddress   = councilAddress.address;
-//                 governanceStorage              = await governanceInstance.storage();
-//                 const financialRequestID       = governanceStorage.financialRequestCounter;
-//                 const bobStakeAmount           = MVK(10);
-//                 const aliceStakeAmount         = MVK(10);
+//                 councilStorage                  = await councilInstance.storage();
+//                 mvkTokenStorage                 = await mvkTokenInstance.storage();
+//                 const councilActionId           = councilStorage.actionCounter;
+//                 const councilContractAddress    = councilAddress.address;
+//                 governanceStorage               = await governanceInstance.storage();
+//                 const financialRequestID        = governanceStorage.financialRequestCounter;
+//                 const bobStakeAmount            = MVK(10);
+//                 const aliceStakeAmount          = MVK(10);
+//                 const initCouncilMVKBalance     = await mvkTokenStorage.ledger.get(councilAddress.address);
 
 //                 // request mint params
 //                 const treasury              = treasuryAddress.address;
@@ -298,7 +300,7 @@
 //                 // get updated storage (governance financial request ledger and council account in mvk token contract)
 //                 const updatedGovernanceStorage                         = await governanceInstance.storage();        
 //                 const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestCounter);            
-//                 const mvkTokenStorage                                  = await mvkTokenInstance.storage();
+//                 mvkTokenStorage                                        = await mvkTokenInstance.storage();
 //                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 
 //                 // check that financial request has been executed
@@ -308,9 +310,9 @@
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.executed,                true);
             
 //                 // check that council now has 1000 MVK in its account
-//                 assert.equal(councilMvkLedger.toNumber(), tokenAmount);
+//                 assert.equal(councilMvkLedger.toNumber(), initCouncilMVKBalance.toNumber() + tokenAmount);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -324,7 +326,7 @@
 //                 // Operation
 //                 await chai.expect(governanceInstance.methods.requestMint(treasury, tokenAmount, purpose).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -365,7 +367,7 @@
 //                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -407,7 +409,7 @@
 //                 updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 //     })
@@ -552,7 +554,7 @@
 //                 assert.equal(councilMvkLedger.toNumber(), newTokenAmount);
     
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -578,47 +580,17 @@
     
 //                 // Council member (bob) requests for MVK to be transferred from the Treasury
 //                 await signerFactory(bob.sk);
-//                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
-//                         treasury, 
-//                         tokenContractAddress,
-//                         tokenName, 
-//                         tokenAmount, 
-//                         tokenType, 
-//                         tokenId, 
-//                         purpose
-//                     ).send();
-//                 await councilRequestsTokensOperation.confirmation();
-    
-//                 // get new council storage and assert tests            
-//                 councilStorage            = await councilInstance.storage();
-//                 const councilActionsRequestTokens = await councilStorage.councilActionsLedger.get(councilActionId);
-//                 const councilActionNat          = councilActionsRequestTokens.natMap
-//                 const councilActionString       = councilActionsRequestTokens.stringMap
-//                 const councilActionAddress      = councilActionsRequestTokens.addressMap
-                
-//                 // check details of council action
-//                 assert.equal(councilActionsRequestTokens.actionType,       "requestTokens");
-//                 assert.equal(councilActionAddress.get("treasuryAddress"),  treasury);
-//                 assert.equal(councilActionAddress.get("tokenContractAddress"),  tokenContractAddress);
-//                 assert.equal(councilActionNat.get("tokenAmount"),      tokenAmount);
-//                 assert.equal(councilActionNat.get("tokenId"),      tokenId);
-//                 assert.equal(councilActionString.get("tokenName"),      tokenName);
-//                 assert.equal(councilActionString.get("purpose"),      purpose);
-//                 assert.equal(councilActionString.get("tokenType"),      tokenType);
-//                 assert.equal(councilActionsRequestTokens.executed,         false);
-//                 assert.equal(councilActionsRequestTokens.status,           "PENDING");
-//                 assert.equal(councilActionsRequestTokens.signersCount,     1);
-//                 assert.equal(councilActionsRequestTokens.signers[0],       bob.pkh);
-    
-//                 // council members sign action, and action is executed once threshold of 3 signers is reached
-//                 await signerFactory(alice.sk);
-//                 const aliceSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
-//                 await aliceSignsRequestMintActionOperation.confirmation();
-    
-//                 await signerFactory(eve.sk);
-//                 await chai.expect(councilInstance.methods.signAction(councilActionId).send()).to.be.rejected;
+//                 await chai.expect(councilInstance.methods.councilActionRequestTokens(
+//                     treasury, 
+//                     tokenContractAddress,
+//                     tokenName, 
+//                     tokenAmount, 
+//                     tokenType, 
+//                     tokenId, 
+//                     purpose
+//                 ).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -637,7 +609,7 @@
 //                 // Operation
 //                 await chai.expect(governanceInstance.methods.requestTokens(treasury, tokenContractAddress, tokenName, tokenAmount, tokenType, tokenId, purpose).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -685,7 +657,7 @@
 //                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -732,7 +704,7 @@
 //                 updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
         
@@ -803,7 +775,7 @@
 //                 await signerFactory(eve.sk);
 //                 const eveSignsRequestMintActionOperation = await councilInstance.methods.signAction(councilActionId).send();
 //                 await eveSignsRequestMintActionOperation.confirmation();
-    
+                
 //                 // get updated storage
 //                 var updatedCouncilStorage               = await councilInstance.storage();
 //                 const councilActionsRequestMintSigned   = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
@@ -819,7 +791,7 @@
 //                 const dropCouncilActionId  = updatedCouncilStorage.actionCounter;
 //                 const dropRequestOperation = await councilInstance.methods.councilActionDropFinancialReq(financialRequestID).send();
 //                 await dropRequestOperation.confirmation();
-
+                
 //                 // sign drop 
 //                 await signerFactory(alice.sk);
 //                 const aliceSignsDropActionActionOperation = await councilInstance.methods.signAction(dropCouncilActionId).send();
@@ -846,8 +818,9 @@
 
 //                 // Try to sign previous action again with eve
 //                 await chai.expect(governanceInstance.methods.voteForRequest(financialRequestID, "approve").send()).to.be.rejected;
+
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -928,7 +901,7 @@
 //                 await chai.expect(governanceInstance.methods.dropFinancialRequest(financialRequestID).send()).to.be.rejected;
                 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             }
 //         });
 
@@ -941,18 +914,9 @@
 //                 await signerFactory(bob.sk);
 //                 var updatedCouncilStorage  = await councilInstance.storage();
 //                 const dropCouncilActionId  = updatedCouncilStorage.actionCounter;
-//                 const dropRequestOperation = await councilInstance.methods.councilActionDropFinancialReq(financialRequestID).send();
-//                 await dropRequestOperation.confirmation();
-
-//                 // sign drop 
-//                 await signerFactory(alice.sk);
-//                 const aliceSignsDropActionActionOperation = await councilInstance.methods.signAction(dropCouncilActionId).send();
-//                 await aliceSignsDropActionActionOperation.confirmation();
-
-//                 await signerFactory(eve.sk);
-//                 await chai.expect(councilInstance.methods.signAction(dropCouncilActionId).send()).to.be.rejected;
+//                 await chai.expect(councilInstance.methods.councilActionDropFinancialReq(financialRequestID).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             }
 //         });
 
@@ -1097,7 +1061,7 @@
 //                 await signerFactory(eve.sk);
 //                 await chai.expect(councilInstance.methods.signAction(dropCouncilActionId).send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -1226,7 +1190,7 @@
 //                 const updateFinancialExpiryReset    = await governanceInstance.methods.updateConfig(1, "configFinancialReqDurationDays").send()
 //                 await updateFinancialExpiryReset.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 //     })
@@ -1240,7 +1204,7 @@
 //                 await chai.expect(governanceInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
 //                 await signerFactory(bob.sk);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -1249,7 +1213,7 @@
 //                 // Try to sign action again with bob
 //                 await chai.expect(governanceInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             }
 //         });
 
@@ -1263,7 +1227,7 @@
 //                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             }
 //         });
 
@@ -1374,7 +1338,7 @@
 //                 // Try to sign previous action again with eve
 //                 await chai.expect(governanceInstance.methods.voteForRequest(financialRequestID, "approve").send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             }
 //         });
 
@@ -1508,7 +1472,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(governanceInstance.methods.voteForRequest(governanceRequestID, "disapprove").send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -1642,7 +1606,7 @@
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal, 0)
 //                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal, bobStakeAmount)
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -1758,7 +1722,7 @@
 //                 const updateFinancialExpiryReset    = await governanceInstance.methods.updateConfig(1, "configFinancialReqDurationDays").send()
 //                 await updateFinancialExpiryReset.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -1823,7 +1787,7 @@
 //                 var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("council", councilAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -1962,7 +1926,7 @@
 //                 assert.equal(councilMockFa12Ledger.balance, tokenAmount);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -2100,7 +2064,7 @@
 //                 assert.equal(councilMockFa2Ledger, tokenAmount);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -2238,7 +2202,7 @@
 //                 assert.equal(councilTezBalance, tokenAmount);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 
@@ -2368,7 +2332,7 @@
 //                 // check that council now has 1000 MVK in its account
 //                 assert.equal(councilMvkLedger.toNumber(), councilMvkLedgerInit.toNumber() + tokenAmount);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth: 5})
 //             } 
 //         });
 //     })

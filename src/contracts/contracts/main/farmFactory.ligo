@@ -56,6 +56,7 @@ type farmFactoryAction is
 
     // Lambda Entrypoints
 |   SetLambda                   of setLambdaType
+|   SetProductLambda            of setLambdaType
 
 
 type return is list (operation) * farmFactoryStorage
@@ -552,6 +553,22 @@ block{
 
 } with(noOperations, s)
 
+
+
+(* setProductLambda entrypoint *)
+function setProductLambda(const setLambdaParams: setLambdaType; var s: farmFactoryStorage): return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.farmLambdaLedger[lambdaName] := lambdaBytes;
+
+} with(noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
 // ------------------------------------------------------------------------------
@@ -595,6 +612,7 @@ function main (const action: farmFactoryAction; var s: farmFactoryStorage): retu
         |   UntrackFarm (params)                    -> untrackFarm(params, s)
 
             // Lambda Entrypoints
-        |   SetLambda(parameters)                    -> setLambda(parameters, s)
+        |   SetLambda (parameters)                  -> setLambda(parameters, s)
+        |   SetProductLambda (parameters)           -> setProductLambda(parameters, s)
     ]
 )

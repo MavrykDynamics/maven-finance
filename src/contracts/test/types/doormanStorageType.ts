@@ -17,9 +17,6 @@ export type doormanStorageType = {
 
   stakedMvkTotalSupply      : BigNumber;
   unclaimedRewards          : BigNumber;
-  
-  logExitFee                : BigNumber;
-  logFinalAmount            : BigNumber;
 
   accumulatedFeesPerShare   : BigNumber;
 

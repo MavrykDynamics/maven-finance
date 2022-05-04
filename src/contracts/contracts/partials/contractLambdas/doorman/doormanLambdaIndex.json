@@ -50,6 +50,10 @@
     {
       "index": 12,
       "name": "lambdaFarmClaim"
+    },
+    {
+      "index": 13,
+      "name": "lambdaNewUnstake"
     }
 ]
   

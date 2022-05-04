@@ -131,12 +131,23 @@ type targetFarmInitType is [@layout:comb] record [
   farmConfig                : initFarmParamsType;
 ]
 
+type targetTreasuryTransferType is [@layout:comb] record [
+  targetTreasuryAddress     : address;
+  treasuryTransfer          : transferActionType;
+]
+
+type targetTreasuryMintMvkAndTransferType is [@layout:comb] record [
+  targetTreasuryAddress     : address;
+  treasuryMint              : mintMvkAndTransferType;
+]
+
 type executeActionParamsType is 
 
   UpdateProxyLambda                  of setProxyLambdaType
 | SetContractAdmin                   of setContractAdminType
 | SetContractGovernance              of setContractGovernanceType
 | SetContractLambda                  of setContractLambdaType
+| SetFactoryProductLambda            of setContractLambdaType
 | UpdateContractMetadata             of updateContractMetadataType
 | UpdateContractWhitelistMap         of updateContractWhitelistMapType
 | UpdateContractGeneralMap           of updateContractGeneralMapType
@@ -161,6 +172,8 @@ type executeActionParamsType is
 | CreateTreasury                     of bytes
 | TrackTreasury                      of (address)
 | UntrackTreasury                    of (address)
+| TransferTreasury                   of targetTreasuryTransferType
+| MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType
 
 | UpdateMvkInflationRate             of (nat)
 | TriggerMvkInflation                of unit

@@ -33,4 +33,5 @@ export const farmFactoryStorage: farmFactoryStorageType = {
   trackedFarms          : [],
 
   lambdaLedger          : MichelsonMap.fromLiteral({}),
+  farmLambdaLedger      : MichelsonMap.fromLiteral({})
 };

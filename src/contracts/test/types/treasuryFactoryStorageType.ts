@@ -17,5 +17,6 @@ export type treasuryFactoryStorageType = {
   generalContracts          : MichelsonMap<MichelsonMapKey, unknown>;
 
   lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
+  treasuryLambdaLedger      : MichelsonMap<MichelsonMapKey, unknown>;
   
 }
