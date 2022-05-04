@@ -124,10 +124,10 @@ type action is
 ////
 (* Helper functions *)
 function getBalance(const owner : owner; const store : storage) : tokenBalance is
-  case Big_map.find_opt(owner, store.ledger) of
+  case Big_map.find_opt(owner, store.ledger) of [
     Some (v) -> v
   | None -> 0n
-  end
+  ]
 
 (* Helper function to validate *)
 function checkTokenId(const tokenId: tokenId): unit is
@@ -215,10 +215,10 @@ function balanceOf(const balanceOfParams: balanceOfParams; const store: storage)
       block{
         const requestOwner: owner = request.owner;
         const tokenBalance: tokenBalance = 
-          case Big_map.find_opt(requestOwner, store.ledger) of
+          case Big_map.find_opt(requestOwner, store.ledger) of [
             Some (b) -> b
           | None -> 0n
-          end;
+          ];
         const response: balanceOfResponse = record[request=request;balance=tokenBalance];
       } with (response);
       const requests: list(balanceOfRequest) = balanceOfParams.requests;
@@ -260,10 +260,10 @@ function updateOperators(const updateOperatorsParams: updateOperatorsParams; con
   block{
     var updatedOperators: operators := List.fold(
       function(const operators: operators; const updateOperator: updateOperator): operators is
-        case updateOperator of
+        case updateOperator of [
           Add_operator (param) -> addOperator(param, operators)
         | Remove_operator (param) -> removeOperator(param, operators)
-        end
+        ]
       ,
       updateOperatorsParams,
       store.operators
@@ -275,10 +275,10 @@ function assertMetadata(const assertMetadataParams: assertMetadataParams; const 
   block{
     const metadataKey: string = assertMetadataParams.key;
     const metadataHash: bytes = assertMetadataParams.hash;
-    case Big_map.find_opt(metadataKey, store.metadata) of
+    case Big_map.find_opt(metadataKey, store.metadata) of [
       Some (v) -> if v =/= metadataHash then failwith("METADATA_HAS_A_WRONG_HASH") else skip
     | None -> failwith("METADATA_NOT_FOUND")
-    end
+    ]
   } with (noOperations, store)
 
 (* MintOrBurn Entrypoint *)
@@ -286,7 +286,7 @@ function mintOrBurn(const mintOrBurnParams: mintOrBurnParams; var store : storag
 block {
 
   // check sender is from cfmm contract
-  if checkInWhitelistContracts(Tezos.sender, store) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
+  if checkInWhitelistContracts(Tezos.sender, store.whitelistContracts) then skip else failwith("ONLY_WHITELISTED_CONTRACTS_ALLOWED");
 
   const quantity        : int      = mintOrBurnParams.quantity;
   const targetAddress   : address  = mintOrBurnParams.target;
@@ -323,6 +323,16 @@ block {
     store.ledger       := updatedLedger;
     store.totalSupply  := newTotalSupply;
   };
+
+} with (noOperations, store)
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var store: storage): return is
+block {
+
+    checkSenderIsAdmin(store);
+    store.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, store.whitelistContracts);
 
 } with (noOperations, store)
 
@@ -365,7 +375,7 @@ function main (const action : action; const store : storage) : return is
     // Check that sender didn't send Tezos while calling an entrypoint
     checkNoAmount(Unit);
   } with(
-    case action of
+    case action of [
         Transfer (params)                  -> transfer(params, store)
       | Balance_of (params)                -> balanceOf(params, store)
       | Update_operators (params)          -> updateOperators(params, store)
@@ -375,5 +385,5 @@ function main (const action : action; const store : storage) : return is
       | MintOrBurn(params)                 -> mintOrBurn(params, store)
       | Mint (params)                      -> mint(params, store)
       | Burn (params)                      -> burn(params, store)
-    end
+    ]
   )

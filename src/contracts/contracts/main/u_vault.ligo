@@ -13,10 +13,10 @@ function transferFa12Token(const from_: address; const to_: address; const token
         const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
 
         const tokenContract: contract(fa12TransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of
+            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
                 Some (c) -> c
             |   None -> (failwith("Error. Transfer entrypoint not found in FA12 Token contract"): contract(fa12TransferType))
-            end;
+            ];
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 // helper function to transfer FA2 tokens
@@ -36,10 +36,10 @@ block{
         ];
 
     const tokenContract: contract(fa2TransferType) =
-        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of
+        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
             Some (c) -> c
         |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
-        end;
+        ];
 
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
@@ -58,10 +58,10 @@ function checkNoAmount(const _p : unit) : unit is
 function registerDepositInTokenController(const contractAddress : address) : contract(tokenControllerDepositType) is
   case (Tezos.get_entrypoint_opt(
       "%registerDeposit",
-      contractAddress) : option(contract(tokenControllerDepositType))) of
+      contractAddress) : option(contract(tokenControllerDepositType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(tokenControllerDepositType))
-  end;
+  ];
 
 
 // temp solution - find better way to register valid token deposits
@@ -93,9 +93,9 @@ block {
     const amt    : nat        = vaultWithdrawParams.amt;
     const token  : tokenType  = vaultWithdrawParams.token;
 
-    const withdrawOperation : operation = case token of 
+    const withdrawOperation : operation = case token of [
         | Tez(_tez) -> block {
-            const transferOperation : operation = transferTez( (get_contract(to_) : contract(unit)), amt );
+            const transferOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez.") : contract(unit)), amt );
         } with transferOperation
         | Fa12(token) -> block {
             // check collateral token contract address exists in map of collateralTokenAddresses
@@ -109,7 +109,7 @@ block {
             if validTokenCollateralAddress then skip else failwith("Error. Token address is not a valid collateral token address.");
             const transferOperation : operation = transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
         } with transferOperation
-    end;
+    ];
 
     operations := withdrawOperation # operations;
 
@@ -139,10 +139,10 @@ block {
     if Tezos.sender = s.handle.owner then isOwnerCheck := True else isOwnerCheck := False;
 
     // check if sender is a whitelisted depositor
-    const isAbleToDeposit : bool = case s.depositors of
+    const isAbleToDeposit : bool = case s.depositors of [
         | Any -> True
         | Whitelist(_depositors) -> _depositors contains Tezos.sender
-    end;
+    ];
     
     // check that sender is either the vault owner or a depositor
     if isOwnerCheck = True or isAbleToDeposit = True then block {
@@ -156,11 +156,11 @@ block {
 
         if to_ =/= s.admin then failwith("Error. Deposit address should be admin.") else skip;
 
-        const depositOperation : operation = case token of 
+        const depositOperation : operation = case token of [
             | Tez(_tez) -> block{
                 // check if tezos amount sent is equal to amount specified
                 if mutezToNatural(Tezos.amount) =/= amt then failwith("Error. Tezos amount is not equal to amount specified.") else skip;
-                const transferOperation : operation = transferTez( (get_contract(to_) : contract(unit)), amt );
+                const transferOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez.") : contract(unit)), amt );
             } with transferOperation
             | Fa12(token) -> block {
 
@@ -183,12 +183,12 @@ block {
                 if validTokenCollateralAddress then skip else failwith("Error. Token address is not a valid collateral token address.");
                 const transferOperation : operation = transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
             } with transferOperation
-        end;
+        ];
 
         // add depositOperation to list of operations to execute
         operations := depositOperation # operations;
 
-        const registerDepositOperation : operation = case token of 
+        const registerDepositOperation : operation = case token of [
             | Tez(_tez) -> block {
                 
                 // create register deposit params
@@ -208,10 +208,10 @@ block {
             } with registerDepositOperation
             | Fa12(token) -> block {
                 
-                const collateralTokenName : string = case s.collateralTokenAddresses[token] of 
+                const collateralTokenName : string = case s.collateralTokenAddresses[token] of [
                     Some(_name) -> _name
                     | None -> failwith("Error. Collateral token name not found in vault collateral token addresses.")
-                end;
+                ];
 
                 // create register deposit params
                 const registerDepositParams : registerDepositType = record [
@@ -230,10 +230,10 @@ block {
             } with registerDepositOperation
             | Fa2(token)  -> block{
                 
-                const collateralTokenName : string = case s.collateralTokenAddresses[token.tokenContractAddress] of 
+                const collateralTokenName : string = case s.collateralTokenAddresses[token.tokenContractAddress] of [
                     Some(_name) -> _name
                     | None -> failwith("Error. Collateral token name not found in vault collateral token addresses.")
-                end;
+                ];
 
                 // create register deposit params
                 const registerDepositParams : registerDepositType = record [
@@ -249,7 +249,7 @@ block {
                     registerDepositInTokenController(s.admin)
                 );
             } with registerDepositOperation
-        end;
+        ];
 
         // add registerDepositOperation to list of operations to execute
         operations := registerDepositOperation # operations;
@@ -269,15 +269,15 @@ block {
         // if AllowAny and is true, then value is Any; if AllowAny and is false, then reset Whitelist to empty address set
         // if AllowAccount and bool is true, then add account to Whitelist set; else remove account from Whitelist set
         const emptyWhitelistSet : set(address) = set[];
-        const depositors : depositorsType = case editDepositorParams of 
+        const depositors : depositorsType = case editDepositorParams of [
             | AllowAny(_allow) -> if _allow then Any else Whitelist(emptyWhitelistSet)
             | AllowAccount(_account) -> block {
-                const editDepositors : depositorsType = case s.depositors of 
+                const editDepositors : depositorsType = case s.depositors of [
                     | Any -> failwith("Error. Set any off first")
                     | Whitelist(_depositors) -> Whitelist(if _account.0 then Set.add(_account.1, _depositors) else Set.remove(_account.1, _depositors))  
-                end;
+                ];
             } with editDepositors
-        end;
+        ];
         
         // update depositors
         s.depositors := depositors;
@@ -287,10 +287,10 @@ block {
 } with (noOperations, s)
 
 function main (const vaultAction : vaultActionType; const s : vaultStorage) : vaultReturn is 
-    case vaultAction of
+    case vaultAction of [
         | VaultUpdateCollateralTokens(parameters)   -> vaultUpdateCollateralTokens(parameters, s)
         | VaultDelegateTez(parameters)   -> vaultDelegateTez(parameters, s)
         | VaultWithdraw(parameters)      -> vaultWithdraw(parameters, s)
         | VaultDeposit(parameters)      -> vaultDeposit(parameters, s)
         | VaultEditDepositor(parameters) -> vaultEditDepositor(parameters, s)
-    end
+    ]

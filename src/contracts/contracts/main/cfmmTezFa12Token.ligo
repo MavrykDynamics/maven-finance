@@ -202,10 +202,10 @@ function checkFromImplicitAccount(const _p : unit) : unit is
 function getUsdmMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
   case (Tezos.get_entrypoint_opt(
       "%mintOrBurn",
-      tokenContractAddress) : option(contract(mintOrBurnParamsType))) of
+      tokenContractAddress) : option(contract(mintOrBurnParamsType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. MintOrBurn entrypoint in token contract not found") : contract(mintOrBurnParamsType))
-  end;
+  ]
 
 
 
@@ -213,10 +213,10 @@ function getUsdmMintOrBurnEntrypoint(const tokenContractAddress : address) : con
 function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
   case (Tezos.get_entrypoint_opt(
       "%mintOrBurn",
-      tokenContractAddress) : option(contract(mintOrBurnParamsType))) of
+      tokenContractAddress) : option(contract(mintOrBurnParamsType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. MintOrBurn entrypoint in LP Token contract not found") : contract(mintOrBurnParamsType))
-  end;
+  ]
 
 
 
@@ -224,10 +224,10 @@ function getLpTokenMintOrBurnEntrypoint(const tokenContractAddress : address) : 
 function getFa12TokenBalanceOfEntrypoint(const tokenContractAddress : address) : contract(getBalanceParamsType) is
   case (Tezos.get_entrypoint_opt(
       "%getBalance",
-      tokenContractAddress) : option(contract(getBalanceParamsType))) of
+      tokenContractAddress) : option(contract(getBalanceParamsType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. GetBalance entrypoint in FA12 Token contract not found") : contract(getBalanceParamsType))
-  end;
+  ]
 
 
 
@@ -235,10 +235,10 @@ function getFa12TokenBalanceOfEntrypoint(const tokenContractAddress : address) :
 function getUpdateFa12TokenPoolInternalEntrypoint(const contractAddress : address) : contract(updateFa12TokenPoolInternalActionType) is
   case (Tezos.get_entrypoint_opt(
       "%updateFa12TokenPoolInternal",
-      contractAddress) : option(contract(updateFa12TokenPoolInternalActionType))) of
+      contractAddress) : option(contract(updateFa12TokenPoolInternalActionType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. UpdateFa12TokenPoolInternal entrypoint in contract not found") : contract(updateFa12TokenPoolInternalActionType))
-  end;
+  ]
 
 
 
@@ -246,10 +246,10 @@ function getUpdateFa12TokenPoolInternalEntrypoint(const contractAddress : addres
 function getCashToTokenOutputCfmmEntrypoint(const contractAddress : address) : contract(cashToTokenActionType) is
   case (Tezos.get_entrypoint_opt(
       "%cashToToken",
-      contractAddress) : option(contract(cashToTokenActionType))) of
+      contractAddress) : option(contract(cashToTokenActionType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. CashToToken entrypoint in contract not found") : contract(cashToTokenActionType))
-  end;
+  ]
 
 
 
@@ -257,10 +257,10 @@ function getCashToTokenOutputCfmmEntrypoint(const contractAddress : address) : c
 function getFa12ApproveEntrypoint(const tokenContractAddress : address) : contract(fa12ApproveType) is
   case (Tezos.get_entrypoint_opt(
       "%approve",
-      tokenContractAddress) : option(contract(fa12ApproveType))) of
+      tokenContractAddress) : option(contract(fa12ApproveType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. CashToToken entrypoint in contract not found") : contract(fa12ApproveType))
-  end;
+  ]
 
 
 
@@ -269,10 +269,10 @@ function getFa12ApproveEntrypoint(const tokenContractAddress : address) : contra
 function getOnPriceActionInUsdmEntrypoint(const tokenContractAddress : address) : contract(onPriceActionType) is
   case (Tezos.get_entrypoint_opt(
       "%onPriceAction",
-      tokenContractAddress) : option(contract(onPriceActionType))) of
+      tokenContractAddress) : option(contract(onPriceActionType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. OnPriceAction entrypoint in token contract not found") : contract(onPriceActionType))
-  end;
+  ]
 
 
 
@@ -285,10 +285,10 @@ function transferFa12Token(const from_: address; const to_: address; const token
         const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
 
         const tokenContract: contract(fa12TransferType) =
-            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of
+            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
                 Some (c) -> c
             |   None -> (failwith("Error. Transfer entrypoint not found in FA12 Token contract"): contract(fa12TransferType))
-            end;
+            ]
     } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
 function mintOrBurnLpToken(const target : address; const quantity : int; var s : cfmmStorage) : operation is 
@@ -491,7 +491,7 @@ block {
     operations := withdrawnTokensToSenderOperation # operations;
 
     // withdraw tez to sender
-    const withdrawTezToSenderOperation : operation = transferTez( (get_contract(recipient) : contract(unit)), cashWithdrawn);
+    const withdrawTezToSenderOperation : operation = transferTez( (Tezos.get_contract_with_error(recipient, "Error. Unable to send tez to sender.") : contract(unit)), cashWithdrawn);
     operations := withdrawTezToSenderOperation # operations;
 
     // update storage with new totals
@@ -616,7 +616,7 @@ block {
     operations := sendSoldTokensToCfmmOperation # operations;
 
     // send cashBought from cfmm to sender
-    const transferTezFromCfmmToSenderOperation : operation = transferTez( (get_contract(recipient) : contract(unit) ), cashBought );
+    const transferTezFromCfmmToSenderOperation : operation = transferTez( (Tezos.get_contract_with_error(recipient, "Error. Unable to send tez to sender.") : contract(unit) ), cashBought );
     operations := transferTezFromCfmmToSenderOperation # operations;
 
     if cashBought > cashPool then failwith("Error. Cash pool minus cash bought is negative.") else skip;
@@ -762,7 +762,7 @@ block {
 
 
 function main (const action : cfmmAction; const s : cfmmStorage) : return is 
-    case action of
+    case action of [
         | Default(_parameters)                      -> default(s)
         | SetAdmin(parameters)                      -> setAdmin(parameters, s)
         | SetBaker(parameters)                      -> setBaker(parameters, s)
@@ -779,4 +779,4 @@ function main (const action : cfmmAction; const s : cfmmStorage) : return is
         | UpdatePools(_parameters)                  -> updatePools(s)
         | UpdateFa12TokenPoolInternal(parameters)   -> updateFa12TokenPoolInternal(parameters, s)
         
-    end
+    ]
