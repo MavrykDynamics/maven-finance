@@ -24,38 +24,41 @@ block {
       | SetContractAdmin (_v)                  -> 2n
       | SetContractGovernance (_v)             -> 3n
       | SetContractLambda (_v)                 -> 4n
-      | UpdateContractMetadata (_v)            -> 5n
-      | UpdateContractWhitelistMap (_v)        -> 6n
-      | UpdateContractGeneralMap (_v)          -> 7n
-      | UpdateContractWhitelistTokenMap (_v)   -> 8n
+      | SetFactoryProductLambda (_v)           -> 5n
+      | UpdateContractMetadata (_v)            -> 6n
+      | UpdateContractWhitelistMap (_v)        -> 7n
+      | UpdateContractGeneralMap (_v)          -> 8n
+      | UpdateContractWhitelistTokenMap (_v)   -> 9n
       
       (* Update Configs *)    
-      | UpdateGovernanceConfig (_v)            -> 9n
-      | UpdateDelegationConfig (_v)            -> 10n
-      | UpdateEmergencyConfig (_v)             -> 11n
-      | UpdateBreakGlassConfig (_v)            -> 12n
-      | UpdateCouncilConfig (_v)               -> 13n
-      | UpdateFarmConfig (_v)                  -> 14n
-      | UpdateDoormanMinMvkAmount (_v)         -> 15n
+      | UpdateGovernanceConfig (_v)            -> 10n
+      | UpdateDelegationConfig (_v)            -> 11n
+      | UpdateEmergencyConfig (_v)             -> 12n
+      | UpdateBreakGlassConfig (_v)            -> 13n
+      | UpdateCouncilConfig (_v)               -> 14n
+      | UpdateFarmConfig (_v)                  -> 15n
+      | UpdateDoormanMinMvkAmount (_v)         -> 16n
 
       (* Governance Control *)
-      | UpdateWhitelistDevelopersSet (_v)      -> 16n
+      | UpdateWhitelistDevelopersSet (_v)      -> 17n
 
       (* Farm Control *)
-      | CreateFarm (_v)                        -> 17n
-      | TrackFarm (_v)                         -> 18n
-      | UntrackFarm (_v)                       -> 19n
-      | InitFarm (_v)                          -> 20n
-      | CloseFarm (_v)                         -> 21n
+      | CreateFarm (_v)                        -> 18n
+      | TrackFarm (_v)                         -> 19n
+      | UntrackFarm (_v)                       -> 20n
+      | InitFarm (_v)                          -> 21n
+      | CloseFarm (_v)                         -> 22n
 
       (* Treasury Control *)
-      | CreateTreasury (_v)                    -> 22n
-      | TrackTreasury (_v)                     -> 23n
-      | UntrackTreasury (_v)                   -> 24n
+      | CreateTreasury (_v)                    -> 23n
+      | TrackTreasury (_v)                     -> 24n
+      | UntrackTreasury (_v)                   -> 25n
+      | TransferTreasury (_v)                  -> 26n
+      | MintMvkAndTransferTreasury (_v)        -> 27n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 25n
-      | TriggerMvkInflation (_v)               -> 26n
+      | UpdateMvkInflationRate (_v)            -> 28n
+      | TriggerMvkInflation (_v)               -> 29n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -199,6 +202,46 @@ block {
               setLambdaParams,
               0tez, 
               getSetLambdaEntrypoint(targetContractAddress)
+            );
+
+            operations := setLambdaOperation # operations;
+
+          }
+
+      | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* setFactoryProductLambda lambda *)
+function setFactoryProductLambda(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
+block {
+    
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+        SetFactoryProductLambda(setContractLambdaParams) -> {
+
+            // assign params to constants for better code readability
+            const targetContractAddress   : address   = setContractLambdaParams.targetContractAddress;
+            const targetLambdaName        : string    = setContractLambdaParams.name;
+            const lambdaBytes             : bytes     = setContractLambdaParams.func_bytes;
+
+            // Create setLambdaParam
+            const setLambdaParams: setLambdaType      = record[
+              name        = targetLambdaName;
+              func_bytes  = lambdaBytes
+            ];
+
+            // set lambda operation
+            const setLambdaOperation : operation = Tezos.transaction(
+              setLambdaParams,
+              0tez, 
+              getSetProductLambdaEntrypoint(targetContractAddress)
             );
 
             operations := setLambdaOperation # operations;
@@ -1024,6 +1067,86 @@ block {
           );
 
         operations := untrackTreasuryOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function transferTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      TransferTreasury(transferTreasuryParams) -> {
+
+        // assign params to constants for better code readability
+        const targetTreasuryAddress   : address               = transferTreasuryParams.targetTreasuryAddress;
+        const treasuryTransfer        : transferActionType    = transferTreasuryParams.treasuryTransfer;
+
+
+        // find and get transfer entrypoint of treasury contract
+        const transferEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%transfer",
+            targetTreasuryAddress) : option(contract(transferActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("transfer entrypoint in Treasury Contract not found") : contract(transferActionType))
+            ];
+
+        // transfer operation
+        const transferOperation : operation = Tezos.transaction(
+          (treasuryTransfer),
+          0tez, 
+          transferEntrypoint
+          );
+
+        operations := transferOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function mintMvkAndTransferTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrSelfOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      MintMvkAndTransferTreasury(mintMvkAndTransferTreasuryParams) -> {
+
+        // assign params to constants for better code readability
+        const targetTreasuryAddress   : address                  = mintMvkAndTransferTreasuryParams.targetTreasuryAddress;
+        const treasuryMint            : mintMvkAndTransferType   = mintMvkAndTransferTreasuryParams.treasuryMint;
+
+
+        // find and get mintMvkAndTransfer entrypoint of treasury contract
+        const mintEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%mintMvkAndTransfer",
+            targetTreasuryAddress) : option(contract(mintMvkAndTransferType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith("mintMvkAndTransfer entrypoint in Treasury Contract not found") : contract(mintMvkAndTransferType))
+            ];
+
+        // mint MVK and transfer operation
+        const mintOperation : operation = Tezos.transaction(
+          (treasuryMint),
+          0tez, 
+          mintEntrypoint
+          );
+
+        operations := mintOperation # operations;
 
         }
     | _ -> skip

@@ -17,94 +17,106 @@
   },
   {
     "index": 4,
-    "name": "setContractGovernance"
+    "name": "setContractLambda"
   },
   {
     "index": 5,
-    "name": "updateContractMetadata"
+    "name": "setFactoryProductLambda"
   },
   {
     "index": 6,
-    "name": "updateContractWhitelistMap"
+    "name": "updateContractMetadata"
   },
   {
     "index": 7,
-    "name": "updateContractGeneralMap"
+    "name": "updateContractWhitelistMap"
   },
   {
     "index": 8,
-    "name": "updateContractWhitelistTokenMap"
+    "name": "updateContractGeneralMap"
   },
   {
     "index": 9,
-    "name": "updateGovernanceConfig"
+    "name": "updateContractWhitelistTokenMap"
   },
   {
     "index": 10,
-    "name": "updateDelegationConfig"
+    "name": "updateGovernanceConfig"
   },
   {
     "index": 11,
-    "name": "updateEmergencyConfig"
+    "name": "updateDelegationConfig"
   },
   {
     "index": 12,
-    "name": "updateBreakGlassConfig"
+    "name": "updateEmergencyConfig"
   },
   {
     "index": 13,
-    "name": "updateCouncilConfig"
+    "name": "updateBreakGlassConfig"
   },
   {
     "index": 14,
-    "name": "updateFarmConfig"
+    "name": "updateCouncilConfig"
   },
   {
     "index": 15,
-    "name": "updateDoormanMinMvkAmount"
+    "name": "updateFarmConfig"
   },
   {
     "index": 16,
-    "name": "updateWhitelistDevelopersSet"
+    "name": "updateDoormanMinMvkAmount"
   },
   {
     "index": 17,
-    "name": "createFarm"
+    "name": "updateWhitelistDevelopersSet"
   },
   {
     "index": 18,
-    "name": "trackFarm"
+    "name": "createFarm"
   },
   {
     "index": 19,
-    "name": "untrackFarm"
+    "name": "trackFarm"
   },
   {
     "index": 20,
-    "name": "initFarm"
+    "name": "untrackFarm"
   },
   {
     "index": 21,
-    "name": "closeFarm"
+    "name": "initFarm"
   },
   {
     "index": 22,
-    "name": "createTreasury"
+    "name": "closeFarm"
   },
   {
     "index": 23,
-    "name": "trackTreasury"
+    "name": "createTreasury"
   },
   {
     "index": 24,
-    "name": "untrackTreasury"
+    "name": "trackTreasury"
   },
   {
     "index": 25,
-    "name": "updateMvkInflationRate"
+    "name": "untrackTreasury"
   },
   {
     "index": 26,
+    "name": "transferTreasury"
+  },
+  {
+    "index": 27,
+    "name": "mintMvkAndTransferTreasury"
+  },
+  {
+    "index": 28,
+    "name": "updateMvkInflationRate"
+  },
+  {
+    "index": 29,
     "name": "triggerMvkInflation"
   }
 ]

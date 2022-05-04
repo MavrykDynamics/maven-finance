@@ -56,4 +56,5 @@ type treasuryFactoryStorage is [@layout:comb] record[
     generalContracts           : generalContractsType;
 
     lambdaLedger               : lambdaLedgerType;
+    treasuryLambdaLedger       : lambdaLedgerType;
 ]

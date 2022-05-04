@@ -62,6 +62,7 @@ type treasuryFactoryAction is
 
         // Lambda Entrypoints
     |   SetLambda                           of setLambdaType
+    |   SetProductLambda                    of setLambdaType
 
 
 type return is list (operation) * treasuryFactoryStorage
@@ -87,8 +88,10 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 [@inline] const error_TRACK_TREASURY_ENTRYPOINT_IS_PAUSED                                    = 5n;
 [@inline] const error_UNTRACK_TREASURY_ENTRYPOINT_NOT_FOUND                                  = 6n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 7n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 8n;
+[@inline] const error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND                            = 7n;
+
+[@inline] const error_LAMBDA_NOT_FOUND                                                       = 8n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 9n;
 
 // ------------------------------------------------------------------------------
 //
@@ -544,6 +547,22 @@ block{
 
 } with(noOperations, s)
 
+
+
+(* setProductLambda entrypoint *)
+function setProductLambda(const setLambdaParams: setLambdaType; var s: treasuryFactoryStorage): return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.treasuryLambdaLedger[lambdaName] := lambdaBytes;
+
+} with(noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
 // ------------------------------------------------------------------------------
@@ -588,5 +607,6 @@ function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorag
 
             // Lambda Entrypoints
         |   SetLambda (params)                          -> setLambda(params, s)
+        |   SetProductLambda (params)                   -> setProductLambda(params, s)
     ]
 )

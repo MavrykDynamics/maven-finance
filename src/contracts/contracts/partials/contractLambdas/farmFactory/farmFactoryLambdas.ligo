@@ -348,7 +348,7 @@ block{
                     ("", Bytes.pack("tezos-storage:data"));
                     ("data", createFarmParams.metadata);
                 ]); 
-                const farmLambdaLedger : big_map(string, bytes) = Big_map.empty;
+                const farmLambdaLedger : map(string, bytes) = s.farmLambdaLedger;
 
                 // Check wether the farm is infinite or its total blocks has been set
                 if not farmInfinite and createFarmParams.plannedRewards.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;

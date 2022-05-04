@@ -760,7 +760,7 @@ block {
 function councilActionSetContractBaker(const councilActionSetContractBakerParams : councilActionSetContractBakerType ; var s : councilStorage) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilSetContractBaker"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionSetContractBaker"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -779,7 +779,7 @@ block {
 function councilActionDropFinancialRequest(const requestId : nat ; var s : councilStorage) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilDropFinancialRequest"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaCouncilActionDropFinancialRequest"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];

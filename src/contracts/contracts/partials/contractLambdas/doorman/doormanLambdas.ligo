@@ -72,7 +72,7 @@ block {
     case doormanLambdaAction of [
         | LambdaUpdateMinMvkAmount(newMinMvkAmount) -> {
                 
-              if newMinMvkAmount < 1_000_000_000n then failwith("Error. The minimum amount of MVK to stake should be equal to 1.") 
+              if newMinMvkAmount < 10_000_000n then failwith("Error. The minimum amount of MVK needed to interact with the contract cannot go lower than 0.01MVK.") 
               else skip;
 
               s.minMvkAmount := newMinMvkAmount;
@@ -379,7 +379,7 @@ block {
         | LambdaUnstake(unstakeAmount) -> {
                 
                 // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
-                if unstakeAmount < s.minMvkAmount then failwith("You have to unstake at least 1 MVK token.")
+                if unstakeAmount < s.minMvkAmount then failwith("You have to unstake more MVK.")
                 else skip;
 
                 // Compound user rewards
@@ -410,9 +410,135 @@ block {
                 if stakedTotalWithoutUnstake > 0n then s.accumulatedFeesPerShare := s.accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstake)
                 else skip;
 
-                // temp to check correct amount of exit fee and final amount in console truffle tests
-                s.logExitFee := exitFee;
-                s.logFinalAmount := finalUnstakeAmount;
+                // update user's staked balance in staked balance ledger
+                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.source] of [
+                      Some(_val) -> _val
+                    | None       -> failwith("User staked balance not found in staked balance ledger.")
+                ];
+                
+                // check if user has enough staked mvk to withdraw
+                if unstakeAmount > userBalanceInStakeBalanceLedger.balance then failwith("Error. Not enough balance.")
+                else skip;
+
+                // update staked MVK total supply
+                if s.stakedMvkTotalSupply < finalUnstakeAmount then failwith("Error. You cannot unstake more than what is in the staked MVK Total supply")
+                else skip;
+                s.stakedMvkTotalSupply := abs(s.stakedMvkTotalSupply - finalUnstakeAmount);
+
+                userBalanceInStakeBalanceLedger.balance := abs(userBalanceInStakeBalanceLedger.balance - unstakeAmount); 
+
+                const mvkTokenAddress : address = s.mvkTokenAddress;
+
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith("Error. Delegation Contract is not found.")
+                ];
+
+                // update user's MVK balance (unstake) -> increase user balance in mvk ledger
+                const transferParameters: transferType = list[
+                  record[
+                    from_=Tezos.self_address;
+                    txs=list[
+                      record[
+                        to_=Tezos.source;
+                        token_id=0n;
+                        amount=finalUnstakeAmount;
+                      ]
+                    ]
+                  ]
+                ];
+                const transferOperation: operation = Tezos.transaction(
+                  transferParameters,
+                  0tez,
+                  getTransferEntrypointFromTokenAddress(mvkTokenAddress)
+                );
+
+                // Compound only the exit fee rewards
+                // Check if the user has more than 0MVK staked. If he/she hasn't, he cannot earn rewards
+                if userBalanceInStakeBalanceLedger.balance > 0n then {
+                  // Calculate what fees the user missed since his/her last claim
+                  const currentFeesPerShare: nat = abs(s.accumulatedFeesPerShare - userBalanceInStakeBalanceLedger.participationFeesPerShare);
+                  // Calculate the user reward based on his sMVK
+                  const exitFeeRewards: nat = (currentFeesPerShare * userBalanceInStakeBalanceLedger.balance) / fixedPointAccuracy;
+                  // Increase the user balance
+                  userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + exitFeeRewards;
+                  s.unclaimedRewards := abs(s.unclaimedRewards - exitFeeRewards);
+                }
+                else skip;
+                // Set the user's participationFeesPerShare 
+                userBalanceInStakeBalanceLedger.participationFeesPerShare := s.accumulatedFeesPerShare;
+                // Update the doormanStorage
+                s.userStakeBalanceLedger[Tezos.source] := userBalanceInStakeBalanceLedger;
+
+
+                // update satellite balance if user is delegated to a satellite
+                const updateSatelliteBalanceOperation : operation = Tezos.transaction(
+                  (Tezos.source),
+                  0tez,
+                  updateSatelliteBalance(delegationAddress)
+                );
+
+                // tell the delegation contract that the reward has been paid 
+                const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                  (Tezos.source),
+                  0tez,
+                  onSatelliteRewardPaid(delegationAddress)
+                );
+
+                // fill a list of operations
+                operations := list[transferOperation; onSatelliteRewardPaidOperation; updateSatelliteBalanceOperation]
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  new unstake lambda *)
+function lambdaNewUnstake(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+block {
+  // New unstake lambda for upgradability testing
+
+  // break glass check
+  checkUnstakeIsNotPaused(s);
+
+  var operations : list(operation) := nil;
+
+  case doormanLambdaAction of [
+        | LambdaUnstake(unstakeAmount) -> {
+                
+                // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
+                if unstakeAmount < s.minMvkAmount then failwith("You have to unstake more MVK.")
+                else skip;
+
+                // Compound user rewards
+                s := compoundUserRewards(Tezos.source, s);
+
+                const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
+                const mvkTotalSupply: nat = case mvkTotalSupplyView of [
+                  Some (value) -> value
+                | None -> (failwith ("Error. GetTotalSupply View not found in the MVK Token Contract") : nat)
+                ];
+
+                // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
+                const mvkLoyaltyIndex: nat = (s.stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
+                
+                // Fee calculation
+                const exitFee: nat = (200n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (2n * fixedPointAccuracy));
+
+                //const finalAmountPercent: nat = abs(percentageFactor - exitFee);
+                const paidFee             : nat  = unstakeAmount * (exitFee / 100n);
+                const finalUnstakeAmount  : nat  = abs(unstakeAmount - (paidFee / fixedPointAccuracy));
+                s.unclaimedRewards := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
+
+                // Updated shares by users
+                if unstakeAmount > s.stakedMvkTotalSupply then failwith("Error. You cannot unstake more than what is in the staked MVK Total supply") 
+                else skip;
+                const stakedTotalWithoutUnstake: nat = abs(s.stakedMvkTotalSupply - unstakeAmount);
+                
+                if stakedTotalWithoutUnstake > 0n then s.accumulatedFeesPerShare := s.accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstake)
+                else skip;
 
                 // update user's staked balance in staked balance ledger
                  var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.source] of [

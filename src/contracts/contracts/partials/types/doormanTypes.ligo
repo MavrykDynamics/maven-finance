@@ -73,9 +73,6 @@ type doormanStorage is [@layout:comb] record [
   stakedMvkTotalSupply      : nat; // current total staked MVK
   unclaimedRewards          : nat; // current exit fee pool rewards
 
-  logExitFee                : nat; // to be removed after testing
-  logFinalAmount            : nat; // to be removed after testing
-
   accumulatedFeesPerShare   : nat;
 
   lambdaLedger              : lambdaLedgerType;

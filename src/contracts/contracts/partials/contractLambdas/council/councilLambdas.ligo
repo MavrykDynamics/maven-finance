@@ -839,8 +839,8 @@ block {
                 // Check if type is correct
                 if councilActionTransferParams.tokenType = "FA12" or
                 councilActionTransferParams.tokenType = "FA2" or
-                councilActionTransferParams.tokenType = "XTZ" then skip
-                else failwith("Error. Wrong token type provided. Only FA12/FA2/XTZ allowed");
+                councilActionTransferParams.tokenType = "TEZ" then skip
+                else failwith("Error. Wrong token type provided. Only FA12/FA2/TEZ allowed");
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
@@ -915,8 +915,8 @@ block {
                 // Check if type is correct
                 if councilActionRequestTokensParams.tokenType = "FA12" or
                 councilActionRequestTokensParams.tokenType = "FA2" or
-                councilActionRequestTokensParams.tokenType = "XTZ" then skip
-                else failwith("Error. Wrong token type provided. Only FA12/FA2/XTZ allowed");
+                councilActionRequestTokensParams.tokenType = "TEZ" then skip
+                else failwith("Error. Wrong token type provided. Only FA12/FA2/TEZ allowed");
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
@@ -1649,7 +1649,7 @@ block {
                         // ---- set token type ----
                         var _tokenTransferType : tokenType := Tez;
 
-                        if  tokenType = "XTZ" then block {
+                        if  tokenType = "TEZ" then block {
                         _tokenTransferType      := Tez; 
                         } else skip;
 
