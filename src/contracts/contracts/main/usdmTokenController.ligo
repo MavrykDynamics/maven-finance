@@ -201,28 +201,28 @@ function checkSenderIsAdmin(var s : controllerStorage) : unit is
 function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(vaultWithdrawType) is
   case (Tezos.get_entrypoint_opt(
       "%vaultWithdraw",
-      vaultAddress) : option(contract(vaultWithdrawType))) of
+      vaultAddress) : option(contract(vaultWithdrawType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. VaultWithdraw entrypoint in vault not found") : contract(vaultWithdrawType))
-  end;
+  ]
 
 // helper function to get vaultDelegateTez entrypoint
 function getVaultDelegateTezEntrypoint(const vaultAddress : address) : contract(vaultDelegateTezType) is
   case (Tezos.get_entrypoint_opt(
       "%vaultDelegateTez",
-      vaultAddress) : option(contract(vaultDelegateTezType))) of
+      vaultAddress) : option(contract(vaultDelegateTezType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. vaultDelegateTez entrypoint in vault not found") : contract(vaultDelegateTezType))
-  end;
+  ]
 
 // helper function to get mintOrBurn entrypoint from USDM Token contract
 function getUsdmMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
   case (Tezos.get_entrypoint_opt(
       "%mintOrBurn",
-      tokenContractAddress) : option(contract(mintOrBurnParamsType))) of
+      tokenContractAddress) : option(contract(mintOrBurnParamsType))) of [
     Some(contr) -> contr
   | None -> (failwith("Error. MintOrBurn entrypoint in token contract not found") : contract(mintOrBurnParamsType))
-  end;
+  ]
 
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts - cannot include as storage type is different
 function checkInWhitelistTokenContracts(const contractAddress : address; var s : controllerStorage) : bool is 
@@ -240,8 +240,8 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
 
     checkSenderIsAdmin(s); // check that sender is admin
 
-    const contractName     : string  = updateWhitelistTokenContractsParams.0;
-    const contractAddress  : address = updateWhitelistTokenContractsParams.1;
+    const contractName     : string  = updateWhitelistTokenContractsParams.tokenContractName;
+    const contractAddress  : address = updateWhitelistTokenContractsParams.tokenContractAddress;
     
     const existingAddress: option(address) = 
       if checkInWhitelistTokenContracts(contractAddress, s) then (None : option(address)) else Some (contractAddress);
@@ -315,8 +315,8 @@ function updateCollateralTokenLedger(const updateCollateralTokenLedgerParams: up
     const tokenName             : string      = updateCollateralTokenLedgerParams.tokenName;
     const tokenContractAddress  : address     = updateCollateralTokenLedgerParams.tokenContractAddress;
     const tokenType             : tokenType   = updateCollateralTokenLedgerParams.tokenType;
-    const oracleType            : oracleType  = updateCollateralTokenLedgerParams.oracleType;
-    var oracleAddress         : address       = updateCollateralTokenLedgerParams.oracleAddress;
+    const oracleType            : string      = updateCollateralTokenLedgerParams.oracleType;
+    var oracleAddress         : address       := updateCollateralTokenLedgerParams.oracleAddress;
 
     if oracleType = "cfmm" then block {
         oracleAddress := zeroAddress;
@@ -359,10 +359,10 @@ const createVaultFunc : createVaultFuncType =
 // helper function to get vault
 function getVault(const handle : vaultHandleType; var s : controllerStorage) : vaultType is 
 block {
-    var vault : vaultType := case s.vaults[handle] of 
+    var vault : vaultType := case s.vaults[handle] of [
         Some(_vault) -> _vault
         | None -> failwith("Error. Vault not found.")
-    end;
+    ];
 } with vault
 
 
@@ -391,7 +391,7 @@ block {
         } else block {
 
             // get price of token in xtz
-            case s.priceLedger[tokenName] of 
+            case s.priceLedger[tokenName] of [
                 Some(_price) -> block {
 
                     // calculate value of collateral balance - 1e9 x 1e24 -> 1e33
@@ -401,7 +401,7 @@ block {
                     vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
                 }
                 | None -> skip // if there is no price set for collateral token yet
-            end;
+            ];
 
         };
     };
@@ -409,10 +409,10 @@ block {
     // s.tempValue := vaultCollateralValue;
 
     // get price of USDM in xtz 
-    const usdmTokenPrice : nat = case s.priceLedger["usdm"] of 
+    const usdmTokenPrice : nat = case s.priceLedger["usdm"] of [
         Some(_price) -> _price
         | None -> failwith("Error. Price not found for USDM Token.")
-    end;
+    ];
 
     // 1e9 x 1e24 -> 1e33
     const usdmOutstandingValueInXtz : nat = usdmOutstanding * usdmTokenPrice;
@@ -457,32 +457,32 @@ block {
     const tokenAmount       : nat               = onPriceActionParams.tokenAmount;
     const tokenName         : string            = onPriceActionParams.tokenName;
 
-    const cfmmAddress : address = case s.cfmmAddressLedger[tokenName] of 
+    const cfmmAddress : address = case s.cfmmAddressLedger[tokenName] of [
           Some(_address) -> _address
         | None           -> failwith("Error. CFMM Address not found in CFMM Ledger.")
-    end;
+    ];
 
     // check if sender is from the cfmm address
     if Tezos.sender =/= cfmmAddress then failwith("Error. Caller must be CFMM contract.")  else skip;
 
-    var lastDriftUpdate : timestamp := case s.lastDriftUpdateLedger[tokenName] of 
+    var lastDriftUpdate : timestamp := case s.lastDriftUpdateLedger[tokenName] of [
           Some(_timestamp) -> _timestamp
         | None -> Tezos.now - 300           // if no drift update is found for token, set to 5 minutes ago
-    end;
+    ];
 
     // check that last drift update is before current time
     if lastDriftUpdate > Tezos.now then failwith("Error. Delta cannot be negative.") else skip;
     const delta   : nat   = abs(Tezos.now - lastDriftUpdate); 
 
-    var target : nat  := case s.targetLedger[tokenName] of 
+    var target : nat  := case s.targetLedger[tokenName] of [
           Some(_nat) -> _nat
         | None -> failwith("Error. Target not found for this pair.")
-    end;
+    ];
 
-    var drift : int  := case s.driftLedger[tokenName] of 
+    var drift : int  := case s.driftLedger[tokenName] of [
           Some(_int) -> _int
         | None -> failwith("Error. Drift not found for this pair.")
-    end;
+    ];
 
     var d_target  : nat  := (target * abs(drift) * delta) / fixedPointAccuracy;
 
@@ -622,10 +622,10 @@ block {
     } else skip;
 
     // get token collateral balance in vault, fail if none found
-    var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of
+    var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
           Some(_balance) -> _balance
         | None -> failwith("Error. You do not have any tokens to withdraw.")
-    end;
+    ];
 
     // calculate new vault balance
     if withdrawTokenAmount > vaultTokenCollateralBalance then failwith("Error. Token withdrawal amount cannot be greater than your collateral balance.") else skip;
@@ -637,13 +637,13 @@ block {
     else skip;
     
     // get collateral token record - with token contract address and token type
-    const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
+    const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
           Some(_collateralTokenRecord) -> _collateralTokenRecord
         | None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
-    end;
+    ];
 
     // pattern match withdraw operation based on token type
-    const withdrawOperation : operation = case collateralTokenRecord.tokenType of
+    const withdrawOperation : operation = case collateralTokenRecord.tokenType of [
         
         Tez(_tez) -> block {
             
@@ -693,7 +693,7 @@ block {
 
         } with withdrawFa2Operation
 
-    end;
+    ];
 
     operations := withdrawOperation # operations;
 
@@ -735,10 +735,10 @@ block {
     if tokenName =/= "tez" then block {
         
         // get token 
-        const _collateralToken : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
+        const _collateralToken : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
             Some(_record) -> _record
             | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
-        end;
+        ];
 
     } else skip;
 
@@ -749,10 +749,10 @@ block {
     if vault.address =/= initiator then failwith("Error. Sender does not match vault owner address.") else skip;
     
     // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
-    var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of
+    var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
           Some(_balance) -> _balance
         | None -> 0n
-    end;
+    ];
 
     // calculate new collateral balance
     const newCollateralBalance : nat = vaultTokenCollateralBalance + depositAmount;
@@ -794,16 +794,16 @@ block {
 
     // get USDM target
     // todo: not used yet
-    var _usdmTarget : nat  := case s.targetLedger["usdm"] of 
+    var _usdmTarget : nat  := case s.targetLedger["usdm"] of [
           Some(_nat) -> _nat
         | None -> failwith("Error. Target not found for USDM.")
-    end;
+    ];
 
     // get USDM price in xtz
-    var usdmPriceInXtz : nat  := case s.priceLedger["usdm"] of 
+    var usdmPriceInXtz : nat  := case s.priceLedger["usdm"] of [
           Some(_nat) -> _nat
         | None -> failwith("Error. Price not found for USDM.")
-    end;
+    ];
 
     // todo: fix extracted balance amount
     (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
@@ -826,10 +826,10 @@ block {
         } else block {
 
             // get price of token in xtz
-            const tokenPrice : nat = case s.priceLedger[tokenName] of 
+            const tokenPrice : nat = case s.priceLedger[tokenName] of [
                 Some(_price) -> _price
                 | None -> failwith("Error. Price not found for token.")
-            end;
+            ];
 
             // calculate value of collateral balance
             const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
@@ -849,16 +849,16 @@ block {
         if tokenBalance = 0n then skip else block {
 
             // get collateral token record - with token contract address and token type
-            const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
+            const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
                 Some(_collateralTokenRecord) -> _collateralTokenRecord
                 | None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
-            end;
+            ];
 
             // get price of token in xtz
-            const tokenPrice : nat = case s.priceLedger[tokenName] of 
+            const tokenPrice : nat = case s.priceLedger[tokenName] of [
                 Some(_price) -> _price
                 | None -> failwith("Error. Price not found for token.")
-            end;
+            ];
 
             // calculate value of collateral balance
             const tokenValueInXtz : nat = tokenBalance * tokenPrice; 
@@ -876,17 +876,17 @@ block {
             const tokenQuantityToBeLiquidated : nat = (tokenProportionalLiquidationValue / tokenPrice) / fixedPointAccuracy;
 
             // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
-            var vaultTokenCollateralBalance : nat := case _vault.collateralBalanceLedger[tokenName] of
+            var vaultTokenCollateralBalance : nat := case _vault.collateralBalanceLedger[tokenName] of [
                 Some(_balance) -> _balance
                 | None -> 0n
-            end;
+            ];
 
             // calculate new collateral balance
             if tokenQuantityToBeLiquidated > vaultTokenCollateralBalance then failwith("Error. Token quantity to be liquidated cannot be more than balance of token collateral in vault.") else skip;
             const newTokenCollateralBalance : nat = abs(vaultTokenCollateralBalance - tokenQuantityToBeLiquidated);
 
             // send collateral to initiator of liquidation: pattern match withdraw operation based on token type
-            const initiatorTakeCollateralOperation : operation = case collateralTokenRecord.tokenType of
+            const initiatorTakeCollateralOperation : operation = case collateralTokenRecord.tokenType of [
                 Tez(_tez) -> block {
                     
                     const withdrawTezOperationParams : vaultWithdrawType = record [
@@ -932,7 +932,7 @@ block {
                     );
 
                 } with withdrawFa2Operation
-            end;
+            ];
 
             operations := initiatorTakeCollateralOperation # operations;
 
@@ -1074,10 +1074,10 @@ block {
     const tokenName          : string         = getTargetParams.tokenName;
     const callbackContract   : contract(nat)  = getTargetParams.callbackContract;
 
-    const target : nat = case s.targetLedger[tokenName] of
+    const target : nat = case s.targetLedger[tokenName] of [
         Some(_target) -> _target
         | None -> failwith("Error. No target found in target ledger.")
-    end;
+    ];
 
     const callbackOperation : operation = Tezos.transaction(
         target,
@@ -1091,7 +1091,8 @@ block {
 
 
 function main (const action : controllerAction; const s : controllerStorage) : return is 
-    case action of
+    case action of [
+
         | Default(_params) -> ((nil : list(operation)), s)
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
         | UpdateCollateralTokenLedger(parameters)       -> updateCollateralTokenLedger(parameters, s)
@@ -1107,4 +1108,4 @@ function main (const action : controllerAction; const s : controllerStorage) : r
         | OnPriceAction(parameters)                     -> onPriceAction(parameters, s)
         | GetTarget(parameters)                         -> getTarget(parameters, s)
 
-    end
+    ]
