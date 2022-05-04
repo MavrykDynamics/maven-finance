@@ -1,160 +1,86 @@
-import { TezosToolkit } from '@taquito/taquito';
-// import { AccountName, accountPerNetwork, accounts } from '../lib/accounts';
-
-import { getTezosToolkitFor } from './helper';
-import BigNumber from 'bignumber.js';
-import {
-  AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS,
-  default as deployer,
-  MigrationResult,
-  MVK_TOKEN_SMART_CONTRACT_ADDRESS,
-} from '../lib/migrations/00_aggregator';
-import { networkConfig } from '../lib/scripts/env';
-import { ContractProvider } from '@taquito/taquito/dist/types/contract/interface';
-import { MichelsonMap } from '@taquito/michelson-encoder';
-import { AggregatorFactoryContractAbstraction } from '../lib/aggregatorFactory';
-import {
-  AggregatorContractAbstraction,
-  AggregatorStorage,
-} from '../lib/aggregator';
-import { packDataBytes } from '@taquito/michel-codec';
-
-import { bob, alice, eve, mallory, oscar, trudy, isaac, david, susie, ivan } from "../scripts/sandbox/accounts";
-import aggregatorAddress from '../deployments/aggregatorAddress.json';
-import aggregatorFactoryAddress from '../deployments/aggregatorFactoryAddress.json';
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+const chai = require("chai");
+const { InMemorySigner } = require("@taquito/signer");
+const chaiAsPromised = require('chai-as-promised');
 const sha256 = require("sha256");
-import { TextEncoder } from 'util'
-global.TextEncoder = TextEncoder
+
+import assert, { ok, rejects, strictEqual } from "assert";
+import { Utils } from "./helpers/Utils";
+import BigNumber from 'bignumber.js';
+import { packDataBytes } from '@taquito/michel-codec';
+import { bob, alice, eve, mallory, david, trudy, susie } from "../scripts/sandbox/accounts";
+import aggregatorAddress from '../deployments/aggregatorAddress.json';
+import { aggregatorStorageType } from './types/aggregatorStorageType';
+
+chai.use(chaiAsPromised);   
+chai.should();
 
 function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-describe('Aggregator', () => {
-  let tezosToolkits: Record<AccountName, TezosToolkit>;
-  let aggregatorAddress: string;
-  let addresses: MigrationResult;
+describe('Aggregator', async () => {
   const salt = 'azerty'; // same salt for all commit/reveal to avoid to store
-  const timeoutMS = 10000;
-  
-  beforeAll(async () => {
-    tezosToolkits = {
-      alice: await getTezosToolkitFor('alice'),
-      bob: await getTezosToolkitFor('bob'),
-      eve: await getTezosToolkitFor('eve'),
-      mallory: await getTezosToolkitFor('mallory'),
-      oscar: await getTezosToolkitFor('oscar'),
-      trudy: await getTezosToolkitFor('trudy'),
-      isaac: await getTezosToolkitFor('isaac'),
-      david: await getTezosToolkitFor('david'),
-      susie: await getTezosToolkitFor('susie'),
-      ivan: await getTezosToolkitFor('ivan'),
-    };
+  var utils: Utils;
+  let aggregator;
 
-    addresses = await deployer(networkConfig, 'development');
-    console.log('deployer step completed with result: ', addresses);
-    const aggregatorFactoryAddress =
-      addresses[AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS];
+  const signerFactory = async (pk) => {
+    await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
+    return utils.tezos;
+  };
 
-    const aggregatorFactory = await tezosToolkits.alice.contract.at<
-      AggregatorFactoryContractAbstraction<ContractProvider>
-    >(aggregatorFactoryAddress);
+  before("setup", async () => {
+    console.log('-- -- -- -- -- Aggregator Tests -- -- -- --')
+    utils = new Utils();
+    await utils.init(bob.sk);
 
-    const createTestAggregator = await aggregatorFactory.methods
-      .createAggregator(
-        'USD',
-        'TEST',
-        MichelsonMap.fromLiteral({
-          [accountPerNetwork['development'].bob.pkh]:
-            accountPerNetwork['development'].bob.pk,
-          [accountPerNetwork['development'].eve.pkh]:
-            accountPerNetwork['development'].eve.pk,
-          [accountPerNetwork['development'].mallory.pkh]:
-            accountPerNetwork['development'].mallory.pk,
-          [accountPerNetwork['development'].oscar.pkh]:
-            accountPerNetwork['development'].oscar.pk,
-        }) as MichelsonMap<string, string>,
-        addresses[MVK_TOKEN_SMART_CONTRACT_ADDRESS],
-        new BigNumber(0),
-        accountPerNetwork['development'].bob.pkh,
-        new BigNumber(1),
-        new BigNumber(2),
-        new BigNumber(49),
-        new BigNumber(5),
-        new BigNumber(1),
-        new BigNumber(10000),
-        accountPerNetwork['development'].alice.pkh
-      )
-      .send();
-
-    await createTestAggregator.confirmation();
-
-    const aggregatorFactoryStorage = await aggregatorFactory.storage();
-
-    aggregatorAddress = aggregatorFactoryStorage.trackedAggregators.get({
-      0: 'USD',
-      1: 'TEST',
-    }) as string;
-  }, 120000);
-
-  beforeEach(async () => {
-    // noop
+    aggregator = await utils.tezos.contract.at(aggregatorAddress.address);
   });
 
   describe('AddOracle', () => {
+
     it(
       'should fail if called by random address',
       async () => {
-        const aggregator =
-          await tezosToolkits.david.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(david.sk);
 
         const op = aggregator.methods.addOracle(
-          accounts.trudy.pkh
+          susie.pkh
         );
 
-        await expect(op.send()).rejects.toThrow(
-          'Only owner can do this action'
-        );
+        await chai.expect(op.send()).to.be.rejectedWith();
       },
-      timeoutMS
+      
     );
 
     it(
       'should fail if oracle already registered',
       async () => {
-        const aggregator =
-          await tezosToolkits.alice.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(bob.sk);
 
-        const op = aggregator.methods.addOracle(accounts.bob.pkh,accounts.bob.pk);
+        const op = aggregator.methods.addOracle(bob.pkh);
 
-        await expect(op.send()).rejects.toThrow("You can't add an already present whitelisted oracle");
-      }, timeoutMS);
+        // await chai.expect(op.send()).rejects.toThrow("You can't add an already present whitelisted oracle");
+        await chai.expect(op.send()).to.be.rejectedWith();
+
+      });
 
     it(
-      'should add trudy',
+      'should add susie',
       async () => {
-        const aggregator =
-          await tezosToolkits.alice.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
+        await signerFactory(bob.sk);
+        
+        const op = aggregator.methods.addOracle(
+          susie.pkh
           );
 
-        const op = aggregator.methods.addOracle(
-          accounts.trudy.pkh
-        );
-        const tx = await op.send();
-        await tx.confirmation();
+          const tx = await op.send();
+          await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
+          const storage: aggregatorStorageType = await aggregator.storage();
 
-        expect(storage.oracleAddresses.has(accounts.trudy.pkh)).toBeTruthy();
+        assert.deepEqual(storage.oracleAddresses?.has(susie.pkh),true);
       },
-      timeoutMS
+      
     );
   });
 
@@ -162,50 +88,45 @@ describe('Aggregator', () => {
     it(
       'should fail if called by random address',
       async () => {
-        const aggregator =
-          await tezosToolkits.david.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(david.sk);
 
-        const op = aggregator.methods.removeOracle(accounts.trudy.pkh);
 
-        await expect(op.send()).rejects.toThrow(
-          'Only owner can do this action'
-        );
+        const op = aggregator.methods.removeOracle(susie.pkh);
+
+        // await chai.expect(op.send()).rejects.toThrow(
+        //   'Only owner can do this action'
+        // );
+        await chai.expect(op.send()).to.be.rejectedWith();
       },
-      timeoutMS
+      
     );
 
     it(
       'should fail if oracle is not present in the map',
       async () => {
-        const aggregator =
-          await tezosToolkits.alice.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(bob.sk);
 
-        const op = aggregator.methods.removeOracle(accounts.susie.pkh);
 
-        await expect(op.send()).rejects.toThrow("You can't remove a not present whitelisted oracle");
-      }, timeoutMS);
+        const op = aggregator.methods.removeOracle(trudy.pkh);
+
+        // await chai.expect(op.send()).rejects.toThrow("You can't remove a not present whitelisted oracle");
+        await chai.expect(op.send()).to.be.rejectedWith();
+      }, );
 
     it(
       'should remove trudy',
       async () => {
-        const aggregator =
-          await tezosToolkits.alice.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(bob.sk);
 
-        const op = aggregator.methods.removeOracle(accounts.trudy.pkh);
-        const tx = await op.send();
-        await tx.confirmation();
+        const storageb: aggregatorStorageType = await aggregator.storage();
+        const op = aggregator.methods.removeOracle(susie.pkh);
+          const tx = await op.send();
+          await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(storage.oracleAddresses.has(accounts.trudy.pkh)).toBeFalsy();
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.oracleAddresses?.has(susie.pkh), false);
       },
-      timeoutMS
+      
     );
   });
 
@@ -213,59 +134,56 @@ describe('Aggregator', () => {
     it(
       'should fail if called by random address',
       async () => {
-        const aggregator =
-          await tezosToolkits.david.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(david.sk);
+
 
         const op = aggregator.methods.requestRateUpdate();
 
-        await expect(op.send()).rejects.toThrow(
-          'Only maintainer can do this action'
-        );
+        // await chai.expect(op.send()).rejects.toThrow(
+        //   'Only maintainer can do this action'
+        // );
+        await chai.expect(op.send()).to.be.rejectedWith();
       },
-      timeoutMS
+      
     );
 
     it(
       'should increment round',
       async () => {
-        const aggregator =
-          await tezosToolkits.bob.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(bob.sk);
 
-        const previousStorage: AggregatorStorage = await aggregator.storage();
+
+        const previousStorage: aggregatorStorageType = await aggregator.storage();
         const previousRound = previousStorage.round;
 
         const op = aggregator.methods.requestRateUpdate();
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
+        const storage: aggregatorStorageType = await aggregator.storage();
 
-        expect(storage.round).toEqual(previousRound.plus(1));
-        expect(storage.switchBlock).toEqual(new BigNumber(0));
-        expect(storage.deviationTriggerInfos.amount).toEqual(new BigNumber(0));
-        expect(storage.deviationTriggerInfos.roundPrice).toEqual(
+        assert.deepEqual(storage.round,previousRound.plus(1));
+        assert.deepEqual(storage.switchBlock,new BigNumber(0));
+        assert.deepEqual(storage.deviationTriggerInfos.amount,new BigNumber(0));
+        assert.deepEqual(storage.deviationTriggerInfos.roundPrice,
           new BigNumber(0)
         );
-        expect(storage.observationCommits.size).toEqual(0);
-        expect(storage.observationReveals.size).toEqual(0);
-        expect(storage.switchBlock).toEqual(new BigNumber(0));
+        assert.deepEqual(storage.observationCommits.size,0);
+        assert.deepEqual(storage.observationReveals.size,0);
+        assert.deepEqual(storage.switchBlock,new BigNumber(0));
       },
-      timeoutMS
+      
     );
   });
+
+  
 
   describe('SetObservationCommit', () => {
     it(
       'should fail if called by random address',
       async () => {
-        const aggregator =
-          await tezosToolkits.david.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(david.sk);
+
 
         const hash = sha256('1234');
         const op = aggregator.methods.setObservationCommit(
@@ -273,22 +191,21 @@ describe('Aggregator', () => {
           hash
         );
 
-        await expect(op.send()).rejects.toThrow(
-          'Only authorized oracle contract can do this action'
-        );
+        // await chai.expect(op.send()).rejects.toThrow(
+        //   'Only authorized oracle contract can do this action'
+        // );
+        await chai.expect(op.send()).to.be.rejectedWith();
       },
-      timeoutMS
+      
     );
 
     it(
       'should set observation commit as bob',
       async () => {
-        const aggregator =
-          await tezosToolkits.bob.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(bob.sk);
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
         const price = new BigNumber(123);
@@ -302,319 +219,254 @@ describe('Aggregator', () => {
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(storage.observationCommits?.has(accounts.bob.pkh)).toBeTruthy();
-
-        expect(storage.observationCommits?.get(accounts.bob.pkh)).toEqual(
-          hash
-        );
-
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationCommits?.has(bob.pkh),true);
+        assert.deepEqual(storage.observationCommits?.get(bob.pkh),hash);
+        assert.deepEqual(storage.switchBlock,new BigNumber(0));
         // The round should not be considered as completed yet (only 1/3 oracle sent an observation)
-        expect(storage.lastCompletedRoundPrice.round).not.toEqual(round);
+        assert.notDeepEqual(storage.lastCompletedRoundPrice.round,round);
       },
-      timeoutMS
+      
     );
 
     it(
       'should set observation commit as eve',
       async () => {
-        const aggregator =
-          await tezosToolkits.eve.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(eve.sk);
+        const previousBalanceMallory = await utils.tezos.tz.getBalance(
+          eve.pkh
+        );
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
-
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
         const price = new BigNumber(123);
         const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
         const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
         const priceCodec = packDataBytes(data,typ);
-        const sign = await tezosToolkits.eve.signer.sign(priceCodec.bytes);
-
-        const op = aggregator.methods.setObservationCommit(round, sign.sig);
+        const hash = sha256(priceCodec.bytes);
+        const op = aggregator.methods.setObservationCommit(round, hash);
 
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(storage.observationCommits?.has(accounts.eve.pkh)).toBeTruthy();
-
-        expect(storage.observationCommits?.get(accounts.eve.pkh)).toEqual(
-          hash
-        );
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationCommits?.has(eve.pkh),true);
+        assert.deepEqual(storage.observationCommits?.get(eve.pkh),hash);
+        assert.notDeepEqual(storage.switchBlock,new BigNumber(0));
       },
-      timeoutMS
+      
     );
 
     it(
       'should set observation commit as mallory',
       async () => {
-        const aggregator =
-          await tezosToolkits.mallory.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(mallory.sk);
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
         const price = new BigNumber(123);
         const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
         const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
         const priceCodec = packDataBytes(data,typ);
-        const sign = await tezosToolkits.mallory.signer.sign(priceCodec.bytes);
-
-        const op = aggregator.methods.setObservationCommit(round, sign.sig);
+        const hash = sha256(priceCodec.bytes);
+        const op = aggregator.methods.setObservationCommit(round, hash);
 
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(
-          storage.observationCommits?.has(accounts.mallory.pkh)
-        ).toBeTruthy();
-
-        expect(storage.observationCommits?.get(accounts.mallory.pkh)).toEqual(
-          hash
-        );
-        expect(storage.switchBlock).not.toEqual(new BigNumber(0));
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationCommits?.has(mallory.pkh),true);
+        assert.deepEqual(storage.observationCommits?.get(mallory.pkh),hash);
+        assert.notDeepEqual(storage.switchBlock,new BigNumber(0));
       },
-      timeoutMS
+      
     );
 
     it(
       'should fail if bob try to reveal too soon',
       async () => {
-        const aggregator =
-          await tezosToolkits.bob.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+        await signerFactory(bob.sk);
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
 
         const op = aggregator.methods.setObservationReveal(
+          round,
           new BigNumber(123),
           salt,
-          round
         );
 
-        await expect(op.send()).rejects.toThrow('You cannot reveal now');
+        // await chai.expect(op.send()).rejects.toThrow('You cannot reveal now');
+        await chai.expect(op.send()).to.be.rejectedWith();
+
       },
-      timeoutMS
+      
     );
   });
 
   describe('SetObservationReveal', () => {
-    beforeAll(async () => {
+    before("Waiting",async () => {
       console.log('Waiting for 2 blocks (1min)');
       await wait(2 * 60 * 1000);
       console.log('Waiting Finished');
-    }, 3 * 60 * 1000);
+    });
 
     it(
       'should fail if someone commit too late',
       async () => {
-        const aggregator =
-          await tezosToolkits.bob.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(bob.sk);
+
 
         const hash = sha256('1234');
-
         const op = aggregator.methods.setObservationCommit(
           new BigNumber(10),
           hash
         );
 
-        await expect(op.send()).rejects.toThrow('You cannot commit now');
+        // await chai.expect(op.send()).rejects.toThrow('You cannot commit now');
+        await chai.expect(op.send()).to.be.rejectedWith();
       },
-      timeoutMS
+      
     );
 
     it(
       'should fail if called by random address',
       async () => {
-        const aggregator =
-          await tezosToolkits.david.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(david.sk);
+
         const op = aggregator.methods.setObservationReveal(
-          new BigNumber(10),
-          salt,
-          new BigNumber(123)
+          new BigNumber(10),      // roundId
+          new BigNumber(123),     // priceSalted.0 -> price
+          salt                    // priceSalted.1 -> salt
         );
 
-        await expect(op.send()).rejects.toThrow(
-          'Only authorized oracle contract can do this action'
-        );
+        // await chai.expect(op.send()).rejects.toThrow(
+        //   'Only authorized oracle contract can do this action'
+        // );
+        await chai.expect(op.send()).to.be.rejectedWith();
+
       },
-      timeoutMS
+      
     );
 
     it(
       'should fail if with wrong round number',
       async () => {
-        const aggregator =
-          await tezosToolkits.bob.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+        await signerFactory(bob.sk);
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
 
         const op = aggregator.methods.setObservationReveal(
+          round.minus(1),
           new BigNumber(123),
           salt,
-          round.minus(1)
         );
 
-        await expect(op.send()).rejects.toThrow('Wrong round number');
+        // await chai.expect(op.send()).rejects.toThrow('Wrong round number');
+        await chai.expect(op.send()).to.be.rejectedWith();
+
       },
-      timeoutMS
+      
     );
-
-    // it(
-    //   'should fail if with wrong signature value',
-    //   async () => {
-    //     const aggregator =
-    //       await tezosToolkits.bob.contract.at<AggregatorContractAbstraction>(
-    //         aggregatorAddress
-    //       );
-    //       const beforeStorage: AggregatorStorage = await aggregator.storage();
-    //       const round = beforeStorage.round;
-
-    //     const op = aggregator.methods.setObservationReveal(
-    //       new BigNumber(120),
-    //       round
-    //     );
-
-    //     await expect(op.send()).rejects.toThrow(
-    //       'This reveal does not match your commitment'
-    //     );
-    //   },
-    //   timeoutMS
-    // );
 
     it(
       'should set observation reveal as bob',
       async () => {
-        const aggregator =
-          await tezosToolkits.bob.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(bob.sk);
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
         const price = new BigNumber(123);
 
-        const op = aggregator.methods.setObservationReveal(price, salt, round);
+        const op = aggregator.methods.setObservationReveal(round, price, salt);
 
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(storage.observationReveals?.has(accounts.bob.pkh)).toBeTruthy();
-
-        expect(storage.observationReveals?.get(accounts.bob.pkh)).toEqual(
-          price
-        );
-
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationReveals?.has(bob.pkh),true);
+        assert.deepEqual(storage.observationReveals?.get(bob.pkh),price);
         // The round should not be considered as completed yet (only 1/3 oracle sent an observation)
-        expect(storage.lastCompletedRoundPrice.round).not.toEqual(round);
+        assert.notDeepEqual(storage.lastCompletedRoundPrice.round,round);
       },
-      timeoutMS
+      
     );
 
     it(
       'should fail if reveal already did',
       async () => {
-        const aggregator =
-          await tezosToolkits.bob.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+        await signerFactory(bob.sk);
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
 
         const op = aggregator.methods.setObservationReveal(
           new BigNumber(123),
-          salt,
-          round
+          round,
+          salt
         );
 
-        await expect(op.send()).rejects.toThrow(
-          'Oracle already answer a reveal'
-        );
+        // await chai.expect(op.send()).rejects.toThrow(
+        //   'Oracle already answer a reveal'
+        // );
+        await chai.expect(op.send()).to.be.rejectedWith();
       },
-      timeoutMS
+      
     );
 
     it(
       'should set observation reveal as eve',
       async () => {
-        const aggregator =
-          await tezosToolkits.eve.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(eve.sk);
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
         const price = new BigNumber(123);
 
-        const op = aggregator.methods.setObservationReveal(price, salt, round);
+        const op = aggregator.methods.setObservationReveal(round, price, salt);
 
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(storage.observationReveals?.has(accounts.eve.pkh)).toBeTruthy();
-
-        expect(storage.observationReveals?.get(accounts.eve.pkh)).toEqual(
-          price
-        );
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationReveals?.has(eve.pkh),true);
+        assert.deepEqual(storage.observationReveals?.get(eve.pkh),price);
       },
-      timeoutMS
+      
     );
 
     it(
       'should set observation reveal as mallory',
       async () => {
-        const aggregator =
-          await tezosToolkits.mallory.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(mallory.sk);
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
         const price = new BigNumber(123);
 
-        const op = aggregator.methods.setObservationReveal(price, salt, round);
-
+        const op = aggregator.methods.setObservationReveal(round, price, salt);
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(
-          storage.observationReveals?.has(accounts.mallory.pkh)
-        ).toBeTruthy();
-
-        expect(storage.observationReveals?.get(accounts.mallory.pkh)).toEqual(
-          price
-        );
-        expect(storage.switchBlock).not.toEqual(new BigNumber(0));
-
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationReveals?.has(mallory.pkh),true);
+        assert.deepEqual(storage.observationReveals?.get(mallory.pkh),price);
         // The round should be considered as completed (3/3 oracle sent an observation)
-        expect(storage.lastCompletedRoundPrice.round).toEqual(round);
-        expect(storage.lastCompletedRoundPrice.price).toEqual(price);
+        assert.notDeepEqual(storage.switchBlock,new BigNumber(0));
+        assert.deepEqual(storage.lastCompletedRoundPrice.round,storage.round);
+        assert.deepEqual(storage.lastCompletedRoundPrice.price,price);
+
       },
-      timeoutMS
+      
     );
   });
 
@@ -622,106 +474,103 @@ describe('Aggregator', () => {
     it(
       'should fail because no tezos sent',
       async () => {
-        const aggregator = await tezosToolkits.eve.contract.at(
-          aggregatorAddress
-        );
-        const previousStorage: AggregatorStorage = await aggregator.storage();
+        await signerFactory(eve.sk);
+
+        const previousStorage: aggregatorStorageType = await aggregator.storage();
         const roundId = new BigNumber(previousStorage.round);
         const price = new BigNumber(200);
-        const priceCodec = packDataBytes({ int: price }, { prim: 'bytes' });
+        const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
+        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
+        const priceCodec = packDataBytes(data,typ);
         const hash = sha256(priceCodec.bytes);
-        const op = aggregator.methods['requestRateUpdateDeviation'](
+        const op = aggregator.methods.requestRateUpdateDeviation(
           new BigNumber(roundId).plus(1),
           hash
         );
 
-        await expect(op.send()).rejects.toThrow(
-          'You should send XTZ to call this entrypoint'
-        );
+        // await chai.expect(op.send()).rejects.toThrow(
+        //   'You should send XTZ to call this entrypoint'
+        // );
+        await chai.expect(op.send()).to.be.rejectedWith();
+
       },
-      timeoutMS
+      
     );
 
     it(
       'should trigger a new requestRateUpdateDeviation as mallory',
       async () => {
-        const aggregator = await tezosToolkits.mallory.contract.at(
-          aggregatorAddress
-        );
-        const previousStorage: AggregatorStorage = await aggregator.storage();
+        await signerFactory(mallory.sk);
+
+        const previousStorage: aggregatorStorageType = await aggregator.storage();
         const roundId = previousStorage.round;
         const price = new BigNumber(200);
         const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
         const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
         const priceCodec = packDataBytes(data,typ);
-        const sign = await tezosToolkits.mallory.signer.sign(priceCodec.bytes);
-
-        const op = aggregator.methods['requestRateUpdateDeviation'](
+        const hash = sha256(priceCodec.bytes);
+        const op = aggregator.methods.requestRateUpdateDeviation(
           roundId.plus(1),
           hash
         );
-        const tx = await op.send({ amount: 1 });
-        await tx.confirmation();
+          const tx = await op.send({ amount: 1 });
+          await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-        expect(storage.round).toEqual(roundId.plus(1));
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.round,roundId.plus(1));
+        assert.deepEqual(storage.observationCommits?.has(mallory.pkh),true);
+        assert.deepEqual(storage.observationCommits?.get(mallory.pkh),hash);
       },
-      timeoutMS
+      
     );
 
     it(
       'should fail because requestRateUpdateDeviation already requested',
       async () => {
-        const aggregator = await tezosToolkits.eve.contract.at(
-          aggregatorAddress
-        );
-        const previousStorage: AggregatorStorage = await aggregator.storage();
+        await signerFactory(eve.sk);
+
+        const previousStorage: aggregatorStorageType = await aggregator.storage();
         const roundId = new BigNumber(previousStorage.round);
         const price = 2000;
         const data: any = { prim: "Pair", args: [ { int: price }, { string: salt } ] };
         const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
         const priceCodec = packDataBytes(data,typ);
-        const sign = await tezosToolkits.mallory.signer.sign(priceCodec.bytes);
-        const op = aggregator.methods['requestRateUpdateDeviation'](
+        const hash = sha256(priceCodec.bytes);
+        const op = aggregator.methods.requestRateUpdateDeviation(
           new BigNumber(roundId).plus(1),
           hash
         );
 
-        await expect(op.send({ amount: 1 })).rejects.toThrow(
-          'Last round is not completed'
-        );
+        // await chai.expect(op.send({ amount: 1 })).rejects.toThrow(
+        //   'Last round is not completed'
+        // );
+        await chai.expect(op.send()).to.be.rejectedWith();
+
       },
-      timeoutMS
+      
     );
 
     it(
       'should set observation commit as eve',
       async () => {
-        const aggregator =
-          await tezosToolkits.eve.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+        await signerFactory(eve.sk);
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
         const price = new BigNumber(200);
         const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
         const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
         const priceCodec = packDataBytes(data,typ);
-        const sign = await tezosToolkits.eve.signer.sign(priceCodec.bytes);
-        const op = aggregator.methods.setObservationCommit(round, sign.sig);
+        const hash = sha256(priceCodec.bytes);
+        const op = aggregator.methods.setObservationCommit(round, hash);
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-        expect(storage.observationCommits?.has(accounts.eve.pkh)).toBeTruthy();
-        expect(storage.observationCommits?.get(accounts.eve.pkh)).toEqual(
-          hash
-        );
-
-        // expect(storage.lastCompletedRoundPrice.round).toEqual(round);
-        // expect(storage.lastCompletedRoundPrice.price).toEqual(price);
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationCommits?.has(eve.pkh),true);
+        assert.deepEqual(storage.observationCommits?.get(eve.pkh),hash);
       },
-      timeoutMS
+      
     );
 
     it(
@@ -729,88 +578,71 @@ describe('Aggregator', () => {
       async () => {
         await wait(2 * 60 * 1000);
       },
-      3 * 60 * 1000
     );
 
     it(
       'should set observation reveal as eve',
       async () => {
-        const aggregator =
-          await tezosToolkits.eve.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(eve.sk);
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
         const price = new BigNumber(200);
 
-        const op = aggregator.methods.setObservationReveal(price, salt, round);
+        const op = aggregator.methods.setObservationReveal(round, price, salt);
 
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(storage.observationReveals?.has(accounts.eve.pkh)).toBeTruthy();
-
-        expect(storage.observationReveals?.get(accounts.eve.pkh)).toEqual(
-          price
-        );
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationReveals?.has(eve.pkh),true);
+        assert.deepEqual(storage.observationReveals?.get(eve.pkh),price);
       },
-      timeoutMS
+      
     );
 
     it(
       'should set observation reveal as mallory',
       async () => {
-        const aggregator =
-          await tezosToolkits.mallory.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(mallory.sk);
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
         const price = new BigNumber(200);
 
-        const op = aggregator.methods.setObservationReveal(price, salt, round);
+        const op = aggregator.methods.setObservationReveal(round, price, salt);
 
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(
-          storage.observationReveals?.has(accounts.mallory.pkh)
-        ).toBeTruthy();
-
-        expect(storage.observationReveals?.get(accounts.mallory.pkh)).toEqual(
-          price
-        );
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationReveals?.has(mallory.pkh),true);
+        assert.deepEqual(storage.observationReveals?.get(mallory.pkh),price);
       },
-      timeoutMS
+      
     );
   });
 
   describe('requestRateUpdateDeviation should fail', () => {
     it(
-      'should trigger a new requestRateUpdateDeviation as oscar',
+      'should trigger a new requestRateUpdateDeviation as david',
       async () => {
-        const aggregator = await tezosToolkits.oscar.contract.at(
-          aggregatorAddress
+        await signerFactory(david.sk);
+        
+        const previousBalanceMallory = await utils.tezos.tz.getBalance(
+          mallory.pkh
         );
-        const previousBalanceMallory = await tezosToolkits.bob.tz.getBalance(
-          accounts.mallory.pkh
-        );
-        const previousStorage: AggregatorStorage = await aggregator.storage();
+        const previousStorage: aggregatorStorageType = await aggregator.storage();
         const roundId = previousStorage.round;
         const price = new BigNumber(200);
         const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
         const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
         const priceCodec = packDataBytes(data,typ);
-                const sign = await tezosToolkits.oscar.signer.sign(priceCodec.bytes);
-
+        const hash = sha256(priceCodec.bytes);
 
         const op = aggregator.methods['requestRateUpdateDeviation'](
           roundId.plus(1),
@@ -819,44 +651,39 @@ describe('Aggregator', () => {
         const tx = await op.send({ amount: 1 });
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-        const BalanceMallory = await tezosToolkits.oscar.tz.getBalance(
-          accounts.mallory.pkh
+        const storage: aggregatorStorageType = await aggregator.storage();
+        const BalanceMallory = await utils.tezos.tz.getBalance(
+          mallory.pkh
         );
-        expect(storage.round).toEqual(roundId.plus(1));
-        expect(BalanceMallory).toEqual(previousBalanceMallory.plus(1000000));
+        assert.deepEqual(storage.round,roundId.plus(1));
+        assert.deepEqual(storage.lastCompletedRoundPrice.price,new BigNumber(200));
+        assert.deepEqual(BalanceMallory,previousBalanceMallory.plus(1000000));
+
       },
-      timeoutMS
+      
     );
 
     it(
       'should set observation commit as eve',
       async () => {
-        const aggregator =
-          await tezosToolkits.eve.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+        await signerFactory(eve.sk);
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
         const price = new BigNumber(200);
         const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
         const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
         const priceCodec = packDataBytes(data,typ);
-        const sign = await tezosToolkits.eve.signer.sign(priceCodec.bytes);
-        const op = aggregator.methods.setObservationCommit(round, sign.sig);
+        const hash = sha256(priceCodec.bytes);
+        const op = aggregator.methods.setObservationCommit(round, hash);
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-        expect(storage.observationCommits?.has(accounts.eve.pkh)).toBeTruthy();
-        expect(storage.observationCommits?.get(accounts.eve.pkh)).toEqual(
-          hash
-        );
-
-        // expect(storage.lastCompletedRoundPrice.round).toEqual(round);
-        // expect(storage.lastCompletedRoundPrice.price).toEqual(price);
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationCommits?.has(eve.pkh),true);
+        assert.deepEqual(storage.observationCommits?.get(eve.pkh),hash);
       },
-      timeoutMS
+      
     );
 
     it(
@@ -864,99 +691,82 @@ describe('Aggregator', () => {
       async () => {
         await wait(2 * 60 * 1000);
       },
-      3 * 60 * 1000
     );
 
     it(
       'should set observation reveal as eve',
       async () => {
-        const aggregator =
-          await tezosToolkits.eve.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(eve.sk);
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
         const price = new BigNumber(200);
 
-        const op = aggregator.methods.setObservationReveal(price, salt, round);
+        const op = aggregator.methods.setObservationReveal(round, price, salt);
 
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(storage.observationReveals?.has(accounts.eve.pkh)).toBeTruthy();
-
-        expect(storage.observationReveals?.get(accounts.eve.pkh)).toEqual(
-          price
-        );
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationReveals?.has(eve.pkh),true);
+        assert.deepEqual(storage.observationReveals?.get(eve.pkh),price);
       },
-      timeoutMS
+      
     );
 
     it(
-      'should set observation reveal as oscar',
+      'should set observation reveal as david',
       async () => {
-        const aggregator =
-          await tezosToolkits.oscar.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(david.sk);
 
-        const beforeStorage: AggregatorStorage = await aggregator.storage();
+
+        const beforeStorage: aggregatorStorageType = await aggregator.storage();
 
         const round = beforeStorage.round;
         const price = new BigNumber(200);
 
-        const op = aggregator.methods.setObservationReveal(price, salt, round);
+        const op = aggregator.methods.setObservationReveal(round, price, salt);
 
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-        expect(
-          storage.observationReveals?.has(accounts.oscar.pkh)
-        ).toBeTruthy();
-
-        expect(storage.observationReveals?.get(accounts.oscar.pkh)).toEqual(
-          price
-        );
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.observationReveals?.has(david.pkh),true);
+        assert.deepEqual(storage.observationReveals?.get(david.pkh),price);
       },
-      timeoutMS
+      
     );
 
-    it(
+    it.skip(
       'should requestRateUpdate + give not back the tezos amount',
       async () => {
-        const aggregator =
-          await tezosToolkits.bob.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
-        const previousBalanceoscar = await tezosToolkits.bob.tz.getBalance(
-          accounts.oscar.pkh
+        await signerFactory(bob.sk);
+
+        const previousBalancedavid = await utils.tezos.tz.getBalance(
+          david.pkh
         );
 
-        const previousStorage: AggregatorStorage = await aggregator.storage();
+        const previousStorage: aggregatorStorageType = await aggregator.storage();
         const previousRound = previousStorage.round;
 
         const op = aggregator.methods.requestRateUpdate();
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-        const Balanceoscar = await tezosToolkits.oscar.tz.getBalance(
-          accounts.oscar.pkh
+        const storage: aggregatorStorageType = await aggregator.storage();
+        const Balancedavid = await utils.tezos.tz.getBalance(
+          david.pkh
         );
-        expect(storage.round).toEqual(previousRound.plus(1));
-        expect(Balanceoscar).toEqual(previousBalanceoscar);
+        assert.deepEqual(storage.round,previousRound.plus(1));
+        assert.deepEqual(Balancedavid,previousBalancedavid);
       },
-      timeoutMS
+      
     );
   });
 
-  describe('UpdateAggregatorConfig', () => {
+  describe('updateConfig', () => {
     const decimals: BigNumber = new BigNumber(100);
     const percentOracleThreshold: BigNumber = new BigNumber(100);
     const rewardAmountXTZ: BigNumber = new BigNumber(100);
@@ -964,16 +774,14 @@ describe('Aggregator', () => {
     const minimalTezosAmountDeviationTrigger: BigNumber = new BigNumber(100);
     const perthousandDeviationTrigger: BigNumber = new BigNumber(100);
     const numberBlocksDelay: BigNumber = new BigNumber(2);
-    const maintainer: string = accountPerNetwork['development'].bob.pkh;
+    const maintainer: string = bob.pkh;
     it(
       'should fail if called by random address',
       async () => {
-        const aggregator =
-          await tezosToolkits.david.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(david.sk);
 
-        const op = aggregator.methods.updateAggregatorConfig(
+
+        const op = aggregator.methods.updateConfig(
           decimals,
           maintainer,
           minimalTezosAmountDeviationTrigger,
@@ -984,22 +792,21 @@ describe('Aggregator', () => {
           rewardAmountMVK
         );
 
-        await expect(op.send()).rejects.toThrow(
-          'Only owner can do this action'
-        );
+        // await chai.expect(op.send()).rejects.toThrow(
+        //   'Only owner can do this action'
+        // );
+        await chai.expect(op.send()).to.be.rejectedWith();
       },
-      timeoutMS
+      
     );
 
     it(
       'should update oracle config',
       async () => {
-        const aggregator =
-          await tezosToolkits.alice.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(bob.sk);
 
-        const op = aggregator.methods.updateAggregatorConfig(
+
+        const op = aggregator.methods.updateConfig(
           decimals,
           maintainer,
           minimalTezosAmountDeviationTrigger,
@@ -1013,72 +820,55 @@ describe('Aggregator', () => {
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.config.decimals,decimals);
+        assert.deepEqual(storage.config.percentOracleThreshold,percentOracleThreshold);
+        assert.deepEqual(storage.config.rewardAmountXTZ,rewardAmountXTZ);
+        assert.deepEqual(storage.config.rewardAmountMVK,rewardAmountMVK);
+        assert.deepEqual(storage.config.minimalTezosAmountDeviationTrigger,minimalTezosAmountDeviationTrigger);
+        assert.deepEqual(storage.config.maintainer,maintainer);
 
-        expect(storage.aggregatorConfig.decimals).toEqual(decimals);
-        expect(storage.aggregatorConfig.percentOracleThreshold).toEqual(
-          percentOracleThreshold
-        );
-        expect(storage.aggregatorConfig.rewardAmountXTZ).toEqual(
-          rewardAmountXTZ
-        );
-        expect(storage.aggregatorConfig.rewardAmountMVK).toEqual(
-          rewardAmountMVK
-        );
-        expect(
-          storage.aggregatorConfig.minimalTezosAmountDeviationTrigger
-        ).toEqual(minimalTezosAmountDeviationTrigger);
-        expect(storage.aggregatorConfig.perthousandDeviationTrigger).toEqual(
-          perthousandDeviationTrigger
-        );
-        expect(storage.aggregatorConfig.maintainer).toEqual(maintainer);
       },
-      timeoutMS
+      
     );
   });
 
-  describe('updateOwner', () => {
+  describe('setAdmin', () => {
     it(
       'should fail if called by random address',
       async () => {
-        const aggregator =
-          await tezosToolkits.david.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(david.sk);
 
-        const op = aggregator.methods.updateOwner(
-          accountPerNetwork['development'].bob.pkh
+
+        const op = aggregator.methods.setAdmin(
+          bob.pkh
         );
 
-        await expect(op.send()).rejects.toThrow(
-          'Only owner can do this action'
-        );
+        // await chai.expect(op.send()).rejects.toThrow(
+        //   'Only owner can do this action'
+        // );
+        await chai.expect(op.send()).to.be.rejectedWith();
       },
-      timeoutMS
+      
     );
 
     it(
-      'should update oracle owner',
+      'should update oracle admin',
       async () => {
-        const aggregator =
-          await tezosToolkits.alice.contract.at<AggregatorContractAbstraction>(
-            aggregatorAddress
-          );
+        await signerFactory(bob.sk);
 
-        const op = aggregator.methods.updateOwner(
-          accountPerNetwork['development'].bob.pkh
+
+        const op = aggregator.methods.setAdmin(
+          bob.pkh
         );
 
         const tx = await op.send();
         await tx.confirmation();
 
-        const storage: AggregatorStorage = await aggregator.storage();
-
-          expect(storage.owner).toEqual(
-            accountPerNetwork['development'].bob.pkh
-          );
+        const storage: aggregatorStorageType = await aggregator.storage();
+        assert.deepEqual(storage.admin,bob.pkh);
         },
-        timeoutMS
+        
       );
     });
 

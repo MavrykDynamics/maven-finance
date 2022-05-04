@@ -95,7 +95,7 @@ block {
     case aggregatorLambdaAction of [
         | LambdaRemoveOracle(oracleAddress) -> {
                 
-                if isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't remove a not present whitelisted oracle")
+                if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't remove a not present whitelisted oracle")
                 else block{
                   checkSenderIsAdmin(s);
                   const updatedWhiteListedContract: oracleAddressesType = Map.remove(oracleAddress, s.oracleAddresses);
@@ -142,8 +142,10 @@ block{
                             roundPrice=0n;
                         ];
                   if ( // if deviation > or < % deviation trigger
-                    (s.lastCompletedRoundPrice.price * (10000n + s.config.perthousandDeviationTrigger) / 10000n > s.deviationTriggerInfos.roundPrice) or
-                    (s.lastCompletedRoundPrice.price * abs (10000n - s.config.perthousandDeviationTrigger) / 10000n < s.deviationTriggerInfos.roundPrice)) then {
+                    ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perthousandDeviationTrigger) / (1000n * 2n) <= s.lastCompletedRoundPrice.price)
+                    or
+                    (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perthousandDeviationTrigger) / (1000n * 2n) >= s.lastCompletedRoundPrice.price)
+                    ) then {
                     const receiver : contract (unit) =
                       case (Tezos.get_contract_opt (s.deviationTriggerInfos.oracleAddress) : option(contract(unit))) of [
                         Some (contract) -> contract
@@ -194,11 +196,14 @@ block{
                 const emptyMapReveals : observationRevealsType = map [];
                 
 
-                if (s.deviationTriggerInfos.amount =/= 0tez and
-                (
-                (s.lastCompletedRoundPrice.price * (10000n + s.config.perthousandDeviationTrigger / 2n) / 10000n < s.deviationTriggerInfos.roundPrice)
-                or
-                (s.lastCompletedRoundPrice.price * abs (10000n - s.config.perthousandDeviationTrigger / 2n) / 10000n > s.deviationTriggerInfos.roundPrice))
+                if (
+                    s.deviationTriggerInfos.amount =/= 0tez
+                    and
+                    (
+                        ((s.deviationTriggerInfos.roundPrice * 1000n * 2n + s.deviationTriggerInfos.roundPrice * s.config.perthousandDeviationTrigger) / (1000n * 2n) <= s.lastCompletedRoundPrice.price)
+                        or
+                        (abs(s.deviationTriggerInfos.roundPrice * 1000n * 2n - s.deviationTriggerInfos.roundPrice * s.config.perthousandDeviationTrigger) / (1000n * 2n) >= s.lastCompletedRoundPrice.price)
+                    )
                 ) then { // -> previous round = deviation trigger
                     const receiver : contract (unit) =
                       case (Tezos.get_contract_opt (s.deviationTriggerInfos.oracleAddress) : option(contract(unit))) of [

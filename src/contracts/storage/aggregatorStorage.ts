@@ -2,21 +2,23 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 
 import { BigNumber } from 'bignumber.js'
 
-const { bob, eve, mallory } = require('../scripts/sandbox/accounts')
+const { bob, eve, mallory, david } = require('../scripts/sandbox/accounts')
 
 import { zeroAddress } from '../test/helpers/Utils'
 
 import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 
+import delegationAddress from '../deployments/delegationAddress.json';
+
 const config = {
-  decimals                            : 8,
+  decimals                            : new BigNumber(8),
   maintainer                          : bob.pkh,
-  minimalTezosAmountDeviationTrigger  : 0,
-  perthousandDeviationTrigger         : 0,
-  percentOracleThreshold              : 100,
-  rewardAmountMVK                     : 1,
-  rewardAmountXTZ                     : 1,
-  numberBlocksDelay                   : 2,
+  minimalTezosAmountDeviationTrigger  : new BigNumber(1),
+  perthousandDeviationTrigger         : new BigNumber(2),
+  percentOracleThreshold              : new BigNumber(49),
+  rewardAmountMVK                     : new BigNumber(1),
+  rewardAmountXTZ                     : new BigNumber(1),
+  numberBlocksDelay                   : new BigNumber(2),
 }
 
 const metadata = MichelsonMap.fromLiteral({
@@ -35,18 +37,19 @@ const oracleAddresses = MichelsonMap.fromLiteral({
   [bob.pkh] : true,
   [eve.pkh] : true,
   [mallory.pkh] : true,
+  [david.pkh] : true,
 });
 
 const deviationTriggerInfos = {
   oracleAddress : bob.pkh,
-  amount : 0,
-  roundPrice: 0,
+  amount : new BigNumber(0),
+  roundPrice: new BigNumber(0),
 }
 
 const lastCompletedRoundPrice = {
-  round: 0,
-  price: 0,
-  percentOracleResponse: 0
+  round: new BigNumber(0),
+  price: new BigNumber(0),
+  percentOracleResponse: new BigNumber(0)
 }
 
 export const aggregatorStorage: aggregatorStorageType = {
@@ -55,12 +58,12 @@ export const aggregatorStorage: aggregatorStorageType = {
   config                    : config,
   metadata                  : metadata,
   
-  mvkTokenAddress           : zeroAddress,
+  mvkTokenAddress           : delegationAddress.address,
 
   round                     : new BigNumber(0),
-  switchBlock               : new BigNumber(1),
+  switchBlock               : new BigNumber(0),
 
-  oracleAddresses           : MichelsonMap.fromLiteral({}),
+  oracleAddresses           : oracleAddresses,
   
   deviationTriggerInfos     : deviationTriggerInfos,
   lastCompletedRoundPrice   : lastCompletedRoundPrice,
