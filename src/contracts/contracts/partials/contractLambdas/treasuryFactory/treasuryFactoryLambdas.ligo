@@ -296,7 +296,7 @@ block{
                 const treasuryMetadata: metadata = Big_map.literal (list [
                     ("", Bytes.pack(treasuryMetadataPlain));
                 ]);
-                const treasuryLambdaLedger : big_map(string, bytes) = Big_map.empty;
+                const treasuryLambdaLedger : map(string, bytes) = Map.empty;
 
                 const originatedTreasuryStorage : treasuryStorage = record[
                     admin                     = s.admin;                         // admin will be the governance contract

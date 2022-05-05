@@ -355,7 +355,7 @@ block{
                 const farmMetadata : metadata = Big_map.literal (list [
                     ("", Bytes.pack(farmMetadataPlain));
                 ]);
-                const farmLambdaLedger : big_map(string, bytes) = Big_map.empty;
+                const farmLambdaLedger : map(string, bytes) = Map.empty;
 
                 // Check wether the farm is infinite or its total blocks has been set
                 if not farmInfinite and createFarmParams.plannedRewards.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
