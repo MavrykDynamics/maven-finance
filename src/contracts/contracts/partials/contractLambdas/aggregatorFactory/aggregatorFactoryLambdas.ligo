@@ -174,7 +174,7 @@ block {
                   roundPrice=0n;
                 ];
 
-                const aggregatorLambdaLedger : big_map(string, bytes) = Big_map.empty;
+                const aggregatorLambdaLedger : map(string, bytes) = s.aggregatorLambdaLedger;
 
                 const aggregatorMetadataPlain : aggregatorMetadataType = record[
                     name                    = "MAVRYK Aggregator";

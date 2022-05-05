@@ -32,6 +32,7 @@ type aggregatorFactoryAction is
 
       // Lambda Entrypoints
     | SetLambda                   of setLambdaType
+    | SetProductLambda            of setLambdaType
     
 
 const noOperations : list (operation) = nil;
@@ -391,6 +392,22 @@ block{
 
 } with(noOperations, s)
 
+
+
+(* setProductLambda entrypoint *)
+function setProductLambda(const setLambdaParams: setLambdaType; var s: aggregatorFactoryStorage): return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.aggregatorLambdaLedger[lambdaName] := lambdaBytes;
+
+} with(noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
 // ------------------------------------------------------------------------------
@@ -420,5 +437,6 @@ function main (const action : aggregatorFactoryAction; const s : aggregatorFacto
       | CreateAggregator (parameters)         -> createAggregator(parameters, s)
 
         // Lambda Entrypoints
-      | SetLambda(parameters)                 -> setLambda(parameters, s)
+      | SetLambda (parameters)                -> setLambda(parameters, s)
+      | SetProductLambda (parameters)         -> setProductLambda(parameters, s)
     ]
