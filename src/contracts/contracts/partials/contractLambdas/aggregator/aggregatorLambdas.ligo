@@ -288,8 +288,12 @@ block{
                 
                 const oracleCommit: bytes = getObservationCommit(Tezos.sender, s.observationCommits);
                 const hashedPack: bytes = hasherman(Bytes.pack (params.priceSalted));
-                if (hashedPack = oracleCommit)
+                if (hashedPack =/= oracleCommit)
                 then failwith("This reveal does not match your commitment")
+                else skip;
+
+                if (params.priceSalted.2 =/= Tezos.sender)
+                then failwith("your tezos address was not present in your hash commit")
                 else skip;
 
                 const price: nat = params.priceSalted.0;
