@@ -3,10 +3,10 @@ import { TezosToolkit } from '@taquito/taquito'
 import { TempleDAppNetwork, TempleWallet } from '@temple-wallet/dapp'
 import { State } from 'reducers'
 
+import { getUserData } from '../../../pages/Doorman/Doorman.actions'
+import { getChainInfo } from '../../../utils/api'
 import { showToaster } from '../Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../Toaster/Toaster.constants'
-import { getChainInfo } from '../../../utils/api'
-import { getUserData } from '../../../pages/Doorman/Doorman.actions'
 
 export const SET_WALLET = 'SET_WALLET'
 export const setWallet = (wallet: TempleWallet) => (dispatch: any, getState: any) => {
@@ -39,7 +39,7 @@ export const connect =
   ({ forcePermission = false }: { forcePermission?: boolean }) =>
   async (dispatch: any, getState: any) => {
     const state: State = getState()
-
+    console.log('%c ||||| state', 'color:yellowgreen', state)
     try {
       if (!state.wallet) {
         dispatch(showToaster(ERROR, 'Temple Wallet not available', ''))
@@ -56,7 +56,7 @@ export const connect =
           ready: Boolean(tzs),
           accountPkh: accountPkh,
         })
-
+        console.log('%c ||||| accountPkh', 'color:yellowgreen', accountPkh)
         if (accountPkh) dispatch(getUserData(accountPkh))
       }
     } catch (err: any) {
