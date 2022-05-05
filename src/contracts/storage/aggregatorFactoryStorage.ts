@@ -1,6 +1,6 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
+
 import { bob } from '../scripts/sandbox/accounts'
-import { BigNumber } from "bignumber.js";
 import { aggregatorFactoryStorageType } from "../test/types/aggregatorFactoryStorageType";
 
 const metadata = MichelsonMap.fromLiteral({
@@ -17,12 +17,13 @@ const metadata = MichelsonMap.fromLiteral({
 
 export const aggregatorFactoryStorage : aggregatorFactoryStorageType = {
   
-  admin                 : bob.pkh,
-  metadata              : metadata,
-  mvkTokenAddress       : "",
+  admin                   : bob.pkh,
+  metadata                : metadata,
+  mvkTokenAddress         : "",
+    
+  trackedAggregators      : MichelsonMap.fromLiteral({}),
+  trackedSatellites       : [],
   
-  trackedAggregators    : MichelsonMap.fromLiteral({}),
-  trackedSatellites     : [],
-
-  lambdaLedger          : MichelsonMap.fromLiteral({}),
+  lambdaLedger            : MichelsonMap.fromLiteral({}),
+  aggregatorlambdaLedger  : MichelsonMap.fromLiteral({}),
 };
