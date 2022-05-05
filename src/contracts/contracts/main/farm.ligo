@@ -82,7 +82,7 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 // ------------------------------------------------------------------------------
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                                                = 1n;
+[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                                          = 1n;
 [@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
 [@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                                          = 3n;
 [@inline] const error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED                                 = 4n;
