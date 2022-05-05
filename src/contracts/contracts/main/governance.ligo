@@ -57,6 +57,7 @@ type governanceAction is
     | VotingRoundVote                 of (voteForProposalChoiceType)    
     | ExecuteProposal                 of (unit)
     | ProcessProposalPayment          of proposalIdType
+    | ProcessProposalSingleData       of (unit)
     | DropProposal                    of proposalIdType
 
       // Financial Governance Entrypoints
@@ -1222,7 +1223,7 @@ block {
 
 
 // (* processProposalPayment entrypoint *)
-function processProposalPayment(var s : governanceStorage) : return is 
+function processProposalPayment(const proposalID: proposalIdType; var s : governanceStorage) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaProcessProposalPayment"] of [
@@ -1231,7 +1232,26 @@ block {
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaExecuteProposal(unit);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaProcessProposalPayment(proposalID);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
+// (* processProposalSingleData entrypoint *)
+function processProposalSingleData(var s : governanceStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaProcessProposalSingleData"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaProcessProposalSingleData(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1426,7 +1446,8 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | LockProposal(parameters)                    -> lockProposal(parameters, s)
         | VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
         | ExecuteProposal(_parameters)                -> executeProposal(s)
-        | ProcessProposalPayment(_parameters)         -> processProposalPayment(s)
+        | ProcessProposalPayment(parameters)          -> processProposalPayment(parameters, s)
+        | ProcessProposalSingleData(_parameters)      -> processProposalSingleData(s)
         | DropProposal(parameters)                    -> dropProposal(parameters, s)
 
           // Financial Governance Entrypoints

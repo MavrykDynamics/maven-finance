@@ -406,24 +406,26 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.setLambda("lambdaSetContractAdmin"                , governanceLambdas[10])) // setContractAdmin
       .withContractCall(governance.contract.methods.setLambda("lambdaSetContractGovernance"           , governanceLambdas[11])) // setContractGovernance
       .withContractCall(governance.contract.methods.setLambda("lambdaStartNextRound"                  , governanceLambdas[12])) // startNextRound
+      .withContractCall(governance.contract.methods.setLambda("lambdaPropose"                         , governanceLambdas[13])) // propose
       const setupGovernanceFirstLambdasOperation = await governanceLambdaFirstBatch.send()
       await setupGovernanceFirstLambdasOperation.confirmation()
 
       const governanceLambdaSecondBatch = await tezos.wallet
       .batch()
-      .withContractCall(governance.contract.methods.setLambda("lambdaPropose"                         , governanceLambdas[13])) // propose
       .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdateProposalData"           , governanceLambdas[14])) // addUpdateProposalData
       .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdatePaymentData"            , governanceLambdas[15])) // addUpdatePaymentData
       .withContractCall(governance.contract.methods.setLambda("lambdaLockProposal"                    , governanceLambdas[16])) // lockProposal
       .withContractCall(governance.contract.methods.setLambda("lambdaProposalRoundVote"               , governanceLambdas[17])) // proposalRoundVote
       .withContractCall(governance.contract.methods.setLambda("lambdaVotingRoundVote"                 , governanceLambdas[18])) // votingRoundVote
       .withContractCall(governance.contract.methods.setLambda("lambdaExecuteProposal"                 , governanceLambdas[19])) // executeProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaDropProposal"                    , governanceLambdas[20])) // dropProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaRequestTokens"                   , governanceLambdas[21])) // requestTokens
-      .withContractCall(governance.contract.methods.setLambda("lambdaRequestMint"                     , governanceLambdas[22])) // requestMint
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractBaker"                , governanceLambdas[23])) // setContractBaker
-      .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"            , governanceLambdas[24])) // dropFinancialRequest
-      .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                  , governanceLambdas[25])) // voteForRequest
+      .withContractCall(governance.contract.methods.setLambda("lambdaProcessProposalPayment"          , governanceLambdas[20])) // processProposalPayment
+      .withContractCall(governance.contract.methods.setLambda("lambdaProcessProposalSingleData"       , governanceLambdas[21])) // processProposalSingleData
+      .withContractCall(governance.contract.methods.setLambda("lambdaDropProposal"                    , governanceLambdas[22])) // dropProposal
+      .withContractCall(governance.contract.methods.setLambda("lambdaRequestTokens"                   , governanceLambdas[23])) // requestTokens
+      .withContractCall(governance.contract.methods.setLambda("lambdaRequestMint"                     , governanceLambdas[24])) // requestMint
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractBaker"                , governanceLambdas[25])) // setContractBaker
+      .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"            , governanceLambdas[26])) // dropFinancialRequest
+      .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                  , governanceLambdas[27])) // voteForRequest
       const setupGovernanceSecondLambdasOperation = await governanceLambdaSecondBatch.send()
       await setupGovernanceSecondLambdasOperation.confirmation()
       console.log("Governance Lambdas Setup")
@@ -776,7 +778,7 @@ describe('Contracts Deployment for Tests', async () => {
             {
               to_: treasury.contract.address,
               token_id: 0,
-              amount: MVK(3000),
+              amount: MVK(6000),
             },
             {
               to_: council.contract.address,
@@ -871,6 +873,9 @@ describe('Contracts Deployment for Tests', async () => {
 
     const setTreasuryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('treasury', treasury.contract.address).send()
     await setTreasuryContractInGovernanceOperation.confirmation()
+
+    const setPaymentTreasuryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('paymentTreasury', treasury.contract.address).send()
+    await setPaymentTreasuryContractInGovernanceOperation.confirmation()
 
     const setFarmFactoryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('farmFactory', farmFactory.contract.address).send()
     await setFarmFactoryContractInGovernanceOperation.confirmation()

@@ -120,7 +120,7 @@
 //                     assert.equal(farmStorage.open, true);
 //                     assert.equal(farmStorage.init, true);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -139,7 +139,7 @@
 //                         "fa12"
 //                     ).send()).to.be.rejected;
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -175,7 +175,7 @@
 //                     assert.equal(farmStorage.open, true);
 //                     assert.equal(farmStorage.init, true);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -203,7 +203,7 @@
 //                     const resetOperation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
 //                     await resetOperation.confirmation();
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -220,7 +220,7 @@
 //                     // Assertion
 //                     assert.strictEqual(farmFactoryStorage.admin,bob.pkh)
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 //         });
@@ -280,7 +280,7 @@
 //                     assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedEnd);
 //                     assert.notEqual(trackFarmIsPaused,trackFarmIsPausedEnd);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -311,7 +311,7 @@
 //                     assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
 //                     assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -386,7 +386,7 @@
 //                     assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedEnd);
 //                     assert.notEqual(trackFarmIsPaused,trackFarmIsPausedEnd);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -417,7 +417,7 @@
 //                     assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
 //                     assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -450,7 +450,7 @@
 //                     assert.equal(withdrawIsPaused,withdrawIsPausedEnd);
 //                     assert.equal(claimIsPaused,claimIsPausedEnd);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 //         });
@@ -493,7 +493,7 @@
 //                     assert.notEqual(createFarmIsPaused,createFarmIsPausedPause);
 //                     assert.equal(createFarmIsPaused,createFarmIsPausedUnpause);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -515,7 +515,7 @@
 //                     // Assertion
 //                     assert.equal(createFarmIsPaused,createFarmIsPausedEnd);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 //         });
@@ -549,7 +549,7 @@
 //                     assert.notEqual(untrackFarmIsPaused,untrackFarmIsPausedPause);
 //                     assert.equal(untrackFarmIsPaused,untrackFarmIsPausedUnpause);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -571,7 +571,7 @@
 //                     // Assertion
 //                     assert.equal(untrackFarmIsPaused,untrackFarmIsPausedEnd);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 //         });
@@ -605,7 +605,7 @@
 //                     assert.notEqual(trackFarmIsPaused,trackFarmIsPausedPause);
 //                     assert.equal(trackFarmIsPaused,trackFarmIsPausedUnpause);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -627,7 +627,7 @@
 //                     // Assertion
 //                     assert.equal(trackFarmIsPaused,trackFarmIsPausedEnd);
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 //         });
@@ -644,7 +644,7 @@
 //                     const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
 //                     assert.equal(createdFarm,false);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -671,7 +671,7 @@
 //                     const createdFarm       = await farmFactoryStorage.trackedFarms.includes(farmAddress);
 //                     assert.equal(createdFarm,true);
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -680,7 +680,7 @@
 //                     // Create a transaction for initiating a farm
 //                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -690,7 +690,7 @@
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 //         });
@@ -699,86 +699,74 @@
 //             before("Set Bob as council contract", async () => {
 //                 try{
 //                     await signerFactory(bob.sk);
-//                     const updateWhitelistContracts = await farmFactoryInstance.methods.updateWhitelistContracts('council', bob.pkh).send();
+
+//                     // Farm Factory --> Bob as council
+//                     var updateWhitelistContracts = await farmFactoryInstance.methods.updateWhitelistContracts('council', bob.pkh).send();
 //                     await updateWhitelistContracts.confirmation()
+
+//                     // Created Farm --> Bob as council
+//                     farmFactoryStorage  = await farmFactoryInstance.storage();
+//                     const trackedFarms = await farmFactoryStorage.trackedFarms;
+
+//                     for (let entry of trackedFarms){
+//                         // Get contract storage
+//                         var contract        = await utils.tezos.contract.at(entry);
+    
+//                         // Check admin
+//                         updateWhitelistContracts = await contract.methods.updateWhitelistContracts('council', bob.pkh).send();
+//                         await updateWhitelistContracts.confirmation()
+//                     }
+
 //                 } catch(e) {
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             });
         
 //             it('Council should be able to increase the blocksPerMinute on all tracked farms', async() => {
 //                 try{
 //                     // Initial values
+//                     farmFactoryStorage  = await farmFactoryInstance.storage();
 //                     const trackedFarms = await farmFactoryStorage.trackedFarms;
-//                     const farmAddress = trackedFarms[0]
-//                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
-//                     var farmStorage: farmStorageType = await farmInstance.storage();
-//                     const blockPerMinutes = farmStorage.config.blocksPerMinute;
-//                     const currentRewardPerBlock = farmStorage.config.plannedRewards.currentRewardPerBlock;
-//                     const totalBlocks = farmStorage.config.plannedRewards.totalBlocks;
-//                     const totalRewards = farmStorage.config.plannedRewards.totalRewards;
-//                     const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
 
 //                     // Create an operation
 //                     const updateOperation = await farmFactoryInstance.methods.updateBlocksPerMinute(3).send();
 //                     await updateOperation.confirmation();
 
-//                     // Final values
-//                     farmStorage = await farmInstance.storage();
-//                     const blockPerMinutesEnd = farmStorage.config.blocksPerMinute;
-//                     const currentRewardPerBlockEnd = farmStorage.config.plannedRewards.currentRewardPerBlock;
-//                     const totalBlocksEnd = farmStorage.config.plannedRewards.totalBlocks;
-//                     const totalRewardsEnd = farmStorage.config.plannedRewards.totalRewards;
 
-//                     farmFactoryStorage = await farmFactoryInstance.storage();
-//                     const factoryBlockPerMinutesEnd = farmFactoryStorage.blocksPerMinute;
+//                     for (let entry of trackedFarms){
+//                         // Get contract storage
+//                         var contract        = await utils.tezos.contract.at(entry);
+//                         var storage: any    = await contract.storage();
 
-//                     // Assertion
-//                     assert.notEqual(blockPerMinutes,blockPerMinutesEnd);
-//                     assert.notEqual(currentRewardPerBlock,currentRewardPerBlockEnd);
-//                     assert.notEqual(totalBlocks,totalBlocksEnd);
-//                     assert.strictEqual(totalRewards.toNumber(),totalRewardsEnd.toNumber());
-//                     assert.notEqual(factoryBlockPerMinutes,factoryBlockPerMinutesEnd);
+//                         // Check blocksPerMinute
+//                         assert.equal(storage.config.blocksPerMinute, 3);
+//                     }
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
 //             it('Council should be able to decrease the blocksPerMinute on all tracked farms', async() => {
 //                 try{
 //                     // Initial values
+//                     farmFactoryStorage  = await farmFactoryInstance.storage();
 //                     const trackedFarms = await farmFactoryStorage.trackedFarms;
-//                     const farmAddress = trackedFarms[0]
-//                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
-//                     var farmStorage: farmStorageType = await farmInstance.storage();
-//                     const blockPerMinutes = farmStorage.config.blocksPerMinute;
-//                     const currentRewardPerBlock = farmStorage.config.plannedRewards.currentRewardPerBlock;
-//                     const totalBlocks = farmStorage.config.plannedRewards.totalBlocks;
-//                     const totalRewards = farmStorage.config.plannedRewards.totalRewards;
-//                     const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
 
 //                     // Create an operation
 //                     const updateOperation = await farmFactoryInstance.methods.updateBlocksPerMinute(1).send();
 //                     await updateOperation.confirmation();
 
-//                     // Final values
-//                     farmStorage = await farmInstance.storage();
-//                     const blockPerMinutesEnd = farmStorage.config.blocksPerMinute;
-//                     const currentRewardPerBlockEnd = farmStorage.config.plannedRewards.currentRewardPerBlock;
-//                     const totalBlocksEnd = farmStorage.config.plannedRewards.totalBlocks;
-//                     const totalRewardsEnd = farmStorage.config.plannedRewards.totalRewards;
 
-//                     farmFactoryStorage = await farmFactoryInstance.storage();
-//                     const factoryBlockPerMinutesEnd = farmFactoryStorage.blocksPerMinute;
+//                     for (let entry of trackedFarms){
+//                         // Get contract storage
+//                         var contract        = await utils.tezos.contract.at(entry);
+//                         var storage: any    = await contract.storage();
 
-//                     // Assertion
-//                     assert.notEqual(blockPerMinutes,blockPerMinutesEnd);
-//                     assert.notEqual(currentRewardPerBlock,currentRewardPerBlockEnd);
-//                     assert.notEqual(totalBlocks,totalBlocksEnd);
-//                     assert.equal(totalRewards.toNumber(),totalRewardsEnd.toNumber());
-//                     assert.notEqual(factoryBlockPerMinutes,factoryBlockPerMinutesEnd);
+//                         // Check blocksPerMinute
+//                         assert.equal(storage.config.blocksPerMinute, 1);
+//                     }
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 
@@ -787,36 +775,10 @@
 //                     // Change signer
 //                     await signerFactory(alice.sk);
 
-//                     // Initial values
-//                     const trackedFarms = await farmFactoryStorage.trackedFarms;
-//                     const farmAddress = trackedFarms[0]
-//                     const farmInstance   = await utils.tezos.contract.at(farmAddress);
-//                     var farmStorage: farmStorageType = await farmInstance.storage();
-//                     const blockPerMinutes = farmStorage.config.blocksPerMinute;
-//                     const currentRewardPerBlock = farmStorage.config.plannedRewards.currentRewardPerBlock;
-//                     const totalBlocks = farmStorage.config.plannedRewards.totalBlocks;
-//                     const totalRewards = farmStorage.config.plannedRewards.totalRewards;
-//                     const factoryBlockPerMinutes = farmFactoryStorage.blocksPerMinute;
-
 //                     // Create a transaction for initiating a farm
 //                     await chai.expect(farmFactoryInstance.methods.updateBlocksPerMinute(2).send()).to.be.rejected;
-
-//                     // Final values
-//                     farmStorage = await farmInstance.storage();
-//                     const blockPerMinutesEnd = farmStorage.config.blocksPerMinute;
-//                     const currentRewardPerBlockEnd = farmStorage.config.plannedRewards.currentRewardPerBlock;
-//                     const totalBlocksEnd = farmStorage.config.plannedRewards.totalBlocks;
-//                     const totalRewardsEnd = farmStorage.config.plannedRewards.totalRewards;
-//                     const factoryBlockPerMinutesEnd = farmFactoryStorage.blocksPerMinute;
-                    
-//                     // Assertion
-//                     assert.equal(blockPerMinutes.toNumber(),blockPerMinutesEnd.toNumber());
-//                     assert.equal(currentRewardPerBlock.toNumber(),currentRewardPerBlockEnd.toNumber());
-//                     assert.equal(totalBlocks.toNumber(),totalBlocksEnd.toNumber());
-//                     assert.equal(totalRewards.toNumber(),totalRewardsEnd.toNumber());
-//                     assert.equal(factoryBlockPerMinutes.toNumber(),factoryBlockPerMinutesEnd.toNumber());
 //                 }catch(e){
-//                     console.log(e)
+//                     console.dir(e, {depth: 5})
 //                 }
 //             })
 //         });
@@ -888,7 +850,7 @@
 //                     console.log("Doorman's ledger in MVK Token Contract")
 //                     console.log(doormanLedger)
 //                 }catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
@@ -935,55 +897,54 @@
 //                 }
 //             })
 
-//             // it('Create a farm, deposit and try to claim in it without having the farm factory contract in the doorman generalContracts map', async () => {
-//             //     try{
-//             //         // Deposit
-//             //         const amountToDeposit = 2;
+//             it('Create a farm, deposit and try to claim in it without having the farm factory contract in the doorman generalContracts map', async () => {
+//                 try{
+//                     // Deposit
+//                     const amountToDeposit = 2;
 
-//             //         // Create a transaction for initiating a farm
-//             //         const createFarmOperation = await farmFactoryInstance.methods.createFarm(
-//             //             false,
-//             //             false,
-//             //             100,
-//             //             12000,
-//             //             lpTokenAddress.address,
-//             //             0,
-//             //             "fa12",
-//             // "KT193D4vozYnhGJQVtw7CoxxqphqUEEwK6Vb",
-//             // "KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b"
-//             //         ).send();
-//             //         await createFarmOperation.confirmation()
+//                     // Create a transaction for initiating a farm
+//                     const createFarmOperation = await farmFactoryInstance.methods.createFarm(
+//                         false,
+//                         false,
+//                         100,
+//                         12000,
+//                         farmMetadataBase,
+//                         lpTokenAddress.address,
+//                         0,
+//                         "fa12"
+//                     ).send();
+//                     await createFarmOperation.confirmation()
 
-//             //         // Created farms
-//             //         farmFactoryStorage    = await farmFactoryInstance.storage();
+//                     // Created farms
+//                     farmFactoryStorage    = await farmFactoryInstance.storage();
 
-//             //         // Get the new farm
-//             //         farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
-//             //         farmInstance                            = await utils.tezos.contract.at(farmAddress);
-//             //         farmStorage                             = await farmInstance.storage();
+//                     // Get the new farm
+//                     farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
+//                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
+//                     farmStorage                             = await farmInstance.storage();
 
-//             //          // Create a transaction for allowing farm to spend LP Token in the name of Bob
-//             //         const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
-//             //         const bobApprovalsStart = await bobLedgerStart.allowances.get(farmAddress);
+//                      // Create a transaction for allowing farm to spend LP Token in the name of Bob
+//                     const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
+//                     const bobApprovalsStart = await bobLedgerStart.allowances.get(farmAddress);
 
-//             //         // Check Bob has no pending approvals for the farm
-//             //         if(bobApprovalsStart===undefined || bobApprovalsStart<amountToDeposit){
-//             //             const allowances = bobApprovalsStart===undefined ? amountToDeposit : Math.abs(bobApprovalsStart - amountToDeposit);
-//             //             const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
-//             //             await approveOperation.confirmation();
-//             //         }
-//             //         // Deposit operation
-//             //         const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
-//             //         await depositOperation.confirmation();
+//                     // Check Bob has no pending approvals for the farm
+//                     if(bobApprovalsStart===undefined || bobApprovalsStart<amountToDeposit){
+//                         const allowances = bobApprovalsStart===undefined ? amountToDeposit : Math.abs(bobApprovalsStart - amountToDeposit);
+//                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
+//                         await approveOperation.confirmation();
+//                     }
+//                     // Deposit operation
+//                     const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
+//                     await depositOperation.confirmation();
 
-//             //         // Claim operation after a few blocks
-//             //         await new Promise(resolve => setTimeout(resolve, 6000));
-//             //         const claimOperation = await farmInstance.methods.claim().send();
-//             //         await claimOperation.confirmation()
-//             //     }catch(e){
-//             //         assert.strictEqual(e.message, "Error. Farm Factory Contract is not found.")
-//             //     }
-//             // })
+//                     // Claim operation after a few blocks
+//                     await new Promise(resolve => setTimeout(resolve, 6000));
+//                     const claimOperation = await farmInstance.methods.claim().send();
+//                     await claimOperation.confirmation()
+//                 }catch(e){
+//                     assert.strictEqual(e.message, "Error. Farm Factory Contract is not found.")
+//                 }
+//             })
 //         });
 //     });
 // });
