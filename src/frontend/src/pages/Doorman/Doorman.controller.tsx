@@ -4,13 +4,13 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { Page } from 'styles'
 
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { getDoormanStorage, getMvkTokenStorage, getUserData, stake, unstake } from './Doorman.actions'
+import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
 import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
-import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 
 export const Doorman = () => {
   const dispatch = useDispatch()
@@ -19,6 +19,7 @@ export const Doorman = () => {
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
   const { doormanStorage, totalStakedMvkSupply } = useSelector((state: State) => state.doorman)
   const { user } = useSelector((state: State) => state.user)
+
   // const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
   // const myMvkStakeBalance = userStakeInfo?.mySMvkBalance || '0.00' //userStakeBalanceLedger?.get(accountPkh || '')
 
@@ -46,8 +47,8 @@ export const Doorman = () => {
       <ExitFeeModal />
       <PageHeader page={'doorman'} kind={PRIMARY} loading={loading} />
       <StakeUnstakeView
-        myMvkTokenBalance={user.myMvkTokenBalance}
-        userStakeBalance={user.mySMvkTokenBalance}
+        myMvkTokenBalance={user?.myMvkTokenBalance}
+        userStakeBalance={user?.mySMvkTokenBalance}
         stakeCallback={stakeCallback}
         unstakeCallback={unstakeCallback}
         loading={loading}

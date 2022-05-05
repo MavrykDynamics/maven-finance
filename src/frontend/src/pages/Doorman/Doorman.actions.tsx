@@ -5,8 +5,7 @@ import doormanAddress from 'deployments/doormanAddress.json'
 import mvkTokenAddress from 'deployments/mvkTokenAddress.json'
 import { State } from 'reducers'
 
-import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
-import { PRECISION_NUMBER } from '../../utils/constants'
+import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import {
   DOORMAN_STORAGE_QUERY,
   DOORMAN_STORAGE_QUERY_NAME,
@@ -15,12 +14,13 @@ import {
   MVK_TOKEN_STORAGE_QUERY_NAME,
   MVK_TOKEN_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries'
-import { fetchFromIndexer } from '../../gql/fetchGraphQL'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
-import { calcWithoutMu } from '../../utils/calcFunctions'
-import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
 import { USER_INFO_QUERY, USER_INFO_QUERY_NAME, USER_INFO_QUERY_VARIABLES } from '../../gql/queries'
+import { calcWithoutMu } from '../../utils/calcFunctions'
+import { PRECISION_NUMBER } from '../../utils/constants'
+import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
+import storageToTypeConverter from '../../utils/storageToTypeConverter'
 import { UserData } from '../../utils/TypesAndInterfaces/User'
+import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -292,14 +292,14 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
       USER_INFO_QUERY_VARIABLES(accountPkh),
     )
     const userInfoData = userInfoFromIndexer?.mavryk_user[0]
-    const userIsDelegatedToSatellite = userInfoData.delegation_records.length > 0
+    const userIsDelegatedToSatellite = userInfoData?.delegation_records.length > 0
     const userInfo: UserData = {
-      myAddress: userInfoData.address,
-      myMvkTokenBalance: calcWithoutMu(userInfoData.mvk_balance),
-      mySMvkTokenBalance: calcWithoutMu(userInfoData.smvk_balance),
-      participationFeesPerShare: calcWithoutMu(userInfoData.participation_fees_per_share),
+      myAddress: userInfoData?.address,
+      myMvkTokenBalance: calcWithoutMu(userInfoData?.mvk_balance),
+      mySMvkTokenBalance: calcWithoutMu(userInfoData?.smvk_balance),
+      participationFeesPerShare: calcWithoutMu(userInfoData?.participation_fees_per_share),
       satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite
-        ? userInfoData.delegation_records[0].satellite_record?.user_id
+        ? userInfoData?.delegation_records[0].satellite_record?.user_id
         : '',
     }
     setItemInStorage('UserData', userInfo)
