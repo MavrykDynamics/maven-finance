@@ -37,7 +37,7 @@ type setObservationCommitType is  [@layout:comb] record [
 
 type setObservationRevealType is  [@layout:comb] record [
     roundId: nat;
-    priceSalted: nat * string;
+    priceSalted: nat * string * address;
 ];
 
 type aggregatorConfigType is [@layout:comb] record [

@@ -6,7 +6,7 @@ const sha256 = require("sha256");
 import assert, { ok, rejects, strictEqual } from "assert";
 import { Utils } from "./helpers/Utils";
 import BigNumber from 'bignumber.js';
-import { packDataBytes } from '@taquito/michel-codec';
+import { packData, MichelsonData, MichelsonType } from '@taquito/michel-codec';
 import { bob, alice, eve, mallory, david, trudy, susie } from "../scripts/sandbox/accounts";
 import aggregatorAddress from '../deployments/aggregatorAddress.json';
 import { aggregatorStorageType } from './types/aggregatorStorageType';
@@ -206,14 +206,25 @@ describe('Aggregator', async () => {
 
 
         const beforeStorage: aggregatorStorageType = await aggregator.storage();
-
         const round = beforeStorage.round;
         const price = new BigNumber(123);
-        const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
-        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-        const priceCodec = packDataBytes(data,typ);
+        const data: MichelsonData = {
+          prim: 'Pair',
+          args: [
+            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+            { string: bob.pkh },
+          ],
+        };
+        const type: MichelsonType = {
+          prim: 'pair',
+          args: [
+            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+            { prim: 'address' },
+          ],
+        };
+        const priceCodec = packData(data, type);
 
-        const hash = sha256(priceCodec.bytes);
+        const hash = sha256(priceCodec);
         const op = aggregator.methods.setObservationCommit(round, hash);
 
         const tx = await op.send();
@@ -240,10 +251,22 @@ describe('Aggregator', async () => {
         const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
         const price = new BigNumber(123);
-        const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
-        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-        const priceCodec = packDataBytes(data,typ);
-        const hash = sha256(priceCodec.bytes);
+        const data: MichelsonData = {
+          prim: 'Pair',
+          args: [
+            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+            { string: eve.pkh },
+          ],
+        };
+        const type: MichelsonType = {
+          prim: 'pair',
+          args: [
+            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+            { prim: 'address' },
+          ],
+        };
+        const priceCodec = packData(data, type);
+        const hash = sha256(priceCodec);
         const op = aggregator.methods.setObservationCommit(round, hash);
 
         const tx = await op.send();
@@ -267,10 +290,22 @@ describe('Aggregator', async () => {
 
         const round = beforeStorage.round;
         const price = new BigNumber(123);
-        const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
-        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-        const priceCodec = packDataBytes(data,typ);
-        const hash = sha256(priceCodec.bytes);
+        const data: MichelsonData = {
+          prim: 'Pair',
+          args: [
+            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+            { string: mallory.pkh },
+          ],
+        };
+        const type: MichelsonType = {
+          prim: 'pair',
+          args: [
+            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+            { prim: 'address' },
+          ],
+        };
+        const priceCodec = packData(data, type);
+        const hash = sha256(priceCodec);
         const op = aggregator.methods.setObservationCommit(round, hash);
 
         const tx = await op.send();
@@ -291,11 +326,11 @@ describe('Aggregator', async () => {
 
         const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
-
         const op = aggregator.methods.setObservationReveal(
           round,
           new BigNumber(123),
           salt,
+          bob.pkh
         );
 
         // await chai.expect(op.send()).rejects.toThrow('You cannot reveal now');
@@ -339,7 +374,8 @@ describe('Aggregator', async () => {
         const op = aggregator.methods.setObservationReveal(
           new BigNumber(10),      // roundId
           new BigNumber(123),     // priceSalted.0 -> price
-          salt                    // priceSalted.1 -> salt
+          salt,                    // priceSalted.1 -> salt
+          david.pkh
         );
 
         // await chai.expect(op.send()).rejects.toThrow(
@@ -363,6 +399,7 @@ describe('Aggregator', async () => {
           round.minus(1),
           new BigNumber(123),
           salt,
+          bob.pkh
         );
 
         // await chai.expect(op.send()).rejects.toThrow('Wrong round number');
@@ -383,7 +420,7 @@ describe('Aggregator', async () => {
         const round = beforeStorage.round;
         const price = new BigNumber(123);
 
-        const op = aggregator.methods.setObservationReveal(round, price, salt);
+        const op = aggregator.methods.setObservationReveal(round, price, salt, bob.pkh);
 
         const tx = await op.send();
         await tx.confirmation();
@@ -408,7 +445,8 @@ describe('Aggregator', async () => {
         const op = aggregator.methods.setObservationReveal(
           new BigNumber(123),
           round,
-          salt
+          salt,
+          bob.pkh
         );
 
         // await chai.expect(op.send()).rejects.toThrow(
@@ -430,7 +468,7 @@ describe('Aggregator', async () => {
         const round = beforeStorage.round;
         const price = new BigNumber(123);
 
-        const op = aggregator.methods.setObservationReveal(round, price, salt);
+        const op = aggregator.methods.setObservationReveal(round, price, salt,eve.pkh);
 
         const tx = await op.send();
         await tx.confirmation();
@@ -453,7 +491,7 @@ describe('Aggregator', async () => {
         const round = beforeStorage.round;
         const price = new BigNumber(123);
 
-        const op = aggregator.methods.setObservationReveal(round, price, salt);
+        const op = aggregator.methods.setObservationReveal(round, price, salt,mallory.pkh);
         const tx = await op.send();
         await tx.confirmation();
 
@@ -479,10 +517,22 @@ describe('Aggregator', async () => {
         const previousStorage: aggregatorStorageType = await aggregator.storage();
         const roundId = new BigNumber(previousStorage.round);
         const price = new BigNumber(200);
-        const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
-        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-        const priceCodec = packDataBytes(data,typ);
-        const hash = sha256(priceCodec.bytes);
+        const data: MichelsonData = {
+          prim: 'Pair',
+          args: [
+            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+            { string: eve.pkh },
+          ],
+        };
+        const type: MichelsonType = {
+          prim: 'pair',
+          args: [
+            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+            { prim: 'address' },
+          ],
+        };
+        const priceCodec = packData(data, type);
+        const hash = sha256(priceCodec);
         const op = aggregator.methods.requestRateUpdateDeviation(
           new BigNumber(roundId).plus(1),
           hash
@@ -505,10 +555,22 @@ describe('Aggregator', async () => {
         const previousStorage: aggregatorStorageType = await aggregator.storage();
         const roundId = previousStorage.round;
         const price = new BigNumber(200);
-        const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
-        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-        const priceCodec = packDataBytes(data,typ);
-        const hash = sha256(priceCodec.bytes);
+        const data: MichelsonData = {
+          prim: 'Pair',
+          args: [
+            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+            { string: mallory.pkh },
+          ],
+        };
+        const type: MichelsonType = {
+          prim: 'pair',
+          args: [
+            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+            { prim: 'address' },
+          ],
+        };
+        const priceCodec = packData(data, type);
+        const hash = sha256(priceCodec);
         const op = aggregator.methods.requestRateUpdateDeviation(
           roundId.plus(1),
           hash
@@ -532,10 +594,22 @@ describe('Aggregator', async () => {
         const previousStorage: aggregatorStorageType = await aggregator.storage();
         const roundId = new BigNumber(previousStorage.round);
         const price = 2000;
-        const data: any = { prim: "Pair", args: [ { int: price }, { string: salt } ] };
-        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-        const priceCodec = packDataBytes(data,typ);
-        const hash = sha256(priceCodec.bytes);
+        const data: MichelsonData = {
+          prim: 'Pair',
+          args: [
+            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+            { string: eve.pkh },
+          ],
+        };
+        const type: MichelsonType = {
+          prim: 'pair',
+          args: [
+            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+            { prim: 'address' },
+          ],
+        };
+        const priceCodec = packData(data, type);
+        const hash = sha256(priceCodec);
         const op = aggregator.methods.requestRateUpdateDeviation(
           new BigNumber(roundId).plus(1),
           hash
@@ -558,10 +632,22 @@ describe('Aggregator', async () => {
         const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
         const price = new BigNumber(200);
-        const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
-        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-        const priceCodec = packDataBytes(data,typ);
-        const hash = sha256(priceCodec.bytes);
+        const data: MichelsonData = {
+          prim: 'Pair',
+          args: [
+            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+            { string: eve.pkh },
+          ],
+        };
+        const type: MichelsonType = {
+          prim: 'pair',
+          args: [
+            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+            { prim: 'address' },
+          ],
+        };
+        const priceCodec = packData(data, type);
+        const hash = sha256(priceCodec);
         const op = aggregator.methods.setObservationCommit(round, hash);
         const tx = await op.send();
         await tx.confirmation();
@@ -591,7 +677,7 @@ describe('Aggregator', async () => {
         const round = beforeStorage.round;
         const price = new BigNumber(200);
 
-        const op = aggregator.methods.setObservationReveal(round, price, salt);
+        const op = aggregator.methods.setObservationReveal(round, price, salt,eve.pkh);
 
         const tx = await op.send();
         await tx.confirmation();
@@ -614,7 +700,7 @@ describe('Aggregator', async () => {
         const round = beforeStorage.round;
         const price = new BigNumber(200);
 
-        const op = aggregator.methods.setObservationReveal(round, price, salt);
+        const op = aggregator.methods.setObservationReveal(round, price, salt,mallory.pkh);
 
         const tx = await op.send();
         await tx.confirmation();
@@ -639,10 +725,22 @@ describe('Aggregator', async () => {
         const previousStorage: aggregatorStorageType = await aggregator.storage();
         const roundId = previousStorage.round;
         const price = new BigNumber(200);
-        const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
-        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-        const priceCodec = packDataBytes(data,typ);
-        const hash = sha256(priceCodec.bytes);
+        const data: MichelsonData = {
+          prim: 'Pair',
+          args: [
+            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+            { string: david.pkh },
+          ],
+        };
+        const type: MichelsonType = {
+          prim: 'pair',
+          args: [
+            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+            { prim: 'address' },
+          ],
+        };
+        const priceCodec = packData(data, type);
+        const hash = sha256(priceCodec);
 
         const op = aggregator.methods['requestRateUpdateDeviation'](
           roundId.plus(1),
@@ -671,10 +769,22 @@ describe('Aggregator', async () => {
         const beforeStorage: aggregatorStorageType = await aggregator.storage();
         const round = beforeStorage.round;
         const price = new BigNumber(200);
-        const data: any = { prim: "Pair", args: [ { int: price.toNumber() }, { string: salt } ] };
-        const typ: any = { prim: "pair", args: [ { prim: "int" }, { prim: "string" } ] };
-        const priceCodec = packDataBytes(data,typ);
-        const hash = sha256(priceCodec.bytes);
+        const data: MichelsonData = {
+          prim: 'Pair',
+          args: [
+            { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+            { string: eve.pkh },
+          ],
+        };
+        const type: MichelsonType = {
+          prim: 'pair',
+          args: [
+            { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+            { prim: 'address' },
+          ],
+        };
+        const priceCodec = packData(data, type);
+        const hash = sha256(priceCodec);
         const op = aggregator.methods.setObservationCommit(round, hash);
         const tx = await op.send();
         await tx.confirmation();
@@ -704,7 +814,7 @@ describe('Aggregator', async () => {
         const round = beforeStorage.round;
         const price = new BigNumber(200);
 
-        const op = aggregator.methods.setObservationReveal(round, price, salt);
+        const op = aggregator.methods.setObservationReveal(round, price, salt,eve.pkh);
 
         const tx = await op.send();
         await tx.confirmation();
@@ -727,7 +837,7 @@ describe('Aggregator', async () => {
         const round = beforeStorage.round;
         const price = new BigNumber(200);
 
-        const op = aggregator.methods.setObservationReveal(round, price, salt);
+        const op = aggregator.methods.setObservationReveal(round, price, salt,david.pkh);
 
         const tx = await op.send();
         await tx.confirmation();
