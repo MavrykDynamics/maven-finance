@@ -407,7 +407,7 @@ block {
 function togglePauseCreateTreasury(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseCreateTreasury"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCreateTreasury"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -426,7 +426,7 @@ block {
 function togglePauseUntrackTreasury(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackTreasury"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUntrackTreasury"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -445,7 +445,7 @@ block {
 function togglePauseTrackTreasury(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseTrackTreasury"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTrackTreasury"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];

@@ -81,26 +81,34 @@
   },
   {
     "index": 20,
-     "name": "lambdaDropProposal"
+    "name": "lambdaProcessProposalPayment"
   },
   {
     "index": 21,
-     "name": "lambdaRequestTokens"
+    "name": "lambdaProcessProposalSingleData"
   },
   {
     "index": 22,
-    "name": "lambdaRequestMint"
+     "name": "lambdaDropProposal"
   },
   {
     "index": 23,
-    "name": "lambdaSetContractBaker"
+     "name": "lambdaRequestTokens"
   },
   {
     "index": 24,
-    "name": "lambdaDropFinancialRequest"
+    "name": "lambdaRequestMint"
   },
   {
     "index": 25,
+    "name": "lambdaSetContractBaker"
+  },
+  {
+    "index": 26,
+    "name": "lambdaDropFinancialRequest"
+  },
+  {
+    "index": 27,
     "name": "lambdaVoteForRequest"
   }
 ]

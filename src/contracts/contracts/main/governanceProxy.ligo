@@ -21,8 +21,11 @@
 // Delegation Type for updateConfig
 #include "../partials/types/delegationTypes.ligo"
 
-// BreakGlass Type
+// Farm Type
 #include "../partials/types/farmTypes.ligo"
+
+// Treasury Type for mint and transfers
+#include "../partials/types/treasuryTypes.ligo"
 
 // Break Glass Type
 #include "../partials/types/breakGlassTypes.ligo"
@@ -349,92 +352,6 @@ block {
 function dataDataPackingHelper(const _governanceAction : executeActionType; var s : governanceProxyStorage) : return is 
   (noOperations, s)
 
-
-
-// (* executeGovernanceProposal entrypoint *)
-// function executeGovernanceProposal(const proposalId : nat; var s : governanceProxyStorage) : return is 
-// block {
-    
-//     checkSenderIsAdmin(s); // governance contract in most cases unless break glass
-
-//     const proposalRecordView : option (option(proposalRecordType)) = Tezos.call_view ("getProposalRecordView", proposalId, s.governanceAddress);
-//     const proposal : proposalRecordType = case satelliteOptView of [
-//         Some (value) -> case value of [
-//             Some (_proposalRecord) -> _proposalRecord
-//           | None                    -> failwith(error_GOVERNANCE_PROPOSAL_RECORD_NOT_FOUND)
-//         ]
-//       | None -> failwith (error_GET_PROPOSAL_RECORD_VIEW_NOT_FOUND)
-//     ];
-
-//     // executed check done on executeProposal in governance contract
-    
-//     // verify that proposal is active and has not been dropped
-//     if proposal.status = "DROPPED" then failwith(error_GOVERNANCE_PROPOSAL_DROPPED)
-//     else skip;
-
-//     // check that there is at least one proposal metadata to execute
-//     if Map.size(proposal.proposalMetadata) = 0n then failwith(error_GOVERNANCE_PROPOSAL_NO_DATA_TO_EXECUTE)
-//     else skip;
-
-    
-//     // loop proposal metadata for execution
-//     for _title -> metadataBytes in map proposal.proposalMetadata block {
-
-//         const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-//               Some(_action) -> _action
-//             | None          -> failwith(error_UNABLE_TO_UNPACK_PROPOSAL_METADATA)
-//         ];
-
-//         const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
-//             executeAction,
-//             0tez,
-//             sendOperationToCallGovernanceLambdaProxy(unit)
-//         );
-
-//         operations := sendActionToGovernanceLambdaOperation # operations;
-
-//     };     
-
-//     // loop payment metadata for execution
-//     for _title -> metadataBytes in map proposal.paymentMetadata block {
-
-//         const executeAction : executeActionType = case (Bytes.unpack(metadataBytes) : option(executeActionType)) of [
-//               Some(_action) -> _action
-//             | None    -> failwith(error_UNABLE_TO_UNPACK_PAYMENT_METADATA)
-//         ];
-
-//         const sendActionToGovernanceLambdaOperation : operation = Tezos.transaction(
-//             executeAction,
-//             0tez,
-//             sendOperationToCallGovernanceLambdaProxy(unit)
-//         );
-
-//         operations := sendActionToGovernanceLambdaOperation # operations;
-    
-//     };     
-
-// } with (operations, s)
-
-
-
-(* callGovernanceLambdaProxy entrypoint *)
-// function callGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceStorage) : return is
-// block {
-    
-//     checkSenderIsAdminOrSelf(s);
-
-//     const governanceLambdaBytes : bytes = case s.proxyLambdaLedger[0n] of [
-//       | Some(_v) -> _v
-//       | None     -> failwith(error_LAMBDA_NOT_FOUND)
-//     ];
-
-//     // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
-//     const res : return = case (Bytes.unpack(governanceLambdaBytes) : option(governanceProxyLambdaFunctionType)) of [
-//         Some(f) -> f(executeAction, s)
-//       | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-//     ];
-  
-// } with (res.0, res.1)
 
 
 // ------------------------------------------------------------------------------

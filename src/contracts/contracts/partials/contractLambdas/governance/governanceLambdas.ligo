@@ -518,46 +518,48 @@ block {
                 else failwith("Error. You cannot propose during this cycle anymore");
 
                 var newProposalRecord : proposalRecordType := record [
-                    proposerAddress         = Tezos.sender;
-                    proposalMetadata        = proposalMetadata;
-                    paymentMetadata         = paymentMetadata;
+                    proposerAddress                     = Tezos.sender;
+                    proposalMetadata                    = proposalMetadata;
+                    proposalMetadataExecutionCounter    = 0n;
+                    paymentMetadata                     = paymentMetadata;
+                    paymentMetadataExecutionCounter     = 0n;
 
-                    status                  = "ACTIVE";                        // status: "ACTIVE", "DROPPED"
-                    title                   = newProposal.title;               // title
-                    description             = newProposal.description;         // description
-                    invoice                 = newProposal.invoice;             // ipfs hash of invoice file
-                    sourceCode              = newProposal.sourceCode;
+                    status                              = "ACTIVE";                        // status: "ACTIVE", "DROPPED"
+                    title                               = newProposal.title;               // title
+                    description                         = newProposal.description;         // description
+                    invoice                             = newProposal.invoice;             // ipfs hash of invoice file
+                    sourceCode                          = newProposal.sourceCode;
 
-                    successReward           = s.config.successReward;          // log of successful proposal reward for voters - may change over time
-                    executed                = False;                           // boolean: executed set to true if proposal is executed
-                    isSuccessful            = False;                           // boolean: set to true if proposal is successful (gone from voting round to timelock round)
-                    paymentProcessed        = False;                           // boolean: set to true if proposal payment has been processed 
-                    locked                  = False;                           // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
-                    
-                    passVoteCount           = 0n;                              // proposal round: pass votes count (to proceed to voting round)
-                    passVoteMvkTotal        = 0n;                              // proposal round pass vote total mvk from satellites who voted pass
-                    passVotersMap           = emptyPassVotersMap;              // proposal round ledger
+                    successReward                       = s.config.successReward;          // log of successful proposal reward for voters - may change over time
+                    executed                            = False;                           // boolean: executed set to true if proposal is executed
+                    isSuccessful                        = False;                           // boolean: set to true if proposal is successful (gone from voting round to timelock round)
+                    paymentProcessed                    = False;                           // boolean: set to true if proposal payment has been processed 
+                    locked                              = False;                           // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
 
-                    minProposalRoundVotePercentage  = s.config.minProposalRoundVotePercentage;   // min vote percentage of total MVK supply required to pass proposal round
-                    minProposalRoundVotesRequired   = s.config.minProposalRoundVotesRequired;    // min staked MVK votes required for proposal round to pass
+                    passVoteCount                       = 0n;                              // proposal round: pass votes count (to proceed to voting round)
+                    passVoteMvkTotal                    = 0n;                              // proposal round pass vote total mvk from satellites who voted pass
+                    passVotersMap                       = emptyPassVotersMap;              // proposal round ledger
 
-                    upvoteCount             = 0n;                              // voting round: upvotes count
-                    upvoteMvkTotal          = 0n;                              // voting round: upvotes MVK total 
-                    downvoteCount           = 0n;                              // voting round: downvotes count
-                    downvoteMvkTotal        = 0n;                              // voting round: downvotes MVK total 
-                    abstainCount            = 0n;                              // voting round: abstain count
-                    abstainMvkTotal         = 0n;                              // voting round: abstain MVK total 
-                    voters                  = emptyVotersMap;                  // voting round ledger
+                    minProposalRoundVotePercentage      = s.config.minProposalRoundVotePercentage;   // min vote percentage of total MVK supply required to pass proposal round
+                    minProposalRoundVotesRequired       = s.config.minProposalRoundVotesRequired;    // min staked MVK votes required for proposal round to pass
 
-                    minQuorumPercentage     = s.config.minQuorumPercentage;    // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
-                    minQuorumMvkTotal       = s.config.minQuorumMvkTotal;      // log of min quorum in MVK - capture state at this point     
-                    quorumCount             = 0n;                              // log of turnout for voting round - number of satellites who voted
-                    quorumMvkTotal          = 0n;                              // log of total positive votes in MVK  
-                    startDateTime           = Tezos.now;                       // log of when the proposal was proposed
+                    upvoteCount                         = 0n;                              // voting round: upvotes count
+                    upvoteMvkTotal                      = 0n;                              // voting round: upvotes MVK total 
+                    downvoteCount                       = 0n;                              // voting round: downvotes count
+                    downvoteMvkTotal                    = 0n;                              // voting round: downvotes MVK total 
+                    abstainCount                        = 0n;                              // voting round: abstain count
+                    abstainMvkTotal                     = 0n;                              // voting round: abstain MVK total 
+                    voters                              = emptyVotersMap;                  // voting round ledger
 
-                    cycle                   = s.cycleCounter;
-                    currentCycleStartLevel  = s.currentRoundStartLevel;        // log current round/cycle start level
-                    currentCycleEndLevel    = s.currentCycleEndLevel;          // log current cycle end level
+                    minQuorumPercentage                 = s.config.minQuorumPercentage;    // log of min quorum percentage - capture state at this point as min quorum percentage may change over time
+                    minQuorumMvkTotal                   = s.config.minQuorumMvkTotal;      // log of min quorum in MVK - capture state at this point     
+                    quorumCount                         = 0n;                              // log of turnout for voting round - number of satellites who voted
+                    quorumMvkTotal                      = 0n;                              // log of total positive votes in MVK  
+                    startDateTime                       = Tezos.now;                       // log of when the proposal was proposed
+
+                    cycle                               = s.cycleCounter;
+                    currentCycleStartLevel              = s.currentRoundStartLevel;        // log current round/cycle start level
+                    currentCycleEndLevel                = s.currentCycleEndLevel;          // log current cycle end level
                 ];
 
                 // save proposal to proposalLedger
@@ -572,8 +574,6 @@ block {
 
                     Some (_metadataMap) -> block{
                     for title -> data in map _metadataMap block {
-                        
-                        // const addUpdateProposalData : contract(addUpdateProposalDataType) = Tezos.self("%addUpdateProposalData");
 
                         // prepare proposal data parameters
                         const proposalData = record [
@@ -599,14 +599,12 @@ block {
 
                     Some (_metadataMap) -> block{
                     for title -> data in map _metadataMap block {
-                        
-                        // const addUpdatePaymentData : contract(addUpdatePaymentDataType) = Tezos.self("%addUpdatePaymentData");
 
                         // prepare payment data parameters
                         const paymentData = record [
-                            proposalId      = proposalId;
-                            title           = title;
-                            paymentBytes    = data;
+                            proposalId              = proposalId;
+                            title                   = title;
+                            paymentTransaction      = data;
                         ];
 
                         // new operation for add/update payment data
@@ -690,9 +688,9 @@ block {
     case governanceLambdaAction of [
         | LambdaAddUpdatePaymentData(paymentData) -> {
                 
-                const proposalId        : nat     = paymentData.proposalId;
-                const title             : string  = paymentData.title;
-                const paymentBytes      : bytes   = paymentData.paymentBytes;
+                const proposalId            : nat                       = paymentData.proposalId;
+                const title                 : string                    = paymentData.title;
+                const paymentTransaction    : transferDestinationType   = paymentData.paymentTransaction;
 
                 // validate inputs
                 if String.length(title) > s.config.proposalMetadataTitleMaxLength then failwith("Error. Proposal metadata title too long") else skip;
@@ -711,7 +709,7 @@ block {
                 else skip;
 
                 // Add or update data to proposal
-                proposalRecord.paymentMetadata[title] := paymentBytes; 
+                proposalRecord.paymentMetadata[title] := paymentTransaction; 
 
                 // save changes and update proposal ledger
                 s.proposalLedger[proposalId] := proposalRecord;
@@ -1081,7 +1079,7 @@ block {
 
     case governanceLambdaAction of [
         | LambdaProcessProposalPayment(proposalId) -> {
-                
+
                 var proposal : proposalRecordType := case s.proposalLedger[proposalId] of [
                       Some(_record) -> _record
                     | None -> failwith("Error. Proposal not found.")
@@ -1109,20 +1107,100 @@ block {
 
                 // update proposal paymentProcessed boolean to True
                 proposal.paymentProcessed              := True;
-                s.proposalLedger[s.timelockProposalId] := proposal;    
+                s.proposalLedger[s.timelockProposalId] := proposal;
 
-                // loop payment metadata for execution
-                for _title -> metadataBytes in map proposal.paymentMetadata block {
+                // turn the operation map to a list for the treasury contract
+                var paymentsData: list(transferDestinationType)   := nil;
+                function getPaymentData(const payments: list(transferDestinationType); const payment: string * transferDestinationType): list(transferDestinationType) is
+                    payment.1 # payments;
+                paymentsData := Map.fold(getPaymentData, proposal.paymentMetadata, paymentsData);
 
-                    const sendPaymentActionToGovernanceProxyForExecutionOperation : operation = Tezos.transaction(
-                        metadataBytes,
-                        0tez,
-                        getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
-                    );
+                // Send the rewards from the treasury to the doorman contract
+                const treasuryAddress: address  = case Map.find_opt("paymentTreasury", s.generalContracts) of [
+                    Some (_treasury) -> _treasury
+                |   None -> failwith("Error. Payment treasury contract not found")
+                ];
+
+                // Send a single operation to the treasury
+                const transferOperation: operation = Tezos.transaction(
+                    paymentsData,
+                    0tez,
+                    sendTransferOperationToTreasury(treasuryAddress)
+                );
+                operations := transferOperation # operations;
+
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* processProposalSingleData lambda *)
+function lambdaProcessProposalSingleData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+block {
+
+    var operations : list(operation) := nil;
+
+    case governanceLambdaAction of [
+        | LambdaProcessProposalSingleData(_parameter) -> {
                 
-                    operations := sendPaymentActionToGovernanceProxyForExecutionOperation # operations;
-                
+                // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
+                if (s.currentRound = (Timelock : roundType) and Tezos.sender =/= Tezos.self_address) or s.currentRound = (Voting : roundType) then failwith("Error. Proposal can only be executed after timelock period ends if executed manually.")
+                else skip;
+
+                // check that there is a highest voted proposal in the current round
+                if s.timelockProposalId = 0n then failwith("Error: No proposal to execute. Please wait for the next proposal round to begin.")
+                else skip;
+
+                var proposal : proposalRecordType := case s.proposalLedger[s.timelockProposalId] of [
+                      Some(_record) -> _record
+                    | None -> failwith("Error. Proposal not found.")
+                ];
+
+                if proposal.executed = True then failwith("Error. Proposal has already been executed.")
+                else skip;
+
+                // verify that proposal is active and has not been dropped
+                if proposal.status = "DROPPED" then failwith("Error: Proposal has been dropped.")
+                else skip;
+
+                // check that there is at least one proposal metadata to execute
+                if Map.size(proposal.proposalMetadata) = 0n then failwith("Error. No data to execute.")
+                else skip;
+
+                // loop proposal metadata for execution
+                var _dataCounter: nat       := 0n;
+                const operationToPick: nat  = abs(Map.size(proposal.proposalMetadata) - 1n - proposal.proposalMetadataExecutionCounter);
+                for _title -> metadataBytes in map proposal.proposalMetadata block {
+
+                    if _dataCounter = operationToPick then {
+                        const sendProposalActionToGovernanceProxyForExecutionOperation : operation = Tezos.transaction(
+                            metadataBytes,
+                            0tez,
+                            getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
+                        );
+                        operations  := sendProposalActionToGovernanceProxyForExecutionOperation # operations;
+                    } else skip;
+
+                    _dataCounter := _dataCounter + 1n;
                 };
+
+                // Update proposal after the execution of a metadata
+                proposal.proposalMetadataExecutionCounter       := proposal.proposalMetadataExecutionCounter + 1n;
+
+                // Check if all operations were executed
+                if proposal.proposalMetadataExecutionCounter >= Map.size(proposal.proposalMetadata) then {
+                    // update proposal executed and isSucessful boolean to True
+                    proposal.executed                      := True;
+                    proposal.isSuccessful                  := True;
+
+                    // Send reward to proposer
+                    operations  := sendRewardToProposer(s) # operations;
+                } else skip;
+
+                s.proposalLedger[s.timelockProposalId] := proposal;
 
             }
         | _ -> skip
