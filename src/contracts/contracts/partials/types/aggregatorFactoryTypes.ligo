@@ -57,13 +57,14 @@ type aggregatorFactoryLambdaActionType is
 // ------------------------------------------------------------------------------
 
 type aggregatorFactoryStorage is [@layout:comb] record [
-    admin                   : address;
-    metadata                : metadataType;
-
-    mvkTokenAddress         : address;
-
-    trackedAggregators      : trackedAggregatorsType;
-    trackedSatellites       : trackedSatelliteType;
+    admin               : address;
+    metadata            : metadataType;
+    
+    mvkTokenAddress     : address;
+    delegationAddress   : address;
+    
+    trackedAggregators  : trackedAggregatorsType;
+    trackedSatellites   : trackedSatelliteType;
 
     lambdaLedger            : lambdaLedgerType;
     aggregatorLambdaLedger  : lambdaLedgerType;
