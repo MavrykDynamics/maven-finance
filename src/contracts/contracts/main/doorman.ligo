@@ -89,26 +89,6 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                              = 0n;
-[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                                           = 1n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                                = 2n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                         = 3n;
-[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                        = 4n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                       = 5n;
-[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                           = 6n;
-
-[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                              = 7n;
-[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                            = 8n;
-[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                           = 9n;
-[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND             = 10n;
-[@inline] const error_ON_SATELLITE_REWARD_PAID_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND    = 11n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                         = 12n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                      = 13n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND         = 14n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                        = 15n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                 = 16n;
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -292,23 +272,23 @@ block{
       // Get delegation contract
       const delegationAddress : address = case Map.find_opt("delegation", s.generalContracts) of [
           Some (_address) -> _address
-        | None -> failwith("Error. Delegation Contract is not found.")
+        | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
       ];
       
       // -- Satellite rewards -- //
       // Check if user is satellite or delegate
-      const getUserRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", userAddress, delegationAddress);
-      const getUserRewardOpt: option(satelliteRewards) = case getUserRewardOptView of [
+      const getSatelliteRewardsOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
+      const getSatelliteRewardsOpt: option(satelliteRewards) = case getSatelliteRewardsOptView of [
         Some (value) -> value
-      | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
+      | None -> failwith (error_VIEW_GET_USER_REWARD_OPT_NOT_FOUND)
       ];
 
-      const satelliteUnpaidRewards: nat = case getUserRewardOpt of [
+      const satelliteUnpaidRewards: nat = case getSatelliteRewardsOpt of [
         Some (_rewards) -> block{
-          const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getUserRewardOpt", _rewards.satelliteReferenceAddress, delegationAddress);
+          const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
           const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
             Some (value) -> value
-          | None -> failwith ("Error. GetUserRewardOpt View not found in the Delegation Contract")
+          | None -> failwith (error_VIEW_GET_USER_REWARD_OPT_NOT_FOUND)
           ];
           
           // Calculate the user unclaimed rewards
@@ -317,7 +297,7 @@ block{
               const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
               const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
             } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
-          | None -> failwith("Error. Satellite reference rewards record not found")
+          | None -> failwith(error_REFERENCE_SATELLITE_NOT_FOUND)
           ];
         } with (satelliteReward)
       | None -> 0n
@@ -399,9 +379,51 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-(*  View: getTotalStakedSupply *)
-[@view] function getTotalStakedSupply(const _: unit; const s: doormanStorage) : nat is
+(*  View: get minMvkAmount *)
+[@view] function getMinMvkAmount(const _: unit; const s: doormanStorage) : nat is
+  s.minMvkAmount
+
+
+
+(*  View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; const s: doormanStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(*  View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; const s: doormanStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(*  View: get break glass config *)
+[@view] function getBreakGlassConfig(const _: unit; const s: doormanStorage) : doormanBreakGlassConfigType is
+  s.breakGlassConfig
+
+
+
+(* View: get userStakeBalance *)
+[@view] function getUserStakeBalanceOpt (const userAddress : address; var s : doormanStorage) : option(userStakeBalanceRecordType) is
+  Big_map.find_opt(userAddress, s.userStakeBalanceLedger)
+
+
+
+(*  View: getStakedMvkTotalSupply *)
+[@view] function getStakedMvkTotalSupply(const _: unit; const s: doormanStorage) : nat is
   s.stakedMvkTotalSupply
+
+
+
+(*  View: getUnclaimedRewards *)
+[@view] function getUnclaimedRewards(const _: unit; const s: doormanStorage) : nat is
+  s.unclaimedRewards
+
+
+
+(*  View: getAccumulatedFeesPerShare *)
+[@view] function getAccumulatedFeesPerShare(const _: unit; const s: doormanStorage) : nat is
+  s.accumulatedFeesPerShare
 
 
 
@@ -411,6 +433,18 @@ block {
     Some (_val) -> _val.balance
   | None -> 0n
 ]
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : doormanStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : doormanStorage) : lambdaLedgerType is
+  s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //

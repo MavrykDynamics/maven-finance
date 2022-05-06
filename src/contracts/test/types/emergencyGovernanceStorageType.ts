@@ -13,7 +13,7 @@ export type emergencyGovernanceStorageType = {
 
   emergencyGovernanceLedger             : MichelsonMap<MichelsonMapKey, unknown>;
   currentEmergencyGovernanceId          : BigNumber;
-  nextEmergencyGovernanceProposalId     : BigNumber;
+  nextEmergencyGovernanceId     : BigNumber;
 
   lambdaLedger                          : MichelsonMap<MichelsonMapKey, unknown>;
 

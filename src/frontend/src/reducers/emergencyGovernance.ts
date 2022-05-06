@@ -12,7 +12,7 @@ export interface EmergencyGovernanceStorage {
   emergencyGovernanceLedger: MichelsonMap<string, unknown>
   tempMvkTotalSupply: number
   currentEmergencyGovernanceId: number
-  nextEmergencyGovernanceProposalId: number
+  nextEmergencyGovernanceId: number
 }
 export interface EmergencyGovernanceState {
   emergencyGovernanceStorage: EmergencyGovernanceStorage | any

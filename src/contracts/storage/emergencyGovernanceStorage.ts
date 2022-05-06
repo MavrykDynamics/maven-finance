@@ -45,7 +45,7 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
 
   emergencyGovernanceLedger           : MichelsonMap.fromLiteral({}),
   currentEmergencyGovernanceId        : new BigNumber(0),
-  nextEmergencyGovernanceProposalId   : new BigNumber(1),
+  nextEmergencyGovernanceId   : new BigNumber(1),
 
   lambdaLedger                        : MichelsonMap.fromLiteral({}),
 }

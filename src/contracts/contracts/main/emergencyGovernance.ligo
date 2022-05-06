@@ -66,19 +66,6 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                          = 0n;
-[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                             = 1n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED            = 2n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                     = 3n;
-[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                       = 4n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                   = 5n;
-
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                          = 6n;
-[@inline] const error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND                    = 7n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                    = 8n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                             = 9n;
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -211,6 +198,61 @@ block {
 // ------------------------------------------------------------------------------
 //
 // Lambda Methods End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: getConfig *)
+[@view] function getConfig (const _: unit; var s : emergencyGovernanceStorage) : emergencyConfigType is
+  s.config
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts (const _: unit; var s : emergencyGovernanceStorage) : generalContractsType is
+  s.config
+
+
+
+(* View: get emergency governance *)
+[@view] function getEmergencyGovernanceOpt (const recordId: nat; var s : emergencyGovernanceStorage) : option(emergencyGovernanceRecordType) is
+  Big_map.find_opt(recordId, s.emergencyGovernanceLedger)
+
+
+
+(* View: get current emergency governance id *)
+[@view] function getCurrentEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
+  s.currentEmergencyGovernanceId
+
+
+
+(* View: get next emergency governance id *)
+[@view] function getNextEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
+  s.nextEmergencyGovernanceId
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : emergencyGovernanceStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : emergencyGovernanceStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+
+// ------------------------------------------------------------------------------
+//
+// Views End
 //
 // ------------------------------------------------------------------------------
 

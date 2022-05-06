@@ -4,7 +4,6 @@ import { GET_BREAK_GLASS_STORAGE } from '../pages/Governance/Governance.actions'
 type BreakGlassConfig = {
   threshold: number
   actionExpiryDuration: number
-  developerAddress: string
   emergencyGovernanceAddress: string
 }
 export interface BreakGlassStorage {

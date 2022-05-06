@@ -442,11 +442,13 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(doorman.contract.methods.setLambda("lambdaUpdateGeneralContracts"       , doormanLambdas[5]))  // updateGeneralContracts
       .withContractCall(doorman.contract.methods.setLambda("lambdaPauseAll"                     , doormanLambdas[6]))  // pauseAll
       .withContractCall(doorman.contract.methods.setLambda("lambdaUnpauseAll"                   , doormanLambdas[7]))  // unpauseAll
-      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseUnstake"           , doormanLambdas[8]))  // togglePauseUnstake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaStake"                        , doormanLambdas[9]))  // stake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaUnstake"                      , doormanLambdas[10]))  // unstake
-      .withContractCall(doorman.contract.methods.setLambda("lambdaCompound"                     , doormanLambdas[11])) // compound
-      .withContractCall(doorman.contract.methods.setLambda("lambdaFarmClaim"                    , doormanLambdas[12])) // farmClaim
+      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseStake"             , doormanLambdas[8]))  // togglePauseStake
+      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseUnstake"           , doormanLambdas[9]))  // togglePauseUnstake
+      .withContractCall(doorman.contract.methods.setLambda("lambdaTogglePauseCompound"          , doormanLambdas[10])) // togglePauseCompound
+      .withContractCall(doorman.contract.methods.setLambda("lambdaStake"                        , doormanLambdas[11])) // stake
+      .withContractCall(doorman.contract.methods.setLambda("lambdaUnstake"                      , doormanLambdas[12])) // unstake
+      .withContractCall(doorman.contract.methods.setLambda("lambdaCompound"                     , doormanLambdas[13])) // compound
+      .withContractCall(doorman.contract.methods.setLambda("lambdaFarmClaim"                    , doormanLambdas[14])) // farmClaim
     
       const setupDoormanLambdasOperation = await doormanLambdaBatch.send()
       await setupDoormanLambdasOperation.confirmation()
@@ -871,7 +873,7 @@ describe('Contracts Deployment for Tests', async () => {
     const setVestingContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('vesting', vesting.contract.address).send()
     await setVestingContractInGovernanceOperation.confirmation()
 
-    const setTreasuryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('treasury', treasury.contract.address).send()
+    const setTreasuryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address).send()
     await setTreasuryContractInGovernanceOperation.confirmation()
 
     const setPaymentTreasuryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('paymentTreasury', treasury.contract.address).send()
@@ -895,7 +897,7 @@ describe('Contracts Deployment for Tests', async () => {
     const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address).send()
     await setBreakGlassContractAddressInEmergencyGovernance.confirmation()
 
-    const setTreasuryContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateGeneralContracts('treasury', treasury.contract.address).send()
+    const setTreasuryContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address).send()
     await setTreasuryContractAddressInEmergencyGovernance.confirmation()
 
     console.log('Emergency Governance Contract - set general contract addresses map [breakGlass, treasury]')

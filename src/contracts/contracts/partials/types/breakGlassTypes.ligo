@@ -130,7 +130,6 @@ type breakGlassStorage is [@layout:comb] record [
     config                      : breakGlassConfigType;
     glassBroken                 : bool;
     councilMembers              : councilMembersType;        // set of council member addresses
-    developerAddress            : address;                   // developer address
 
     whitelistContracts          : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts            : generalContractsType;      // map of all contract addresses (e.g. doorman, delegation, vesting)

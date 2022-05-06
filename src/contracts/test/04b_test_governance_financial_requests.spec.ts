@@ -330,7 +330,7 @@
 //             } 
 //         });
 
-//         it('Council contract should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map or if the getTotalStakedSupply view does not exist', async () => {
+//         it('Council contract should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map or if the getStakedMvkTotalSupply view does not exist', async () => {
 //             try{
 //                 // some init constants
 //                 var councilStorage             = await councilInstance.storage();
@@ -613,7 +613,7 @@
 //             } 
 //         });
 
-//         it('Council contract should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map or if the getTotalStakedSupply view does not exist', async () => {
+//         it('Council contract should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map or if the getStakedMvkTotalSupply view does not exist', async () => {
 //             try{
 //                 // some init constants
 //                 var councilStorage             = await councilInstance.storage();

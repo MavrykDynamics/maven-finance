@@ -90,7 +90,7 @@ type emergencyGovernanceStorage is [@layout:comb] record [
     emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
     
     currentEmergencyGovernanceId        : nat;
-    nextEmergencyGovernanceProposalId   : nat;
+    nextEmergencyGovernanceId           : nat;
 
     lambdaLedger                        : lambdaLedgerType;
 ]

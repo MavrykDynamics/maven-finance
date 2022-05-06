@@ -53,12 +53,12 @@ const testStartNextRound00 = {
     const newStorage = Test.get_storage(taddr);
 
     // Assertions
-    assert(newStorage.currentRound = (Proposal: roundType));
-    assert(Map.size(newStorage.currentRoundProposals) = 0n);
-    assert(Map.size(newStorage.currentRoundVotes) = 0n);
+    assert(newStorage.currentCycleInfo.round = (Proposal: roundType));
+    assert(Map.size(newStorage.currentCycleInfo.roundProposals) = 0n);
+    assert(Map.size(newStorage.currentCycleInfo.roundVotes) = 0n);
     assert(newStorage.currentRoundHighestVotedProposalId = 0n);
-    assert(newStorage.currentCycleEndLevel = newStorage.currentRoundStartLevel + newStorage.currentBlocksPerProposalRound + newStorage.currentBlocksPerVotingRound + newStorage.currentBlocksPerTimelockRound);
-    assert(newStorage.currentRoundEndLevel = newStorage.currentRoundStartLevel + newStorage.currentBlocksPerProposalRound);
+    assert(newStorage.currentCycleInfo.cycleEndLevel = newStorage.currentCycleInfo.roundStartLevel + newStorage.currentCycleInfo.blocksPerProposalRound + newStorage.currentCycleInfo.blocksPerVotingRound + newStorage.currentCycleInfo.blocksPerTimelockRound);
+    assert(newStorage.currentCycleInfo.roundEndLevel = newStorage.currentCycleInfo.roundStartLevel + newStorage.currentCycleInfo.blocksPerProposalRound);
 } with (unit);
 
 const testStartNextRound01 = {
@@ -78,7 +78,7 @@ const testStartNextRound01 = {
     |   Fail (Other) -> failwith("contract failed for an unknown reason")
     |   Success (_gas) -> failwith("contract did not failed but was expected to fail")
     ];
-} with assert(newStorage.currentRound = (Proposal: roundType));
+} with assert(newStorage.currentCycleInfo.round = (Proposal: roundType));
 
 const testStartNextRound02 = {
     Test.set_source(alice);
@@ -102,7 +102,7 @@ const testStartNextRound02 = {
 
     // Start voting round
     const midStorage = Test.get_storage(taddr);
-    const blocksPerProposalRound: nat   = midStorage.currentBlocksPerProposalRound * 2n;
+    const blocksPerProposalRound: nat   = midStorage.currentCycleInfo.blocksPerProposalRound * 2n;
     passTime(blocksPerProposalRound * blockTime);
     Test.log(blocksPerProposalRound * blockTime);
 

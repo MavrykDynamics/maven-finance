@@ -41,22 +41,6 @@ type return is list (operation) * tokenSaleStorage
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                              = 0n;
-[@inline] const error_ONLY_SELF_ALLOWED                                       = 1n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 2n;
-
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 3n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 4n;
-
-[@inline] const error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 5n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                              = 6n;
-[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                          = 7n;
-[@inline] const error_USER_IS_NOT_WHITELISTED                                 = 8n;
-[@inline] const error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED                = 9n;
-[@inline] const error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED                    = 10n;
-[@inline] const error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 11n;
-[@inline] const error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 12n;
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -140,8 +124,57 @@ function transferTez(const to_ : contract(unit); const amt : tez) : operation is
 //
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get config *)
+[@view] function getConfig(const _: unit; var s : tokenSaleStorage) : tokenSaleConfigType is
+  s.config
 
 
+
+(* View: get treasury address *)
+[@view] function getTreasuryAddress(const _: unit; var s : tokenSaleStorage) : address is
+  s.treasuryAddress
+
+
+
+(* View: get treasury address *)
+[@view] function getWhitelistedAddressOpt(const userAddress: address; var s : tokenSaleStorage) : option(bool) is
+  Big_map.find_opt(userAddress, s.whitelistedAddresses)
+
+
+
+(* View: get token sale record *)
+[@view] function getTokenSaleRecordOpt(const userAddress: address; var s : tokenSaleStorage) : option(tokenSaleRecordType) is
+  Big_map.find_opt(userAddress, s.tokenSaleLedger)
+
+
+
+(* View: getTokenSaleHasStarted *)
+[@view] function getTokenSaleHasStarted(const _: unit; var s : tokenSaleStorage) : bool is
+  s.tokenSaleHasStarted
+
+
+
+(* View: getWhitelistAmountTotal *)
+[@view] function getWhitelistAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
+  s.whitelistAmountTotal
+
+
+
+(* View: getOverallAmountTotal *)
+[@view] function getOverallAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
+  s.overallAmountTotal
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //
@@ -305,7 +338,7 @@ block {
       if newOverallAmountTotal > s.config.overallMaxAmountCap then failwith(error_OVERALL_MAX_AMOUNT_CAP_REACHED) else s.overallAmountTotal := newOverallAmountTotal;
 
       // send amount to treasury
-      const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, "Error. Treasury Contract not found.");
+      const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, error_TREASURY_CONTRACT_NOT_FOUND);
       const transferAmountToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
       operations := transferAmountToTreasuryOperation # operations;
 

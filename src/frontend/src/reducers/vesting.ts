@@ -14,7 +14,6 @@ export interface VestingStorage {
   config: VestingConfig
   whitelistContracts: MichelsonMap<string, unknown>
   generalContracts: MichelsonMap<string, unknown>
-  claimLedger: MichelsonMap<string, unknown>
   vesteeLedger: MichelsonMap<string, unknown>
   totalVestedAmount: number
   tempBlockLevel: number

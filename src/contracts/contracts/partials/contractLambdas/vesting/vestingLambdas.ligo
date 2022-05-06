@@ -118,7 +118,7 @@ block {
                 // check sender is from council contract
                 var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
-                if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+                if inWhitelistCheck = False then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
                 else skip;
 
                 // init parameters
@@ -128,15 +128,15 @@ block {
                 const vestingInMonths        : nat      = addVesteeParams.vestingInMonths;
 
                 // check for div by 0 error
-                if vestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
+                if vestingInMonths = 0n then failwith(error_VESTING_IN_MONTHS_TOO_SHORT)
                 else skip;
 
                 // Check for duration
-                if cliffInMonths > vestingInMonths then failwith("Error. The cliff period cannot last longer than the vesting period.")
+                if cliffInMonths > vestingInMonths then failwith(error_CLIFF_PERIOD_TOO_LONG)
                 else skip;
 
                 var newVestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [
-                        Some(_record) -> failwith("Error. Vestee already exists")
+                        Some(_record) -> failwith(error_VESTEE_ALREADY_EXISTS)
                     |   None -> record [
                         
                         // static variables initiated at start ----
@@ -191,12 +191,12 @@ block {
                 
                 var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
-                if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+                if inWhitelistCheck = False then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
                 else skip;
 
                 var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record
-                    | None -> failwith("Error. Vestee is not found.")
+                    | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];    
 
                 remove vesteeAddress from map s.vesteeLedger;
@@ -222,7 +222,7 @@ block {
                 // check sender is from council contract
                 var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
-                if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+                if inWhitelistCheck = False then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
                 else skip;
                 
                 // init parameters
@@ -232,16 +232,16 @@ block {
                 const newVestingInMonths        : nat      = updateVesteeParams.newVestingInMonths;
 
                 // check for div by 0 error
-                if newVestingInMonths = 0n then failwith("Error. Vesting months must be more than 0.")
+                if newVestingInMonths = 0n then failwith(error_VESTING_IN_MONTHS_TOO_SHORT)
                 else skip;
 
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record
-                    | None -> failwith("Error. Vestee is not found.")
+                    | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];
 
                 // Check for duration
-                if newCliffInMonths > newVestingInMonths then failwith("Error. The cliff period cannot last longer than the vesting period.")
+                if newCliffInMonths > newVestingInMonths then failwith(error_CLIFF_PERIOD_TOO_LONG)
                 else skip;
 
                 vestee.totalAllocatedAmount  := newTotalAllocatedAmount;  // totalAllocatedAmount should be in mu (10^6)
@@ -296,12 +296,12 @@ block {
                 
                 var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
 
-                if inWhitelistCheck = False then failwith("Error. Sender is not allowed to call this entrypoint.")
+                if inWhitelistCheck = False then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
                 else skip;
 
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record
-                    | None          -> failwith("Error. Vestee is not found.")
+                    | None          -> failwith(error_VESTEE_NOT_FOUND)
                 ];    
 
                 var newStatus : string := "newStatus";
@@ -344,14 +344,14 @@ block {
                 // use _vestee and _operations so that compiling will not have warnings that variable is unused
                 var _vestee : vesteeRecordType := case s.vesteeLedger[Tezos.sender] of [ 
                     | Some(_record) -> _record
-                    | None -> failwith("Error. Vestee is not found.")
+                    | None -> failwith(error_VESTEE_NOT_FOUND)
                 ];
 
                 // vestee status is not locked
-                if _vestee.status = "LOCKED" then failwith("Error. Vestee is locked.")
+                if _vestee.status = "LOCKED" then failwith(error_VESTEE_LOCKED)
                 else skip;
 
-                if _vestee.totalRemainder = 0n then failwith("Error. You already claimed everything")
+                if _vestee.totalRemainder = 0n then failwith(error_NOTHING_TO_CLAIM)
                 else skip;
 
                 const timestampCheck   : bool = Tezos.now > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
@@ -401,7 +401,7 @@ block {
                     // update total vested amount in contract
                     s.totalVestedAmount := s.totalVestedAmount + totalClaimAmount;
 
-                } else failwith("Error. You are unable to claim now.");
+                } else failwith(error_CANNOT_CLAIM_NOW);
 
             }
         | _ -> skip
