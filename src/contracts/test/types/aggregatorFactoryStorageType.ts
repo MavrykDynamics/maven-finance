@@ -6,6 +6,7 @@ export type aggregatorFactoryStorageType = {
   
   admin                     : string;
   mvkTokenAddress           : string;
+  delegationAddress         : string;
   
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
 

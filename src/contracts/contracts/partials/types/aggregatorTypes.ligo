@@ -133,6 +133,7 @@ type aggregatorStorage is [@layout:comb] record [
     config                    : aggregatorConfigType;
 
     mvkTokenAddress           : address;
+    delegationAddress         : address;
 
     round                     : nat;
     switchBlock               : nat;
