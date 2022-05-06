@@ -39,7 +39,6 @@ export const connect =
   ({ forcePermission = false }: { forcePermission?: boolean }) =>
   async (dispatch: any, getState: any) => {
     const state: State = getState()
-    console.log('%c ||||| state', 'color:yellowgreen', state)
     try {
       if (!state.wallet) {
         dispatch(showToaster(ERROR, 'Temple Wallet not available', ''))
@@ -49,6 +48,7 @@ export const connect =
           forcePermission,
         })
         const tzs = state.wallet.wallet?.toTezos()
+        console.log('%c ||||| tzs', 'color:yellowgreen', tzs)
         const accountPkh = await tzs?.wallet.pkh()
         dispatch({
           type: CONNECT,

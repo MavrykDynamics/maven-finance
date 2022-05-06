@@ -1,11 +1,13 @@
-import { Link, useLocation } from 'react-router-dom'
-import { MenuBanner, MenuBottomSection, MenuFooter, MenuGrid, MenuLogo, MenuStyled, MenuTopSection } from './Menu.style'
 import * as React from 'react'
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
+import { Link, useLocation } from 'react-router-dom'
+
+import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
+import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
+import { MenuBanner, MenuBottomSection, MenuFooter, MenuGrid, MenuLogo, MenuStyled, MenuTopSection } from './Menu.style'
 import { mainNavigationLinks } from './NavigationLink/MainNavigationLinks'
 import { NavigationLink } from './NavigationLink/NavigationLink.controller'
-import { useState } from 'react'
-import { ConnectWallet } from '../ConnectWallet/ConnectWallet.controller'
-import { MainNavigationRoute } from '../../../utils/TypesAndInterfaces/Navigation'
 
 type MenuViewProps = {
   loading: boolean
@@ -16,6 +18,9 @@ type MenuViewProps = {
 export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
   const location = useLocation()
   const [isExpanded, setExpanded] = useState<number>(0)
+  const { darkThemeEnabled } = useSelector((state: any) => state.preferences)
+
+  const logoImg = darkThemeEnabled ? '/logo-dark.svg' : '/logo-light.svg'
 
   const handleToggle = (id: number) => {
     setExpanded(id === isExpanded ? 0 : id)
@@ -24,7 +29,7 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
     <MenuStyled className={'navbar-sticky'}>
       <MenuTopSection>
         <Link to="/">
-          <MenuLogo alt="logo" src="/logo.svg" />
+          <MenuLogo alt="logo" src={logoImg} />
         </Link>
         <ConnectWallet
           // ref={connectWalletRef}
@@ -48,7 +53,6 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
         </MenuGrid>
       </MenuTopSection>
       <MenuBottomSection>
-        <MenuBanner src="/images/buy-mvk.svg" alt="buy" />
         <MenuFooter>
           MAVRYK App <p>v1.0</p>
         </MenuFooter>

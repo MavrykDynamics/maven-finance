@@ -6,7 +6,7 @@ export const SatelliteListStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const SatelliteListEmptyContainer = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,7 +19,7 @@ export const SatelliteListEmptyContainer = styled.div<{ theme: MavrykTheme }>`
   max-height: 100px;
 `
 export const SatelliteSearchFilter = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   display: flex;
   align-items: center;
   padding: 0 10px;

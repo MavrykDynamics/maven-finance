@@ -2,7 +2,7 @@ import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const EGovHistoryCardStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   width: 100%;
   border-radius: 10px;
 `

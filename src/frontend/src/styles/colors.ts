@@ -1,6 +1,14 @@
-export const backgroundColor = '#FFFFFF'
+export const darkColor = '#080628'
+export const middleColor = '#160E3F'
+export const whiteColor = '#FFFFFF'
+export const lightColor = '#EBF0FF'
+export const skyColor = '#77A4F2'
+export const headerColor = '#8D86EB'
+export const textsColor = '#160E3F'
+export const cianColor = '#8DD8C7'
+
 export const containerColor = '#F7F9FD'
-export const borderColor = '#4F457C'
+export const borderColor = '#4F457C' 
 export const textColor = '#29264C'
 export const subTextColor = '#7E8794'
 export const backgroundTextColor = '#F7F9FD'
@@ -14,8 +22,11 @@ export const infoColor = '#00C2FF'
 export const selectedColor = '#aea3ff3d'
 
 export const darkMode = {
-  backgroundColor: '#171735',
-  containerColor: '#1C1C3F',
+  backgroundColor: darkColor,
+  containerColor: middleColor,
+  navTitleColor: headerColor,
+  navIconColor: headerColor,
+
   borderColor: '#4F457C',
   textColor: '#F7F9FD',
   subTextColor: '#fff',
@@ -35,8 +46,11 @@ export const darkMode = {
 }
 
 export const lightMode = {
-  backgroundColor: '#FFFFFF',
-  containerColor: '#F7F9FD',
+  backgroundColor: lightColor,
+  containerColor: whiteColor,
+  navTitleColor: textsColor,
+  navIconColor: cianColor,
+
   borderColor: '#4F457C',
   textColor: '#29264C',
   subTextColor: '#7E8794',

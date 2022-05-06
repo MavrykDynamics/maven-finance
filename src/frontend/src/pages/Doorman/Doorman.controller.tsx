@@ -22,7 +22,7 @@ export const Doorman = () => {
 
   // const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
   // const myMvkStakeBalance = userStakeInfo?.mySMvkBalance || '0.00' //userStakeBalanceLedger?.get(accountPkh || '')
-
+  console.log('%c ||||| accountPkh', 'color:yellowgreen', accountPkh)
   useEffect(() => {
     if (accountPkh) {
       dispatch(getUserData(accountPkh))
@@ -54,6 +54,7 @@ export const Doorman = () => {
         loading={loading}
         accountPkh={accountPkh}
       />
+      {/*https://bdp4bn.csb.app/*/}
       <DoormanStatsView
         loading={loading}
         mvkTotalSupply={mvkTokenStorage?.totalSupply}

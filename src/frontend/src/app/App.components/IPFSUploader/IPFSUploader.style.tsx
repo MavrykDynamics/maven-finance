@@ -16,7 +16,7 @@ export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   height: 100px;
   width: 100%;
   border: 2px dashed ${({ theme }) => theme.borderColor};
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   display: inline-block;
   border-radius: 10px;
 
@@ -61,7 +61,7 @@ export const UploadIcon = styled.svg<{ theme: MavrykTheme }>`
     overflow: visible;
   }
   &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {

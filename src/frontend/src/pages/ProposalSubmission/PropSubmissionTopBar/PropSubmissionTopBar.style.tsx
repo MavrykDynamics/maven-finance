@@ -2,7 +2,7 @@ import { MavrykTheme } from '../../../styles/interfaces'
 import styled from 'styled-components/macro'
 
 export const PropSubmissionTopBarStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   margin: 15px auto;
   display: flex;
   width: 100%;

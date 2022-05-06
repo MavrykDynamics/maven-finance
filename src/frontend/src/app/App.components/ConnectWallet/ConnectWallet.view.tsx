@@ -1,5 +1,9 @@
-import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 import * as React from 'react'
+import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
+
+// components
+import Icon from '../Icon/Icon.view'
+
 import {
   ConnectWalletStyled,
   SimpleConnectedButton,
@@ -61,10 +65,8 @@ export const ConnectWalletView = ({
 export const NoWalletConnectedButton = ({ handleConnect }: { handleConnect: () => void }) => {
   return (
     <WalletNotConnectedButton onClick={handleConnect}>
-      <svg>
-        <use xlinkHref="/icons/sprites.svg#wallet" />
-      </svg>
-      <div>Connect wallet</div>
+      <Icon id="wallet" />
+      <span>Connect wallet</span>
     </WalletNotConnectedButton>
   )
 }

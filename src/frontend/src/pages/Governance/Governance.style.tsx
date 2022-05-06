@@ -9,7 +9,7 @@ export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const GovernanceRightContainer = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   width: 50%;
   margin: 0 0 0 10px;
   padding: 30px;

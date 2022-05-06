@@ -52,11 +52,11 @@ export const ButtonStyled = styled.button<{ buttonActive: boolean; theme: Mavryk
   padding: 0 20px;
   border-radius: ${BUTTON_RADIUS};
   user-select: none;
-  color: ${({ buttonActive, theme }) => (buttonActive ? theme.backgroundColor : theme.primaryColor)};
-  background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.primaryColor : theme.backgroundColor)};
+  color: ${({ buttonActive, theme }) => (buttonActive ? theme.containerColor : theme.primaryColor)};
+  background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.primaryColor : theme.containerColor)};
   &.clicked {
     //animation: ${clickSlide} 4s ease 0s 1 normal forwards;
-    background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.primaryColor : theme.backgroundColor)};
+    background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.primaryColor : theme.containerColor)};
   }
 
   &.loading {
@@ -104,7 +104,7 @@ export const ButtonLoadingIcon = styled.svg<{ theme: MavrykTheme }>`
   animation: ${turn} 1.6s linear infinite forwards;
 
   &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {

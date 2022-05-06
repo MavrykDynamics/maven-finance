@@ -1,5 +1,6 @@
 import styled from 'styled-components/macro'
-import { backgroundColor, placeholderColor } from 'styles'
+import { placeholderColor } from 'styles'
+
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const TextEditorContainer = styled.div<{ theme: MavrykTheme }>`
@@ -14,6 +15,6 @@ export const TextEditorContainer = styled.div<{ theme: MavrykTheme }>`
     direction: ltr;
   }
   .ButtonWrap__root___1EO_R > button {
-    background-color: ${({ theme }) => theme.backgroundColor};
+    background-color: ${({ theme }) => theme.containerColor};
   }
 `

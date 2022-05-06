@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+
 import { MavrykTheme } from './interfaces'
 
 export const Page = styled.div<{ theme: MavrykTheme }>`
@@ -6,7 +7,6 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   padding: 40px;
   width: 100%;
   position: relative;
-  background-color: ${({ theme }) => theme.containerColor};
   height: 100%;
   min-height: 100vh;
   max-width: 1270px;
@@ -52,7 +52,7 @@ export const Message = styled.div`
 
 export const Card = styled.div<{ theme: MavrykTheme }>`
   margin-top: 30px;
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   padding: 35px;
   font-size: 14px;

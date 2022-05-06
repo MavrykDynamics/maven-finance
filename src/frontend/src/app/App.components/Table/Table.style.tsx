@@ -7,7 +7,7 @@ import { styled as muiStyled } from '@mui/material/styles'
 export const TableStyled = styled.div<{ theme: MavrykTheme }>`
   &.primary {
     color: ${({ theme }) => theme.primaryColor};
-    background-color: ${({ theme }) => theme.backgroundColor};
+    background-color: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {

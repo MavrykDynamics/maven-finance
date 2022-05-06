@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components/macro'
+
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const moveDown = keyframes`
@@ -18,7 +19,7 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   > div {
     width: 100%;
     max-width: 270px;
@@ -31,15 +32,13 @@ export const MenuTopSection = styled.div`
   top: 0;
   left: 0;
   z-index: 1;
-  background-image: url('/images/menu-bg.svg');
-  background-position: top left;
-  background-repeat: no-repeat;
   justify-content: space-between;
 `
 export const MenuLogo = styled.img`
-  margin: 17px auto 25px auto;
+  margin: 43px auto 24px auto;
   z-index: 1;
-  width: 175px;
+  width: 218px;
+  height: 43px;
 `
 
 export const MenuGrid = styled.div`

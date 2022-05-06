@@ -18,7 +18,7 @@ export const LoadingIcon = styled.svg<{ theme: MavrykTheme }>`
   animation: ${turn} 1.6s linear infinite forwards;
 
   &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {

@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components/macro'
 
-import { backgroundColor } from '../../../styles'
+import { whiteColor } from '../../../styles'
 
 export const PageHeaderStyled = styled.div<{ backgroundImageSrc: string }>`
   background-image: url(${({ backgroundImageSrc }) => backgroundImageSrc});
@@ -23,7 +23,7 @@ export const PageHeaderTextArea = styled.div`
   width: max-content;
   overflow: visible;
   > h1 {
-    color: ${backgroundColor};
+    color: ${whiteColor};
     font-size: 25px;
     margin: 0;
 
@@ -33,7 +33,7 @@ export const PageHeaderTextArea = styled.div`
   }
 
   > p {
-    color: ${backgroundColor};
+    color: ${whiteColor};
     font-size: 14px;
     margin: 0;
   }

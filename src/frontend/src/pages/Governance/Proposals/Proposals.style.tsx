@@ -11,7 +11,7 @@ export const ProposalListContainer = styled.div`
 `
 
 export const ProposalListItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   height: 56px;
   width: 100%;
   display: flex;
