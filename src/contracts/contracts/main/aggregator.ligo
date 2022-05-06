@@ -336,7 +336,7 @@ function updateRewards (const s: aggregatorStorage) : oracleRewardsMVKType is bl
       ];
 
     // view call getSatelliteOpt to delegation contract
-    const satelliteOptView : option(satelliteRecordType) = Tezos.call_view ("getSatelliteOpt", key, s.mvkTokenAddress);
+    const satelliteOptView : option(satelliteRecordType) = Tezos.call_view ("getSatelliteOpt", key, s.delegationAddress);
     const satelliteOpt: satelliteRecordType = case satelliteOptView of [
         Some (value) -> value
       | None -> (emptySatelliteRecord)
