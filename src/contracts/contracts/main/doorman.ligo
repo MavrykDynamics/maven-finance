@@ -4,10 +4,8 @@
 
 // Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
 #include "../partials/whitelistContractsType.ligo"
-
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
-
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
@@ -20,10 +18,8 @@
 
 // Doorman types
 #include "../partials/types/doormanTypes.ligo"
-
 // MvkToken types for transfer
 #include "../partials/types/mvkTokenTypes.ligo"
-
 // Treasury types for farmClaim
 #include "../partials/types/treasuryTypes.ligo"
 
@@ -130,6 +126,8 @@ function checkSenderIsAdmin(var s : doormanStorage) : unit is
 
 
 
+
+
 function checkSenderIsMvkTokenContract(var s : doormanStorage) : unit is
 block{
   const mvkTokenAddress : address = s.mvkTokenAddress;
@@ -221,6 +219,8 @@ function onSatelliteRewardPaid(const delegationAddress : address) : contract(add
 
 
 
+
+
 // helper function to get transfer entrypoint
 function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : contract(transferType) is
   case (Tezos.get_entrypoint_opt(
@@ -229,6 +229,8 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
     Some(contr) -> contr
   | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND) : contract(transferType))
 ];
+
+
 
 
 
