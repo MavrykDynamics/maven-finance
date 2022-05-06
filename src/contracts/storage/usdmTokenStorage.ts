@@ -8,10 +8,10 @@ const { alice, bob, eve, mallory } = require('../scripts/sandbox/accounts')
 
 import { usdmTokenStorageType } from '../test/types/usdm/usdmTokenStorageType'
 
-export const usdmTokenDecimals = 6
+export const usdmTokenDecimals = 9
 
-const totalSupply      = 10000000000
-const initialSupply    = new BigNumber(totalSupply) // 1,000 MVK Tokens in mu (10^6)
+const totalSupply      = 10000000000000
+const initialSupply    = new BigNumber(totalSupply) // 2,500 Tokens (10^9)
 const singleUserSupply = new BigNumber(totalSupply / 4)
 
 const metadata = MichelsonMap.fromLiteral({
