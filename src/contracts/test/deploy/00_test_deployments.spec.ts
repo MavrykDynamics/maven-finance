@@ -521,7 +521,9 @@ describe('Contracts Deployment for Tests', async () => {
         "tokenContractAddress" : mockFa12Token.contract.address, 
         "tokenType": {
           "fa12" : mockFa12Token.contract.address
-        }
+        },
+        "oracleType" : "CFMM",
+        "oracleAddress" : zeroAddress
       },
       "mockFA2"   : {
         "tokenContractAddress" : mockFa2Token.contract.address, 
@@ -530,7 +532,9 @@ describe('Contracts Deployment for Tests', async () => {
             "tokenContractAddress" : mockFa2Token.contract.address, 
             "tokenId" : 0
           }
-        }
+        },
+        "oracleType" : "CFMM",
+        "oracleAddress" : zeroAddress
       },
       "mvk"       : {
         "tokenContractAddress" : mvkToken.contract.address, 
@@ -539,7 +543,9 @@ describe('Contracts Deployment for Tests', async () => {
             "tokenContractAddress" : mvkToken.contract.address, 
             "tokenId" : 0
           }
-        }
+        },
+        "oracleType" : "CFMM",
+        "oracleAddress" : zeroAddress
       },
       "usdm"       : {
         "tokenContractAddress" : usdmToken.contract.address, 
@@ -548,7 +554,9 @@ describe('Contracts Deployment for Tests', async () => {
             "tokenContractAddress" : usdmToken.contract.address, 
             "tokenId" : 0
           }
-        }
+        },
+        "oracleType" : "CFMM",
+        "oracleAddress" : zeroAddress
       }
     });
     usdmTokenControllerStorage.usdmTokenAddress = usdmToken.contract.address;

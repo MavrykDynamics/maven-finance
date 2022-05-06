@@ -1,9 +1,15 @@
+// ------------------------------------------------------------------------------
+// Common Types
+// ------------------------------------------------------------------------------
+
 #include "../partials/vault/vaultType.ligo"
 
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
-// ----- general types begin -----
+// ------------------------------------------------------------------------------
+// Contract Types
+// ------------------------------------------------------------------------------
 
 type vaultIdType                 is nat;
 type usdmAmountType              is nat;
@@ -20,27 +26,27 @@ type mintOrBurnParamsType is [@layout:comb] record [
     target    : address;
 ];
 
-// ----- general types end -----
+// ------------------------------------------------------------------------------
 
 
 // ----- storage types begin -----
 
-// type collateralTokenAddressesType is map(address, string) // token collateral address : name of token collateral
 
-type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
 type collateralTokenRecordType is [@layout:comb] record [
+    tokenName               : string;
     tokenContractAddress    : address;
     tokenType               : tokenType; // from vaultType.ligo partial - Tez, FA12, FA2
+    decimals                : nat; 
     oracleType              : string;    // "CFMM", "ORACLE" - use string instead of variant in case of future changes
     oracleAddress           : address;   // zeroAddress if no oracle
 ]
 type collateralTokenLedgerType is map(string, collateralTokenRecordType) 
 
+type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
 type vaultType is [@layout:comb] record [
     address                     : address;
     collateralBalanceLedger     : collateralBalanceLedgerType;        // tez/token balance
     usdmOutstanding             : usdmAmountType;                     // nat 
-    collateralTokenAddresses    : collateralTokenAddressesType;       // token collateral address : name of token collateral
 ]
 
 // owner types
@@ -55,8 +61,15 @@ type lastDriftUpdateLedgerType      is map(string, timestamp)
 type cfmmAddressLedgerType          is map(string, address)
 type priceLedgerType                is map(string, nat)
 
-// ----- storage types end -----
+// ------------------------------------------------------------------------------
 
+// oracle view for getting last completed round price
+type lastCompletedRoundPriceReturnType is [@layout:comb] record [
+    round: nat;
+    price: nat;
+    percentOracleResponse: nat;
+    decimals: nat;
+]
 
 // ----- types for entrypoint actions begin -----
 
@@ -73,6 +86,7 @@ type updateCollateralTokenLedgerActionType is [@layout:comb] record [
     tokenName                   : string;
     tokenContractAddress        : address;
     tokenType                   : tokenType;
+    decimals                    : nat;
     oracleType                  : string;
     oracleAddress               : address;
 ]
@@ -82,9 +96,14 @@ type updateVaultTokenAddressesActionType is [@layout:comb] record [
 ]
 
 type tokenAmountLedgerType is map(string, tokenAmountType)
+
 type createVaultActionType is [@layout:comb] record [
     delegate                    : option(key_hash); 
     depositors                  : depositorsType;
+]
+
+type closeVaultActionType is [@layout:comb] record [
+    vaultId                     : vaultIdType; 
 ]
 
 type withdrawFromVaultActionType is [@layout:comb] record [
@@ -129,7 +148,9 @@ type getTargetActionType is [@layout:comb] record [
 ]
 
 
-// ----- types for entrypoint actions end -----
+// ------------------------------------------------------------------------------
+// Storage
+// ------------------------------------------------------------------------------
 
 type controllerStorage is [@layout:comb] record [
     admin                       : address;
@@ -142,7 +163,7 @@ type controllerStorage is [@layout:comb] record [
     vaults                      : big_map(vaultHandleType, vaultType);
     vaultCounter                : vaultIdType;      // nat
     vaultLedger                 : vaultLedgerType;  // used to check if vault id is in use already
-    ownerLedger                 : ownerLedgerType;
+    ownerLedger                 : ownerLedgerType;  // for some convenience in checking vaults owned by user
 
     // price, tokens and cfmm
     targetLedger                : targetLedgerType;
@@ -163,6 +184,7 @@ type controllerAction is
     | SetUsdmAddress                 of setUsdmAddressActionType
 
     | CreateVault                    of createVaultActionType
+    | CloseVault                     of closeVaultActionType
     | LiquidateVault                 of liquidateVaultActionType
     | WithdrawFromVault              of withdrawFromVaultActionType
     | RegisterDeposit                of registerDepositType
@@ -182,6 +204,15 @@ const fixedPointAccuracy     : nat      = 1_000_000_000_000_000_000_000_000n;   
 // const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000n;           // 10^18    - // for use in division with tez
 const tezFixedPointAccuracy  : nat      = 1_000_000_000_000_000_000_000_000_000n;           // 10^27    - // for use in division with tez
 
+// for use in division from oracle where price decimals may vary
+const fpa10e27 : nat = 1_000_000_000_000_000_000_000_000_000n;   // 10^27 
+const fpa10e26 : nat = 1_000_000_000_000_000_000_000_000_00n;    // 10^26
+const fpa10e25 : nat = 1_000_000_000_000_000_000_000_000_0n;     // 10^25
+const fpa10e24 : nat = 1_000_000_000_000_000_000_000_000n;       // 10^24
+const fpa10e23 : nat = 1_000_000_000_000_000_000_000_00n;        // 10^23
+const fpa10e22 : nat = 1_000_000_000_000_000_000_000_0n;         // 10^22
+const fpa10e21 : nat = 1_000_000_000_000_000_000_000n;           // 10^21
+
 // ----- constants end -----
 
 
@@ -196,6 +227,12 @@ function naturalToMutez(const amt : nat) : tez is amt * 1mutez;
 function checkSenderIsAdmin(var s : controllerStorage) : unit is
   if (Tezos.sender = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
+
+function checkZeroUsdmOutstanding(const vault : vaultType) : unit is
+  if vault.usdmOutstanding = 0n then unit
+  else failwith("Error. USDM Outstanding is not zero.")
+
+
 
 // helper function to get vaultWithdraw entrypoint
 function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(vaultWithdrawType) is
@@ -224,6 +261,48 @@ function getUsdmMintOrBurnEntrypoint(const tokenContractAddress : address) : con
   | None -> (failwith("Error. MintOrBurn entrypoint in token contract not found") : contract(mintOrBurnParamsType))
   ]
 
+
+function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
+
+// helper function to transfer FA12 tokens
+function transferFa12Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenContractAddress: address): operation is
+    block{
+        const transferParams: fa12TransferType = (from_,(to_,tokenAmount));
+
+        const tokenContract: contract(fa12TransferType) =
+            case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa12TransferType))) of [
+                Some (c) -> c
+            |   None -> (failwith("Error. Transfer entrypoint not found in FA12 Token contract"): contract(fa12TransferType))
+            ];
+    } with (Tezos.transaction(transferParams, 0tez, tokenContract))
+
+// helper function to transfer FA2 tokens
+function transferFa2Token(const from_: address; const to_: address; const tokenAmount: tokenAmountType; const tokenId: nat; const tokenContractAddress: address): operation is
+block{
+    const transferParams: fa2TransferType = list[
+            record[
+                from_ = from_;
+                txs = list[
+                    record[
+                        to_      = to_;
+                        token_id = tokenId;
+                        amount   = tokenAmount;
+                    ]
+                ]
+            ]
+        ];
+
+    const tokenContract: contract(fa2TransferType) =
+        case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(fa2TransferType))) of [
+            Some (c) -> c
+        |   None -> (failwith("Error. Transfer entrypoint not found in FA2 Token contract"): contract(fa2TransferType))
+        ];
+
+} with (Tezos.transaction(transferParams, 0tez, tokenContract))
+
+
+
+
 // Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts - cannot include as storage type is different
 function checkInWhitelistTokenContracts(const contractAddress : address; var s : controllerStorage) : bool is 
 block {
@@ -233,6 +312,8 @@ block {
       else skip;
   }  
 } with inWhitelistTokenContractsMap
+
+
 
 (* UpdateWhitelistTokenContracts Entrypoint *)
 function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s : controllerStorage) : return is 
@@ -258,6 +339,7 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
   } with (noOperations, s) 
 
 
+
   // CFMM Address Ledger
 function checkInCfmmAddressLedger(const cfmmAddress : address; var s : controllerStorage) : bool is 
 block {
@@ -267,6 +349,8 @@ block {
       else skip;
   }  
 } with inCfmmAddressLedgerMap
+
+
 
 (* UpdateWhitelistTokenContracts Entrypoint *)
 function updateCfmmAddressLedger(const updateCfmmAddressLedgerParams: updateCfmmAddressLedgerActionType; var s : controllerStorage) : return is 
@@ -293,17 +377,39 @@ function updateCfmmAddressLedger(const updateCfmmAddressLedgerParams: updateCfmm
 
 
 
+(* View: get token in collateral token ledger *)
+[@view] function viewGetTokenRecordByName(const tokenName : string; var s : controllerStorage) : option(collateralTokenRecordType) is
+    Map.find_opt(tokenName, s.collateralTokenLedger)
+
+
+
+(* View: get token by token contract address in collateral token ledger *)
+[@view] function viewGetTokenRecordByAddress(const tokenContractAddress : address; var s : controllerStorage) : option(collateralTokenRecordType) is
+block {
+
+  var tokenName : string := "empty";
+  
+  for _key -> value in map s.collateralTokenLedger block {
+    if tokenContractAddress = value.tokenContractAddress then block {
+        tokenName := _key;
+    } else skip;
+  };
+
+  const collateralTokenRecord : option(collateralTokenRecordType) = Map.find_opt(tokenName, s.collateralTokenLedger)
+
+} with collateralTokenRecord
+
 
 
 
 function checkInCollateralTokenLedger(const collateralTokenRecord : collateralTokenRecordType; var s : controllerStorage) : bool is 
 block {
-  var inCollateralTokenLedgerMap : bool := False;
+  var inCollateralTokenLedgerBool : bool := False;
   for _key -> value in map s.collateralTokenLedger block {
-    if collateralTokenRecord = value then inCollateralTokenLedgerMap := True
+    if collateralTokenRecord = value then inCollateralTokenLedgerBool := True
       else skip;
   }  
-} with inCollateralTokenLedgerMap
+} with inCollateralTokenLedgerBool
 
 
 (* UpdateCollateralTokenLedger Entrypoint *)
@@ -315,6 +421,7 @@ function updateCollateralTokenLedger(const updateCollateralTokenLedgerParams: up
     const tokenName             : string      = updateCollateralTokenLedgerParams.tokenName;
     const tokenContractAddress  : address     = updateCollateralTokenLedgerParams.tokenContractAddress;
     const tokenType             : tokenType   = updateCollateralTokenLedgerParams.tokenType;
+    const decimals              : nat         = updateCollateralTokenLedgerParams.decimals;
     const oracleType            : string      = updateCollateralTokenLedgerParams.oracleType;
     var oracleAddress         : address       := updateCollateralTokenLedgerParams.oracleAddress;
 
@@ -323,8 +430,10 @@ function updateCollateralTokenLedger(const updateCollateralTokenLedgerParams: up
     } else skip;
     
     const collateralTokenRecord : collateralTokenRecordType = record [
+        tokenName            = tokenName;
         tokenContractAddress = tokenContractAddress;
         tokenType            = tokenType;
+        decimals             = decimals;
         oracleType           = oracleType;
         oracleAddress        = oracleAddress;
     ];
@@ -372,9 +481,10 @@ function isUnderCollaterized(const vault : vaultType; var s : controllerStorage)
 block {
     
     // initialise variables - vaultCollateralValue and usdmOutstanding
-    var vaultCollateralValue        : nat  := 0n;
+    var vaultCollateralValueInXtz   : nat  := 0n;
     const usdmOutstanding           : nat  = vault.usdmOutstanding;    
-    const collateralRatio           : nat  = s.config.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
+    // const collateralRatio           : nat  = s.config.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
+    const liquidationRatio          : nat  = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
 
     // const decimals                  : nat  = s.config.decimals;         // default 3n (decimals): i.e. divide by 10 ^ 3
 
@@ -386,22 +496,40 @@ block {
             const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
 
             // increment vault collateral value
-            vaultCollateralValue := vaultCollateralValue + tezValueWithFixedPointAccuracy;
+            vaultCollateralValueInXtz := vaultCollateralValueInXtz + tezValueWithFixedPointAccuracy;
             
         } else block {
 
-            // get price of token in xtz
-            case s.priceLedger[tokenName] of [
-                Some(_price) -> block {
-
-                    // calculate value of collateral balance - 1e9 x 1e24 -> 1e33
-                    const tokenValueInXtz : nat = tokenBalance * _price; 
-
-                    // increment vault collateral value
-                    vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
-                }
-                | None -> skip // if there is no price set for collateral token yet
+            const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+                  Some(_record) -> _record
+                | None -> failwith("Error. Token does not exist in collateral token record.")
             ];
+
+            const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
+
+            // get last completed round price of token from Oracle view
+            const getTokenLastCompletedRoundPriceView : option (option(lastCompletedRoundPriceReturnType)) = Tezos.call_view ("lastCompletedRoundPrice", unit, collateralTokenRecord.oracleAddress);
+            const getTokenLastCompletedRoundPriceOpt: option(lastCompletedRoundPriceReturnType) = case getTokenLastCompletedRoundPriceView of [
+                    Some (_value) -> _value
+                | None -> failwith ("Error. lastCompletedRoundPrice View not found in the Oracle Contract.")
+            ];
+            const tokenLastCompletedRoundPrice: lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceOpt of [
+                    Some (_value) -> _value
+                | None -> failwith ("Error. lastCompletedRoundPrice not found.")
+            ];
+
+            // todo: check decimals and percentOracleResponse
+            // todo: ensure exponent is standardized
+            // denomination in USD 
+
+            const priceDecimals    : nat  = tokenLastCompletedRoundPrice.decimals;
+            const tokenPrice       : nat  = tokenLastCompletedRoundPrice.price;            
+
+            // calculate value of collateral balance
+            const tokenValueInXtz : nat = tokenBalance * tokenPrice;
+
+            // increment vault collateral value
+            vaultCollateralValueInXtz := vaultCollateralValueInXtz + tokenValueInXtz;
 
         };
     };
@@ -409,16 +537,16 @@ block {
     // s.tempValue := vaultCollateralValue;
 
     // get price of USDM in xtz 
-    const usdmTokenPrice : nat = case s.priceLedger["usdm"] of [
-        Some(_price) -> _price
-        | None -> failwith("Error. Price not found for USDM Token.")
-    ];
+    // const usdmTokenPrice : nat = case s.priceLedger["usdm"] of [
+    //       Some(_price) -> _price
+    //     | None         -> failwith("Error. Price not found for USDM Token.")
+    // ];
 
     // 1e9 x 1e24 -> 1e33
-    const usdmOutstandingValueInXtz : nat = usdmOutstanding * usdmTokenPrice;
+    // const usdmOutstandingValueInXtz : nat = usdmOutstanding * usdmTokenPrice;
 
-    // todo: adjust later for 300% collateral check
-    const isUnderCollaterized : bool = vaultCollateralValue < abs( (collateralRatio * usdmOutstandingValueInXtz) / (1000) );
+    // check is vault is under collaterized based on liquidation ratio
+    const isUnderCollaterized : bool = vaultCollateralValue < abs( (liquidationRatio * usdmOutstandingValueInXtz) / (1000n) );
     // const isUnderCollaterized : bool = False;
     
     // const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n)); 
@@ -447,68 +575,6 @@ block {
 
 
 
-
-(* onPriceAction entrypoint *)
-function onPriceAction(const onPriceActionParams : onPriceActionType; var s : controllerStorage) : return is 
-block {
-
-    // init variables for convenience
-    const cashAmount        : nat               = onPriceActionParams.cashAmount;
-    const tokenAmount       : nat               = onPriceActionParams.tokenAmount;
-    const tokenName         : string            = onPriceActionParams.tokenName;
-
-    const cfmmAddress : address = case s.cfmmAddressLedger[tokenName] of [
-          Some(_address) -> _address
-        | None           -> failwith("Error. CFMM Address not found in CFMM Ledger.")
-    ];
-
-    // check if sender is from the cfmm address
-    if Tezos.sender =/= cfmmAddress then failwith("Error. Caller must be CFMM contract.")  else skip;
-
-    var lastDriftUpdate : timestamp := case s.lastDriftUpdateLedger[tokenName] of [
-          Some(_timestamp) -> _timestamp
-        | None -> Tezos.now - 300           // if no drift update is found for token, set to 5 minutes ago
-    ];
-
-    // check that last drift update is before current time
-    if lastDriftUpdate > Tezos.now then failwith("Error. Delta cannot be negative.") else skip;
-    const delta   : nat   = abs(Tezos.now - lastDriftUpdate); 
-
-    var target : nat  := case s.targetLedger[tokenName] of [
-          Some(_nat) -> _nat
-        | None -> failwith("Error. Target not found for this pair.")
-    ];
-
-    var drift : int  := case s.driftLedger[tokenName] of [
-          Some(_int) -> _int
-        | None -> failwith("Error. Drift not found for this pair.")
-    ];
-
-    var d_target  : nat  := (target * abs(drift) * delta) / fixedPointAccuracy;
-
-    target := if drift < 0 then abs(target - d_target) else target + d_target;
-
-    const price            : nat   = (cashAmount * fixedPointAccuracy) / tokenAmount;
-    const targetLessPrice  : int   = target - price;
-
-    const x                : nat    = (abs(targetLessPrice * targetLessPrice) / fixedPointAccuracy);
-    const priceSquared     : nat    = price * price; 
-    const d_drift          : nat    = if x > priceSquared then delta else delta / priceSquared;
-
-    var drift              : int    := if targetLessPrice > 0 then drift + d_drift else drift - d_drift;
-
-    s.targetLedger[tokenName]            := target;
-    s.driftLedger[tokenName]             := drift;
-    s.lastDriftUpdateLedger[tokenName]   := Tezos.now;
-    s.priceLedger[tokenName]             := price;           
-
-    // math probably not correct with the divisions - double check with checker formula
-
-} with (noOperations, s)
-
-
-
-
 (* createVault entrypoint *)
 function createVault(const createParams : createVaultActionType ; var s : controllerStorage) : return is 
 block {
@@ -533,14 +599,11 @@ block {
     // init operations
     var operations : list(operation) := nil;
 
-    const collateralTokenAddressesMap : collateralTokenAddressesType = map[];
-
     // params for vault with tez storage origination
     const originateVaultStorage : vaultStorage = record [
         admin                       = Tezos.self_address;
         handle                      = handle;
         depositors                  = createParams.depositors;
-        collateralTokenAddresses    = collateralTokenAddressesMap;
     ];
 
     // originate vault func
@@ -563,7 +626,6 @@ block {
         const vault : vaultType = record [
             address                    = vaultOrigination.1; // vault address
             collateralBalanceLedger    = collateralBalanceLedgerMap;
-            collateralTokenAddresses   = collateralTokenAddressesMap;
             usdmOutstanding            = 0n;
         ];
         
@@ -576,7 +638,6 @@ block {
         const vault : vaultType = record [
             address                    = vaultOrigination.1; // vault address
             collateralBalanceLedger    = emptyCollateralBalanceLedgerMap;
-            collateralTokenAddresses   = collateralTokenAddressesMap;
             usdmOutstanding            = 0n;
         ];
 
@@ -589,6 +650,118 @@ block {
     s.vaultLedger[newVaultId] := True;
     s.vaultCounter            := s.vaultCounter + 1n;
 
+} with (operations, s)
+
+
+
+(* closeVault entrypoint *)
+function closeVault(const closeVaultParams : closeVaultActionType ; var s : controllerStorage) : return is 
+block {
+    
+    // only the vault owner can close his own vault
+
+    // init parameters 
+    const vaultId     : vaultIdType      = closeVaultParams.vaultId;
+    const vaultOwner  : vaultOwnerType   = Tezos.sender;
+    var operations    : list(operation) := nil;
+    
+    // make vault handle
+    const vaultHandle : vaultHandleType = record [
+        id     = vaultId;
+        owner  = vaultOwner;
+    ];
+
+    // get vault
+    var _vault : vaultType := getVault(vaultHandle, s);
+    const vaultAddress : address = _vault.address;
+
+    // check that vault has zero USDM oustanding
+    checkZeroUsdmOutstanding(_vault);
+
+    // get tokens and token balances and initiate transfer back to the vault owner
+    for tokenName -> tokenBalance in map _vault.collateralBalanceLedger block {
+        
+        if tokenName = "tez" then block {
+
+            const transferTezOperation : operation = transferTez( (Tezos.get_contract_with_error(vaultOwner, "Error. Unable to send tez.") : contract(unit)), tokenBalance );
+            operations := transferTezOperation # operations;
+
+            _vault.collateralBalanceLedger[tokenName]  := 0n;
+            
+        } else block {
+
+            const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+                  Some(_record) -> _record
+                | None -> failwith("Error. Token does not exist in collateral token record.")
+            ];
+
+            const withdrawTokenOperation : operation = case collateralTokenRecord.tokenType of [
+                Tez(_tez) -> block {
+                    
+                    const withdrawTezOperationParams : vaultWithdrawType = record [
+                        from_ = vaultAddress;
+                        to_   = vaultOwner; 
+                        amt   = tokenBalance;
+                        token = Tez(_tez);
+                    ];
+                    const withdrawTezOperation : operation = Tezos.transaction(
+                        withdrawTezOperationParams,
+                        0mutez,
+                        getVaultWithdrawEntrypoint(vaultAddress)
+                    );
+
+                } with withdrawTezOperation
+                | Fa12(_token) -> block {
+
+                    const withdrawFa12OperationParams : vaultWithdrawType = record [
+                        from_ = vaultAddress;
+                        to_   = vaultOwner; 
+                        amt   = tokenBalance;
+                        token = Fa12(_token);
+                    ];
+                    const withdrawFa12Operation : operation = Tezos.transaction(
+                        withdrawFa12OperationParams,
+                        0mutez,
+                        getVaultWithdrawEntrypoint(vaultAddress)
+                    );
+
+                } with withdrawFa12Operation
+                | Fa2(_token) -> block {
+
+                    const withdrawFa2OperationParams : vaultWithdrawType = record [
+                        from_ = vaultAddress;
+                        to_   = vaultOwner; 
+                        amt   = tokenBalance;
+                        token = Fa2(_token);
+                    ];
+                    const withdrawFa2Operation : operation = Tezos.transaction(
+                        withdrawFa2OperationParams,
+                        0mutez,
+                        getVaultWithdrawEntrypoint(vaultAddress)
+                    );
+
+                } with withdrawFa2Operation
+            ];
+
+            operations := withdrawTokenOperation # operations;
+
+            // save and update balance for collateral token to zero
+            _vault.collateralBalanceLedger[tokenName]  := 0n;
+
+        }; // end if/else check for tez/token
+
+    }; // end loop for withdraw operations of tez/tokens in vault collateral 
+
+
+    // remove vault from stroage
+    var ownerVaultSet : ownerVaultSetType := case s.ownerLedger[vaultOwner] of [
+          Some (_set) -> _set
+        | None        -> failwith("Error. Owner vault set not found.")
+    ];
+    s.ownerLedger[vaultOwner] := Set.remove(vaultId, ownerVaultSet);
+    remove vaultHandle from map s.vaults;
+    remove vaultId from map s.vaultLedger;
+    
 } with (operations, s)
 
 
@@ -1060,9 +1233,67 @@ block {
     );
     operations := mintOrBurnOperation # operations;
 
-
 } with (operations, s)
 
+
+
+(* onPriceAction entrypoint *)
+function onPriceAction(const onPriceActionParams : onPriceActionType; var s : controllerStorage) : return is 
+block {
+
+    // init variables for convenience
+    const cashAmount        : nat               = onPriceActionParams.cashAmount;
+    const tokenAmount       : nat               = onPriceActionParams.tokenAmount;
+    const tokenName         : string            = onPriceActionParams.tokenName;
+
+    const cfmmAddress : address = case s.cfmmAddressLedger[tokenName] of [
+          Some(_address) -> _address
+        | None           -> failwith("Error. CFMM Address not found in CFMM Ledger.")
+    ];
+
+    // check if sender is from the cfmm address
+    if Tezos.sender =/= cfmmAddress then failwith("Error. Caller must be CFMM contract.")  else skip;
+
+    var lastDriftUpdate : timestamp := case s.lastDriftUpdateLedger[tokenName] of [
+          Some(_timestamp) -> _timestamp
+        | None -> Tezos.now - 300           // if no drift update is found for token, set to 5 minutes ago
+    ];
+
+    // check that last drift update is before current time
+    if lastDriftUpdate > Tezos.now then failwith("Error. Delta cannot be negative.") else skip;
+    const delta   : nat   = abs(Tezos.now - lastDriftUpdate); 
+
+    var target : nat  := case s.targetLedger[tokenName] of [
+          Some(_nat) -> _nat
+        | None -> failwith("Error. Target not found for this pair.")
+    ];
+
+    var drift : int  := case s.driftLedger[tokenName] of [
+          Some(_int) -> _int
+        | None -> failwith("Error. Drift not found for this pair.")
+    ];
+
+    var d_target  : nat  := (target * abs(drift) * delta) / fixedPointAccuracy;
+
+    target := if drift < 0 then abs(target - d_target) else target + d_target;
+
+    const price            : nat   = (cashAmount * fixedPointAccuracy) / tokenAmount;
+    const targetLessPrice  : int   = target - price;
+
+    const x                : nat    = (abs(targetLessPrice * targetLessPrice) / fixedPointAccuracy);
+    const priceSquared     : nat    = price * price; 
+    const d_drift          : nat    = if x > priceSquared then delta else delta / priceSquared;
+
+    var drift              : int    := if targetLessPrice > 0 then drift + d_drift else drift - d_drift;
+
+    s.targetLedger[tokenName]            := target;
+    s.driftLedger[tokenName]             := drift;
+    s.lastDriftUpdateLedger[tokenName]   := Tezos.now;
+    s.priceLedger[tokenName]             := price;           
+
+    // math probably not correct with the divisions - double check with checker formula
+
+} with (noOperations, s)
 
 
 
@@ -1100,6 +1331,7 @@ function main (const action : controllerAction; const s : controllerStorage) : r
         | SetUsdmAddress(parameters)                    -> setUsdmAddress(parameters, s)
 
         | CreateVault(parameters)                       -> createVault(parameters, s)
+        | CloseVault(parameters)                        -> closeVault(parameters, s)
         | LiquidateVault(parameters)                    -> liquidateVault(parameters, s)
         | RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
         | WithdrawFromVault(parameters)                 -> withdrawFromVault(parameters, s)

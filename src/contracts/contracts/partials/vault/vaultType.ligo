@@ -75,17 +75,13 @@ type vaultUpdateCollateralTokensActionType is [@layout:comb] record [
     tokenName             : string;
 ]
 
-type collateralTokenAddressesType is map(address, string) // token collateral address : name of token collateral
-
 type vaultStorage is record [
-    admin                            : address;                               // vault admin contract
-    handle                           : vaultHandleType;                       // owner of the vault
-    depositors                       : depositorsType;                        // users who can deposit into the vault    
-    collateralTokenAddresses         : collateralTokenAddressesType;          // token collateral address : name of token collateral
+    admin                            : address;            // vault admin contract - usdm token controller address
+    handle                           : vaultHandleType;    // owner of the vault
+    depositors                       : depositorsType;     // users who can deposit into the vault    
 ]
 
 type vaultActionType is 
-  | VaultUpdateCollateralTokens of vaultUpdateCollateralTokensActionType
   | VaultDelegateTez            of vaultDelegateTezType
   | VaultWithdraw               of vaultWithdrawType
   | VaultDeposit                of vaultDepositType 
