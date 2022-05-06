@@ -49,14 +49,14 @@ type vaultDelegateTezType is option(key_hash)
 
 type vaultWithdrawType is transferTokenType
 
-type vaultDepositType is transferTokenType
-// type vaultDepositType  is [@layout:comb] record [
+// type vaultDepositType is transferTokenType
+type vaultDepositType  is [@layout:comb] record [
 //     from_           : address;
 //     to_             : address;
-//     amt             : nat;
-//     token           : tokenType;
+    amt             : nat;
+    token           : tokenType;
 //     // tokenName       : string;
-// ]
+]
 
 type tokenControllerDepositType is [@layout:comb] record [
     handle      : vaultHandleType; 
