@@ -126,7 +126,7 @@
 //             console.log('-- -- -- -- -- -- -- -- --')
     
 //             // Check if cycle already started (for retest purposes)
-//             const cycleEnd  = governanceStorage.currentCycleEndLevel;
+//             const cycleEnd  = governanceStorage.currentCycleInfo.cycleEndLevel;
 //             if (cycleEnd == 0) {
 //                 // Update governance config for shorter cycles
 //                 var updateGovernanceConfig  = await governanceInstance.methods.updateConfig(0, "configBlocksPerProposalRound").send();
@@ -218,19 +218,19 @@
 //             } else {
 //                 // Start next round until new proposal round
 //                 governanceStorage       = await governanceInstance.storage()
-//                 var currentRound        = governanceStorage.currentRound
-//                 var currentRoundString  = Object.keys(currentRound)[0]
+//                 var currentCycleInfo.round        = governanceStorage.currentCycleInfo.round
+//                 var currentCycleInfo.roundString  = Object.keys(currentCycleInfo.round)[0]
     
 //                 delegationStorage       = await delegationInstance.storage();
 //                 console.log(await delegationStorage.satelliteLedger.size);
     
-//                 while(currentRoundString!=="proposal"){
+//                 while(currentCycleInfo.roundString!=="proposal"){
 //                     var restartRound                = await governanceInstance.methods.startNextRound(false).send();
 //                     await restartRound.confirmation()
 //                     governanceStorage               = await governanceInstance.storage()
-//                     currentRound                    = governanceStorage.currentRound
-//                     currentRoundString              = Object.keys(currentRound)[0]
-//                     console.log("Current round: ", currentRoundString)
+//                     currentCycleInfo.round                    = governanceStorage.currentCycleInfo.round
+//                     currentCycleInfo.roundString              = Object.keys(currentCycleInfo.round)[0]
+//                     console.log("Current round: ", currentCycleInfo.roundString)
 //                 }
 //             }
 //         } catch(e){
@@ -2906,7 +2906,7 @@
 //                     'setContractLambda',
 //                     doormanAddress.address,
 //                     'lambdaUnstake',
-//                     doormanLambdas[13]
+//                     doormanLambdas[15]
 //                 ).toTransferParams();
 //                 const lambdaParamsValue = lambdaParams.parameter.value;
 //                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;

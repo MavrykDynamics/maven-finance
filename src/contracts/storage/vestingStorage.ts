@@ -29,7 +29,6 @@ export const vestingStorage: vestingStorageType = {
   whitelistContracts  : MichelsonMap.fromLiteral({}),
   generalContracts    : MichelsonMap.fromLiteral({}),
 
-  claimLedger         : MichelsonMap.fromLiteral({}),
   vesteeLedger        : MichelsonMap.fromLiteral({}),
 
   totalVestedAmount   : new BigNumber(0),

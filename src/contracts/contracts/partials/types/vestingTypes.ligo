@@ -1,14 +1,6 @@
 type blockLevel is nat;
 type metadata is big_map (string, bytes);
 
-type claimRecordType is [@layout:comb] record [
-    amountClaimed      : nat;
-    remainderVested    : nat; 
-    dateTimeClaimed    : timestamp;
-    blockLevelClaimed  : nat;
-]
-type claimLedgerType is big_map(address, claimRecordType)
-
 type vesteeRecordType is [@layout:comb] record [
     
     // static variables initiated at start ----
@@ -91,7 +83,6 @@ type vestingStorage is [@layout:comb] record [
     whitelistContracts  : whitelistContractsType;      
     generalContracts    : generalContractsType;
 
-    claimLedger         : claimLedgerType;
     vesteeLedger        : vesteeLedgerType;
 
     totalVestedAmount   : nat;              // record of how much has been vested so far

@@ -16,7 +16,6 @@ const adminAddress     = alice.pkh;
 const configType        = {
     threshold : 3,
     actionExpiryDuration: 2880,
-    developerAddress : adminAddress,
     emergencyGovernanceAddress : emergencyGovernanceAddress,
 };
 

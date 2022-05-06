@@ -63,13 +63,13 @@ block {
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
       | Some(_v) -> _v
-      | None     -> failwith("Error. Governance Proxy Lambda not found.")
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // reference: type governanceProxyLambdaFunctionType is (executeActionType * governanceProxyStorage) -> return
     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
-      | None    -> failwith("Error. Unable to unpack Governance Proxy Lambda.")
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
   
 } with (res.0, s)
@@ -429,7 +429,7 @@ block {
             "%updateConfig",
             s.governanceAddress) : option(contract(nat * governanceUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateConfig entrypoint in Governance Contract not found") : contract(nat * governanceUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat * governanceUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -467,7 +467,7 @@ block {
         // find and get delegation contract address from the generalContracts big map
         const delegationAddress : address = case s.generalContracts["delegation"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Delegation Contract is not found")
+            | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
         ];
 
         // find and get updateConfig entrypoint of delegation contract
@@ -475,7 +475,7 @@ block {
             "%updateConfig",
             delegationAddress) : option(contract(nat * delegationUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateConfig entrypoint in Delegation Contract not found") : contract(nat * delegationUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(nat * delegationUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -513,7 +513,7 @@ block {
         // find and get emergency governance contract address from the generalContracts big map
         const emergencyAddress : address = case s.generalContracts["emergencyGovernance"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Emergency Governance Contract is not found")
+            | None           -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
         ];
 
         // find and get updateConfig entrypoint of emergency governance contract
@@ -521,7 +521,7 @@ block {
             "%updateConfig",
             emergencyAddress) : option(contract(nat * emergencyUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateConfig entrypoint in Emergency Governance Contract not found") : contract(nat * emergencyUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat * emergencyUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -559,7 +559,7 @@ block {
         // find and get council contract address from the generalContracts big map
         const councilAddress : address = case s.generalContracts["council"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Council Contract is not found")
+            | None           -> failwith(error_COUNCIL_CONTRACT_NOT_FOUND)
         ];
 
         // find and get updateConfig entrypoint of council contract
@@ -567,7 +567,7 @@ block {
             "%updateConfig",
             councilAddress) : option(contract(nat * councilUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateConfig entrypoint in Council Contract not found") : contract(nat * councilUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_COUNCIL_CONTRACT_NOT_FOUND) : contract(nat * councilUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -612,7 +612,7 @@ block {
             "%updateConfig",
             farmAddress) : option(contract(nat * farmUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateConfig entrypoint in Farm Contract not found") : contract(nat * farmUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_FARM_CONTRACT_NOT_FOUND) : contract(nat * farmUpdateConfigActionType))
             ];
 
         // update farm config operation
@@ -646,7 +646,7 @@ block {
         // find and get break glass contract address from the generalContracts big map
         const breakGlassAddress : address = case s.generalContracts["breakGlass"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Break Glass Contract is not found")
+            | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
         ];
 
         // find and get updateConfig entrypoint of break glass contract
@@ -654,7 +654,7 @@ block {
             "%updateConfig",
             breakGlassAddress) : option(contract(nat * breakGlassUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateConfig entrypoint in Break Glass Contract not found") : contract(nat * breakGlassUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_BREAK_GLASS_CONTRACT_NOT_FOUND) : contract(nat * breakGlassUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -692,7 +692,7 @@ block {
         // find and get doorman contract address from the generalContracts map
         const doormanAddress : address = case s.generalContracts["doorman"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Doorman Contract is not found")
+            | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
         ];
 
         // find and get updateConfig entrypoint of farm contract
@@ -700,7 +700,7 @@ block {
             "%updateMinMvkAmount",
             doormanAddress) : option(contract(nat))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateMinMvkAmount entrypoint in Doorman Contract not found") : contract(nat))
+                | None        -> (failwith(error_UPDATE_MIN_MVK_AMOUNT_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
             ];
 
         // update farm config operation
@@ -736,7 +736,7 @@ block {
             "%updateWhitelistDevelopers",
             s.governanceAddress) : option(contract(address))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateWhitelistDevelopers entrypoint in Governance Contract not found") : contract(address))
+                | None        -> (failwith(error_UPDATE_WHITELIST_DEVELOPERS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(address))
             ];
 
         // update delegation config operation
@@ -769,7 +769,7 @@ block {
         // find and get farmFactory contract address from the generalContracts map
         const farmFactoryAddress : address = case s.generalContracts["farmFactory"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Farm Factory Contract is not found")
+            | None           -> failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND)
         ];
 
         // find and get createFarm entrypoint of farmFactory contract
@@ -777,7 +777,7 @@ block {
             "%createFarm",
             farmFactoryAddress) : option(contract(createFarmType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("createFarm entrypoint in Farm Factory Contract not found") : contract(createFarmType))
+                | None        -> (failwith(error_CREATE_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(createFarmType))
             ];
 
         // create a farm
@@ -810,7 +810,7 @@ block {
         // find and get farmFactory contract address from the generalContracts map
         const farmFactoryAddress : address = case s.generalContracts["farmFactory"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Farm Factory Contract is not found")
+            | None           -> failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND)
         ];
 
         // find and get trackFarm entrypoint of farmFactory contract
@@ -818,7 +818,7 @@ block {
             "%trackFarm",
             farmFactoryAddress) : option(contract(address))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("trackFarm entrypoint in Farm Factory Contract not found") : contract(address))
+                | None        -> (failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
             ];
 
         // track a farm
@@ -851,7 +851,7 @@ block {
         // find and get farmFactory contract address from the generalContracts map
         const farmFactoryAddress : address = case s.generalContracts["farmFactory"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Farm Factory Contract is not found")
+            | None           -> failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND)
         ];
 
         // find and get untrack entrypoint of farmFactory contract
@@ -859,7 +859,7 @@ block {
             "%untrackFarm",
             farmFactoryAddress) : option(contract(address))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("untrackFarm entrypoint in Farm Factory Contract not found") : contract(address))
+                | None        -> (failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
             ];
 
         // untrack a farm
@@ -898,7 +898,7 @@ block {
             "%initFarm",
             targetFarmAddress) : option(contract(initFarmParamsType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("initFarm entrypoint in Farm Contract not found") : contract(initFarmParamsType))
+                | None        -> (failwith(error_INIT_FARM_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND) : contract(initFarmParamsType))
             ];
 
         // init a farm
@@ -933,7 +933,7 @@ block {
             "%closeFarm",
             farmAddress) : option(contract(unit))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("closeFarm entrypoint in Farm Contract not found") : contract(unit))
+                | None        -> (failwith(error_CLOSE_FARM_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND) : contract(unit))
             ];
 
         // close a farm
@@ -966,7 +966,7 @@ block {
         // find and get treasuryFactory contract address from the generalContracts map
         const treasuryFactoryAddress : address = case s.generalContracts["treasuryFactory"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Treasury Factory Contract is not found")
+            | None           -> failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
         ];
 
         // find and get createTreasury entrypoint of treasuryFactory contract
@@ -974,7 +974,7 @@ block {
             "%createTreasury",
             treasuryFactoryAddress) : option(contract(bytes))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("createTreasury entrypoint in Farm Factory Contract not found") : contract(bytes))
+                | None        -> (failwith(error_CREATE_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(bytes))
             ];
 
         // create a new treasury
@@ -1007,7 +1007,7 @@ block {
         // find and get treasuryFactory contract address from the generalContracts map
         const treasuryFactoryAddress : address = case s.generalContracts["treasuryFactory"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Treasury Factory Contract is not found")
+            | None           -> failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
         ];
 
         // find and get trackTreasury entrypoint of treasuryFactory contract
@@ -1015,7 +1015,7 @@ block {
             "%trackTreasury",
             treasuryFactoryAddress) : option(contract(address))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("trackFarm entrypoint in Treasury Factory Contract not found") : contract(address))
+                | None        -> (failwith(error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
             ];
 
         // track a treasury
@@ -1048,7 +1048,7 @@ block {
         // find and get treasuryFactory contract address from the generalContracts map
         const treasuryFactoryAddress : address = case s.generalContracts["treasuryFactory"] of [
               Some(_address) -> _address
-            | None           -> failwith("Error. Treasury Factory Contract is not found")
+            | None           -> failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND)
         ];
 
         // find and get untrackTreasury entrypoint of treasuryFactory contract
@@ -1056,7 +1056,7 @@ block {
             "%untrackTreasury",
             treasuryFactoryAddress) : option(contract(address))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("untrackTreasury entrypoint in Treasury Factory Contract not found") : contract(address))
+                | None        -> (failwith(error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND) : contract(address))
             ];
 
         // untrack a treasury
@@ -1096,7 +1096,7 @@ block {
             "%transfer",
             targetTreasuryAddress) : option(contract(transferActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("transfer entrypoint in Treasury Contract not found") : contract(transferActionType))
+                | None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
             ];
 
         // transfer operation
@@ -1136,7 +1136,7 @@ block {
             "%mintMvkAndTransfer",
             targetTreasuryAddress) : option(contract(mintMvkAndTransferType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("mintMvkAndTransfer entrypoint in Treasury Contract not found") : contract(mintMvkAndTransferType))
+                | None        -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
             ];
 
         // mint MVK and transfer operation
@@ -1171,7 +1171,7 @@ block {
             "%updateInflationRate",
             s.mvkTokenAddress) : option(contract(nat))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("updateInflationRate entrypoint in MVK Token Contract not found") : contract(nat))
+                | None        -> (failwith(error_UPDATE_INFLATION_RATE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(nat))
             ];
 
         // untrack a treasury
@@ -1206,7 +1206,7 @@ block {
             "%triggerInflation",
             s.mvkTokenAddress) : option(contract(unit))) of [
                   Some(contr) -> contr
-                | None        -> (failwith("triggerInflation entrypoint in MVK Token Contract not found") : contract(unit))
+                | None        -> (failwith(error_TRIGGER_INFLATION_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(unit))
             ];
 
         // untrack a treasury
@@ -1224,50 +1224,6 @@ block {
 } with (operations, s)
 
 
-
-// function updateDoormanConfig(const executeAction : executeActionType; var s : governanceStorage) : return is 
-// block {
-
-//     checkSenderIsAdminOrSelfOrGovernance(s);
-
-//     var operations: list(operation) := nil;
-
-//     case executeAction of [
-      
-//       UpdateDoormanConfig(params) -> {
-
-//         // find and get doorman contract address from the generalContracts big map
-//         const doormanAddress : address = case s.generalContracts["doorman"] of [
-//               Some(_address) -> _address
-//             | None -> failwith("Error. Doorman Contract is not found")
-//         ];
-
-//         // find and get updateConfig entrypoint of doorman contract
-//         const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
-//             "%updateConfig",
-//             doormanAddress) : option(contract(nat * doormanUpdateConfigActionType))) of [
-//                   Some(contr) -> contr
-//                 | None        -> (failwith("updateConfig entrypoint in Doorman Contract not found") : contract(nat * doormanUpdateConfigActionType))
-//             ];
-
-//         // assign params to constants for better code readability
-//         const updateConfigAction   = params.updateConfigAction;
-//         const updateConfigNewValue = params.updateConfigNewValue;
-
-//         // update doorman config operation
-//         const updateDoormanConfigOperation : operation = Tezos.transaction(
-//           (updateConfigNewValue, updateConfigAction),
-//           0tez, 
-//           updateConfigEntrypoint
-//         );
-
-//         operations := updateDoormanConfigOperation # operations;
-
-//         }
-//     | _ -> skip
-//     ]
-
-// } with (operations, s)
 
 // ------------------------------------------------------------------------------
 //

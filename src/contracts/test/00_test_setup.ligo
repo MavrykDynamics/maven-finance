@@ -129,15 +129,15 @@ const storages = {
         nextProposalId              = 0n;
         cycleCounter                = 0n;
 
-        currentRound                = Proposal;
-        currentBlocksPerProposalRound      = 0n;
-        currentBlocksPerVotingRound        = 0n;
-        currentBlocksPerTimelockRound      = 0n;
-        currentRoundStartLevel      = 0n;
-        currentRoundEndLevel        = 0n;
-        currentCycleEndLevel        = 0n;
-        currentRoundProposals       = (Map.empty: map(nat, nat));
-        currentRoundVotes           = (Map.empty: map(address, nat));
+        currentCycleInfo.round                = Proposal;
+        currentCycleInfo.blocksPerProposalRound      = 0n;
+        currentCycleInfo.blocksPerVotingRound        = 0n;
+        currentCycleInfo.blocksPerTimelockRound      = 0n;
+        currentCycleInfo.roundStartLevel      = 0n;
+        currentCycleInfo.roundEndLevel        = 0n;
+        currentCycleInfo.cycleEndLevel        = 0n;
+        currentCycleInfo.roundProposals       = (Map.empty: map(nat, nat));
+        currentCycleInfo.roundVotes           = (Map.empty: map(address, nat));
 
         currentRoundHighestVotedProposalId  = 0n;
         timelockProposalId                  = 0n;

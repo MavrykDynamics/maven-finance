@@ -81,9 +81,9 @@ block {
                 case updateConfigAction of [
                     ConfigVoteExpiryDays (_v)                     -> s.config.voteExpiryDays                  := updateConfigNewValue
                   | ConfigRequiredFeeMutez (_v)                   -> s.config.requiredFeeMutez                := updateConfigNewValue * 1mutez
-                  | ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n then failwith("Error. This config value cannot exceed 100%") else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
-                  | ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 100_000_000n then failwith("Error. This config value cannot go below 0.1SMVK") else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
-                  | ConfigMinStakedMvkForTrigger (_v)             -> if updateConfigNewValue < 100_000_000n then failwith("Error. This config value cannot go below 0.1SMVK") else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
+                  | ConfigStakedMvkPercentRequired (_v)           -> if updateConfigNewValue > 10_000n then failwith(error_CONFIG_VALUE_TOO_HIGH) else s.config.stakedMvkPercentageRequired     := updateConfigNewValue  
+                  | ConfigMinStakedMvkForVoting (_v)              -> if updateConfigNewValue < 100_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minStakedMvkRequiredToVote      := updateConfigNewValue
+                  | ConfigMinStakedMvkForTrigger (_v)             -> if updateConfigNewValue < 100_000_000n then failwith(error_CONFIG_VALUE_TOO_LOW) else s.config.minStakedMvkRequiredToTrigger   := updateConfigNewValue
                   | ConfigProposalTitleMaxLength (_v)             -> s.config.proposalTitleMaxLength          := updateConfigNewValue
                   | ConfigProposalDescMaxLength (_v)              -> s.config.proposalDescMaxLength           := updateConfigNewValue
                 ];
@@ -135,42 +135,42 @@ block {
                 
             if s.currentEmergencyGovernanceId = 0n 
             then skip
-            else failwith("Error. There is a emergency control governance in process.");
+            else failwith(error_EMERGENCY_GOVERNANCE_ALREADY_IN_THE_PROCESS);
 
             // check if tez sent is equal to the required fee
             if Tezos.amount =/= s.config.requiredFeeMutez 
-            then failwith("Error. Tez sent is not equal to required fee to trigger emergency governance.") 
+            then failwith(error_TEZ_FEE_UNPAID) 
             else skip;
 
-            const treasuryAddress : address = case s.generalContracts["treasury"] of [
+            const treasuryAddress : address = case s.generalContracts["taxTreasury"] of [
                   Some(_address) -> _address
-                | None           -> failwith("Error. Treasury Contract is not found.")
+                | None           -> failwith(error_TAX_TREASURY_CONTRACT_NOT_FOUND)
             ];
 
-            const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address. Cannot transfer XTZ");
+            const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, error_TAX_TREASURY_CONTRACT_NOT_FOUND);
             const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
 
             // check if user has sufficient staked MVK to trigger emergency control
             const doormanAddress : address = case s.generalContracts["doorman"] of [
                   Some(_address) -> _address
-                | None           -> failwith("Error. Doorman Contract is not found.")
+                | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
             ];
 
             const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
             const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                 Some (value) -> value
-              | None         -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+              | None         -> (failwith (error_VIEW_GET_STAKED_BALANCE_NOT_FOUND) : nat)
             ];
             
             if stakedMvkBalance < s.config.minStakedMvkRequiredToTrigger 
-            then failwith("Error. You do not have enough staked MVK to trigger the emergency governance.") 
+            then failwith(error_MINIMUM_SMVK_AMOUNT_TO_TRIGGER_EMERGENCY_NOT_MET) 
             else skip;
 
             // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
-            const stakedMvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalStakedSupply", unit, doormanAddress);
+            const stakedMvkTotalSupplyView : option (nat) = Tezos.call_view ("getStakedMvkTotalSupply", unit, doormanAddress);
             const stakedMvkTotalSupply: nat = case stakedMvkTotalSupplyView of [
                 Some (value) -> value
-              | None         -> (failwith ("Error. GetTotalStakedSupply View not found in the Doorman Contract") : nat)
+              | None         -> (failwith (error_VIEW_GET_TOTAL_STAKED_SUPPLY_NOT_FOUND) : nat)
             ];
 
             var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
@@ -180,8 +180,8 @@ block {
             const description  : string  =  triggerEmergencyControlParams.description;
 
             // validate input
-            if String.length(title) > s.config.proposalTitleMaxLength then failwith("Error. Proposal title too long") else skip;
-            if String.length(description) > s.config.proposalDescMaxLength then failwith("Error. Proposal description too long") else skip;
+            if String.length(title) > s.config.proposalTitleMaxLength then failwith(error_BAD_INPUT) else skip;
+            if String.length(description) > s.config.proposalDescMaxLength then failwith(error_BAD_INPUT) else skip;
 
             const emptyVotersMap : voterMapType = map[];
             var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
@@ -203,9 +203,9 @@ block {
                   expirationDateTime               = Tezos.now + (86_400 * s.config.voteExpiryDays);
               ];
 
-              s.emergencyGovernanceLedger[s.nextEmergencyGovernanceProposalId] := newEmergencyGovernanceRecord;
-              s.currentEmergencyGovernanceId := s.nextEmergencyGovernanceProposalId;
-              s.nextEmergencyGovernanceProposalId := s.nextEmergencyGovernanceProposalId + 1n;
+              s.emergencyGovernanceLedger[s.nextEmergencyGovernanceId] := newEmergencyGovernanceRecord;
+              s.currentEmergencyGovernanceId := s.nextEmergencyGovernanceId;
+              s.nextEmergencyGovernanceId := s.nextEmergencyGovernanceId + 1n;
 
               // add to operations
               operations := list[transferFeeToTreasuryOperation];               
@@ -234,35 +234,35 @@ block {
     case emergencyGovernanceLambdaAction of [
         | LambdaVoteForEmergencyControl(_parameters) -> {
                 
-                if s.currentEmergencyGovernanceId = 0n then failwith("Error. There is no emergency control governance in process.")
+                if s.currentEmergencyGovernanceId = 0n then failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
                 else skip;
 
                 var _emergencyGovernance : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [
-                    | None            -> failwith("Error. Emergency governance record not found with given id.")
+                    | None            -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
                     | Some(_instance) -> _instance
                 ];
 
                 // Check is user already voted
-                if not Map.mem(Tezos.sender, _emergencyGovernance.voters) then skip else failwith("Error. You can only vote once for emergency governance.");
+                if not Map.mem(Tezos.sender, _emergencyGovernance.voters) then skip else failwith(error_USER_ALREADY_VOTED);
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
                       Some(_address) -> _address
-                    | None           -> failwith("Error. Doorman Contract is not found.")
+                    | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
                 ];
                 
                 // get user staked MVK Balance
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                       Some (value) -> value
-                    | None         -> failwith ("Error. GetStakedBalance View not found in the Doorman Contract")
+                    | None         -> failwith (error_VIEW_GET_STAKED_BALANCE_NOT_FOUND)
                 ];
 
-                if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith("Error. You do not have enough staked MVK balance to vote.");
+                if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith(error_MORE_SMVK_NEEDED_TO_VOTE);
 
-                if _emergencyGovernance.dropped = True then failwith("Error. Emergency governance has been dropped")
+                if _emergencyGovernance.dropped = True then failwith(error_EMERGENCY_GOVERNANCE_DROPPED)
                 else skip; 
 
-                if _emergencyGovernance.executed = True then failwith("Error. Emergency governance has already been executed.")
+                if _emergencyGovernance.executed = True then failwith(error_EMERGENCY_GOVERNANCE_EXECUTED)
                 else skip; 
 
                 const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
@@ -276,7 +276,7 @@ block {
 
                     const breakGlassContractAddress : address = case s.generalContracts["breakGlass"] of [
                           Some(_address) -> _address
-                        | None           -> failwith("Error. Break Glass Contract is not found.")
+                        | None           -> failwith(error_BREAK_GLASS_CONTRACT_NOT_FOUND)
                     ];
 
                     const governanceContractAddress : address = s.governanceAddress;
@@ -329,18 +329,18 @@ block {
     case emergencyGovernanceLambdaAction of [
         | LambdaDropEmergencyGovernance(_parameters) -> {
                 
-                if s.currentEmergencyGovernanceId = 0n then failwith("Error. There is no emergency control governance in process.")
+                if s.currentEmergencyGovernanceId = 0n then failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
                 else skip;
 
                 var emergencyGovernance : emergencyGovernanceRecordType := case s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] of [ 
-                    | None            -> failwith("Error. Emergency governance record not found.")
+                    | None            -> failwith(error_EMERGENCY_GOVERNANCE_NOT_FOUND)
                     | Some(_instance) -> _instance
                 ];
 
-                if emergencyGovernance.executed then failwith("Error: This emergency governance proposal has been executed.")
+                if emergencyGovernance.executed then failwith(error_EMERGENCY_GOVERNANCE_EXECUTED)
                 else skip;
 
-                if emergencyGovernance.proposerAddress =/= Tezos.source then failwith("Error: You do not have permission to drop this emergency governance.")
+                if emergencyGovernance.proposerAddress =/= Tezos.source then failwith(error_ONLY_PROPOSER_CAN_DROP_EMERGENCY_GOVERNANCE)
                 else skip;
 
                 emergencyGovernance.dropped := True; 

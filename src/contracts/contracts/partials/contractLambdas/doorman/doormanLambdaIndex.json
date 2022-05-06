@@ -33,26 +33,34 @@
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseUnstake"
+      "name": "lambdaTogglePauseStake"
     },
     {
       "index": 9,
-      "name": "lambdaStake"
+      "name": "lambdaTogglePauseUnstake"
     },
     {
       "index": 10,
-      "name": "lambdaUnstake"
+      "name": "lambdaTogglePauseCompound"
     },
     {
       "index": 11,
-      "name": "lambdaCompound"
+      "name": "lambdaStake"
     },
     {
       "index": 12,
-      "name": "lambdaFarmClaim"
+      "name": "lambdaUnstake"
     },
     {
       "index": 13,
+      "name": "lambdaCompound"
+    },
+    {
+      "index": 14,
+      "name": "lambdaFarmClaim"
+    },
+    {
+      "index": 15,
       "name": "lambdaNewUnstake"
     }
 ]

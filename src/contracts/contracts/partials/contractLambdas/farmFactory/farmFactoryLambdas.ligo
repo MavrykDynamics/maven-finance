@@ -294,7 +294,7 @@ block{
                 // Add FarmFactory Address to whitelistContracts of created farm
                 const councilAddress : address = case s.whitelistContracts["council"] of [ 
                         Some (_address) -> _address
-                    |   None            -> failwith("Council contract not found in whitelist contracts")
+                    |   None            -> failwith(error_COUNCIL_CONTRACT_NOT_FOUND)
                 ];
                 const farmWhitelistContract : whitelistContractsType = map[
                     ("farmFactory")  -> (Tezos.self_address: address);
@@ -304,7 +304,7 @@ block{
                 // Add FarmFactory Address to doormanContracts of created farm
                 const doormanAddress : address = case s.generalContracts["doorman"] of [ 
                         Some (_address) -> _address
-                    |   None            -> failwith("Doorman contract not found in general contracts")
+                    |   None            -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
                 ];
                 const farmGeneralContracts : generalContractsType = map[
                     ("doorman") -> (doormanAddress: address)
@@ -351,7 +351,7 @@ block{
                 const farmLambdaLedger : map(string, bytes) = s.farmLambdaLedger;
 
                 // Check wether the farm is infinite or its total blocks has been set
-                if not farmInfinite and createFarmParams.plannedRewards.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
+                if not farmInfinite and createFarmParams.plannedRewards.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;
 
                 // Originate a farm 
                 const originatedFarmStorage : farmStorage = record[
@@ -368,7 +368,7 @@ block{
                     breakGlassConfig        = farmBreakGlassConfig;
 
                     lastBlockUpdate         = Tezos.level;
-                    accumulatedMVKPerShare  = 0n;
+                    accumulatedRewardsPerShare  = 0n;
                     claimedRewards          = farmClaimedRewards;
                     depositors              = farmDepositors;
                     open                    = True ;
@@ -411,7 +411,7 @@ block{
         | LambdaTrackFarm(farmContract) -> {
                 
                 s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of [
-                        True  -> (failwith("The provided farm contract already exists in the trackedFarms set"): set(address))
+                        True  -> (failwith(error_FARM_ALREADY_TRACKED): set(address))
                     |   False -> Set.add(farmContract, s.trackedFarms)
                 ];
 
@@ -438,7 +438,7 @@ block{
                 
                 s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of [
                         True  -> Set.remove(farmContract, s.trackedFarms)
-                    |   False -> (failwith("The provided farm contract does not exist in the trackedFarms set"): set(address))
+                    |   False -> (failwith(error_FARM_NOT_TRACKED): set(address))
                 ];
 
             }

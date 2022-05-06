@@ -554,7 +554,7 @@
 //                 nextRoundOperation              = await governanceInstance.methods.startNextRound(true).send();
 //                 await nextRoundOperation.confirmation();
 //                 governanceStorage               = await governanceInstance.storage();
-//                 console.log("ROUND: ", governanceStorage.currentRound)
+//                 console.log("ROUND: ", governanceStorage.currentCycleInfo.round)
 
 //                 // Final values
 //                 delegationStorage                       = await delegationInstance.storage();
@@ -705,7 +705,7 @@
 //                 nextRoundOperation              = await governanceInstance.methods.startNextRound(true).send();
 //                 await nextRoundOperation.confirmation();
 //                 governanceStorage               = await governanceInstance.storage();
-//                 console.log("ROUND: ", governanceStorage.currentRound)
+//                 console.log("ROUND: ", governanceStorage.currentCycleInfo.round)
 
 //                 // Final values
 //                 delegationStorage                       = await delegationInstance.storage();

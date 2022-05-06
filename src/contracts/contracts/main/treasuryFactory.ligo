@@ -79,20 +79,6 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                                                = 1n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 3n;
-
-[@inline] const error_CREATE_TREASURY_ENTRYPOINT_IS_PAUSED                                   = 4n;
-[@inline] const error_TRACK_TREASURY_ENTRYPOINT_IS_PAUSED                                    = 5n;
-[@inline] const error_UNTRACK_TREASURY_ENTRYPOINT_NOT_FOUND                                  = 6n;
-
-[@inline] const error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND                            = 7n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 8n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 9n;
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -224,6 +210,60 @@ block {
 (* View: checkTreasuryExists *)
 [@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorage): bool is 
     Set.mem(treasuryContract, s.trackedTreasuries)
+
+
+
+(* View: get tracked treasuries *)
+[@view] function getTrackedTreasuries (const _: unit; const s: treasuryFactoryStorage): set(address) is 
+    s.trackedTreasuries
+
+
+
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryBreakGlassConfigType is 
+    s.breakGlassConfig
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts (const _: unit; const s: treasuryFactoryStorage): whitelistContractsType is 
+    s.whitelistContracts
+
+
+
+(* View: get whitelist token contracts *)
+[@view] function getWhitelistTokenContracts (const _: unit; const s: treasuryFactoryStorage): whitelistTokenContractsType is 
+    s.whitelistTokenContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts (const _: unit; const s: treasuryFactoryStorage): generalContractsType is 
+    s.generalContracts
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+
+
+(* View: get a product lambda *)
+[@view] function getProductLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.treasuryLambdaLedger)
+
+
+
+(* View: get the product lambda ledger *)
+[@view] function getProductLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+  s.treasuryLambdaLedger
 
 // ------------------------------------------------------------------------------
 //

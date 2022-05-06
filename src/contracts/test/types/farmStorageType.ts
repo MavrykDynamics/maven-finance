@@ -41,7 +41,7 @@ export type farmStorageType = {
                               }
 
   lastBlockUpdate           : BigNumber;
-  accumulatedMVKPerShare    : BigNumber;
+  accumulatedRewardsPerShare    : BigNumber;
   claimedRewards            : {
                                 unpaid : BigNumber;
                                 paid   : BigNumber;

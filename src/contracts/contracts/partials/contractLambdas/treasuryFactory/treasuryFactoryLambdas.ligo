@@ -293,7 +293,7 @@ block{
 
                 const delegationAddress: address = case s.generalContracts["delegation"] of [ 
                     Some (_address) -> _address
-                |   None -> failwith("Delegation contract not found in general contracts")
+                |   None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
                 const treasuryGeneralContracts : generalContractsType = map[
                     ("delegation") -> (delegationAddress : address);
@@ -358,7 +358,7 @@ block{
         | LambdaTrackTreasury(treasuryContract) -> {
                 
                 s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-                      True  -> (failwith("Error. The provided treasury contract already exists in the trackedTreasuries set"): set(address))
+                      True  -> (failwith(error_TREASURY_ALREADY_TRACKED): set(address))
                     | False -> Set.add(treasuryContract, s.trackedTreasuries)
                 ];
 
@@ -385,7 +385,7 @@ block{
                 
                 s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
                       True  -> Set.remove(treasuryContract, s.trackedTreasuries)
-                    | False -> (failwith("Error. The provided treasury contract does not exist in the trackedTreasuries set"): set(address))
+                    | False -> (failwith(error_TREASURY_NOT_TRACKED): set(address))
                 ];
                 
             }
