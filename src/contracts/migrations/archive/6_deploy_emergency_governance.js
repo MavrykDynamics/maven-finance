@@ -29,7 +29,7 @@ const initialStorage = {
 
   tempMvkTotalSupply : 0,
   currentEmergencyGovernanceId : 0,
-  nextEmergencyGovernanceProposalId : 1
+  nextEmergencyGovernanceId : 1
 
 }
 

@@ -77,33 +77,6 @@ type governanceProxyLambdaFunctionType is (executeActionType * governanceProxySt
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                              = 0n;
-[@inline] const error_ONLY_SELF_ALLOWED                                       = 1n;
-[@inline] const error_ONLY_ADMIN_OR_SELF_ALLOWED                              = 2n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ADDRESS_ALLOWED        = 3n;
-[@inline] const error_ONLY_ADMIN_OR_SELF_OR_GOVERNANCE_ADDRESS_ALLOWED        = 4n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 5n;
-
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 6n;
-[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND                     = 7n;
-[@inline] const error_SET_LAMBDA_ENTRYPOINT_NOT_FOUND                         = 8n;
-[@inline] const error_SET_PRODUCT_LAMBDA_ENTRYPOINT_NOT_FOUND                 = 9n;
-[@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 10n;
-[@inline] const error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_NOT_FOUND         = 11n;
-[@inline] const error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_NOT_FOUND           = 12n;
-[@inline] const error_UPDATE_WHITELIST_TOKEN_CONTRACTS_ENTRYPOINT_NOT_FOUND   = 13n;
-
-[@inline] const error_GOVERNANCE_PROPOSAL_RECORD_NOT_FOUND                    = 14n;
-[@inline] const error_GET_PROPOSAL_RECORD_VIEW_NOT_FOUND                      = 15n;
-[@inline] const error_GOVERNANCE_PROPOSAL_ALREADY_EXECUTED                    = 16n;
-[@inline] const error_GOVERNANCE_PROPOSAL_DROPPED                             = 17n;
-[@inline] const error_GOVERNANCE_PROPOSAL_NO_DATA_TO_EXECUTE                  = 18n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                        = 19n;
-[@inline] const error_UNABLE_TO_UNPACK_GOVERNANCE_ACTION_LAMBDA               = 20n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                 = 21n;
-
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -298,6 +271,45 @@ case (Tezos.get_entrypoint_opt(
 //
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : governanceProxyStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : governanceProxyStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get whitelist token contracts *)
+[@view] function getWhitelistTokenContracts(const _: unit; var s : governanceProxyStorage) : whitelistTokenContractsType is
+  s.whitelistTokenContracts
+
+
+
+(* View: get a proxy lambda *)
+[@view] function getProxyLambdaOpt(const lambdaName: string; var s : governanceStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.proxyLambdaLedger)
+
+
+
+(* View: get the proxy lambda ledger *)
+[@view] function getProxyLambdaLedger(const _: unit; var s : governanceStorage) : lambdaLedgerType is
+  s.proxyLambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //

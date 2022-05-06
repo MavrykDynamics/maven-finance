@@ -104,49 +104,6 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                              = 0n;
-[@inline] const error_ONLY_SELF_ALLOWED                                                       = 1n;
-[@inline] const error_ONLY_ADMIN_OR_SELF_ALLOWED                                              = 2n;
-[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                                           = 3n;
-[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                        = 4n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                         = 5n;
-[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                                           = 6n;
-[@inline] const error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED                              = 7n;
-[@inline] const error_ONLY_BREAK_GLASS_CONTRACT_CONTRACT_ALLOWED                              = 8n;
-[@inline] const error_ONLY_BREAK_GLASS_CONTRACT_OR_DEVELOPERS_OR_PROXY_CONTRACT_ALLOWED       = 9n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                       = 10n;
-
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                                              = 11n;
-[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                           = 12n;
-[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                                              = 13n;
-[@inline] const error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND                                 = 14n;
-[@inline] const error_BREAK_GLASS_CONTRACT_NOT_FOUND                                          = 15n;
-
-// temp                 
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                                          = 16n;
-[@inline] const error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND                                     = 17n;
-// [@inline] const error_EXECUTE_GOVERNANCE_PROPOSAL_ENTRYPOINT_NOT_FOUND                        = 13n;
-[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND                          = 18n;
-//                  
-
-[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                                           = 19n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND                              = 20n;
-[@inline] const error_START_PROPOSAL_ROUND_ENTRYPOINT_NOT_FOUND                               = 21n;
-[@inline] const error_EXECUTE_PROPOSAL_ENTRYPOINT_NOT_FOUND                                   = 22n;
-[@inline] const error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_NOT_FOUND                           = 23n;
-[@inline] const error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND                            = 24n;
-[@inline] const error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND                       = 25n;
-
-[@inline] const error_VIEW_GET_TOTAL_SUPPLY_NOT_FOUND                                         = 26n;
-[@inline] const error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND                                    = 27n;
-[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                                           = 28n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND                              = 29n;
-[@inline] const error_SET_BAKER_ENTRYPOINT_NOT_FOUND                                          = 30n;
-[@inline] const error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND                                    = 31n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                        = 32n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                 = 33n;
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -431,8 +388,8 @@ block {
         totalMvkBalance         = 0n;                            // log of satellite's total mvk balance for this cycle
         totalDelegatedAmount    = 0n;                            // log of satellite's total delegated amount 
         totalVotingPower        = 0n;                            // calculated total voting power based on votingPowerRatio (i.e. self bond percentage)   
-        currentCycleStartLevel  = s.currentRoundStartLevel;      // log of current cycle's starting block level
-        currentCycleEndLevel    = s.currentCycleEndLevel         // log of when cycle (proposal + voting) will end
+        currentCycleStartLevel  = s.currentCycleInfo.roundStartLevel;      // log of current cycle's starting block level
+        currentCycleEndLevel    = s.currentCycleInfo.cycleEndLevel         // log of when cycle (proposal + voting) will end
       ];
 
     case s.snapshotLedger[satelliteAddress] of [
@@ -579,7 +536,7 @@ function sendRewardsToVoters(var s: governanceStorage): operation is
     const highestVotedProposalId: nat   = s.currentRoundHighestVotedProposalId;
     const proposal: proposalRecordType  = case Big_map.find_opt(highestVotedProposalId, s.proposalLedger) of [
       Some (_record) -> _record
-    | None -> failwith("Error. Highest voted proposal not found")
+    | None -> failwith(error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND)
     ];
     const voters: votersMapType         = proposal.voters;
     
@@ -590,17 +547,17 @@ function sendRewardsToVoters(var s: governanceStorage): operation is
     var votersAddresses := Map.fold(getVotersAddresses, voters, votersAddresses);
 
     // Get rewards
-    const roundReward: nat  = s.currentCycleTotalVotersReward;
+    const roundReward: nat  = s.currentCycleInfo.cycleTotalVotersReward;
 
     // Send rewards to all satellites
     const delegationAddress : address = case s.generalContracts["delegation"] of [
       Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found")
+      | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
     ];
     const distributeRewardsEntrypoint: contract(set(address) * nat) =
       case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
         Some(contr) -> contr
-      | None -> (failwith("Error. DistributeReward entrypoint not found in Delegation contract."): contract(set(address) * nat))
+      | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_NOT_FOUND): contract(set(address) * nat))
     ];
     const distributeOperation: operation = Tezos.transaction((votersAddresses, roundReward), 0tez, distributeRewardsEntrypoint);
   } with(distributeOperation)
@@ -613,7 +570,7 @@ function sendRewardToProposer(var s: governanceStorage): operation is
     const timelockProposalId: nat   = s.timelockProposalId;
     const proposal: proposalRecordType  = case Big_map.find_opt(timelockProposalId, s.proposalLedger) of [
       Some (_record) -> _record
-    | None -> failwith("Error. Timelock proposal not found")
+    | None -> failwith(error_TIMELOCK_PROPOSAL_NOT_FOUND)
     ];
     const proposerAddress: address         = proposal.proposerAddress;
     
@@ -623,12 +580,12 @@ function sendRewardToProposer(var s: governanceStorage): operation is
     // Send rewards to the proposer
     const delegationAddress : address = case s.generalContracts["delegation"] of [
       Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found")
+      | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
     ];
     const distributeRewardsEntrypoint: contract(set(address) * nat) =
       case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
         Some(contr) -> contr
-      | None -> (failwith("Error. DistributeReward entrypoint not found in Delegation contract."): contract(set(address) * nat))
+      | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_NOT_FOUND): contract(set(address) * nat))
     ];
     const distributeOperation: operation = Tezos.transaction((set[proposerAddress], proposerReward), 0tez, distributeRewardsEntrypoint);
   } with(distributeOperation)
@@ -643,17 +600,17 @@ block {
     var emptyVotesMap     : map(address, nat)       := map [];
     var emptyProposerMap  : map(address, set(nat))  := map [];
 
-    s.currentRound                         := (Proposal : roundType);
-    s.currentBlocksPerProposalRound        := s.config.blocksPerProposalRound;
-    s.currentBlocksPerVotingRound          := s.config.blocksPerVotingRound;
-    s.currentBlocksPerTimelockRound        := s.config.blocksPerTimelockRound;
-    s.currentRoundStartLevel               := Tezos.level;
-    s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
-    s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
-    s.currentCycleTotalVotersReward        := s.config.cycleVotersReward;
-    s.currentRoundProposals                := emptyProposalMap;    // flush proposals
-    s.currentRoundProposers                := emptyProposerMap;    // flush proposals
-    s.currentRoundVotes                    := emptyVotesMap;       // flush voters
+    s.currentCycleInfo.round                         := (Proposal : roundType);
+    s.currentCycleInfo.blocksPerProposalRound        := s.config.blocksPerProposalRound;
+    s.currentCycleInfo.blocksPerVotingRound          := s.config.blocksPerVotingRound;
+    s.currentCycleInfo.blocksPerTimelockRound        := s.config.blocksPerTimelockRound;
+    s.currentCycleInfo.roundStartLevel               := Tezos.level;
+    s.currentCycleInfo.roundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
+    s.currentCycleInfo.cycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
+    s.currentCycleInfo.cycleTotalVotersReward        := s.config.cycleVotersReward;
+    s.currentCycleInfo.roundProposals                := emptyProposalMap;    // flush proposals
+    s.currentCycleInfo.roundProposers                := emptyProposerMap;    // flush proposals
+    s.currentCycleInfo.roundVotes                    := emptyVotesMap;       // flush voters
     s.currentRoundHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
 
     const delegationAddress : address = case s.generalContracts["delegation"] of [
@@ -695,8 +652,8 @@ block {
       satelliteSnapshotRecord.totalMvkBalance         := mvkBalance; 
       satelliteSnapshotRecord.totalDelegatedAmount    := totalDelegatedAmount; 
       satelliteSnapshotRecord.totalVotingPower        := totalVotingPower;
-      satelliteSnapshotRecord.currentCycleStartLevel  := s.currentRoundStartLevel; 
-      satelliteSnapshotRecord.currentCycleEndLevel    := s.currentCycleEndLevel; 
+      satelliteSnapshotRecord.currentCycleStartLevel  := s.currentCycleInfo.roundStartLevel; 
+      satelliteSnapshotRecord.currentCycleEndLevel    := s.currentCycleInfo.cycleEndLevel; 
 
       s.snapshotLedger[satelliteAddress] := satelliteSnapshotRecord;
     }
@@ -710,9 +667,9 @@ function setupVotingRound(const highestVotedProposalId: nat; var s: governanceSt
 block {
 
     // boundaries fixed to the start and end of the cycle (calculated at start of proposal round)
-    s.currentRound               := (Voting : roundType);
-    s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
-    s.currentRoundEndLevel       := s.currentRoundEndLevel + s.currentBlocksPerVotingRound;
+    s.currentCycleInfo.round               := (Voting : roundType);
+    s.currentCycleInfo.roundStartLevel     := s.currentCycleInfo.roundEndLevel + 1n;
+    s.currentCycleInfo.roundEndLevel       := s.currentCycleInfo.roundEndLevel + s.currentCycleInfo.blocksPerVotingRound;
 
     s.timelockProposalId         := 0n;                  // flush proposal id in timelock - reset to 0
 
@@ -721,7 +678,7 @@ block {
 
     // flush current round votes - to prepare for voting round
     const emptyCurrentRoundVotes : map(address, nat) = map[];
-    s.currentRoundVotes := emptyCurrentRoundVotes;
+    s.currentCycleInfo.roundVotes := emptyCurrentRoundVotes;
 
 } with (s)
 
@@ -732,9 +689,9 @@ function setupTimelockRound(var s: governanceStorage): governanceStorage is
 block {
 
     // boundaries remain fixed to the start and end of the cycle (calculated at start of proposal round)
-    s.currentRound               := (Timelock : roundType);
-    s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
-    s.currentRoundEndLevel       := s.currentCycleEndLevel;
+    s.currentCycleInfo.round               := (Timelock : roundType);
+    s.currentCycleInfo.roundStartLevel     := s.currentCycleInfo.roundEndLevel + 1n;
+    s.currentCycleInfo.roundEndLevel       := s.currentCycleInfo.cycleEndLevel;
 
     // set timelockProposalId to currentRoundHighestVotedProposalId
     s.timelockProposalId         := s.currentRoundHighestVotedProposalId;
@@ -779,17 +736,112 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-(* View: get Proposal Record *)
-[@view] function getProposalRecordView(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
-  s.proposalLedger[proposalId]
+(* View: get config *)
+[@view] function getConfig(const _: unit; var s : governanceStorage) : governanceConfigType is
+  s.config
 
-(* View: get Whitelist developers Record *)
+
+
+(* View: get Governance Proxy address *)
+[@view] function getGovernanceProxyAddress(const _: unit; var s : governanceStorage) : address is
+  s.governanceProxyAddress
+
+
+
+(* View: get Whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : governanceStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(* View: get Whitelist token contracts *)
+[@view] function getWhitelistTokenContracts(const _: unit; var s : governanceStorage) : whitelistTokenContractsType is
+  s.whitelistTokenContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : governanceStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get Whitelist developers *)
 [@view] function getWhitelistDevelopers(const _: unit; var s : governanceStorage) : whitelistDevelopersType is
   s.whitelistDevelopers
 
-(* View: get current governance proxy contract *)
-[@view] function getGovernanceProxyAddress(const _: unit; var s : governanceStorage) : address is
-  s.governanceProxyAddress
+
+
+(* View: get a proposal *)
+[@view] function getProposalOpt(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
+  Big_map.find_opt(proposalId, s.proposalLedger)
+
+
+
+(* View: get a satellite snapshot *)
+[@view] function getSnapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
+  Big_map.find_opt(satelliteAddress, s.snapshotLedger)
+
+
+
+(* View: get current cycle info *)
+[@view] function getCurrentCycleInfo(const _: unit; var s : governanceStorage) : currentCycleInfoType is
+  s.currentCycleInfo
+
+
+
+(* View: get next proposal id *)
+[@view] function getNextProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.nextProposalId
+
+
+
+(* View: get cycle counter *)
+[@view] function getCycleCounter(const _: unit; var s : governanceStorage) : nat is
+  s.cycleCounter
+
+
+
+(* View: get current cycle highest voted proposal id *)
+[@view] function getCurrentRoundHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.currentRoundHighestVotedProposalId
+
+
+
+(* View: get timelock proposal id *)
+[@view] function getTimelockProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.timelockProposalId
+
+
+
+(* View: get a financial request *)
+[@view] function getFinancialRequestOpt(const requestId: nat; var s : governanceStorage) : option(financialRequestRecordType) is
+  Big_map.find_opt(requestId, s.financialRequestLedger)
+
+
+
+(* View: get a financial request snapshot *)
+[@view] function getFinancialRequestSnapshotOpt(const requestId: nat; var s : governanceStorage) : option(financialRequestSnapshotMapType) is
+  Big_map.find_opt(requestId, s.financialRequestSnapshotLedger)
+
+
+
+
+(* View: get financial request counter *)
+[@view] function getFinancialRequestCounter(const _: unit; var s : governanceStorage) : nat is
+  s.financialRequestCounter
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : governanceStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : governanceStorage) : lambdaLedgerType is
+  s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //

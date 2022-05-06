@@ -254,7 +254,7 @@ block {
     // 2. Send transfer operation from Treasury account to user account
     // 3. Update user's satellite details in Delegation contract
 
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith("Error. Sender is not allowed to call this entrypoint.")
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELIST_ADDRESSES_ALLOWED)
       else skip;
 
     // break glass check
@@ -270,7 +270,7 @@ block {
                 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
                     Some(_address) -> _address
-                    | None -> failwith("Error. Delegation Contract is not found.")
+                    | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
                 
                 const mvkTokenAddress : address = s.mvkTokenAddress;
@@ -338,7 +338,7 @@ block {
     // break glass check
     checkMintMvkAndTransferIsNotPaused(s);
 
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith("Error. Sender is not allowed to call this entrypoint.")
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELIST_ADDRESSES_ALLOWED)
       else skip;
 
     var operations : list(operation) := nil;
@@ -354,7 +354,7 @@ block {
 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
                 Some(_address) -> _address
-                | None -> failwith("Error. Delegation Contract is not found.")
+                | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const mintMvkTokensOperation : operation = mintTokens(

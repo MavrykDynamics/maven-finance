@@ -91,27 +91,6 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                                                = 1n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
-[@inline] const error_ONLY_COUNCIL_MEMBERS_ALLOWED                                           = 3n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 4n;
-
-[@inline] const error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_NOT_FOUND                             = 5n;
-[@inline] const error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                    = 6n;
-[@inline] const error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                 = 7n;
-[@inline] const error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                 = 8n;
-[@inline] const error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND            = 9n;
-[@inline] const error_REQUEST_TOKENS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND             = 10n;
-[@inline] const error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND               = 11n;
-[@inline] const error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND     = 12n;
-[@inline] const error_SET_CONTRACT_BAKER_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND         = 13n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                         = 14n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                          = 15n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 16n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 17n;
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -351,6 +330,64 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: get config *)
+[@view] function getConfig(const _: unit; var s : councilStorage) : councilConfigType is
+  s.config
+
+
+
+(* View: get council members *)
+[@view] function getCouncilMembers(const _: unit; var s : councilStorage) : councilMembersType is
+  s.councilMembers
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : councilStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : councilStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get a council action *)
+[@view] function getCouncilActionOpt(const actionId: nat; var s : councilStorage) : option(councilActionRecordType) is
+  Big_map.find_opt(actionId, s.councilActionsLedger)
+
+
+
+(* View: get the action counter *)
+[@view] function getActionCounter(const _: unit; var s : councilStorage) : nat is
+  s.actionCounter
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : councilStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : councilStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
 
 
 // ------------------------------------------------------------------------------

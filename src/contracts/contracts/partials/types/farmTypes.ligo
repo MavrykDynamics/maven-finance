@@ -135,7 +135,7 @@ type farmStorage is [@layout:comb] record[
     breakGlassConfig        : farmBreakGlassConfigType;
 
     lastBlockUpdate         : nat;
-    accumulatedMVKPerShare  : tokenBalance;
+    accumulatedRewardsPerShare  : tokenBalance;
     claimedRewards          : claimedRewards;
     depositors              : big_map(depositor, depositorRecord);
     open                    : bool;

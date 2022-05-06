@@ -77,7 +77,7 @@ block {
 
                 case updateConfigAction of [
                     ConfigForceRewardFromTransfer (_v)  -> block {
-                        if updateConfigNewValue =/= 1n and updateConfigNewValue =/= 0n then failwith("Configuration value error") else skip;
+                        if updateConfigNewValue =/= 1n and updateConfigNewValue =/= 0n then failwith(error_CONFIG_VALUE_ERROR) else skip;
                         s.config.forceRewardFromTransfer    := updateConfigNewValue = 1n;
                     }
                 | ConfigRewardPerBlock (_v)          -> block {
@@ -91,7 +91,7 @@ block {
 
                         // Check new reward per block
                         const currentRewardPerBlock: nat = s.config.plannedRewards.currentRewardPerBlock;
-                        if currentRewardPerBlock > updateConfigNewValue then failwith("The new reward per block must be higher than the previous one.") else skip;
+                        if currentRewardPerBlock > updateConfigNewValue then failwith(error_CANNOT_LOWER_REWARD_PER_BLOCK) else skip;
 
                         // Calculate new total rewards
                         const totalClaimedRewards: nat = s.claimedRewards.unpaid+s.claimedRewards.paid;
@@ -171,7 +171,7 @@ block {
                 s := updateFarm(s);
 
                 // Check new blocksPerMinute
-                if blocksPerMinute > 0n then skip else failwith("The new block per minute should be greater than zero");
+                if blocksPerMinute > 0n then skip else failwith(error_BLOCKS_PER_MINUTE_VALUE_ERROR);
 
                 var newcurrentRewardPerBlock: nat := 0n;
                 if s.config.infinite then {
@@ -213,13 +213,13 @@ block{
         | LambdaInitFarm(initFarmParams) -> {
                 
                 // Check if farm is already open
-                if s.open or s.init then failwith("This farm is already opened you cannot initialize it again") else skip;
+                if s.open or s.init then failwith(error_FARM_ALREADY_OPEN) else skip;
 
                 // Check if the blocks per minute is greater than 0
-                if initFarmParams.blocksPerMinute <= 0n then failwith("This farm farm blocks per minute should be greater than 0") else skip;
+                if initFarmParams.blocksPerMinute <= 0n then failwith(error_BLOCKS_PER_MINUTE_VALUE_ERROR) else skip;
 
                 // Check wether the farm is infinite or its total blocks has been set
-                if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
+                if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;
                 
                 // Update farmStorage
                 s := updateFarm(s);
@@ -422,7 +422,7 @@ block{
                 // Prepare new depositor record
                 var depositorRecord: depositorRecord := record[
                     balance                     =0n;
-                    participationMVKPerShare    =s.accumulatedMVKPerShare;
+                    participationMVKPerShare    =s.accumulatedRewardsPerShare;
                     unclaimedRewards            =0n;
                     claimedRewards              =0n;
                 ];
@@ -435,7 +435,7 @@ block{
                     // Refresh depositor deposit with updated unclaimed rewards
                     depositorRecord :=  case getDepositorDeposit(depositor, s) of [
                         Some (_depositor)   -> _depositor
-                    |   None                -> failwith("Depositor not found")
+                    |   None                -> failwith(error_DEPOSITOR_NOT_FOUND)
                     ];
                     
                 }
@@ -486,16 +486,16 @@ block{
 
                 var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [
                     Some (d)    -> d
-                |   None        -> failwith("DEPOSITOR_NOT_FOUND")
+                |   None        -> failwith(error_DEPOSITOR_NOT_FOUND)
                 ];
 
                 // Check if the depositor has enough token to withdraw
-                if tokenAmount > depositorRecord.balance then failwith("The amount withdrawn is higher than the depositor deposit") else skip;
+                if tokenAmount > depositorRecord.balance then failwith(error_WITHDRAWN_AMOUNT_TOO_HIGH) else skip;
                 depositorRecord.balance := abs(depositorRecord.balance - tokenAmount);
                 s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
                 // Check if the farm has enough token
-                if tokenAmount > s.config.lpToken.tokenBalance then failwith("The amount withdrawn is higher than the farm lp balance") else skip;
+                if tokenAmount > s.config.lpToken.tokenBalance then failwith(error_WITHDRAWN_AMOUNT_TOO_HIGH) else skip;
                 s.config.lpToken.tokenBalance := abs(s.config.lpToken.tokenBalance - tokenAmount);
                 
                 // Transfer LP tokens to the user from the farm balance in the LP Contract
@@ -544,12 +544,12 @@ block{
                 // Check if sender as already a record
                 var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [
                     Some (r)        -> r
-                |   None            -> (failwith("DEPOSITOR_NOT_FOUND"): depositorRecord)
+                |   None            -> (failwith(error_DEPOSITOR_NOT_FOUND): depositorRecord)
                 ];
 
                 const claimedRewards: tokenBalance = depositorRecord.unclaimedRewards;
 
-                if claimedRewards = 0n then failwith("The depositor has no rewards to claim") else skip;
+                if claimedRewards = 0n then failwith(error_NOTHING_TO_CLAIM) else skip;
 
                 // Store new unclaimedRewards value in depositor
                 depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;

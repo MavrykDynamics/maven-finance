@@ -84,7 +84,7 @@ export const farmStorage: farmStorageType = {
                               },
 
   lastBlockUpdate           : new BigNumber(0),
-  accumulatedMVKPerShare    : new BigNumber(0),
+  accumulatedRewardsPerShare    : new BigNumber(0),
   claimedRewards            : claimedRewards,
   depositors                : MichelsonMap.fromLiteral({}),
   open                      : false,

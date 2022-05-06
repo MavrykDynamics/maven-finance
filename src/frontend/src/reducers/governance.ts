@@ -27,12 +27,12 @@ export interface GovernanceStorage {
   activeSatellitesMap: MichelsonMap<string, unknown>
   startLevel: number
   nextProposalId: number
-  currentRound: string
-  currentRoundStartLevel: number
-  currentRoundEndLevel: number
-  currentCycleEndLevel: number
-  currentRoundProposals: MichelsonMap<string, unknown>
-  currentRoundVotes: MichelsonMap<string, unknown>
+  currentCycleInfo.round: string
+  currentCycleInfo.roundStartLevel: number
+  currentCycleInfo.roundEndLevel: number
+  currentCycleInfo.cycleEndLevel: number
+  currentCycleInfo.roundProposals: MichelsonMap<string, unknown>
+  currentCycleInfo.roundVotes: MichelsonMap<string, unknown>
   currentRoundHighestVotedProposalId: number
   timelockProposalId: number
   snapshotMvkTotalSupply: number

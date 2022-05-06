@@ -11,7 +11,7 @@ export interface FarmStorage {
     claimIsPaused: boolean
   }
   lastBlockUpdate: number
-  accumulatedMVKPerShare: number
+  accumulatedRewardsPerShare: number
   claimedRewards: {
     unpaid: number
     paid: number

@@ -10,7 +10,6 @@ export type vestingStorageType = {
   whitelistContracts  : MichelsonMap<MichelsonMapKey, unknown>;
   generalContracts    : MichelsonMap<MichelsonMapKey, unknown>;
 
-  claimLedger         : MichelsonMap<MichelsonMapKey, unknown>;
   vesteeLedger        : MichelsonMap<MichelsonMapKey, unknown>;
 
   totalVestedAmount   : BigNumber; 

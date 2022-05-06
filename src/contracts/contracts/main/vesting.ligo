@@ -76,16 +76,6 @@ const thirty_days    : int              = one_day * 30;
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 1n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 2n;
-
-[@inline] const error_MINT_ENTRYPOINT_NOT_FOUND                                              = 3n;
-[@inline] const error_VESTEE_NOT_FOUND                                                       = 4n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 5n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 6n;
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -216,6 +206,24 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : vestingStorage) : whitelistContractsType is 
+    s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : vestingStorage) : generalContractsType is 
+    s.generalContracts
+
+
+
+(* View: get total vested amount *)
+[@view] function getTotalVestedAmount(const _: unit; var s : vestingStorage) : nat is 
+    s.totalVestedAmount
+
+
+
 (* View: get total vesting remainder of vestee *)
 [@view] function getVesteeBalance(const vesteeAddress : address; var s : vestingStorage) : nat is 
     case s.vesteeLedger[vesteeAddress] of [ 
@@ -234,6 +242,18 @@ block {
 (* View: get total vested amount *)
 [@view] function getTotalVested(const _ : unit; var s : vestingStorage) : nat is 
     s.totalVestedAmount
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : vestingStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : vestingStorage) : lambdaLedgerType is
+  s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //

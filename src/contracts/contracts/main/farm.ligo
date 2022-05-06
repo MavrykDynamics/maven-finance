@@ -81,30 +81,6 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_GOVERNANCE_PROXY_ALLOWED                                          = 1n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                               = 2n;
-[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                                          = 3n;
-[@inline] const error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED                                 = 4n;
-[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                                             = 5n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 6n;
-
-[@inline] const error_FARM_NOT_INITIATED                                                     = 7n;
-[@inline] const error_FARM_IS_CLOSED                                                         = 8n;
-[@inline] const error_DEPOSIT_ENTRYPOINT_IS_PAUSED                                           = 9n;
-[@inline] const error_WITHDRAW_ENTRYPOINT_IS_PAUSED                                          = 10n;
-[@inline] const error_CLAIM_ENTRYPOINT_IS_PAUSED                                             = 11n;
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND_IN_GENERAL_CONTRACTS                        = 12n;
-[@inline] const error_FARM_CLAIM_ENTRYPOINT_NOT_FOUND_IN_DOORMAN_CONTRACT                    = 13n;
-[@inline] const error_DEPOSITOR_NOT_FOUND                                                    = 14n;
-[@inline] const error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE         = 15n;
-[@inline] const error_DEPOSITOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD                    = 16n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA12_CONTRACT_NOT_FOUND                      = 17n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_LP_FA2_CONTRACT_NOT_FOUND                       = 18n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 19n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 20n;
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -338,7 +314,7 @@ block{
         
     // Updates the farmStorage
     s.claimedRewards.unpaid := s.claimedRewards.unpaid + reward;
-    s.accumulatedMVKPerShare := s.accumulatedMVKPerShare + ((reward * fixedPointAccuracy) / s.config.lpToken.tokenBalance);
+    s.accumulatedRewardsPerShare := s.accumulatedRewardsPerShare + ((reward * fixedPointAccuracy) / s.config.lpToken.tokenBalance);
     s := updateBlock(s);
 
 } with(s)
@@ -372,10 +348,10 @@ block{
         ];
 
     // Compute depositor reward
-    const accumulatedMVKPerShareStart: tokenBalance = depositorRecord.participationMVKPerShare;
-    const accumulatedMVKPerShareEnd: tokenBalance = s.accumulatedMVKPerShare;
-    if accumulatedMVKPerShareStart > accumulatedMVKPerShareEnd then failwith(error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE) else skip;
-    const currentMVKPerShare = abs(accumulatedMVKPerShareEnd - accumulatedMVKPerShareStart);
+    const accumulatedRewardsPerShareStart: tokenBalance = depositorRecord.participationMVKPerShare;
+    const accumulatedRewardsPerShareEnd: tokenBalance = s.accumulatedRewardsPerShare;
+    if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE) else skip;
+    const currentMVKPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
     const depositorReward = (currentMVKPerShare * depositorRecord.balance) / fixedPointAccuracy;
 
     // Update paid and unpaid rewards in farmStorage
@@ -387,7 +363,7 @@ block{
 
     // Update user's unclaimed rewards and participationMVKPerShare
     depositorRecord.unclaimedRewards := depositorRecord.unclaimedRewards + depositorReward;
-    depositorRecord.participationMVKPerShare := accumulatedMVKPerShareEnd;
+    depositorRecord.participationMVKPerShare := accumulatedRewardsPerShareEnd;
     s.depositors := Big_map.update(depositor, Some (depositorRecord), s.depositors);
 
 } with(s)
@@ -439,7 +415,93 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+//
+// Views Begin
+//
+// ------------------------------------------------------------------------------
 
+(*  View: get config *)
+[@view] function getConfig(const _: unit; const s: farmStorage) : farmConfigType is
+  s.config
+
+
+
+(*  View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; const s: farmStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(*  View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; const s: farmStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(*  View: get break glass config *)
+[@view] function getBreakGlassConfig(const _: unit; const s: farmStorage) : farmBreakGlassConfigType is
+  s.breakGlassConfig
+
+
+
+(*  View: get last block update *)
+[@view] function getLastBlockUpdate(const _: unit; const s: farmStorage) : nat is
+  s.lastBlockUpdate
+
+
+
+(*  View: get last block update *)
+[@view] function getAccumulatedRewardsPerShare(const _: unit; const s: farmStorage) : nat is
+  s.accumulatedRewardsPerShare
+
+
+
+(*  View: get claimed rewards *)
+[@view] function getClaimedRewards(const _: unit; const s: farmStorage) : claimedRewards is
+  s.claimedRewards
+
+
+
+(*  View: get depositor *)
+[@view] function getDepositorOpt(const depositorAddress: depositor; const s: farmStorage) : option(depositorRecord) is
+  Big_map.find_opt(depositorAddress, s.depositors)
+
+
+
+(*  View: get open *)
+[@view] function getOpen(const _: unit; const s: farmStorage) : bool is
+  s.open
+
+
+
+(*  View: get init *)
+[@view] function getInit(const _: unit; const s: farmStorage) : bool is
+  s.init
+
+
+
+(*  View: get init block *)
+[@view] function getInitBlock(const _: unit; const s: farmStorage) : nat is
+  s.initBlock
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : farmStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : farmStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //

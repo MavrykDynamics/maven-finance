@@ -173,6 +173,19 @@ type snapshotRecordType is [@layout:comb] record [
 ]
 type snapshotLedgerType is big_map (address, snapshotRecordType);
 
+type currentCycleInfoType is record[
+    round                       : roundType;               // proposal, voting, timelock
+    blocksPerProposalRound      : nat;                     // to determine duration of proposal round
+    blocksPerVotingRound        : nat;                     // to determine duration of voting round
+    blocksPerTimelockRound      : nat;                     // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+    roundStartLevel             : nat;                     // current round starting block level
+    roundEndLevel               : nat;                     // current round ending block level
+    cycleEndLevel               : nat;                     // current cycle (proposal + voting) ending block level 
+    roundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
+    roundProposers              : map(address, set(nat));  // proposer, 
+    roundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
+    cycleTotalVotersReward      : nat;
+];
 
 // ------------------------------------------------------------------------------
 // Governance Config Types
@@ -390,17 +403,7 @@ type governanceStorage is [@layout:comb] record [
     snapshotLedger                    : snapshotLedgerType;
     
     // current round state variables - will be flushed periodically
-    currentRound                       : roundType;               // proposal, voting, timelock
-    currentBlocksPerProposalRound      : nat;                     // to determine duration of proposal round
-    currentBlocksPerVotingRound        : nat;                     // to determine duration of voting round
-    currentBlocksPerTimelockRound      : nat;                     // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
-    currentRoundStartLevel             : nat;                     // current round starting block level
-    currentRoundEndLevel               : nat;                     // current round ending block level
-    currentCycleEndLevel               : nat;                     // current cycle (proposal + voting) ending block level 
-    currentRoundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
-    currentRoundProposers              : map(address, set(nat));  // proposer, 
-    currentRoundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    currentCycleTotalVotersReward      : nat;
+    currentCycleInfo                  : currentCycleInfoType;
 
     nextProposalId                      : nat;                    // counter of next proposal id
     cycleCounter                        : nat;                    // counter of current cycle 

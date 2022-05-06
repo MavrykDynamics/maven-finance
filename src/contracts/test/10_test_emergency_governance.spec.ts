@@ -417,7 +417,7 @@
 //             try{
 //                 // Update generalContracts
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("treasury", treasuryAddress.address).send();
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("taxTreasury", treasuryAddress.address).send();
 //                 await updateOperation.confirmation()
 
 //                 // Initial Values
@@ -448,7 +448,7 @@
 
 //                 // Reset contract
 //                 await signerFactory(bob.sk);
-//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("treasury", treasuryAddress.address).send();
+//                 var updateOperation = await emergencyGovernanceInstance.methods.updateGeneralContracts("taxTreasury", treasuryAddress.address).send();
 //                 await updateOperation.confirmation()
 //             } catch(e){
 //                 console.log(e);
