@@ -170,64 +170,24 @@ block {
     if isOwnerCheck = True or isAbleToDeposit = True then block {
 
         // deposit operation
-        const from_      : address    = vaultDepositParams.from_;
-        const to_        : address    = vaultDepositParams.to_;
+        const from_      : address    = Tezos.sender;
+        const to_        : address    = Tezos.self_address;
         const amt        : nat        = vaultDepositParams.amt;
         const token      : tokenType  = vaultDepositParams.token;
 
         if to_ =/= s.admin then failwith("Error. Deposit address should be admin.") else skip;
 
-        const depositOperation : operation = case token of [
+        case token of [
+
             | Tez(_tez) -> block{
+
                 // check if tezos amount sent is equal to amount specified
                 if mutezToNatural(Tezos.amount) =/= amt then failwith("Error. Tezos amount is not equal to amount specified.") else skip;
-                const transferOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez.") : contract(unit)), amt );
-            } with transferOperation
-            | Fa12(token) -> block {
 
-                checkNoAmount(Unit);
+                // transfer tez to vault
+                const depositTezOperation : operation = transferTez( (Tezos.get_contract_with_error(to_, "Error. Unable to send tez to vault.") : contract(unit)), amt );
+                operations := depositTezOperation # operations;
 
-                // check collateral token contract address exists in USDM Token controller collateral token ledger
-                const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("viewGetTokenRecordByAddress", token, s.admin);
-                const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
-                      Some (_opt)    -> _opt
-                    | None           -> failwith ("Error. viewGetTokenRecordByAddress not found in contract.")
-                ];
-                const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
-                      Some(_record)  -> _record
-                    | None           -> failwith ("Error. Collateral Token Record not found.")
-                ];
-
-                const transferOperation : operation = transferFa12Token(from_, to_, amt, token)
-
-            } with transferOperation
-
-            | Fa2(token)  -> block{
-
-                checkNoAmount(Unit);
-                
-                // check collateral token contract address exists in USDM Token controller collateral token ledger
-                const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("viewGetTokenRecordByAddress", token.tokenContractAddress, s.admin);
-                const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
-                      Some (_opt)    -> _opt
-                    | None           -> failwith ("Error. viewGetTokenRecordByAddress not found in contract.")
-                ];
-                const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
-                      Some(_record)  -> _record
-                    | None           -> failwith ("Error. Collateral Token Record not found.")
-                ];
-
-                const transferOperation : operation = transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
-
-            } with transferOperation
-        ];
-
-        // add depositOperation to list of operations to execute
-        operations := depositOperation # operations;
-
-        const registerDepositOperation : operation = case token of [
-            | Tez(_tez) -> block {
-                
                 // create register deposit params
                 const registerDepositParams : registerDepositType = record [
                     handle          = s.handle;
@@ -236,14 +196,19 @@ block {
                 ];
                 
                 // create register deposit operation
-                const registerDepositOperation : operation = Tezos.transaction(
+                const registerTezDepositOperation : operation = Tezos.transaction(
                     registerDepositParams,
                     0mutez,
                     registerDepositInTokenController(s.admin)
                 );
 
-            } with registerDepositOperation
+                // register tez deposit in USDM Token Controller
+                operations := registerTezDepositOperation # operations;
+
+            } 
             | Fa12(token) -> block {
+
+                checkNoAmount(Unit);
 
                 // check collateral token contract address exists in USDM Token controller collateral token ledger
                 const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("viewGetTokenRecordByAddress", token, s.admin);
@@ -256,6 +221,10 @@ block {
                     | None           -> failwith ("Error. Collateral Token Record not found.")
                 ];
 
+                // transfer tokens to vault
+                const depositTokenOperation : operation = transferFa12Token(from_, to_, amt, token);
+                operations := depositTokenOperation # operations;
+
                 // create register deposit params
                 const registerDepositParams : registerDepositType = record [
                     handle          = s.handle;
@@ -264,15 +233,20 @@ block {
                 ];
                 
                 // create register deposit operation
-                const registerDepositOperation : operation = Tezos.transaction(
+                const registerTokenDepositOperation : operation = Tezos.transaction(
                     registerDepositParams,
                     0mutez,
                     registerDepositInTokenController(s.admin)
                 );
 
-            } with registerDepositOperation
+                // register token deposit in USDM Token Controller
+                operations := registerTokenDepositOperation # operations;
+
+            } 
 
             | Fa2(token)  -> block{
+
+                checkNoAmount(Unit);
                 
                 // check collateral token contract address exists in USDM Token controller collateral token ledger
                 const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("viewGetTokenRecordByAddress", token.tokenContractAddress, s.admin);
@@ -285,6 +259,10 @@ block {
                     | None           -> failwith ("Error. Collateral Token Record not found.")
                 ];
 
+                // transfer tokens to vault
+                const depositTokenOperation : operation = transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress);
+                operations := depositTokenOperation # operations;
+
                 // create register deposit params
                 const registerDepositParams : registerDepositType = record [
                     handle          = s.handle;
@@ -293,17 +271,16 @@ block {
                 ];
                 
                 // create register deposit operation
-                const registerDepositOperation : operation = Tezos.transaction(
+                const registerTokenDepositOperation : operation = Tezos.transaction(
                     registerDepositParams,
                     0mutez,
                     registerDepositInTokenController(s.admin)
                 );
 
-            } with registerDepositOperation
+                // register token deposit in USDM Token Controller
+                operations := registerTokenDepositOperation # operations;
+            }
         ];
-
-        // add registerDepositOperation to list of operations to execute
-        operations := registerDepositOperation # operations;
 
     } else failwith("Error. You need to be authorised to deposit into this vault.");
 

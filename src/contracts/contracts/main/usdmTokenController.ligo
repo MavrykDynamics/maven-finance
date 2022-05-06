@@ -213,6 +213,20 @@ const fpa10e23 : nat = 1_000_000_000_000_000_000_000_00n;        // 10^23
 const fpa10e22 : nat = 1_000_000_000_000_000_000_000_0n;         // 10^22
 const fpa10e21 : nat = 1_000_000_000_000_000_000_000n;           // 10^21
 
+const fpa10e15 : nat = 1_000_000_000_000_000n;           // 10^15
+const fpa10e14 : nat = 1_000_000_000_000_00n;            // 10^14
+const fpa10e13 : nat = 1_000_000_000_000_0n;             // 10^13
+const fpa10e12 : nat = 1_000_000_000_000n;               // 10^12
+const fpa10e11 : nat = 1_000_000_000_00n;                // 10^11
+const fpa10e10 : nat = 1_000_000_000_0n;                 // 10^10
+const fpa10e9 : nat = 1_000_000_000n;                    // 10^9
+const fpa10e8 : nat = 1_000_000_00n;                     // 10^8
+const fpa10e7 : nat = 1_000_000_0n;                      // 10^7
+const fpa10e6 : nat = 1_000_000n;                        // 10^6
+const fpa10e5 : nat = 1_000_00n;                         // 10^5
+const fpa10e4 : nat = 1_000_0n;                          // 10^4
+const fpa10e3 : nat = 1_000n;                            // 10^3
+
 // ----- constants end -----
 
 
@@ -481,74 +495,89 @@ function isUnderCollaterized(const vault : vaultType; var s : controllerStorage)
 block {
     
     // initialise variables - vaultCollateralValue and usdmOutstanding
-    var vaultCollateralValueInXtz   : nat  := 0n;
+    var vaultCollateralValueInUsd   : nat  := 0n;
     const usdmOutstanding           : nat  = vault.usdmOutstanding;    
-    // const collateralRatio           : nat  = s.config.collateralRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
     const liquidationRatio          : nat  = s.config.liquidationRatio;  // default 3000n: i.e. 3x - 2.25x - 2250
-
-    // const decimals                  : nat  = s.config.decimals;         // default 3n (decimals): i.e. divide by 10 ^ 3
 
     for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
         
-        if tokenName = "tez" then block {
+        const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+                Some(_record) -> _record
+            | None -> failwith("Error. Token does not exist in collateral token record.")
+        ];
 
-            // calculate value of tez balance with same fixed point accuracy as price - 1e6 x 1e27 -> 1e33
-            const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
+        // get last completed round price of token from Oracle view
+        const getTokenLastCompletedRoundPriceView : option (option(lastCompletedRoundPriceReturnType)) = Tezos.call_view ("lastCompletedRoundPrice", unit, collateralTokenRecord.oracleAddress);
+        const getTokenLastCompletedRoundPriceOpt: option(lastCompletedRoundPriceReturnType) = case getTokenLastCompletedRoundPriceView of [
+                Some (_value) -> _value
+            | None -> failwith ("Error. lastCompletedRoundPrice View not found in the Oracle Contract.")
+        ];
+        const tokenLastCompletedRoundPrice: lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceOpt of [
+                Some (_value) -> _value
+            | None -> failwith ("Error. lastCompletedRoundPrice not found.")
+        ];
 
-            // increment vault collateral value
-            vaultCollateralValueInXtz := vaultCollateralValueInXtz + tezValueWithFixedPointAccuracy;
+        // todo: check decimals and percentOracleResponse
+        // todo: ensure exponent is standardized
+        // denomination in USD 
+        
+        const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
+        const priceDecimals    : nat  = tokenLastCompletedRoundPrice.decimals;
+
+        // calculate required number of decimals to rebase each token to the same unit for comparison
+        // assuming most token decimals are 6, and most price decimals from oracle is 8 - set upper limit of 24 (e.g. 12 decimals each)
+        if tokenDecimals + priceDecimals > 24n then failwith("Error. Too many decimals for token * price.") else skip;
+        const rebaseDecimals   : nat  = abs(24n - (tokenDecimals + priceDecimals));
+
+        const tokenPrice       : nat  = tokenLastCompletedRoundPrice.price;            
+
+        // calculate value of collateral balance
+        var tokenValueInUsd : nat := tokenBalance * tokenPrice;
+
+        if rebaseDecimals = 1n then 
+            tokenValueInUsd := tokenValueInUsd * 10n
+        else if rebaseDecimals = 2n then 
+            tokenValueInUsd := tokenValueInUsd * 100n 
+        else if rebaseDecimals = 3n then 
+            tokenValueInUsd := tokenValueInUsd * 1000n 
+        else if rebaseDecimals = 4n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e4 
+        else if rebaseDecimals = 5n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e5
+        else if rebaseDecimals = 6n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e6
+        else if rebaseDecimals = 7n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e7
+        else if rebaseDecimals = 8n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e8
+        else if rebaseDecimals = 9n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e9
+        else if rebaseDecimals = 10n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e10
+        else if rebaseDecimals = 11n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e11
+        else if rebaseDecimals = 12n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e12
+        else if rebaseDecimals = 13n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e13
+        else if rebaseDecimals = 14n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e14
+        else if rebaseDecimals = 15n then 
+            tokenValueInUsd := tokenValueInUsd * fpa10e15
+        else skip;
             
-        } else block {
+        // increment vault collateral value - value should have a base decimal of 1e24
+        vaultCollateralValueInUsd := vaultCollateralValueInUsd + tokenValueInUsd;
 
-            const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                  Some(_record) -> _record
-                | None -> failwith("Error. Token does not exist in collateral token record.")
-            ];
-
-            const tokenDecimals    : nat  = collateralTokenRecord.decimals; 
-
-            // get last completed round price of token from Oracle view
-            const getTokenLastCompletedRoundPriceView : option (option(lastCompletedRoundPriceReturnType)) = Tezos.call_view ("lastCompletedRoundPrice", unit, collateralTokenRecord.oracleAddress);
-            const getTokenLastCompletedRoundPriceOpt: option(lastCompletedRoundPriceReturnType) = case getTokenLastCompletedRoundPriceView of [
-                    Some (_value) -> _value
-                | None -> failwith ("Error. lastCompletedRoundPrice View not found in the Oracle Contract.")
-            ];
-            const tokenLastCompletedRoundPrice: lastCompletedRoundPriceReturnType = case getTokenLastCompletedRoundPriceOpt of [
-                    Some (_value) -> _value
-                | None -> failwith ("Error. lastCompletedRoundPrice not found.")
-            ];
-
-            // todo: check decimals and percentOracleResponse
-            // todo: ensure exponent is standardized
-            // denomination in USD 
-
-            const priceDecimals    : nat  = tokenLastCompletedRoundPrice.decimals;
-            const tokenPrice       : nat  = tokenLastCompletedRoundPrice.price;            
-
-            // calculate value of collateral balance
-            const tokenValueInXtz : nat = tokenBalance * tokenPrice;
-
-            // increment vault collateral value
-            vaultCollateralValueInXtz := vaultCollateralValueInXtz + tokenValueInXtz;
-
-        };
     };
 
-    // s.tempValue := vaultCollateralValue;
-
-    // get price of USDM in xtz 
-    // const usdmTokenPrice : nat = case s.priceLedger["usdm"] of [
-    //       Some(_price) -> _price
-    //     | None         -> failwith("Error. Price not found for USDM Token.")
-    // ];
-
-    // 1e9 x 1e24 -> 1e33
-    // const usdmOutstandingValueInXtz : nat = usdmOutstanding * usdmTokenPrice;
+    // usdmOutstanding will be 1e9 (token decimals), so multiply by 1e15 to have a base of 1e24
+    const usdmOutstandingRebased : nat = usdmOutstanding * fpa10e15; 
 
     // check is vault is under collaterized based on liquidation ratio
-    const isUnderCollaterized : bool = vaultCollateralValue < abs( (liquidationRatio * usdmOutstandingValueInXtz) / (1000n) );
-    // const isUnderCollaterized : bool = False;
+    const isUnderCollaterized : bool = vaultCollateralValueInUsd < (liquidationRatio * usdmOutstandingRebased) / 1000n;
     
+    // old code
     // const isUnderCollaterized : bool  = (15n * vault.collateralBalance) < (Bitwise.shift_right (vault.usdmOutstanding * s.target, 44n)); 
 
 } with isUnderCollaterized
@@ -890,30 +919,11 @@ block {
 
     const initiator       : vaultOwnerType    = Tezos.sender;
 
-    // check if tez or token is sent
-    // if tokenName = "tez" then block {
-
-    //     // if tez is sent, check that Tezos amount should be the same as deposit amount
-    //     if mutezToNatural(Tezos.amount) =/= depositAmount then failwith("Error. Tezos amount and deposit amount do not match.") else skip;
-
-    // } else block {
-
-    //     // get token 
-    //     const _collateralToken : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of 
-    //         Some(_record) -> _record
-    //         | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
-    //     end;
-    // };
-
-    if tokenName =/= "tez" then block {
-        
-        // get token 
-        const _collateralToken : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-            Some(_record) -> _record
-            | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
-        ];
-
-    } else skip;
+    // check if token exists in collateral token ledger
+    const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+          Some(_record) -> _record
+        | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+    ];
 
     // get vault
     var vault : vaultType := getVault(vaultHandle, s);
