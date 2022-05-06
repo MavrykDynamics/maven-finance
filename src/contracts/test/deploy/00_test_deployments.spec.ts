@@ -366,6 +366,7 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
 
     aggregatorStorage.mvkTokenAddress = mvkToken.contract.address;
+    aggregatorStorage.delegationAddress = delegation.contract.address;
     aggregator = await Aggregator.originate(
       utils.tezos,
       aggregatorStorage
@@ -375,6 +376,7 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Aggregator Contract deployed at:', aggregator.contract.address)
 
     aggregatorFactoryStorage.mvkTokenAddress = mvkToken.contract.address;
+    aggregatorFactoryStorage.delegationAddress = delegation.contract.address;
     aggregatorFactory = await AggregatorFactory.originate(
       utils.tezos,
       aggregatorFactoryStorage
