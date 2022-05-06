@@ -67,12 +67,12 @@ export const NavigationLink = ({
             {...getToggleProps({ onClick: handleClick })}
           >
             <Link to={path}>
-              <NavigationLinkIcon selected={mainLinkSelected} id="navLinkIcon">
+              <NavigationLinkIcon selected={mainLinkSelected} className="navLinkIcon">
                 <svg>
                   <use xlinkHref={iconHref} />
                 </svg>
               </NavigationLinkIcon>
-              <div id="navLinkTitle">{title}</div>
+              <div className="navLinkTitle">{title}</div>
             </Link>
           </NavigationLinkItem>
           <div {...getCollapseProps()}>
@@ -99,7 +99,7 @@ export const NavigationLink = ({
                       <SubNavLink key={key}>
                         <Link to={subNavLink.subPath}>
                           <div />
-                          <SubLinkText id="navLinkSubTitle" selected={location.pathname === subNavLink.subPath}>
+                          <SubLinkText className="navLinkSubTitle" selected={location.pathname === subNavLink.subPath}>
                             {subNavLink.subTitle}
                           </SubLinkText>
                         </Link>
@@ -113,7 +113,7 @@ export const NavigationLink = ({
                     <SubNavLink key={key}>
                       <Link to={subNavLink.subPath}>
                         <div />
-                        <SubLinkText id="navLinkSubTitle" selected={location.pathname === subNavLink.subPath}>
+                        <SubLinkText className="navLinkSubTitle" selected={location.pathname === subNavLink.subPath}>
                           {subNavLink.subTitle}
                         </SubLinkText>
                       </Link>
@@ -128,12 +128,12 @@ export const NavigationLink = ({
         <NavigationLinkContainer key={key} selected={mainLinkSelected} onClick={handleClick}>
           <NavigationLinkItem selected={mainLinkSelected}>
             <Link to={path}>
-              <NavigationLinkIcon selected={mainLinkSelected} id="navLinkIcon">
+              <NavigationLinkIcon selected={mainLinkSelected} className="navLinkIcon">
                 <svg>
                   <use xlinkHref={iconHref} />
                 </svg>
               </NavigationLinkIcon>
-              <div id="navLinkTitle">{title}</div>
+              <div className="navLinkTitle">{title}</div>
             </Link>
           </NavigationLinkItem>
         </NavigationLinkContainer>

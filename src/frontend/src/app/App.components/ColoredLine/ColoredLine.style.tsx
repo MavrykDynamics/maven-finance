@@ -6,7 +6,7 @@ export const ColoredLineStyled = styled.hr<{ theme: MavrykTheme }>`
 
   &.primary {
     color: ${({ theme }) => theme.primaryColor};
-    background-color: ${({ theme }) => theme.backgroundColor};
+    background-color: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {

@@ -11,7 +11,7 @@ export const StakeUnstakeStyled = styled.div`
 `
 
 export const StakeUnstakeCard = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   text-align: center;
   font-size: 14px;
@@ -24,7 +24,7 @@ export const StakeUnstakeCard = styled.div<{ theme: MavrykTheme }>`
   min-width: 130px;
 `
 export const StakeUnstakeActionCard = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   padding: 35px;
   text-align: center;

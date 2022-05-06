@@ -31,7 +31,7 @@ export const RoutingButtonStyled = styled.button<{ theme: MavrykTheme }>`
   }
 
   &.primary {
-    color: ${({ theme }) => theme.backgroundColor};
+    color: ${({ theme }) => theme.containerColor};
     background-color: ${({ theme }) => theme.primaryColor};
   }
 
@@ -81,7 +81,7 @@ export const RoutingButtonIcon = styled.svg<{ theme: MavrykTheme }>`
   margin-right: 15px;
 
   &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {
@@ -112,7 +112,7 @@ export const RoutingButtonLoadingIcon = styled.svg<{ theme: MavrykTheme }>`
   animation: ${turn} 1.6s linear infinite forwards;
 
   &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {

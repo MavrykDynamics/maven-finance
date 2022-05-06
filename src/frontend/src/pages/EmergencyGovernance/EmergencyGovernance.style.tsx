@@ -13,7 +13,7 @@ export const EmergencyGovernanceStyled = styled.div<{ theme: MavrykTheme }>`
   }
 `
 export const EmergencyGovernanceTopBar = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   width: 100%;
   border-radius: 10px;
   padding: 15px 25px;
@@ -30,7 +30,7 @@ export const EmergencyGovernanceTopBar = styled.div<{ theme: MavrykTheme }>`
   }
 `
 export const EmergencyGovernanceCardContent = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   width: 100%;
   padding: 15px 25px;
   margin-bottom: 30px;

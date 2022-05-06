@@ -1,6 +1,6 @@
 import { shakes } from 'pages/Doorman/DoormanHeader/DoormanHeader.style'
 import styled from 'styled-components/macro'
-import { backgroundColor } from 'styles'
+import { whiteColor } from 'styles'
 
 export const SatellitesHeaderStyled = styled.div`
   background: url('/images/stars.svg'), radial-gradient(33.05% 130.68% at 69.09% 89.38%, #60558b 0%, #53487f 100%);
@@ -13,13 +13,13 @@ export const SatellitesHeaderStyled = styled.div`
   position: relative;
 
   > h1 {
-    color: ${backgroundColor};
+    color: ${whiteColor};
     font-size: 25px;
     margin: 40px 0 0 40px;
   }
 
   > p {
-    color: ${backgroundColor};
+    color: ${whiteColor};
     font-size: 14px;
     margin: 0 0 0 40px;
   }

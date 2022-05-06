@@ -18,13 +18,13 @@ export const NavigationLinkItem = styled.div<{ selected: boolean; theme: MavrykT
   margin: 5px 0;
   > a {
     display: flex;
-    margin-left: 50px;
+    margin-left: 42px;
 
-    #navLinkTitle {
+    .navLinkTitle {
       font-size: 14px;
       line-height: 31px;
       font-weight: 600;
-      color: ${({ theme }) => theme.subTextColor};
+      color: ${({ theme }) => theme.navTitleColor};
       display: flex;
       align-items: center;
       justify-content: space-around;
@@ -33,7 +33,7 @@ export const NavigationLinkItem = styled.div<{ selected: boolean; theme: MavrykT
     ${(props) =>
       props.selected &&
       css`
-        #navLinkTitle {
+        .navLinkTitle {
           color: ${({ theme }) => theme.navLinkTextActive};
         }
       `}
@@ -53,7 +53,7 @@ export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykT
     width: 24px;
     height: 24px;
     margin: 14px 9px 13px 8px;
-    stroke: ${({ theme }) => theme.subTextColor};
+    stroke: ${({ theme }) => theme.navIconColor};
     vertical-align: top;
   }
 
@@ -67,7 +67,7 @@ export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykT
 `
 
 export const NavigationSubLinks = styled.div<{ theme: MavrykTheme }>`
-  background: ${({ theme }) => theme.backgroundColor};
+  background: ${({ theme }) => theme.containerColor};
 `
 export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
@@ -75,7 +75,7 @@ export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
   > a {
     display: flex;
     align-items: center;
-    margin-left: 50px;
+    margin-left: 42px;
     > div {
       width: 50px;
       height: 50px;

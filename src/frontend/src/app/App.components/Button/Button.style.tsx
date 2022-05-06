@@ -31,13 +31,13 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   }
 
   &.primary:not(.disabled) {
-    color: ${({ theme }) => theme.backgroundColor};
+    color: ${({ theme }) => theme.containerColor};
     background-color: ${({ theme }) => theme.primaryColor};
   }
 
   &.secondary {
     color: ${({ theme }) => theme.primaryColor};
-    background-color: ${({ theme }) => theme.backgroundColor};
+    background-color: ${({ theme }) => theme.containerColor};
     border: 1.5px solid ${({ theme }) => theme.primaryColor};
   }
 
@@ -72,13 +72,13 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   }
 
   &.actionPrimary {
-    color: ${({ theme }) => theme.backgroundColor};
+    color: ${({ theme }) => theme.containerColor};
     background-color: ${({ theme }) => theme.primaryButton};
   }
 
   &.actionSecondary {
     color: ${({ theme }) => theme.primaryColor};
-    background-color: ${({ theme }) => theme.backgroundColor};
+    background-color: ${({ theme }) => theme.containerColor};
     border: 1.5px solid ${({ theme }) => theme.primaryColor};
   }
 `
@@ -121,7 +121,7 @@ export const ButtonIcon = styled.svg<{ theme: MavrykTheme }>`
   margin-right: 15px;
 
   &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {
@@ -136,7 +136,7 @@ export const ButtonIcon = styled.svg<{ theme: MavrykTheme }>`
   }
 
   &.actionPrimary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.actionSecondary {
@@ -163,7 +163,7 @@ export const ButtonLoadingIcon = styled.svg<{ theme: MavrykTheme }>`
   animation: ${turn} 1.6s linear infinite forwards;
 
   &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {
@@ -175,7 +175,7 @@ export const ButtonLoadingIcon = styled.svg<{ theme: MavrykTheme }>`
   }
 
   &.actionPrimary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.actionSecondary {

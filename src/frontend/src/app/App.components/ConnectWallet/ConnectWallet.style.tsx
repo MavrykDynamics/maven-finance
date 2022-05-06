@@ -1,6 +1,7 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 import { BUTTON_RADIUS } from '../../../styles/constants'
+import { skyColor } from '../../../styles'
 
 export const ConnectWalletStyled = styled.div<{ theme: MavrykTheme }>`
   text-align: center;
@@ -37,32 +38,33 @@ export const WalletConnectedButton = styled.div<{ theme: MavrykTheme }>`
     stroke: ${({ theme }) => theme.primaryColor};
   }
 `
-export const WalletNotConnectedButton = styled.div<{ theme: MavrykTheme }>`
+export const WalletNotConnectedButton = styled.button<{ theme: MavrykTheme }>`
   margin: 0 auto;
   height: 50px;
   cursor: pointer;
-  color: ${({ theme }) => theme.subTextColor};
-  border: 2px solid ${({ theme }) => theme.connectWalletMain};
+  color: ${skyColor};
+  border: 2px solid ${skyColor};
   border-radius: ${BUTTON_RADIUS};
   text-align: center;
   font-weight: bold;
   line-height: 50px;
   font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 190px;
+  background: none;
 
-  > svg {
-    display: inline-block;
+  svg {
     width: 24px;
-    height: 24px;
-    margin: 14px 9px 13px 8px;
-    stroke: ${({ theme }) => theme.connectWalletMain};
-    vertical-align: top;
+    height: 19px;
+    stroke: ${skyColor};
+    fill: transparent;
+    margin-right: 16px;
   }
 
-  > div {
-    display: inline-block;
-    margin-right: 9px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.connectWalletMain};
+  span {
+    padding-right: 16px;
   }
 `
 

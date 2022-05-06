@@ -91,7 +91,7 @@ export const UploadIcon = styled.svg<{ theme: MavrykTheme }>`
     overflow: visible;
   }
   &.primary {
-    stroke: ${({ theme }) => theme.backgroundColor};
+    stroke: ${({ theme }) => theme.containerColor};
   }
 
   &.secondary {

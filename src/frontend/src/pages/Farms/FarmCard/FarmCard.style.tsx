@@ -2,7 +2,7 @@ import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const FarmCardStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   margin: 10px;
   display: flex;
@@ -176,7 +176,7 @@ export const StakedBalanceAddSubtractButton = styled.button<{ theme: MavrykTheme
   justify-content: center;
   padding: 8px;
   margin: 5px;
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   border: 1px solid ${({ theme }) => theme.primaryColor};
 `

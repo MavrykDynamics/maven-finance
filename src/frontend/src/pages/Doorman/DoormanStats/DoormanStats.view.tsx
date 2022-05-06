@@ -2,8 +2,8 @@
 import { ButtonLoadingIcon } from 'app/App.components/Button/Button.style'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 
-import { DoormanStatsGrid, DoormanStatsStyled } from './DoormanStats.style'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
+import { DoormanStatsGrid, DoormanStatsStyled } from './DoormanStats.style'
 
 type DoormanStatsViewProps = {
   loading: boolean
@@ -16,6 +16,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
   const stakedMvkTokens = totalStakedMvkSupply ?? 0
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
+
   return (
     <DoormanStatsStyled>
       <DoormanStatsGrid>

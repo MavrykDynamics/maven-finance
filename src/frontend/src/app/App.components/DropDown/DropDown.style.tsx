@@ -22,7 +22,7 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
   border-radius: 4px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
 
   span {
     padding: 12px;
@@ -53,7 +53,7 @@ export const DropDownList = styled.ul<{ theme: MavrykTheme }>`
   border-radius: 4px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
   font-weight: 500;
   &:first-child {
     padding-top: 0.8em;

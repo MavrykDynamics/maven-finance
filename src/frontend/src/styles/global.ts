@@ -177,11 +177,11 @@ p {
 }
 
 .react-toggle--checked .react-toggle-track {
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
 }
 
 .react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
-  background-color: ${({ theme }) => theme.backgroundColor};
+  background-color: ${({ theme }) => theme.containerColor};
 }
 
 .react-toggle-track-check {

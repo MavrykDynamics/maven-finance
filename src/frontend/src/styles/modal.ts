@@ -29,7 +29,7 @@ export const ModalCard = styled.div`
 `
 
 export const ModalCardContent = styled.div<{ width?: number; height?: number; theme: MavrykTheme }>`
-  background: ${({ theme }) => theme.backgroundColor};
+  background: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   min-height: ${(props) => (props.height ? `${props.height}vh` : 'initial')};
   max-height: calc(90vh - 50px);
