@@ -1,6 +1,6 @@
 type setAdminParams is address;
 type metadataType is big_map (string, bytes);
-type lambdaLedgerType is big_map(string, bytes)
+type lambdaLedgerType is map(string, bytes)
 
 type trackedAggregatorsType is map (string * string, address);
 type trackedSatelliteType is set (address);
@@ -66,5 +66,6 @@ type aggregatorFactoryStorage is [@layout:comb] record [
     trackedAggregators  : trackedAggregatorsType;
     trackedSatellites   : trackedSatelliteType;
 
-    lambdaLedger        : lambdaLedgerType;
+    lambdaLedger            : lambdaLedgerType;
+    aggregatorLambdaLedger  : lambdaLedgerType;
 ]

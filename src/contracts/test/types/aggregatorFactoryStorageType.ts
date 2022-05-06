@@ -1,7 +1,5 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
 
-import { BigNumber } from "bignumber.js";
-
 export type aggregatorFactoryStorageType = {
   
   admin                     : string;
@@ -14,5 +12,5 @@ export type aggregatorFactoryStorageType = {
   trackedSatellites         : Array<unknown>;
 
   lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
-
+  aggregatorlambdaLedger    : MichelsonMap<MichelsonMapKey, unknown>;
 };
