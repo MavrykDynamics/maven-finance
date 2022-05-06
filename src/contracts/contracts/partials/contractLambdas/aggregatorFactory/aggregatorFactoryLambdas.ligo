@@ -194,6 +194,7 @@ block {
                   config                    = createAggregatorParams.2.aggregatorConfig;
                   
                   mvkTokenAddress           = s.mvkTokenAddress;
+                  delegationAddress         = s.delegationAddress;
 
                   round                     = 0n;
                   switchBlock               = 0n;

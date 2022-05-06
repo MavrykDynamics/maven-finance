@@ -19,6 +19,7 @@ export type aggregatorStorageType = {
   };
 
   mvkTokenAddress           : string;
+  delegationAddress         : string;
 
   round                     : BigNumber;
   switchBlock               : BigNumber;
