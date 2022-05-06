@@ -15,6 +15,7 @@ type aggregatorMetadataType is [@layout:comb] record[
 type createAggregatorParamsType is string * string * [@layout:comb] record[
   oracleAddresses: oracleAddressesType;
   mvkTokenAddress: address;
+  delegationAddress: address;
   aggregatorConfig: aggregatorConfigType;
   admin: adminType;
 ];
