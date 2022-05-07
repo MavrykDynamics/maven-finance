@@ -49,6 +49,7 @@ type doormanAction is
   | Unstake                     of (nat)
   | Compound                    of (address)
   | FarmClaim                   of farmClaimType
+  | VaultDepositStakedMvk       of vaultDepositStakedMvkType
 
     // Lambda Entrypoints
   | SetLambda                   of setLambdaType
@@ -702,6 +703,25 @@ block{
 
 } with response
 
+
+
+(* vaultDepositStakedMvk entrypoint *)
+function vaultDepositStakedMvk(const vaultDepositStakedMvkParams: vaultDepositStakedMvkType; var s: doormanStorage): return is
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultDepositStakedMvk"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Doorman Entrypoints End
 // ------------------------------------------------------------------------------
@@ -766,6 +786,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | Unstake(parameters)                   -> unstake(parameters, s)
       | Compound(parameters)                  -> compound(parameters, s)
       | FarmClaim(parameters)                 -> farmClaim(parameters, s)
+      | VaultDepositStakedMvk(parameters)     -> vaultDepositStakedMvk(parameters, s)
 
         // Lambda Entrypoints
       | SetLambda(parameters)                 -> setLambda(parameters, s)

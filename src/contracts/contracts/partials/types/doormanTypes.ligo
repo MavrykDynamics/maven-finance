@@ -34,6 +34,17 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes; 
 ]
 
+type ownerVaultSetType is set(vaultIdType)  // set of vault ids belonging to the owner 
+type vaultType is [@layout:comb] record [
+    address                     : address;
+    collateralBalanceLedger     : collateralBalanceLedgerType;        // tez/token balance
+    usdmOutstanding             : usdmAmountType;                     // nat 
+]
+type vaultDepositStakedMvkType is [@layout:comb] record [
+    vaultId          : nat;
+    depositAmount    : nat;
+]
+
 type doormanLambdaActionType is 
 
   // Housekeeping Lambdas
@@ -55,6 +66,7 @@ type doormanLambdaActionType is
 | LambdaUnstake                     of (nat)
 | LambdaCompound                    of (address)
 | LambdaFarmClaim                   of farmClaimType
+| LambdaVaultDepositStakedMvk       of vaultDepositStakedMvkType
 
 // ------------------------------------------------------------------------------
 // Storage
