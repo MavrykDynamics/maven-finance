@@ -140,6 +140,7 @@ type configType is [@layout:comb] record [
     collateralRatio           : nat;    // collateral ratio
     liquidationRatio          : nat;    // liquidation ratio
     decimals                  : nat;    // decimals 
+    liquidationFee            : nat;    // liquidation fee
 ]
 
 type getTargetActionType is [@layout:comb] record [
@@ -413,6 +414,16 @@ block {
 
 } with collateralTokenRecord
 
+
+(* View: get owned vaults by user *)
+[@view] function viewGetOwnedVaultsByUser(const ownerAddress : address; var s : controllerStorage) : option(ownerVaultSetType) is
+    Big_map.find_opt(ownerAddress, s.ownerLedger)
+
+
+
+(* View: get vault by handle *)
+[@view] function viewGetVault(const vaultHandle : vaultHandleType; var s : controllerStorage) : option(vaultType) is
+    Big_map.find_opt(vaultHandle, s.vaults)
 
 
 
