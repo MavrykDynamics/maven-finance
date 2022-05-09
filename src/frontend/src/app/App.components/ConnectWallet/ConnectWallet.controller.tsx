@@ -18,8 +18,6 @@ export const ConnectWallet = ({ type }: ConnectWalletProps) => {
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
   const { user } = useSelector((state: State) => state.user)
 
-  console.log('%c ||||| user', 'color:yellowgreen', user)
-
   const handleConnect = () => {
     dispatch(connect({ forcePermission: false }))
   }

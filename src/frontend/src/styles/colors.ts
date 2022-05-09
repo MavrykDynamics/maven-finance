@@ -1,5 +1,6 @@
 export const darkColor = '#080628'
 export const middleColor = '#160E3F'
+export const medialeColor = '#38237C'
 export const whiteColor = '#FFFFFF'
 export const lightColor = '#EBF0FF'
 export const skyColor = '#77A4F2'
@@ -33,6 +34,7 @@ export const darkMode = {
   headerSkyColor: skyColor,
   cardBorderColor: darkCianColor,
   valueColor: cianColor,
+  connectInfoColor: medialeColor,
 
   borderColor: '#4F457C',
   textColor: '#F7F9FD',
@@ -62,6 +64,7 @@ export const lightMode = {
   headerSkyColor: darkColor,
   cardBorderColor: whiteColor,
   valueColor: darkCianColor,
+  connectInfoColor: whiteColor,
 
   borderColor: '#4F457C',
   textColor: '#29264C',
