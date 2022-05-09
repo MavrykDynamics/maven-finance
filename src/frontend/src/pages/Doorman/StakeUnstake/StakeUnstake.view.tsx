@@ -28,6 +28,7 @@ import {
   StakeUnstakeMin,
   StakeUnstakeRate,
   StakeUnstakeStyled,
+  StakeLabel,
 } from './StakeUnstake.style'
 
 type StakeUnstakeViewProps = {
@@ -199,6 +200,7 @@ export const StakeUnstakeView = ({
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>My MVK Balance</h3>
+          {myMvkTokenBalance === 0 ? <StakeLabel>Not Staking</StakeLabel> : null}
           <img src="/images/coin-gold.svg" alt="coin" />
           <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
         </StakeUnstakeBalance>
