@@ -1,8 +1,22 @@
+import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+
+// helpers
+import { isValidNumberValue, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../app/App.components/Button/Button.constants'
+
+// view
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { useState } from 'react'
+import { Input } from '../../../app/App.components/Input/Input.controller'
+import {
+  StakeUnstakeForm,
+  StakeUnstakeFormInputStatus,
+  ValidStakeUnstakeForm,
+} from '../../../utils/TypesAndInterfaces/Forms'
 
-// prettier-ignore
+// style
 import {
   StakeUnstakeActionCard,
   StakeUnstakeBalance,
@@ -15,15 +29,6 @@ import {
   StakeUnstakeRate,
   StakeUnstakeStyled,
 } from './StakeUnstake.style'
-import { Input } from '../../../app/App.components/Input/Input.controller'
-import { isValidNumberValue, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
-import {
-  StakeUnstakeForm,
-  StakeUnstakeFormInputStatus,
-  ValidStakeUnstakeForm,
-} from '../../../utils/TypesAndInterfaces/Forms'
-import { useDispatch } from 'react-redux'
-import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../app/App.components/Button/Button.constants'
 
 type StakeUnstakeViewProps = {
   myMvkTokenBalance?: number
@@ -43,10 +48,14 @@ export const StakeUnstakeView = ({
   accountPkh,
 }: StakeUnstakeViewProps) => {
   const dispatch = useDispatch()
+  const { exchangeRate } = useSelector((state: State) => state.mvkToken)
+
   const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
   const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState<ValidStakeUnstakeForm>({ amount: false })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
+
+  const exchangeValue = exchangeRate && inputAmount.amount ? inputAmount.amount * exchangeRate : 0
 
   const onUseMaxClick = (actionType: string) => {
     switch (actionType) {
@@ -165,7 +174,9 @@ export const StakeUnstakeView = ({
               inputStatus={stakeUnstakeInputStatus.amount}
               errorMessage={stakeUnstakeValueError}
             />
-            <StakeUnstakeRate>1 MVK ≈ $0.25</StakeUnstakeRate>
+            <StakeUnstakeRate>
+              {exchangeValue ? inputAmount.amount : 1} MVK ≈ ${exchangeValue || exchangeRate}
+            </StakeUnstakeRate>
           </StakeUnstakeInputColumn>
         </StakeUnstakeInputGrid>
         <StakeUnstakeButtonGrid>
