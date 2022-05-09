@@ -58,6 +58,8 @@ export const StakeUnstakeView = ({
 
   const exchangeValue = exchangeRate && inputAmount.amount ? inputAmount.amount * exchangeRate : 0
 
+  const earnedValue = 0
+
   const onUseMaxClick = (actionType: string) => {
     switch (actionType) {
       case 'STAKE':
@@ -200,7 +202,7 @@ export const StakeUnstakeView = ({
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>My MVK Balance</h3>
-          {myMvkTokenBalance === 0 ? <StakeLabel>Not Staking</StakeLabel> : null}
+          {myMvkTokenBalance === 0 && !loading ? <StakeLabel>Not Staking</StakeLabel> : null}
           <img src="/images/coin-gold.svg" alt="coin" />
           <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
         </StakeUnstakeBalance>
@@ -208,6 +210,7 @@ export const StakeUnstakeView = ({
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>My Staked MVK</h3>
+          {userStakeBalance === 0 && !loading ? <StakeLabel>Not Staking</StakeLabel> : null}
           <img src="/images/coin-silver.svg" alt="coin" />
           <CommaNumber value={Number(userStakeBalance || 0)} loading={loading} endingText={'MVK'} />
         </StakeUnstakeBalance>
@@ -215,8 +218,9 @@ export const StakeUnstakeView = ({
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>My Earned MVK</h3>
+          {earnedValue === 0 && !loading ? <StakeLabel>Not Staking</StakeLabel> : null}
           <img src="/images/coin-bronze.svg" alt="coin" />
-          <CommaNumber value={Number(0)} loading={loading} endingText={'MVK'} />
+          <CommaNumber value={earnedValue} loading={loading} endingText={'MVK'} />
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
     </StakeUnstakeStyled>
