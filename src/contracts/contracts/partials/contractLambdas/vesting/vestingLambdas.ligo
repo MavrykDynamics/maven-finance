@@ -351,7 +351,7 @@ block {
                 if _vestee.status = "LOCKED" then failwith(error_VESTEE_LOCKED)
                 else skip;
 
-                if _vestee.totalRemainder = 0n then failwith(error_NOTHING_TO_CLAIM)
+                if _vestee.totalRemainder = 0n then failwith(error_NO_VESTING_REWARDS_TO_CLAIM)
                 else skip;
 
                 const timestampCheck   : bool = Tezos.now > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
@@ -401,7 +401,7 @@ block {
                     // update total vested amount in contract
                     s.totalVestedAmount := s.totalVestedAmount + totalClaimAmount;
 
-                } else failwith(error_CANNOT_CLAIM_NOW);
+                } else failwith(error_CANNOT_CLAIM_VESTING_REWARDS_NOW);
 
             }
         | _ -> skip

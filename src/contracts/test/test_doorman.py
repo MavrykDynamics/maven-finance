@@ -76,62 +76,36 @@ fox = 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L'
 
 sec_week = 604800
 
-error_only_administrator = '0'
-error_only_administrator_or_governance = '2'
-error_only_mvk_can_call = '3'
-error_stake_paused = '7'
-error_unstake_paused = '8'
-error_compound_paused = '9'
-error_only_delegation = '4'
-error_mvk_contract_not_found = '11'
-error_delegation_contract_not_found = '10'
-error_treasury_contract_not_found = '13'
-error_min_mvk_amount_stake = 'You have to stake at least 1 MVK token.'
-error_min_mvk_amount_unstake = 'You have to unstake at least 1 MVK token.'
-error_min_mvk_bound = 'Error. The minimum amount of MVK to stake should be equal to 1.'
+error_only_administrator = '11'
+error_only_administrator_or_governance = '15'
+error_only_mvk_can_call = '43'
+error_stake_paused = '190'
+error_unstake_paused = '191'
+error_compound_paused = '192'
+error_only_delegation = '127'
+error_mvk_contract_not_found = '42'
+error_delegation_contract_not_found = '125'
+error_treasury_contract_not_found = '410'
+error_min_mvk_amount_stake = '185'
+error_min_mvk_amount_unstake = '186'
+error_min_mvk_bound = '186'
 
 class DoormanContract(TestCase):
     
     @classmethod
     def setUpClass(cls):
-        # Setup doorman and its lambdas
+        # Setup doorman 
         cls.doormanContract = pytezos.contract(doormanContractAddress)
         cls.doormanStorage  = cls.doormanContract.storage()
-        # res = cls.doormanContract.setLambda("lambdaSetAdmin"                     , doormanLambdas[0]).interpret(storage=cls.doormanStorage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaUpdateMetadata"               , doormanLambdas[1]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaUpdateMinMvkAmount"           , doormanLambdas[2]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaUpdateWhitelistContracts"     , doormanLambdas[3]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaUpdateGeneralContracts"       , doormanLambdas[4]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaPauseAll"                     , doormanLambdas[5]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaUnpauseAll"                   , doormanLambdas[6]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaTogglePauseUnstake"           , doormanLambdas[7]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaStake"                        , doormanLambdas[8]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaUnstake"                      , doormanLambdas[9]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaCompound"                     , doormanLambdas[10]).interpret(storage=res.storage, sender=bob)
-        # res = cls.doormanContract.setLambda("lambdaFarmClaim"                    , doormanLambdas[11]).interpret(storage=res.storage, sender=bob)
-        # cls.doormanStorage  = res.storage
 
         # Setup MVK Token 
         cls.mvkTokenContract = pytezos.contract(mvkTokenAddress)
         cls.mvkTokenStorage  = cls.mvkTokenContract.storage()
 
-        # Setup Farm Factory and its lambdas
+        # Setup farm factory
         cls.farmFactoryContract = pytezos.contract(farmFactoryAddress)
         cls.farmFactoryStorage  = cls.farmFactoryContract.storage()
-        # res = cls.farmFactoryContract.setLambda("lambdaSetAdmin"                           , farmFactoryLambdas[0]).interpret(storage=cls.farmFactoryStorage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaUpdateMetadata"                     , farmFactoryLambdas[1]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaUpdateWhitelistContracts"           , farmFactoryLambdas[2]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaUpdateGeneralContracts"             , farmFactoryLambdas[3]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaUpdateBlocksPerMinute"              , farmFactoryLambdas[4]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaPauseAll"                           , farmFactoryLambdas[5]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaUnpauseAll"                         , farmFactoryLambdas[6]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaTogglePauseCreateFarm"              , farmFactoryLambdas[7]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaTogglePauseTrackFarm"               , farmFactoryLambdas[8]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaTogglePauseUntrackFarm"             , farmFactoryLambdas[9]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaCreateFarm"                         , farmFactoryLambdas[10]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaTrackFarm"                          , farmFactoryLambdas[11]).interpret(storage=res.storage, sender=bob)
-        # res = cls.farmFactoryContract.setLambda("lambdaUntrackFarm"                        , farmFactoryLambdas[12]).interpret(storage=res.storage, sender=bob)
-        # cls.farmFactoryStorage  = res.storage
+
     @contextmanager
     def raisesMichelsonError(self, error_message):
         with self.assertRaises(MichelsonRuntimeError) as r:

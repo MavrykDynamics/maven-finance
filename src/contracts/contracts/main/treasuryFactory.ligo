@@ -79,6 +79,9 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -137,19 +140,19 @@ function checkNoAmount(const _p: unit): unit is
 // ------------------------------------------------------------------------------
 
 function checkCreateTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
-    if s.breakGlassConfig.createTreasuryIsPaused then failwith(error_CREATE_TREASURY_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.createTreasuryIsPaused then failwith(error_CREATE_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkTrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
-    if s.breakGlassConfig.trackTreasuryIsPaused then failwith(error_TRACK_TREASURY_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.trackTreasuryIsPaused then failwith(error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
-    if s.breakGlassConfig.untrackTreasuryIsPaused then failwith(error_UNTRACK_TREASURY_ENTRYPOINT_NOT_FOUND)
+    if s.breakGlassConfig.untrackTreasuryIsPaused then failwith(error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------

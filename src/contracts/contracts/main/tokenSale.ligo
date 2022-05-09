@@ -41,6 +41,9 @@ type return is list (operation) * tokenSaleStorage
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -338,7 +341,7 @@ block {
       if newOverallAmountTotal > s.config.overallMaxAmountCap then failwith(error_OVERALL_MAX_AMOUNT_CAP_REACHED) else s.overallAmountTotal := newOverallAmountTotal;
 
       // send amount to treasury
-      const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, error_TREASURY_CONTRACT_NOT_FOUND);
+      const treasuryContract: contract(unit) = Tezos.get_contract_with_error(s.treasuryAddress, "Error. Contract not found at given address");
       const transferAmountToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
       operations := transferAmountToTreasuryOperation # operations;
 

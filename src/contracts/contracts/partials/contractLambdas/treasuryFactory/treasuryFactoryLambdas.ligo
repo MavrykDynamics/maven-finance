@@ -283,7 +283,7 @@ block{
                 const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
                 const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
                     Some (value) -> value
-                | None -> failwith (error_VIEW_GET_GOVERNANCE_PROXY_ADDRESS_NOT_FOUND)
+                | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
                 const treasuryWhitelistContracts : whitelistContractsType = map[
                     ("treasuryFactory") -> (Tezos.self_address: address);

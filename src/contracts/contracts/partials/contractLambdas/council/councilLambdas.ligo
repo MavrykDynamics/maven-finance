@@ -79,7 +79,7 @@ block {
                 const updateConfigNewValue  : councilUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
 
                 case updateConfigAction of [
-                      ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_CANNOT_CHANGE_COUNCIL_WITHOUT_IMPACTING_THRESHOLD) else s.config.threshold := updateConfigNewValue
+                      ConfigThreshold (_v)                  -> if updateConfigNewValue > Map.size(s.councilMembers) then failwith(error_COUNCIL_THRESHOLD_ERROR) else s.config.threshold := updateConfigNewValue
                     | ConfigActionExpiryDays (_v)           -> s.config.actionExpiryDays          := updateConfigNewValue  
                     | ConfigCouncilNameMaxLength (_v)       -> s.config.councilMemberNameMaxLength        := updateConfigNewValue
                     | ConfigCouncilWebsiteMaxLength (_v)    -> s.config.councilMemberWebsiteMaxLength     := updateConfigNewValue  
@@ -146,9 +146,9 @@ block {
                 ];
                 
                 // Validate inputs
-                if String.length(councilMemberInfo.name) > s.config.councilMemberNameMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(councilMemberInfo.image) > s.config.councilMemberImageMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(councilMemberInfo.website) > s.config.councilMemberWebsiteMaxLength then failwith(error_BAD_INPUT) else skip;
+                if String.length(councilMemberInfo.name) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilMemberInfo.image) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilMemberInfo.website) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 // Update member info
                 councilMember.name      := councilMemberInfo.name;
@@ -188,9 +188,9 @@ block {
         | LambdaCouncilActionAddMember(newCouncilMember) -> {
 
                 // Validate inputs
-                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_BAD_INPUT) else skip;
+                if String.length(newCouncilMember.memberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newCouncilMember.memberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
                 if Map.mem(newCouncilMember.memberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
@@ -260,7 +260,7 @@ block {
                 else skip;
 
                 // Check if removing the council member won't impact the threshold
-                if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_CANNOT_CHANGE_COUNCIL_WITHOUT_IMPACTING_THRESHOLD)
+                if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
                 else skip;
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -319,9 +319,9 @@ block {
         | LambdaCouncilActionChangeMember(councilActionChangeMemberParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_BAD_INPUT) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionChangeMemberParams.newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if new council member is already in the council
                 if Map.mem(councilActionChangeMemberParams.newCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
@@ -538,7 +538,7 @@ block {
                             Some (_vestee) -> failwith (error_VESTEE_ALREADY_EXISTS)
                         |   None -> skip
                     ]
-                |   None -> failwith (error_VIEW_GET_VESTEE_OPT_NOT_FOUND)
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -614,7 +614,7 @@ block {
                             Some (_vestee) -> skip
                         |   None -> failwith (error_VESTEE_NOT_FOUND)
                     ]
-                |   None -> failwith (error_VIEW_GET_VESTEE_OPT_NOT_FOUND)
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -692,7 +692,7 @@ block {
                             Some (_vestee) -> skip
                         |   None -> failwith (error_VESTEE_NOT_FOUND)
                     ]
-                |   None -> failwith (error_VIEW_GET_VESTEE_OPT_NOT_FOUND)
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -768,7 +768,7 @@ block {
                             Some (_vestee) -> skip
                         |   None -> failwith (error_VESTEE_NOT_FOUND)
                     ]
-                |   None -> failwith (error_VIEW_GET_VESTEE_OPT_NOT_FOUND)
+                |   None -> failwith (error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND)
                 ];
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
@@ -834,7 +834,7 @@ block {
         | LambdaCouncilActionTransfer(councilActionTransferParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionTransferParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_BAD_INPUT) else skip;
+                if String.length(councilActionTransferParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if type is correct
                 if councilActionTransferParams.tokenType = "FA12" or
@@ -905,8 +905,8 @@ block {
         | LambdaCouncilRequestTokens(councilActionRequestTokensParams) -> {                
 
                 // Validate inputs
-                if String.length(councilActionRequestTokensParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith(error_BAD_INPUT) else skip;
+                if String.length(councilActionRequestTokensParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if entrypoint exist on Governance Contract
                 var govenanceAddress : address := s.governanceAddress;
@@ -982,7 +982,7 @@ block {
         | LambdaCouncilRequestMint(councilActionRequestMintParams) -> {
                 
                 // Validate inputs
-                if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_BAD_INPUT) else skip;
+                if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if entrypoint exists on Governance Contract
                 var govenanceAddress : address := s.governanceAddress;
@@ -1253,7 +1253,7 @@ block {
                 if Tezos.now > _councilActionRecord.expirationDateTime then failwith(error_COUNCIL_ACTION_EXPIRED) else skip;
 
                 // check if signer already signer
-                if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith(error_SENDER_ALREADY_SIGNED_THE_ACTION) else skip;
+                if Set.mem(Tezos.sender, _councilActionRecord.signers) then failwith(error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER) else skip;
 
                 // update signers and signersCount for council action record
                 var signersCount : nat             := _councilActionRecord.signersCount + 1n;
@@ -1300,9 +1300,9 @@ block {
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_BAD_INPUT) else skip;
-                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_BAD_INPUT) else skip;
-                        if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_BAD_INPUT) else skip;
+                        if String.length(councilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(councilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         // Check if new council member is already in the council
                         const councilMemberInfo: councilMemberInfoType  = record[
@@ -1333,7 +1333,7 @@ block {
                         else skip;
 
                         // Check if removing the council member won't impact the threshold
-                        if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_CANNOT_CHANGE_COUNCIL_WITHOUT_IMPACTING_THRESHOLD)
+                        if (abs(Map.size(s.councilMembers) - 1n)) < s.config.threshold then failwith(error_COUNCIL_THRESHOLD_ERROR)
                         else skip;
                         s.councilMembers := Map.remove(councilMemberAddress, s.councilMembers);
 
@@ -1372,9 +1372,9 @@ block {
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_BAD_INPUT) else skip;
-                        if String.length(newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_BAD_INPUT) else skip;
-                        if String.length(newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_BAD_INPUT) else skip;
+                        if String.length(newCouncilMemberName) > s.config.councilMemberNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(newCouncilMemberImage) > s.config.councilMemberImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(newCouncilMemberWebsite) > s.config.councilMemberWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         // Check if new council member is already in the council
                         if Map.mem(newCouncilMemberAddress, s.councilMembers) then failwith(error_COUNCIL_MEMBER_ALREADY_EXISTS)
@@ -1666,7 +1666,7 @@ block {
                         // --- --- ---
 
                         const transferTokenOperation : operation = case _tokenTransferType of [ 
-                            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address. Cannot transfer XTZ"): contract(unit)), amt)
+                            | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt)
                             | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
                             | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                         ];
@@ -1718,8 +1718,8 @@ block {
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_BAD_INPUT) else skip;
-                        if String.length(tokenName) > s.config.requestTokenNameMaxLength then failwith(error_BAD_INPUT) else skip;
+                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                        if String.length(tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         const requestTokensParams : councilActionRequestTokensType = record[
                             treasuryAddress       = treasuryAddress;
@@ -1769,7 +1769,7 @@ block {
                         // fetch params end ---
 
                         // Validate inputs
-                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_BAD_INPUT) else skip;
+                        if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                         const requestMintParams : councilActionRequestMintType = record[
                             tokenAmount      = tokenAmount;

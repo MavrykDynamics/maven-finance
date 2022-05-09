@@ -62,7 +62,7 @@ block {
                 const getGlassBrokenView : option (bool) = Tezos.call_view ("getGlassBroken", unit, _breakGlassAddress);
                 const glassBroken: bool = case getGlassBrokenView of [
                       Some (_glassBroken) -> _glassBroken
-                    | None -> failwith (error_VIEW_GET_GLASS_BROKEN_NOT_FOUND)
+                    | None -> failwith (error_GET_GLASS_BROKEN_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND)
                 ];
 
                 if glassBroken then skip else failwith(error_GLASS_NOT_BROKEN);
@@ -131,8 +131,8 @@ block {
 
 
 
-(*  setGovernanceProxyAddress lambda *)
-function lambdaSetGovernanceProxyAddress(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
+(*  setGovernanceProxy lambda *)
+function lambdaSetGovernanceProxy(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is
 block {
     
     checkNoAmount(Unit); // entrypoint should not receive any tez amount
@@ -140,7 +140,7 @@ block {
     checkSenderIsAdmin(s); // check that sender is admin
     
     case governanceLambdaAction of [
-        | LambdaSetGovernanceProxyAddress(newGovernanceProxyAddress) -> {
+        | LambdaSetGovernanceProxy(newGovernanceProxyAddress) -> {
                 s.governanceProxyAddress := newGovernanceProxyAddress;
             }
         | _ -> skip
@@ -356,7 +356,7 @@ block {
 
   // Current round hass not ended
   if Tezos.level < s.currentCycleInfo.roundEndLevel
-  then failwith(error_CURRENT_ROUND_NOT_ENDED) 
+  then failwith(error_CURRENT_ROUND_NOT_FINISHED) 
   else skip;
 
   // Execute past proposal if parameter set to true
@@ -462,10 +462,10 @@ block {
 
                 const treasuryAddress : address = case s.generalContracts["taxTreasury"] of [
                     Some(_address) -> _address
-                    | None -> failwith(error_TAX_TREASURY_CONTRACT_NOT_FOUND)
+                    | None -> failwith(error_PROPOSE_TAX_TREASURY_CONTRACT_NOT_FOUND)
                 ];
 
-                const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address. Cannot transfer XTZ");
+                const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
                 const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
                 
                 operations  := transferFeeToTreasuryOperation # operations;
@@ -483,7 +483,7 @@ block {
                         | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
                       ]
                     
-                    | None -> failwith (error_VIEW_GET_SATELLITE_OPT_NOT_FOUND)
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const satelliteSnapshot : snapshotRecordType = case s.snapshotLedger[Tezos.sender] of [
@@ -492,15 +492,15 @@ block {
                 ];
 
                 // validate inputs
-                if String.length(newProposal.title) > s.config.proposalTitleMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(newProposal.description) > s.config.proposalDescriptionMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(newProposal.invoice) > s.config.proposalInvoiceMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(newProposal.sourceCode) > s.config.proposalSourceCodeMaxLength then failwith(error_BAD_INPUT) else skip;
+                if String.length(newProposal.title) > s.config.proposalTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newProposal.description) > s.config.proposalDescriptionMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newProposal.invoice) > s.config.proposalInvoiceMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(newProposal.sourceCode) > s.config.proposalSourceCodeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // minimumStakeReqPercentage - 5% -> 500 | snapshotMvkTotalSupply - mu 
                 const minimumMvkRequiredForProposalSubmission = s.config.minimumStakeReqPercentage * s.snapshotMvkTotalSupply / 10_000;
 
-                if satelliteSnapshot.totalMvkBalance < abs(minimumMvkRequiredForProposalSubmission) then failwith(error_MORE_SMVK_NEEDED_TO_PROPOSE)
+                if satelliteSnapshot.totalMvkBalance < abs(minimumMvkRequiredForProposalSubmission) then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip; 
 
                 const proposalId          : nat                   = s.nextProposalId;
@@ -649,7 +649,7 @@ block {
                 const proposalBytes  : bytes   = proposalData.proposalBytes;
 
                 // validate inputs
-                if String.length(title) > s.config.proposalMetadataTitleMaxLength then failwith(error_BAD_INPUT) else skip;
+                if String.length(title) > s.config.proposalMetadataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
                 
                 var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of [ 
                       Some(_record) -> _record
@@ -693,7 +693,7 @@ block {
                 const paymentTransaction    : transferDestinationType   = paymentData.paymentTransaction;
 
                 // validate inputs
-                if String.length(title) > s.config.proposalMetadataTitleMaxLength then failwith(error_BAD_INPUT) else skip;
+                if String.length(title) > s.config.proposalMetadataTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
     
                 var proposalRecord : proposalRecordType := case s.proposalLedger[proposalId] of [ 
                       Some(_record) -> _record
@@ -788,7 +788,7 @@ block {
                     | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
                   ]
 
-                | None -> failwith (error_VIEW_GET_SATELLITE_OPT_NOT_FOUND)
+                | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
 
                 ];
 
@@ -923,7 +923,7 @@ block {
                         | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
                     ]
 
-                    | None -> failwith (error_VIEW_GET_SATELLITE_OPT_NOT_FOUND)
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
 
                 ];
 
@@ -965,7 +965,7 @@ block {
                     
                     // get previous vote
                     var previousVote : (nat * timestamp * voteForProposalChoiceType) := case _proposal.voters[Tezos.sender] of [ 
-                        | None                -> failwith(error_PREVIOUS_VOTE_NOT_FOUND)
+                        | None                -> failwith(error_VOTE_NOT_FOUND)
                         | Some(_previousVote) -> _previousVote
                     ];
 
@@ -1093,7 +1093,7 @@ block {
                 else skip;
 
                 // verify that payment for proposal has not been processed
-                if proposal.paymentProcessed = True then failwith(error_PROPOSAL_PAYMENTS_ALREADY_PROCESSED)
+                if proposal.paymentProcessed = True then failwith(error_PROPOSAL_PAYMENTS_PROCESSED)
                 else skip;
 
                 // verify that proposal is active and has not been dropped
@@ -1234,7 +1234,7 @@ block {
                           Some (_satellite) -> skip
                         | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
                     ]
-                | None -> failwith (error_VIEW_GET_SATELLITE_OPT_NOT_FOUND)
+                | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
 
                 ];
 
@@ -1309,7 +1309,7 @@ block {
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedMvkTotalSupply", unit, doormanAddress);
                 s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
                       Some (value) -> value
-                    | None -> (failwith (error_VIEW_GET_STAKED_TOTAL_SUPPLY_NOT_FOUND) : nat)
+                    | None -> (failwith (error_GET_STAKED_MVK_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
@@ -1363,7 +1363,7 @@ block {
                 const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
                       Some (value) -> value
-                    | None -> failwith (error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND)
+                    | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 for satelliteAddress -> satellite in map activeSatellites block {
@@ -1412,7 +1412,7 @@ block {
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedMvkTotalSupply", unit, doormanAddress);
                 s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
                       Some (value) -> value
-                    | None         -> (failwith (error_VIEW_GET_STAKED_TOTAL_SUPPLY_NOT_FOUND) : nat)
+                    | None         -> (failwith (error_GET_STAKED_MVK_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
@@ -1463,7 +1463,7 @@ block {
                 const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
                       Some (value) -> value
-                    | None -> failwith (error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND)
+                    | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 for satelliteAddress -> satellite in map activeSatellites block {
@@ -1505,7 +1505,7 @@ block {
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedMvkTotalSupply", unit, doormanAddress);
                 s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
                       Some (value) -> value
-                    | None         -> (failwith (error_VIEW_GET_STAKED_TOTAL_SUPPLY_NOT_FOUND) : nat)
+                    | None         -> (failwith (error_GET_STAKED_MVK_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
@@ -1559,7 +1559,7 @@ block {
                 const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
                 const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
                       Some (value) -> value
-                    | None -> failwith (error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND)
+                    | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 for satelliteAddress -> satellite in map activeSatellites block {
@@ -1631,7 +1631,7 @@ block {
                           Some (_satellite) -> skip
                         | None              -> failwith(error_ONLY_SATELLITE_ALLOWED)
                       ]
-                    | None -> failwith (error_VIEW_GET_SATELLITE_OPT_NOT_FOUND)
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
                 const financialRequestId : nat = voteForRequest.requestId;
@@ -1653,7 +1653,7 @@ block {
 
                 const satelliteSnapshotRecord : financialRequestSnapshotRecordType = case financialRequestSnapshot[Tezos.sender] of [ 
                       Some(_record) -> _record
-                    | None          -> failwith(error_SATELLITE_NOT_FOUND_IN_FINANCIAL_REQUEST_SNAPSHOT)
+                    | None          -> failwith(error_SATELLITE_NOT_FOUND)
                 ];
 
                 // Save and update satellite's vote record
@@ -1666,11 +1666,11 @@ block {
                     Some (_voteRecord) -> case _voteRecord.vote of [
 
                         Approve(_v) ->  if _voteRecord.totalVotingPower > _financialRequest.approveVoteTotal 
-                                        then failwith(error_CALCULATION_ERROR_WHEN_CHANGING_A_VOTE) 
+                                        then failwith(error_CALCULATION_ERROR) 
                                         else _financialRequest.approveVoteTotal := abs(_financialRequest.approveVoteTotal - _voteRecord.totalVotingPower)
 
                     | Disapprove(_v) -> if _voteRecord.totalVotingPower > _financialRequest.disapproveVoteTotal 
-                                        then failwith(error_CALCULATION_ERROR_WHEN_CHANGING_A_VOTE) 
+                                        then failwith(error_CALCULATION_ERROR) 
                                         else _financialRequest.disapproveVoteTotal := abs(_financialRequest.disapproveVoteTotal - _voteRecord.totalVotingPower)
 
                     ]
