@@ -96,3 +96,41 @@ export const SimpleConnectedButton = styled.div<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.connectWalletSecondary};
   }
 `
+
+export const ConnectWalletInfoStyled = styled.blockquote<{ theme: MavrykTheme }>`
+  border-radius: 10px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  padding: 25px;
+  background-color: ${({ theme }) => theme.connectInfoColor};
+  margin-top: 32px;
+
+  p {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+    margin-right: 32px;
+    color: ${({ theme }) => theme.headerColor};
+    margin-top: 2px;
+    margin-bottom: 2px;
+
+    & + div {
+      margin: 0;
+    }
+  }
+`
+
+export const ConnectWalletClose = styled.button<{ theme: MavrykTheme }>`
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin-left: 32px;
+  cursor: pointer;
+
+  .close-connect-wallet {
+    stroke: ${({ theme }) => theme.headerColor};
+    width: 14px;
+    height: 14px;
+  }
+`

@@ -16,6 +16,7 @@ import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
 import Chart from '../../app/App.components/Chart/Chart.view'
+import ConnectWalletInfo from '../../app/App.components/ConnectWallet/ConnectWalletInfo.view'
 
 // style
 import { Page } from 'styles'
@@ -57,6 +58,7 @@ export const Doorman = () => {
     <Page>
       <ExitFeeModal />
       <PageHeader page={'doorman'} kind={PRIMARY} loading={loading} />
+      <ConnectWalletInfo />
       <StakeUnstakeView
         myMvkTokenBalance={user?.myMvkTokenBalance}
         userStakeBalance={user?.mySMvkTokenBalance}

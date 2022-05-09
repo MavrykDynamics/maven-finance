@@ -29,18 +29,15 @@ export const PageHeaderView = ({
   loading,
 }: PageHeaderViewProps) => {
   return (
-    <>
-      <PageHeaderStyled backgroundImageSrc={backgroundImageSrc || ''}>
-        <PageHeaderTextArea>
-          <h1>{title}</h1>
-          <p>{subText}</p>
-        </PageHeaderTextArea>
-        <PageHeaderForegroundImageContainer>
-          <PageHeaderForegroundImage page={page} src={foregroundImageSrc || '/images/portal.svg'} alt="portal" />
-        </PageHeaderForegroundImageContainer>
-      </PageHeaderStyled>
-      <br />
-    </>
+    <PageHeaderStyled backgroundImageSrc={backgroundImageSrc || ''}>
+      <PageHeaderTextArea>
+        <h1>{title}</h1>
+        <p>{subText}</p>
+      </PageHeaderTextArea>
+      <PageHeaderForegroundImageContainer>
+        <PageHeaderForegroundImage page={page} src={foregroundImageSrc || '/images/portal.svg'} alt="portal" />
+      </PageHeaderForegroundImageContainer>
+    </PageHeaderStyled>
   )
 }
 
