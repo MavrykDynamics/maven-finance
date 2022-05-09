@@ -29,17 +29,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     protectedRoute: false,
   },
   {
-    title: 'Satellites',
-    id: 3,
-    path: '/satellites',
-    icon: 'satellite',
-    protectedRoute: false,
-    subPages: [
-      { id: 57281, subTitle: 'Overview', subPath: '/satellites', protectedRoute: false },
-      { id: 55614, subTitle: 'Become A Satellite', subPath: '/become-satellite', protectedRoute: false },
-    ],
-  },
-  {
     title: 'Governance',
     id: 4,
     path: '/governance',
@@ -73,10 +62,35 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     ],
   },
   {
+    title: 'Satellites',
+    id: 3,
+    path: '/satellites',
+    icon: 'satellite',
+    protectedRoute: false,
+    subPages: [
+      { id: 57281, subTitle: 'Overview', subPath: '/satellites', protectedRoute: false },
+      { id: 55614, subTitle: 'Become A Satellite', subPath: '/become-satellite', protectedRoute: false },
+    ],
+  },
+  {
+    title: 'Loans',
+    id: 7,
+    path: '/loans',
+    icon: 'coin-loan',
+    protectedRoute: false,
+  },
+  {
     title: 'Farms',
     id: 5,
     path: '/yield-farms',
     icon: 'plant',
+    protectedRoute: false,
+  },
+  {
+    title: 'Vaults',
+    id: 8,
+    path: '/vaults',
+    icon: 'vaults',
     protectedRoute: false,
   },
   {
@@ -87,24 +101,10 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     protectedRoute: false,
   },
   {
-    title: 'Loans',
-    id: 7,
-    path: '/loans',
-    icon: 'bank',
-    protectedRoute: false,
-  },
-  {
-    title: 'Vaults',
-    id: 8,
-    path: '/vaults',
-    icon: 'shop',
-    protectedRoute: false,
-  },
-  {
     title: 'Admin',
     id: 9,
     path: '/admin',
-    icon: 'shop',
+    icon: 'settings',
     protectedRoute: false,
   },
 ]

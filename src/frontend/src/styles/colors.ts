@@ -6,6 +6,7 @@ export const skyColor = '#77A4F2'
 export const headerColor = '#8D86EB'
 export const textsColor = '#160E3F'
 export const cianColor = '#8DD8C7'
+export const darkCianColor = '#503EAA'
 
 export const containerColor = '#F7F9FD'
 export const borderColor = '#4F457C' 
@@ -26,6 +27,8 @@ export const darkMode = {
   containerColor: middleColor,
   navTitleColor: headerColor,
   navIconColor: headerColor,
+  footerColor: darkCianColor,
+  navLinkTextActive: cianColor,
 
   borderColor: '#4F457C',
   textColor: '#F7F9FD',
@@ -40,8 +43,7 @@ export const darkMode = {
   infoColor: '#00C2FF',
   selectedColor: '#aea3ff3d',
   connectWalletBackgroundColor: '#50508E',
-  navLinkBackgroundActive: 'linear-gradient(90deg, #50508E 0%, rgba(80, 80, 142, 0) 100%)',
-  navLinkTextActive: '#88D1C3',
+  navLinkBackgroundActive: 'linear-gradient(90deg, #38237c 0%, rgba(80, 80, 142, 0) 100%)',
   boxShadowColor: 'rgba(136, 209, 195, 0.3)',
 }
 
@@ -50,6 +52,8 @@ export const lightMode = {
   containerColor: whiteColor,
   navTitleColor: textsColor,
   navIconColor: cianColor,
+  footerColor: textsColor,
+  navLinkTextActive: cianColor,
 
   borderColor: '#4F457C',
   textColor: '#29264C',
@@ -64,7 +68,6 @@ export const lightMode = {
   infoColor: '#00C2FF',
   selectedColor: '#aea3ff3d',
   connectWalletBackgroundColor: '#EEEAF4',
-  navLinkBackgroundActive: 'linear-gradient(90deg, #D1C4E3 0%, rgba(238, 234, 244, 0) 100%)',
-  navLinkTextActive: '#171735',
+  navLinkBackgroundActive: 'linear-gradient(90deg, rgba(134, 212, 201, 0.5) 0%, rgba(134, 212, 201, 0) 100%);',
   boxShadowColor: 'rgba(112, 104, 170, 0.3)',
 }

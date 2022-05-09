@@ -4,12 +4,24 @@ import { MavrykTheme } from '../../../../styles/interfaces'
 export const NavigationLinkContainer = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   width: 100%;
 
+  &:nth-of-type(1) {
+    svg {
+      stroke: ${({ theme }) => theme.navIconColor};
+    }
+  }
+
   ${(props) =>
     props.selected &&
     css`
       background: ${({ theme }) => theme.navLinkBackgroundActive};
       color: ${({ theme }) => theme.navLinkTextActive};
       border-radius: 0 10px 10px 0;
+
+      &:nth-of-type(1) {
+        svg {
+          stroke: ${({ theme }) => theme.navLinkTextActive};
+        }
+      }
     `}
 `
 
@@ -53,7 +65,7 @@ export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykT
     width: 24px;
     height: 24px;
     margin: 14px 9px 13px 8px;
-    stroke: ${({ theme }) => theme.navIconColor};
+    fill: ${({ theme }) => theme.navIconColor};
     vertical-align: top;
   }
 
@@ -61,13 +73,13 @@ export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykT
     props.selected &&
     css`
       > svg {
-        stroke: ${({ theme }) => theme.navLinkTextActive};
+        fill: ${({ theme }) => theme.navLinkTextActive};
       }
     `}
 `
 
 export const NavigationSubLinks = styled.div<{ theme: MavrykTheme }>`
-  background: ${({ theme }) => theme.containerColor};
+  background: ${({ theme }) => theme.backgroundColor};
 `
 export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
@@ -80,20 +92,30 @@ export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
       width: 50px;
       height: 50px;
       margin-right: 15px;
+      flex-shrink: 0;
     }
   }
 `
 
 export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
   font-size: 14px;
-  line-height: 31px;
+  line-height: 17px;
   font-weight: 500;
   text-align: left;
   color: ${({ theme }) => theme.subTextColor};
+  padding-right: 16px;
+
+  &.navLinkSubTitle {
+    color: ${({ theme }) => theme.navTitleColor};
+  }
 
   ${(props) =>
     props.selected &&
     css`
       color: ${({ theme }) => theme.navLinkTextActive};
+
+      &.navLinkSubTitle {
+        color: ${({ theme }) => theme.navLinkTextActive};
+      }
     `}
 `
