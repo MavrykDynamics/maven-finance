@@ -355,7 +355,6 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('aggregatorAddress', aggregator.contract.address)
     console.log('Aggregator Contract deployed at:', aggregator.contract.address)
 
-    console.log(delegation.contract.address)
     aggregatorFactoryStorage.mvkTokenAddress = mvkToken.contract.address;
     aggregatorFactoryStorage.delegationAddress = delegation.contract.address;
     aggregatorFactory = await AggregatorFactory.originate(

@@ -19,11 +19,13 @@ export const aggregatorFactoryStorage : aggregatorFactoryStorageType = {
   
   admin                   : bob.pkh,
   metadata                : metadata,
+  
   mvkTokenAddress         : "",
+  delegationAddress       : "",
     
   trackedAggregators      : MichelsonMap.fromLiteral({}),
   trackedSatellites       : [],
   
   lambdaLedger            : MichelsonMap.fromLiteral({}),
-  aggregatorlambdaLedger  : MichelsonMap.fromLiteral({}),
+  aggregatorLambdaLedger  : MichelsonMap.fromLiteral({}),
 };

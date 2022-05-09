@@ -9,6 +9,7 @@ import { zeroAddress } from '../test/helpers/Utils'
 import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 
 import delegationAddress from '../deployments/delegationAddress.json';
+import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 
 const config = {
   decimals                            : new BigNumber(8),
@@ -58,7 +59,8 @@ export const aggregatorStorage: aggregatorStorageType = {
   config                    : config,
   metadata                  : metadata,
   
-  mvkTokenAddress           : delegationAddress.address,
+  mvkTokenAddress           : mvkTokenAddress.address,
+  delegationAddress         : delegationAddress.address,
 
   round                     : new BigNumber(0),
   switchBlock               : new BigNumber(0),
