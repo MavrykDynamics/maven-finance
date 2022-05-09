@@ -9,7 +9,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   position: relative;
   height: 100%;
   min-height: 100vh;
-  max-width: 1270px;
+  max-width: 1090px;
 `
 
 export const GridPage = styled.div`
@@ -58,6 +58,14 @@ export const Card = styled.div<{ theme: MavrykTheme }>`
   font-size: 14px;
   font-weight: 600;
   color: ${({ theme }) => theme.subTextColor};
+  border: 1px solid ${({ theme }) => theme.cardBorderColor};
+`
+
+export const CardHeader = styled.h2<{ theme: MavrykTheme }>`
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 21px;
+  color: ${({ theme }) => theme.headerColor};
 `
 
 export const PageContent = styled.div`

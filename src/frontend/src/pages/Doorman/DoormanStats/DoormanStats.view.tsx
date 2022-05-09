@@ -1,9 +1,13 @@
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
+
 // prettier-ignore
 import { ButtonLoadingIcon } from 'app/App.components/Button/Button.style'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
-import { DoormanStatsGrid, DoormanStatsStyled } from './DoormanStats.style'
+import { DoormanStatsGrid, DoormanStatsStyled, DoormanStatsHeader, DoormanList } from './DoormanStats.style'
 
 type DoormanStatsViewProps = {
   loading: boolean
@@ -16,10 +20,45 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
   const stakedMvkTokens = totalStakedMvkSupply ?? 0
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
+  const { user } = useSelector((state: State) => state.user)
 
   return (
     <DoormanStatsStyled>
-      <DoormanStatsGrid>
+      <DoormanStatsHeader>MVK Staking contract details</DoormanStatsHeader>
+      <DoormanList>
+        {user?.myAddress ? (
+          <div>
+            <h4>Contract address</h4>
+            <var className="click-addrese">
+              <TzAddress tzAddress={user?.myAddress} hasIcon />
+            </var>
+          </div>
+        ) : null}
+
+        <div>
+          <h4>Number of stakers</h4>
+          <var></var>
+        </div>
+        <div>
+          <h4>Circulating</h4>
+          <var></var>
+        </div>
+        <div>
+          <h4>Market cap</h4>
+          <var></var>
+        </div>
+        <div>
+          <h4>Max supply cap</h4>
+          <var></var>
+        </div>
+        <div>
+          <h4>Total supply</h4>
+          <var>
+            <CommaNumber value={mvkTokens} loading={loading} endingText={'MVK'} />
+          </var>
+        </div>
+      </DoormanList>
+      {/* <DoormanStatsGrid>
         <div>
           <h4 className={'primary bold'}>MVK Total Supply</h4>
         </div>
@@ -73,7 +112,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
             <CommaNumber value={fee} loading={loading} endingText={'%'} />
           </>
         )}
-      </DoormanStatsGrid>
+      </DoormanStatsGrid> */}
     </DoormanStatsStyled>
   )
 }

@@ -133,6 +133,10 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
     margin: 26px auto;
   }
 
+  p {
+    font-size: 16px;
+  }
+
   div {
     max-width: max-content;
     align-items: center;
