@@ -61,9 +61,10 @@ export const MenuBanner = styled.img`
   margin: 0 auto 15px auto;
 `
 
-export const MenuFooter = styled.div`
+export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
   margin: 15px auto 15px auto;
   font-size: 11px;
+  color: ${({ theme }) => theme.footerColor};
   font-weight: 600;
 
   > p {
