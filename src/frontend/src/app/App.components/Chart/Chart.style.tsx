@@ -21,6 +21,17 @@ export const ChartStyled = styled(Card)<{ theme: MavrykTheme }>`
     border: 1px solid #503eaa;
     border-radius: 15px;
   }
+
+  aside {
+    display: flex;
+    color: ${({ theme }) => theme.headerSkyColor};
+    text-align: center;
+    align-items: center;
+    height: 100%;
+    justify-content: center;
+    font-size: 22px;
+    padding-bottom: 24px;
+  }
 `
 
 export const ChartHeader = styled(CardHeader)<{ theme: MavrykTheme }>`
