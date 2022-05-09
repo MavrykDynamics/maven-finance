@@ -144,10 +144,10 @@ block {
 
             const treasuryAddress : address = case s.generalContracts["taxTreasury"] of [
                   Some(_address) -> _address
-                | None           -> failwith(error_TAX_TREASURY_CONTRACT_NOT_FOUND)
+                | None           -> failwith(error_TRIGGER_TAX_TREASURY_CONTRACT_NOT_FOUND)
             ];
 
-            const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, error_TAX_TREASURY_CONTRACT_NOT_FOUND);
+            const treasuryContract: contract(unit) = Tezos.get_contract_with_error(treasuryAddress, "Error. Contract not found at given address");
             const transferFeeToTreasuryOperation : operation = transferTez(treasuryContract, Tezos.amount);
 
             // check if user has sufficient staked MVK to trigger emergency control
@@ -159,18 +159,18 @@ block {
             const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
             const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                 Some (value) -> value
-              | None         -> (failwith (error_VIEW_GET_STAKED_BALANCE_NOT_FOUND) : nat)
+              | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
             ];
             
             if stakedMvkBalance < s.config.minStakedMvkRequiredToTrigger 
-            then failwith(error_MINIMUM_SMVK_AMOUNT_TO_TRIGGER_EMERGENCY_NOT_MET) 
+            then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED) 
             else skip;
 
             // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
             const stakedMvkTotalSupplyView : option (nat) = Tezos.call_view ("getStakedMvkTotalSupply", unit, doormanAddress);
             const stakedMvkTotalSupply: nat = case stakedMvkTotalSupplyView of [
                 Some (value) -> value
-              | None         -> (failwith (error_VIEW_GET_TOTAL_STAKED_SUPPLY_NOT_FOUND) : nat)
+              | None         -> (failwith (error_GET_STAKED_MVK_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
             ];
 
             var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
@@ -180,8 +180,8 @@ block {
             const description  : string  =  triggerEmergencyControlParams.description;
 
             // validate input
-            if String.length(title) > s.config.proposalTitleMaxLength then failwith(error_BAD_INPUT) else skip;
-            if String.length(description) > s.config.proposalDescMaxLength then failwith(error_BAD_INPUT) else skip;
+            if String.length(title) > s.config.proposalTitleMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+            if String.length(description) > s.config.proposalDescMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
             const emptyVotersMap : voterMapType = map[];
             var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
@@ -243,7 +243,7 @@ block {
                 ];
 
                 // Check is user already voted
-                if not Map.mem(Tezos.sender, _emergencyGovernance.voters) then skip else failwith(error_USER_ALREADY_VOTED);
+                if not Map.mem(Tezos.sender, _emergencyGovernance.voters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
                       Some(_address) -> _address
@@ -254,10 +254,10 @@ block {
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                       Some (value) -> value
-                    | None         -> failwith (error_VIEW_GET_STAKED_BALANCE_NOT_FOUND)
+                    | None         -> failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND)
                 ];
 
-                if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith(error_MORE_SMVK_NEEDED_TO_VOTE);
+                if stakedMvkBalance > s.config.minStakedMvkRequiredToVote then skip else failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED);
 
                 if _emergencyGovernance.dropped = True then failwith(error_EMERGENCY_GOVERNANCE_DROPPED)
                 else skip; 
@@ -340,7 +340,7 @@ block {
                 if emergencyGovernance.executed then failwith(error_EMERGENCY_GOVERNANCE_EXECUTED)
                 else skip;
 
-                if emergencyGovernance.proposerAddress =/= Tezos.source then failwith(error_ONLY_PROPOSER_CAN_DROP_EMERGENCY_GOVERNANCE)
+                if emergencyGovernance.proposerAddress =/= Tezos.source then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 emergencyGovernance.dropped := True; 

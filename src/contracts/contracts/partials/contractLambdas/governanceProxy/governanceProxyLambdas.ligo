@@ -429,7 +429,7 @@ block {
             "%updateConfig",
             s.governanceAddress) : option(contract(nat * governanceUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat * governanceUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat * governanceUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -475,7 +475,7 @@ block {
             "%updateConfig",
             delegationAddress) : option(contract(nat * delegationUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(nat * delegationUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(nat * delegationUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -521,7 +521,7 @@ block {
             "%updateConfig",
             emergencyAddress) : option(contract(nat * emergencyUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat * emergencyUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat * emergencyUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -567,7 +567,7 @@ block {
             "%updateConfig",
             councilAddress) : option(contract(nat * councilUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_COUNCIL_CONTRACT_NOT_FOUND) : contract(nat * councilUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_COUNCIL_CONTRACT_NOT_FOUND) : contract(nat * councilUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -612,7 +612,7 @@ block {
             "%updateConfig",
             farmAddress) : option(contract(nat * farmUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_FARM_CONTRACT_NOT_FOUND) : contract(nat * farmUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_FARM_CONTRACT_NOT_FOUND) : contract(nat * farmUpdateConfigActionType))
             ];
 
         // update farm config operation
@@ -654,7 +654,7 @@ block {
             "%updateConfig",
             breakGlassAddress) : option(contract(nat * breakGlassUpdateConfigActionType))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOING_IN_BREAK_GLASS_CONTRACT_NOT_FOUND) : contract(nat * breakGlassUpdateConfigActionType))
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_BREAK_GLASS_CONTRACT_NOT_FOUND) : contract(nat * breakGlassUpdateConfigActionType))
             ];
 
         // assign params to constants for better code readability
@@ -1171,7 +1171,7 @@ block {
             "%updateInflationRate",
             s.mvkTokenAddress) : option(contract(nat))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_INFLATION_RATE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(nat))
+                | None        -> (failwith(error_UPDATE_INFLATION_RATE_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(nat))
             ];
 
         // untrack a treasury
@@ -1206,7 +1206,7 @@ block {
             "%triggerInflation",
             s.mvkTokenAddress) : option(contract(unit))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_TRIGGER_INFLATION_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(unit))
+                | None        -> (failwith(error_TRIGGER_INFLATION_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(unit))
             ];
 
         // untrack a treasury

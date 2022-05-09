@@ -421,7 +421,7 @@ block {
             // Update or create delegate reward record
             var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
                 Some (_record) -> _record
-            | None -> failwith(error_REWARDS_RECORD_NOT_FOUND)
+            | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
             ];
             var delegateRewardsRecord: satelliteRewards := case Big_map.find_opt(Tezos.source, s.satelliteRewardsLedger) of [
                 Some(_record) -> _record
@@ -488,7 +488,7 @@ block {
                 const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                     Some (value) -> value
-                | None         -> (failwith (error_VIEW_GET_STAKED_BALANCE_NOT_FOUND) : nat)
+                | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                 ];
                 
                 var emptySatelliteRecord : satelliteRecordType :=
@@ -515,7 +515,7 @@ block {
                 // satellite exists
 
                 // check that sMVK balance does not exceed satellite's total delegated amount
-                    if stakedMvkBalance > _satelliteRecord.totalDelegatedAmount then failwith(error_STAKED_BALANCE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
+                    if stakedMvkBalance > _satelliteRecord.totalDelegatedAmount then failwith(error_STAKE_EXCEEDS_SATELLITE_DELEGATED_AMOUNT)
                     else skip;
                     
                     // update satellite totalDelegatedAmount balance
@@ -564,7 +564,7 @@ block {
     s := updateRewards(Tezos.source, s);
 
     // Check if limit was reached
-    if Map.size(s.satelliteLedger) >= s.config.maxSatellites then failwith(error_MAXIMUM_AMOUNT_OF_SATELLITES_EXCEEDED) else skip;
+    if Map.size(s.satelliteLedger) >= s.config.maxSatellites then failwith(error_MAXIMUM_AMOUNT_OF_SATELLITES_REACHED) else skip;
 
     // Get user stake balance
     const doormanAddress : address = case s.generalContracts["doorman"] of [
@@ -575,11 +575,11 @@ block {
     const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.source, doormanAddress);
     const stakedMvkBalance: nat = case stakedMvkBalanceView of [
         Some (value) -> value
-      | None         -> (failwith (error_VIEW_GET_STAKED_BALANCE_NOT_FOUND) : nat)
+      | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
     ];
 
     // lock satellite's sMVK amount -> bond? 
-    if stakedMvkBalance < s.config.minimumStakedMvkBalance then failwith(error_MORE_SMVK_NEEDED_TO_REGISTER)
+    if stakedMvkBalance < s.config.minimumStakedMvkBalance then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
       else skip;
 
     case delegationLambdaAction of [
@@ -593,11 +593,11 @@ block {
                 const satelliteFee  : nat     = registerAsSatelliteParams.satelliteFee;
 
                 // validate inputs
-                if String.length(name) > s.config.satelliteNameMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(description) > s.config.satelliteDescriptionMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(image) > s.config.satelliteImageMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(website) > s.config.satelliteWebsiteMaxLength then failwith(error_BAD_INPUT) else skip;
-                if satelliteFee > 10000n then failwith(error_BAD_INPUT) else skip;
+                if String.length(name) > s.config.satelliteNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(description) > s.config.satelliteDescriptionMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(image) > s.config.satelliteImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(website) > s.config.satelliteWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if satelliteFee > 10000n then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 const satelliteRecord: satelliteRecordType = case Map.find_opt(Tezos.source, s.satelliteLedger) of [
                       Some (_satellite) -> (failwith(error_SATELLITE_ALREADY_EXISTS): satelliteRecordType)
@@ -701,11 +701,11 @@ block {
                 const satelliteFee  : nat     = updateSatelliteRecordParams.satelliteFee;
 
                 // validate inputs
-                if String.length(name) > s.config.satelliteNameMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(description) > s.config.satelliteDescriptionMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(image) > s.config.satelliteImageMaxLength then failwith(error_BAD_INPUT) else skip;
-                if String.length(website) > s.config.satelliteWebsiteMaxLength then failwith(error_BAD_INPUT) else skip;
-                if satelliteFee > 10000n then failwith(error_BAD_INPUT) else skip;
+                if String.length(name) > s.config.satelliteNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(description) > s.config.satelliteDescriptionMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(image) > s.config.satelliteImageMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if String.length(website) > s.config.satelliteWebsiteMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
+                if satelliteFee > 10000n then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // update satellite details - validation checks should be done before submitting to smart contract
                 satelliteRecord.name           := name;         
@@ -790,7 +790,7 @@ block {
 
                     var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(satelliteAddress, s.satelliteRewardsLedger) of [
                         Some (_record) -> _record
-                    | None -> failwith(error_REWARDS_RECORD_NOT_FOUND)
+                    | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
                     ];
 
                     // Calculate satellite fee portion in reward
@@ -860,7 +860,7 @@ block {
                     const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                     const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                         Some (value) -> value
-                    | None -> (failwith (error_VIEW_GET_STAKED_BALANCE_NOT_FOUND) : nat)
+                    | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                     ];
 
                     var satelliteRecord: satelliteRecordType := case Map.find_opt(userAddress, s.satelliteLedger) of [
@@ -896,7 +896,7 @@ block {
                         const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                         const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                             Some (value) -> value
-                        | None -> (failwith (error_VIEW_GET_STAKED_BALANCE_NOT_FOUND) : nat)
+                        | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
                         ];
 
                         var userSatellite: satelliteRecordType := case Map.find_opt(_delegatorRecord.satelliteAddress, s.satelliteLedger) of [
@@ -958,7 +958,7 @@ block {
                 if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
                     var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
                         Some (_record) -> _record
-                    | None -> failwith(error_REWARDS_RECORD_NOT_FOUND)
+                    | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
                     ];
 
                     var _satelliteReferenceRewardsRecord: satelliteRewards  := case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [

@@ -396,7 +396,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.setLambda("lambdaBreakGlass"                      , governanceLambdas[0]))  // breakGlass
       .withContractCall(governance.contract.methods.setLambda("lambdaPropagateBreakGlass"             , governanceLambdas[1]))  // propagateBreakGlass
       .withContractCall(governance.contract.methods.setLambda("lambdaSetAdmin"                        , governanceLambdas[2]))  // setAdmin
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetGovernanceProxyAddress"       , governanceLambdas[3]))  // setGovernanceProxyAddress
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetGovernanceProxy"       , governanceLambdas[3]))  // setGovernanceProxy
       .withContractCall(governance.contract.methods.setLambda("lambdaUpdateMetadata"                  , governanceLambdas[4]))  // updateMetadata
       .withContractCall(governance.contract.methods.setLambda("lambdaUpdateConfig"                    , governanceLambdas[5]))  // updateConfig
       .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistContracts"        , governanceLambdas[6]))  // updateWhitelistContracts
@@ -885,7 +885,7 @@ describe('Contracts Deployment for Tests', async () => {
     const setTreasuryFactoryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('treasuryFactory', treasuryFactory.contract.address).send()
     await setTreasuryFactoryContractInGovernanceOperation.confirmation()
 
-    const setGovernanceProxyContractInGovernanceOperation = await governance.contract.methods.setGovernanceProxyAddress(governanceProxy.contract.address).send()
+    const setGovernanceProxyContractInGovernanceOperation = await governance.contract.methods.setGovernanceProxy(governanceProxy.contract.address).send()
     await setGovernanceProxyContractInGovernanceOperation.confirmation()
 
     console.log('Governance Contract - set general contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]')

@@ -91,7 +91,7 @@ block {
 
                         // Check new reward per block
                         const currentRewardPerBlock: nat = s.config.plannedRewards.currentRewardPerBlock;
-                        if currentRewardPerBlock > updateConfigNewValue then failwith(error_CANNOT_LOWER_REWARD_PER_BLOCK) else skip;
+                        if currentRewardPerBlock > updateConfigNewValue then failwith(error_CONFIG_VALUE_ERROR) else skip;
 
                         // Calculate new total rewards
                         const totalClaimedRewards: nat = s.claimedRewards.unpaid+s.claimedRewards.paid;
@@ -171,7 +171,7 @@ block {
                 s := updateFarm(s);
 
                 // Check new blocksPerMinute
-                if blocksPerMinute > 0n then skip else failwith(error_BLOCKS_PER_MINUTE_VALUE_ERROR);
+                if blocksPerMinute > 0n then skip else failwith(error_INVALID_BLOCKS_PER_MINUTE);
 
                 var newcurrentRewardPerBlock: nat := 0n;
                 if s.config.infinite then {
@@ -216,7 +216,7 @@ block{
                 if s.open or s.init then failwith(error_FARM_ALREADY_OPEN) else skip;
 
                 // Check if the blocks per minute is greater than 0
-                if initFarmParams.blocksPerMinute <= 0n then failwith(error_BLOCKS_PER_MINUTE_VALUE_ERROR) else skip;
+                if initFarmParams.blocksPerMinute <= 0n then failwith(error_INVALID_BLOCKS_PER_MINUTE) else skip;
 
                 // Check wether the farm is infinite or its total blocks has been set
                 if not initFarmParams.infinite and initFarmParams.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;
@@ -549,7 +549,7 @@ block{
 
                 const claimedRewards: tokenBalance = depositorRecord.unclaimedRewards;
 
-                if claimedRewards = 0n then failwith(error_NOTHING_TO_CLAIM) else skip;
+                if claimedRewards = 0n then failwith(error_NO_FARM_REWARDS_TO_CLAIM) else skip;
 
                 // Store new unclaimedRewards value in depositor
                 depositorRecord.claimedRewards      := depositorRecord.claimedRewards + depositorRecord.unclaimedRewards;

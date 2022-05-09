@@ -73,6 +73,9 @@ type farmFactoryUnpackLambdaFunctionType is (farmFactoryLambdaActionType * farmF
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -114,7 +117,7 @@ block {
 
     const councilAddress: address = case s.whitelistContracts["council"] of [
         Some (_address) -> _address
-    |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_WHITELISTED): address)
+    |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
     ];
 
     if Tezos.source = councilAddress or Tezos.sender = councilAddress then skip
@@ -143,19 +146,19 @@ block {
 // ------------------------------------------------------------------------------
 
 function checkCreateFarmIsNotPaused(var s : farmFactoryStorage) : unit is
-    if s.breakGlassConfig.createFarmIsPaused then failwith(error_CREATE_FARM_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.createFarmIsPaused then failwith(error_CREATE_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkTrackFarmIsNotPaused(var s : farmFactoryStorage) : unit is
-    if s.breakGlassConfig.trackFarmIsPaused then failwith(error_TRACK_FARM_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.trackFarmIsPaused then failwith(error_TRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkUntrackFarmIsNotPaused(var s : farmFactoryStorage) : unit is
-    if s.breakGlassConfig.untrackFarmIsPaused then failwith(error_UNTRACK_FARM_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.untrackFarmIsPaused then failwith(error_UNTRACK_FARM_ENTRYPOINT_IN_FARM_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------

@@ -173,20 +173,6 @@ type snapshotRecordType is [@layout:comb] record [
 ]
 type snapshotLedgerType is big_map (address, snapshotRecordType);
 
-type currentCycleInfoType is record[
-    round                       : roundType;               // proposal, voting, timelock
-    blocksPerProposalRound      : nat;                     // to determine duration of proposal round
-    blocksPerVotingRound        : nat;                     // to determine duration of voting round
-    blocksPerTimelockRound      : nat;                     // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
-    roundStartLevel             : nat;                     // current round starting block level
-    roundEndLevel               : nat;                     // current round ending block level
-    cycleEndLevel               : nat;                     // current cycle (proposal + voting) ending block level 
-    roundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
-    roundProposers              : map(address, set(nat));  // proposer, 
-    roundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
-    cycleTotalVotersReward      : nat;
-];
-
 // ------------------------------------------------------------------------------
 // Governance Config Types
 // ------------------------------------------------------------------------------
@@ -271,6 +257,19 @@ type roundType       is
 
 type proxyLambdaLedgerType is big_map(nat, bytes)
 
+type currentCycleInfoType is record[
+    round                       : roundType;               // proposal, voting, timelock
+    blocksPerProposalRound      : nat;                     // to determine duration of proposal round
+    blocksPerVotingRound        : nat;                     // to determine duration of voting round
+    blocksPerTimelockRound      : nat;                     // timelock duration in blocks - 2 days e.g. 5760 blocks (one block is 30secs with granadanet) - 1 day is 2880 blocks
+    roundStartLevel             : nat;                     // current round starting block level
+    roundEndLevel               : nat;                     // current round ending block level
+    cycleEndLevel               : nat;                     // current cycle (proposal + voting) ending block level 
+    roundProposals              : map(nat, nat);           // proposal id, total positive votes in MVK
+    roundProposers              : map(address, set(nat));  // proposer, 
+    roundVotes                  : map(address, nat);       // proposal round: (satelliteAddress, proposal id) | voting round: (satelliteAddress, voteType)
+    cycleTotalVotersReward      : nat;
+];
 
 // ------------------------------------------------------------------------------
 // Governance Entrypoint Types
@@ -349,7 +348,7 @@ type governanceLambdaActionType is
 
   // Housekeeping Lambdas
 | LambdaSetAdmin                              of address
-| LambdaSetGovernanceProxyAddress             of address
+| LambdaSetGovernanceProxy             of address
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of governanceUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams

@@ -81,6 +81,9 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000n; // 10^24
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -141,9 +144,9 @@ block {
     else{
         const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
                 Some (_address) -> _address
-            |   None -> (failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED): address)
+            |   None -> (failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED): address)
         ];
-        if Tezos.sender = farmFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED);
+        if Tezos.sender = farmFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
@@ -157,7 +160,7 @@ function checkFarmIsInit(const s: farmStorage): unit is
 
 
 function checkFarmIsOpen(const s: farmStorage): unit is 
-  if not s.open then failwith(error_FARM_IS_CLOSED)
+  if not s.open then failwith(error_FARM_CLOSED)
   else unit
 
 
@@ -182,15 +185,15 @@ function checkFarmIsOpen(const s: farmStorage): unit is
 // ------------------------------------------------------------------------------
 
 function checkDepositIsNotPaused(var s : farmStorage) : unit is
-    if s.breakGlassConfig.depositIsPaused then failwith(error_DEPOSIT_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.depositIsPaused then failwith(error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
     else unit;
 
 function checkWithdrawIsNotPaused(var s : farmStorage) : unit is
-    if s.breakGlassConfig.withdrawIsPaused then failwith(error_WITHDRAW_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.withdrawIsPaused then failwith(error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
     else unit;
 
 function checkClaimIsNotPaused(var s : farmStorage) : unit is
-    if s.breakGlassConfig.claimIsPaused then failwith(error_CLAIM_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.claimIsPaused then failwith(error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -211,7 +214,7 @@ block{
     const tokenContract: contract(oldTransferType) =
             case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(oldTransferType))) of [
                 Some (c) -> c
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_LP_FA12_CONTRACT_NOT_FOUND): contract(oldTransferType))
+            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND): contract(oldTransferType))
         ];
 
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
@@ -236,7 +239,7 @@ block{
     const tokenContract: contract(newTransferType) =
         case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of [
                 Some (c) -> c
-            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_LP_FA2_CONTRACT_NOT_FOUND): contract(newTransferType))
+            |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(newTransferType))
         ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
@@ -256,13 +259,13 @@ block{
     // Call farmClaim from the doorman contract
     const doormanContractAddress: address = case Map.find_opt("doorman", s.generalContracts) of [
         Some (a) -> a
-    |   None -> (failwith(error_DOORMAN_CONTRACT_NOT_FOUND_IN_GENERAL_CONTRACTS): address)
+    |   None -> (failwith(error_DOORMAN_CONTRACT_NOT_FOUND): address)
     ];
     
     const doormanContract: contract(farmClaimType) =
     case (Tezos.get_entrypoint_opt("%farmClaim", doormanContractAddress): option(contract(farmClaimType))) of [
         Some (c) -> c
-    |   None -> (failwith(error_FARM_CLAIM_ENTRYPOINT_NOT_FOUND_IN_DOORMAN_CONTRACT): contract(farmClaimType))
+    |   None -> (failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND): contract(farmClaimType))
     ];
 
     const farmClaimParams: farmClaimType = (depositor, tokenAmount, s.config.forceRewardFromTransfer);
@@ -350,12 +353,12 @@ block{
     // Compute depositor reward
     const accumulatedRewardsPerShareStart: tokenBalance = depositorRecord.participationMVKPerShare;
     const accumulatedRewardsPerShareEnd: tokenBalance = s.accumulatedRewardsPerShare;
-    if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_DEPOSITOR_REWARD_DEBT_IS_HIGHER_THAN_ACCUMULATED_MVK_PER_SHARE) else skip;
+    if accumulatedRewardsPerShareStart > accumulatedRewardsPerShareEnd then failwith(error_CALCULATION_ERROR) else skip;
     const currentMVKPerShare = abs(accumulatedRewardsPerShareEnd - accumulatedRewardsPerShareStart);
     const depositorReward = (currentMVKPerShare * depositorRecord.balance) / fixedPointAccuracy;
 
     // Update paid and unpaid rewards in farmStorage
-    if depositorReward > s.claimedRewards.unpaid then failwith(error_DEPOSITOR_REWARD_IS_HIGHER_THAN_TOTAL_UNPAID_REWARD) else skip;
+    if depositorReward > s.claimedRewards.unpaid then failwith(error_CALCULATION_ERROR) else skip;
     s.claimedRewards := record[
         unpaid=abs(s.claimedRewards.unpaid - depositorReward);
         paid=s.claimedRewards.paid + depositorReward;
