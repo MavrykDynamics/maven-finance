@@ -2,15 +2,24 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-import { Page } from 'styles'
 
+// constants
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+
+// actions
 import { getDoormanStorage, getMvkTokenStorage, getUserData, stake, unstake } from './Doorman.actions'
-import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
 import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
+
+// view
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
 import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
 import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
+import Chart from '../../app/App.components/Chart/Chart.view'
+
+// style
+import { Page } from 'styles'
+import { DoormanInfoStyled } from './Doorman.style'
 
 export const Doorman = () => {
   const dispatch = useDispatch()
@@ -42,6 +51,8 @@ export const Doorman = () => {
     dispatch(showExitFeeModal(amount))
   }
 
+  const chartList = [20, 120, 180, 350, 380, 700, 901]
+
   return (
     <Page>
       <ExitFeeModal />
@@ -54,13 +65,14 @@ export const Doorman = () => {
         loading={loading}
         accountPkh={accountPkh}
       />
-      {/*https://bdp4bn.csb.app/*/}
-      <DoormanStatsView
-        loading={loading}
-        mvkTotalSupply={mvkTokenStorage?.totalSupply}
-        totalStakedMvkSupply={totalStakedMvkSupply}
-      />
-      {/*<DoormanStats />*/}
+      <DoormanInfoStyled>
+        <Chart list={chartList} header="MVK Staking analysis" />
+        <DoormanStatsView
+          loading={loading}
+          mvkTotalSupply={mvkTokenStorage?.totalSupply}
+          totalStakedMvkSupply={totalStakedMvkSupply}
+        />
+      </DoormanInfoStyled>
     </Page>
   )
 }

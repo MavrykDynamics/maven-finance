@@ -29,6 +29,9 @@ export const darkMode = {
   navIconColor: headerColor,
   footerColor: darkCianColor,
   navLinkTextActive: cianColor,
+  headerColor,
+  cardBorderColor: darkCianColor,
+  valueColor: cianColor,
 
   borderColor: '#4F457C',
   textColor: '#F7F9FD',
@@ -54,6 +57,9 @@ export const lightMode = {
   navIconColor: cianColor,
   footerColor: textsColor,
   navLinkTextActive: cianColor,
+  headerColor: darkColor,
+  cardBorderColor: whiteColor,
+  valueColor: darkCianColor,
 
   borderColor: '#4F457C',
   textColor: '#29264C',
