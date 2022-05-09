@@ -37,7 +37,11 @@ export default function Chart(props: Props) {
   return (
     <ChartStyled>
       <ChartHeader>{header}</ChartHeader>
-      <AreaChart
+      <aside>
+        <b>Coming Soon</b>
+      </aside>
+      {/* TODO after get real data */}
+      {/* <AreaChart
         width={573}
         height={280}
         data={data}
@@ -48,32 +52,15 @@ export default function Chart(props: Props) {
           bottom: 0,
         }}
       >
-        {/* <CartesianGrid strokeDasharray="3 3" /> */}
-        {/* <XAxis dataKey="name" /> */}
-        {/* <YAxis /> */}
         <defs>
           <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
             <stop offset="10%" stopColor="rgba(174, 237, 225, 1)" stopOpacity={1} />
             <stop offset="100%" stopColor="rgba(22, 14, 63, 1)" stopOpacity={1} />
           </linearGradient>
         </defs>
-        <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />
-        {/* <Tooltip
-          wrapperStyle={{ backgroundColor: "red" }}
-          labelStyle={{ color: "green" }}
-          itemStyle={{ color: "cyan" }}
-          formatter={function (value, name) {
-            return `${value} MVK`;
-          }}
-          labelFormatter={function (value) {
-            return ``;
-          }}
-          separator=""
-          label=""
-        /> */}
-
+        <Tooltip cursor={{ stroke: '#503EAA', strokeWidth: 3 }} content={(o) => renderTooltipContent(o, data)} />       
         <Area type="linear" dataKey="uv" stroke="transparent" fill="url(#colorUv)" />
-      </AreaChart>
+      </AreaChart> */}
     </ChartStyled>
   )
 }
