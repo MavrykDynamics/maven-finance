@@ -37,7 +37,7 @@ type setObservationCommitType is  [@layout:comb] record [
 
 type setObservationRevealType is  [@layout:comb] record [
     roundId: nat;
-    priceSalted: nat * string;
+    priceSalted: nat * string * address;
 ];
 
 type aggregatorConfigType is [@layout:comb] record [
@@ -101,7 +101,7 @@ type setLambdaType is [@layout:comb] record [
       name                  : string;
       func_bytes            : bytes;
 ]
-type lambdaLedgerType is big_map(string, bytes)
+type lambdaLedgerType is map(string, bytes)
 
 type aggregatorLambdaActionType is 
 
@@ -133,6 +133,7 @@ type aggregatorStorage is [@layout:comb] record [
     config                    : aggregatorConfigType;
 
     mvkTokenAddress           : address;
+    delegationAddress         : address;
 
     round                     : nat;
     switchBlock               : nat;

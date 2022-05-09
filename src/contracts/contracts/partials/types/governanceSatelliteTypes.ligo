@@ -1,6 +1,6 @@
 type counterIdType is nat
 type metadataType is big_map (string, bytes)
-type lambdaLedgerType is big_map(string, bytes)
+type lambdaLedgerType is map(string, bytes)
 
 // ------------------------------------------------------------------------------
 // Satellite Types

@@ -1,6 +1,6 @@
 type setAdminParams is address;
 type metadataType is big_map (string, bytes);
-type lambdaLedgerType is big_map(string, bytes)
+type lambdaLedgerType is map(string, bytes)
 
 type trackedAggregatorsType is map (string * string, address);
 type trackedSatelliteType is set (address);
@@ -15,6 +15,7 @@ type aggregatorMetadataType is [@layout:comb] record[
 type createAggregatorParamsType is string * string * [@layout:comb] record[
   oracleAddresses: oracleAddressesType;
   mvkTokenAddress: address;
+  delegationAddress: address;
   aggregatorConfig: aggregatorConfigType;
   admin: adminType;
 ];
@@ -60,9 +61,11 @@ type aggregatorFactoryStorage is [@layout:comb] record [
     metadata            : metadataType;
     
     mvkTokenAddress     : address;
-
+    delegationAddress   : address;
+    
     trackedAggregators  : trackedAggregatorsType;
     trackedSatellites   : trackedSatelliteType;
 
-    lambdaLedger        : lambdaLedgerType;
+    lambdaLedger            : lambdaLedgerType;
+    aggregatorLambdaLedger  : lambdaLedgerType;
 ]
