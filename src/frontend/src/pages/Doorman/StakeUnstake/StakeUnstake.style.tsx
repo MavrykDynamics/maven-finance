@@ -1,5 +1,7 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
+import { Card, CardHeader } from 'styles'
+import { downColor } from '../../../styles/colors'
 
 export const StakeUnstakeStyled = styled.div`
   /* height: 240px; */
@@ -10,7 +12,8 @@ export const StakeUnstakeStyled = styled.div`
   grid-gap: 30px;
 `
 
-export const StakeUnstakeCard = styled.div<{ theme: MavrykTheme }>`
+export const StakeUnstakeCard = styled(Card)<{ theme: MavrykTheme }>`
+  margin: 0;
   background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   text-align: center;
@@ -23,7 +26,7 @@ export const StakeUnstakeCard = styled.div<{ theme: MavrykTheme }>`
   padding: 30px;
   min-width: 130px;
 `
-export const StakeUnstakeActionCard = styled.div<{ theme: MavrykTheme }>`
+export const StakeUnstakeActionCard = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
   padding: 35px;
@@ -31,6 +34,7 @@ export const StakeUnstakeActionCard = styled.div<{ theme: MavrykTheme }>`
   font-size: 14px;
   font-weight: 600;
   color: ${({ theme }) => theme.subTextColor};
+  margin: 0;
 `
 export const StakeUnstakeInputColumn = styled.div`
   display: flex;
@@ -124,6 +128,8 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
+  height: 100%;
+
   h3 {
     font-size: 14px;
     font-weight: 600;
@@ -131,6 +137,7 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
   }
   img {
     margin: 26px auto;
+    margin-top: auto;
   }
 
   p {
@@ -153,4 +160,16 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
       margin: 10px auto;
     }
   }
+`
+
+export const StakeLabel = styled.blockquote`
+  color: ${downColor};
+  margin: 0;
+  line-height: 19px;
+  border: 1px solid ${downColor};
+  font-weight: 400;
+  font-size: 10px;
+  border-radius: 10px;
+  padding: 0 11px;
+  margin-top: 14px;
 `
