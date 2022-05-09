@@ -69,7 +69,8 @@ type breakGlassUnpackLambdaFunctionType is (breakGlassLambdaActionType * breakGl
 //
 // ------------------------------------------------------------------------------
 
-
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -111,10 +112,10 @@ function checkSenderIsEmergencyGovernanceContract(var s : breakGlassStorage) : u
 block{
   const emergencyGovernanceAddress : address = case s.whitelistContracts["emergencyGovernance"] of [
       Some(_address) -> _address
-      | None -> failwith(error_EMERGENCY_CONTRACT_NOT_FOUND)
+      | None -> failwith(error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND)
   ];
   if (Tezos.sender = emergencyGovernanceAddress) then skip
-    else failwith(error_ONLY_EMERGENCY_CONTRACT_ALLOWED);
+    else failwith(error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED);
 } with unit
 
 

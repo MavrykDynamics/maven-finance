@@ -37,7 +37,7 @@ type governanceAction is
 
       // Housekeeping Entrypoints
     | SetAdmin                        of (address)
-    | SetGovernanceProxyAddress       of (address)
+    | SetGovernanceProxy              of (address)
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceUpdateConfigParamsType
     | UpdateWhitelistContracts        of updateWhitelistContractsParams
@@ -104,6 +104,9 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -136,7 +139,7 @@ function checkSenderIsSelf(const _p : unit) : unit is
 
 function checkSenderIsAdminOrSelf(var s : governanceStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = Tezos.self_address) then unit
-    else failwith(error_ONLY_ADMIN_OR_SELF_ALLOWED);
+    else failwith(error_ONLY_ADMINISTRATOR_OR_SELF_ALLOWED);
 
 
 
@@ -246,7 +249,7 @@ function getSetAdminEntrypoint(const contractAddress : address) : contract(addre
       "%setAdmin",
       contractAddress) : option(contract(address))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
+        | None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
       ];
 
 
@@ -257,7 +260,7 @@ function getSetGovernanceEntrypoint(const contractAddress : address) : contract(
       "%setGovernance",
       contractAddress) : option(contract(address))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND) : contract(address))
+        | None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
       ];
 
 
@@ -268,7 +271,7 @@ case (Tezos.get_entrypoint_opt(
       "%executeGovernanceAction",
       contractAddress) : option(contract(bytes))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND) : contract(bytes))
+        | None        -> (failwith(error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND) : contract(bytes))
       ];
 
 
@@ -279,7 +282,7 @@ case (Tezos.get_entrypoint_opt(
       "%transfer",
       contractAddress) : option(contract(transferActionType))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
+        | None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
       ];
 
 
@@ -290,7 +293,7 @@ case (Tezos.get_entrypoint_opt(
       "%mintMvkAndTransfer",
       contractAddress) : option(contract(mintMvkAndTransferType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(mintMvkAndTransferType))
+  | None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
 ];
 
 
@@ -301,7 +304,7 @@ case (Tezos.get_entrypoint_opt(
       "%setBaker",
       contractAddress) : option(contract(setBakerType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_SET_BAKER_ENTRYPOINT_NOT_FOUND) : contract(setBakerType))
+  | None -> (failwith(error_SET_BAKER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(setBakerType))
 ];
 
 
@@ -311,7 +314,7 @@ case (Tezos.get_entrypoint_opt(
       "%executeProposal",
       contractAddress) : option(contract(unit))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_EXECUTE_PROPOSAL_ENTRYPOINT_NOT_FOUND) : contract(unit))
+  | None -> (failwith(error_EXECUTE_PROPOSAL_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(unit))
 ];
 
 
@@ -321,7 +324,7 @@ case (Tezos.get_entrypoint_opt(
       "%addUpdateProposalData",
       contractAddress) : option(contract(addUpdateProposalDataType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_NOT_FOUND) : contract(addUpdateProposalDataType))
+  | None -> (failwith(error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(addUpdateProposalDataType))
 ];
 
 
@@ -331,7 +334,7 @@ case (Tezos.get_entrypoint_opt(
       "%addUpdatePaymentData",
       contractAddress) : option(contract(addUpdatePaymentDataType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND) : contract(addUpdatePaymentDataType))
+  | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(addUpdatePaymentDataType))
 ];
 
 
@@ -347,37 +350,6 @@ function transferTez(const to_ : contract(unit); const amt : tez) : operation is
 // ------------------------------------------------------------------------------
 // Governance Helper Functions Begin
 // ------------------------------------------------------------------------------
-
-function restartProposalRoundOperation(const _p : unit) : operation is 
-block {
-
-  // restart - another proposal round
-  const restartProposalRoundEntrypoint: contract(unit) =
-    case (Tezos.get_entrypoint_opt("%startProposalRound", Tezos.self_address) : option(contract(unit))) of [
-      Some(contr) -> contr
-    | None -> (failwith(error_START_PROPOSAL_ROUND_ENTRYPOINT_NOT_FOUND): contract(unit))
-  ];
-
-  const restartProposalRoundOperation : operation = Tezos.transaction(
-      unit, 
-      0tez, 
-      restartProposalRoundEntrypoint
-  );
-
-} with restartProposalRoundOperation
-
-
-
-// helper function to send operation to governance lambda
-// function sendOperationToGovernanceLambda(const _p : unit) : contract(executeActionType) is
-//   case (Tezos.get_entrypoint_opt(
-//       "%callGovernanceLambdaProxy",
-//       Tezos.self_address) : option(contract(executeActionType))) of [
-//           Some(contr) -> contr
-//         | None -> (failwith(error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND) : contract(executeActionType))
-//       ];  
-
-
 
 // helper function to get satellite snapshot 
 function getSatelliteSnapshotRecord (const satelliteAddress : address; const s : governanceStorage) : snapshotRecordType is
@@ -557,7 +529,7 @@ function sendRewardsToVoters(var s: governanceStorage): operation is
     const distributeRewardsEntrypoint: contract(set(address) * nat) =
       case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
         Some(contr) -> contr
-      | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_NOT_FOUND): contract(set(address) * nat))
+      | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED): contract(set(address) * nat))
     ];
     const distributeOperation: operation = Tezos.transaction((votersAddresses, roundReward), 0tez, distributeRewardsEntrypoint);
   } with(distributeOperation)
@@ -585,7 +557,7 @@ function sendRewardToProposer(var s: governanceStorage): operation is
     const distributeRewardsEntrypoint: contract(set(address) * nat) =
       case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
         Some(contr) -> contr
-      | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_NOT_FOUND): contract(set(address) * nat))
+      | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED): contract(set(address) * nat))
     ];
     const distributeOperation: operation = Tezos.transaction((set[proposerAddress], proposerReward), 0tez, distributeRewardsEntrypoint);
   } with(distributeOperation)
@@ -622,14 +594,14 @@ block {
     const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
     s.snapshotMvkTotalSupply := case mvkTotalSupplyView of [
         Some (value) -> value
-      | None -> (failwith (error_VIEW_GET_TOTAL_SUPPLY_NOT_FOUND) : nat)
+      | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
     // Get active satellites from the delegation contract and loop through them
     const activeSatellitesView : option (map(address,satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
     const activeSatellites: map(address,satelliteRecordType) = case activeSatellitesView of [
         Some (value) -> value
-      | None -> failwith (error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND)
+      | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
     for satelliteAddress -> satellite in map activeSatellites block {
@@ -803,7 +775,7 @@ block {
 
 
 (* View: get current cycle highest voted proposal id *)
-[@view] function getCurrentRoundHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
+[@view] function getRoundHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
   s.currentRoundHighestVotedProposalId
 
 
@@ -944,17 +916,17 @@ block {
 
 
 
-(*  setGovernanceProxyAddress entrypoint *)
-function setGovernanceProxyAddress(const newGovernanceProxyAddress : address; var s : governanceStorage) : return is
+(*  setGovernanceProxy entrypoint *)
+function setGovernanceProxy(const newGovernanceProxyAddress : address; var s : governanceStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernanceProxyAddress"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernanceProxy"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaSetGovernanceProxyAddress(newGovernanceProxyAddress);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaSetGovernanceProxy(newGovernanceProxyAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1479,7 +1451,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                        -> setAdmin(parameters, s)
-        | SetGovernanceProxyAddress(parameters)       -> setGovernanceProxyAddress(parameters, s)
+        | SetGovernanceProxy(parameters)              -> setGovernanceProxy(parameters, s)
         | UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                    -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)

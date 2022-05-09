@@ -77,6 +77,9 @@ type governanceProxyLambdaFunctionType is (executeActionType * governanceProxySt
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -107,21 +110,15 @@ function checkSenderIsSelf(const _p : unit) : unit is
 
 
 
-function checkSenderIsAdminOrSelf(var s : governanceProxyStorage) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = Tezos.self_address) then unit
-    else failwith(error_ONLY_ADMIN_OR_SELF_ALLOWED);
-
-
-
 function checkSenderIsAdminOrGovernance(var s : governanceProxyStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ADDRESS_ALLOWED);
+    else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
 
 
 
 function checkSenderIsAdminOrSelfOrGovernance(var s : governanceProxyStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = Tezos.self_address or Tezos.sender = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMIN_OR_SELF_OR_GOVERNANCE_ADDRESS_ALLOWED);
+    else failwith(error_ONLY_ADMINISTRATOR_OR_SELF_OR_GOVERNANCE_ADDRESS_ALLOWED);
 
 
 
@@ -145,7 +142,7 @@ case (Tezos.get_entrypoint_opt(
       "%setAdmin",
       contractAddress) : option(contract(address))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
+        | None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
       ];
 
 
@@ -155,7 +152,7 @@ case (Tezos.get_entrypoint_opt(
       "%setGovernance",
       contractAddress) : option(contract(address))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_NOT_FOUND) : contract(address))
+        | None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
       ];
 
 
@@ -234,16 +231,6 @@ case (Tezos.get_entrypoint_opt(
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-// function unpackLambda(const lambdaBytes : bytes; const governanceProxyLambdaAction : governanceProxyLambdaFunctionType; var s : governanceProxyStorage) : return is 
-// block {
-
-//     const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyLambdaFunctionType)) of [
-//         Some(f) -> f(governanceProxyLambdaAction, s)
-//       | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
-//     ];
-
-// } with (res.0, res.1)
-
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions End
 // ------------------------------------------------------------------------------
@@ -296,14 +283,8 @@ case (Tezos.get_entrypoint_opt(
 
 
 (* View: get a proxy lambda *)
-[@view] function getProxyLambdaOpt(const lambdaName: string; var s : governanceStorage) : option(bytes) is
-  Map.find_opt(lambdaName, s.proxyLambdaLedger)
-
-
-
-(* View: get the proxy lambda ledger *)
-[@view] function getProxyLambdaLedger(const _: unit; var s : governanceStorage) : lambdaLedgerType is
-  s.proxyLambdaLedger
+[@view] function getProxyLambdaOpt(const lambdaIndex: nat; var s : governanceProxyStorage) : option(bytes) is
+  Big_map.find_opt(lambdaIndex, s.proxyLambdaLedger)
 
 // ------------------------------------------------------------------------------
 //

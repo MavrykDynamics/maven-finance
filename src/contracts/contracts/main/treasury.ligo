@@ -72,6 +72,9 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -107,9 +110,9 @@ block {
     else{
         const treasuryFactoryAddress: address = case s.whitelistContracts["treasuryFactory"] of [
               Some (_address) -> _address
-          |   None -> (failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED): address)
+          |   None -> (failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED): address)
         ];
-        if Tezos.sender = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED);
+        if Tezos.sender = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
@@ -146,13 +149,13 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 function checkTransferIsNotPaused(var s : treasuryStorage) : unit is
-    if s.breakGlassConfig.transferIsPaused then failwith(error_TRANSFER_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.transferIsPaused then failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorage) : unit is
-    if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -170,7 +173,7 @@ function getMintEntrypointFromTokenAddress(const token_address : address) : cont
       "%mint",
       token_address) : option(contract(mintParams))) of [
           Some(contr) -> contr
-        | None -> (failwith(error_MINT_ENTRYPOINT_NOT_FOUND) : contract(mintParams))
+        | None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintParams))
       ];
 
 
@@ -194,7 +197,7 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
     "%onStakeChange",
     delegationAddress) : option(contract(updateSatelliteBalanceParams))) of [
         Some(contr) -> contr
-      | None        -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_NOT_FOUND_IN_DELEGATION_CONTRACT) : contract(updateSatelliteBalanceParams))
+      | None        -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteBalanceParams))
     ];
 
 // ------------------------------------------------------------------------------

@@ -89,6 +89,9 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -164,19 +167,19 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 function checkStakeIsNotPaused(var s : doormanStorage) : unit is
-  if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkUnstakeIsNotPaused(var s : doormanStorage) : unit is
-  if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkCompoundIsNotPaused(var s : doormanStorage) : unit is
-  if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -216,7 +219,7 @@ function getTransferEntrypointFromTokenAddress(const tokenAddress : address) : c
       "%transfer",
       tokenAddress) : option(contract(transferType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND) : contract(transferType))
+  | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND) : contract(transferType))
 ];
 
 
@@ -280,7 +283,7 @@ block{
       const getSatelliteRewardsOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
       const getSatelliteRewardsOpt: option(satelliteRewards) = case getSatelliteRewardsOptView of [
         Some (value) -> value
-      | None -> failwith (error_VIEW_GET_USER_REWARD_OPT_NOT_FOUND)
+      | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
       ];
 
       const satelliteUnpaidRewards: nat = case getSatelliteRewardsOpt of [
@@ -288,7 +291,7 @@ block{
           const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
           const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
             Some (value) -> value
-          | None -> failwith (error_VIEW_GET_USER_REWARD_OPT_NOT_FOUND)
+          | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
           ];
           
           // Calculate the user unclaimed rewards
@@ -297,7 +300,7 @@ block{
               const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
               const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
             } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
-          | None -> failwith(error_REFERENCE_SATELLITE_NOT_FOUND)
+          | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
           ];
         } with (satelliteReward)
       | None -> 0n

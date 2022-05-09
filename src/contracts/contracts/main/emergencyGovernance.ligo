@@ -66,6 +66,9 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -217,7 +220,7 @@ block {
 
 (* View: get general contracts *)
 [@view] function getGeneralContracts (const _: unit; var s : emergencyGovernanceStorage) : generalContractsType is
-  s.config
+  s.generalContracts
 
 
 

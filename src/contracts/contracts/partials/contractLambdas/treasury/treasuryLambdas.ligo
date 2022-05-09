@@ -254,7 +254,7 @@ block {
     // 2. Send transfer operation from Treasury account to user account
     // 3. Update user's satellite details in Delegation contract
 
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELIST_ADDRESSES_ALLOWED)
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
       else skip;
 
     // break glass check
@@ -284,7 +284,7 @@ block {
                     const from_        : address          = Tezos.self_address; // treasury
                     
                     const transferTokenOperation : operation = case token of [
-                        | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address. Cannot transfer XTZ"): contract(unit)), amt)
+                        | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt)
                         | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
                         | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                     ];
@@ -338,7 +338,7 @@ block {
     // break glass check
     checkMintMvkAndTransferIsNotPaused(s);
 
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELIST_ADDRESSES_ALLOWED)
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
       else skip;
 
     var operations : list(operation) := nil;

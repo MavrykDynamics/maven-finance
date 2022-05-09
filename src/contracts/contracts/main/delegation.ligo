@@ -81,6 +81,9 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -178,7 +181,7 @@ function updateRewards(const userAddress: address; var s: delegationStorage): de
     if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
       var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
         Some (_record) -> _record
-      | None -> failwith(error_REWARDS_RECORD_NOT_FOUND)
+      | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
       ];
 
       const doormanAddress : address = case s.generalContracts["doorman"] of [
@@ -189,7 +192,7 @@ function updateRewards(const userAddress: address; var s: delegationStorage): de
       const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
       const stakedMvkBalance: nat = case stakedMvkBalanceView of [
           Some (value) -> value
-        | None -> (failwith (error_VIEW_GET_STAKED_BALANCE_NOT_FOUND) : nat)
+        | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
       ];
 
       const _satelliteReferenceRewardsRecord: satelliteRewards  = case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
@@ -218,37 +221,37 @@ function updateRewards(const userAddress: address; var s: delegationStorage): de
 // ------------------------------------------------------------------------------
 
 function checkDelegateToSatelliteIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.delegateToSatelliteIsPaused then failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.delegateToSatelliteIsPaused then failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
     
 
 function checkUndelegateFromSatelliteIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
 function checkRegisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.registerAsSatelliteIsPaused then failwith(error_REGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.registerAsSatelliteIsPaused then failwith(error_REGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
 function checkUnregisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.unregisterAsSatelliteIsPaused then failwith(error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.unregisterAsSatelliteIsPaused then failwith(error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
 function checkUpdateSatelliteRecordIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith(error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith(error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
 function checkDistributeRewardIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.distributeRewardIsPaused then failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.distributeRewardIsPaused then failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 // ------------------------------------------------------------------------------
@@ -266,7 +269,7 @@ function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : c
       "%delegateToSatellite",
       delegationAddress) : option(contract(address))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(address))
+  | None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
 ];
 
 
@@ -276,7 +279,7 @@ function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address)
       "%undelegateFromSatellite",
       delegationAddress) : option(contract(address))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(address))
+  | None -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
 ];
 
 

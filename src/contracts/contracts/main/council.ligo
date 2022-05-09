@@ -91,6 +91,9 @@ type councilUnpackLambdaFunctionType is (councilLambdaActionType * councilStorag
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
@@ -156,7 +159,7 @@ function sendUpdateBlocksPerMinuteParams(const contractAddress : address) : cont
       "%updateBlocksPerMinute",
       contractAddress) : option(contract(nat))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_NOT_FOUND) : contract(nat))
+  | None -> (failwith(error_UPDATE_BLOCKS_PER_MIN_ENTRYPOINT_IN_NOT_FOUND) : contract(nat))
 ];
 
 
