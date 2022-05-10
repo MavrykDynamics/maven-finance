@@ -686,10 +686,13 @@ block{
     case doormanLambdaAction of [
         | LambdaVaultDepositStakedMvk(vaultDepositStakedMvkParams) -> {
 
+                // check sender is USDM Token Controller (user's vault balances are updated there as well)
+                checkSenderIsUsdmTokenControllerContract(s);
+
                 // init parameters
                 const depositAmount  : nat     = vaultDepositStakedMvkParams.depositAmount;
                 const vaultId        : nat     = vaultDepositStakedMvkParams.vaultId;
-                const owner          : address = Tezos.sender;
+                const vaultOwner     : address = Tezos.sender;
 
                 // get vault through on-chain views to USDM Token Controller
                 // Find USDM Token Controller address
@@ -698,11 +701,14 @@ block{
                     | None           -> failwith("Error. USDM Token Controller contract not found.")
                 ];
 
+                // create vault handle
                 const vaultHandle : vaultHandleType = record [
                   id    = vaultId;
-                  owner = owner;
-                ]
-                const getVaultView : option (option(vaultType)) = Tezos.call_view ("viewGetVault", vaultHandle, usdmTokenControllerAddress);
+                  owner = vaultOwner;
+                ];
+
+                // get vault record using on-chain view to USDM Token Controller
+                const getVaultView : option (option(vaultType)) = Tezos.call_view ("getVaultOpt", vaultHandle, usdmTokenControllerAddress);
                 const getVaultViewOpt : option(vaultType) = case getVaultView of [
                       Some (_opt)   -> _opt
                     | None          -> failwith ("Error. getVaultView not found in USDM Token Controller contract.")
@@ -712,10 +718,15 @@ block{
                     | None          -> failwith ("Error. User Vault not found.")
                 ];
 
+                // get vault address
                 const vaultAddress : address = vault.address;
 
+                // Compound rewards for user and vault before any changes in balance takes place
+                s := compoundUserRewards(Tezos.sender, s);
+                s := compoundUserRewards(vaultAddress, s);
+
                 // check that user has a record in stake balance ledger and sufficient balance
-                var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[owner] of [
+                var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultOwner] of [
                   | Some(_v) -> _v
                   | None -> failwith("Error. User has no stake balance record. ")
                 ];
@@ -724,10 +735,6 @@ block{
                 const userStakedBalance : nat = userBalanceInStakeBalanceLedger.balance; 
                 if depositAmount > userStakedBalance then failwith("Error. User does not have enough staked balance.") else skip;
                 const newUserStakedBalance : nat = abs(userStakedBalance - depositAmount);
-
-                // Compound rewards for user and vault 
-                s := compoundUserRewards(Tezos.sender, s);
-                s := compoundUserRewards(vaultAddress, s);
 
                 // find or create vault record in stake balance ledger
                 var vaultBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
@@ -740,12 +747,14 @@ block{
                       participationFeesPerShare      = s.accumulatedFeesPerShare;
                     ]
                 ];
+
+                // update vault stake balance in stake balance ledger
                 vaultBalanceInStakeBalanceLedger.balance  := vaultBalanceInStakeBalanceLedger.balance + depositAmount; 
                 s.userStakeBalanceLedger[vaultAddress]    := vaultBalanceInStakeBalanceLedger;
 
-                // update user stake balance in their ledger
+                // update user stake balance in stake balance ledger
                 userBalanceInStakeBalanceLedger.balance   := newUserStakedBalance;
-                s.userStakeBalanceLedger[owner]           := userBalanceInStakeBalanceLedger;
+                s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
 
                 // Find delegation address
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
@@ -753,13 +762,13 @@ block{
                     | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
-                // update satellite balance if user is delegated to a satellite
-                const ownerOnStakeChangeOperation: operation = Tezos.transaction((owner), 0tez, updateSatelliteBalance(delegationAddress));
+                // update satellite balance if user/vault is delegated to a satellite
+                const ownerOnStakeChangeOperation: operation = Tezos.transaction((vaultOwner), 0tez, updateSatelliteBalance(delegationAddress));
                 const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, updateSatelliteBalance(delegationAddress));
 
                 // tell the delegation contract that the reward has been paid 
                 const ownerOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (owner),
+                  (vaultOwner),
                   0tez,
                   onSatelliteRewardPaid(delegationAddress)
                 );
@@ -771,6 +780,233 @@ block{
                 );
 
                 operations  := list [ownerOnSatelliteRewardPaidOperation; vaultOnSatelliteRewardPaidOperation; ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  vaultWithdrawStakedMvk lambda *)
+function lambdaVaultWithdrawStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+block{
+    
+    checkCompoundIsNotPaused(s);
+
+    var operations : list(operation) := nil;
+
+    case doormanLambdaAction of [
+        | LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams) -> {
+
+                // check sender is USDM Token Controller (user's vault balances are updated there as well)
+                checkSenderIsUsdmTokenControllerContract(s);
+
+                // init parameters
+                const withdrawAmount  : nat     = vaultWithdrawStakedMvkParams.withdrawAmount;
+                const vaultId         : nat     = vaultWithdrawStakedMvkParams.vaultId;
+                const vaultOwner      : address = Tezos.sender;
+
+                // get vault through on-chain views to USDM Token Controller
+                // Find USDM Token Controller address
+                const usdmTokenControllerAddress : address = case s.generalContracts["usdmTokenController"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith("Error. USDM Token Controller contract not found.")
+                ];
+
+                // create vault handle
+                const vaultHandle : vaultHandleType = record [
+                  id    = vaultId;
+                  owner = vaultOwner;
+                ];
+
+                // get vault record using on-chain view to USDM Token Controller
+                const getVaultView : option (option(vaultType)) = Tezos.call_view ("getVaultOpt", vaultHandle, usdmTokenControllerAddress);
+                const getVaultViewOpt : option(vaultType) = case getVaultView of [
+                      Some (_opt)   -> _opt
+                    | None          -> failwith ("Error. getVaultOpt not found in USDM Token Controller contract.")
+                ];
+                const vault : vaultType = case getVaultViewOpt of [
+                      Some(_vault)  -> _vault
+                    | None          -> failwith ("Error. User Vault not found.")
+                ];
+
+                // get vault address
+                const vaultAddress : address = vault.address;
+
+                // Compound rewards for user and vault before any changes in balance takes place
+                s := compoundUserRewards(Tezos.sender, s);
+                s := compoundUserRewards(vaultAddress, s);
+
+                // check that user has a record in stake balance ledger and sufficient balance
+                var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultOwner] of [
+                  | Some(_v) -> _v
+                  | None -> failwith("Error. User has no stake balance record. ")
+                ];
+
+                // find vault record in stake balance ledger
+                var vaultBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                    Some(_val) -> _val
+                  | None       -> failwith("Error. Vault has no stake balance record. ")
+                ];
+
+                // calculate new vault staked balance (check if vault has enough staked MVK to be withdrawn)
+                const vaultStakedBalance : nat = vaultBalanceInStakeBalanceLedger.balance; 
+                if withdrawAmount > vaultStakedBalance then failwith("Error. Vault does not have enough staked balance.") else skip;
+                const newVaultStakedBalance : nat = abs(vaultStakedBalance - withdrawAmount);
+
+                // update vault stake balance in stake balance ledger
+                vaultBalanceInStakeBalanceLedger.balance  := newVaultStakedBalance; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultBalanceInStakeBalanceLedger;
+
+                // update user stake balance in stake balance ledger
+                userBalanceInStakeBalanceLedger.balance   := userBalanceInStakeBalanceLedger.balance + withdrawAmount;
+                s.userStakeBalanceLedger[vaultOwner]      := userBalanceInStakeBalanceLedger;
+
+                // Find delegation address
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
+                // update satellite balance if user/vault is delegated to a satellite
+                const ownerOnStakeChangeOperation: operation = Tezos.transaction((vaultOwner), 0tez, updateSatelliteBalance(delegationAddress));
+                const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, updateSatelliteBalance(delegationAddress));
+
+                // tell the delegation contract that the reward has been paid 
+                const ownerOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                  (vaultOwner),
+                  0tez,
+                  onSatelliteRewardPaid(delegationAddress)
+                );
+
+                const vaultOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                  (vaultAddress),
+                  0tez,
+                  onSatelliteRewardPaid(delegationAddress)
+                );
+
+                operations  := list [ownerOnSatelliteRewardPaidOperation; vaultOnSatelliteRewardPaidOperation; ownerOnStakeChangeOperation; vaultOnStakeChangeOperation]
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  vaultLiquidateStakedMvk lambda *)
+function lambdaVaultLiquidateStakedMvk(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+block{
+    
+    checkCompoundIsNotPaused(s);
+
+    var operations : list(operation) := nil;
+
+    case doormanLambdaAction of [
+        | LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams) -> {
+
+                // check sender is USDM Token Controller (user's vault balances are updated there as well)
+                checkSenderIsUsdmTokenControllerContract(s);
+
+                // init parameters
+                const liquidatedAmount  : nat      = vaultLiquidateStakedMvkParams.liquidatedAmount;
+                const vaultId           : nat      = vaultLiquidateStakedMvkParams.vaultId;
+                const vaultOwner        : address  = vaultLiquidateStakedMvkParams.vaultOwner;
+                const liquidator        : address  = vaultLiquidateStakedMvkParams.liquidator;
+
+                // get vault through on-chain views to USDM Token Controller
+                // Find USDM Token Controller address
+                const usdmTokenControllerAddress : address = case s.generalContracts["usdmTokenController"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith("Error. USDM Token Controller contract not found.")
+                ];
+
+                // create vault handle
+                const vaultHandle : vaultHandleType = record [
+                  id    = vaultId;
+                  owner = vaultOwner;
+                ];
+
+                // get vault record using on-chain view to USDM Token Controller
+                const getVaultView : option (option(vaultType)) = Tezos.call_view ("getVaultOpt", vaultHandle, usdmTokenControllerAddress);
+                const getVaultViewOpt : option(vaultType) = case getVaultView of [
+                      Some (_opt)   -> _opt
+                    | None          -> failwith ("Error. getVaultOpt not found in USDM Token Controller contract.")
+                ];
+                const vault : vaultType = case getVaultViewOpt of [
+                      Some(_vault)  -> _vault
+                    | None          -> failwith ("Error. User Vault not found.")
+                ];
+
+                // get vault address
+                const vaultAddress : address = vault.address;
+
+                // Compound rewards for user, liquidator, and vault before any changes in balance takes place
+                s := compoundUserRewards(liquidator, s);
+                s := compoundUserRewards(vaultAddress, s);
+
+                // check that user has a record in stake balance ledger and sufficient balance
+                // var userBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultOwner] of [
+                //   | Some(_v) -> _v
+                //   | None -> failwith("Error. User has no stake balance record. ")
+                // ];
+
+                // find vault record in stake balance ledger
+                var vaultBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[vaultAddress] of [
+                    Some(_val) -> _val
+                  | None       -> failwith("Error. Vault has no stake balance record. ")
+                ];
+
+                // find or create liquidator record in stake balance ledger 
+                var liquidatorBalanceInStakeBalanceLedger : userStakeBalanceRecordType := case s.userStakeBalanceLedger[liquidator] of [
+                  | Some(_v) -> _v
+                  | None -> record[
+                      balance                        = 0n;
+                      totalExitFeeRewardsClaimed     = 0n;
+                      totalSatelliteRewardsClaimed   = 0n;
+                      totalFarmRewardsClaimed        = 0n;
+                      participationFeesPerShare      = s.accumulatedFeesPerShare;
+                    ]
+                ];
+
+                // calculate new vault staked balance (check if vault has enough staked MVK to be liquidated)
+                const vaultStakedBalance : nat = vaultBalanceInStakeBalanceLedger.balance; 
+                if liquidatedAmount > vaultStakedBalance then failwith("Error. Vault does not have enough staked balance to be liquidated.") else skip;
+                const newVaultStakedBalance : nat = abs(vaultStakedBalance - liquidatedAmount);
+
+                // update vault stake balance in stake balance ledger
+                vaultBalanceInStakeBalanceLedger.balance  := newVaultStakedBalance; 
+                s.userStakeBalanceLedger[vaultAddress]    := vaultBalanceInStakeBalanceLedger;
+
+                // update liquidator stake balance in stake balance ledger
+                liquidatorBalanceInStakeBalanceLedger.balance   := liquidatorBalanceInStakeBalanceLedger.balance + liquidatedAmount;
+                s.userStakeBalanceLedger[liquidator]            := liquidatorBalanceInStakeBalanceLedger;
+
+                // Find delegation address
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
+                // update satellite balance if user/vault is delegated to a satellite
+                const liquidatorOnStakeChangeOperation: operation = Tezos.transaction((liquidator), 0tez, updateSatelliteBalance(delegationAddress));
+                const vaultOnStakeChangeOperation: operation = Tezos.transaction((vaultAddress), 0tez, updateSatelliteBalance(delegationAddress));
+
+                // tell the delegation contract that the reward has been paid 
+                const liquidatorOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                  (liquidator),
+                  0tez,
+                  onSatelliteRewardPaid(delegationAddress)
+                );
+
+                const vaultOnSatelliteRewardPaidOperation : operation = Tezos.transaction(
+                  (vaultAddress),
+                  0tez,
+                  onSatelliteRewardPaid(delegationAddress)
+                );
+
+                operations  := list [liquidatorOnSatelliteRewardPaidOperation; vaultOnSatelliteRewardPaidOperation; liquidatorOnStakeChangeOperation; vaultOnStakeChangeOperation]
             }
         | _ -> skip
     ];

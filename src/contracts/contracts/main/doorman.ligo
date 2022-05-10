@@ -4,8 +4,10 @@
 
 // Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
 #include "../partials/whitelistContractsType.ligo"
+
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
+
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
@@ -18,8 +20,10 @@
 
 // Doorman types
 #include "../partials/types/doormanTypes.ligo"
+
 // MvkToken types for transfer
 #include "../partials/types/mvkTokenTypes.ligo"
+
 // Treasury types for farmClaim
 #include "../partials/types/treasuryTypes.ligo"
 
@@ -49,7 +53,11 @@ type doormanAction is
   | Unstake                     of (nat)
   | Compound                    of (address)
   | FarmClaim                   of farmClaimType
+    
+    // Vault Entrypoints - callable only by USDM Token Controller
   | VaultDepositStakedMvk       of vaultDepositStakedMvkType
+  | VaultWithdrawStakedMvk      of vaultWithdrawStakedMvkType
+  | VaultLiquidateStakedMvk     of vaultLiquidateStakedMvkType
 
     // Lambda Entrypoints
   | SetLambda                   of setLambdaType
@@ -90,18 +98,20 @@ const fixedPointAccuracy: nat = 1_000_000_000_000_000_000_000_000_000_000_000_00
 [@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                      = 2n;
 [@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                     = 3n;
 [@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                         = 4n;
+[@inline] const error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND                              = 5n;
+[@inline] const error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED                           = 6n;
 
-[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                            = 5n;
-[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                          = 6n;
-[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                         = 7n;
-[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND           = 9n;
-[@inline] const error_ON_SATELLITE_REWARD_PAID_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND  = 10n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                       = 11n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                    = 12n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND       = 13n;
+[@inline] const error_STAKE_ENTRYPOINT_IS_PAUSED                                            = 7n;
+[@inline] const error_UNSTAKE_ENTRYPOINT_IS_PAUSED                                          = 8n;
+[@inline] const error_COMPOUND_ENTRYPOINT_IS_PAUSED                                         = 9n;
+[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND           = 10n;
+[@inline] const error_ON_SATELLITE_REWARD_PAID_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND  = 11n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND                       = 12n;
+[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                    = 13n;
+[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND       = 14n;
 
-[@inline] const error_LAMBDA_NOT_FOUND                                                      = 14n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                               = 15n;
+[@inline] const error_LAMBDA_NOT_FOUND                                                      = 15n;
+[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                               = 16n;
 
 // ------------------------------------------------------------------------------
 //
@@ -146,6 +156,19 @@ block{
   ];
   if (Tezos.sender = delegationAddress) then skip
     else failwith(error_ONLY_DELEGATION_CONTRACT_ALLOWED);
+} with unit
+
+
+
+
+function checkSenderIsUsdmTokenControllerContract(var s : doormanStorage) : unit is
+block{
+  const usdmTokenControllerAddress : address = case s.generalContracts["usdmTokenController"] of [
+      Some(_address) -> _address
+      | None -> failwith(error_USDM_TOKEN_CONTROLLER_CONTRACT_NOT_FOUND)
+  ];
+  if (Tezos.sender = usdmTokenControllerAddress) then skip
+    else failwith(error_ONLY_USDM_TOKEN_CONTROLLER_CONTRACT_ALLOWED);
 } with unit
 
 
@@ -722,6 +745,44 @@ block{
 
 } with response
 
+
+
+(* vaultWithdrawStakedMvk entrypoint *)
+function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams: vaultWithdrawStakedMvkType; var s: doormanStorage): return is
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultWithdrawStakedMvk"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaVaultWithdrawStakedMvk(vaultWithdrawStakedMvkParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
+
+
+(* vaultLiquidateStakedMvk entrypoint *)
+function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams: vaultLiquidateStakedMvkType; var s: doormanStorage): return is
+block{
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVaultLiquidateStakedMvk"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaVaultLiquidateStakedMvk(vaultLiquidateStakedMvkParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Doorman Entrypoints End
 // ------------------------------------------------------------------------------
@@ -786,7 +847,11 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | Unstake(parameters)                   -> unstake(parameters, s)
       | Compound(parameters)                  -> compound(parameters, s)
       | FarmClaim(parameters)                 -> farmClaim(parameters, s)
+
+        // Vault Entrypoints - callable only by USDM Token Controller
       | VaultDepositStakedMvk(parameters)     -> vaultDepositStakedMvk(parameters, s)
+      | VaultWithdrawStakedMvk(parameters)    -> vaultWithdrawStakedMvk(parameters, s)
+      | VaultLiquidateStakedMvk(parameters)   -> vaultLiquidateStakedMvk(parameters, s)
 
         // Lambda Entrypoints
       | SetLambda(parameters)                 -> setLambda(parameters, s)

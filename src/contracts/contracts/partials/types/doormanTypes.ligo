@@ -34,16 +34,35 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes; 
 ]
 
-type ownerVaultSetType is set(vaultIdType)  // set of vault ids belonging to the owner 
+
+// vault and usdm types
+type vaultHandleType is [@layout:comb] record [
+    id      : nat ;
+    owner   : address;
+]
+type tokenBalanceType            is nat;
+type collateralNameType          is string;
+type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
 type vaultType is [@layout:comb] record [
     address                     : address;
-    collateralBalanceLedger     : collateralBalanceLedgerType;        // tez/token balance
-    usdmOutstanding             : usdmAmountType;                     // nat 
+    collateralBalanceLedger     : collateralBalanceLedgerType;  // tez/token balance
+    usdmOutstanding             : nat;                    
 ]
 type vaultDepositStakedMvkType is [@layout:comb] record [
     vaultId          : nat;
     depositAmount    : nat;
 ]
+type vaultWithdrawStakedMvkType is [@layout:comb] record [
+    vaultId          : nat;
+    withdrawAmount   : nat;
+]
+type vaultLiquidateStakedMvkType is [@layout:comb] record [
+    liquidatedAmount  : nat; 
+    vaultId           : nat;
+    vaultOwner        : address; 
+    liquidator        : address; 
+]
+
 
 type doormanLambdaActionType is 
 
@@ -66,7 +85,11 @@ type doormanLambdaActionType is
 | LambdaUnstake                     of (nat)
 | LambdaCompound                    of (address)
 | LambdaFarmClaim                   of farmClaimType
+
+  // Vault Lambdas
 | LambdaVaultDepositStakedMvk       of vaultDepositStakedMvkType
+| LambdaVaultWithdrawStakedMvk      of vaultWithdrawStakedMvkType
+| LambdaVaultLiquidateStakedMvk     of vaultLiquidateStakedMvkType
 
 // ------------------------------------------------------------------------------
 // Storage
