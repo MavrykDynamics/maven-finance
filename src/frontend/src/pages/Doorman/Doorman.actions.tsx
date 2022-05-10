@@ -1,8 +1,6 @@
-import { TezosToolkit } from '@taquito/taquito'
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
 import doormanAddress from 'deployments/doormanAddress.json'
-import mvkTokenAddress from 'deployments/mvkTokenAddress.json'
 import { State } from 'reducers'
 
 import { HIDE_EXIT_FEE_MODAL } from './ExitFeeModal/ExitFeeModal.actions'
@@ -14,13 +12,19 @@ import {
   MVK_TOKEN_STORAGE_QUERY,
   MVK_TOKEN_STORAGE_QUERY_NAME,
   MVK_TOKEN_STORAGE_QUERY_VARIABLE,
+  USER_INFO_QUERY,
+  USER_INFO_QUERY_NAME,
+  USER_INFO_QUERY_VARIABLES,
+  USER_SATELLITE_INFO_QUERY,
+  USER_SATELLITE_INFO_QUERY_NAME,
+  USER_SATELLITE_INFO_QUERY_VARIABLES,
 } from '../../gql/queries'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
-import storageToTypeConverter from '../../utils/storageToTypeConverter'
+import storageToTypeConverter, { convertToSatelliteRecordInterface } from '../../utils/storageToTypeConverter'
 import { calcWithoutMu } from '../../utils/calcFunctions'
 import { setItemInStorage, updateItemInStorage } from '../../utils/storage'
-import { USER_INFO_QUERY, USER_INFO_QUERY_NAME, USER_INFO_QUERY_VARIABLES } from '../../gql/queries'
 import { UserData } from '../../utils/TypesAndInterfaces/User'
+import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 
 export const GET_MVK_TOKEN_STORAGE = 'GET_MVK_TOKEN_STORAGE'
 export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any, getState: any) => {
@@ -291,7 +295,16 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
       USER_INFO_QUERY_NAME,
       USER_INFO_QUERY_VARIABLES(accountPkh),
     )
+    const userSatelliteInfoFromIndexer = await fetchFromIndexer(
+      USER_SATELLITE_INFO_QUERY,
+      USER_SATELLITE_INFO_QUERY_NAME,
+      USER_SATELLITE_INFO_QUERY_VARIABLES(accountPkh),
+    )
     const userInfoData = userInfoFromIndexer?.mavryk_user[0]
+    const userSatelliteRecord: SatelliteRecord =
+      userSatelliteInfoFromIndexer.satellite_record.length > 0
+        ? convertToSatelliteRecordInterface(userSatelliteInfoFromIndexer.satellite_record)
+        : state.user.user.mySatellite
     const userIsDelegatedToSatellite = userInfoData.delegation_records.length > 0
     const userInfo: UserData = {
       myAddress: userInfoData.address,
@@ -301,7 +314,9 @@ export const getUserData = (accountPkh: string) => async (dispatch: any, getStat
       satelliteMvkIsDelegatedTo: userIsDelegatedToSatellite
         ? userInfoData.delegation_records[0].satellite_record?.user_id
         : '',
+      mySatellite: userSatelliteRecord,
     }
+
     setItemInStorage('UserData', userInfo)
     dispatch({
       type: GET_USER_DATA,

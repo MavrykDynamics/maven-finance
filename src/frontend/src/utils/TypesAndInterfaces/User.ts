@@ -1,3 +1,5 @@
+import { SatelliteRecord } from './Delegation'
+
 export interface UserData {
   myAddress: string
   myMvkTokenBalance: number
@@ -5,4 +7,5 @@ export interface UserData {
   participationFeesPerShare: number
   satelliteMvkIsDelegatedTo: string
   myDelegationHistory?: any[]
+  mySatellite: SatelliteRecord
 }

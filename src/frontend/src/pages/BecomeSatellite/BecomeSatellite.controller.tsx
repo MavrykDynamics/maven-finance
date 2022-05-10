@@ -1,13 +1,12 @@
 import { getDoormanStorage, getMvkTokenStorage } from 'pages/Doorman/Doorman.actions'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
-import { useEffect } from 'react'
 import * as React from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
 import { registerAsSatellite, updateSatelliteRecord } from './BecomeSatellite.actions'
 import { BecomeSatelliteView } from './BecomeSatellite.view'
-import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import { RegisterAsSatelliteForm } from '../../utils/TypesAndInterfaces/Forms'
 
 export const BecomeSatellite = () => {
@@ -15,25 +14,8 @@ export const BecomeSatellite = () => {
   const loading = useSelector((state: State) => state.loading)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const { satelliteLedger } = delegationStorage
   const { user } = useSelector((state: State) => state.user)
 
-  const usersSatellite =
-    accountPkh && satelliteLedger
-      ? getUsersSatelliteIfExists(accountPkh, satelliteLedger)
-      : {
-          address: '',
-          name: '',
-          image: '',
-          description: '',
-          satelliteFee: 0,
-          active: false,
-          mvkBalance: 0,
-          sMvkBalance: 0,
-          totalDelegatedAmount: 0,
-          registeredDateTime: new Date(),
-          unregisteredDateTime: null,
-        }
   useEffect(() => {
     if (accountPkh) {
       dispatch(getMvkTokenStorage(accountPkh))
@@ -58,11 +40,7 @@ export const BecomeSatellite = () => {
       accountPkh={accountPkh}
       myTotalStakeBalance={user.mySMvkTokenBalance}
       minimumStakedMvkBalance={delegationStorage.config.minimumStakedMvkBalance}
-      usersSatellite={usersSatellite}
+      usersSatellite={user.mySatellite}
     />
   )
-}
-
-function getUsersSatelliteIfExists(accountPkh: string, satelliteLedger: SatelliteRecord[]): SatelliteRecord {
-  return satelliteLedger.filter((satellite: SatelliteRecord) => satellite.address === accountPkh)[0]
 }

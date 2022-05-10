@@ -29,7 +29,6 @@ import {
   SnapshotRecordType,
 } from './TypesAndInterfaces/Governance'
 import { ContractAddressesState } from '../reducers/contractAddresses'
-import treasuryAddress from '../deployments/treasuryAddress.json'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
@@ -85,6 +84,7 @@ export default function storageToTypeConverter(contract: string, storage: any): 
 
   return res
 }
+
 function convertToContractAddressesType(storage: any): ContractAddressesState {
   return {
     farmAddress: { address: storage.farm[0].address },
@@ -228,8 +228,9 @@ function convertToSatelliteRecordsInterface(satelliteRecordObject: any): Satelli
   return satelliteRecords
 }
 
-function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecord {
-  const totalDelegatedAmount = satelliteRecord.delegation_records.reduce(
+export function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecord {
+  console.log(satelliteRecord)
+  const totalDelegatedAmount = satelliteRecord.delegation_records?.reduce(
     (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
     0,
   )
@@ -302,6 +303,7 @@ function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecor
   }
   return newSatelliteRecord
 }
+
 function convertToFarmStorageType(storage: any): FarmStorage[] {
   const farms: FarmStorage[] = []
   storage.forEach((farmItem: any) => {
