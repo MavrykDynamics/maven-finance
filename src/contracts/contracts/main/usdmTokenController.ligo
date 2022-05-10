@@ -2,13 +2,18 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
-#include "../partials/vault/vaultType.ligo"
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
 
 // Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
 #include "../partials/whitelistTokenContractsType.ligo"
 
 // ------------------------------------------------------------------------------
 // Contract Types
+// ------------------------------------------------------------------------------
+
+#include "../partials/vault/vaultType.ligo"
+
 // ------------------------------------------------------------------------------
 
 type vaultIdType                 is nat;
@@ -26,12 +31,27 @@ type mintOrBurnParamsType is [@layout:comb] record [
     target    : address;
 ];
 
+type vaultDepositStakedMvkType is [@layout:comb] record [
+    depositAmount   : nat;
+    vaultId         : nat; 
+]
+
+type vaultWithdrawStakedMvkType is [@layout:comb] record [
+    withdrawAmount  : nat;
+    vaultId         : nat; 
+]
+
+type vaultLiquidateStakedMvkType is [@layout:comb] record [
+    liquidatedAmount  : nat; 
+    vaultId           : nat;
+    vaultOwner        : address; 
+    liquidator        : address; 
+]
+
 // ------------------------------------------------------------------------------
 
 
 // ----- storage types begin -----
-
-
 type collateralTokenRecordType is [@layout:comb] record [
     tokenName               : string;
     tokenContractAddress    : address;
@@ -45,8 +65,9 @@ type collateralTokenLedgerType is map(string, collateralTokenRecordType)
 type collateralBalanceLedgerType  is map(collateralNameType, tokenBalanceType) // to keep record of token collateral (tez/token)
 type vaultType is [@layout:comb] record [
     address                     : address;
-    collateralBalanceLedger     : collateralBalanceLedgerType;        // tez/token balance
-    usdmOutstanding             : usdmAmountType;                     // nat 
+    collateralBalanceLedger     : collateralBalanceLedgerType;   // tez/token balance
+    usdmOutstanding             : usdmAmountType;                // nat     
+    lastMintBlockLevel          : nat;                           // block level of when USDM was last minted
 ]
 
 // owner types
@@ -139,8 +160,16 @@ type registerDepositType is [@layout:comb] record [
 type configType is [@layout:comb] record [
     collateralRatio           : nat;    // collateral ratio
     liquidationRatio          : nat;    // liquidation ratio
+    
+    liquidationFee            : nat;    // liquidation fee - penalty fee paid by vault owner to liquidator
+    adminLiquidationFee       : nat;    // admin liquidation fee - penalty fee paid by vault owner to treasury
+
+    minimumLoanFee            : nat;    // minimum loan fee - taken at first minting
+    annualServiceLoanFee      : nat;    // annual service loan fee - compounding over time    
+    dailyServiceLoanFee       : nat;    // daily service loan fee - compounding over time (annualServiceLoanFee / 365)
+    blocksPerMinute           : nat; 
+
     decimals                  : nat;    // decimals 
-    liquidationFee            : nat;    // liquidation fee
 ]
 
 type getTargetActionType is [@layout:comb] record [
@@ -158,6 +187,7 @@ type controllerStorage is [@layout:comb] record [
     config                      : configType;
     
     usdmTokenAddress            : address;                // USDM token contract address
+    generalContracts            : generalContractsType;
     whitelistTokenContracts     : whitelistTokenContractsType;      
 
     // vaults and owners
@@ -179,6 +209,8 @@ type controllerStorage is [@layout:comb] record [
 
 type controllerAction is 
     | Default of unit
+
+    | UpdateGeneralContracts         of updateGeneralContractsParams
     | UpdateWhitelistTokenContracts  of updateWhitelistTokenContractsParams
     | UpdateCollateralTokenLedger    of updateCollateralTokenLedgerActionType
     | UpdateCfmmAddressLedger        of updateCfmmAddressLedgerActionType
@@ -190,6 +222,11 @@ type controllerAction is
     | WithdrawFromVault              of withdrawFromVaultActionType
     | RegisterDeposit                of registerDepositType
     | MintOrBurn                     of mintOrBurnActionType
+
+      // Staked MVK Entrypoints   
+    | VaultDepositStakedMvk          of vaultDepositStakedMvkType   
+    | VaultWithdrawStakedMvk         of vaultWithdrawStakedMvkType   
+    | VaultLiquidateStakedMvk        of vaultLiquidateStakedMvkType   
     
     | OnPriceAction                  of onPriceActionType
     | GetTarget                      of getTargetActionType
@@ -243,6 +280,14 @@ function checkSenderIsAdmin(var s : controllerStorage) : unit is
   if (Tezos.sender = s.admin) then unit
   else failwith("Error. Only the administrator can call this entrypoint.");
 
+
+
+function checkSenderIsSelf(const _p : unit) : unit is
+    if (Tezos.sender = Tezos.self_address) then unit
+    else failwith("Error. Only self is allowed");
+
+
+
 function checkZeroUsdmOutstanding(const vault : vaultType) : unit is
   if vault.usdmOutstanding = 0n then unit
   else failwith("Error. USDM Outstanding is not zero.")
@@ -259,13 +304,15 @@ function getVaultWithdrawEntrypoint(const vaultAddress : address) : contract(vau
   ]
 
 // helper function to get vaultDelegateTez entrypoint
-function getVaultDelegateTezEntrypoint(const vaultAddress : address) : contract(vaultDelegateTezType) is
+function getVaultDelegateTezEntrypoint(const vaultAddress : address) : contract(vaultDelegateTezToBakerType) is
   case (Tezos.get_entrypoint_opt(
-      "%vaultDelegateTez",
-      vaultAddress) : option(contract(vaultDelegateTezType))) of [
+      "%vaultDelegateTezToBaker",
+      vaultAddress) : option(contract(vaultDelegateTezToBakerType))) of [
     Some(contr) -> contr
-  | None -> (failwith("Error. vaultDelegateTez entrypoint in vault not found") : contract(vaultDelegateTezType))
+  | None -> (failwith("Error. vaultDelegateTezToBaker entrypoint in vault not found") : contract(vaultDelegateTezToBakerType))
   ]
+
+
 
 // helper function to get mintOrBurn entrypoint from USDM Token contract
 function getUsdmMintOrBurnEntrypoint(const tokenContractAddress : address) : contract(mintOrBurnParamsType) is
@@ -275,6 +322,36 @@ function getUsdmMintOrBurnEntrypoint(const tokenContractAddress : address) : con
     Some(contr) -> contr
   | None -> (failwith("Error. MintOrBurn entrypoint in token contract not found") : contract(mintOrBurnParamsType))
   ]
+
+
+// helper function to get vaultDepositStakedMvk entrypoint from doorman contract
+function getVaultDepositStakedMvkEntrypoint(const contractAddress : address) : contract(vaultDepositStakedMvkType) is
+  case (Tezos.get_entrypoint_opt(
+      "%vaultDepositStakedMvk",
+      contractAddress) : option(contract(vaultDepositStakedMvkType))) of [
+    Some(contr) -> contr
+  | None -> (failwith("Error. vaultDepositStakedMvk entrypoint in contract not found") : contract(vaultDepositStakedMvkType))
+  ]
+
+
+// helper function to get vaultWithdrawStakedMvk entrypoint from doorman contract
+function getVaultWithdrawStakedMvkEntrypoint(const contractAddress : address) : contract(vaultWithdrawStakedMvkType) is
+  case (Tezos.get_entrypoint_opt(
+      "%vaultWithdrawStakedMvk",
+      contractAddress) : option(contract(vaultWithdrawStakedMvkType))) of [
+    Some(contr) -> contr
+  | None -> (failwith("Error. vaultWithdrawStakedMvk entrypoint in contract not found") : contract(vaultWithdrawStakedMvkType))
+  ]
+
+// helper function to get vaultLiquidateStakedMvk entrypoint from doorman contract
+function getVaultLiquidateStakedMvkEntrypoint(const contractAddress : address) : contract(vaultLiquidateStakedMvkType) is
+  case (Tezos.get_entrypoint_opt(
+      "%vaultLiquidateStakedMvk",
+      contractAddress) : option(contract(vaultLiquidateStakedMvkType))) of [
+    Some(contr) -> contr
+  | None -> (failwith("Error. vaultLiquidateStakedMvk entrypoint in contract not found") : contract(vaultLiquidateStakedMvkType))
+  ]
+
 
 
 function transferTez(const to_ : contract(unit); const amt : nat) : operation is Tezos.transaction(unit, amt * 1mutez, to_)
@@ -354,6 +431,10 @@ function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams
   } with (noOperations, s) 
 
 
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
+
+
 
   // CFMM Address Ledger
 function checkInCfmmAddressLedger(const cfmmAddress : address; var s : controllerStorage) : bool is 
@@ -415,15 +496,22 @@ block {
 } with collateralTokenRecord
 
 
+
 (* View: get owned vaults by user *)
-[@view] function viewGetOwnedVaultsByUser(const ownerAddress : address; var s : controllerStorage) : option(ownerVaultSetType) is
+[@view] function getOwnedVaultsByUserOpt(const ownerAddress : address; var s : controllerStorage) : option(ownerVaultSetType) is
     Big_map.find_opt(ownerAddress, s.ownerLedger)
 
 
 
 (* View: get vault by handle *)
-[@view] function viewGetVault(const vaultHandle : vaultHandleType; var s : controllerStorage) : option(vaultType) is
+[@view] function getVaultOpt(const vaultHandle : vaultHandleType; var s : controllerStorage) : option(vaultType) is
     Big_map.find_opt(vaultHandle, s.vaults)
+
+
+
+(* View: get contract address - e.g. find delegation address to pass to vault for delegating MVK to satellite  *)
+[@view] function getContractAddressOpt(const contractName : string; var s : controllerStorage) : option(address) is
+    Map.find_opt(contractName, s.generalContracts)
 
 
 
@@ -435,6 +523,18 @@ block {
       else skip;
   }  
 } with inCollateralTokenLedgerBool
+
+
+(*  updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: controllerStorage): return is
+block {
+
+    checkSenderIsAdmin(s);
+
+    s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+
+} with (noOperations, s)
+
 
 
 (* UpdateCollateralTokenLedger Entrypoint *)
@@ -667,6 +767,7 @@ block {
             address                    = vaultOrigination.1; // vault address
             collateralBalanceLedger    = collateralBalanceLedgerMap;
             usdmOutstanding            = 0n;
+            lastMintBlockLevel         = Tezos.level;
         ];
         
         // update controller storage with new vault
@@ -679,6 +780,7 @@ block {
             address                    = vaultOrigination.1; // vault address
             collateralBalanceLedger    = emptyCollateralBalanceLedgerMap;
             usdmOutstanding            = 0n;
+            lastMintBlockLevel         = Tezos.level;
         ];
 
         // update controller storage with new vault
@@ -735,55 +837,76 @@ block {
                 | None -> failwith("Error. Token does not exist in collateral token record.")
             ];
 
-            const withdrawTokenOperation : operation = case collateralTokenRecord.tokenType of [
-                Tez(_tez) -> block {
-                    
-                    const withdrawTezOperationParams : vaultWithdrawType = record [
-                        from_ = vaultAddress;
-                        to_   = vaultOwner; 
-                        amt   = tokenBalance;
-                        token = Tez(_tez);
-                    ];
-                    const withdrawTezOperation : operation = Tezos.transaction(
-                        withdrawTezOperationParams,
-                        0mutez,
-                        getVaultWithdrawEntrypoint(vaultAddress)
-                    );
+            if collateralTokenRecord.tokenName = "sMVK" then block {
 
-                } with withdrawTezOperation
-                | Fa12(_token) -> block {
+                // for special case of sMVK
 
-                    const withdrawFa12OperationParams : vaultWithdrawType = record [
-                        from_ = vaultAddress;
-                        to_   = vaultOwner; 
-                        amt   = tokenBalance;
-                        token = Fa12(_token);
-                    ];
-                    const withdrawFa12Operation : operation = Tezos.transaction(
-                        withdrawFa12OperationParams,
-                        0mutez,
-                        getVaultWithdrawEntrypoint(vaultAddress)
-                    );
+                // create operation to doorman to withdraw all staked MVK from vault to user
+                const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType = record [
+                    vaultId         = vaultId;
+                    withdrawAmount  = collateralTokenRecord.balance;
+                ];
+                const vaultWithdrawAllStakedMvkOperation : operation = Tezos.transaction(
+                    vaultWithdrawStakedMvkParams,
+                    0tez,
+                    getVaultWithdrawStakedMvkEntrypoint(doormanAddress)
+                );
+                operations := vaultWithdrawAllStakedMvkOperation # operations;
 
-                } with withdrawFa12Operation
-                | Fa2(_token) -> block {
+            } else block {
 
-                    const withdrawFa2OperationParams : vaultWithdrawType = record [
-                        from_ = vaultAddress;
-                        to_   = vaultOwner; 
-                        amt   = tokenBalance;
-                        token = Fa2(_token);
-                    ];
-                    const withdrawFa2Operation : operation = Tezos.transaction(
-                        withdrawFa2OperationParams,
-                        0mutez,
-                        getVaultWithdrawEntrypoint(vaultAddress)
-                    );
+                // for other collateral token types besides sMVK
 
-                } with withdrawFa2Operation
-            ];
+                const withdrawTokenOperation : operation = case collateralTokenRecord.tokenType of [
+                    Tez(_tez) -> block {
+                        
+                        const withdrawTezOperationParams : vaultWithdrawType = record [
+                            from_ = vaultAddress;
+                            to_   = vaultOwner; 
+                            amt   = tokenBalance;
+                            token = Tez(_tez);
+                        ];
+                        const withdrawTezOperation : operation = Tezos.transaction(
+                            withdrawTezOperationParams,
+                            0mutez,
+                            getVaultWithdrawEntrypoint(vaultAddress)
+                        );
 
-            operations := withdrawTokenOperation # operations;
+                    } with withdrawTezOperation
+                    | Fa12(_token) -> block {
+
+                        const withdrawFa12OperationParams : vaultWithdrawType = record [
+                            from_ = vaultAddress;
+                            to_   = vaultOwner; 
+                            amt   = tokenBalance;
+                            token = Fa12(_token);
+                        ];
+                        const withdrawFa12Operation : operation = Tezos.transaction(
+                            withdrawFa12OperationParams,
+                            0mutez,
+                            getVaultWithdrawEntrypoint(vaultAddress)
+                        );
+
+                    } with withdrawFa12Operation
+                    | Fa2(_token) -> block {
+
+                        const withdrawFa2OperationParams : vaultWithdrawType = record [
+                            from_ = vaultAddress;
+                            to_   = vaultOwner; 
+                            amt   = tokenBalance;
+                            token = Fa2(_token);
+                        ];
+                        const withdrawFa2Operation : operation = Tezos.transaction(
+                            withdrawFa2OperationParams,
+                            0mutez,
+                            getVaultWithdrawEntrypoint(vaultAddress)
+                        );
+
+                    } with withdrawFa2Operation
+                ];
+
+                operations := withdrawTokenOperation # operations;
+            };
 
             // save and update balance for collateral token to zero
             _vault.collateralBalanceLedger[tokenName]  := 0n;
@@ -928,7 +1051,7 @@ block {
     const depositAmount   : nat               = registerDepositParams.amount;
     const tokenName       : string            = registerDepositParams.tokenName;
 
-    const initiator       : vaultOwnerType    = Tezos.sender;
+    const initiator       : address           = Tezos.sender; // vault address that initiated deposit
 
     // check if token exists in collateral token ledger
     const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
@@ -968,11 +1091,13 @@ block {
     const vaultHandle       : vaultHandleType         = liquidateParams.handle; 
     const usdmQuantity      : nat                     = liquidateParams.usdmQuantity;
 
-    // const recipient         : contract(unit)          = liquidateParams.to_;
     const recipient         : address                 = Tezos.sender;
     const initiator         : initiatorAddressType    = Tezos.sender;
     
     var operations          : list(operation)        := nil;
+
+    const liquidationFee        : nat  = s.config.liquidationFee;       // liquidation fee - penalty fee paid by vault owner to liquidator
+    const adminLiquidationFee   : nat  = s.config.adminLiquidationFee;  // admin liquidation fee - penalty fee paid by vault owner to treasury
 
     // get vault
     var _vault : vaultType := getVault(vaultHandle, s);
@@ -987,23 +1112,27 @@ block {
     const remainingUsdm : usdmAmountType = abs(_vault.usdmOutstanding - usdmQuantity);
 
     // get USDM target
-    // todo: not used yet
-    var _usdmTarget : nat  := case s.targetLedger["usdm"] of [
+    var usdmTarget : nat  := case s.targetLedger["usdm"] of [
           Some(_nat) -> _nat
         | None -> failwith("Error. Target not found for USDM.")
     ];
-
-    // get USDM price in xtz
-    var usdmPriceInXtz : nat  := case s.priceLedger["usdm"] of [
-          Some(_nat) -> _nat
-        | None -> failwith("Error. Price not found for USDM.")
-    ];
-
+    
     // todo: fix extracted balance amount
     (* get 32/31 of the target price, meaning there is a 1/31 penalty (3.23%) for the oven owner for being liquidated *)
     // const totalExtractedBalance : nat = (usdmQuantity * usdmTarget * fixedPointAccuracy) / (31n * fixedPointAccuracy); 
 
-    const totalValueToBeLiquidated : nat = usdmQuantity * usdmPriceInXtz;
+    // usdmQuantity - 1e9 | usdmTarget - 1e24 | fixedPointAccuracy - 1e24
+    var totalValueToBeLiquidated           : nat := usdmQuantity * usdmTarget / fixedPointAccuracy;
+
+    // 1e9 * 1e24 * (1e3?) / 1e24
+    const liquidationFeeToLiquidator       : nat  = usdmQuantity * usdmTarget * liquidationFee / fixedPointAccuracy; 
+
+    // amount to be sent to treasury
+    // 1e9 * 1e24 * (1e3?) / 1e24
+    const adminLiquidationFeeToLiquidator  : nat  = usdmQuantity * usdmTarget * adminLiquidationFee / fixedPointAccuracy; 
+    
+    // total value to be liquidated and sent to liquidator
+    totalValueToBeLiquidated := totalValueToBeLiquidated + liquidationFeeToLiquidator;
         
     // get total vault collateral value
     var vaultCollateralValue      : nat := 0n;
@@ -1021,8 +1150,8 @@ block {
 
             // get price of token in xtz
             const tokenPrice : nat = case s.priceLedger[tokenName] of [
-                Some(_price) -> _price
-                | None -> failwith("Error. Price not found for token.")
+                  Some(_price) -> _price
+                | None         -> failwith("Error. Price not found for token.")
             ];
 
             // calculate value of collateral balance
@@ -1044,13 +1173,13 @@ block {
 
             // get collateral token record - with token contract address and token type
             const collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
-                Some(_collateralTokenRecord) -> _collateralTokenRecord
-                | None -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
+                  Some(_collateralTokenRecord) -> _collateralTokenRecord
+                | None  -> failwith("Error. Collateral Token Record not found in collateral token ledger.")
             ];
 
             // get price of token in xtz
             const tokenPrice : nat = case s.priceLedger[tokenName] of [
-                Some(_price) -> _price
+                  Some(_price) -> _price
                 | None -> failwith("Error. Price not found for token.")
             ];
 
@@ -1071,7 +1200,7 @@ block {
 
             // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
             var vaultTokenCollateralBalance : nat := case _vault.collateralBalanceLedger[tokenName] of [
-                Some(_balance) -> _balance
+                  Some(_balance) -> _balance
                 | None -> 0n
             ];
 
@@ -1163,7 +1292,7 @@ block {
     
     // init variables for convenience
     const id                : nat                     = mintOrBurnParams.id; 
-    const quantity          : int                     = mintOrBurnParams.quantity;
+    var quantity            : int                    := mintOrBurnParams.quantity;
     const initiator         : initiatorAddressType    = Tezos.sender;
     var operations          : list(operation)        := nil;
 
@@ -1179,67 +1308,78 @@ block {
     // check if quantity to burn exceeds vault's usdmOutstanding
     if vault.usdmOutstanding + quantity < 0 then failwith("Error. Cannot burn more than outstanding amount of USDM.") else skip;
     const newUsdmOutstanding : usdmAmountType = abs(vault.usdmOutstanding + quantity); 
-    vault.usdmOutstanding := newUsdmOutstanding;
-    s.vaults[vaultHandle] := vault;
-
-    // --- test---
-    
-    // var vaultCollateralValue : nat := 0n;
-
-    // const tezBalance : nat = case vault.collateralBalanceLedger["tez"] of 
-    //             Some(_balance) -> _balance
-    //             | None -> 12345n
-    //         end;
-
-    //         // calculate value of tez balance with same fixed point accuracy as price
-    // // const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
-    // const tezValueWithFixedPointAccuracy : nat = tezBalance * tezFixedPointAccuracy;
-
-    // // increment vault collateral value
-    // vaultCollateralValue := vaultCollateralValue + tezValueWithFixedPointAccuracy;
-
-    // for tokenName -> tokenBalance in map vault.collateralBalanceLedger block {
-        
-    //     if tokenName = "tez" then block {
-
-    //         // calculate value of tez balance with same fixed point accuracy as price
-    //         const tezValueWithFixedPointAccuracy : nat = tokenBalance * tezFixedPointAccuracy;
-
-    //         // increment vault collateral value
-    //         vaultCollateralValue := vaultCollateralValue + tezValueWithFixedPointAccuracy;
-            
-    //     } else block {
-
-    //         // get price of token in xtz
-    //         case s.priceLedger[tokenName] of 
-    //             Some(_price) -> block {
-
-    //                 // calculate value of collateral balance
-    //                 const tokenValueInXtz : nat = tokenBalance * _price; 
-
-    //                 // increment vault collateral value
-    //                 vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
-    //             }
-    //             // | None -> skip // if there is no price set for collateral token yet
-    //             | None -> block {
-    //                 // calculate value of collateral balance
-    //                 const tokenValueInXtz : nat = tokenBalance * 123n; 
-
-    //                 // increment vault collateral value
-    //                 vaultCollateralValue := vaultCollateralValue + tokenValueInXtz;
-    //             }
-    //         end;
-
-    //     };
-    // };
-
-    // s.tempValue := vaultCollateralValue;
-    // --- test---
+    vault.usdmOutstanding := newUsdmOutstanding;    
 
     // check if vault is undercollaterized; if it is not, then create and send mintOrBurn operation to USDM Token Contract
     if isUnderCollaterized(vault, s) 
     then failwith("Error. Excessive USDM minting and vault will be undercollaterized.")
     else skip;
+
+    // charge a minimum loan fee if user is minting USDM
+    if quantity > 0 then block {
+
+        const minimumLoanFee   : nat = s.config.minimumLoanFee;
+        const decimals         : nat = s.config.decimals;
+
+        const minimumFeeToPay  : int = quantity * minimumLoanFee / decimals;
+
+        // Get treasury address
+        const treasuryAddress : address = case s.generalContracts["treasury"] of [
+              Some(_address) -> _address
+            | None           -> failwith("Error. Treasury Address not found.")
+        ];
+
+        const mintMinimumFeeToTreasuryParams : mintOrBurnParamsType = record [
+            quantity = minimumFeeToPay;
+            target   = treasuryAddress;
+        ];
+
+        const mintMinimumFeeToTreasuryOperation : operation = Tezos.transaction(
+            mintMinimumFeeToTreasuryParams,
+            0mutez,
+            getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
+        );
+
+        operations := mintMinimumFeeToTreasuryOperation # operations;
+
+        // reduce quantity to mint by minimum fee
+        if minimumFeeToPay > quantity then failwith("Error. Minimum Fee to pay cannot be greater than quantity to mint.") else skip;
+        quantity := quantity - minimumFeeToPay;
+
+        // temp - calculate outstanding service fee amount
+        if vault.usdmOutstanding > 0n then block {
+            
+            const lastMintBlockLevel   : nat   = vault.lastMintBlockLevel;
+            const today                : nat   = Tezos.level;
+            const dailyServiceLoanFee  : nat   = s.config.dailyServiceLoanFee;                   // daily service loan fee
+            const blocksPerDay         : nat   = s.config.blocksPerMinute * 60n * 24n;           // 2880 blocks per day -> if 2 blocks per minute 
+            
+            const daysPassed           : nat   = abs(today - lastMintBlockLevel) / blocksPerDay; // only include whole days since remainder is not factored in division here
+            const totalServiceLoanFee  : nat   = daysPassed * dailyServiceLoanFee; 
+
+            // mint service loan fee amount to treasury
+            const mintServiceLoanFeeToTreasuryParams : mintOrBurnParamsType = record [
+                quantity = totalServiceLoanFee;
+                target   = treasuryAddress;
+            ];
+            const mintServiceLoanFeeToTreasuryOperation : operation = Tezos.transaction(
+                mintMinimumFeeToTreasuryParams,
+                0mutez,
+                getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
+            );
+
+            operations := mintServiceLoanFeeToTreasuryOperation # operations;
+
+            // update quantity to be minted
+            if totalServiceLoanFee > quantity then failwith("Error. Total service loan fee cannot be greater than USDM quantity minted.") else skip;
+            quantity := quantity - totalServiceLoanFee
+
+            // update vault last mint block level
+            vault.lastMintBlockLevel = Tezos.level;
+
+        } else skip;
+
+    } else skip;
 
     // create and send mintOrBurn operation to USDM Token Contract
     // const usdmMintOrBurnParams : mintOrBurnParamsType = (quantity, initiator);
@@ -1253,6 +1393,187 @@ block {
         getUsdmMintOrBurnEntrypoint(s.usdmTokenAddress)
     );
     operations := mintOrBurnOperation # operations;
+
+    // update vault
+    s.vaults[vaultHandle] := vault;
+
+} with (operations, s)
+
+
+
+(* vaultDepositStakedMvk entrypoint *)
+function vaultDepositStakedMvk(const vaultDepositStakedMvkParams : vaultDepositStakedMvkType; var s : controllerStorage) : return is 
+block {
+
+    // init variables for convenience
+    const vaultId         : vaultIdType       = vaultDepositStakedMvkParams.vaultId;
+    const depositAmount   : nat               = vaultDepositStakedMvkParams.depositAmount;
+    const vaultOwner      : vaultOwnerType    = Tezos.sender;
+    const tokenName       : string            = "sMVK";
+    var operations        : list(operation)  := nil;
+
+    // check if token (sMVK) exists in collateral token ledger
+    const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+          Some(_record) -> _record
+        | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+    ];
+
+    // make vault handle
+    const vaultHandle : vaultHandleType = record [
+        id     = vaultId;
+        owner  = vaultOwner;
+    ];
+
+    // get vault
+    var vault : vaultType := getVault(vaultHandle, s);
+
+    // Find doorman Token Controller address
+    const doormanAddress : address = case s.generalContracts["doorman"] of [
+          Some(_address) -> _address
+        | None           -> failwith("Error. Doorman contract not found.")
+    ];
+
+    // create operation to doorman to update balance of staked MVK from user to vault
+    const vaultDepositStakedMvkOperation : operation = Tezos.transaction(
+        vaultDepositStakedMvkParams,
+        0tez,
+        getVaultDepositStakedMvkEntrypoint(doormanAddress)
+    );
+    operations := vaultDepositStakedMvkOperation # operations;
+    
+    // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
+    var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
+          Some(_balance) -> _balance
+        | None           -> 0n
+    ];
+
+    // calculate new collateral balance
+    const newCollateralBalance : nat = vaultTokenCollateralBalance + depositAmount;
+
+    // save and update new balance for collateral token
+    vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+    s.vaults[vaultHandle]                     := vault;
+
+} with (operations, s)
+
+
+
+(* vaultWithdrawStakedMvk entrypoint *)
+function vaultWithdrawStakedMvk(const vaultWithdrawStakedMvkParams : vaultWithdrawStakedMvkType; var s : controllerStorage) : return is 
+block {
+
+    // init variables for convenience
+    const vaultId         : vaultIdType       = vaultWithdrawStakedMvkParams.vaultId;
+    const withdrawAmount  : nat               = vaultWithdrawStakedMvkParams.withdrawAmount;
+    const vaultOwner      : vaultOwnerType    = Tezos.sender;
+    const tokenName       : string            = "sMVK";
+    var operations        : list(operation)  := nil;
+
+    // check if token (sMVK) exists in collateral token ledger
+    const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+          Some(_record) -> _record
+        | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+    ];
+
+    // make vault handle
+    const vaultHandle : vaultHandleType = record [
+        id     = vaultId;
+        owner  = vaultOwner;
+    ];
+
+    // get vault
+    var vault : vaultType := getVault(vaultHandle, s);
+
+    // Find doorman Token Controller address
+    const doormanAddress : address = case s.generalContracts["doorman"] of [
+          Some(_address) -> _address
+        | None           -> failwith("Error. Doorman contract not found.")
+    ];
+
+    // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
+    var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
+          Some(_balance) -> _balance
+        | None           -> 0n
+    ];
+
+    // calculate new collateral balance
+    if withdrawAmount > vaultTokenCollateralBalance then failwith("Error. You do not have enough collateral balance.") else skip;
+    const newCollateralBalance : nat = abs(vaultTokenCollateralBalance - withdrawAmount);
+
+    // create operation to doorman to update balance of staked MVK from user to vault
+    const vaultWithdrawStakedMvkOperation : operation = Tezos.transaction(
+        vaultWithdrawStakedMvkParams,
+        0tez,
+        getVaultWithdrawStakedMvkEntrypoint(doormanAddress)
+    );
+    operations := vaultWithdrawStakedMvkOperation # operations;
+    
+    // save and update new balance for collateral token
+    vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+    s.vaults[vaultHandle]                     := vault;
+
+} with (operations, s)
+
+
+
+(* vaultLiquidateStakedMvk entrypoint *)
+function vaultLiquidateStakedMvk(const vaultLiquidateStakedMvkParams : vaultLiquidateStakedMvkType; var s : controllerStorage) : return is 
+block {
+
+    // only callable from self (i.e. from LiquidateVault entrypoint, if owner of vault being liquidated has staked mvk as collateral)
+    checkSenderIsSelf(unit);
+
+    // init variables for convenience
+    const vaultId           : vaultIdType       = vaultLiquidateStakedMvkParams.vaultId;
+    const vaultOwner        : vaultOwnerType    = vaultLiquidateStakedMvkParams.vaultOwner;
+    const liquidatedAmount  : nat               = vaultLiquidateStakedMvkParams.liquidatedAmount;
+    const _liquidator        : address          = vaultLiquidateStakedMvkParams.liquidator;
+    
+    const tokenName       : string            = "sMVK";
+    var operations        : list(operation)  := nil;
+
+    // check if token (sMVK) exists in collateral token ledger
+    const _collateralTokenRecord : collateralTokenRecordType = case s.collateralTokenLedger[tokenName] of [
+          Some(_record) -> _record
+        | None -> failwith("Error. Collateral Token Record not found in collateralTokenLedger.")
+    ];
+
+    // make vault handle
+    const vaultHandle : vaultHandleType = record [
+        id     = vaultId;
+        owner  = vaultOwner;
+    ];
+
+    // get vault
+    var vault : vaultType := getVault(vaultHandle, s);
+
+    // Find doorman Token Controller address
+    const doormanAddress : address = case s.generalContracts["doorman"] of [
+          Some(_address) -> _address
+        | None           -> failwith("Error. Doorman contract not found.")
+    ];
+
+    // get token collateral balance in vault, set to 0n if not found in vault (i.e. first deposit)
+    var vaultTokenCollateralBalance : nat := case vault.collateralBalanceLedger[tokenName] of [
+          Some(_balance) -> _balance
+        | None           -> failwith("Error. Vault collateral has zero balalnce.")
+    ];
+
+    // calculate new collateral balance
+    if liquidatedAmount > vaultTokenCollateralBalance then failwith("Error. You do not have enough collateral balance.") else skip;
+    const newCollateralBalance : nat = abs(vaultTokenCollateralBalance - liquidatedAmount);
+
+    // create operation to doorman to update balance of staked MVK from user to vault
+    const vaultLiquidateStakedMvkOperation : operation = Tezos.transaction(
+        vaultLiquidateStakedMvkParams,
+        0tez,
+        getVaultLiquidateStakedMvkEntrypoint(doormanAddress)
+    );
+    operations := vaultLiquidateStakedMvkOperation # operations;
+    
+    // save and update new balance for collateral token in liquidated vault
+    vault.collateralBalanceLedger[tokenName]  := newCollateralBalance;
+    s.vaults[vaultHandle]                     := vault;
 
 } with (operations, s)
 
@@ -1346,6 +1667,8 @@ function main (const action : controllerAction; const s : controllerStorage) : r
     case action of [
 
         | Default(_params) -> ((nil : list(operation)), s)
+        
+        | UpdateGeneralContracts(parameters)            -> updateGeneralContracts(parameters, s)
         | UpdateWhitelistTokenContracts(parameters)     -> updateWhitelistTokenContracts(parameters, s)
         | UpdateCollateralTokenLedger(parameters)       -> updateCollateralTokenLedger(parameters, s)
         | UpdateCfmmAddressLedger(parameters)           -> updateCfmmAddressLedger(parameters, s)
@@ -1357,6 +1680,11 @@ function main (const action : controllerAction; const s : controllerStorage) : r
         | RegisterDeposit(parameters)                   -> registerDeposit(parameters, s)
         | WithdrawFromVault(parameters)                 -> withdrawFromVault(parameters, s)
         | MintOrBurn(parameters)                        -> mintOrBurn(parameters, s)
+
+          // Staked MVK Entrypoints   
+        | VaultDepositStakedMvk(parameters)             -> vaultDepositStakedMvk(parameters, s)
+        | VaultWithdrawStakedMvk(parameters)            -> vaultWithdrawStakedMvk(parameters, s)
+        | VaultLiquidateStakedMvk(parameters)           -> vaultLiquidateStakedMvk(parameters, s)
 
         | OnPriceAction(parameters)                     -> onPriceAction(parameters, s)
         | GetTarget(parameters)                         -> getTarget(parameters, s)

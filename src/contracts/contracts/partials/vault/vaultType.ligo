@@ -45,7 +45,8 @@ type transferTokenType is [@layout:comb] record [
 ]
 
 // type vaultWithdrawTezType is tez * contract(unit)
-type vaultDelegateTezType is option(key_hash)
+type vaultDelegateTezToBakerType is option(key_hash)
+type satelliteAddressType is address
 
 type vaultWithdrawType is transferTokenType
 
@@ -82,10 +83,11 @@ type vaultStorage is record [
 ]
 
 type vaultActionType is 
-  | VaultDelegateTez            of vaultDelegateTezType
-  | VaultWithdraw               of vaultWithdrawType
-  | VaultDeposit                of vaultDepositType 
-  | VaultEditDepositor          of editDepositorType
+  | VaultDelegateTezToBaker            of vaultDelegateTezToBakerType
+  | VaultDelegateMvkToSatellite        of satelliteAddressType
+  | VaultWithdraw                      of vaultWithdrawType
+  | VaultDeposit                       of vaultDepositType 
+  | VaultEditDepositor                 of editDepositorType
   
 const noOperations : list (operation) = nil;
 type vaultReturn is list (operation) * vaultStorage
