@@ -1,13 +1,12 @@
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from 'reducers'
-
 // prettier-ignore
 import { ButtonLoadingIcon } from 'app/App.components/Button/Button.style'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { useDispatch, useSelector } from 'react-redux'
+import { State } from 'reducers'
 
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
-import { DoormanStatsGrid, DoormanStatsStyled, DoormanStatsHeader, DoormanList } from './DoormanStats.style'
+import { DoormanList, DoormanStatsGrid, DoormanStatsHeader, DoormanStatsStyled } from './DoormanStats.style'
 
 type DoormanStatsViewProps = {
   loading: boolean
