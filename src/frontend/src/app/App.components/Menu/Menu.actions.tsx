@@ -48,7 +48,6 @@ export const connect =
           forcePermission,
         })
         const tzs = state.wallet.wallet?.toTezos()
-        console.log('%c ||||| tzs', 'color:yellowgreen', tzs)
         const accountPkh = await tzs?.wallet.pkh()
         dispatch({
           type: CONNECT,
@@ -56,7 +55,6 @@ export const connect =
           ready: Boolean(tzs),
           accountPkh: accountPkh,
         })
-        console.log('%c ||||| accountPkh', 'color:yellowgreen', accountPkh)
         if (accountPkh) dispatch(getUserData(accountPkh))
       }
     } catch (err: any) {

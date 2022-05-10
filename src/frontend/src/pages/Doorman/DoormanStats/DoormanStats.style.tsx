@@ -1,5 +1,6 @@
 import styled from 'styled-components/macro'
 import { Card, CardHeader } from 'styles'
+
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const DoormanStatsStyled = styled(Card)`
