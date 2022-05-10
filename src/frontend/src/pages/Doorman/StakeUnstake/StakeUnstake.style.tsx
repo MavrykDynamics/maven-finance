@@ -31,24 +31,34 @@ export const StakeUnstakeCard = styled(Card)<{ theme: MavrykTheme }>`
 export const StakeUnstakeActionCard = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
-  padding: 35px;
   text-align: center;
   font-size: 14px;
   font-weight: 600;
   color: ${({ theme }) => theme.subTextColor};
   margin: 0;
+  padding-top: 40px;
+  padding-bottom: 35px;
+  padding-left: 55px;
+  padding-right: 55px;
 `
 export const StakeUnstakeInputColumn = styled.div`
   display: flex;
   flex-direction: column;
+
+  input {
+    padding-right: 90px;
+  }
+`
+export const StakeUnstakeInputLabels = styled.div`
+  margin-bottom: 7px;
 `
 export const StakeUnstakeInputGrid = styled.div`
   display: grid;
   grid-template-columns: 62px auto;
-  grid-gap: 50px;
+  grid-gap: 7px;
 
   > img {
-    margin: 10px;
+    margin-top: 15px;
   }
 
   > div {
@@ -57,7 +67,7 @@ export const StakeUnstakeInputGrid = styled.div`
 `
 
 export const StakeUnstakeMin = styled.div`
-  color: ${({ theme }) => theme.textColor};
+  color: ${({ theme }) => theme.headerSkyColor};
   font-size: 12px;
   font-weight: 600;
   float: left;
@@ -66,7 +76,7 @@ export const StakeUnstakeMin = styled.div`
 `
 
 export const StakeUnstakeMax = styled.button<{ theme: MavrykTheme }>`
-  color: ${({ theme }) => theme.textColor};
+  color: ${({ theme }) => theme.headerSkyColor};
   font: inherit;
   font-size: 12px;
   font-weight: 600;
@@ -115,13 +125,19 @@ export const StakeUnstakeRate = styled.div`
   align-self: end;
   display: inline-block;
   margin-right: 10px;
+  color: ${({ theme }) => theme.headerSkyColor};
+  margin-top: 5px;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
 `
 
 export const StakeUnstakeButtonGrid = styled.div`
-  margin: 30px auto 0 auto;
+  margin: 25px auto 0 auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 30px;
+  grid-gap: 10px;
 `
 
 export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`

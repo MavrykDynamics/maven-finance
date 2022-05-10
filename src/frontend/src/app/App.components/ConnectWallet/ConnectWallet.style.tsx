@@ -111,7 +111,7 @@ export const ConnectWalletInfoStyled = styled.blockquote<{ theme: MavrykTheme }>
     font-weight: 400;
     font-size: 14px;
     line-height: 21px;
-    margin-right: 32px;
+    margin-right: 155px;
     color: ${({ theme }) => theme.headerColor};
     margin-top: 2px;
     margin-bottom: 2px;

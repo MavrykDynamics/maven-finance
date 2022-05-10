@@ -14,7 +14,20 @@ import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } 
 import { isValidNumberValue, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 // style
 // prettier-ignore
-import { StakeCompound, StakeLabel, StakeUnstakeActionCard, StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInputColumn, StakeUnstakeInputGrid, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
+import {
+  StakeUnstakeInputLabels, StakeCompound,
+  StakeLabel,
+  StakeUnstakeActionCard,
+  StakeUnstakeBalance,
+  StakeUnstakeButtonGrid,
+  StakeUnstakeCard,
+  StakeUnstakeInputColumn,
+  StakeUnstakeInputGrid,
+  StakeUnstakeMax,
+  StakeUnstakeMin,
+  StakeUnstakeRate,
+  StakeUnstakeStyled,
+} from './StakeUnstake.style'
 
 type StakeUnstakeViewProps = {
   myMvkTokenBalance?: number
@@ -149,11 +162,11 @@ export const StakeUnstakeView = ({
         <StakeUnstakeInputGrid>
           <img src="/images/coin-gold.svg" alt="coin" />
           <StakeUnstakeInputColumn>
-            <div>
+            <StakeUnstakeInputLabels>
               <StakeUnstakeMin>Min 1 MVK</StakeUnstakeMin>
               <StakeUnstakeMax onClick={() => onUseMaxClick('UNSTAKE')}>Max Unstake</StakeUnstakeMax>
               <StakeUnstakeMax onClick={() => onUseMaxClick('STAKE')}>Max Stake</StakeUnstakeMax>
-            </div>
+            </StakeUnstakeInputLabels>
             <Input
               type={'number'}
               placeholder={String(inputAmount.amount)}
@@ -165,7 +178,7 @@ export const StakeUnstakeView = ({
               errorMessage={stakeUnstakeValueError}
             />
             <StakeUnstakeRate>
-              {exchangeValue ? inputAmount.amount : 1} MVK ≈ ${exchangeValue || exchangeRate}
+              {exchangeValue ? inputAmount.amount : 1} MVK = ${exchangeValue || exchangeRate}
             </StakeUnstakeRate>
           </StakeUnstakeInputColumn>
         </StakeUnstakeInputGrid>

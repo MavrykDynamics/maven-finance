@@ -3,7 +3,6 @@ import { MavrykTheme } from '../../../styles/interfaces'
 
 export const InputStyled = styled.div`
   position: relative;
-  margin-bottom: 5px;
   width: 100%;
 `
 
@@ -15,23 +14,23 @@ export const InputComponentContainer = styled.div<{ theme: MavrykTheme }>`
 export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   width: 100%;
   height: 50px;
-  background-color: ${({ theme }) => theme.placeholderColor};
+  background-color: ${({ theme }) => theme.backgroundColor};
   font-weight: 500;
-  border: 1px solid ${({ theme }) => theme.placeholderColor};
-  margin: 10px 0;
-  color: ${({ theme }) => theme.subTextColor};
+  border: 1px solid ${({ theme }) => theme.cardBorderColor};
+  margin: 0;
+  color: ${({ theme }) => theme.headerColor};
   -webkit-appearance: none;
   appearance: none;
   display: block;
   position: relative;
-  padding: 12px 16px 12px 16px;
-  border-radius: 6px;
+  padding: 13px 16px 13px 20px;
+  border-radius: 10px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
-  font-size: 22px;
+  font-size: 18px;
 
   &.search {
-    color: ${({ theme }) => theme.subTextColor};
+    color: ${({ theme }) => theme.headerColor};
   }
   &::placeholder:not(.search) {
     color: ${({ theme }) => theme.inputPlaceholder};
@@ -71,9 +70,9 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
 export const InputLabel = styled.div<{ theme: MavrykTheme }>`
   position: absolute;
   right: 35px;
-  top: 15px;
-  color: ${({ theme }) => theme.placeholderColor};
-  font-size: 22px;
+  top: 18px;
+  color: ${({ theme }) => theme.headerColor};
+  font-size: 18px;
   font-weight: 600;
 
   &.error {
