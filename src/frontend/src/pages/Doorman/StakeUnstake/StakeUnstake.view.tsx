@@ -1,35 +1,20 @@
+// view
+import { Button } from 'app/App.components/Button/Button.controller'
+import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
-// helpers
-import { isValidNumberValue, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../app/App.components/Button/Button.constants'
-
-// view
-import { Button } from 'app/App.components/Button/Button.controller'
-import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Input } from '../../../app/App.components/Input/Input.controller'
-import {
-  StakeUnstakeForm,
-  StakeUnstakeFormInputStatus,
-  ValidStakeUnstakeForm,
-} from '../../../utils/TypesAndInterfaces/Forms'
-
+// prettier-ignore
+import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } from '../../../utils/TypesAndInterfaces/Forms'
+// helpers
+// prettier-ignore
+import { isValidNumberValue, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 // style
-import {
-  StakeUnstakeActionCard,
-  StakeUnstakeBalance,
-  StakeUnstakeButtonGrid,
-  StakeUnstakeCard,
-  StakeUnstakeInputColumn,
-  StakeUnstakeInputGrid,
-  StakeUnstakeMax,
-  StakeUnstakeMin,
-  StakeUnstakeRate,
-  StakeUnstakeStyled,
-  StakeLabel,
-} from './StakeUnstake.style'
+// prettier-ignore
+import { StakeCompound, StakeLabel, StakeUnstakeActionCard, StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInputColumn, StakeUnstakeInputGrid, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
 
 type StakeUnstakeViewProps = {
   myMvkTokenBalance?: number
@@ -50,14 +35,15 @@ export const StakeUnstakeView = ({
 }: StakeUnstakeViewProps) => {
   const dispatch = useDispatch()
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
+  const { user } = useSelector((state: State) => state.user)
 
   const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
   const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState<ValidStakeUnstakeForm>({ amount: false })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
 
+  const participationFeesPerShare = user.participationFeesPerShare ?? 0
   const exchangeValue = exchangeRate && inputAmount.amount ? inputAmount.amount * exchangeRate : 0
-
   const earnedValue = 0
 
   const onUseMaxClick = (actionType: string) => {
@@ -156,6 +142,7 @@ export const StakeUnstakeView = ({
     const inputIsValid = validateFormAndThrowErrors(dispatch, stakeUnstakeValueOK)
     if (inputIsValid) unstakeCallback(inputAmount.amount)
   }
+
   return (
     <StakeUnstakeStyled>
       <StakeUnstakeActionCard>
@@ -218,9 +205,18 @@ export const StakeUnstakeView = ({
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>My Earned MVK</h3>
-          {earnedValue === 0 && !loading ? <StakeLabel>Not Staking</StakeLabel> : null}
-          <img src="/images/coin-bronze.svg" alt="coin" />
-          <CommaNumber value={earnedValue} loading={loading} endingText={'MVK'} />
+          {participationFeesPerShare ? (
+            <StakeCompound>
+              <span>Rewards Available COMPOUND!</span>
+              <img src="/images/coins-stack.svg" alt="Compound" />
+            </StakeCompound>
+          ) : (
+            <>
+              {earnedValue === 0 && !loading ? <StakeLabel>Not Staking</StakeLabel> : null}
+              <img src="/images/coin-bronze.svg" alt="coin" />
+              <CommaNumber value={earnedValue} loading={loading} endingText={'MVK'} />
+            </>
+          )}
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
     </StakeUnstakeStyled>

@@ -1,7 +1,8 @@
 import styled from 'styled-components/macro'
-import { MavrykTheme } from '../../../styles/interfaces'
 import { Card, CardHeader } from 'styles'
-import { downColor } from '../../../styles/colors'
+
+import { cianColor, downColor } from '../../../styles/colors'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const StakeUnstakeStyled = styled.div`
   /* height: 240px; */
@@ -23,8 +24,9 @@ export const StakeUnstakeCard = styled(Card)<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 30px;
+  padding: 20px;
   min-width: 130px;
+  padding-top: 25px;
 `
 export const StakeUnstakeActionCard = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
@@ -172,4 +174,29 @@ export const StakeLabel = styled.blockquote`
   border-radius: 10px;
   padding: 0 11px;
   margin-top: 14px;
+`
+
+export const StakeCompound = styled.button<{ theme: MavrykTheme }>`
+  margin: 0;
+  border: 1px solid ${cianColor};
+  color: ${cianColor};
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 19px;
+  height: 100%;
+  margin-top: 15px;
+  border-radius: 10px;
+  background: none;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 120px;
+  padding-top: 12px;
+
+  img {
+    width: 90px;
+  }
 `
