@@ -6,7 +6,7 @@ export const lightColor = '#EBF0FF'
 export const skyColor = '#77A4F2'
 export const headerColor = '#8D86EB'
 export const textsColor = '#160E3F'
-export const cianColor = '#8DD8C7'
+export const cianColor = '#86D4C9'
 export const darkCianColor = '#503EAA'
 
 export const containerColor = '#F7F9FD'
@@ -36,6 +36,7 @@ export const darkMode = {
   cardBorderColor: darkCianColor,
   valueColor: cianColor,
   connectInfoColor: medialeColor,
+  actionPrimaryBtnColor: cianColor,
 
   borderColor: '#4F457C',
   textColor: '#F7F9FD',
@@ -67,6 +68,7 @@ export const lightMode = {
   cardBorderColor: whiteColor,
   valueColor: darkCianColor,
   connectInfoColor: whiteColor,
+  actionPrimaryBtnColor: darkCianColor,
 
   borderColor: '#4F457C',
   textColor: '#29264C',

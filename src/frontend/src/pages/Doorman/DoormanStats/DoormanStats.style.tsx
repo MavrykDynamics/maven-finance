@@ -6,7 +6,6 @@ import { MavrykTheme } from '../../../styles/interfaces'
 export const DoormanStatsStyled = styled(Card)`
   display: flex;
   flex-direction: column;
-  width: 337px;
 `
 
 export const DoormanStatsHeader = styled(CardHeader)<{ theme: MavrykTheme }>`
