@@ -36,7 +36,7 @@ h1 {
     content: '';
     display: block;
     width: 80px;
-    height: 5px;
+    height: 4px;
     background-color: ${({ theme }) => theme.primaryColor};
     margin: 7px 0 10px 1px;
   }

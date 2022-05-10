@@ -3,11 +3,6 @@ import styled, { keyframes } from 'styled-components/macro'
 import { whiteColor } from '../../../styles'
 
 export const PageHeaderStyled = styled.div<{ backgroundImageSrc: string }>`
-  background-image: url(${({ backgroundImageSrc }) => backgroundImageSrc});
-  background-size: cover;
-  background-position: top right;
-  background-repeat: no-repeat;
-  border-radius: 15px;
   width: 100%;
   height: 160px;
   display: flex;
@@ -16,12 +11,41 @@ export const PageHeaderStyled = styled.div<{ backgroundImageSrc: string }>`
   align-items: center;
   overflow: visible;
   padding: 0 0 0 40px;
+  position: relative;
+
+  &::before {
+    background-image: url(${({ backgroundImageSrc }) => backgroundImageSrc}),
+      linear-gradient(
+        90deg,
+        #38237c 0%,
+        #39277d 15%,
+        #3f3383 30%,
+        #48488c 45%,
+        #556598 60%,
+        #658aa9 76%,
+        #79b8bc 92%,
+        #86d4c9 100%
+      );
+    background-size: contain;
+    background-position: bottom left;
+    background-repeat: no-repeat;
+    border-radius: 15px;
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 150px;
+    z-index: -1;
+    bottom: 0;
+    left: 0;
+  }
 `
 
 export const PageHeaderTextArea = styled.div`
   max-width: 45%;
   width: max-content;
   overflow: visible;
+  padding-top: 10px;
+
   > h1 {
     color: ${whiteColor};
     font-size: 25px;
@@ -34,7 +58,7 @@ export const PageHeaderTextArea = styled.div`
 
   > p {
     color: ${whiteColor};
-    font-size: 14px;
+    font-size: 12px;
     margin: 0;
   }
 `
@@ -65,9 +89,9 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'farms':
         return '150px'
       case 'dashboard':
-        return '160px'
+        return '172px'
       default:
-        return '160px'
+        return '172px'
     }
   }};
   /*

@@ -10,6 +10,7 @@ export const Page = styled.div<{ theme: MavrykTheme }>`
   height: 100%;
   min-height: 100vh;
   max-width: 1090px;
+  padding-top: 32px;
 `
 
 export const GridPage = styled.div`
