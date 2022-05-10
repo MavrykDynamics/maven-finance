@@ -72,6 +72,14 @@ function registerDepositInTokenController(const contractAddress : address) : con
   | None -> (failwith("Error. RegisterDeposit entrypoint in contract not found") : contract(tokenControllerDepositType))
   ];
 
+// helper function to get delegateToSatellite entrypoint
+function getDelegateToSatelliteEntrypoint(const contractAddress : address) : contract(address) is
+  case (Tezos.get_entrypoint_opt(
+      "%delegateToSatellite",
+      contractAddress) : option(contract(address))) of [
+    Some(contr) -> contr
+  | None -> (failwith("Error. delegateToSatellite entrypoint in contract not found") : contract(address))
+  ]
 
 
 (* vaultWithdraw entrypoint *)
@@ -97,10 +105,10 @@ block {
         | Fa12(token) -> block {
             
             // check collateral token contract address exists in USDM Token controller collateral token ledger
-            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("viewGetTokenRecordByAddress", token, s.admin);
+            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token, s.admin);
             const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
                   Some (_opt)    -> _opt
-                | None           -> failwith ("Error. viewGetTokenRecordByAddress not found in contract.")
+                | None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
             ];
             const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
                   Some(_record)  -> _record
@@ -114,10 +122,10 @@ block {
         | Fa2(token)  -> block{
             
             // check collateral token contract address exists in USDM Token controller collateral token ledger
-            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("viewGetTokenRecordByAddress", token.tokenContractAddress, s.admin);
+            const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token.tokenContractAddress, s.admin);
             const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
                   Some (_opt)    -> _opt
-                | None           -> failwith ("Error. viewGetTokenRecordByAddress not found in contract.")
+                | None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
             ];
             const _collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
                   Some(_record)  -> _record
@@ -135,17 +143,58 @@ block {
 
 
 
-(* vaultDelegateTez (to baker) entrypoint *)
-function vaultDelegateTez(const vaultDelegateParams : vaultDelegateTezType; var s : vaultStorage) : vaultReturn is 
+(* vaultDelegateTezToBaker entrypoint *)
+function vaultDelegateTezToBaker(const vaultDelegateParams : vaultDelegateTezToBakerType; var s : vaultStorage) : vaultReturn is 
+block {
+    
+    // set new delegate only if sender is the vault owner
+    if Tezos.sender =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
+    else skip; 
+
+    // init operations
+    var operations : list(operation) := nil;
+    
+    const delegateToTezBakerOperation : operation = Tezos.set_delegate(vaultDelegateParams);
+    
+    operations := delegateToTezBakerOperation # operations;
+
+} with (operations, s)
+
+
+
+
+(* vaultDelegateMvkToSatellite entrypoint *)
+function vaultDelegateMvkToSatellite(const satelliteAddress : address; var s : vaultStorage) : vaultReturn is 
 block {
     
     // set new delegate only if sender is the vault owner
     if Tezos.sender =/= s.handle.owner then failwith("Error. Only the owner can delegate.") 
     else skip; 
     
-    const delegateOperation : operation = Tezos.set_delegate(vaultDelegateParams);
+    // init operations
+    var operations : list(operation) := nil;
 
-} with (list[delegateOperation], s)
+    // get delegation contract address through on-chain view to USDM Token Controller 
+    const getContractAddressView : option (option(address)) = Tezos.call_view ("getContractAddressOpt", "delegation", s.admin);
+    const getDelegationAddressOpt : option(address) = case getContractAddressView of [
+          Some (_opt)    -> _opt
+        | None           -> failwith ("Error. getContractAddressOpt not found in USDM Token Controller.")
+    ];
+    const delegationAddress : address = case getDelegationAddressOpt of [
+          Some(_address)  -> _address
+        | None           -> failwith ("Error. Delegation contract address not found.")
+    ];
+
+    // create delegate to satellite operation
+    const delegateToSatelliteOperation : operation = Tezos.transaction(
+        satelliteAddress,
+        0tez,
+        getDelegateToSatelliteEntrypoint(delegationAddress)
+    );
+
+    operations := delegateToSatelliteOperation # operations;
+
+} with (operations, s)
 
 
 
@@ -211,10 +260,10 @@ block {
                 checkNoAmount(Unit);
 
                 // check collateral token contract address exists in USDM Token controller collateral token ledger
-                const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("viewGetTokenRecordByAddress", token, s.admin);
+                const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token, s.admin);
                 const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
                       Some (_opt)    -> _opt
-                    | None           -> failwith ("Error. viewGetTokenRecordByAddress not found in contract.")
+                    | None           -> failwith ("Error. getContractAddressOpt not found in contract.")
                 ];
                 const collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
                       Some(_record)  -> _record
@@ -249,10 +298,10 @@ block {
                 checkNoAmount(Unit);
                 
                 // check collateral token contract address exists in USDM Token controller collateral token ledger
-                const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("viewGetTokenRecordByAddress", token.tokenContractAddress, s.admin);
+                const getTokenRecordView : option (option(collateralTokenRecordType)) = Tezos.call_view ("getTokenRecordByAddressOpt", token.tokenContractAddress, s.admin);
                 const getCollateralTokenRecordOpt : option(collateralTokenRecordType) = case getTokenRecordView of [
                       Some (_opt)    -> _opt
-                    | None           -> failwith ("Error. viewGetTokenRecordByAddress not found in contract.")
+                    | None           -> failwith ("Error. getTokenRecordByAddressOpt not found in contract.")
                 ];
                 const collateralTokenRecord : collateralTokenRecordType = case getCollateralTokenRecordOpt of [
                       Some(_record)  -> _record
@@ -318,8 +367,9 @@ block {
 
 function main (const vaultAction : vaultActionType; const s : vaultStorage) : vaultReturn is 
     case vaultAction of [
-        | VaultDelegateTez(parameters)   -> vaultDelegateTez(parameters, s)
-        | VaultWithdraw(parameters)      -> vaultWithdraw(parameters, s)
-        | VaultDeposit(parameters)      -> vaultDeposit(parameters, s)
-        | VaultEditDepositor(parameters) -> vaultEditDepositor(parameters, s)
+        | VaultDelegateTezToBaker(parameters)       -> vaultDelegateTezToBaker(parameters, s)
+        | VaultDelegateMvkToSatellite(parameters)   -> vaultDelegateMvkToSatellite(parameters, s)
+        | VaultWithdraw(parameters)                 -> vaultWithdraw(parameters, s)
+        | VaultDeposit(parameters)                  -> vaultDeposit(parameters, s)
+        | VaultEditDepositor(parameters)            -> vaultEditDepositor(parameters, s)
     ]

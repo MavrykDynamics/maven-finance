@@ -337,7 +337,7 @@ block {
                 if _vestee.totalRemainder = 0n then failwith("Error. You already claimed everything")
                 else skip;
 
-                const timestampCheck   : bool = Tezos.now > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
+                const timestampCheck  : bool = Tezos.now > _vestee.nextRedemptionTimestamp and _vestee.totalRemainder > 0n;
 
                 if timestampCheck then block {
 
