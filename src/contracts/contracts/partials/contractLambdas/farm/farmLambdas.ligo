@@ -371,7 +371,7 @@ block {
     checkSenderIsAllowed(s);
 
     case farmLambdaAction of [
-        | LambdaTogglePauseWithdraw(_parameters) -> {
+        | LambdaTogglePauseClaim(_parameters) -> {
                 
                 if s.breakGlassConfig.claimIsPaused then s.breakGlassConfig.claimIsPaused := False
                 else s.breakGlassConfig.claimIsPaused := True;

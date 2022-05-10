@@ -45,8 +45,8 @@
 
 # error_only_administrator        = 'ONLY_ADMINISTRATOR_ALLOWED'
 # error_sender_not_allowed        = 'Error. Sender is not allowed to call this entrypoint.'
-# error_maximum_amount_exceeded   = 'Maximum total supply of MVK exceeded'
-# error_too_soon                  = 'Error. You cannot trigger inflation now'
+# error_maximum_amount_exceeded   = 'MAXIMUM_SUPPLY_EXCEEDED'
+# error_too_soon                  = 'CANNOT_TRIGGER_INFLATION_NOW'
 
 # class MVKTokenContract(TestCase):
     

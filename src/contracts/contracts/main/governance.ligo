@@ -745,14 +745,14 @@ block {
 
 
 (* View: get a proposal *)
-[@view] function getProposalOpt(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
-  Big_map.find_opt(proposalId, s.proposalLedger)
+// [@view] function getProposalOpt(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
+//   Big_map.find_opt(proposalId, s.proposalLedger)
 
 
 
-(* View: get a satellite snapshot *)
-[@view] function getSnapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
-  Big_map.find_opt(satelliteAddress, s.snapshotLedger)
+// (* View: get a satellite snapshot *)
+// [@view] function getSnapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
+//   Big_map.find_opt(satelliteAddress, s.snapshotLedger)
 
 
 
@@ -763,45 +763,45 @@ block {
 
 
 (* View: get next proposal id *)
-[@view] function getNextProposalId(const _: unit; var s : governanceStorage) : nat is
-  s.nextProposalId
+// [@view] function getNextProposalId(const _: unit; var s : governanceStorage) : nat is
+//   s.nextProposalId
 
 
 
-(* View: get cycle counter *)
-[@view] function getCycleCounter(const _: unit; var s : governanceStorage) : nat is
-  s.cycleCounter
+// (* View: get cycle counter *)
+// [@view] function getCycleCounter(const _: unit; var s : governanceStorage) : nat is
+//   s.cycleCounter
 
 
 
-(* View: get current cycle highest voted proposal id *)
-[@view] function getRoundHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
-  s.currentRoundHighestVotedProposalId
+// (* View: get current cycle highest voted proposal id *)
+// [@view] function getRoundHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
+//   s.currentRoundHighestVotedProposalId
 
 
 
-(* View: get timelock proposal id *)
-[@view] function getTimelockProposalId(const _: unit; var s : governanceStorage) : nat is
-  s.timelockProposalId
+// (* View: get timelock proposal id *)
+// [@view] function getTimelockProposalId(const _: unit; var s : governanceStorage) : nat is
+//   s.timelockProposalId
 
 
 
-(* View: get a financial request *)
-[@view] function getFinancialRequestOpt(const requestId: nat; var s : governanceStorage) : option(financialRequestRecordType) is
-  Big_map.find_opt(requestId, s.financialRequestLedger)
+// (* View: get a financial request *)
+// [@view] function getFinancialRequestOpt(const requestId: nat; var s : governanceStorage) : option(financialRequestRecordType) is
+//   Big_map.find_opt(requestId, s.financialRequestLedger)
 
 
 
-(* View: get a financial request snapshot *)
-[@view] function getFinancialRequestSnapshotOpt(const requestId: nat; var s : governanceStorage) : option(financialRequestSnapshotMapType) is
-  Big_map.find_opt(requestId, s.financialRequestSnapshotLedger)
+// (* View: get a financial request snapshot *)
+// [@view] function getFinancialRequestSnapshotOpt(const requestId: nat; var s : governanceStorage) : option(financialRequestSnapshotMapType) is
+//   Big_map.find_opt(requestId, s.financialRequestSnapshotLedger)
 
 
 
 
-(* View: get financial request counter *)
-[@view] function getFinancialRequestCounter(const _: unit; var s : governanceStorage) : nat is
-  s.financialRequestCounter
+// (* View: get financial request counter *)
+// [@view] function getFinancialRequestCounter(const _: unit; var s : governanceStorage) : nat is
+//   s.financialRequestCounter
 
 
 

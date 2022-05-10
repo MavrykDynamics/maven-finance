@@ -12,7 +12,7 @@
 # import pytest
 # import os 
 # import math
-
+# import error_codes
 
 # # set to localhost sandbox mode for testing
 # pytezos = pytezos.using(shell='http://localhost:8732', key='edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq')
@@ -81,22 +81,6 @@
 
 # TOLERANCE = 0.0001
 
-# error_farm_not_init = 'This farm has not yet been initiated'
-# error_withdraw_higher_than_deposit = 'The amount withdrawn is higher than the depositor deposit'
-# error_only_administrator = 'ONLY_ADMINISTRATOR_ALLOWED'
-# error_farm_closed = 'This farm is closed'
-# error_farm_already_init = 'This farm is already opened you cannot initialize it again'
-# error_depositor_not_found = 'DEPOSITOR_NOT_FOUND'
-# error_no_unclaimed_rewards = 'The depositor has no rewards to claim'
-# error_deposit_paused = 'Deposit entrypoint is paused.'
-# error_withdraw_paused = 'Withdraw entrypoint is paused.'
-# error_claim_paused = 'Claim entrypoint is paused.'
-# error_increase_rewards_higher = 'The new reward per block must be higher than the previous one.'
-# error_farm_duration = 'This farm should be either infinite or have a specified duration'
-# error_farm_blocks_per_minute = 'This farm farm blocks per minute should be greater than 0'
-# error_only_administrator_or_factory_not_found = 'Only Admin or Factory contract allowed'
-# error_only_council = 'Only Council contract allowed'
-
 # class FarmContract(TestCase):
     
 #     @classmethod
@@ -119,7 +103,7 @@
 
 #         error_msg = r.exception.format_stdout()
 #         if "FAILWITH" in error_msg:
-#             self.assertEqual(f"FAILWITH: '{error_message}'", r.exception.format_stdout())
+#             self.assertEqual(f"FAILWITH: {error_message}", r.exception.format_stdout())
 #         else:
 #             self.assertEqual(f"'{error_message}': ", r.exception.format_stdout())
 
@@ -175,7 +159,7 @@
 #         blocksPerMinute = 2
         
 #         # Init farm operation
-#         with self.raisesMichelsonError(error_only_administrator):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
 #             res = self.farmContract.initFarm({
 #                 "currentRewardPerBlock": currentRewardPerBlock,
 #                 "totalBlocks": totalBlocks,
@@ -217,7 +201,7 @@
 #         }).interpret(storage=init_farm_storage, source=bob)
 
 #         # Init farm again
-#         with self.raisesMichelsonError(error_farm_already_init):
+#         with self.raisesMichelsonError(error_codes.error_FARM_ALREADY_OPEN):
 #             res = self.farmContract.initFarm({
 #                 "currentRewardPerBlock": currentRewardPerBlock,
 #                 "totalBlocks": totalBlocks,
@@ -250,7 +234,7 @@
 #         blocksPerMinute = 2
         
 #         # Init farm operation
-#         with self.raisesMichelsonError(error_farm_duration):
+#         with self.raisesMichelsonError(error_codes.error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION):
 #             self.farmContract.initFarm({
 #                 "currentRewardPerBlock": currentRewardPerBlock,
 #                 "totalBlocks": totalBlocks,
@@ -271,7 +255,7 @@
 #         blocksPerMinute = 0
         
 #         # Init farm operation
-#         with self.raisesMichelsonError(error_farm_blocks_per_minute):
+#         with self.raisesMichelsonError(error_codes.error_INVALID_BLOCKS_PER_MINUTE):
 #             self.farmContract.initFarm({
 #                 "currentRewardPerBlock": currentRewardPerBlock,
 #                 "totalBlocks": totalBlocks,
@@ -293,7 +277,7 @@
 #         totalDepositAmount          = 2
 
 #         # Deposit operation
-#         with self.raisesMichelsonError(error_farm_not_init):
+#         with self.raisesMichelsonError(error_codes.error_FARM_NOT_INITIATED):
 #             self.farmContract.deposit(totalDepositAmount).interpret(storage=init_farm_storage, source=bob)
 
 #         print('----')
@@ -319,7 +303,7 @@
 #         lastBlockUpdate = res.storage['lastBlockUpdate']
 
 #         # Deposit operation
-#         with self.raisesMichelsonError(error_farm_closed):
+#         with self.raisesMichelsonError(error_codes.error_FARM_CLOSED):
 #             res = self.farmContract.deposit(totalDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+101)
 
 #         self.assertEqual(False, alice in res.storage['depositors'])
@@ -491,7 +475,7 @@
 #         totalWithdrawAmount         = 1
 
 #         # Deposit operation
-#         with self.raisesMichelsonError(error_farm_not_init):
+#         with self.raisesMichelsonError(error_codes.error_FARM_NOT_INITIATED):
 #             self.farmContract.withdraw(totalWithdrawAmount).interpret(storage=init_farm_storage, source=bob)
 
 #         print('----')
@@ -549,7 +533,7 @@
 #         lastBlockUpdate = res.storage['lastBlockUpdate']
 
 #         # Operations
-#         with self.raisesMichelsonError(error_depositor_not_found):
+#         with self.raisesMichelsonError(error_codes.error_DEPOSITOR_NOT_FOUND):
 #             self.farmContract.withdraw(firstWithdraw).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
 #         print('----')
@@ -577,7 +561,7 @@
 
 #         # Operations
 #         res = self.farmContract.deposit(firstDeposit).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#         with self.raisesMichelsonError(error_withdraw_higher_than_deposit):
+#         with self.raisesMichelsonError(error_codes.error_WITHDRAWN_AMOUNT_TOO_HIGH):
 #             self.farmContract.withdraw(firstWithdraw).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+1)
 
 #         print('----')
@@ -777,7 +761,7 @@
 #         init_farm_storage = deepcopy(self.farmStorage)
 
 #         # Deposit operation
-#         with self.raisesMichelsonError(error_farm_not_init):
+#         with self.raisesMichelsonError(error_codes.error_FARM_NOT_INITIATED):
 #             self.farmContract.claim().interpret(storage=init_farm_storage, source=bob)
 
 #         print('----')
@@ -802,7 +786,7 @@
 #         lastBlockUpdate = res.storage['lastBlockUpdate']
 
 #         # Operations
-#         with self.raisesMichelsonError(error_depositor_not_found):
+#         with self.raisesMichelsonError(error_codes.error_DEPOSITOR_NOT_FOUND):
 #             self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
 #         print('----')
@@ -829,7 +813,7 @@
 
 #         # Operations
 #         res = self.farmContract.deposit(firstDeposit).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
-#         with self.raisesMichelsonError(error_no_unclaimed_rewards):
+#         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
 #             self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
 #         print('----')
@@ -1023,7 +1007,7 @@
 #         # Claim reward after one block
 #         aliceUnclaimedRewards = 0;
 #         aliceClaimedRewards = 0;
-#         with self.raisesMichelsonError(error_no_unclaimed_rewards):
+#         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 #             aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
@@ -1070,7 +1054,7 @@
 #         # Claim reward after one block
 #         aliceUnclaimedRewards = 0
 #         aliceClaimedRewards = 0
-#         with self.raisesMichelsonError(error_no_unclaimed_rewards):
+#         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
 #             aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
@@ -1152,7 +1136,7 @@
 #         aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #         aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
-#         with self.raisesMichelsonError(error_no_unclaimed_rewards):
+#         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=nextBlock)
 #             aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
@@ -1188,7 +1172,7 @@
 #         # Claim rewards
 #         aliceUnclaimedRewards = 0
 #         aliceClaimedRewards = 0
-#         with self.raisesMichelsonError(error_depositor_not_found):
+#         with self.raisesMichelsonError(error_codes.error_DEPOSITOR_NOT_FOUND):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 #             aliceUnclaimedRewards = res.storage['depositors'][bob]['unclaimedRewards']
 #             aliceClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
@@ -1509,7 +1493,7 @@
 #         newAdmin = previousAdmin
 
 #         # Operation
-#         with self.raisesMichelsonError(error_only_administrator):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED):
 #             res = self.farmContract.setAdmin(alice).interpret(storage=init_farm_storage, sender=alice)
 #             # Check new admin
 #             newAdmin = res.storage['admin']
@@ -1560,13 +1544,13 @@
 #         finalclaimIsPaused = res.storage['breakGlassConfig']['claimIsPaused']
 
 #         # Tests operations
-#         with self.raisesMichelsonError(error_deposit_paused):
+#         with self.raisesMichelsonError(error_codes.error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
 #             res = self.farmContract.deposit(depositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
         
-#         with self.raisesMichelsonError(error_withdraw_paused):
+#         with self.raisesMichelsonError(error_codes.error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
 #             res = self.farmContract.withdraw(withdrawAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
         
-#         with self.raisesMichelsonError(error_claim_paused):
+#         with self.raisesMichelsonError(error_codes.error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate)
 
 #         self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
@@ -1607,7 +1591,7 @@
 #         }).interpret(storage=init_farm_storage, source=bob)
 
 #         # Operation
-#         with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED):
 #             res = self.farmContract.pauseAll().interpret(storage=res.storage, sender=alice)
 
 #             # Final values
@@ -1721,17 +1705,17 @@
 #         pauseclaimIsPaused = res.storage['breakGlassConfig']['claimIsPaused']
 
 #         # Operation
-#         with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED):
 #             res = self.farmContract.unpauseAll().interpret(storage=res.storage, sender=alice)
 
 #         # Tests operations
-#         with self.raisesMichelsonError(error_deposit_paused):
+#         with self.raisesMichelsonError(error_codes.error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
 #             res = self.farmContract.deposit(depositAmount).interpret(storage=res.storage, source=bob)
         
-#         with self.raisesMichelsonError(error_withdraw_paused):
+#         with self.raisesMichelsonError(error_codes.error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
 #             res = self.farmContract.withdraw(withdrawAmount).interpret(storage=res.storage, source=bob)
         
-#         with self.raisesMichelsonError(error_claim_paused):
+#         with self.raisesMichelsonError(error_codes.error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob)
         
 #         # Final values
@@ -1785,7 +1769,7 @@
 #         finaldepositIsPaused = res.storage['breakGlassConfig']['depositIsPaused']
 
 #         # Tests operations
-#         with self.raisesMichelsonError(error_deposit_paused):
+#         with self.raisesMichelsonError(error_codes.error_DEPOSIT_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
 #             res = self.farmContract.deposit(depositAmount).interpret(storage=res.storage, source=bob)
 
 #         self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
@@ -1818,7 +1802,7 @@
 #         }).interpret(storage=init_farm_storage, source=bob)
 
 #         # Operation
-#         with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED):
 #             res = self.farmContract.togglePauseDeposit().interpret(storage=res.storage, sender=alice)
 
 #             # Final values
@@ -1864,7 +1848,7 @@
 #         finalwithdrawIsPaused = res.storage['breakGlassConfig']['withdrawIsPaused']
 
 #         # Tests operations
-#         with self.raisesMichelsonError(error_withdraw_paused):
+#         with self.raisesMichelsonError(error_codes.error_WITHDRAW_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
 #             res = self.farmContract.withdraw(withdrawAmount).interpret(storage=res.storage, source=bob)
 
 #         self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
@@ -1897,7 +1881,7 @@
 #         }).interpret(storage=init_farm_storage, source=bob)
 
 #         # Operation
-#         with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED):
 #             res = self.farmContract.togglePauseWithdraw().interpret(storage=res.storage, sender=alice)
 
 #             # Final values
@@ -1933,19 +1917,20 @@
 #             "blocksPerMinute": blocksPerMinute,
 #             "forceRewardFromTransfer": False,
 #             "infinite": False
-#         }).interpret(storage=init_farm_storage, source=bob)
+#         }).interpret(storage=init_farm_storage, source=bob, level=0)
 
 #         # Operation
-#         res = self.farmContract.togglePauseClaim().interpret(storage=res.storage, source=bob)
+#         res = self.farmContract.deposit(2).interpret(storage=res.storage, source=bob, level=1)
+#         res = self.farmContract.togglePauseClaim().interpret(storage=res.storage, source=bob, level=2)
 
 #         # Final values
 #         finalclaimIsPaused = res.storage['breakGlassConfig']['claimIsPaused']
 
 #         # Tests operations
-#         with self.raisesMichelsonError(error_claim_paused):
-#             res = self.farmContract.claim().interpret(storage=res.storage, source=bob)
+#         with self.raisesMichelsonError(error_codes.error_CLAIM_ENTRYPOINT_IN_FARM_CONTRACT_PAUSED):
+#             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=5)
 
-#         self.assertEqual(0, res.storage['config']['lpToken']['tokenBalance'])
+#         self.assertEqual(2, res.storage['config']['lpToken']['tokenBalance'])
 #         self.assertNotEqual(claimIsPaused, finalclaimIsPaused)
 
 #         print('----')
@@ -1974,7 +1959,7 @@
 #         }).interpret(storage=init_farm_storage, source=bob)
 
 #         # Operation
-#         with self.raisesMichelsonError(error_only_administrator_or_factory_not_found):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED):
 #             res = self.farmContract.togglePauseClaim().interpret(storage=res.storage, sender=alice)
 
 #             # Final values
@@ -2149,7 +2134,7 @@
 #         }).interpret(storage=init_farm_storage, source=bob)
 
 #         # Operation
-#         with self.raisesMichelsonError(error_only_council):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_COUNCIL_CONTRACT_ALLOWED):
 #             res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=res.storage, source=alice)
 #             storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
 #             storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
@@ -2169,7 +2154,7 @@
 #         newBlocksPerMinute          = 3
 
 #         # Operation
-#         with self.raisesMichelsonError(error_farm_not_init):
+#         with self.raisesMichelsonError(error_codes.error_FARM_NOT_INITIATED):
 #             res = self.farmContract.updateBlocksPerMinute(newBlocksPerMinute).interpret(storage=init_farm_storage, source=councilAddress)
 #             storageBlocksPerMinute = res.storage['config']["blocksPerMinute"]
 #             storageTotalBlocks = res.storage['config']['plannedRewards']["totalBlocks"]
@@ -2265,13 +2250,13 @@
 #         farmClose = res.storage['open'];
 
 #         # Final tests operations
-#         with self.raisesMichelsonError(error_farm_closed):
+#         with self.raisesMichelsonError(error_codes.error_FARM_CLOSED):
 #             res = self.farmContract.deposit(userDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+51)
         
 #         res = self.farmContract.withdraw(userDepositAmount).interpret(storage=res.storage, source=bob, level=lastBlockUpdate+51)
 #         userWithdraw = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
 
-#         with self.raisesMichelsonError(error_no_unclaimed_rewards):
+#         with self.raisesMichelsonError(error_codes.error_NO_FARM_REWARDS_TO_CLAIM):
 #             res = self.farmContract.claim().interpret(storage=res.storage, source=bob, level=lastBlockUpdate+51)
 
 #         suspectedRewards = (lastBlockUpdate+50-lastBlockUpdate) * currentRewardPerBlock
@@ -2318,7 +2303,7 @@
 #         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         # Close Farm operation
-#         with self.raisesMichelsonError(error_only_administrator):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
 #             res = self.farmContract.closeFarm().interpret(storage=res.storage, source=alice, level=lastBlockUpdate+50)
 
 #         # Final tests operations
@@ -2423,7 +2408,7 @@
 #         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         # Decrease reward operation
-#         with self.raisesMichelsonError(error_increase_rewards_higher):
+#         with self.raisesMichelsonError(error_codes.error_CONFIG_VALUE_ERROR):
 #             res = self.farmContract.updateConfig({
 #                 "updateConfigAction": 'configRewardPerBlock',
 #                 "updateConfigNewValue": newRewardPerBlock, 
@@ -2473,7 +2458,7 @@
 #         userClaimedRewards = int(res.operations[-1]['parameters']['value']['args'][0]['args'][-1]['int'])
 
 #         # Increase reward operation
-#         with self.raisesMichelsonError(error_only_administrator):
+#         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
 #             res = self.farmContract.updateConfig({
 #                 "updateConfigAction": 'configRewardPerBlock',
 #                 "updateConfigNewValue": newRewardPerBlock, 

@@ -257,7 +257,7 @@ type roundType       is
 
 type proxyLambdaLedgerType is big_map(nat, bytes)
 
-type currentCycleInfoType is record[
+type currentCycleInfoType is [@layout:comb] record[
     round                       : roundType;               // proposal, voting, timelock
     blocksPerProposalRound      : nat;                     // to determine duration of proposal round
     blocksPerVotingRound        : nat;                     // to determine duration of voting round
@@ -348,7 +348,7 @@ type governanceLambdaActionType is
 
   // Housekeeping Lambdas
 | LambdaSetAdmin                              of address
-| LambdaSetGovernanceProxy             of address
+| LambdaSetGovernanceProxy                    of address
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of governanceUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
