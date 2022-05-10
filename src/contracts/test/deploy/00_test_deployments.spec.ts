@@ -372,18 +372,19 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[15])) // updateFarmConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[16])) // updateDoormanMinMvkAmount
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[17])) // updateWhitelistDevelopersSet
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[18])) // createFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(19, governanceProxyLambdas[19])) // trackFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(20, governanceProxyLambdas[20])) // untrackFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(21, governanceProxyLambdas[21])) // initFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(22, governanceProxyLambdas[22])) // closeFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(23, governanceProxyLambdas[23])) // createTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(24, governanceProxyLambdas[24])) // trackTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(25, governanceProxyLambdas[25])) // untrackTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(26, governanceProxyLambdas[26])) // transferTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(27, governanceProxyLambdas[27])) // mintMvkAndTransferTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(28, governanceProxyLambdas[28])) // updateInflationRate
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(29, governanceProxyLambdas[29])) // triggerInflation
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[18])) // setGovernanceProxy
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(19, governanceProxyLambdas[19])) // createFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(20, governanceProxyLambdas[20])) // trackFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(21, governanceProxyLambdas[21])) // untrackFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(22, governanceProxyLambdas[22])) // initFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(23, governanceProxyLambdas[23])) // closeFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(24, governanceProxyLambdas[24])) // createTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(25, governanceProxyLambdas[25])) // trackTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(26, governanceProxyLambdas[26])) // untrackTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(27, governanceProxyLambdas[27])) // transferTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(28, governanceProxyLambdas[28])) // mintMvkAndTransferTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(29, governanceProxyLambdas[29])) // updateInflationRate
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[30])) // triggerInflation
   
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
       await setupGovernanceProxyLambdasOperation.confirmation()

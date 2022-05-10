@@ -176,7 +176,7 @@ block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   
-  checkSenderIsAdminOrSelf(s); // check that sender is admin
+  checkSenderIsAdmin(s); // check that sender is admin
 
   case governanceLambdaAction of [
         | LambdaUpdateConfig(updateConfigParams) -> {

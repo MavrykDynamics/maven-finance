@@ -12,7 +12,7 @@
 function executeGovernanceLambdaProxy(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     (* ids to match governanceLambdaIndex.json - id 0 is executeGovernanceLambdaProxy *)
     const id : nat = case executeAction of [
@@ -41,24 +41,25 @@ block {
 
       (* Governance Control *)
       | UpdateWhitelistDevelopersSet (_v)      -> 17n
+      | SetGovernanceProxy (_v)                -> 18n
 
       (* Farm Control *)
-      | CreateFarm (_v)                        -> 18n
-      | TrackFarm (_v)                         -> 19n
-      | UntrackFarm (_v)                       -> 20n
-      | InitFarm (_v)                          -> 21n
-      | CloseFarm (_v)                         -> 22n
+      | CreateFarm (_v)                        -> 19n
+      | TrackFarm (_v)                         -> 20n
+      | UntrackFarm (_v)                       -> 21n
+      | InitFarm (_v)                          -> 22n
+      | CloseFarm (_v)                         -> 23n
 
       (* Treasury Control *)
-      | CreateTreasury (_v)                    -> 23n
-      | TrackTreasury (_v)                     -> 24n
-      | UntrackTreasury (_v)                   -> 25n
-      | TransferTreasury (_v)                  -> 26n
-      | MintMvkAndTransferTreasury (_v)        -> 27n
+      | CreateTreasury (_v)                    -> 24n
+      | TrackTreasury (_v)                     -> 25n
+      | UntrackTreasury (_v)                   -> 26n
+      | TransferTreasury (_v)                  -> 27n
+      | MintMvkAndTransferTreasury (_v)        -> 28n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 28n
-      | TriggerMvkInflation (_v)               -> 29n
+      | UpdateMvkInflationRate (_v)            -> 29n
+      | TriggerMvkInflation (_v)               -> 30n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -80,7 +81,7 @@ block {
 function updateProxyLambda(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     case executeAction of [
         UpdateProxyLambda(params) -> {
@@ -113,7 +114,7 @@ block {
 function setContractAdmin(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -146,7 +147,7 @@ block {
 function setContractGovernance(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -179,7 +180,7 @@ block {
 function setContractLambda(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -219,7 +220,7 @@ block {
 function setFactoryProductLambda(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -259,7 +260,7 @@ block {
 function updateContractMetadata(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -298,7 +299,7 @@ block {
 function updateContractWhitelistMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -337,7 +338,7 @@ block {
 function updateContractGeneralMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -376,7 +377,7 @@ block {
 function updateContractWhitelistTokenMap(const executeAction : executeActionType; var s : governanceProxyStorage) : return is
 block {
     
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -417,7 +418,7 @@ block {
 function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -456,7 +457,7 @@ block {
 function updateDelegationConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -502,7 +503,7 @@ block {
 function updateEmergencyConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -548,7 +549,7 @@ block {
 function updateCouncilConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -594,7 +595,7 @@ block {
 function updateFarmConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -635,7 +636,7 @@ block {
 function updateBreakGlassConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -681,7 +682,7 @@ block {
 function updateDoormanMinMvkAmount(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -723,7 +724,7 @@ block {
 function updateWhitelistDevelopersSet(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -755,10 +756,45 @@ block {
 
 
 
+function setGovernanceProxy(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      SetGovernanceProxy(newGovernanceProxyAddress) -> {
+
+        // find and get setGovernanceProxy entrypoint of governance contract
+        const setGovernanceProxyEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%setGovernanceProxy",
+            s.governanceAddress) : option(contract(address))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_SET_GOVERNANCE_PROXY_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(address))
+            ];
+
+        // set governance proxy operation
+        const setGovernanceProxyOperation : operation = Tezos.transaction(
+          (newGovernanceProxyAddress),
+          0tez, 
+          setGovernanceProxyEntrypoint
+          );
+
+        operations := setGovernanceProxyOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
 function createFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -799,7 +835,7 @@ block {
 function trackFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -840,7 +876,7 @@ block {
 function untrackFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -881,7 +917,7 @@ block {
 function initFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -920,7 +956,7 @@ block {
 function closeFarm(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -955,7 +991,7 @@ block {
 function createTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -996,7 +1032,7 @@ block {
 function trackTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -1037,7 +1073,7 @@ block {
 function untrackTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -1078,7 +1114,7 @@ block {
 function transferTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -1118,7 +1154,7 @@ block {
 function mintMvkAndTransferTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -1158,7 +1194,7 @@ block {
 function updateMvkInflationRate(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 
@@ -1193,7 +1229,7 @@ block {
 function triggerMvkInflation(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
-    checkSenderIsAdminOrSelfOrGovernance(s);
+    checkSenderIsAdminOrGovernance(s);
 
     var operations: list(operation) := nil;
 

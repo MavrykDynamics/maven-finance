@@ -20,8 +20,6 @@
 
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                                                        = 11n;
 [@inline] const error_ONLY_SELF_ALLOWED                                                                                 = 12n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_SELF_ALLOWED                                                                = 13n;
-[@inline] const error_ONLY_ADMINISTRATOR_OR_SELF_OR_GOVERNANCE_ADDRESS_ALLOWED                                          = 14n;
 [@inline] const error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED                                                          = 15n;
 [@inline] const error_ONLY_COUNCIL_MEMBERS_ALLOWED                                                                      = 16n;
 [@inline] const error_ONLY_WHITELISTED_ADDRESSES_ALLOWED                                                                = 17n;
@@ -327,6 +325,7 @@
 
 [@inline] const error_FARM_CONTRACT_NOT_FOUND                                                                           = 245n;
 [@inline] const error_ONLY_FARM_CONTRACT_ALLOWED                                                                        = 246n;
+[@inline] const error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED                                                     = 246n;
 
 [@inline] const error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION                                                        = 247n;
 [@inline] const error_DEPOSITOR_NOT_FOUND                                                                               = 248n;

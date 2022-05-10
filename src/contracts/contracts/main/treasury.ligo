@@ -102,6 +102,12 @@ function checkSenderIsAdmin(var s : treasuryStorage) : unit is
 
 
 function checkSenderIsAllowed(const s: treasuryStorage): unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernanceOrFactory(const s: treasuryStorage): unit is
 block {
     
     // First check because a treasury without a factory should still be accessible

@@ -132,6 +132,8 @@ block {
 
     case emergencyGovernanceLambdaAction of [
         | LambdaTriggerEmergencyControl(triggerEmergencyControlParams) -> {
+
+            const userAddress: address  = Tezos.sender;
                 
             if s.currentEmergencyGovernanceId = 0n 
             then skip
@@ -156,7 +158,7 @@ block {
                 | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
             ];
 
-            const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
+            const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
             const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                 Some (value) -> value
               | None         -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
@@ -175,7 +177,6 @@ block {
 
             var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);
 
-
             const title        : string  =  triggerEmergencyControlParams.title;
             const description  : string  =  triggerEmergencyControlParams.description;
 
@@ -185,7 +186,7 @@ block {
 
             const emptyVotersMap : voterMapType = map[];
             var newEmergencyGovernanceRecord : emergencyGovernanceRecordType := record [
-                proposerAddress                  = Tezos.sender;
+                proposerAddress                  = userAddress;
                 executed                         = False;
                 dropped                          = False;
 
@@ -233,6 +234,8 @@ block {
 
     case emergencyGovernanceLambdaAction of [
         | LambdaVoteForEmergencyControl(_parameters) -> {
+
+                const userAddress: address  = Tezos.sender;
                 
                 if s.currentEmergencyGovernanceId = 0n then failwith(error_EMERGENCY_GOVERNANCE_NOT_IN_THE_PROCESS)
                 else skip;
@@ -243,7 +246,7 @@ block {
                 ];
 
                 // Check is user already voted
-                if not Map.mem(Tezos.sender, _emergencyGovernance.voters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
+                if not Map.mem(userAddress, _emergencyGovernance.voters) then skip else failwith(error_EMERGENCY_GOVERNANCE_VOTE_ALEADY_REGISTERED);
 
                 const doormanAddress : address = case s.generalContracts["doorman"] of [
                       Some(_address) -> _address
@@ -251,7 +254,7 @@ block {
                 ];
                 
                 // get user staked MVK Balance
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", Tezos.sender, doormanAddress);
+                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
                 const stakedMvkBalance: nat = case stakedMvkBalanceView of [
                       Some (value) -> value
                     | None         -> failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND)
@@ -267,7 +270,7 @@ block {
 
                 const totalStakedMvkVotes : nat = _emergencyGovernance.totalStakedMvkVotes + stakedMvkBalance;
 
-                _emergencyGovernance.voters[Tezos.source] := (stakedMvkBalance, Tezos.now);
+                _emergencyGovernance.voters[userAddress] := (stakedMvkBalance, Tezos.now);
                 _emergencyGovernance.totalStakedMvkVotes := totalStakedMvkVotes;
                 s.emergencyGovernanceLedger[s.currentEmergencyGovernanceId] := _emergencyGovernance;
 
@@ -340,7 +343,7 @@ block {
                 if emergencyGovernance.executed then failwith(error_EMERGENCY_GOVERNANCE_EXECUTED)
                 else skip;
 
-                if emergencyGovernance.proposerAddress =/= Tezos.source then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if emergencyGovernance.proposerAddress =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 emergencyGovernance.dropped := True; 

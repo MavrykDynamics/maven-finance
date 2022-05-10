@@ -73,50 +73,54 @@
   },
   {
     "index": 18,
-    "name": "createFarm"
+    "name": "setGovernanceProxy"
   },
   {
     "index": 19,
-    "name": "trackFarm"
+    "name": "createFarm"
   },
   {
     "index": 20,
-    "name": "untrackFarm"
+    "name": "trackFarm"
   },
   {
     "index": 21,
-    "name": "initFarm"
+    "name": "untrackFarm"
   },
   {
     "index": 22,
-    "name": "closeFarm"
+    "name": "initFarm"
   },
   {
     "index": 23,
-    "name": "createTreasury"
+    "name": "closeFarm"
   },
   {
     "index": 24,
-    "name": "trackTreasury"
+    "name": "createTreasury"
   },
   {
     "index": 25,
-    "name": "untrackTreasury"
+    "name": "trackTreasury"
   },
   {
     "index": 26,
-    "name": "transferTreasury"
+    "name": "untrackTreasury"
   },
   {
     "index": 27,
-    "name": "mintMvkAndTransferTreasury"
+    "name": "transferTreasury"
   },
   {
     "index": 28,
-    "name": "updateMvkInflationRate"
+    "name": "mintMvkAndTransferTreasury"
   },
   {
     "index": 29,
+    "name": "updateMvkInflationRate"
+  },
+  {
+    "index": 30,
     "name": "triggerMvkInflation"
   }
 ]

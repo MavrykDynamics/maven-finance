@@ -137,12 +137,6 @@ function checkSenderIsSelf(const _p : unit) : unit is
 
 
 
-function checkSenderIsAdminOrSelf(var s : governanceStorage) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = Tezos.self_address) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_SELF_ALLOWED);
-
-
-
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
