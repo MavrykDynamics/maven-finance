@@ -57,8 +57,8 @@ export const WalletNotConnectedButton = styled.button<{ theme: MavrykTheme }>`
   background: none;
 
   svg {
-    width: 24px;
-    height: 19px;
+    width: 25px;
+    height: 30px;
     stroke: ${skyColor};
     fill: transparent;
     margin-right: 16px;
