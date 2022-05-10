@@ -36,8 +36,10 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
         ) : null}
 
         <div>
-          <h4>Number of stakers</h4>
-          <var></var>
+          <h4>Total staked MVK</h4>
+          <var>
+            <CommaNumber value={stakedMvkTokens} loading={loading} endingText={'MVK'} />
+          </var>
         </div>
         <div>
           <h4>Circulating</h4>
