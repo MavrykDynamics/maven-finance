@@ -29,6 +29,17 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
     protectedRoute: false,
   },
   {
+    title: 'Satellites',
+    id: 3,
+    path: '/satellites',
+    icon: 'satellite',
+    protectedRoute: false,
+    subPages: [
+      { id: 57281, subTitle: 'Overview', subPath: '/satellites', protectedRoute: false },
+      { id: 55614, subTitle: 'Become A Satellite', subPath: '/become-satellite', protectedRoute: false },
+    ],
+  },
+  {
     title: 'Governance',
     id: 4,
     path: '/governance',
@@ -59,17 +70,6 @@ export const mainNavigationLinks: MainNavigationRoute[] = [
         subPath: '/emergency-governance',
         protectedRoute: true,
       },
-    ],
-  },
-  {
-    title: 'Satellites',
-    id: 3,
-    path: '/satellites',
-    icon: 'satellite',
-    protectedRoute: false,
-    subPages: [
-      { id: 57281, subTitle: 'Overview', subPath: '/satellites', protectedRoute: false },
-      { id: 55614, subTitle: 'Become A Satellite', subPath: '/become-satellite', protectedRoute: false },
     ],
   },
   {

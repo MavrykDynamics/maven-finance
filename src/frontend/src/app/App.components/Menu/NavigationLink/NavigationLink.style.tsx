@@ -1,4 +1,5 @@
 import styled, { css } from 'styled-components/macro'
+
 import { MavrykTheme } from '../../../../styles/interfaces'
 
 export const NavigationLinkContainer = styled.div<{ selected: boolean; theme: MavrykTheme }>`
@@ -27,13 +28,13 @@ export const NavigationLinkContainer = styled.div<{ selected: boolean; theme: Ma
 
 export const NavigationLinkItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   width: 100%;
-  margin: 5px 0;
+
   > a {
     display: flex;
     margin-left: 42px;
 
     .navLinkTitle {
-      font-size: 14px;
+      font-size: 12px;
       line-height: 31px;
       font-weight: 600;
       color: ${({ theme }) => theme.navTitleColor};
@@ -53,18 +54,15 @@ export const NavigationLinkItem = styled.div<{ selected: boolean; theme: MavrykT
 `
 export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   width: 50px;
-  height: 50px;
   cursor: pointer;
   text-align: center;
   font-weight: bold;
-  line-height: 50px;
-  margin-right: 15px;
+  margin-right: 4px;
 
   > svg {
     display: inline-block;
-    width: 24px;
-    height: 24px;
-    margin: 14px 9px 13px 8px;
+    width: 27px;
+    height: 50px;
     fill: ${({ theme }) => theme.navIconColor};
     vertical-align: top;
   }
@@ -91,14 +89,14 @@ export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
     > div {
       width: 50px;
       height: 50px;
-      margin-right: 15px;
+      margin-right: 4px;
       flex-shrink: 0;
     }
   }
 `
 
 export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
-  font-size: 14px;
+  font-size: 12px;
   line-height: 17px;
   font-weight: 500;
   text-align: left;
@@ -115,7 +113,7 @@ export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
       color: ${({ theme }) => theme.navLinkTextActive};
 
       &.navLinkSubTitle {
-        color: ${({ theme }) => theme.navLinkTextActive};
+        color: ${({ theme }) => theme.navLinkSubTitleActive};
       }
     `}
 `
