@@ -2,25 +2,22 @@ import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
-
-// constants
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
-
-// actions
-import { getDoormanStorage, getMvkTokenStorage, getUserData, stake, unstake } from './Doorman.actions'
-import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
-
-// view
-import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
-import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
-import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
-import Chart from '../../app/App.components/Chart/Chart.view'
-import ConnectWalletInfo from '../../app/App.components/ConnectWallet/ConnectWalletInfo.view'
-
 // style
 import { Page } from 'styles'
+
+import Chart from '../../app/App.components/Chart/Chart.view'
+import ConnectWalletInfo from '../../app/App.components/ConnectWallet/ConnectWalletInfo.view'
+// constants
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+// view
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+// actions
+import { getDoormanStorage, getMvkTokenStorage, getUserData, stake, unstake } from './Doorman.actions'
 import { DoormanInfoStyled } from './Doorman.style'
+import { DoormanStatsView } from './DoormanStats/DoormanStats.view'
+import { showExitFeeModal } from './ExitFeeModal/ExitFeeModal.actions'
+import { ExitFeeModal } from './ExitFeeModal/ExitFeeModal.controller'
+import { StakeUnstakeView } from './StakeUnstake/StakeUnstake.view'
 
 export const Doorman = () => {
   const dispatch = useDispatch()
@@ -32,7 +29,6 @@ export const Doorman = () => {
 
   // const userStakeBalanceLedger = doormanStorage?.userStakeBalanceLedger
   // const myMvkStakeBalance = userStakeInfo?.mySMvkBalance || '0.00' //userStakeBalanceLedger?.get(accountPkh || '')
-  console.log('%c ||||| accountPkh', 'color:yellowgreen', accountPkh)
   useEffect(() => {
     if (accountPkh) {
       dispatch(getUserData(accountPkh))
