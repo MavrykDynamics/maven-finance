@@ -35,7 +35,7 @@ export const MenuTopSection = styled.div`
   justify-content: space-between;
 `
 export const MenuLogo = styled.img`
-  margin: 43px auto 24px auto;
+  margin: 44px auto 20px auto;
   z-index: 1;
   width: 218px;
   height: 43px;

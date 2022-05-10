@@ -1,12 +1,13 @@
 import styled from 'styled-components/macro'
-import { MavrykTheme } from '../../../styles/interfaces'
-import { BUTTON_RADIUS } from '../../../styles/constants'
+
 import { skyColor } from '../../../styles'
+import { BUTTON_RADIUS } from '../../../styles/constants'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const ConnectWalletStyled = styled.div<{ theme: MavrykTheme }>`
   text-align: center;
   border-radius: ${BUTTON_RADIUS};
-  margin: 10px auto 15px;
+  margin: 10px auto 34px;
   overflow: hidden;
   width: 80%;
   max-width: 216px;
