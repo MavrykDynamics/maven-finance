@@ -26,7 +26,8 @@ export const StakeUnstakeCard = styled(Card)<{ theme: MavrykTheme }>`
   align-items: flex-start;
   padding: 20px;
   min-width: 130px;
-  padding-top: 25px;
+  padding-top: 28px;
+  padding-bottom: 19px;
 `
 export const StakeUnstakeActionCard = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
@@ -151,15 +152,19 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
   h3 {
     font-size: 14px;
     font-weight: 600;
-    color: ${({ theme }) => theme.subTextColor};
+    color: ${({ theme }) => theme.headerColor};
   }
   img {
-    margin: 26px auto;
+    margin: 23px auto;
     margin-top: auto;
   }
 
   p {
-    font-size: 16px;
+    color: ${({ theme }) => theme.stakedColor};
+    font-size: 20px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   div {
@@ -172,10 +177,14 @@ export const StakeUnstakeBalance = styled.div<{ theme: MavrykTheme }>`
     &::after {
       content: '';
       display: block;
-      width: 50px;
+      width: 42px;
       height: 3px;
-      background-color: #7068aa;
-      margin: 10px auto;
+      background-color: ${({ theme }) => theme.cardBorderColor};
+      margin-bottom: 15px;
+      margin-left: auto;
+      margin-right: auto;
+      margin-top: -2px;
+      border-radius: 2px;
     }
   }
 `
@@ -189,7 +198,7 @@ export const StakeLabel = styled.blockquote`
   font-size: 10px;
   border-radius: 10px;
   padding: 0 11px;
-  margin-top: 14px;
+  margin-top: 9px;
 `
 
 export const StakeCompound = styled.button<{ theme: MavrykTheme }>`
@@ -198,9 +207,9 @@ export const StakeCompound = styled.button<{ theme: MavrykTheme }>`
   color: ${cianColor};
   font-weight: 400;
   font-size: 10px;
-  line-height: 19px;
+  line-height: 20px;
   height: 100%;
-  margin-top: 15px;
+  margin-top: 18px;
   border-radius: 10px;
   background: none;
   width: 100%;
@@ -210,9 +219,11 @@ export const StakeCompound = styled.button<{ theme: MavrykTheme }>`
   align-items: center;
   flex-direction: column;
   width: 120px;
-  padding-top: 12px;
+  padding-top: 10px;
 
   img {
-    width: 90px;
+    width: 98px;
+    margin-top: 12px;
+    margin-bottom: 13px;
   }
 `

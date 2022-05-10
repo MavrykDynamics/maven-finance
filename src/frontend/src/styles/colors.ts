@@ -37,6 +37,7 @@ export const darkMode = {
   valueColor: cianColor,
   connectInfoColor: medialeColor,
   actionPrimaryBtnColor: cianColor,
+  stakedColor: cianColor,
 
   borderColor: '#4F457C',
   textColor: '#F7F9FD',
@@ -69,6 +70,7 @@ export const lightMode = {
   valueColor: darkCianColor,
   connectInfoColor: whiteColor,
   actionPrimaryBtnColor: darkCianColor,
+  stakedColor: darkColor,
 
   borderColor: '#4F457C',
   textColor: '#29264C',

@@ -4,8 +4,12 @@ import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controll
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
+// components
+import Icon from '../../../app/App.components/Icon/Icon.view'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
+
+// style
 import { DoormanList, DoormanStatsGrid, DoormanStatsHeader, DoormanStatsStyled } from './DoormanStats.style'
 
 type DoormanStatsViewProps = {
@@ -54,7 +58,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
               target="_blank"
               rel="noreferrer"
             >
-              [?]
+              <Icon id="question" />
             </a>
           </h4>
           <var>
@@ -70,7 +74,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
               target="_blank"
               rel="noreferrer"
             >
-              [?]
+              <Icon id="question" />
             </a>
           </h4>
           <var>
