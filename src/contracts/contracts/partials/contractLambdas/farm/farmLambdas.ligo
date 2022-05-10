@@ -159,7 +159,7 @@ function lambdaUpdateBlocksPerMinute(const farmLambdaAction : farmLambdaActionTy
 block {
     
     // check that source is admin or factory
-    checkSenderOrSourceIsCouncil(s);
+    checkSenderIsCouncilOrFarmFactory(s);
 
     // check if farm has been initiated
     checkFarmIsInit(s);
@@ -275,7 +275,7 @@ block{
 function lambdaPauseAll(const farmLambdaAction : farmLambdaActionType; var s: farmStorage) : return is
 block {
     
-    checkSenderIsAllowed(s);
+    checkSenderIsGovernanceOrFactory(s);
 
     case farmLambdaAction of [
         | LambdaPauseAll(_parameters) -> {
@@ -302,7 +302,7 @@ block {
 function lambdaUnpauseAll(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
-    checkSenderIsAllowed(s);
+    checkSenderIsGovernanceOrFactory(s);
 
     case farmLambdaAction of [
         | LambdaUnpauseAll(_parameters) -> {
@@ -329,7 +329,7 @@ block {
 function lambdaTogglePauseDeposit(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
     
-    checkSenderIsAllowed(s);
+    checkSenderIsAdmin(s);
 
     case farmLambdaAction of [
         | LambdaTogglePauseDeposit(_parameters) -> {
@@ -348,7 +348,7 @@ block {
 function lambdaTogglePauseWithdraw(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
-    checkSenderIsAllowed(s);
+    checkSenderIsAdmin(s);
 
     case farmLambdaAction of [
         | LambdaTogglePauseWithdraw(_parameters) -> {
@@ -368,7 +368,7 @@ block {
 function lambdaTogglePauseClaim(const farmLambdaAction : farmLambdaActionType; var s : farmStorage) : return is
 block {
 
-    checkSenderIsAllowed(s);
+    checkSenderIsAdmin(s);
 
     case farmLambdaAction of [
         | LambdaTogglePauseClaim(_parameters) -> {

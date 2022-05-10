@@ -269,10 +269,10 @@ function lambdaCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactor
 block{
 
     // Check if Sender is admin
-        checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s);
 
-        // Break glass check
-        checkCreateTreasuryIsNotPaused(s);
+    // Break glass check
+    checkCreateTreasuryIsNotPaused(s);
 
     var operations: list(operation) := nil;
 

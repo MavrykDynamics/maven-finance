@@ -120,14 +120,20 @@ function checkSenderIsSelf(const _p : unit) : unit is
 
 
 
-function checkSenderIsSatellite(var s : delegationStorage) : unit is 
-  if (Map.mem(Tezos.sender, s.satelliteLedger)) then unit
+function checkSourceIsSatellite(var s : delegationStorage) : unit is 
+  if (Map.mem(Tezos.source, s.satelliteLedger)) then unit
   else failwith(error_ONLY_SATELLITE_ALLOWED);
 
 
 
-function checkSenderIsNotSatellite(var s : delegationStorage) : unit is 
-  if (Map.mem(Tezos.sender, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
+function checkSourceIsNotSatellite(var s : delegationStorage) : unit is 
+  if (Map.mem(Tezos.source, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
+  else unit;
+
+
+
+function checkSourceIsNotDelegate(var s : delegationStorage) : unit is 
+  if (Big_map.mem(Tezos.source, s.delegateLedger)) then failwith(error_DELEGATE_NOT_ALLOWED)
   else unit;
 
 

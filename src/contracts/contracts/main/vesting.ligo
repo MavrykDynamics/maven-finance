@@ -108,6 +108,18 @@ function checkSenderIsAdmin(var s : vestingStorage) : unit is
 
 
 
+function checkSenderIsCouncil(var s : vestingStorage) : unit is
+    block{
+        const councilAddress: address = case s.whitelistContracts["council"] of [
+              Some (_address) -> _address
+          |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
+        ];
+        if (Tezos.sender = councilAddress) then skip
+        else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
+    } with (unit)
+
+
+
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);

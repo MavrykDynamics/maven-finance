@@ -162,6 +162,7 @@ type executeActionParamsType is
 | UpdateDoormanMinMvkAmount          of (nat)
 
 | UpdateWhitelistDevelopersSet       of (address)
+| SetGovernanceProxy                 of (address)
 
 | CreateFarm                         of createFarmType
 | TrackFarm                          of (address)

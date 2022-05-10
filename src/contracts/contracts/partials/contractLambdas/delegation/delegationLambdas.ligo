@@ -342,8 +342,8 @@ block {
     // check that entrypoint is not paused
     checkDelegateToSatelliteIsNotPaused(s);
 
-    // check that sender is not a satellite
-    checkSenderIsNotSatellite(s);
+    // check that source is not a satellite
+    checkSourceIsNotSatellite(s);
 
     var operations : list(operation) := nil;
 
@@ -560,6 +560,9 @@ block {
     // check that entrypoint is not paused
     checkRegisterAsSatelliteIsNotPaused(s);
 
+    // check that source is not a delegate
+    checkSourceIsNotDelegate(s);
+
     // Update unclaimed rewards
     s := updateRewards(Tezos.source, s);
 
@@ -652,7 +655,7 @@ block {
     checkUnregisterAsSatelliteIsNotPaused(s);
 
     // check sender is satellite
-    checkSenderIsSatellite(s);
+    checkSourceIsSatellite(s);
 
     // Update unclaimed rewards
     s := updateRewards(Tezos.source, s);
