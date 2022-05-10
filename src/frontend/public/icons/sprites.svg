@@ -138,18 +138,8 @@
             <rect fill="none" stroke="none" width="24" height="24"></rect>
         </g>
     </symbol>
-    <symbol id="switch" viewBox="0 0 24 14">
-        <g>
-            <path d="M10.5 10H23.25" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M20.25 7L23.25 10L20.25 13" fill="none" stroke-width="1.5" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <path d="M13.5 4H0.75" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M3.75 7L0.75 4L3.75 1" fill="none" stroke-width="1.5" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-        </g>
-        <g id="Invisible_Shape">
-            <rect fill="none" stroke="none" width="24" height="14"></rect>
-        </g>
+    <symbol id="switch" viewBox="0 0 24 18" >
+        <path d="M23.8352 5.64771L19.5 9.96021C19.2803 10.1799 18.9242 10.1799 18.7045 9.96021L18.3731 9.62881C18.1534 9.40915 18.1534 9.05299 18.3731 8.83329L21.2294 5.99998H0.5625C0.251859 5.99998 0 5.74812 0 5.43748V5.06248C0 4.75184 0.251859 4.49998 0.5625 4.49998H21.2299L18.3731 1.66666C18.1534 1.44701 18.1534 1.09085 18.3731 0.871149L18.7045 0.539742C18.9242 0.320086 19.2803 0.320086 19.5 0.539742L23.8352 4.85224C24.0549 5.0719 24.0549 5.42806 23.8352 5.64771ZM0.164766 13.1477L4.5 17.4602C4.7197 17.6799 5.07581 17.6799 5.29552 17.4602L5.62692 17.1288C5.84662 16.9092 5.84662 16.553 5.62692 16.3333L2.77008 13.5H23.4375C23.7481 13.5 24 13.2481 24 12.9375V12.5625C24 12.2518 23.7481 12 23.4375 12H2.77064L5.62692 9.16667C5.84662 8.94701 5.84662 8.59085 5.62692 8.37115L5.29547 8.03974C5.07581 7.82009 4.71966 7.82004 4.5 8.03974L0.164766 12.3522C-0.0548906 12.5719 -0.0549375 12.9281 0.164766 13.1477Z" />
     </symbol>
     <symbol id="success" viewBox="0 0 24 24">
         <g>
