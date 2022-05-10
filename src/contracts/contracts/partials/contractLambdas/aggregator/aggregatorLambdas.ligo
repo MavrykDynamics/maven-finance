@@ -336,7 +336,7 @@ block{
 function lambdaWithdrawRewardXTZ(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    checkIfWhiteListed(s);
+    // checkIfWhiteListed(s);
 
     var operations : list(operation) := nil;
 
@@ -344,6 +344,9 @@ block{
         | LambdaWithdrawRewardXTZ(receiver) -> {
                 
                 const reward: tez = getRewardAmountXTZ(Tezos.sender, s) * 1mutez;
+
+                if (reward > 0mutez) then {
+
                 checkEnoughXTZInTheContract(reward, s);
 
                 const newOracleRewards = Map.update(Tezos.sender, Some (0n), s.oracleRewardsXTZ);
@@ -359,6 +362,7 @@ block{
                 
                 s.oracleRewardsXTZ := newOracleRewards;
 
+                } else skip;
             }
         | _ -> skip
     ];
@@ -371,7 +375,7 @@ block{
 function lambdaWithdrawRewardMVK(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    checkIfWhiteListed(s);
+    // checkIfWhiteListed(s);
 
     var operations : list(operation) := nil;
 
@@ -379,6 +383,8 @@ block{
         | LambdaWithdrawRewardMVK(receiver) -> {
                 
                 const reward = getRewardAmountMVK(Tezos.sender, s) * s.config.rewardAmountMVK;
+                if (reward > 0n) then {
+
                 const newOracleRewards = Map.update(Tezos.sender, Some (0n), s.oracleRewardsMVK);
                 
                 const withdrawRewardMvkOperation : operation = transferFa2Token(Tezos.self_address, receiver, reward, 0n, s.mvkTokenAddress);
@@ -386,6 +392,8 @@ block{
                 operations := withdrawRewardMvkOperation # operations;
 
                 s.oracleRewardsMVK := newOracleRewards;
+
+                } else skip;
                 
             }
         | _ -> skip
