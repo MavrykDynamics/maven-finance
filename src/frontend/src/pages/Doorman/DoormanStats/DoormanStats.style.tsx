@@ -63,6 +63,10 @@ export const DoormanList = styled.div<{ theme: MavrykTheme }>`
     }
 
     .click-addrese {
+      > div {
+        justify-content: flex-end;
+      }
+
       svg {
         stroke: ${({ theme }) => theme.valueColor};
         width: 16px;
