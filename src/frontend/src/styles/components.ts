@@ -55,7 +55,7 @@ export const Card = styled.div<{ theme: MavrykTheme }>`
   margin-top: 30px;
   background-color: ${({ theme }) => theme.containerColor};
   border-radius: 10px;
-  padding: 35px;
+  padding: 25px 35px;
   font-size: 14px;
   font-weight: 600;
   color: ${({ theme }) => theme.subTextColor};

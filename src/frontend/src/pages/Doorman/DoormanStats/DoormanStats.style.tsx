@@ -6,10 +6,24 @@ import { MavrykTheme } from '../../../styles/interfaces'
 export const DoormanStatsStyled = styled(Card)`
   display: flex;
   flex-direction: column;
+  padding: 25px 44px;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 42px;
+    height: 3px;
+    background-color: ${({ theme }) => theme.cardBorderColor};
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 16px;
+    border-radius: 2px;
+  }
 `
 
 export const DoormanStatsHeader = styled(CardHeader)<{ theme: MavrykTheme }>`
   text-align: center;
+  margin-bottom: 16px;
 `
 
 export const DoormanStatsGrid = styled.div<{ theme: MavrykTheme }>`
@@ -35,12 +49,25 @@ export const DoormanList = styled.div<{ theme: MavrykTheme }>`
   > div {
     display: flex;
     justify-content: space-between;
-    padding-top: 24px;
+    height: 35px;
     align-items: center;
 
     h4 {
       width: 50%;
       color: ${({ theme }) => theme.headerColor};
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+
+      a {
+        margin-left: 4px;
+
+        svg {
+          width: 14px;
+          height: 14px;
+          fill: ${({ theme }) => theme.headerColor};
+        }
+      }
     }
 
     var {
@@ -57,6 +84,7 @@ export const DoormanList = styled.div<{ theme: MavrykTheme }>`
 
       p {
         margin: 0;
+        font-size: 12px;
         text-align: right;
         width: 100%;
       }
