@@ -3,6 +3,7 @@ import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 
 // components
 import Icon from '../Icon/Icon.view'
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 
 import {
   ConnectWalletStyled,
@@ -32,24 +33,23 @@ export const ConnectWalletView = ({
   handleConnect,
   handleNewConnect,
 }: ConnectWalletViewProps) => {
+  console.log('%c ||||| accountPkh', 'color:yellowgreen', accountPkh)
   return (
     <ConnectWalletStyled id={'connectWalletButton'}>
       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
       {wallet ? (
         <>
-          {ready && type !== 'simpleButton' && (
+          {ready && type !== 'simpleButton' && accountPkh ? (
             <WalletConnectedButton>
-              <p>
-                {accountPkh
-                  ? `${accountPkh.slice(0, 7)}...${accountPkh.slice(accountPkh.length - 4, accountPkh.length)}`
-                  : 'undefined'}
-                <svg onClick={handleNewConnect}>
-                  <use xlinkHref="/icons/sprites.svg#switch" />
-                </svg>
-              </p>
+              <var>
+                <TzAddress tzAddress={accountPkh} hasIcon />
+              </var>
+              <button onClick={handleNewConnect}>
+                <Icon id="switch" />
+              </button>
               <CommaNumber value={Number(myMvkTokenBalance || 0)} loading={loading} endingText={'MVK'} />
             </WalletConnectedButton>
-          )}
+          ) : null}
           {type === 'simpleButton' && <SimpleConnectButtonNoAddress handleConnect={handleConnect} />}
           {!ready && type !== 'simpleButton' && <NoWalletConnectedButton handleConnect={handleConnect} />}
         </>

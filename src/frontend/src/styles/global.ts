@@ -42,6 +42,14 @@ h1 {
   }
 }
 
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
 h2 {
   font-size: 20px;
   font-weight: normal;

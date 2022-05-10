@@ -8,7 +8,6 @@ export const ConnectWalletStyled = styled.div<{ theme: MavrykTheme }>`
   text-align: center;
   border-radius: ${BUTTON_RADIUS};
   margin: 10px auto 34px;
-  overflow: hidden;
   width: 80%;
   max-width: 216px;
 `
@@ -16,27 +15,45 @@ export const ConnectWalletStyled = styled.div<{ theme: MavrykTheme }>`
 export const WalletConnectedButton = styled.div<{ theme: MavrykTheme }>`
   font-weight: 600;
   margin: 10px auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -6px;
+  margin-bottom: -6px;
 
-  > p {
-    font-size: 11px;
-    line-height: 11px;
-    margin: 3px;
-    color: ${({ theme }) => theme.textColor};
+  var {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 14px;
+    font-style: normal;
+    color: ${({ theme }) => theme.headerSkyColor};
+    margin-bottom: 5px;
+
+    > div {
+      svg {
+        stroke: ${({ theme }) => theme.headerSkyColor};
+        width: 18px;
+        height: 18px;
+        margin-left: 6px;
+      }
+    }
   }
 
-  > div {
-    font-size: 18px;
-    line-height: 18px;
-    color: ${({ theme }) => theme.primaryColor};
+  p {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 14px;
+    color: ${({ theme }) => theme.stakedColor};
+    margin-top: 4px;
+    margin-bottom: 0;
   }
 
-  svg {
-    cursor: pointer;
-    height: 12px;
-    margin-left: 10px;
-    width: 20px;
-    vertical-align: bottom;
-    stroke: ${({ theme }) => theme.primaryColor};
+  button {
+    svg {
+      width: 24px;
+      height: 18px;
+      fill: ${({ theme }) => theme.headerColor};
+    }
   }
 `
 export const WalletNotConnectedButton = styled.button<{ theme: MavrykTheme }>`
