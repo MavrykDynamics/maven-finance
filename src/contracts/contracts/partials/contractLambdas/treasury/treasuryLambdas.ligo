@@ -48,7 +48,7 @@ function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; v
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
 
     var operations : list(operation) := nil;
 

@@ -1232,7 +1232,7 @@ block {
 
                     Some (value) -> case value of [
                           Some (_satellite) -> skip
-                        | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
+                        | None -> if Tezos.sender = s.admin then skip else failwith(error_ONLY_SATELLITE_ALLOWED)
                     ]
                 | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
 
@@ -1252,16 +1252,16 @@ block {
                 if _proposal.status = "DROPPED" then failwith(error_PROPOSAL_DROPPED)
                 else skip;
 
-                if _proposal.proposerAddress = Tezos.sender then block {
+                if _proposal.proposerAddress = Tezos.sender or Tezos.sender = s.admin then block {
                     _proposal.status               := "DROPPED";
                     s.proposalLedger[proposalId]   := _proposal;
 
                     // Remove proposal from currentCycleInfo.roundProposers
-                    var proposerProposals   : set(nat)             := case s.currentCycleInfo.roundProposers[Tezos.sender] of [
+                    var proposerProposals   : set(nat)             := case s.currentCycleInfo.roundProposers[_proposal.proposerAddress] of [
                           Some (_proposals) -> _proposals
                         | None -> failwith(error_PROPOSAL_NOT_FOUND)
                     ];
-                    s.currentCycleInfo.roundProposers[Tezos.sender] := Set.remove(proposalId, proposerProposals);
+                    s.currentCycleInfo.roundProposers[_proposal.proposerAddress] := Set.remove(proposalId, proposerProposals);
 
                     // If timelock or voting round, restart the cycle
                     if s.currentCycleInfo.round = (Voting : roundType) or s.currentCycleInfo.round = (Timelock : roundType) 
