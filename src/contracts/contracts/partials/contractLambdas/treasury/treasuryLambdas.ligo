@@ -150,7 +150,7 @@ function lambdaPauseAll(const treasuryLambdaAction : treasuryLambdaActionType; v
 block {
     
     // check that sender is admin or treasury factory
-    checkSenderIsAllowed(s);
+    checkSenderIsGovernanceOrFactory(s);
 
     case treasuryLambdaAction of [
         | LambdaPauseAll(_parameters) -> {
@@ -175,7 +175,7 @@ function lambdaUnpauseAll(const treasuryLambdaAction : treasuryLambdaActionType;
 block {
     
     // check that sender is admin or treasury factory
-    checkSenderIsAllowed(s);
+    checkSenderIsGovernanceOrFactory(s);
 
     case treasuryLambdaAction of [
         | LambdaUnpauseAll(_parameters) -> {
@@ -199,8 +199,8 @@ block {
 function lambdaTogglePauseTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
 
-    // check that sender is admin or treasury factory
-    checkSenderIsAllowed(s);
+    // check that sender is admin
+    checkSenderIsAdmin(s);
 
     case treasuryLambdaAction of [
         | LambdaTogglePauseTransfer(_parameters) -> {
@@ -220,8 +220,8 @@ block {
 function lambdaTogglePauseMintMvkAndTransfer(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
 
-    // check that sender is admin or treasury factory
-    checkSenderIsAllowed(s);
+    // check that sender is admin
+    checkSenderIsAdmin(s);
 
     case treasuryLambdaAction of [
         | LambdaTogglePauseMintTransfer(_parameters) -> {

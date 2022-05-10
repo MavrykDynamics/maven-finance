@@ -113,13 +113,7 @@ function checkSenderIsSelf(const _p : unit) : unit is
 function checkSenderIsAdminOrGovernance(var s : governanceProxyStorage) : unit is
     if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
     else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
-
-
-
-function checkSenderIsAdminOrSelfOrGovernance(var s : governanceProxyStorage) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = Tezos.self_address or Tezos.sender = s.governanceAddress) then unit
-    else failwith(error_ONLY_ADMINISTRATOR_OR_SELF_OR_GOVERNANCE_ADDRESS_ALLOWED);
-
+    
 
 
 function checkNoAmount(const _p : unit) : unit is

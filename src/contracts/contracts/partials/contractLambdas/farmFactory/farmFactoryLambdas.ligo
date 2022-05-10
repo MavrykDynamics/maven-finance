@@ -102,7 +102,7 @@ function lambdaUpdateBlocksPerMinute(const farmFactoryLambdaAction : farmFactory
 block {
 
     // check that source is admin or factory
-    checkSenderOrSourceIsCouncil(s);
+    checkSenderIsCouncil(s);
 
     var operations : list(operation) := nil;
 
@@ -281,10 +281,10 @@ function lambdaCreateFarm(const farmFactoryLambdaAction : farmFactoryLambdaActio
 block{
 
     // Check if Sender is admin
-        checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s);
 
-        // Break glass check
-        checkCreateFarmIsNotPaused(s);
+    // Break glass check
+    checkCreateFarmIsNotPaused(s);
 
     var operations : list(operation) := nil;
 

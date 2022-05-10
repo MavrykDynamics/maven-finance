@@ -112,7 +112,7 @@ function checkNoAmount(const _p: unit): unit is
 
 
 
-function checkSenderOrSourceIsCouncil(const s: farmFactoryStorage): unit is
+function checkSenderIsCouncil(const s: farmFactoryStorage): unit is
 block {
 
     const councilAddress: address = case s.whitelistContracts["council"] of [
@@ -120,7 +120,7 @@ block {
     |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
     ];
 
-    if Tezos.source = councilAddress or Tezos.sender = councilAddress then skip
+    if Tezos.sender = councilAddress then skip
     else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
 
 } with(unit)

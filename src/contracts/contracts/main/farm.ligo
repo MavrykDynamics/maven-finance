@@ -121,7 +121,7 @@ function checkNoAmount(const _p: unit): unit is
 
 
 
-function checkSenderOrSourceIsCouncil(const s: farmStorage): unit is
+function checkSenderIsCouncilOrFarmFactory(const s: farmStorage): unit is
 block {
 
     const councilAddress: address = case s.whitelistContracts["council"] of [
@@ -129,14 +129,25 @@ block {
     |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
     ];
 
-    if Tezos.source = councilAddress or Tezos.sender = councilAddress then skip
-    else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
+    const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
+            Some (_address) -> _address
+        |   None -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND): address)
+    ];
+
+    if Tezos.sender = farmFactoryAddress or Tezos.sender = councilAddress then skip
+    else failwith(error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED);
 
 } with(unit)
 
 
 
 function checkSenderIsAllowed(const s: farmStorage): unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsGovernanceOrFactory(const s: farmStorage): unit is
 block {
 
     // First check because a farm without a facory should still be accessible

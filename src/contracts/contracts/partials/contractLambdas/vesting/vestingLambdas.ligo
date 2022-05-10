@@ -116,10 +116,7 @@ block {
         | LambdaAddVestee(addVesteeParams) -> {
                 
                 // check sender is from council contract
-                var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
-
-                if inWhitelistCheck = False then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-                else skip;
+                checkSenderIsCouncil(s);
 
                 // init parameters
                 const vesteeAddress          : address  = addVesteeParams.vesteeAddress;
@@ -189,10 +186,7 @@ block {
     case vestingLambdaAction of [
         | LambdaRemoveVestee(vesteeAddress) -> {
                 
-                var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
-
-                if inWhitelistCheck = False then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-                else skip;
+                checkSenderIsCouncil(s);
 
                 var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record
@@ -219,11 +213,7 @@ block {
     case vestingLambdaAction of [
         | LambdaUpdateVestee(updateVesteeParams) -> {
                 
-                // check sender is from council contract
-                var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
-
-                if inWhitelistCheck = False then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-                else skip;
+                checkSenderIsCouncil(s);
                 
                 // init parameters
                 const vesteeAddress             : address  = updateVesteeParams.vesteeAddress;
@@ -294,10 +284,7 @@ block {
     case vestingLambdaAction of [
         | LambdaToggleVesteeLock(vesteeAddress) -> {
                 
-                var inWhitelistCheck : bool := checkInWhitelistContracts(Tezos.sender, s.whitelistContracts);
-
-                if inWhitelistCheck = False then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-                else skip;
+                checkSenderIsCouncil(s);
 
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record
