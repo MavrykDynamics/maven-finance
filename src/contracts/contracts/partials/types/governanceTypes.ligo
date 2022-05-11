@@ -61,7 +61,6 @@ type proposalRecordType is [@layout:comb] record [
     proposalMetadata                  : proposalMetadataType;
     proposalMetadataExecutionCounter  : nat;
     paymentMetadata                   : paymentMetadataType;
-    paymentMetadataExecutionCounter   : nat;
   
     status                            : string;                  // status - "ACTIVE", "DROPPED"
     title                             : string;                  // title
