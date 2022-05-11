@@ -53,7 +53,7 @@ export const DoormanList = styled.div<{ theme: MavrykTheme }>`
     align-items: center;
 
     h4 {
-      width: 50%;
+      width: 47%;
       color: ${({ theme }) => theme.headerColor};
       font-size: 12px;
       display: flex;
@@ -72,7 +72,7 @@ export const DoormanList = styled.div<{ theme: MavrykTheme }>`
 
     var {
       display: block;
-      width: 40%;
+      width: 50%;
       overflow: hidden;
       text-overflow: ellipsis;
       font-style: normal;

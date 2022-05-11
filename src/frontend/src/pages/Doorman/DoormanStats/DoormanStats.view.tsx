@@ -8,7 +8,6 @@ import { State } from 'reducers'
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
-
 // style
 import { DoormanList, DoormanStatsGrid, DoormanStatsHeader, DoormanStatsStyled } from './DoormanStats.style'
 
@@ -106,7 +105,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
         <div>
           <h4>Total supply</h4>
           <var>
-            <CommaNumber value={totalSupply} loading={loading} endingText={'MVK'} />
+            <CommaNumber value={maximumTotalSupply} loading={loading} endingText={'MVK'} />
           </var>
         </div>
       </DoormanList>
