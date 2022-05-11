@@ -1,4 +1,6 @@
 import styled from 'styled-components/macro'
+
+import { cianColor, middleColor } from '../styles/colors'
 import { MavrykTheme } from './interfaces'
 
 export const ModalStyled = styled.div<{ showing: boolean }>`
@@ -29,12 +31,23 @@ export const ModalCard = styled.div`
 `
 
 export const ModalCardContent = styled.div<{ width?: number; height?: number; theme: MavrykTheme }>`
-  background: ${({ theme }) => theme.containerColor};
+  background: ${middleColor};
   border-radius: 10px;
   min-height: ${(props) => (props.height ? `${props.height}vh` : 'initial')};
   max-height: calc(90vh - 50px);
   min-width: ${(props) => (props.width ? `${props.width}vw` : 'initial')};
   max-width: 90vw;
+  border: 1px solid ${cianColor};
+  padding: 30px 40px;
+
+  h1 {
+    font-weight: 700;
+    font-size: 25px;
+    line-height: 25px;
+    color: ${({ theme }) => theme.headerColor};
+    margin: 0;
+    margin-bottom: 21px;
+  }
 `
 
 export const ModalClose = styled.div<{ theme: MavrykTheme }>`

@@ -1,8 +1,8 @@
 import styled, { keyframes } from 'styled-components/macro'
 
 import { primaryColor } from '../../../styles'
-import { MavrykTheme } from '../../../styles/interfaces'
 import { BUTTON_RADIUS } from '../../../styles/constants'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const clickWave = keyframes`
   from {
@@ -24,6 +24,11 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   will-change: box-shadow;
   width: 100%;
   user-select: none;
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
 
   &.clicked {
     animation: ${clickWave} 1250ms cubic-bezier(0.19, 1, 0.22, 1);

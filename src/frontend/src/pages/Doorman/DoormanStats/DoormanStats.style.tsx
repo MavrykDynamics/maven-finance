@@ -43,7 +43,7 @@ export const DoormanStatsGrid = styled.div<{ theme: MavrykTheme }>`
   }
 `
 
-export const DoormanList = styled.div<{ theme: MavrykTheme }>`
+export const DoormanList = styled.aside<{ theme: MavrykTheme }>`
   margin-top: auto;
 
   > div {

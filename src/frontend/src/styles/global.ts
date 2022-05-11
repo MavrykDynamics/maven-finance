@@ -1,5 +1,6 @@
 import { createGlobalStyle } from 'styled-components/macro'
 
+import { darkCianColor } from '../styles/colors'
 import { MavrykTheme } from './interfaces'
 
 export const GlobalStyle = createGlobalStyle<{ theme: MavrykTheme }>`
@@ -37,7 +38,7 @@ h1 {
     display: block;
     width: 80px;
     height: 4px;
-    background-color: ${({ theme }) => theme.primaryColor};
+    background-color: ${darkCianColor};
     margin: 7px 0 10px 1px;
   }
 }
