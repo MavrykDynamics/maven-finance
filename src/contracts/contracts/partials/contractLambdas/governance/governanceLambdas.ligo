@@ -522,7 +522,6 @@ block {
                     proposalMetadata                    = proposalMetadata;
                     proposalMetadataExecutionCounter    = 0n;
                     paymentMetadata                     = paymentMetadata;
-                    paymentMetadataExecutionCounter     = 0n;
 
                     status                              = "ACTIVE";                        // status: "ACTIVE", "DROPPED"
                     title                               = newProposal.title;               // title
@@ -1006,7 +1005,8 @@ block {
     // 3. execute proposal - list of operations to run
 
     // check that current round is not Timelock Round or Voting Round (in the event proposal was executed before timelock round started)
-    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.sender =/= Tezos.self_address) or s.currentCycleInfo.round = (Voting : roundType) then skip else failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW);
+    if (s.currentCycleInfo.round = (Timelock : roundType) and Tezos.sender =/= Tezos.self_address) or s.currentCycleInfo.round = (Voting : roundType) then failwith(error_PROPOSAL_CANNOT_BE_EXECUTED_NOW)
+    else skip;
 
     // check that there is a highest voted proposal in the current round
     if s.timelockProposalId = 0n then failwith(error_NO_PROPOSAL_TO_EXECUTE)
@@ -1106,7 +1106,7 @@ block {
 
                 // update proposal paymentProcessed boolean to True
                 proposal.paymentProcessed              := True;
-                s.proposalLedger[s.timelockProposalId] := proposal;
+                s.proposalLedger[proposalId] := proposal;
 
                 // turn the operation map to a list for the treasury contract
                 var paymentsData: list(transferDestinationType)   := nil;
