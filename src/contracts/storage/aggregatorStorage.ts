@@ -50,7 +50,8 @@ const deviationTriggerInfos = {
 const lastCompletedRoundPrice = {
   round: new BigNumber(0),
   price: new BigNumber(0),
-  percentOracleResponse: new BigNumber(0)
+  percentOracleResponse: new BigNumber(0),
+  priceDateTime: new BigNumber(0)
 }
 
 export const aggregatorStorage: aggregatorStorageType = {
