@@ -124,7 +124,8 @@ export const StakeUnstakeRate = styled.div`
   font-size: 12px;
   font-weight: 600;
   align-self: end;
-  display: inline-block;
+  display: flex;
+  align-items: center;
   margin-right: 10px;
   color: ${({ theme }) => theme.headerSkyColor};
   margin-top: 5px;
@@ -132,6 +133,15 @@ export const StakeUnstakeRate = styled.div`
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: right;
+
+  span {
+    flex-shrink: 0;
+  }
+
+  p {
+    margin: 0;
+    white-space: nowrap;
+  }
 `
 
 export const StakeUnstakeButtonGrid = styled.div`
