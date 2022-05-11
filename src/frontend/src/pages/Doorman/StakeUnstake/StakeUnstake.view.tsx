@@ -1,7 +1,7 @@
 // view
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
@@ -36,7 +36,7 @@ export const StakeUnstakeView = ({
   const dispatch = useDispatch()
   const { exchangeRate } = useSelector((state: State) => state.mvkToken)
   const { user } = useSelector((state: State) => state.user)
-
+  const { amount, showing } = useSelector((state: State) => state.exitFeeModal)
   const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
   const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState<ValidStakeUnstakeForm>({ amount: false })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
@@ -58,25 +58,30 @@ export const StakeUnstakeView = ({
     }
   }
 
-  const checkInputIsOk = () => {
+  const checkInputIsOk = (value: number) => {
     let validityCheckResult = false
     setStakeUnstakeValueError('')
     if (accountPkh) {
-      validityCheckResult = isValidNumberValue(
-        inputAmount.amount,
-        1,
-        Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)),
-      )
+      validityCheckResult = isValidNumberValue(value, 1, Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)))
     } else {
-      validityCheckResult = isValidNumberValue(inputAmount.amount, 1)
+      validityCheckResult = isValidNumberValue(value, 1)
     }
     setStakeUnstakeValueOK({ amount: validityCheckResult })
     setStakeUnstakeInputStatus({ amount: validityCheckResult ? 'success' : 'error' })
   }
 
   const onInputChange = (e: any) => {
+    checkInputIsOk(+e.target.value)
     setInputAmount({ amount: e.target.value })
   }
+
+  useEffect(() => {
+    setInputAmount({ amount: Number(amount) })
+  }, [amount])
+
+  useEffect(() => {
+    if (inputAmount.amount) checkInputIsOk(inputAmount.amount)
+  }, [accountPkh, showing])
 
   const handleStakeUnstakeClick = (actionType: string) => {
     let validityCheckResult = isValidNumberValue(inputAmount.amount, 1)
@@ -158,7 +163,7 @@ export const StakeUnstakeView = ({
               type={'number'}
               placeholder={String(inputAmount.amount)}
               onChange={onInputChange}
-              onBlur={checkInputIsOk}
+              onBlur={(e) => checkInputIsOk(+e.target.value)}
               value={inputAmount.amount}
               pinnedText={'MVK'}
               inputStatus={stakeUnstakeInputStatus.amount}
@@ -181,11 +186,13 @@ export const StakeUnstakeView = ({
             kind={ACTION_PRIMARY}
             icon="in"
             loading={loading}
+            // disabled={!stakeUnstakeValueOK.amount}
             onClick={() => handleStakeUnstakeClick('STAKE')}
           />
           <Button
             text="Unstake"
             icon="out"
+            // disabled={!stakeUnstakeValueOK.amount}
             kind={ACTION_SECONDARY}
             loading={loading}
             onClick={() => handleStakeUnstakeClick('UNSTAKE')}

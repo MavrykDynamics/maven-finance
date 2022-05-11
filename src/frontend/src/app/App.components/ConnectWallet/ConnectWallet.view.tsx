@@ -1,10 +1,9 @@
 import * as React from 'react'
-import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import { CommaNumber } from '../CommaNumber/CommaNumber.controller'
 // components
 import Icon from '../Icon/Icon.view'
-import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
-
 import {
   ConnectWalletStyled,
   SimpleConnectedButton,
@@ -33,7 +32,6 @@ export const ConnectWalletView = ({
   handleConnect,
   handleNewConnect,
 }: ConnectWalletViewProps) => {
-  console.log('%c ||||| accountPkh', 'color:yellowgreen', accountPkh)
   return (
     <ConnectWalletStyled id={'connectWalletButton'}>
       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
