@@ -1731,12 +1731,15 @@ block {
                             purpose               = purpose;
                         ];
 
-                        var governanceAddress : address := s.governanceAddress;
+                        var governanceFinancialAddress : address := case s.generalContracts["governanceFinancial"] of [
+                            Some(_address) -> _address
+                            | None -> failwith(error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        ];
 
                         const requestTokensOperation : operation = Tezos.transaction(
                             requestTokensParams,
                             0tez, 
-                            sendRequestTokensParams(governanceAddress)
+                            sendRequestTokensParams(governanceFinancialAddress)
                         );
 
                         operations := requestTokensOperation # operations;
@@ -1747,9 +1750,6 @@ block {
 
                     // requestMint action type
                     if actionType = "requestMint" then block {
-                        
-                        var governanceAddress : address := s.governanceAddress;
-
 
                         // fetch params begin ---
                         const treasuryAddress : address = case _councilActionRecord.addressMap["treasuryAddress"] of [
@@ -1771,6 +1771,11 @@ block {
                         // Validate inputs
                         if String.length(purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
+                        var governanceFinancialAddress : address := case s.generalContracts["governanceFinancial"] of [
+                            Some(_address) -> _address
+                            | None -> failwith(error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        ];
+
                         const requestMintParams : councilActionRequestMintType = record[
                             tokenAmount      = tokenAmount;
                             treasuryAddress  = treasuryAddress;
@@ -1780,7 +1785,7 @@ block {
                         const requestMintOperation : operation = Tezos.transaction(
                             requestMintParams,
                             0tez, 
-                            sendRequestMintParams(governanceAddress)
+                            sendRequestMintParams(governanceFinancialAddress)
                         );
 
                         operations := requestMintOperation # operations;
@@ -1792,14 +1797,17 @@ block {
                     // setContractBaker action type
                     if actionType = "setContractBaker" then block {
                         
-                        var governanceAddress : address := s.governanceAddress;
-
                         // fetch params begin ---
                         const targetContractAddress : address = case _councilActionRecord.addressMap["targetContractAddress"] of [
                               Some(_address) -> _address
                             | None -> failwith(error_COUNCIL_ACTION_PARAMETER_NOT_FOUND)
                         ];
                         // fetch params end ---
+
+                        var governanceFinancialAddress : address := case s.generalContracts["governanceFinancial"] of [
+                            Some(_address) -> _address
+                            | None -> failwith(error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        ];
 
                         const setContractBakerParams : councilActionSetContractBakerType = record[
                             targetContractAddress   = targetContractAddress;
@@ -1809,7 +1817,7 @@ block {
                         const setContractBakerOperation : operation = Tezos.transaction(
                             setContractBakerParams,
                             0tez, 
-                            sendContractBakerParams(governanceAddress)
+                            sendContractBakerParams(governanceFinancialAddress)
                         );
 
                         operations := setContractBakerOperation # operations;
@@ -1821,8 +1829,6 @@ block {
                     // dropFinancialRequest action type
                     if actionType = "dropFinancialRequest" then block {
                         
-                        var governanceAddress : address := s.governanceAddress;
-
                         // fetch params begin ---
                         const requestId : nat = case _councilActionRecord.natMap["requestId"] of [
                               Some(_address) -> _address
@@ -1830,10 +1836,15 @@ block {
                         ];
                         // fetch params end ---
 
+                        var governanceFinancialAddress : address := case s.generalContracts["governanceFinancial"] of [
+                            Some(_address) -> _address
+                            | None -> failwith(error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                        ];
+
                         const dropFinancialRequestOperation : operation = Tezos.transaction(
                             requestId,
                             0tez, 
-                            sendDropFinancialRequestParams(governanceAddress)
+                            sendDropFinancialRequestParams(governanceFinancialAddress)
                         );
 
                         operations := dropFinancialRequestOperation # operations;

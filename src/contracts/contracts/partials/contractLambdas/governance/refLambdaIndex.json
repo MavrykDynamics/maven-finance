@@ -62,22 +62,6 @@
     {
       "index": 15,
        "name": "lambdaDropProposal"
-    },
-    {
-      "index": 16,
-       "name": "lambdaRequestTokens"
-    },
-    {
-      "index": 17,
-      "name": "lambdaRequestMint"
-    },
-    {
-      "index": 18,
-      "name": "lambdaDropFinancialRequest"
-    },
-    {
-      "index": 19,
-      "name": "lambdaVoteForRequest"
     }
 ]
   

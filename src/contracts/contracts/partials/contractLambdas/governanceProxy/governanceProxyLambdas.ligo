@@ -32,34 +32,35 @@ block {
       
       (* Update Configs *)    
       | UpdateGovernanceConfig (_v)            -> 10n
-      | UpdateDelegationConfig (_v)            -> 11n
-      | UpdateEmergencyConfig (_v)             -> 12n
-      | UpdateBreakGlassConfig (_v)            -> 13n
-      | UpdateCouncilConfig (_v)               -> 14n
-      | UpdateFarmConfig (_v)                  -> 15n
-      | UpdateDoormanMinMvkAmount (_v)         -> 16n
+      | UpdateGovernanceFinancialConfig (_v)   -> 11n
+      | UpdateDelegationConfig (_v)            -> 12n
+      | UpdateEmergencyConfig (_v)             -> 13n
+      | UpdateBreakGlassConfig (_v)            -> 14n
+      | UpdateCouncilConfig (_v)               -> 15n
+      | UpdateFarmConfig (_v)                  -> 16n
+      | UpdateDoormanMinMvkAmount (_v)         -> 17n
 
       (* Governance Control *)
-      | UpdateWhitelistDevelopersSet (_v)      -> 17n
-      | SetGovernanceProxy (_v)                -> 18n
+      | UpdateWhitelistDevelopersSet (_v)      -> 18n
+      | SetGovernanceProxy (_v)                -> 19n
 
       (* Farm Control *)
-      | CreateFarm (_v)                        -> 19n
-      | TrackFarm (_v)                         -> 20n
-      | UntrackFarm (_v)                       -> 21n
-      | InitFarm (_v)                          -> 22n
-      | CloseFarm (_v)                         -> 23n
+      | CreateFarm (_v)                        -> 20n
+      | TrackFarm (_v)                         -> 21n
+      | UntrackFarm (_v)                       -> 22n
+      | InitFarm (_v)                          -> 23n
+      | CloseFarm (_v)                         -> 24n
 
       (* Treasury Control *)
-      | CreateTreasury (_v)                    -> 24n
-      | TrackTreasury (_v)                     -> 25n
-      | UntrackTreasury (_v)                   -> 26n
-      | TransferTreasury (_v)                  -> 27n
-      | MintMvkAndTransferTreasury (_v)        -> 28n
+      | CreateTreasury (_v)                    -> 25n
+      | TrackTreasury (_v)                     -> 26n
+      | UntrackTreasury (_v)                   -> 27n
+      | TransferTreasury (_v)                  -> 28n
+      | MintMvkAndTransferTreasury (_v)        -> 29n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 29n
-      | TriggerMvkInflation (_v)               -> 30n
+      | UpdateMvkInflationRate (_v)            -> 30n
+      | TriggerMvkInflation (_v)               -> 31n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -414,7 +415,6 @@ block {
 // General Control Lambdas End
 // ------------------------------------------------------------------------------
 
-
 function updateGovernanceConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
@@ -445,6 +445,51 @@ block {
           );
 
         operations := updateGovernanceConfigOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+
+} with (operations, s)
+
+
+
+function updateGovernanceFinancialConfig(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      UpdateGovernanceFinancialConfig(params) -> {
+
+        // find and get governanceFinancial contract address from the generalContracts big map
+        const governanceFinancialAddress : address = case s.generalContracts["governanceFinancial"] of [
+              Some(_address) -> _address
+            | None           -> failwith(error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get updateConfig entrypoint of governance contract
+        const updateConfigEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateConfig",
+            governanceFinancialAddress) : option(contract(nat * governanceFinancialUpdateConfigActionType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UPDATE_CONFIG_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat * governanceFinancialUpdateConfigActionType))
+            ];
+
+        // assign params to constants for better code readability
+        const updateConfigAction   = params.updateConfigAction;
+        const updateConfigNewValue = params.updateConfigNewValue;
+
+        // update governance financial config operation
+        const updateGovernanceFinancialConfigOperation : operation = Tezos.transaction(
+          (updateConfigNewValue, updateConfigAction),
+          0tez, 
+          updateConfigEntrypoint
+          );
+
+        operations := updateGovernanceFinancialConfigOperation # operations;
 
         }
     | _ -> skip

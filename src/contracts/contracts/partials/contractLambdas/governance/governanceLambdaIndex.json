@@ -25,90 +25,62 @@
   },
   {
     "index": 6,
-    "name": "lambdaUpdateWhitelistContracts"
-  },
-  {
-    "index": 7,
     "name": "lambdaUpdateGeneralContracts"
   },
   {
-    "index": 8,
-    "name": "lambdaUpdateWhitelistTokenContracts"
-  },
-  {
-    "index": 9,
+    "index": 7,
     "name": "lambdaUpdateWhitelistDevelopers"
   },
   {
-    "index": 10,
+    "index": 8,
     "name": "lambdaSetContractAdmin"
   },
   {
-    "index": 11,
+    "index": 9,
     "name": "lambdaSetContractGovernance"
   },
   {
-    "index": 12,
+    "index": 10,
     "name": "lambdaStartNextRound"
   },
   {
-    "index": 13,
+    "index": 11,
     "name": "lambdaPropose"
   },
   {
-    "index": 14,
+    "index": 12,
     "name": "lambdaAddUpdateProposalData"
   },
   {
-    "index": 15,
+    "index": 13,
     "name": "lambdaAddUpdatePaymentData"
   },
   {
-    "index": 16,
+    "index": 14,
     "name": "lambdaLockProposal"
   },
   {
-    "index": 17,
+    "index": 15,
     "name": "lambdaProposalRoundVote"
   },
   {
-    "index": 18,
+    "index": 16,
     "name": "lambdaVotingRoundVote"
   },
   {
-    "index": 19,
+    "index": 17,
     "name": "lambdaExecuteProposal"
   },
   {
-    "index": 20,
+    "index": 18,
     "name": "lambdaProcessProposalPayment"
   },
   {
-    "index": 21,
+    "index": 19,
     "name": "lambdaProcessProposalSingleData"
   },
   {
-    "index": 22,
+    "index": 20,
      "name": "lambdaDropProposal"
-  },
-  {
-    "index": 23,
-     "name": "lambdaRequestTokens"
-  },
-  {
-    "index": 24,
-    "name": "lambdaRequestMint"
-  },
-  {
-    "index": 25,
-    "name": "lambdaSetContractBaker"
-  },
-  {
-    "index": 26,
-    "name": "lambdaDropFinancialRequest"
-  },
-  {
-    "index": 27,
-    "name": "lambdaVoteForRequest"
   }
 ]
