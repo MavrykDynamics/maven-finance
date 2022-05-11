@@ -14,20 +14,7 @@ import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } 
 import { isValidNumberValue, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 // style
 // prettier-ignore
-import {
-  StakeUnstakeInputLabels, StakeCompound,
-  StakeLabel,
-  StakeUnstakeActionCard,
-  StakeUnstakeBalance,
-  StakeUnstakeButtonGrid,
-  StakeUnstakeCard,
-  StakeUnstakeInputColumn,
-  StakeUnstakeInputGrid,
-  StakeUnstakeMax,
-  StakeUnstakeMin,
-  StakeUnstakeRate,
-  StakeUnstakeStyled,
-} from './StakeUnstake.style'
+import { StakeCompound, StakeLabel, StakeUnstakeActionCard, StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInputColumn, StakeUnstakeInputGrid, StakeUnstakeInputLabels, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
 
 type StakeUnstakeViewProps = {
   myMvkTokenBalance?: number
@@ -178,7 +165,13 @@ export const StakeUnstakeView = ({
               errorMessage={stakeUnstakeValueError}
             />
             <StakeUnstakeRate>
-              {exchangeValue ? inputAmount.amount : 1} MVK = ${exchangeValue || exchangeRate}
+              <CommaNumber
+                value={Number(exchangeValue ? inputAmount.amount : 1)}
+                loading={loading}
+                endingText={'MVK'}
+              />
+              <span>&nbsp;= $</span>
+              <CommaNumber value={Number(exchangeValue || exchangeRate)} loading={loading} endingText={''} />
             </StakeUnstakeRate>
           </StakeUnstakeInputColumn>
         </StakeUnstakeInputGrid>
@@ -210,7 +203,6 @@ export const StakeUnstakeView = ({
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
           <h3>My Staked MVK</h3>
-          {userStakeBalance === 0 && !loading ? <StakeLabel>Not Staking</StakeLabel> : null}
           <img src="/images/coin-silver.svg" alt="coin" />
           <CommaNumber value={Number(userStakeBalance || 0)} loading={loading} endingText={'MVK'} />
         </StakeUnstakeBalance>
@@ -225,7 +217,6 @@ export const StakeUnstakeView = ({
             </StakeCompound>
           ) : (
             <>
-              {earnedValue === 0 && !loading ? <StakeLabel>Not Staking</StakeLabel> : null}
               <img src="/images/coin-bronze.svg" alt="coin" />
               <CommaNumber value={earnedValue} loading={loading} endingText={'MVK'} />
             </>
