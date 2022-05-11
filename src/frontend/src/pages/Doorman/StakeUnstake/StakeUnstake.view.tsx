@@ -12,6 +12,8 @@ import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } 
 // helpers
 // prettier-ignore
 import { isValidNumberValue, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+// actions
+import { rewardsCompound } from './StakeUnstake.actions'
 // style
 // prettier-ignore
 import { StakeCompound, StakeLabel, StakeUnstakeActionCard, StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInputColumn, StakeUnstakeInputGrid, StakeUnstakeInputLabels, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
@@ -148,6 +150,10 @@ export const StakeUnstakeView = ({
     if (inputIsValid) unstakeCallback(inputAmount.amount)
   }
 
+  const handleCompound = () => {
+    dispatch(rewardsCompound())
+  }
+
   return (
     <StakeUnstakeStyled>
       <StakeUnstakeActionCard>
@@ -186,13 +192,11 @@ export const StakeUnstakeView = ({
             kind={ACTION_PRIMARY}
             icon="in"
             loading={loading}
-            // disabled={!stakeUnstakeValueOK.amount}
             onClick={() => handleStakeUnstakeClick('STAKE')}
           />
           <Button
             text="Unstake"
             icon="out"
-            // disabled={!stakeUnstakeValueOK.amount}
             kind={ACTION_SECONDARY}
             loading={loading}
             onClick={() => handleStakeUnstakeClick('UNSTAKE')}
@@ -218,7 +222,7 @@ export const StakeUnstakeView = ({
         <StakeUnstakeBalance>
           <h3>My Earned MVK</h3>
           {participationFeesPerShare ? (
-            <StakeCompound>
+            <StakeCompound onClick={handleCompound}>
               <span>Rewards Available COMPOUND!</span>
               <img src="/images/coins-stack.svg" alt="Compound" />
             </StakeCompound>
