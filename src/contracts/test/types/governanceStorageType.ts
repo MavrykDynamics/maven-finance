@@ -1,5 +1,4 @@
 import { MichelsonMap, MichelsonMapKey } from "@taquito/michelson-encoder";
-
 import { BigNumber } from "bignumber.js";
 
 export type governanceStorageType = {
@@ -10,8 +9,6 @@ export type governanceStorageType = {
 
   config: {};
 
-  whitelistContracts      : MichelsonMap<MichelsonMapKey, unknown>;
-  whitelistTokenContracts : MichelsonMap<MichelsonMapKey, unknown>;
   whitelistDevelopers     : Array<string>;
   generalContracts        : MichelsonMap<MichelsonMapKey, unknown>;
 
@@ -40,12 +37,7 @@ export type governanceStorageType = {
   timelockProposalId                 : BigNumber;
 
   snapshotMvkTotalSupply             : BigNumber;
-  snapshotStakedMvkTotalSupply       : BigNumber;
 
   lambdaLedger                       : MichelsonMap<MichelsonMapKey, unknown>;
-
-  financialRequestLedger             : MichelsonMap<MichelsonMapKey, unknown>;
-  financialRequestSnapshotLedger     : MichelsonMap<MichelsonMapKey, unknown>;
-  financialRequestCounter            : BigNumber;
   
 };
