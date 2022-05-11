@@ -18,9 +18,10 @@ type deviationTriggerInfosType is  [@layout:comb] record [
 ];
 
 type lastCompletedRoundPriceType is  [@layout:comb] record [
-    round: nat;
-    price: nat;
-    percentOracleResponse: nat;
+    round                       : nat;
+    price                       : nat;
+    percentOracleResponse       : nat;
+    priceDateTime               : timestamp;  
 ];
 
 type lastCompletedRoundPriceReturnType is  [@layout:comb] record [

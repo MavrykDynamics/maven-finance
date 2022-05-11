@@ -36,6 +36,7 @@ export type aggregatorStorageType = {
     round: BigNumber;
     price: BigNumber;
     percentOracleResponse: BigNumber;
+    priceDateTime: BigNumber;
   };
 
   observationCommits        : MichelsonMap<MichelsonMapKey, unknown>;
