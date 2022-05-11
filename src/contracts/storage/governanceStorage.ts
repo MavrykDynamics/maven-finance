@@ -30,9 +30,6 @@ const config = {
     blocksPerVotingRound                : 14400,
     blocksPerTimelockRound              : 5760,
 
-    financialRequestApprovalPercentage  : 6700,
-    financialRequestDurationInDays      : 3,
-
     proposalMetadataTitleMaxLength      : 400,
     proposalTitleMaxLength              : 400,
     proposalDescriptionMaxLength        : 400,
@@ -60,8 +57,6 @@ export const governanceStorage: governanceStorageType = {
   metadata                : metadata,
   config                  : config,
   
-  whitelistContracts      : MichelsonMap.fromLiteral({}),
-  whitelistTokenContracts : MichelsonMap.fromLiteral({}),
   whitelistDevelopers     : [],
   generalContracts        : MichelsonMap.fromLiteral({}),
 
@@ -90,12 +85,6 @@ export const governanceStorage: governanceStorageType = {
   timelockProposalId                 : new BigNumber(0),
   
   snapshotMvkTotalSupply             : new BigNumber(1000000000),
-  snapshotStakedMvkTotalSupply       : new BigNumber(0),
 
-  lambdaLedger                       : MichelsonMap.fromLiteral({}),
-
-  financialRequestLedger             : MichelsonMap.fromLiteral({}),
-  financialRequestSnapshotLedger     : MichelsonMap.fromLiteral({}),
-  financialRequestCounter            : new BigNumber(1),
-
+  lambdaLedger                       : MichelsonMap.fromLiteral({})
 };

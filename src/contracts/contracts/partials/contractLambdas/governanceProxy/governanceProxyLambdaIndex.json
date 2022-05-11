@@ -45,82 +45,86 @@
   },
   {
     "index": 11,
-    "name": "updateDelegationConfig"
+    "name": "updateGovernanceFinancialConfig"
   },
   {
     "index": 12,
-    "name": "updateEmergencyConfig"
+    "name": "updateDelegationConfig"
   },
   {
     "index": 13,
-    "name": "updateBreakGlassConfig"
+    "name": "updateEmergencyConfig"
   },
   {
     "index": 14,
-    "name": "updateCouncilConfig"
+    "name": "updateBreakGlassConfig"
   },
   {
     "index": 15,
-    "name": "updateFarmConfig"
+    "name": "updateCouncilConfig"
   },
   {
     "index": 16,
-    "name": "updateDoormanMinMvkAmount"
+    "name": "updateFarmConfig"
   },
   {
     "index": 17,
-    "name": "updateWhitelistDevelopersSet"
+    "name": "updateDoormanMinMvkAmount"
   },
   {
     "index": 18,
-    "name": "setGovernanceProxy"
+    "name": "updateWhitelistDevelopersSet"
   },
   {
     "index": 19,
-    "name": "createFarm"
+    "name": "setGovernanceProxy"
   },
   {
     "index": 20,
-    "name": "trackFarm"
+    "name": "createFarm"
   },
   {
     "index": 21,
-    "name": "untrackFarm"
+    "name": "trackFarm"
   },
   {
     "index": 22,
-    "name": "initFarm"
+    "name": "untrackFarm"
   },
   {
     "index": 23,
-    "name": "closeFarm"
+    "name": "initFarm"
   },
   {
     "index": 24,
-    "name": "createTreasury"
+    "name": "closeFarm"
   },
   {
     "index": 25,
-    "name": "trackTreasury"
+    "name": "createTreasury"
   },
   {
     "index": 26,
-    "name": "untrackTreasury"
+    "name": "trackTreasury"
   },
   {
     "index": 27,
-    "name": "transferTreasury"
+    "name": "untrackTreasury"
   },
   {
     "index": 28,
-    "name": "mintMvkAndTransferTreasury"
+    "name": "transferTreasury"
   },
   {
     "index": 29,
-    "name": "updateMvkInflationRate"
+    "name": "mintMvkAndTransferTreasury"
   },
   {
     "index": 30,
+    "name": "updateMvkInflationRate"
+  },
+  {
+    "index": 31,
     "name": "triggerMvkInflation"
   }
 ]

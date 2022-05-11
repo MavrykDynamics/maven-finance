@@ -26,6 +26,7 @@ import { bob, alice, eve, mallory } from '../../scripts/sandbox/accounts'
 
 import governanceProxyLambdas from '../../build/lambdas/governanceProxyLambdas.json'
 import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
+import governanceFinancialLambdas from '../../build/lambdas/governanceFinancialLambdas.json'
 import doormanLambdas from '../../build/lambdas/doormanLambdas.json'
 import delegationLambdas from '../../build/lambdas/delegationLambdas.json'
 import breakGlassLambdas from '../../build/lambdas/breakGlassLambdas.json'
@@ -41,6 +42,7 @@ import { Doorman } from '../helpers/doormanHelper'
 import { Delegation } from '../helpers/delegationHelper'
 import { MvkToken } from '../helpers/mvkHelper'
 import { Governance } from '../helpers/governanceHelper'
+import { GovernanceFinancial } from '../helpers/governanceFinancialHelper'
 import { GovernanceProxy } from '../helpers/governanceProxyHelper'
 import { BreakGlass } from '../helpers/breakGlassHelper'
 import { EmergencyGovernance } from '../helpers/emergencyGovernanceHelper'
@@ -58,6 +60,7 @@ import { doormanStorage } from '../../storage/doormanStorage'
 import { delegationStorage } from '../../storage/delegationStorage'
 import { mvkStorage, mvkTokenDecimals } from '../../storage/mvkTokenStorage'
 import { governanceStorage } from '../../storage/governanceStorage'
+import { governanceFinancialStorage } from '../../storage/governanceFinancialStorage'
 import { governanceProxyStorage } from '../../storage/governanceProxyStorage'
 import { breakGlassStorage } from '../../storage/breakGlassStorage'
 import { emergencyGovernanceStorage } from '../../storage/emergencyGovernanceStorage'
@@ -78,6 +81,7 @@ describe('Contracts Deployment for Tests', async () => {
   var mvkToken: MvkToken
   var delegation: Delegation
   var governance: Governance
+  var governanceFinancial: GovernanceFinancial
   var governanceProxy: GovernanceProxy
   var breakGlass: BreakGlass
   var emergencyGovernance: EmergencyGovernance
@@ -326,6 +330,18 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('mockFa2TokenAddress', mockFa2Token.contract.address)
     console.log('Mock Fa2 Token Contract deployed at:', mockFa2Token.contract.address)
 
+    governanceFinancialStorage.generalContracts = MichelsonMap.fromLiteral({
+      "delegation"            : delegation.contract.address,
+      "doorman"               : doorman.contract.address,
+      "council"               : council.contract.address
+    })
+    governanceFinancialStorage.mvkTokenAddress     = mvkToken.contract.address
+    governanceFinancialStorage.governanceAddress   = governance.contract.address
+    governanceFinancial = await GovernanceFinancial.originate(utils.tezos,governanceFinancialStorage);
+
+    await saveContractAddress('governanceFinancialAddress', governanceFinancial.contract.address)
+    console.log('Governance Financial Contract deployed at:', governanceFinancial.contract.address)
+
     governanceProxyStorage.generalContracts   = MichelsonMap.fromLiteral({
       "delegation"            : delegation.contract.address,
       "doorman"               : doorman.contract.address,
@@ -334,6 +350,7 @@ describe('Contracts Deployment for Tests', async () => {
       "emergencyGovernance"   : emergencyGovernance.contract.address,
       "farmFactory"           : farmFactory.contract.address,
       "council"               : council.contract.address,
+      "governanceFinancial"   : governanceFinancial.contract.address
     });
     governanceProxyStorage.governanceAddress  = governance.contract.address;
     governanceProxyStorage.mvkTokenAddress    = mvkToken.contract.address;
@@ -365,30 +382,50 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[8])) // updateContractGeneralMap
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(9, governanceProxyLambdas[9])) // updateContractWhitelistTokenMap
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(10, governanceProxyLambdas[10])) // updateGovernanceConfig
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(11, governanceProxyLambdas[11])) // updateDelegationConfig
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(12, governanceProxyLambdas[12])) // updateEmergencyConfig
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(13, governanceProxyLambdas[13])) // updateBreakGlassConfig
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(14, governanceProxyLambdas[14])) // updateCouncilConfig
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[15])) // updateFarmConfig
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[16])) // updateDoormanMinMvkAmount
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[17])) // updateWhitelistDevelopersSet
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[18])) // setGovernanceProxy
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(19, governanceProxyLambdas[19])) // createFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(20, governanceProxyLambdas[20])) // trackFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(21, governanceProxyLambdas[21])) // untrackFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(22, governanceProxyLambdas[22])) // initFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(23, governanceProxyLambdas[23])) // closeFarm
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(24, governanceProxyLambdas[24])) // createTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(25, governanceProxyLambdas[25])) // trackTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(26, governanceProxyLambdas[26])) // untrackTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(27, governanceProxyLambdas[27])) // transferTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(28, governanceProxyLambdas[28])) // mintMvkAndTransferTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(29, governanceProxyLambdas[29])) // updateInflationRate
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[30])) // triggerInflation
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(11, governanceProxyLambdas[11])) // updateGovernanceFinancialConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(12, governanceProxyLambdas[12])) // updateDelegationConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(13, governanceProxyLambdas[13])) // updateEmergencyConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(14, governanceProxyLambdas[14])) // updateBreakGlassConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[15])) // updateCouncilConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[16])) // updateFarmConfig
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[17])) // updateDoormanMinMvkAmount
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[18])) // updateWhitelistDevelopersSet
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(19, governanceProxyLambdas[19])) // setGovernanceProxy
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(20, governanceProxyLambdas[20])) // tracreateFarmckFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(21, governanceProxyLambdas[21])) // trackFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(22, governanceProxyLambdas[22])) // untrackFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(23, governanceProxyLambdas[23])) // initFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(24, governanceProxyLambdas[24])) // closeFarm
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(25, governanceProxyLambdas[25])) // createTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(26, governanceProxyLambdas[26])) // trackTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(27, governanceProxyLambdas[27])) // untrackTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(28, governanceProxyLambdas[28])) // transferTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(29, governanceProxyLambdas[29])) // mintMvkAndTransferTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[30])) // updateInflationRate
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(31, governanceProxyLambdas[31])) // triggerInflation
   
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
       await setupGovernanceProxyLambdasOperation.confirmation()
       console.log("Governance Proxy Lambdas Setup")
+
+
+      // Governance Setup Lambdas
+      const governanceFinancialLambdaBatch = await tezos.wallet
+      .batch()
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetAdmin"                              , governanceFinancialLambdas[0]))  // setAdmin
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetGovernance"                         , governanceFinancialLambdas[1]))  // setGovernance
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateMetadata"                        , governanceFinancialLambdas[2]))  // updateMetadata
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateConfig"                          , governanceFinancialLambdas[3]))  // updateConfig
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateGeneralContracts"                , governanceFinancialLambdas[4]))  // updateGeneralContracts
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"         , governanceFinancialLambdas[5]))  // updateWhitelistTokenContracts
+      .withContractCall(governance.contract.methods.setLambda("lambdaRequestTokens"                         , governanceFinancialLambdas[6]))  // requestTokens
+      .withContractCall(governance.contract.methods.setLambda("lambdaRequestMint"                           , governanceFinancialLambdas[7]))  // requestMint
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractBaker"                      , governanceFinancialLambdas[8]))  // setContractBaker
+      .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"                  , governanceFinancialLambdas[9]))  // dropFinancialRequest
+      .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                        , governanceFinancialLambdas[10])) // voteForRequest
+      const setupGovernanceFinancialLambdasOperation = await governanceFinancialLambdaBatch.send()
+      await setupGovernanceFinancialLambdasOperation.confirmation()
+      console.log("Governance Financial Lambdas Setup")
   
 
       // Governance Setup Lambdas
@@ -397,36 +434,29 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governance.contract.methods.setLambda("lambdaBreakGlass"                      , governanceLambdas[0]))  // breakGlass
       .withContractCall(governance.contract.methods.setLambda("lambdaPropagateBreakGlass"             , governanceLambdas[1]))  // propagateBreakGlass
       .withContractCall(governance.contract.methods.setLambda("lambdaSetAdmin"                        , governanceLambdas[2]))  // setAdmin
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetGovernanceProxy"       , governanceLambdas[3]))  // setGovernanceProxy
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetGovernanceProxy"              , governanceLambdas[3]))  // setGovernanceProxy
       .withContractCall(governance.contract.methods.setLambda("lambdaUpdateMetadata"                  , governanceLambdas[4]))  // updateMetadata
       .withContractCall(governance.contract.methods.setLambda("lambdaUpdateConfig"                    , governanceLambdas[5]))  // updateConfig
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistContracts"        , governanceLambdas[6]))  // updateWhitelistContracts
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateGeneralContracts"          , governanceLambdas[7]))  // updateGeneralContracts
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"   , governanceLambdas[8]))  // updateWhitelistTokenContracts
-      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistDevelopers"       , governanceLambdas[9]))  // updateWhitelistDevelopers
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractAdmin"                , governanceLambdas[10])) // setContractAdmin
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractGovernance"           , governanceLambdas[11])) // setContractGovernance
-      .withContractCall(governance.contract.methods.setLambda("lambdaStartNextRound"                  , governanceLambdas[12])) // startNextRound
-      .withContractCall(governance.contract.methods.setLambda("lambdaPropose"                         , governanceLambdas[13])) // propose
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateGeneralContracts"          , governanceLambdas[6]))  // updateGeneralContracts
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateWhitelistDevelopers"       , governanceLambdas[7]))  // updateWhitelistDevelopers
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractAdmin"                , governanceLambdas[8])) // setContractAdmin
+      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractGovernance"           , governanceLambdas[9])) // setContractGovernance
+      .withContractCall(governance.contract.methods.setLambda("lambdaStartNextRound"                  , governanceLambdas[10])) // startNextRound
+      .withContractCall(governance.contract.methods.setLambda("lambdaPropose"                         , governanceLambdas[11])) // propose
       const setupGovernanceFirstLambdasOperation = await governanceLambdaFirstBatch.send()
       await setupGovernanceFirstLambdasOperation.confirmation()
 
       const governanceLambdaSecondBatch = await tezos.wallet
       .batch()
-      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdateProposalData"           , governanceLambdas[14])) // addUpdateProposalData
-      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdatePaymentData"            , governanceLambdas[15])) // addUpdatePaymentData
-      .withContractCall(governance.contract.methods.setLambda("lambdaLockProposal"                    , governanceLambdas[16])) // lockProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaProposalRoundVote"               , governanceLambdas[17])) // proposalRoundVote
-      .withContractCall(governance.contract.methods.setLambda("lambdaVotingRoundVote"                 , governanceLambdas[18])) // votingRoundVote
-      .withContractCall(governance.contract.methods.setLambda("lambdaExecuteProposal"                 , governanceLambdas[19])) // executeProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaProcessProposalPayment"          , governanceLambdas[20])) // processProposalPayment
-      .withContractCall(governance.contract.methods.setLambda("lambdaProcessProposalSingleData"       , governanceLambdas[21])) // processProposalSingleData
-      .withContractCall(governance.contract.methods.setLambda("lambdaDropProposal"                    , governanceLambdas[22])) // dropProposal
-      .withContractCall(governance.contract.methods.setLambda("lambdaRequestTokens"                   , governanceLambdas[23])) // requestTokens
-      .withContractCall(governance.contract.methods.setLambda("lambdaRequestMint"                     , governanceLambdas[24])) // requestMint
-      .withContractCall(governance.contract.methods.setLambda("lambdaSetContractBaker"                , governanceLambdas[25])) // setContractBaker
-      .withContractCall(governance.contract.methods.setLambda("lambdaDropFinancialRequest"            , governanceLambdas[26])) // dropFinancialRequest
-      .withContractCall(governance.contract.methods.setLambda("lambdaVoteForRequest"                  , governanceLambdas[27])) // voteForRequest
+      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdateProposalData"           , governanceLambdas[12])) // addUpdateProposalData
+      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdatePaymentData"            , governanceLambdas[13])) // addUpdatePaymentData
+      .withContractCall(governance.contract.methods.setLambda("lambdaLockProposal"                    , governanceLambdas[14])) // lockProposal
+      .withContractCall(governance.contract.methods.setLambda("lambdaProposalRoundVote"               , governanceLambdas[15])) // proposalRoundVote
+      .withContractCall(governance.contract.methods.setLambda("lambdaVotingRoundVote"                 , governanceLambdas[16])) // votingRoundVote
+      .withContractCall(governance.contract.methods.setLambda("lambdaExecuteProposal"                 , governanceLambdas[17])) // executeProposal
+      .withContractCall(governance.contract.methods.setLambda("lambdaProcessProposalPayment"          , governanceLambdas[18])) // processProposalPayment
+      .withContractCall(governance.contract.methods.setLambda("lambdaProcessProposalSingleData"       , governanceLambdas[19])) // processProposalSingleData
+      .withContractCall(governance.contract.methods.setLambda("lambdaDropProposal"                    , governanceLambdas[20])) // dropProposal
       const setupGovernanceSecondLambdasOperation = await governanceLambdaSecondBatch.send()
       await setupGovernanceSecondLambdasOperation.confirmation()
       console.log("Governance Lambdas Setup")
@@ -839,6 +869,13 @@ describe('Contracts Deployment for Tests', async () => {
     const setCouncilContractAddressInFarmFactoryOperation = await farmFactory.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
     await setCouncilContractAddressInFarmFactoryOperation.confirmation()
     console.log('Farm Factory Contract - set whitelist contract addresses [council]')
+
+
+
+    // Council Contract - set geneal contract addresses map [governanceFinancial]
+    const setFinancialContractAddressInCouncil = await council.contract.methods.updateGeneralContracts('governanceFinancial', governanceFinancial.contract.address).send()
+    await setFinancialContractAddressInCouncil.confirmation()
+    console.log('Council Contract - set general contract addresses map [governanceFinancial]')
 
 
 

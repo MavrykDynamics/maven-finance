@@ -39,6 +39,9 @@
 // Governance Type
 #include "../partials/types/governanceTypes.ligo"
 
+// Governance Financial Type
+#include "../partials/types/governanceFinancialTypes.ligo"
+
 // Farm Type
 #include "../partials/types/farmTypes.ligo"
 

@@ -153,7 +153,8 @@ type executeActionParamsType is
 | UpdateContractGeneralMap           of updateContractGeneralMapType
 | UpdateContractWhitelistTokenMap    of updateContractWhitelistTokenMapType
 
-| UpdateGovernanceConfig             of updateGovernanceConfigType
+| UpdateGovernanceConfig             of governanceUpdateConfigParamsType
+| UpdateGovernanceFinancialConfig    of governanceFinancialUpdateConfigParamsType
 | UpdateDelegationConfig             of delegationUpdateConfigParamsType
 | UpdateEmergencyConfig              of emergencyUpdateConfigParamsType
 | UpdateBreakGlassConfig             of breakGlassUpdateConfigParamsType

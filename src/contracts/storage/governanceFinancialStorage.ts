@@ -1,0 +1,46 @@
+import { MichelsonMap } from '@taquito/michelson-encoder'
+import { BigNumber } from 'bignumber.js'
+
+const { bob, alice } = require('../scripts/sandbox/accounts')
+
+import { zeroAddress } from '../test/helpers/Utils'
+
+import { governanceFinancialStorageType } from '../test/types/governanceFinancialStorageType'
+
+const config = {
+    financialRequestApprovalPercentage  : 6700,
+    financialRequestDurationInDays      : 3,
+}
+
+const metadata = MichelsonMap.fromLiteral({
+  '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
+  data: Buffer.from(
+    JSON.stringify({
+      name: 'MAVRYK Financial Governance Contract',
+      version: 'v1.0.0',
+      authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+    }),
+    'ascii',
+  ).toString('hex'),
+})
+
+export const governanceFinancialStorage: governanceFinancialStorageType = {
+  
+  admin                   : bob.pkh,
+  mvkTokenAddress         : "",
+  governanceAddress       : zeroAddress,
+  metadata                : metadata,
+  config                  : config,
+  
+  whitelistContracts      : MichelsonMap.fromLiteral({}),
+  whitelistTokenContracts : MichelsonMap.fromLiteral({}),
+  generalContracts        : MichelsonMap.fromLiteral({}),
+
+  snapshotStakedMvkTotalSupply       : new BigNumber(0),
+
+  lambdaLedger                       : MichelsonMap.fromLiteral({}),
+
+  financialRequestLedger             : MichelsonMap.fromLiteral({}),
+  financialRequestSnapshotLedger     : MichelsonMap.fromLiteral({}),
+  financialRequestCounter            : new BigNumber(1),
+};

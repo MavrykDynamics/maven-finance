@@ -2,14 +2,11 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
-
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
+// Treasury transfers Type
+#include "../partials/functionalTypes/treasuryTransferTypes.ligo"
 
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
@@ -17,12 +14,6 @@
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
-
-// Treasury Type for mint and transfers
-#include "../partials/types/treasuryTypes.ligo"
-
-// Council Type for financial requests
-#include "../partials/types/councilTypes.ligo"
 
 // Governance Type
 #include "../partials/types/governanceTypes.ligo"
@@ -40,9 +31,7 @@ type governanceAction is
     | SetGovernanceProxy              of (address)
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceUpdateConfigParamsType
-    | UpdateWhitelistContracts        of updateWhitelistContractsParams
     | UpdateGeneralContracts          of updateGeneralContractsParams
-    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
     | UpdateWhitelistDevelopers       of (address)
     | SetContractAdmin                of setContractAdminType
     | SetContractGovernance           of setContractGovernanceType
@@ -59,16 +48,6 @@ type governanceAction is
     | ProcessProposalPayment          of proposalIdType
     | ProcessProposalSingleData       of (unit)
     | DropProposal                    of proposalIdType
-
-      // Financial Governance Entrypoints
-    | RequestTokens                   of requestTokensType
-    | RequestMint                     of requestMintType
-    | SetContractBaker                of setContractBakerType
-    | DropFinancialRequest            of (nat)
-    | VoteForRequest                  of voteForRequestType
-
-      // Satellite Governance Entrypoints
-    // | SuspendSatellite                of suspendSatelliteType
 
       // Lambda Entrypoints
     | SetLambda                       of setLambdaType
@@ -214,18 +193,8 @@ block{
 
 
 
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
-
-
-
-// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
-#include "../partials/whitelistTokenContractsMethod.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -278,28 +247,6 @@ case (Tezos.get_entrypoint_opt(
           Some(contr) -> contr
         | None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
       ];
-
-
-
-// helper function to send mint MVK and transfer operation to treasury
-function sendMintMvkAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvkAndTransferType) is
-case (Tezos.get_entrypoint_opt(
-      "%mintMvkAndTransfer",
-      contractAddress) : option(contract(mintMvkAndTransferType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(mintMvkAndTransferType))
-];
-
-
-
-// helper function to set baker for treasury
-function setTreasuryBaker(const contractAddress : address) : contract(setBakerType) is
-case (Tezos.get_entrypoint_opt(
-      "%setBaker",
-      contractAddress) : option(contract(setBakerType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_SET_BAKER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(setBakerType))
-];
 
 
 
@@ -364,41 +311,6 @@ block {
     ];
 
 } with satelliteSnapshotRecord
-
-
-
-function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; var s : governanceStorage) : governanceStorage is 
-block {
-    // init variables
-    const financialRequestId    : nat     = satelliteSnapshot.requestId;
-    const satelliteAddress      : address = satelliteSnapshot.satelliteAddress;
-    const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
-    const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
-
-    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / s.config.votingPowerRatio);
-    const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
-    var totalVotingPower : nat := 0n;
-    if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-    else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
-
-    var satelliteSnapshotRecord : financialRequestSnapshotRecordType := record [
-        totalMvkBalance         = stakedMvkBalance; 
-        totalDelegatedAmount    = totalDelegatedAmount; 
-        totalVotingPower        = totalVotingPower;
-      ];
-    
-    var financialRequestSnapshot : financialRequestSnapshotMapType := case s.financialRequestSnapshotLedger[financialRequestId] of [ 
-        None -> failwith(error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND)
-      | Some(snapshot) -> snapshot
-    ];
-
-    // update financal request snapshot map with record of satellite's total voting power
-    financialRequestSnapshot[satelliteAddress]           := satelliteSnapshotRecord;
-
-    // update financial request snapshot ledger bigmap with updated satellite's details
-    s.financialRequestSnapshotLedger[financialRequestId] := financialRequestSnapshot;
-
-} with (s)
 
 
 
@@ -714,18 +626,6 @@ block {
 
 
 
-(* View: get Whitelist contracts *)
-[@view] function getWhitelistContracts(const _: unit; var s : governanceStorage) : whitelistContractsType is
-  s.whitelistContracts
-
-
-
-(* View: get Whitelist token contracts *)
-[@view] function getWhitelistTokenContracts(const _: unit; var s : governanceStorage) : whitelistTokenContractsType is
-  s.whitelistTokenContracts
-
-
-
 (* View: get general contracts *)
 [@view] function getGeneralContracts(const _: unit; var s : governanceStorage) : generalContractsType is
   s.generalContracts
@@ -739,14 +639,14 @@ block {
 
 
 (* View: get a proposal *)
-// [@view] function getProposalOpt(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
-//   Big_map.find_opt(proposalId, s.proposalLedger)
+[@view] function getProposalOpt(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
+  Big_map.find_opt(proposalId, s.proposalLedger)
 
 
 
-// (* View: get a satellite snapshot *)
-// [@view] function getSnapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
-//   Big_map.find_opt(satelliteAddress, s.snapshotLedger)
+(* View: get a satellite snapshot *)
+[@view] function getSnapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
+  Big_map.find_opt(satelliteAddress, s.snapshotLedger)
 
 
 
@@ -757,45 +657,26 @@ block {
 
 
 (* View: get next proposal id *)
-// [@view] function getNextProposalId(const _: unit; var s : governanceStorage) : nat is
-//   s.nextProposalId
+[@view] function getNextProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.nextProposalId
 
 
 
-// (* View: get cycle counter *)
-// [@view] function getCycleCounter(const _: unit; var s : governanceStorage) : nat is
-//   s.cycleCounter
+(* View: get cycle counter *)
+[@view] function getCycleCounter(const _: unit; var s : governanceStorage) : nat is
+  s.cycleCounter
 
 
 
-// (* View: get current cycle highest voted proposal id *)
-// [@view] function getRoundHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
-//   s.currentRoundHighestVotedProposalId
+(* View: get current cycle highest voted proposal id *)
+[@view] function getRoundHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.currentRoundHighestVotedProposalId
 
 
 
-// (* View: get timelock proposal id *)
-// [@view] function getTimelockProposalId(const _: unit; var s : governanceStorage) : nat is
-//   s.timelockProposalId
-
-
-
-// (* View: get a financial request *)
-// [@view] function getFinancialRequestOpt(const requestId: nat; var s : governanceStorage) : option(financialRequestRecordType) is
-//   Big_map.find_opt(requestId, s.financialRequestLedger)
-
-
-
-// (* View: get a financial request snapshot *)
-// [@view] function getFinancialRequestSnapshotOpt(const requestId: nat; var s : governanceStorage) : option(financialRequestSnapshotMapType) is
-//   Big_map.find_opt(requestId, s.financialRequestSnapshotLedger)
-
-
-
-
-// (* View: get financial request counter *)
-// [@view] function getFinancialRequestCounter(const _: unit; var s : governanceStorage) : nat is
-//   s.financialRequestCounter
+(* View: get timelock proposal id *)
+[@view] function getTimelockProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.timelockProposalId
 
 
 
@@ -967,25 +848,6 @@ block {
 
 
 
-// (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceStorage): return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
 // (*  updateGeneralContracts entrypoint *)
 function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceStorage): return is
 block {
@@ -997,25 +859,6 @@ block {
 
     // init governance lambda action
     const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
-// (*  updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: governanceStorage): return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1302,109 +1145,6 @@ block {
 
 
 // ------------------------------------------------------------------------------
-// Financial Governance Entrypoints Begin
-// ------------------------------------------------------------------------------
-
-(* requestTokens entrypoint *)
-function requestTokens(const requestTokensParams : councilActionRequestTokensType; var s : governanceStorage) : return is 
-block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestTokens"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaRequestTokens(requestTokensParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
-(* requestMint entrypoint *)
-function requestMint(const requestMintParams : councilActionRequestMintType; var s : governanceStorage) : return is 
-block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestMint"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaRequestMint(requestMintParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
-(* setContractBaker entrypoint *)
-function setContractBaker(const setContractBakerParams : councilActionSetContractBakerType; var s : governanceStorage) : return is 
-block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetContractBaker"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaSetContractBaker(setContractBakerParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
-(* dropFinancialRequest entrypoint *)
-function dropFinancialRequest(const requestId : nat; var s : governanceStorage) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDropFinancialRequest"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaDropFinancialRequest(requestId);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
-(* voteForRequest entrypoint *)
-function voteForRequest(const voteForRequest : voteForRequestType; var s : governanceStorage) : return is 
-block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVoteForRequest"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaVoteForRequest(voteForRequest);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-  
-} with response
-
-// ------------------------------------------------------------------------------
-// Financial Governance Entrypoints End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
 // Lambda Entrypoints Begin
 // ------------------------------------------------------------------------------
 
@@ -1448,9 +1188,7 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | SetGovernanceProxy(parameters)              -> setGovernanceProxy(parameters, s)
         | UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                    -> updateConfig(parameters, s)
-        | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
-        | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
         | UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
         | SetContractAdmin(parameters)                -> setContractAdmin(parameters, s)
         | SetContractGovernance(parameters)           -> setContractGovernance(parameters, s)
@@ -1467,16 +1205,6 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | ProcessProposalPayment(parameters)          -> processProposalPayment(parameters, s)
         | ProcessProposalSingleData(_parameters)      -> processProposalSingleData(s)
         | DropProposal(parameters)                    -> dropProposal(parameters, s)
-
-          // Financial Governance Entrypoints
-        | RequestTokens(parameters)                   -> requestTokens(parameters, s)
-        | RequestMint(parameters)                     -> requestMint(parameters, s)
-        | SetContractBaker(parameters)                -> setContractBaker(parameters, s)
-        | DropFinancialRequest(parameters)            -> dropFinancialRequest(parameters, s)
-        | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
-
-          // Satellite Governance Entrypoints
-        // | SuspendSatellite(parameters)                   -> suspendSatellite(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                       -> setLambda(parameters, s)

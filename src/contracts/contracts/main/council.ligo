@@ -209,7 +209,7 @@ function sendRequestTokensParams(const contractAddress : address) : contract(cou
       "%requestTokens",
       contractAddress) : option(contract(councilActionRequestTokensType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_REQUEST_TOKENS_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(councilActionRequestTokensType))
+  | None -> (failwith(error_REQUEST_TOKENS_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionRequestTokensType))
 ];
 
 
@@ -219,7 +219,7 @@ function sendRequestMintParams(const contractAddress : address) : contract(counc
       "%requestMint",
       contractAddress) : option(contract(councilActionRequestMintType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(councilActionRequestMintType))
+  | None -> (failwith(error_REQUEST_MINT_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionRequestMintType))
 ];
 
 
@@ -229,7 +229,7 @@ function sendDropFinancialRequestParams(const contractAddress : address) : contr
       "%dropFinancialRequest",
       contractAddress) : option(contract(nat))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(nat))
+  | None -> (failwith(error_DROP_FINANCIAL_REQUEST_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(nat))
 ];
 
 
@@ -238,7 +238,7 @@ function sendContractBakerParams(const contractAddress : address) : contract(cou
       "%setContractBaker",
       contractAddress) : option(contract(councilActionSetContractBakerType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_SET_CONTRACT_BAKER_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(councilActionSetContractBakerType))
+  | None -> (failwith(error_SET_CONTRACT_BAKER_ENTRYPOINT_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND) : contract(councilActionSetContractBakerType))
 ];
 
 // ------------------------------------------------------------------------------
