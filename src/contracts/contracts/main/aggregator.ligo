@@ -443,6 +443,7 @@ block {
     percentOracleResponse= s.lastCompletedRoundPrice.percentOracleResponse;
     round= s.lastCompletedRoundPrice.round;
     decimals= s.config.decimals;
+    priceDateTime= s.lastCompletedRoundPrice.priceDateTime;
   ]
 } with (withDecimal)
 

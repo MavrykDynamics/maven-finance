@@ -29,6 +29,7 @@ type lastCompletedRoundPriceReturnType is  [@layout:comb] record [
     price: nat;
     percentOracleResponse: nat;
     decimals: nat;
+    priceDateTime: timestamp;  
 ];
 
 type setObservationCommitType is  [@layout:comb] record [
