@@ -6,12 +6,19 @@ type tokenSaleConfigType is [@layout:comb] record [
     maxWhitelistCount            : nat; 
     maxAmountPerWhitelistWallet  : nat;
     maxAmountPerWalletTotal      : nat; 
-    
+
     whitelistStartTimestamp      : timestamp;
     whitelistEndTimestamp        : timestamp;
     
     whitelistMaxAmountCap        : nat;    
     overallMaxAmountCap          : nat;  
+
+    dailyYield                   : nat; 
+    // vestingInDays                : nat;
+    vestingInMonths              : nat;
+
+    blocksPerMinute              : nat;
+    
 ]
 
 type tokenSaleUpdateConfigActionType is 
@@ -35,8 +42,10 @@ type updateMetadataType is [@layout:comb] record [
 ]
 
 type tokenSaleRecordType is [@layout:comb] record [
-    amount      : nat;
-    lastBought  : timestamp;
+    amountBoughtInTez   : nat;          // amount in mutez
+    totalClaimed        : nat; 
+    lastBought          : timestamp;
+    lastClaimed         : timestamp;
 ]
 type tokenSaleLedgerType is big_map(userAddressType, tokenSaleRecordType)
 
@@ -58,6 +67,13 @@ type tokenSaleStorage is record [
     tokenSaleLedger             : tokenSaleLedgerType;
 
     tokenSaleHasStarted         : bool;
+    tokenSaleHasEnded           : bool;
+
+    tokenSaleEndTimestamp       : timestamp;
+    tokenSaleEndBlockLevel      : nat;
+    endVestingTimestamp         : timestamp;
+
     whitelistAmountTotal        : nat;
     overallAmountTotal          : nat; 
+    tokenPerTez                 : nat;
 ]
