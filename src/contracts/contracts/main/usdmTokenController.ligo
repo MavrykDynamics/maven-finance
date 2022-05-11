@@ -1633,7 +1633,7 @@ block {
     s.lastDriftUpdateLedger[tokenName]   := Tezos.now;
     s.priceLedger[tokenName]             := price;           
 
-    // math probably not correct with the divisions - double check with checker formula
+    // math may not be completely correct with the divisions - double check with ctez/checker formula
 
 } with (noOperations, s)
 

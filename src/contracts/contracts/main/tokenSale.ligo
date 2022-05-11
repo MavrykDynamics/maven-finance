@@ -28,11 +28,18 @@ type tokenSaleAction is
   | AddToWhitelist              of list(address)
   | RemoveFromWhitelist         of list(address)
   | BuyTokens                   of nat
+  | ClaimTokens                 of unit
   
   
 const noOperations : list (operation) = nil;
 type return is list (operation) * tokenSaleStorage
 
+
+const oneDayInSeconds : int = 86_400;
+const oneMonthInSeconds : int = 2_592_000;
+
+const oneDayBlocks : int = s.config.blocksPerMinute * 60 * 24;
+const oneMonthBlocks : int = (s.config.blocksPerMinute * 60 * 24) * 30;
 
 
 // ------------------------------------------------------------------------------
@@ -50,12 +57,13 @@ type return is list (operation) * tokenSaleStorage
 
 [@inline] const error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 5n;
 [@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                              = 6n;
-[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                          = 7n;
-[@inline] const error_USER_IS_NOT_WHITELISTED                                 = 8n;
-[@inline] const error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED                = 9n;
-[@inline] const error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED                    = 10n;
-[@inline] const error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 11n;
-[@inline] const error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 12n;
+[@inline] const error_TOKEN_SALE_HAS_NOT_ENDED                                = 7n;
+[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                          = 8n;
+[@inline] const error_USER_IS_NOT_WHITELISTED                                 = 9n;
+[@inline] const error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED                = 10n;
+[@inline] const error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED                    = 11n;
+[@inline] const error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 12n;
+[@inline] const error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 13n;
 
 // ------------------------------------------------------------------------------
 //
@@ -96,6 +104,12 @@ function checkNoAmount(const _p : unit) : unit is
 function checkTokenSaleHasStarted(var s : tokenSaleStorage) : unit is
     if (s.tokenSaleHasStarted = True) then unit
     else failwith(error_TOKEN_SALE_HAS_NOT_STARTED);
+
+
+
+function checkTokenSaleHasEnded(var s : tokenSaleStorage) : unit is
+    if (s.tokenSaleHasEnded = True) then unit
+    else failwith(error_TOKEN_SALE_HAS_NOT_ENDED);
 
 
 
@@ -272,13 +286,15 @@ block {
           var whitelistUserTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.sender] of [
               Some(_record) -> _record
             | None           -> record [
-                amount     = 0n;
-                lastBought = Tezos.now;
+                amountBoughtInTez   = 0n;
+                totalClaimed        = 0n;
+                lastBought          = Tezos.now;
+                lastClaimed         = Tezos.now;
               ]
           ];
 
           // check if max amount per whitelist wallet has been exceeded
-          if whitelistUserTokenSaleRecord.amount + amountInTez > s.config.maxAmountPerWhitelistWallet then failwith(error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED) else skip;
+          if whitelistUserTokenSaleRecord.amountBoughtInTez + amountInTez > s.config.maxAmountPerWhitelistWallet then failwith(error_MAX_AMOUNT_PER_WHITELIST_WALLET_EXCEEDED) else skip;
 
           // check if whitelist max amount cap has been exceeded
           const newWhitelistAmountTotal : nat = s.whitelistAmountTotal + amountInTez;
@@ -292,13 +308,15 @@ block {
       var userTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[Tezos.sender] of [
           Some(_record) -> _record
         | None           -> record [
-            amount     = 0n;
-            lastBought = Tezos.now;
+            amountBoughtInTez   = 0n;
+            totalClaimed        = 0n;
+            lastBought          = Tezos.now;
+            lastClaimed         = Tezos.now;
           ]
       ];
 
       // check if max amount per wallet total has been exceeded
-      if userTokenSaleRecord.amount + amountInTez > s.config.maxAmountPerWalletTotal then failwith(error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED) else skip;
+      if userTokenSaleRecord.amountBoughtInTez + amountInTez > s.config.maxAmountPerWalletTotal then failwith(error_MAX_AMOUNT_PER_WALLET_TOTAL_EXCEEDED) else skip;
 
       // check if overall max amount cap has been exceeded
       const newOverallAmountTotal : nat = s.overallAmountTotal + amountInTez;
@@ -310,9 +328,70 @@ block {
       operations := transferAmountToTreasuryOperation # operations;
 
       // update token sale ledger
-      userTokenSaleRecord.amount      := userTokenSaleRecord.amount + amountInTez;
+      userTokenSaleRecord.amount      := userTokenSaleRecord.amountBoughtInTez + amountInTez;
       userTokenSaleRecord.lastBought  := Tezos.now;
       s.tokenSaleLedger[Tezos.sender] := userTokenSaleRecord;
+
+} with (operations, s)
+
+
+(*  claimTokens entrypoint *)
+function claimTokens(var s : tokenSaleStorage) : return is
+block {
+    
+      // check if sale has ended
+      checkTokenSaleHasEnded(s);
+
+      // init parameters
+      const buyer                  : address    = Tezos.sender;
+      const dailyYield             : nat        = s.config.dailyYield;
+      const overallAmountTotal     : nat        = s.overallAmountTotal;
+      const tokenPerTez            : nat        = s.tokenPerTez;
+
+      // const vestingInDays          : nat        = s.config.vestingInDays;
+      const vestingInMonths        : nat        = s.config.vestingInMonths;
+      
+      const tokenSaleEndBlockLevel  : nat       = s.tokenSaleEndBlockLevel;
+      const tokenSaleEndTimestamp  : timestamp  = s.tokenSaleEndTimestamp;
+      const endVestingTimestamp    : timestamp  = s.endVestingTimestamp;
+      
+      const today                  : timestamp  = Tezos.now;
+      const todayBlocks            : nat        = Tezos.level;
+
+      // date at which any user can make the first claim
+      // const firstClaimPeriod : timestamp = tokenSaleEndTimestamp * (vestingInMonths * oneMonthInSeconds);
+      // if today < firstClaim then failwith("Error. You cannot claim your tokens now.") else skip;
+
+      // calculate number of months that has passed since token sale has ended
+      const monthsSinceTokenSaleEnd : int = (todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks;
+
+      // get user token sale record
+      var userTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[buyer] of [
+          Some(_record) -> _record
+        | None -> failwith("Error. User token sale record not found.")
+      ];
+
+      const lastBought          : timestamp   = userTokenSaleRecord.lastBought;
+      var   lastClaimed         : timestamp  := userTokenSaleRecord.lastClaimed;
+      const amountBoughtInTez   : nat         = userTokenSaleRecord.amountBoughtInTez;
+      var   totalClaimed        : nat        := userTokenSaleRecord.totalClaimed;
+
+      // 
+
+
+      // // check if this is user's first claim
+      // var firstClaimCheck : bool := False;
+      // if lastClaimed = lastBought then firstClaimCheck := True else firstClaimCheck := False;
+
+      // check if user is able to claim now
+      // var claimValidCheck : bool := False;
+      // if firstClaimCheck = True then block {
+      //     if today - 
+      // }
+
+
+
+
 
 } with (operations, s)
 
@@ -345,5 +424,6 @@ function main (const action : tokenSaleAction; const s : tokenSaleStorage) : ret
         | AddToWhitelist(parameters)              -> addToWhitelist(parameters, s)
         | RemoveFromWhitelist(parameters)         -> removeFromWhitelist(parameters, s)
         | BuyTokens(parameters)                   -> buyTokens(parameters, s)
+        | ClaimTokens(_parameters)                 -> claimTokens(s)
         
     ]
