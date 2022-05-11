@@ -165,6 +165,7 @@ block {
                       round= 0n;
                       price= 0n;
                       percentOracleResponse= 0n;
+                      priceDateTime= Tezos.now;
                   ];
                 const oracleRewardsXTZ: oracleRewardsXTZType = map[];
                 const oracleRewardsMVK: oracleRewardsMVKType = map[];

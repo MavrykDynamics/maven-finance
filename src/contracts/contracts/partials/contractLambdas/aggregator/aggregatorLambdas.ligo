@@ -310,6 +310,7 @@ block{
                     round= s.round;
                     price= median;
                     percentOracleResponse= percentOracleResponse;
+                    priceDateTime= Tezos.now;
                   ];
                 } else skip;
 
