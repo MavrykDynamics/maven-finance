@@ -18,7 +18,6 @@ body {
   font-size: 14px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  min-width: 1460px;
 }
 
 h1 {
