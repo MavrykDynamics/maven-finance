@@ -625,6 +625,20 @@ block {
                 if proposalRecord.proposerAddress =/= Tezos.source then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
+                // check that proposer is still a satellite
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", proposalRecord.proposerAddress, delegationAddress);
+                case satelliteOptView of [
+                        Some (value) -> case value of [
+                            Some (_satellite) -> skip
+                            | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
+                        ]
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // Add or update data to proposal
                 proposalRecord.proposalMetadata[title] := proposalBytes; 
 
@@ -669,6 +683,20 @@ block {
                 if proposalRecord.proposerAddress =/= Tezos.source then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
+                // check that proposer is still a satellite
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", proposalRecord.proposerAddress, delegationAddress);
+                case satelliteOptView of [
+                        Some (value) -> case value of [
+                            Some (_satellite) -> skip
+                            | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
+                        ]
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
                 // Add or update data to proposal
                 proposalRecord.paymentMetadata[title] := paymentTransaction; 
 
@@ -701,6 +729,20 @@ block {
                 // check that sender is the creator of the proposal 
                 if proposalRecord.proposerAddress =/= Tezos.source then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
+
+                // check that proposer is still a satellite
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                      Some(_address) -> _address
+                    | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                const satelliteOptView : option (option(satelliteRecordType)) = Tezos.call_view ("getSatelliteOpt", proposalRecord.proposerAddress, delegationAddress);
+                case satelliteOptView of [
+                        Some (value) -> case value of [
+                            Some (_satellite) -> skip
+                            | None -> failwith(error_ONLY_SATELLITE_ALLOWED)
+                        ]
+                    | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
 
                 // check that proposal is not locked
                 if proposalRecord.locked = True then failwith(error_PROPOSAL_LOCKED)

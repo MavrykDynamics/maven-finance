@@ -48,7 +48,7 @@ function lambdaSetBaker(const treasuryLambdaAction : treasuryLambdaActionType; v
 block {
     
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
-    checkSenderIsAllowed(s); 
+    checkSenderIsAdminOrGovernanceFinancial(s); 
 
     var operations : list(operation) := nil;
 
@@ -273,7 +273,8 @@ block {
                     | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
                 
-                const mvkTokenAddress : address = s.mvkTokenAddress;
+                const mvkTokenAddress           : address                       = s.mvkTokenAddress;
+                const whitelistTokenContracts   : whitelistTokenContractsType   = s.whitelistTokenContracts;
 
                 function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
                 block {
@@ -285,8 +286,8 @@ block {
                     
                     const transferTokenOperation : operation = case token of [
                         | Tez         -> transferTez((Tezos.get_contract_with_error(to_, "Error. Contract not found at given address"): contract(unit)), amt)
-                        | Fa12(token) -> transferFa12Token(from_, to_, amt, token)
-                        | Fa2(token)  -> transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
+                        | Fa12(token) -> if not checkInWhitelistTokenContracts(token, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa12Token(from_, to_, amt, token)
+                        | Fa2(token)  -> if not checkInWhitelistTokenContracts(token.tokenContractAddress, whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else transferFa2Token(from_, to_, amt, token.tokenId, token.tokenContractAddress)
                     ];
 
                     accumulator := transferTokenOperation # accumulator;

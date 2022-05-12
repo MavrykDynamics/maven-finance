@@ -37,6 +37,7 @@ type governanceFinancialAction is
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceFinancialUpdateConfigParamsType
     | UpdateGeneralContracts          of updateGeneralContractsParams
+    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
 
       // Financial Governance Entrypoints
     | RequestTokens                   of requestTokensType
@@ -712,6 +713,7 @@ function main (const action : governanceFinancialAction; const s : governanceFin
         | UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                    -> updateConfig(parameters, s)
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
+        | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
 
           // Financial Governance Entrypoints
         | RequestTokens(parameters)                   -> requestTokens(parameters, s)

@@ -117,6 +117,56 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  migrateFunds lambda *)
+function lambdaMigrateFunds(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
+block {
+
+    checkSenderIsAdmin(s);
+
+    var operations : list(operation) := nil;
+
+    case doormanLambdaAction of [
+        | LambdaMigrateFunds(destinationAddress) -> {
+                
+                // Check if all entrypoints are paused
+                if s.breakGlassConfig.stakeIsPaused and s.breakGlassConfig.unstakeIsPaused and s.breakGlassConfig.compoundIsPaused then skip
+                else failwith(error_ALL_DOORMAN_CONTRACT_ENTRYPOINTS_SHOULD_BE_PAUSED_TO_MIGRATE_FUNDS);
+
+                // Get Doorman MVK balance
+                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", Tezos.self_address, s.mvkTokenAddress);
+                const doormanBalance: nat = case getBalanceView of [
+                  Some (value) -> value
+                | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                ];
+
+                // Create a transfer to transfer all funds
+                const transferParameters: transferType = list[
+                  record[
+                    from_=Tezos.self_address;
+                    txs=list[
+                      record[
+                        to_=destinationAddress;
+                        token_id=0n;
+                        amount=doormanBalance;
+                      ]
+                    ]
+                  ]
+                ];
+                const transferOperation: operation = Tezos.transaction(
+                  transferParameters,
+                  0tez,
+                  getTransferEntrypointFromTokenAddress(s.mvkTokenAddress)
+                );
+                operations  := transferOperation # operations;
+
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------

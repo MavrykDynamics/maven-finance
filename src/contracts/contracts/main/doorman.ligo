@@ -41,6 +41,7 @@ type doormanAction is
   | UpdateMinMvkAmount          of (nat)
   | UpdateWhitelistContracts    of updateWhitelistContractsParams
   | UpdateGeneralContracts      of updateGeneralContractsParams
+  | MigrateFunds                of (address)
 
     // Pause / Break Glass Entrypoints
   | PauseAll                    of (unit)
@@ -579,6 +580,25 @@ block {
 
 } with response
 
+
+
+(*  migrateFunds entrypoint *)
+function migrateFunds(const destinationAddress: address; var s: doormanStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaMigrateFunds"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaMigrateFunds(destinationAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -817,6 +837,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | UpdateMinMvkAmount(parameters)        -> updateMinMvkAmount(parameters, s)
       | UpdateWhitelistContracts(parameters)  -> updateWhitelistContracts(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)
+      | MigrateFunds(parameters)              -> migrateFunds(parameters, s)
 
         // Pause / Break Glass Entrypoints
       | PauseAll(_parameters)                 -> pauseAll(s)

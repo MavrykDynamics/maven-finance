@@ -37,6 +37,7 @@ type doormanLambdaActionType is
 | LambdaUpdateMinMvkAmount          of (nat)
 | LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+| LambdaMigrateFunds                of (address)
 
   // Pause / Break Glass Lambdas
 | LambdaPauseAll                    of (unit)
