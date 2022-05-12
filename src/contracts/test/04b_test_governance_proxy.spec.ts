@@ -19,6 +19,7 @@
 // import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 // import councilAddress from '../deployments/councilAddress.json';
 // import governanceAddress from '../deployments/governanceAddress.json';
+// import governanceFinancialAddress from '../deployments/governanceFinancialAddress.json';
 // import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
 // import emergencyGovernanceAddress from '../deployments/emergencyGovernanceAddress.json';
 // import breakGlassAddress from '../deployments/breakGlassAddress.json';
@@ -40,6 +41,7 @@
 //     let mvkTokenInstance;
 //     let councilInstance;
 //     let governanceInstance;
+//     let governanceFinancialInstance;
 //     let governanceProxyInstance;
 //     let emergencyGovernanceInstance;
 //     let breakGlassInstance;
@@ -54,6 +56,7 @@
 //     let mvkTokenStorage;
 //     let councilStorage;
 //     let governanceStorage;
+//     let governanceFinancialStorage;
 //     let governanceProxyStorage;
 //     let emergencyGovernanceStorage;
 //     let breakGlassStorage;
@@ -82,6 +85,7 @@
 //             mvkTokenInstance   = await utils.tezos.contract.at(mvkTokenAddress.address);
 //             councilInstance   = await utils.tezos.contract.at(councilAddress.address);
 //             governanceInstance = await utils.tezos.contract.at(governanceAddress.address);
+//             governanceFinancialInstance = await utils.tezos.contract.at(governanceFinancialAddress.address);
 //             governanceProxyInstance = await utils.tezos.contract.at(governanceProxyAddress.address);
 //             emergencyGovernanceInstance    = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
 //             breakGlassInstance = await utils.tezos.contract.at(breakGlassAddress.address);
@@ -96,6 +100,7 @@
 //             mvkTokenStorage   = await mvkTokenInstance.storage();
 //             councilStorage   = await councilInstance.storage();
 //             governanceStorage = await governanceInstance.storage();
+//             governanceFinancialStorage = await governanceFinancialInstance.storage();
 //             governanceProxyStorage = await governanceProxyInstance.storage();
 //             emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
 //             breakGlassStorage = await breakGlassInstance.storage();
@@ -2765,6 +2770,96 @@
 //                 assert.strictEqual(proposal.executed, true);
 //                 assert.notEqual(endSuccessReward, initSuccessReward);
 //                 assert.equal(endSuccessReward, MVK(10));
+//             } catch(e) {
+//                 console.dir(e, {depth:5})
+//             }
+//         })
+//     })
+
+//     describe("%updateGovernanceFinancialConfig", async() => {
+//         beforeEach("Set signer to admin", async() => {
+//             await signerFactory(bob.sk)
+//         })
+
+//         it("Scenario - Update the governanceFinancial financialRequestDurationInDays", async() => {
+//             try{
+//                 // Initial values
+//                 governanceStorage                   = await governanceInstance.storage();
+//                 governanceFinancialStorage          = await governanceFinancialInstance.storage();
+//                 const initDays                      = governanceFinancialStorage.config.financialRequestDurationInDays;
+//                 const proposalId                    = governanceStorage.nextProposalId.toNumber();
+//                 const proposalName                  = "Update financialRequestDurationInDays";
+//                 const proposalDesc                  = "Details about new proposal";
+//                 const proposalIpfs                  = "ipfs://QM123456789";
+//                 const proposalSourceCode            = "Proposal Source Code";
+
+//                 // Update general map compiled params
+//                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+//                     'updateGovernanceFinancialConfig',
+//                     1,
+//                     'configFinancialReqDurationDays'
+//                 ).toTransferParams();
+//                 const lambdaParamsValue = lambdaParams.parameter.value;
+//                 const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+//                 const referenceDataPacked = await utils.tezos.rpc.packData({
+//                     data: lambdaParamsValue,
+//                     type: proxyDataPackingHelperType
+//                 }).catch(e => console.error('error:', e));
+
+//                 var packedParam;
+//                 if (referenceDataPacked) {
+//                     packedParam = referenceDataPacked.packed
+//                     console.log('packed %updateGovernanceFinancialConfig param: ' + packedParam);
+//                 } else {
+//                     throw `packing failed`
+//                 };
+
+//                 const proposalMetadata      = MichelsonMap.fromLiteral({
+//                     "Days#1": packedParam
+//                 });
+
+//                 // Start governance rounds
+//                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+//                 await proposeOperation.confirmation();
+//                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+//                 await lockOperation.confirmation();
+//                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+//                 await voteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Votes operation -> both satellites vote
+//                 var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(alice.sk);
+//                 votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+//                 await votingRoundVoteOperation.confirmation();
+//                 await signerFactory(bob.sk);
+
+//                 // Execute proposal
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+//                 nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+//                 await nextRoundOperation.confirmation();
+
+//                 // Final values
+//                 governanceStorage           = await governanceInstance.storage();
+//                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
+//                 const endDays               = governanceFinancialStorage.config.financialRequestDurationInDays;
+//                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
+
+//                 // Assertions
+//                 assert.strictEqual(proposal.executed, true);
+//                 assert.notEqual(endDays, initDays);
+//                 assert.equal(endDays, 1);
 //             } catch(e) {
 //                 console.dir(e, {depth:5})
 //             }

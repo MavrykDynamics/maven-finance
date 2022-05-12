@@ -660,4 +660,93 @@
 //             }
 //         })
 //     })
+
+//     describe("%migrateFunds", async () => {
+
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         })
+        
+//         it("Admin should not be able to migrate the Doorman contract MVK funds if one of the three main entrypoints of the contract is not paused", async() => {
+//             try{
+//                 // Initial values
+//                 doormanStorage              = await doormanInstance.storage();
+//                 const initCompoundPaused    = doormanStorage.breakGlassConfig.compoundIsPaused
+                
+//                 // Storage preparation operation
+//                 var pauseOperation = await doormanInstance.methods.pauseAll().send();
+//                 await pauseOperation.confirmation();
+
+//                 doormanStorage  = await doormanInstance.storage();
+//                 console.log("AFTER PAUSE ALL: ", doormanStorage.breakGlassConfig)
+
+//                 pauseOperation = await doormanInstance.methods.togglePauseCompound().send();
+//                 await pauseOperation.confirmation();
+
+//                 // Operations
+//                 await chai.expect(doormanInstance.methods.migrateFunds(alice.pkh).send()).to.be.rejected;
+
+//                 // Final values
+//                 doormanStorage              = await doormanInstance.storage()
+//                 console.log("AFTER TOGGLE: ", doormanStorage.breakGlassConfig)
+//                 const endCompoundPaused     = doormanStorage.breakGlassConfig.compoundIsPaused
+//                 const stakePaused           = doormanStorage.breakGlassConfig.stakeIsPaused
+//                 const unstakePaused         = doormanStorage.breakGlassConfig.unstakeIsPaused
+//                 assert.equal(initCompoundPaused, endCompoundPaused)
+//                 assert.equal(endCompoundPaused, false)
+//                 assert.equal(stakePaused, true)
+//                 assert.equal(unstakePaused, true)
+
+//                 // Reset compound
+//                 pauseOperation = await doormanInstance.methods.togglePauseCompound().send();
+//                 await pauseOperation.confirmation();
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+
+//         it("Non-admin should not be able to migrate the Doorman contract MVK funds", async() => {
+//             try{
+//                 // Operations
+//                 await signerFactory(alice.sk)
+//                 await chai.expect(doormanInstance.methods.migrateFunds(alice.pkh).send()).to.be.rejected;
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+
+//         it("Admin should be able to migrate the Doorman contract MVK funds", async() => {
+//             try{
+//                 // Initial values
+//                 doormanStorage              = await doormanInstance.storage();
+//                 mvkTokenStorage             = await mvkTokenInstance.storage();
+//                 const newDoormanAddress     = alice.pkh
+//                 const initNewDoormanBalance = await mvkTokenStorage.ledger.get(newDoormanAddress);
+//                 const initDoormanBalance    = await mvkTokenStorage.ledger.get(doormanAddress.address);
+//                 const stakePaused           = doormanStorage.breakGlassConfig.stakeIsPaused
+//                 const unstakePaused         = doormanStorage.breakGlassConfig.unstakeIsPaused
+//                 const compoundPaused        = doormanStorage.breakGlassConfig.unstakeIsPaused
+
+//                 // Operation
+//                 const migrateOperation  = await doormanInstance.methods.migrateFunds(newDoormanAddress).send();
+//                 await migrateOperation.confirmation();
+
+//                 // Final values
+//                 doormanStorage              = await doormanInstance.storage();
+//                 mvkTokenStorage             = await mvkTokenInstance.storage();
+//                 const endNewDoormanBalance  = await mvkTokenStorage.ledger.get(newDoormanAddress);
+//                 const endDoormanBalance     = await mvkTokenStorage.ledger.get(doormanAddress.address);
+
+//                 // Assertions
+//                 assert.equal(endNewDoormanBalance.toNumber(), initNewDoormanBalance.toNumber() + initDoormanBalance.toNumber())
+//                 assert.equal(endDoormanBalance.toNumber(), 0)
+//                 assert.equal(compoundPaused, true)
+//                 assert.equal(stakePaused, true)
+//                 assert.equal(unstakePaused, true)
+//             } catch(e) {
+//                 console.dir(e, {depth: 5})
+//             }
+//         })
+//     })
+
 // });

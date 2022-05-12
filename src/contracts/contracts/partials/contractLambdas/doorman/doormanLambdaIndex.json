@@ -25,42 +25,46 @@
     },
     {
       "index": 6,
-      "name": "lambdaPauseAll"
+      "name": "lambdaMigrateFunds"
     },
     {
       "index": 7,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseStake"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseUnstake"
+      "name": "lambdaTogglePauseStake"
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseCompound"
+      "name": "lambdaTogglePauseUnstake"
     },
     {
       "index": 11,
-      "name": "lambdaStake"
+      "name": "lambdaTogglePauseCompound"
     },
     {
       "index": 12,
-      "name": "lambdaUnstake"
+      "name": "lambdaStake"
     },
     {
       "index": 13,
-      "name": "lambdaCompound"
+      "name": "lambdaUnstake"
     },
     {
       "index": 14,
-      "name": "lambdaFarmClaim"
+      "name": "lambdaCompound"
     },
     {
       "index": 15,
+      "name": "lambdaFarmClaim"
+    },
+    {
+      "index": 16,
       "name": "lambdaNewUnstake"
     }
 ]

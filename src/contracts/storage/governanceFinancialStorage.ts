@@ -10,6 +10,7 @@ import { governanceFinancialStorageType } from '../test/types/governanceFinancia
 const config = {
     financialRequestApprovalPercentage  : 6700,
     financialRequestDurationInDays      : 3,
+    votingPowerRatio                    : 10000,
 }
 
 const metadata = MichelsonMap.fromLiteral({
