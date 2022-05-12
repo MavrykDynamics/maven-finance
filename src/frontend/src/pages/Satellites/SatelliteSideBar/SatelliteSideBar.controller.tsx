@@ -11,6 +11,7 @@ export const SatelliteSideBar = () => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
+  const { delegationAddress } = useSelector((state: State) => state.contractAddresses)
   const { satelliteLedger } = delegationStorage
   const numSatellites = satelliteLedger?.length || 0
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
@@ -25,6 +26,7 @@ export const SatelliteSideBar = () => {
       userIsSatellite={userIsSatellite}
       numberOfSatellites={numSatellites}
       totalDelegatedMVK={totalDelegatedMVK}
+      satelliteFactory={delegationAddress.address}
     />
   )
 }

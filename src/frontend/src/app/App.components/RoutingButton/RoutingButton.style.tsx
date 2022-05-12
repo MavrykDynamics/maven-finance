@@ -32,7 +32,7 @@ export const RoutingButtonStyled = styled.button<{ theme: MavrykTheme }>`
 
   &.primary {
     color: ${({ theme }) => theme.containerColor};
-    background-color: ${({ theme }) => theme.primaryColor};
+    background-color: ${({ theme }) => theme.actionPrimaryBtnColor};
   }
 
   &.secondary {

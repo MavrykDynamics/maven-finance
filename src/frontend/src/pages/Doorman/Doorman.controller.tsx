@@ -6,7 +6,6 @@ import { State } from 'reducers'
 import { Page } from 'styles'
 
 import Chart from '../../app/App.components/Chart/Chart.view'
-import ConnectWalletInfo from '../../app/App.components/ConnectWallet/ConnectWalletInfo.view'
 // constants
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 // view
@@ -54,7 +53,6 @@ export const Doorman = () => {
     <Page>
       <ExitFeeModal />
       <PageHeader page={'doorman'} kind={PRIMARY} loading={loading} />
-      <ConnectWalletInfo />
       <StakeUnstakeView
         myMvkTokenBalance={user?.myMvkTokenBalance}
         userStakeBalance={user?.mySMvkTokenBalance}

@@ -1,7 +1,13 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
+// view
+import ConnectWalletInfo from '../../../app/App.components/ConnectWallet/ConnectWalletInfo.view'
+
+// const
 import { PageHeaderStyle, PRIMARY } from './PageHeader.constants'
+
+// style
 import {
   PageHeaderForegroundImage,
   PageHeaderForegroundImageContainer,
@@ -29,15 +35,18 @@ export const PageHeaderView = ({
   loading,
 }: PageHeaderViewProps) => {
   return (
-    <PageHeaderStyled backgroundImageSrc={backgroundImageSrc || ''}>
-      <PageHeaderTextArea>
-        <h1>{title}</h1>
-        <p>{subText}</p>
-      </PageHeaderTextArea>
-      <PageHeaderForegroundImageContainer>
-        <PageHeaderForegroundImage page={page} src={foregroundImageSrc || '/images/portal.svg'} alt="portal" />
-      </PageHeaderForegroundImageContainer>
-    </PageHeaderStyled>
+    <>
+      <PageHeaderStyled backgroundImageSrc={backgroundImageSrc || ''}>
+        <PageHeaderTextArea>
+          <h1>{title}</h1>
+          <p>{subText}</p>
+        </PageHeaderTextArea>
+        <PageHeaderForegroundImageContainer>
+          <PageHeaderForegroundImage page={page} src={foregroundImageSrc || '/images/portal.svg'} alt="portal" />
+        </PageHeaderForegroundImageContainer>
+      </PageHeaderStyled>
+      <ConnectWalletInfo />
+    </>
   )
 }
 

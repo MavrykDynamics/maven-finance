@@ -72,5 +72,5 @@ export const CardHeader = styled.h2<{ theme: MavrykTheme }>`
 export const PageContent = styled.div`
   display: grid;
   grid-template-columns: 3fr 1fr;
-  grid-gap: 20px;
+  grid-gap: 30px;
 `

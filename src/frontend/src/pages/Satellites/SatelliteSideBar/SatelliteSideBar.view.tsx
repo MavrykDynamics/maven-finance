@@ -1,40 +1,38 @@
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import * as React from 'react'
+// components
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 
-import { FAQLink, SatelliteSideBarStyled, SideBarSection } from './SatelliteSideBar.style'
 import { RoutingButton } from '../../../app/App.components/RoutingButton/RoutingButton.controller'
+import { FAQLink, SatelliteSideBarStyled, SideBarSection } from './SatelliteSideBar.style'
 
 type SatelliteSideBarProps = {
   userIsSatellite: boolean
   numberOfSatellites: number
   totalDelegatedMVK: number
+  satelliteFactory: string
 }
 export const SatelliteSideBarView = ({
   userIsSatellite,
   numberOfSatellites,
   totalDelegatedMVK,
+  satelliteFactory,
 }: SatelliteSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
       <RoutingButton
-        icon="satellite"
+        icon="satellite-stroke"
         text={userIsSatellite ? 'Edit Satellite Profile' : 'Become a Satellite'}
         pathName={`/become-satellite`}
         pathParams={{ userIsSatellite: userIsSatellite }}
       />
-      {/*{userIsSatellite ? (*/}
-      {/*  <Link to={{ pathname: `/become-satellite`, userIsSatellite }}>*/}
-      {/*    <Button icon="satellite" text="Edit Satellite Profile" />*/}
-      {/*  </Link>*/}
-      {/*) : (*/}
-      {/*  <Link to="/become-satellite">*/}
-      {/*    <Button icon="satellite" text="Become a Satellite" />*/}
-      {/*  </Link>*/}
-      {/*)}*/}
 
-      <br />
       <SideBarSection>
         <h2>Statistics</h2>
+        <div>
+          <h3>Satellite Factory</h3>
+          <TzAddress tzAddress={satelliteFactory} hasIcon />
+        </div>
         <div>
           <h3>Number of Satellites</h3>
           <CommaNumber value={numberOfSatellites} showDecimal={false} />
@@ -44,6 +42,7 @@ export const SatelliteSideBarView = ({
           <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
         </div>
       </SideBarSection>
+
       <SideBarSection>
         <h2>Satellite FAQ</h2>
         <FAQLink>

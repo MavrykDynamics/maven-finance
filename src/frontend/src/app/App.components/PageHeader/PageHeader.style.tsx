@@ -73,6 +73,8 @@ export const PageHeaderForegroundImageContainer = styled.div`
 `
 
 export const PageHeaderForegroundImage = styled.img<{ page: string; src: string }>`
+  position: absolute;
+  right: 0;
   width: ${({ page }) => {
     switch (page) {
       case 'governance':
@@ -92,6 +94,14 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '172px'
       default:
         return '172px'
+    }
+  }};
+  bottom: ${({ page }) => {
+    switch (page) {
+      case 'satellites':
+        return '-20px'
+      default:
+        return '0'
     }
   }};
   /*
