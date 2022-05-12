@@ -4,7 +4,7 @@ import * as React from 'react'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 
 import { RoutingButton } from '../../../app/App.components/RoutingButton/RoutingButton.controller'
-import { FAQLink, SatelliteSideBarStyled, SideBarSection } from './SatelliteSideBar.style'
+import { FAQLink, SatelliteSideBarStyled, SideBarSection, SideBarItem } from './SatelliteSideBar.style'
 
 type SatelliteSideBarProps = {
   userIsSatellite: boolean
@@ -29,21 +29,21 @@ export const SatelliteSideBarView = ({
 
       <SideBarSection>
         <h2>Statistics</h2>
-        <div>
+        <SideBarItem>
           <h3>Satellite Factory</h3>
           <TzAddress tzAddress={satelliteFactory} hasIcon />
-        </div>
-        <div>
+        </SideBarItem>
+        <SideBarItem>
           <h3>Number of Satellites</h3>
           <CommaNumber value={numberOfSatellites} showDecimal={false} />
-        </div>
-        <div>
+        </SideBarItem>
+        <SideBarItem>
           <h3>Total MVK delegated</h3>
           <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
-        </div>
+        </SideBarItem>
       </SideBarSection>
 
-      <SideBarSection>
+      <div>
         <h2>Satellite FAQ</h2>
         <FAQLink>
           <a href="https://mavryk.finance/litepaper#satellite-delegations" target="_blank" rel="noreferrer">
@@ -61,12 +61,12 @@ export const SatelliteSideBarView = ({
         </FAQLink>
         <FAQLink>
           <a href="https://mavryk.finance/litepaper#mvk-and-vmvk-doorman-module" target="_blank" rel="noreferrer">
-            The MVK holder’s guide to delegation
+            MVK token holder’s delegation agreement
           </a>
         </FAQLink>
         <FAQLink>
           <a href="https://mavryk.finance/litepaper#mvk-and-vmvk-doorman-module" target="_blank" rel="noreferrer">
-            MVK token holder’s delegation agreement
+            The MVK holder’s guide to delegation
           </a>
         </FAQLink>
         <FAQLink>
@@ -74,7 +74,7 @@ export const SatelliteSideBarView = ({
             Recognized delegate code of conduct
           </a>
         </FAQLink>
-      </SideBarSection>
+      </div>
     </SatelliteSideBarStyled>
   )
 }
