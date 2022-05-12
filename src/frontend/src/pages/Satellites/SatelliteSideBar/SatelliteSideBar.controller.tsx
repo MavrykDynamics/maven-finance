@@ -26,7 +26,7 @@ export const SatelliteSideBar = () => {
       userIsSatellite={userIsSatellite}
       numberOfSatellites={numSatellites}
       totalDelegatedMVK={totalDelegatedMVK}
-      satelliteFactory={delegationAddress.address}
+      satelliteFactory={delegationAddress?.address || ''}
     />
   )
 }
