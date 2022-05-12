@@ -64,7 +64,7 @@ export const NoWalletConnectedButton = ({ handleConnect }: { handleConnect: () =
   return (
     <WalletNotConnectedButton onClick={handleConnect}>
       <Icon id="wallet" />
-      <span>Connect wallet</span>
+      <span>Connect Wallet</span>
     </WalletNotConnectedButton>
   )
 }
@@ -74,7 +74,7 @@ export const SimpleConnectButtonNoAddress = ({ handleConnect }: { handleConnect:
       <svg>
         <use xlinkHref="/icons/sprites.svg#wallet" />
       </svg>
-      <div>Connect wallet</div>
+      <div>Connect Wallet</div>
     </SimpleConnectedButton>
   )
 }

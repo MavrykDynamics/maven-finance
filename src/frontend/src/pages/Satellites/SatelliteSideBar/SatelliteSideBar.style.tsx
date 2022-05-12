@@ -17,6 +17,7 @@ export const SatelliteSideBarStyled = styled(Card)`
 export const SideBarSection = styled.aside<{ theme: MavrykTheme }>`
   padding: 0 20px;
   border-bottom: 1px solid ${({ theme }) => theme.cardBorderColor};
+  padding-bottom: 31px;
 
   button {
     margin-bottom: 38px;
@@ -26,7 +27,7 @@ export const SideBarSection = styled.aside<{ theme: MavrykTheme }>`
 export const FAQLink = styled.div<{ theme: MavrykTheme }>`
   font-size: 14px;
   color: ${({ theme }) => theme.headerColor};
-  margin: 8px 0;
+  margin: 14px 0;
 
   > a {
     font-weight: 400;
@@ -42,29 +43,44 @@ export const SideBarItem = styled.div<{ theme: MavrykTheme }>`
   justify-content: space-between;
   font-weight: 600;
   color: ${({ theme }) => theme.subTextColor};
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 9px;
+  height: 14px;
 
   h3 {
-    margin: 10px 0;
     font-weight: 600;
     font-size: 12px;
     line-height: 12px;
     color: ${({ theme }) => theme.headerSkyColor};
-    margin-bottom: 2px;
   }
 
-  var * {
-    font-style: normal;
-    font-weight: 600;
-    font-size: 12px;
-    line-height: 12px;
-    color: ${({ theme }) => theme.valueColor};
+  var {
+    max-width: 50%;
 
-    svg {
-      stroke: ${({ theme }) => theme.valueColor};
+    * {
+      font-style: normal;
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 12px;
+      color: ${({ theme }) => theme.valueColor};
+      white-space: nowrap;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin: 0;
+
+      svg {
+        stroke: ${({ theme }) => theme.valueColor};
+        width: 16px;
+        margin-left: 8px;
+      }
     }
   }
 `
 
 export const SideBarFaq = styled.div<{ theme: MavrykTheme }>`
   padding: 0 20px;
+  padding-top: 26px;
+  padding-bottom: 21px;
 `
