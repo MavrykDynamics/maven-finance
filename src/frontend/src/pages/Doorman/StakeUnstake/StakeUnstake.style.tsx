@@ -123,7 +123,7 @@ export const StakeUnstakeInputLabel = styled.div<{ theme: MavrykTheme }>`
 export const StakeUnstakeRate = styled.div`
   font-size: 12px;
   font-weight: 600;
-  align-self: end;
+  align-self: flex-end;
   display: flex;
   align-items: center;
   margin-right: 10px;
