@@ -99,9 +99,9 @@
 //       assert.notDeepEqual(satelliteAddress,null);
 //       console.log({satelliteAddress})
 
-    // });
+//     });
 
-  // });
+//   });
   
 //   describe('AddSatellite', () => {
 //     it('should fail if called by random address', async () => {
