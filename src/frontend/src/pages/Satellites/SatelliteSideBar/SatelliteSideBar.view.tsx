@@ -4,7 +4,7 @@ import * as React from 'react'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 
 import { RoutingButton } from '../../../app/App.components/RoutingButton/RoutingButton.controller'
-import { FAQLink, SatelliteSideBarStyled, SideBarSection, SideBarItem } from './SatelliteSideBar.style'
+import { FAQLink, SatelliteSideBarStyled, SideBarSection, SideBarItem, SideBarFaq } from './SatelliteSideBar.style'
 
 type SatelliteSideBarProps = {
   userIsSatellite: boolean
@@ -20,30 +20,35 @@ export const SatelliteSideBarView = ({
 }: SatelliteSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
-      <RoutingButton
-        icon="satellite-stroke"
-        text={userIsSatellite ? 'Edit Satellite Profile' : 'Become a Satellite'}
-        pathName={`/become-satellite`}
-        pathParams={{ userIsSatellite: userIsSatellite }}
-      />
-
       <SideBarSection>
+        <RoutingButton
+          icon="satellite-stroke"
+          text={userIsSatellite ? 'Edit Satellite Profile' : 'Become a Satellite'}
+          pathName={`/become-satellite`}
+          pathParams={{ userIsSatellite: userIsSatellite }}
+        />
         <h2>Statistics</h2>
         <SideBarItem>
           <h3>Satellite Factory</h3>
-          <TzAddress tzAddress={satelliteFactory} hasIcon />
+          <var>
+            <TzAddress tzAddress={satelliteFactory} hasIcon />
+          </var>
         </SideBarItem>
         <SideBarItem>
           <h3>Number of Satellites</h3>
-          <CommaNumber value={numberOfSatellites} showDecimal={false} />
+          <var>
+            <CommaNumber value={numberOfSatellites} showDecimal={false} />
+          </var>
         </SideBarItem>
         <SideBarItem>
           <h3>Total MVK delegated</h3>
-          <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
+          <var>
+            <CommaNumber value={totalDelegatedMVK} endingText={'MVK'} />
+          </var>
         </SideBarItem>
       </SideBarSection>
 
-      <div>
+      <SideBarFaq>
         <h2>Satellite FAQ</h2>
         <FAQLink>
           <a href="https://mavryk.finance/litepaper#satellite-delegations" target="_blank" rel="noreferrer">
@@ -74,7 +79,7 @@ export const SatelliteSideBarView = ({
             Recognized delegate code of conduct
           </a>
         </FAQLink>
-      </div>
+      </SideBarFaq>
     </SatelliteSideBarStyled>
   )
 }

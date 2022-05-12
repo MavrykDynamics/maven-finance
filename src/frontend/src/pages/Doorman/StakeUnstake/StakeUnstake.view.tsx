@@ -213,14 +213,14 @@ export const StakeUnstakeView = ({
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
-          <h3>My Staked MVK</h3>
+          <h3>Total MVK Staked</h3>
           <img src="/images/coin-silver.svg" alt="coin" />
           <CommaNumber value={Number(userStakeBalance || 0)} loading={loading} endingText={'MVK'} />
         </StakeUnstakeBalance>
       </StakeUnstakeCard>
       <StakeUnstakeCard>
         <StakeUnstakeBalance>
-          <h3>My Earned MVK</h3>
+          <h3>Total MVK Earned</h3>
           {participationFeesPerShare ? (
             <StakeCompound onClick={handleCompound}>
               <span>Rewards Available COMPOUND!</span>
