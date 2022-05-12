@@ -132,7 +132,7 @@ block{
 function updateAggregatorConfigOperation(const aggregatorAddress: address; const newAggregatorConfig: aggregatorConfigType): operation is
 block{
     const tokenContract: contract(aggregatorConfigType) =
-        case (Tezos.get_entrypoint_opt("%updateAggregatorConfig", aggregatorAddress): option(contract(aggregatorConfigType))) of [
+        case (Tezos.get_entrypoint_opt("%updateConfig", aggregatorAddress): option(contract(aggregatorConfigType))) of [
               Some (c) -> c
           |   None -> (failwith(error_UPDATE_AGGREGATOR_CONFIG_ENTRYPOINT_NOT_FOUND): contract(aggregatorConfigType))
         ];
