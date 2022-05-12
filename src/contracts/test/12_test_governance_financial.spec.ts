@@ -26,7 +26,7 @@ import mockFa2TokenAddress              from '../deployments/mockFa2TokenAddress
 
 import { config } from "yargs";
 
-describe("Governance tests", async () => {
+describe("Governance Financial tests", async () => {
     var utils: Utils;
 
     let doormanInstance;
@@ -54,140 +54,357 @@ describe("Governance tests", async () => {
         return utils.tezos;
     };
 
-    const proposalId = 1;
-
     before("setup", async () => {
-
-        utils = new Utils();
-        await utils.init(bob.sk);
-        
-        doormanInstance                 = await utils.tezos.contract.at(doormanAddress.address);
-        delegationInstance              = await utils.tezos.contract.at(delegationAddress.address);
-        mvkTokenInstance                = await utils.tezos.contract.at(mvkTokenAddress.address);
-        governanceInstance              = await utils.tezos.contract.at(governanceAddress.address);
-        governanceFinancialInstance     = await utils.tezos.contract.at(governanceFinancialAddress.address);
-        councilInstance                 = await utils.tezos.contract.at(councilAddress.address);
-        treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
-        mockFa12TokenInstance           = await utils.tezos.contract.at(mockFa12TokenAddress.address);
-        mockFa2TokenInstance            = await utils.tezos.contract.at(mockFa2TokenAddress.address);
-
-        doormanStorage                  = await doormanInstance.storage();
-        delegationStorage               = await delegationInstance.storage();
-        mvkTokenStorage                 = await mvkTokenInstance.storage();
-        governanceStorage               = await governanceInstance.storage();
-        governanceFinancialStorage      = await governanceFinancialInstance.storage();
-        councilStorage                  = await councilInstance.storage();
-        treasuryStorage                 = await treasuryInstance.storage();
-        mockFa12TokenStorage            = await mockFa12TokenInstance.storage();
-        mockFa2TokenStorage             = await mockFa2TokenInstance.storage();
-
-        console.log('-- -- -- -- -- Governance Tests -- -- -- --')
-        console.log('Doorman Contract deployed at:', doormanInstance.address);
-        console.log('Delegation Contract deployed at:', delegationInstance.address);
-        console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-        console.log('Governance Contract deployed at:', governanceInstance.address);
-        console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
-        console.log('Council Contract deployed at:', councilInstance.address);
-        console.log('Treasury Contract deployed at:', treasuryInstance.address);
-        console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
-        console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
-        console.log('Bob address: ' + bob.pkh);
-        console.log('Alice address: '   + alice.pkh);
-        console.log('Eve address: '   + eve.pkh);
-
-        // Setup governance satellites for financial request snapshot later
-        // ------------------------------------------------------------------
-
-        // Bob stakes 100 MVK tokens and registers as a satellite
-
-        delegationStorage = await delegationInstance.storage();
-        const satelliteMap = await delegationStorage.satelliteLedger;
-        if(satelliteMap.get(bob.pkh) === undefined){
-            var updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: bob.pkh,
-                        operator: doormanAddress.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation();  
-            const bobStakeAmount                  = MVK(10);
-            const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
-            await bobStakeAmountOperation.confirmation();                        
-            const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "700").send();
-            await bobRegisterAsSatelliteOperation.confirmation();
-
-            // Alice stakes 100 MVK tokens and registers as a satellite 
-            await signerFactory(alice.sk);
-            updateOperators = await mvkTokenInstance.methods
-                .update_operators([
-                {
-                    add_operator: {
-                        owner: alice.pkh,
-                        operator: doormanAddress.address,
-                        token_id: 0,
-                    },
-                },
-                ])
-                .send()
-            await updateOperators.confirmation(); 
-            const aliceStakeAmount                  = MVK(10);
-            const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
-            await aliceStakeAmountOperation.confirmation();                        
-            const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "700").send();
-            await aliceRegisterAsSatelliteOperation.confirmation();
-
-            // Setup funds in Treasury for request tokens later
-            // Mallory transfers 200 MVK tokens to Treasury
-            await signerFactory(mallory.sk);
-            const malloryTransferMvkToTreasuryOperation = await mvkTokenInstance.methods.transfer([
-                {
-                    from_: mallory.pkh,
-                    txs: [
-                        {
-                            to_: treasuryAddress.address,
+        try{
+            utils = new Utils();
+            await utils.init(bob.sk);
+            
+            doormanInstance                 = await utils.tezos.contract.at(doormanAddress.address);
+            delegationInstance              = await utils.tezos.contract.at(delegationAddress.address);
+            mvkTokenInstance                = await utils.tezos.contract.at(mvkTokenAddress.address);
+            governanceInstance              = await utils.tezos.contract.at(governanceAddress.address);
+            governanceFinancialInstance     = await utils.tezos.contract.at(governanceFinancialAddress.address);
+            councilInstance                 = await utils.tezos.contract.at(councilAddress.address);
+            treasuryInstance                = await utils.tezos.contract.at(treasuryAddress.address);
+            mockFa12TokenInstance           = await utils.tezos.contract.at(mockFa12TokenAddress.address);
+            mockFa2TokenInstance            = await utils.tezos.contract.at(mockFa2TokenAddress.address);
+    
+            doormanStorage                  = await doormanInstance.storage();
+            delegationStorage               = await delegationInstance.storage();
+            mvkTokenStorage                 = await mvkTokenInstance.storage();
+            governanceStorage               = await governanceFinancialInstance.storage();
+            governanceFinancialStorage      = await governanceFinancialInstance.storage();
+            councilStorage                  = await councilInstance.storage();
+            treasuryStorage                 = await treasuryInstance.storage();
+            mockFa12TokenStorage            = await mockFa12TokenInstance.storage();
+            mockFa2TokenStorage             = await mockFa2TokenInstance.storage();
+    
+            console.log('-- -- -- -- -- Governance Financial Tests -- -- -- --')
+            console.log('Doorman Contract deployed at:', doormanInstance.address);
+            console.log('Delegation Contract deployed at:', delegationInstance.address);
+            console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
+            console.log('Governance Contract deployed at:', governanceInstance.address);
+            console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
+            console.log('Council Contract deployed at:', councilInstance.address);
+            console.log('Treasury Contract deployed at:', treasuryInstance.address);
+            console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
+            console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
+            console.log('Bob address: ' + bob.pkh);
+            console.log('Alice address: '   + alice.pkh);
+            console.log('Eve address: '   + eve.pkh);
+    
+            // Setup governance satellites for financial request snapshot later
+            // ------------------------------------------------------------------
+    
+            // Bob stakes 100 MVK tokens and registers as a satellite
+    
+            delegationStorage = await delegationInstance.storage();
+            const satelliteMap = await delegationStorage.satelliteLedger;
+            if(satelliteMap.get(bob.pkh) === undefined){
+                var updateOperators = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: bob.pkh,
+                            operator: doormanAddress.address,
                             token_id: 0,
-                            amount: MVK(20)
-                        }
-                    ]
-                }
-            ]).send();
-            await malloryTransferMvkToTreasuryOperation.confirmation();
-
-            // Mallory transfers 250 Mock FA12 Tokens to Treasury
-            const malloryTransferMockFa12ToTreasuryOperation = await mockFa12TokenInstance.methods.transfer(mallory.pkh, treasuryAddress.address, 250000000).send();
-            await malloryTransferMockFa12ToTreasuryOperation.confirmation();
-
-            // Mallory transfers 250 Mock FA2 Tokens to Treasury
-            const malloryTransferMockFa2ToTreasuryOperation = await mockFa2TokenInstance.methods.transfer([
-                {
-                    from_: mallory.pkh,
-                    txs: [
-                        {
-                            to_: treasuryAddress.address,
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperators.confirmation();  
+                const bobStakeAmount                  = MVK(10);
+                const bobStakeAmountOperation         = await doormanInstance.methods.stake(bobStakeAmount).send();
+                await bobStakeAmountOperation.confirmation();                        
+                const bobRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Bob", "New Satellite Description - Bob", "https://image.url", "https://image.url", "700").send();
+                await bobRegisterAsSatelliteOperation.confirmation();
+    
+                // Alice stakes 100 MVK tokens and registers as a satellite 
+                await signerFactory(alice.sk);
+                updateOperators = await mvkTokenInstance.methods
+                    .update_operators([
+                    {
+                        add_operator: {
+                            owner: alice.pkh,
+                            operator: doormanAddress.address,
                             token_id: 0,
-                            amount: 250000000
-                        }
-                    ]
-                }
-            ]).send();
-            await malloryTransferMockFa2ToTreasuryOperation.confirmation();
-            
-            // Mallory transfers 250 XTZ to Treasury
-            const malloryTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 100});
-            await malloryTransferTezToTreasuryOperation.confirmation();
-            
-            // const governanceParameterSchema = governanceInstance.parameterSchema.ExtractSchema();
-            // console.log(JSON.stringify(governanceParameterSchema,null,2));
-
-            // const councilParameterSchema = councilInstance.parameterSchema.ExtractSchema();
-            // console.log(JSON.stringify(councilParameterSchema,null,2));
-            
+                        },
+                    },
+                    ])
+                    .send()
+                await updateOperators.confirmation(); 
+                const aliceStakeAmount                  = MVK(10);
+                const aliceStakeAmountOperation         = await doormanInstance.methods.stake(aliceStakeAmount).send();
+                await aliceStakeAmountOperation.confirmation();                        
+                const aliceRegisterAsSatelliteOperation = await delegationInstance.methods.registerAsSatellite("New Satellite by Alice", "New Satellite Description - Alice", "https://image.url", "https://image.url", "700").send();
+                await aliceRegisterAsSatelliteOperation.confirmation();
+    
+                // Setup funds in Treasury for request tokens later
+                // Mallory transfers 200 MVK tokens to Treasury
+                await signerFactory(mallory.sk);
+                const malloryTransferMvkToTreasuryOperation = await mvkTokenInstance.methods.transfer([
+                    {
+                        from_: mallory.pkh,
+                        txs: [
+                            {
+                                to_: treasuryAddress.address,
+                                token_id: 0,
+                                amount: MVK(20)
+                            }
+                        ]
+                    }
+                ]).send();
+                await malloryTransferMvkToTreasuryOperation.confirmation();
+    
+                // Mallory transfers 250 Mock FA12 Tokens to Treasury
+                const malloryTransferMockFa12ToTreasuryOperation = await mockFa12TokenInstance.methods.transfer(mallory.pkh, treasuryAddress.address, 250000000).send();
+                await malloryTransferMockFa12ToTreasuryOperation.confirmation();
+    
+                // Mallory transfers 250 Mock FA2 Tokens to Treasury
+                const malloryTransferMockFa2ToTreasuryOperation = await mockFa2TokenInstance.methods.transfer([
+                    {
+                        from_: mallory.pkh,
+                        txs: [
+                            {
+                                to_: treasuryAddress.address,
+                                token_id: 0,
+                                amount: 250000000
+                            }
+                        ]
+                    }
+                ]).send();
+                await malloryTransferMockFa2ToTreasuryOperation.confirmation();
+                
+                // Mallory transfers 250 XTZ to Treasury
+                const malloryTransferTezToTreasuryOperation = await utils.tezos.contract.transfer({ to: treasuryAddress.address, amount: 100});
+                await malloryTransferTezToTreasuryOperation.confirmation();
+            }
+        } catch(e) {
+            console.dir(e, {depth: 5})
         }
+    });
+
+    
+
+    describe("%setAdmin", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+        it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
+            try{
+                // Initial Values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const currentAdmin = governanceFinancialStorage.admin;
+
+                // Operation
+                const setAdminOperation = await governanceFinancialInstance.methods.setAdmin(alice.pkh).send();
+                await setAdminOperation.confirmation();
+
+                // Final values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const newAdmin = governanceFinancialStorage.admin;
+
+                // reset admin
+                await signerFactory(alice.sk);
+                const resetAdminOperation = await governanceFinancialInstance.methods.setAdmin(bob.pkh).send();
+                await resetAdminOperation.confirmation();
+
+                // Assertions
+                assert.notStrictEqual(newAdmin, currentAdmin);
+                assert.strictEqual(newAdmin, alice.pkh);
+                assert.strictEqual(currentAdmin, bob.pkh);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Non-admin should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                await signerFactory(alice.sk);
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const currentAdmin = governanceFinancialStorage.admin;
+
+                // Operation
+                await chai.expect(governanceFinancialInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
+
+                // Final values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const newAdmin = governanceFinancialStorage.admin;
+
+                // Assertions
+                assert.strictEqual(newAdmin, currentAdmin);
+            } catch(e){
+                console.log(e);
+            }
+        });
+        
+    });
+
+    
+
+    describe("%setGovernance", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+        it('Admin should be able to call this entrypoint and update the governance contract with a new address', async () => {
+            try{
+                // Initial Values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const currentGovernance = governanceFinancialStorage.governanceAddress;
+
+                // Operation
+                const setGovernanceOperation = await governanceFinancialInstance.methods.setGovernance(alice.pkh).send();
+                await setGovernanceOperation.confirmation();
+
+                // Final values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const newGovernance = governanceFinancialStorage.governanceAddress;
+
+                // reset admin
+                await signerFactory(alice.sk);
+                const resetGovernanceOperation = await governanceFinancialInstance.methods.setGovernance(governanceAddress.address).send();
+                await resetGovernanceOperation.confirmation();
+
+                // Assertions
+                assert.notStrictEqual(newGovernance, currentGovernance);
+                assert.strictEqual(newGovernance, alice.pkh);
+                assert.strictEqual(currentGovernance, governanceAddress.address);
+            } catch(e){
+                console.log(e);
+            }
+        });
+
+        it('Non-admin should not be able to call this entrypoint', async () => {
+            try{
+                // Initial Values
+                await signerFactory(alice.sk);
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const currentGovernance = governanceFinancialStorage.governanceAddress;
+
+                // Operation
+                await chai.expect(governanceFinancialInstance.methods.setGovernance(alice.pkh).send()).to.be.rejected;
+
+                // Final values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const newGovernance = governanceFinancialStorage.governanceAddress;
+
+                // Assertions
+                assert.strictEqual(newGovernance, currentGovernance);
+            } catch(e){
+                console.log(e);
+            }
+        });
+        
+    });
+
+    describe("%updateConfig", async () => {
+        beforeEach("Set signer to admin", async () => {
+            await signerFactory(bob.sk)
+        });
+        it('Admin should not be able to call the entrypoint and configure the voting power ratio if it exceed 100%', async () => {
+            try{
+                // Initial Values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const currentConfigValue = governanceFinancialStorage.config.votingPowerRatio;
+                const newConfigValue = 10001;
+
+                // Operation
+                await chai.expect(governanceFinancialInstance.methods.updateConfig(newConfigValue,"configVotingPowerRatio").send()).to.be.rejected;
+
+                // Final values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const updateConfigValue = governanceFinancialStorage.config.votingPowerRatio;
+
+                // Assertions
+                assert.notEqual(newConfigValue, currentConfigValue);
+                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the financial required approval percentage', async () => {
+            try{
+                // Initial Values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const newConfigValue = 6700;
+
+                // Operation
+                const updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(newConfigValue,"configFinancialReqApprovalPct").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const updateConfigValue = governanceFinancialStorage.config.financialRequestApprovalPercentage;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should not be able to call the entrypoint and configure the financial required approval percentage if it exceed 100%', async () => {
+            try{
+                // Initial Values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const currentConfigValue = governanceFinancialStorage.config.financialRequestApprovalPercentage;
+                const newConfigValue = 10001;
+
+                // Operation
+                await chai.expect(governanceFinancialInstance.methods.updateConfig(newConfigValue,"configFinancialReqApprovalPct").send()).to.be.rejected;
+
+                // Final values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const updateConfigValue = governanceFinancialStorage.config.financialRequestApprovalPercentage;
+
+                // Assertions
+                assert.notEqual(newConfigValue, currentConfigValue);
+                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Admin should be able to call the entrypoint and configure the financial required duration in days', async () => {
+            try{
+                // Initial Values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const newConfigValue = 1;
+
+                // Operation
+                const updateConfigOperation = await governanceFinancialInstance.methods.updateConfig(newConfigValue,"configFinancialReqDurationDays").send();
+                await updateConfigOperation.confirmation();
+
+                // Final values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const updateConfigValue = governanceFinancialStorage.config.financialRequestDurationInDays;
+
+                // Assertions
+                assert.equal(updateConfigValue, newConfigValue);
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+        it('Non-admin should not be able to call the entrypoint', async () => {
+            try{
+                // Initial Values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const currentConfigValue = governanceFinancialStorage.config.financialRequestDurationInDays;
+                const newConfigValue = 1;
+
+                // Operation
+                await signerFactory(alice.sk)
+                await chai.expect(governanceFinancialInstance.methods.updateConfig(newConfigValue,"configFinancialReqDurationDays").send()).to.be.rejected;
+
+                // Final values
+                governanceFinancialStorage = await governanceFinancialInstance.storage();
+                const updateConfigValue = governanceFinancialStorage.config.financialRequestDurationInDays;
+
+                // Assertions
+                assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
     });
 
     describe("%requestMint", async () => {
@@ -200,8 +417,8 @@ describe("Governance tests", async () => {
                 mvkTokenStorage                 = await mvkTokenInstance.storage();
                 const councilActionId           = councilStorage.actionCounter;
                 const councilContractAddress    = councilAddress.address;
-                governanceStorage               = await governanceInstance.storage();
-                const financialRequestID        = governanceStorage.financialRequestCounter;
+                governanceFinancialStorage      = await governanceFinancialInstance.storage();
+                const financialRequestID        = governanceFinancialStorage.financialRequestCounter;
                 const bobStakeAmount            = MVK(10);
                 const aliceStakeAmount          = MVK(10);
                 const initCouncilMVKBalance     = await mvkTokenStorage.ledger.get(councilAddress.address);
@@ -248,7 +465,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                     = await governanceInstance.storage();
+                governanceFinancialStorage                     = await governanceFinancialInstance.storage();
                 const updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -257,11 +474,11 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const financialRequestCounter                  = governanceStorage.financialRequestCounter - 1;
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestCounter);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
+                const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -296,16 +513,16 @@ describe("Governance tests", async () => {
 
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                const bobVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(financialRequestID, "approve").send();
+                const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send();
                 await bobVotesForFinancialRequestOperation.confirmation();
 
                 await signerFactory(alice.sk);
-                const aliceVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(financialRequestID, "approve").send();
+                const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send();
                 await aliceVotesForFinancialRequestOperation.confirmation();
 
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-                const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
                 mvkTokenStorage                                        = await mvkTokenInstance.storage();
                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 
@@ -330,7 +547,7 @@ describe("Governance tests", async () => {
                 const purpose               = "Test Council Request Mint 1000 MVK";            
 
                 // Operation
-                await chai.expect(governanceInstance.methods.requestMint(treasury, tokenAmount, purpose).send()).to.be.rejected;
+                await chai.expect(governanceFinancialInstance.methods.requestMint(treasury, tokenAmount, purpose).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
@@ -340,8 +557,8 @@ describe("Governance tests", async () => {
             try{
                 // some init constants
                 var councilStorage             = await councilInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
-                const financialRequestID       = governanceStorage.financialRequestCounter;
+                governanceFinancialStorage              = await governanceFinancialInstance.storage();
+                const financialRequestID       = governanceFinancialStorage.financialRequestCounter;
                 const councilActionId          = councilStorage.actionCounter;
 
                 // request mint params
@@ -351,7 +568,7 @@ describe("Governance tests", async () => {
 
                 // Operation
                 await signerFactory(bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", eve.pkh).send();
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("doorman", eve.pkh).send();
                 await updateGeneralContractOperation.confirmation();
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
@@ -370,7 +587,7 @@ describe("Governance tests", async () => {
 
                 // Reset general Contracts
                 await signerFactory(bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -382,8 +599,8 @@ describe("Governance tests", async () => {
                 // some init constants
                 var councilStorage             = await councilInstance.storage();
                 const councilActionId          = councilStorage.actionCounter;
-                governanceStorage              = await governanceInstance.storage();
-                const financialRequestID       = governanceStorage.financialRequestCounter;
+                governanceFinancialStorage              = await governanceFinancialInstance.storage();
+                const financialRequestID       = governanceFinancialStorage.financialRequestCounter;
 
 
                 // request mint params
@@ -393,7 +610,7 @@ describe("Governance tests", async () => {
 
                 // Operation
                 await signerFactory(bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
                 await updateGeneralContractOperation.confirmation();
                 const councilRequestsMintOperation = await councilInstance.methods.councilActionRequestMint(
                         treasury, 
@@ -412,7 +629,7 @@ describe("Governance tests", async () => {
 
                 // Reset general Contracts
                 await signerFactory(bob.sk);
-                updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+                updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -428,8 +645,8 @@ describe("Governance tests", async () => {
                 var councilStorage             = await councilInstance.storage();
                 const councilActionId          = councilStorage.actionCounter;
                 const councilContractAddress   = councilAddress.address;
-                governanceStorage              = await governanceInstance.storage();
-                const financialRequestID       = governanceStorage.financialRequestCounter;
+                governanceFinancialStorage              = await governanceFinancialInstance.storage();
+                const financialRequestID       = governanceFinancialStorage.financialRequestCounter;
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
                 var mvkTokenStorage            = await mvkTokenInstance.storage();
@@ -488,7 +705,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
     
                 // get updated storage
-                governanceStorage                     = await governanceInstance.storage();
+                governanceFinancialStorage                     = await governanceFinancialInstance.storage();
                 const updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
     
@@ -497,10 +714,10 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestID);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestID);
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestID);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestID);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -535,16 +752,16 @@ describe("Governance tests", async () => {
     
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                const bobVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(financialRequestID, "approve").send();
+                const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send();
                 await bobVotesForFinancialRequestOperation.confirmation();
     
                 await signerFactory(alice.sk);
-                const aliceVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(financialRequestID, "approve").send();
+                const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send();
                 await aliceVotesForFinancialRequestOperation.confirmation();
     
                 // get updated storage
-                const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestID);            
+                const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestID);            
     
                 mvkTokenStorage                                         = await mvkTokenInstance.storage();
                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
@@ -613,7 +830,7 @@ describe("Governance tests", async () => {
                 const purpose                  = "Test Council Request Transfer of 100 MVK Tokens";         
 
                 // Operation
-                await chai.expect(governanceInstance.methods.requestTokens(treasury, tokenContractAddress, tokenName, tokenAmount, tokenType, tokenId, purpose).send()).to.be.rejected;
+                await chai.expect(governanceFinancialInstance.methods.requestTokens(treasury, tokenContractAddress, tokenName, tokenAmount, tokenType, tokenId, purpose).send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
@@ -623,9 +840,9 @@ describe("Governance tests", async () => {
             try{
                 // some init constants
                 var councilStorage             = await councilInstance.storage();
-                governanceStorage              = await governanceInstance.storage();
+                governanceFinancialStorage              = await governanceFinancialInstance.storage();
                 const councilActionId          = councilStorage.actionCounter;
-                const financialRequestID       = governanceStorage.financialRequestCounter;
+                const financialRequestID       = governanceFinancialStorage.financialRequestCounter;
 
                 // request mint params
                 const tokenAmount              = MVK(100); // 100 MVK
@@ -638,7 +855,7 @@ describe("Governance tests", async () => {
 
                 // Operation
                 await signerFactory(bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", eve.pkh).send();
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("doorman", eve.pkh).send();
                 await updateGeneralContractOperation.confirmation();
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
@@ -660,7 +877,7 @@ describe("Governance tests", async () => {
 
                 // Reset general Contracts
                 await signerFactory(bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -672,7 +889,7 @@ describe("Governance tests", async () => {
                 // some init constants
                 var councilStorage             = await councilInstance.storage();
                 const councilActionId          = councilStorage.actionCounter;
-                const financialRequestID       = governanceStorage.financialRequestCounter;
+                const financialRequestID       = governanceFinancialStorage.financialRequestCounter;
 
                 // request mint params
                 const tokenAmount              = MVK(100); // 100 MVK
@@ -685,7 +902,7 @@ describe("Governance tests", async () => {
 
                 // Operation
                 await signerFactory(bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
                 await updateGeneralContractOperation.confirmation();
                 const councilRequestsTokensOperation = await councilInstance.methods.councilActionRequestTokens(
                         treasury, 
@@ -707,7 +924,7 @@ describe("Governance tests", async () => {
 
                 // Reset general Contracts
                 await signerFactory(bob.sk);
-                updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+                updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -727,8 +944,8 @@ describe("Governance tests", async () => {
                 const initialCouncilBalance    = await mvkTokenStorage.ledger.get(councilAddress.address);
 
                 // Get financial request ID on governance
-                governanceStorage   = await governanceInstance.storage();
-                const financialRequestID  = governanceStorage.financialRequestCounter;
+                governanceFinancialStorage   = await governanceFinancialInstance.storage();
+                const financialRequestID  = governanceFinancialStorage.financialRequestCounter;
     
                 // request tokens params
                 const tokenAmount              = MVK(100); // 100 MVK
@@ -817,13 +1034,13 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsDropRequestSigned.status,        "EXECUTED");
 
                 // Check that request has been dropped on the governance contract
-                governanceStorage   = await governanceInstance.storage();
-                const financialRequest = await governanceStorage.financialRequestLedger.get(financialRequestID);
+                governanceFinancialStorage   = await governanceFinancialInstance.storage();
+                const financialRequest = await governanceFinancialStorage.financialRequestLedger.get(financialRequestID);
                 assert.equal(financialRequest.executed,      false);
                 assert.equal(financialRequest.status,        false);
 
                 // Try to sign previous action again with eve
-                await chai.expect(governanceInstance.methods.voteForRequest(financialRequestID, "approve").send()).to.be.rejected;
+                await chai.expect(governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send()).to.be.rejected;
 
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -901,10 +1118,10 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
 
                 // Get financial request ID on governance
-                governanceStorage   = await governanceInstance.storage();
-                const financialRequestID  = governanceStorage.financialRequestCounter - 1;
+                governanceFinancialStorage   = await governanceFinancialInstance.storage();
+                const financialRequestID  = governanceFinancialStorage.financialRequestCounter - 1;
 
-                await chai.expect(governanceInstance.methods.dropFinancialRequest(financialRequestID).send()).to.be.rejected;
+                await chai.expect(governanceFinancialInstance.methods.dropFinancialRequest(financialRequestID).send()).to.be.rejected;
                 
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -932,8 +1149,8 @@ describe("Governance tests", async () => {
                 // some init constants
                 var councilStorage             = await councilInstance.storage();
                 const councilActionId          = councilStorage.actionCounter;
-                var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;
+                var governanceFinancialStorage          = await governanceFinancialInstance.storage();
+                const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;
                 const councilContractAddress   = councilAddress.address;
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
@@ -982,7 +1199,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                   = await governanceInstance.storage();
+                governanceFinancialStorage                   = await governanceFinancialInstance.storage();
                 var updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -991,11 +1208,11 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const financialRequestCounter                  = governanceStorage.financialRequestCounter - 1;
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestCounter);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
+                const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -1030,16 +1247,16 @@ describe("Governance tests", async () => {
 
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                const bobVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await bobVotesForFinancialRequestOperation.confirmation();
 
                 await signerFactory(alice.sk);
-                const aliceVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await aliceVotesForFinancialRequestOperation.confirmation();
 
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-                const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
 
                 // check that financial request has been executed
                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal.toNumber(),        MVK(20));
@@ -1076,14 +1293,14 @@ describe("Governance tests", async () => {
             try{
                 // Change governance financial request expiry date
                 await signerFactory(bob.sk);
-                const updateFinancialExpiry    = await governanceInstance.methods.updateConfig(0, "configFinancialReqDurationDays").send()
+                const updateFinancialExpiry    = await governanceFinancialInstance.methods.updateConfig(0, "configFinancialReqDurationDays").send()
                 await updateFinancialExpiry.confirmation();
 
                 // some init constants
                 var councilStorage             = await councilInstance.storage();
                 const councilActionId          = councilStorage.actionCounter;
-                var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;
+                var governanceFinancialStorage          = await governanceFinancialInstance.storage();
+                const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;
                 const councilContractAddress   = councilAddress.address;
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
@@ -1130,7 +1347,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                   = await governanceInstance.storage();
+                governanceFinancialStorage                   = await governanceFinancialInstance.storage();
                 var updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -1139,11 +1356,11 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const financialRequestCounter                  = governanceStorage.financialRequestCounter - 1;
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestCounter);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
+                const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -1193,7 +1410,7 @@ describe("Governance tests", async () => {
 
                 // Reset financial request expiry date
                 await signerFactory(bob.sk);
-                const updateFinancialExpiryReset    = await governanceInstance.methods.updateConfig(1, "configFinancialReqDurationDays").send()
+                const updateFinancialExpiryReset    = await governanceFinancialInstance.methods.updateConfig(1, "configFinancialReqDurationDays").send()
                 await updateFinancialExpiryReset.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1207,7 +1424,7 @@ describe("Governance tests", async () => {
             try{
                 // Try to sign action again with mallory
                 await signerFactory(mallory.sk);
-                await chai.expect(governanceInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
+                await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
                 await signerFactory(bob.sk);
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1217,7 +1434,7 @@ describe("Governance tests", async () => {
         it('Satellite should not be able to call this entrypoint if the financial request does not exist', async () => {
             try{
                 // Try to sign action again with bob
-                await chai.expect(governanceInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
+                await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -1227,10 +1444,10 @@ describe("Governance tests", async () => {
             try{
                 // Try to sign action again with bob
                 await signerFactory(bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", eve.pkh).send();
                 await updateGeneralContractOperation.confirmation();
-                await chai.expect(governanceInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+                await chai.expect(governanceFinancialInstance.methods.voteForRequest(9999, "disapprove").send()).to.be.rejected;
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1246,8 +1463,8 @@ describe("Governance tests", async () => {
                 const initialCouncilBalance    = await mvkTokenStorage.ledger.get(councilAddress.address);
 
                 // Get financial request ID on governance
-                governanceStorage   = await governanceInstance.storage();
-                const financialRequestID  = governanceStorage.financialRequestCounter;
+                governanceFinancialStorage   = await governanceFinancialInstance.storage();
+                const financialRequestID  = governanceFinancialStorage.financialRequestCounter;
     
                 // request tokens params
                 const tokenAmount              = MVK(100); // 100 MVK
@@ -1336,13 +1553,13 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsDropRequestSigned.status,        "EXECUTED");
 
                 // Check that request has been dropped on the governance contract
-                governanceStorage   = await governanceInstance.storage();
-                const financialRequest = await governanceStorage.financialRequestLedger.get(financialRequestID);
+                governanceFinancialStorage   = await governanceFinancialInstance.storage();
+                const financialRequest = await governanceFinancialStorage.financialRequestLedger.get(financialRequestID);
                 assert.equal(financialRequest.executed,      false);
                 assert.equal(financialRequest.status,        false);
 
                 // Try to sign previous action again with eve
-                await chai.expect(governanceInstance.methods.voteForRequest(financialRequestID, "approve").send()).to.be.rejected;
+                await chai.expect(governanceFinancialInstance.methods.voteForRequest(financialRequestID, "approve").send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5})
             }
@@ -1357,8 +1574,8 @@ describe("Governance tests", async () => {
                 const councilContractAddress   = councilAddress.address;
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
-                var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;            
+                var governanceFinancialStorage          = await governanceFinancialInstance.storage();
+                const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;            
                 mvkTokenStorage                = await mvkTokenInstance.storage();
                 const councilMvkLedgerInit     = await mvkTokenStorage.ledger.get(councilContractAddress);
 
@@ -1404,7 +1621,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                     = await governanceInstance.storage();
+                governanceFinancialStorage                     = await governanceFinancialInstance.storage();
                 const updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -1413,11 +1630,11 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const financialRequestCounter                  = governanceStorage.financialRequestCounter - 1;
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestCounter);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
+                const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -1452,16 +1669,16 @@ describe("Governance tests", async () => {
 
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                const bobVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await bobVotesForFinancialRequestOperation.confirmation();
 
                 await signerFactory(alice.sk);
-                const aliceVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await aliceVotesForFinancialRequestOperation.confirmation();
 
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-                const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
                 mvkTokenStorage                                        = await mvkTokenInstance.storage();
                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 
@@ -1476,7 +1693,7 @@ describe("Governance tests", async () => {
 
                 // Try to vote for the request again
                 await signerFactory(alice.sk);
-                await chai.expect(governanceInstance.methods.voteForRequest(governanceRequestID, "disapprove").send()).to.be.rejected;
+                await chai.expect(governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "disapprove").send()).to.be.rejected;
             } catch(e){
                 console.dir(e, {depth: 5})
             } 
@@ -1491,8 +1708,8 @@ describe("Governance tests", async () => {
                 const councilContractAddress   = councilAddress.address;
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
-                var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;
+                var governanceFinancialStorage          = await governanceFinancialInstance.storage();
+                const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;
 
                 // request mint params
                 const treasury              = treasuryAddress.address;
@@ -1536,7 +1753,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                     = await governanceInstance.storage();
+                governanceFinancialStorage                     = await governanceFinancialInstance.storage();
                 const updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -1545,10 +1762,10 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(governanceRequestID);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(governanceRequestID);
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -1583,32 +1800,32 @@ describe("Governance tests", async () => {
 
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                const bobApproveFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const bobApproveFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await bobApproveFinancialRequestOperation.confirmation();
 
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-                var updatedGovernanceStorage                         = await governanceInstance.storage();        
-                var updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(governanceRequestID);
+                var updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                var updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal, bobStakeAmount)
                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal, 0)
 
                 // change vote and disapprove financial request
-                const bobDisapproveFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "disapprove").send();
+                const bobDisapproveFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "disapprove").send();
                 await bobDisapproveFinancialRequestOperation.confirmation();
 
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-                updatedGovernanceStorage                         = await governanceInstance.storage();        
-                updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(governanceRequestID);
+                updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal, 0)
                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal, bobStakeAmount)
 
                 // change vote and disapprove financial request again
-                const bobDisapproveFinancialRequestOperationAgain = await governanceInstance.methods.voteForRequest(governanceRequestID, "disapprove").send();
+                const bobDisapproveFinancialRequestOperationAgain = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "disapprove").send();
                 await bobDisapproveFinancialRequestOperationAgain.confirmation();
 
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-                updatedGovernanceStorage                         = await governanceInstance.storage();        
-                updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(governanceRequestID);
+                updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
                 assert.equal(updatedGovernanceFinancialRequestLedger.approveVoteTotal, 0)
                 assert.equal(updatedGovernanceFinancialRequestLedger.disapproveVoteTotal, bobStakeAmount)
             } catch(e){
@@ -1620,7 +1837,7 @@ describe("Governance tests", async () => {
             try{
                 // Change governance financial request expiry date
                 await signerFactory(bob.sk);
-                const updateFinancialExpiry    = await governanceInstance.methods.updateConfig(0, "configFinancialReqDurationDays").send()
+                const updateFinancialExpiry    = await governanceFinancialInstance.methods.updateConfig(0, "configFinancialReqDurationDays").send()
                 await updateFinancialExpiry.confirmation();
 
                 // some init constants
@@ -1629,8 +1846,8 @@ describe("Governance tests", async () => {
                 const councilContractAddress   = councilAddress.address;
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
-                var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;
+                var governanceFinancialStorage          = await governanceFinancialInstance.storage();
+                const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;
 
                 // request mint params
                 const treasury              = treasuryAddress.address;
@@ -1674,7 +1891,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                     = await governanceInstance.storage();
+                governanceFinancialStorage                     = await governanceFinancialInstance.storage();
                 const updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -1683,11 +1900,11 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const financialRequestCounter                  = governanceStorage.financialRequestCounter - 1;
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestCounter);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
+                const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -1722,10 +1939,10 @@ describe("Governance tests", async () => {
 
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                await chai.expect(governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send()).to.be.rejected;
+                await chai.expect(governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send()).to.be.rejected;
 
                 // Reset financial request expiry date
-                const updateFinancialExpiryReset    = await governanceInstance.methods.updateConfig(1, "configFinancialReqDurationDays").send()
+                const updateFinancialExpiryReset    = await governanceFinancialInstance.methods.updateConfig(1, "configFinancialReqDurationDays").send()
                 await updateFinancialExpiryReset.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1736,7 +1953,7 @@ describe("Governance tests", async () => {
             try{
                 // Replace council contract
                 await signerFactory(bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("council", eve.pkh).send();
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("council", eve.pkh).send();
                 await updateGeneralContractOperation.confirmation();
 
                 // some init constants
@@ -1745,8 +1962,8 @@ describe("Governance tests", async () => {
                 const councilContractAddress   = councilAddress.address;
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
-                var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;
+                var governanceFinancialStorage          = await governanceFinancialInstance.storage();
+                const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;
 
                 // request mint params
                 const treasury              = treasuryAddress.address;
@@ -1790,7 +2007,7 @@ describe("Governance tests", async () => {
 
                 // Reset council contract
                 await signerFactory(bob.sk);
-                var updateGeneralContractOperation = await governanceInstance.methods.updateGeneralContracts("council", councilAddress.address).send();
+                var updateGeneralContractOperation = await governanceFinancialInstance.methods.updateGeneralContracts("council", councilAddress.address).send();
                 await updateGeneralContractOperation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -1805,8 +2022,8 @@ describe("Governance tests", async () => {
                 const councilContractAddress        = councilAddress.address;
                 const bobStakeAmount                = MVK(10);
                 const aliceStakeAmount              = MVK(10);
-                var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;
+                var governanceFinancialStorage          = await governanceFinancialInstance.storage();
+                const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;
 
                 // request tokens params
                 const tokenAmount                   = 100000000; // 100 Mock FA12 Tokens
@@ -1861,7 +2078,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestTokensActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                       = await governanceInstance.storage();
+                governanceFinancialStorage                       = await governanceFinancialInstance.storage();
                 const updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestTokensSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -1870,10 +2087,10 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestTokensSigned.executed,      true);
                 assert.equal(councilActionsRequestTokensSigned.status,        "EXECUTED");
                 
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(governanceRequestID);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(governanceRequestID);
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -1908,16 +2125,16 @@ describe("Governance tests", async () => {
 
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                const bobVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await bobVotesForFinancialRequestOperation.confirmation();
 
                 await signerFactory(alice.sk);
-                const aliceVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await aliceVotesForFinancialRequestOperation.confirmation();
 
                 // get updated storage
-                const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(governanceRequestID);            
+                const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);            
 
                 const mockFa12TokenStorage                             = await mockFa12TokenInstance.storage();
                 const councilMockFa12Ledger                            = await mockFa12TokenStorage.ledger.get(councilContractAddress);
@@ -1943,8 +2160,8 @@ describe("Governance tests", async () => {
                 const councilActionId          = councilStorage.actionCounter;                
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
-                var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;
+                var governanceFinancialStorage          = await governanceFinancialInstance.storage();
+                const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;
 
                 // request tokens params
                 const tokenAmount                   = 100000000; // 100 Mock FA2 Tokens
@@ -1999,7 +2216,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                     = await governanceInstance.storage();
+                governanceFinancialStorage                     = await governanceFinancialInstance.storage();
                 const updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -2008,10 +2225,10 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(governanceRequestID);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(governanceRequestID);
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -2046,16 +2263,16 @@ describe("Governance tests", async () => {
 
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                const bobVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await bobVotesForFinancialRequestOperation.confirmation();
 
                 await signerFactory(alice.sk);
-                const aliceVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await aliceVotesForFinancialRequestOperation.confirmation();
 
                 // get updated storage
-                const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(governanceRequestID);            
+                const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);            
 
                 const mockFa2TokenStorage                              = await mockFa2TokenInstance.storage();
                 const councilMockFa2Ledger                             = await mockFa2TokenStorage.ledger.get(councilAddress.address);
@@ -2082,8 +2299,8 @@ describe("Governance tests", async () => {
                 const councilContractAddress        = councilAddress.address;
                 const bobStakeAmount                = MVK(10);
                 const aliceStakeAmount              = MVK(10);
-                var governanceStorage               = await governanceInstance.storage();
-                const governanceRequestID           = governanceStorage.financialRequestCounter;
+                var governanceFinancialStorage               = await governanceFinancialInstance.storage();
+                const governanceRequestID           = governanceFinancialStorage.financialRequestCounter;
 
                 // request tokens params
                 const tokenAmount                   = 100000000; // 100 XTZ
@@ -2139,7 +2356,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                     = await governanceInstance.storage();
+                governanceFinancialStorage                     = await governanceFinancialInstance.storage();
                 const updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -2148,10 +2365,10 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(governanceRequestID);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(governanceRequestID);
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(governanceRequestID);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(governanceRequestID);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -2186,16 +2403,16 @@ describe("Governance tests", async () => {
 
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                const bobVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await bobVotesForFinancialRequestOperation.confirmation();
 
                 await signerFactory(alice.sk);
-                const aliceVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await aliceVotesForFinancialRequestOperation.confirmation();
 
                 // get updated storage
-                const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(governanceRequestID);             
+                const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(governanceRequestID);             
                 const councilTezBalance                                = await utils.tezos.tz.getBalance(councilContractAddress);
 
                 // check that financial request has been executed
@@ -2221,8 +2438,8 @@ describe("Governance tests", async () => {
                 const councilContractAddress   = councilAddress.address;
                 const bobStakeAmount           = MVK(10);
                 const aliceStakeAmount         = MVK(10);
-                var governanceStorage          = await governanceInstance.storage();
-                const governanceRequestID      = governanceStorage.financialRequestCounter;            
+                var governanceFinancialStorage          = await governanceFinancialInstance.storage();
+                const governanceRequestID      = governanceFinancialStorage.financialRequestCounter;            
                 var mvkTokenStorage            = await mvkTokenInstance.storage();
                 const councilMvkLedgerInit     = await mvkTokenStorage.ledger.get(councilContractAddress);
 
@@ -2268,7 +2485,7 @@ describe("Governance tests", async () => {
                 await eveSignsRequestMintActionOperation.confirmation();
 
                 // get updated storage
-                governanceStorage                     = await governanceInstance.storage();
+                governanceFinancialStorage                     = await governanceFinancialInstance.storage();
                 const updatedCouncilStorage           = await councilInstance.storage();
                 const councilActionsRequestMintSigned = await updatedCouncilStorage.councilActionsLedger.get(councilActionId);
 
@@ -2277,11 +2494,11 @@ describe("Governance tests", async () => {
                 assert.equal(councilActionsRequestMintSigned.executed,      true);
                 assert.equal(councilActionsRequestMintSigned.status,        "EXECUTED");
                 
-                const financialRequestCounter                  = governanceStorage.financialRequestCounter - 1;
-                const governanceFinancialRequestLedger         = await governanceStorage.financialRequestLedger.get(financialRequestCounter);
-                const governanceFinancialRequestSnapshotLedger = await governanceStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
+                const financialRequestCounter                  = governanceFinancialStorage.financialRequestCounter - 1;
+                const governanceFinancialRequestLedger         = await governanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);
+                const governanceFinancialRequestSnapshotLedger = await governanceFinancialStorage.financialRequestSnapshotLedger.get(financialRequestCounter);
                 
-                const financialRequestApprovalPercentage       = governanceStorage.config.financialRequestApprovalPercentage;
+                const financialRequestApprovalPercentage       = governanceFinancialStorage.config.financialRequestApprovalPercentage;
                 const financialRequestPercentageDecimals       = 4;
                 const totalStakedMvkSupply                     = bobStakeAmount + aliceStakeAmount;
                 const stakedMvkRequiredForApproval             = (totalStakedMvkSupply * financialRequestApprovalPercentage) / (10 ** financialRequestPercentageDecimals);
@@ -2316,16 +2533,16 @@ describe("Governance tests", async () => {
 
                 // satellites vote and approve financial request
                 await signerFactory(bob.sk);
-                const bobVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const bobVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await bobVotesForFinancialRequestOperation.confirmation();
 
                 await signerFactory(alice.sk);
-                const aliceVotesForFinancialRequestOperation = await governanceInstance.methods.voteForRequest(governanceRequestID, "approve").send();
+                const aliceVotesForFinancialRequestOperation = await governanceFinancialInstance.methods.voteForRequest(governanceRequestID, "approve").send();
                 await aliceVotesForFinancialRequestOperation.confirmation();
 
                 // get updated storage (governance financial request ledger and council account in mvk token contract)
-                const updatedGovernanceStorage                         = await governanceInstance.storage();        
-                const updatedGovernanceFinancialRequestLedger          = await updatedGovernanceStorage.financialRequestLedger.get(financialRequestCounter);            
+                const updatedgovernanceFinancialStorage                         = await governanceFinancialInstance.storage();        
+                const updatedGovernanceFinancialRequestLedger          = await updatedgovernanceFinancialStorage.financialRequestLedger.get(financialRequestCounter);            
                 mvkTokenStorage                                        = await mvkTokenInstance.storage();
                 const councilMvkLedger                                 = await mvkTokenStorage.ledger.get(councilContractAddress);
 

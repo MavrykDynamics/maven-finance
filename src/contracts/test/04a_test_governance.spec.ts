@@ -12,7 +12,7 @@
 // chai.should();
 
 // import env from "../env";
-// import { bob, alice, eve, mallory } from "../scripts/sandbox/accounts";
+// import { bob, alice, eve, mallory, trudy } from "../scripts/sandbox/accounts";
 
 // import doormanAddress from '../deployments/doormanAddress.json';
 // import delegationAddress from '../deployments/delegationAddress.json';
@@ -556,81 +556,20 @@
 //                     console.dir(e, {depth: 5})
 //                 }
 //             });
-//             it('Admin should be able to call the entrypoint and configure the financial required approval percentage', async () => {
-//                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const newConfigValue = 10;
-
-//                     // Operation
-//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configFinancialReqApprovalPct").send();
-//                     await updateConfigOperation.confirmation();
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.financialRequestApprovalPercentage;
-
-//                     // Assertions
-//                     assert.equal(updateConfigValue, newConfigValue);
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             });
-//             it('Admin should not be able to call the entrypoint and configure the financial required approval percentage if it exceed 100%', async () => {
-//                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const currentConfigValue = governanceStorage.config.financialRequestApprovalPercentage;
-//                     const newConfigValue = 10001;
-
-//                     // Operation
-//                     await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configFinancialReqApprovalPct").send()).to.be.rejected;
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.financialRequestApprovalPercentage;
-
-//                     // Assertions
-//                     assert.notEqual(newConfigValue, currentConfigValue);
-//                     assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             });
-//             it('Admin should be able to call the entrypoint and configure the financial required duration in days', async () => {
-//                 try{
-//                     // Initial Values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const newConfigValue = 1;
-
-//                     // Operation
-//                     const updateConfigOperation = await governanceInstance.methods.updateConfig(newConfigValue,"configFinancialReqDurationDays").send();
-//                     await updateConfigOperation.confirmation();
-
-//                     // Final values
-//                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.financialRequestDurationInDays;
-
-//                     // Assertions
-//                     assert.equal(updateConfigValue, newConfigValue);
-//                 } catch(e){
-//                     console.dir(e, {depth: 5})
-//                 }
-//             });
 //             it('Non-admin should not be able to call the entrypoint', async () => {
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const currentConfigValue = governanceStorage.config.financialRequestDurationInDays;
+//                     const currentConfigValue = governanceStorage.config.blocksPerTimelockRound;
 //                     const newConfigValue = 1;
 
 //                     // Operation
 //                     await signerFactory(alice.sk)
-//                     await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configFinancialReqDurationDays").send()).to.be.rejected;
+//                     await chai.expect(governanceInstance.methods.updateConfig(newConfigValue,"configBlocksPerTimelockRound").send()).to.be.rejected;
 
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const updateConfigValue = governanceStorage.config.financialRequestDurationInDays;
+//                     const updateConfigValue = governanceStorage.config.blocksPerTimelockRound;
 
 //                     // Assertions
 //                     assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
@@ -649,14 +588,14 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const currentCycleInfo.round                       = governanceStorage.currentCycleInfo.round
-//                     const currentCycleInfo.roundString                 = Object.keys(currentCycleInfo.round)[0]
-//                     const currentCycleInfo.blocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
-//                     const currentCycleInfo.blocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
-//                     const currentCycleInfo.blocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
-//                     const currentCycleInfo.roundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
-//                     const currentCycleInfo.roundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
-//                     const currentCycleInfo.cycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
+//                     const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
+//                     const currentCycleInfoBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
+//                     const currentCycleInfoBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
+//                     const currentCycleInfoBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
+//                     const currentCycleInfoRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
+//                     const currentCycleInfoRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
+//                     const currentCycleInfoCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
 //                     const currentRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
 
 //                     // Operation
@@ -676,22 +615,22 @@
 //                     const finalRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
 
 //                     // Assertions
-//                     assert.equal(currentCycleInfo.roundString, "proposal");
-//                     assert.equal(currentCycleInfo.blocksPerProposalRound, 0);
-//                     assert.equal(currentCycleInfo.blocksPerVotingRound, 0);
-//                     assert.equal(currentCycleInfo.blocksPerTimelockRound, 0);
-//                     assert.equal(currentCycleInfo.roundStartLevel, 0);
-//                     assert.equal(currentCycleInfo.roundEndLevel, 0);
-//                     assert.equal(currentCycleInfo.cycleEndLevel, 0);
+//                     assert.equal(currentCycleInfoRoundString, "proposal");
+//                     assert.equal(currentCycleInfoBlocksPerProposalRound, 0);
+//                     assert.equal(currentCycleInfoBlocksPerVotingRound, 0);
+//                     assert.equal(currentCycleInfoBlocksPerTimelockRound, 0);
+//                     assert.equal(currentCycleInfoRoundStartLevel, 0);
+//                     assert.equal(currentCycleInfoRoundEndLevel, 0);
+//                     assert.equal(currentCycleInfoCycleEndLevel, 0);
 //                     assert.equal(currentRoundHighestVotedProposalId, 0);
 
 //                     assert.equal(finalRoundString, "proposal");
-//                     assert.notEqual(finalBlocksPerProposalRound, currentCycleInfo.blocksPerProposalRound);
-//                     assert.notEqual(finalBlocksPerVotingRound, currentCycleInfo.blocksPerVotingRound);
-//                     assert.notEqual(finalBlocksPerTimelockRound, currentCycleInfo.blocksPerTimelockRound);
-//                     assert.notEqual(finalRoundStartLevel, currentCycleInfo.roundStartLevel);
-//                     assert.notEqual(finalRoundEndLevel, currentCycleInfo.roundEndLevel);
-//                     assert.notEqual(finalCycleEndLevel, currentCycleInfo.cycleEndLevel);
+//                     assert.notEqual(finalBlocksPerProposalRound, currentCycleInfoBlocksPerProposalRound);
+//                     assert.notEqual(finalBlocksPerVotingRound, currentCycleInfoBlocksPerVotingRound);
+//                     assert.notEqual(finalBlocksPerTimelockRound, currentCycleInfoBlocksPerTimelockRound);
+//                     assert.notEqual(finalRoundStartLevel, currentCycleInfoRoundStartLevel);
+//                     assert.notEqual(finalRoundEndLevel, currentCycleInfoRoundEndLevel);
+//                     assert.notEqual(finalCycleEndLevel, currentCycleInfoCycleEndLevel);
 //                     assert.notEqual(finalRoundHighestVotedProposalId, currentRoundHighestVotedProposalId);
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -702,8 +641,8 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const currentCycleInfo.round                       = governanceStorage.currentCycleInfo.round
-//                     const currentCycleInfo.roundString                 = Object.keys(currentCycleInfo.round)[0]
+//                     const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
 
 //                     // Operation
 //                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -715,7 +654,7 @@
 //                     const finalRoundString                 = Object.keys(finalRound)[0]
 
 //                     // Assertions
-//                     assert.equal(currentCycleInfo.roundString, "proposal");
+//                     assert.equal(currentCycleInfoRoundString, "proposal");
 //                     assert.equal(finalRoundString, "proposal");
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -726,8 +665,8 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const currentCycleInfo.round                       = governanceStorage.currentCycleInfo.round
-//                     const currentCycleInfo.roundString                 = Object.keys(currentCycleInfo.round)[0]
+//                     const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
 
 //                     delegationStorage   = await delegationInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -752,7 +691,7 @@
 //                     const finalRoundString                 = Object.keys(finalRound)[0]
 
 //                     // Assertions
-//                     assert.equal(currentCycleInfo.roundString, "proposal");
+//                     assert.equal(currentCycleInfoRoundString, "proposal");
 //                     assert.equal(finalRoundString, "proposal");
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -763,8 +702,8 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const currentCycleInfo.round                       = governanceStorage.currentCycleInfo.round
-//                     const currentCycleInfo.roundString                 = Object.keys(currentCycleInfo.round)[0]
+//                     const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
 
 //                     delegationStorage   = await delegationInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber();
@@ -793,7 +732,7 @@
 //                     const finalRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
 
 //                     // Assertions
-//                     assert.equal(currentCycleInfo.roundString, "proposal");
+//                     assert.equal(currentCycleInfoRoundString, "proposal");
 //                     assert.equal(finalRoundString, "voting");
 //                     assert.equal(finalRoundHighestVotedProposalId, proposalId);
 //                 } catch(e){
@@ -805,8 +744,8 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const currentCycleInfo.round                       = governanceStorage.currentCycleInfo.round
-//                     const currentCycleInfo.roundString                 = Object.keys(currentCycleInfo.round)[0]
+//                     const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
 
 //                     // Operation
 //                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
@@ -818,7 +757,7 @@
 //                     const finalRoundString                 = Object.keys(finalRound)[0]
 
 //                     // Assertions
-//                     assert.equal(currentCycleInfo.roundString, "voting");
+//                     assert.equal(currentCycleInfoRoundString, "voting");
 //                     assert.equal(finalRoundString, "proposal");
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -829,7 +768,7 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const currentCycleInfo.round                       = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
 
 //                     // Operation
 //                     delegationStorage   = await delegationInstance.storage();
@@ -874,8 +813,8 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
-//                     const currentCycleInfo.round                       = governanceStorage.currentCycleInfo.round
-//                     const currentCycleInfo.roundString                 = Object.keys(currentCycleInfo.round)[0]
+//                     const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
 
 //                     // Operation
 //                     const startNextRoundOperation = await governanceInstance.methods.startNextRound(false).send();
@@ -887,7 +826,7 @@
 //                     const finalRoundString                 = Object.keys(finalRound)[0]
 
 //                     // Assertions
-//                     assert.equal(currentCycleInfo.roundString, "timelock");
+//                     assert.equal(currentCycleInfoRoundString, "timelock");
 //                     assert.equal(finalRoundString, "proposal");
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -898,14 +837,14 @@
 //             //     try{
 //             //         // Initial Values
 //             //         governanceStorage = await governanceInstance.storage();
-//             //         const currentCycleInfo.round                       = governanceStorage.currentCycleInfo.round
-//             //         const currentCycleInfo.roundString                 = Object.keys(currentCycleInfo.round)[0]
-//             //         const currentCycleInfo.blocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
-//             //         const currentCycleInfo.blocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
-//             //         const currentCycleInfo.blocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
-//             //         const currentCycleInfo.roundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
-//             //         const currentCycleInfo.roundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
-//             //         const currentCycleInfo.cycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
+//             //         const currentCycleInfoRound                       = governanceStorage.currentCycleInfo.round
+//             //         const currentCycleInfoRoundString                 = Object.keys(currentCycleInfoRound)[0]
+//             //         const currentCycleInfoBlocksPerProposalRound      = governanceStorage.currentCycleInfo.blocksPerProposalRound
+//             //         const currentCycleInfoBlocksPerVotingRound        = governanceStorage.currentCycleInfo.blocksPerVotingRound
+//             //         const currentCycleInfoBlocksPerTimelockRound      = governanceStorage.currentCycleInfo.blocksPerTimelockRound
+//             //         const currentCycleInfoRoundStartLevel             = governanceStorage.currentCycleInfo.roundStartLevel
+//             //         const currentCycleInfoRoundEndLevel               = governanceStorage.currentCycleInfo.roundEndLevel
+//             //         const currentCycleInfoCycleEndLevel               = governanceStorage.currentCycleInfo.cycleEndLevel
 //             //         const currentRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
 
 //             //         const roundDurationConfig = 1
@@ -931,13 +870,13 @@
 //             //         const finalRoundHighestVotedProposalId = governanceStorage.currentRoundHighestVotedProposalId
 
 //             //         // Assertions
-//             //         assert.equal(finalRoundString, currentCycleInfo.roundString);
-//             //         assert.equal(finalBlocksPerProposalRound.toNumber(), currentCycleInfo.blocksPerProposalRound.toNumber());
-//             //         assert.equal(finalBlocksPerVotingRound.toNumber(), currentCycleInfo.blocksPerVotingRound.toNumber());
-//             //         assert.equal(finalBlocksPerTimelockRound.toNumber(), currentCycleInfo.blocksPerTimelockRound.toNumber());
-//             //         assert.equal(finalRoundStartLevel.toNumber(), currentCycleInfo.roundStartLevel.toNumber());
-//             //         assert.equal(finalRoundEndLevel.toNumber(), currentCycleInfo.roundEndLevel.toNumber());
-//             //         assert.equal(finalCycleEndLevel.toNumber(), currentCycleInfo.cycleEndLevel.toNumber());
+//             //         assert.equal(finalRoundString, currentCycleInfoRoundString);
+//             //         assert.equal(finalBlocksPerProposalRound.toNumber(), currentCycleInfoBlocksPerProposalRound.toNumber());
+//             //         assert.equal(finalBlocksPerVotingRound.toNumber(), currentCycleInfoBlocksPerVotingRound.toNumber());
+//             //         assert.equal(finalBlocksPerTimelockRound.toNumber(), currentCycleInfoBlocksPerTimelockRound.toNumber());
+//             //         assert.equal(finalRoundStartLevel.toNumber(), currentCycleInfoRoundStartLevel.toNumber());
+//             //         assert.equal(finalRoundEndLevel.toNumber(), currentCycleInfoRoundEndLevel.toNumber());
+//             //         assert.equal(finalCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 //             //         assert.equal(finalRoundHighestVotedProposalId.toNumber(), currentRoundHighestVotedProposalId.toNumber());
 //             //     } catch(e){
 //             //         console.dir(e, {depth: 5})
@@ -967,7 +906,7 @@
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
 //                     const successReward = governanceStorage.config.successReward
-//                     const currentCycleInfo.cycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
+//                     const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
 //                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
 //                     const minQuorumMvkTotal = governanceStorage.config.minQuorumMvkTotal
 //                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
@@ -1005,7 +944,7 @@
 //                     assert.equal(newProposal.quorumCount.toNumber(), 0);
 //                     assert.equal(newProposal.quorumMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
-//                     assert.equal(newProposal.currentCycleInfo.cycleEndLevel.toNumber(), currentCycleInfo.cycleEndLevel.toNumber());
+//                     assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1054,7 +993,7 @@
 //                     // Final values
 //                     governanceStorage = await governanceInstance.storage();
 //                     const successReward = governanceStorage.config.successReward
-//                     const currentCycleInfo.cycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
+//                     const currentCycleInfoCycleEndLevel = governanceStorage.currentCycleInfo.cycleEndLevel
 //                     const minQuorumPercentage = governanceStorage.config.minQuorumPercentage
 //                     const minQuorumMvkTotal = governanceStorage.config.minQuorumMvkTotal
 //                     const minProposalRoundVotePercentage = governanceStorage.config.minProposalRoundVotePercentage
@@ -1095,7 +1034,7 @@
 //                     assert.equal(newProposal.quorumCount.toNumber(), 0);
 //                     assert.equal(newProposal.quorumMvkTotal.toNumber(), 0);
 //                     assert.equal(newProposal.cycle.toNumber(), cycleCounter.toNumber());
-//                     assert.equal(newProposal.currentCycleInfo.cycleEndLevel.toNumber(), currentCycleInfo.cycleEndLevel.toNumber());
+//                     assert.equal(newProposal.currentCycleEndLevel.toNumber(), currentCycleInfoCycleEndLevel.toNumber());
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1732,7 +1671,7 @@
 //                     const proposalId            = governanceStorage.nextProposalId.toNumber() - 2;
 
 //                     // Operation
-//                     await signerFactory(bob.sk)
+//                     await signerFactory(trudy.sk)
 //                     await chai.expect(governanceInstance.methods.dropProposal(proposalId).send()).to.be.rejected;
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -1839,8 +1778,8 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
-//                     const currentCycleInfo.round          = governanceStorage.currentCycleInfo.round
-//                     const currentCycleInfo.roundString    = Object.keys(currentCycleInfo.round)[0]
+//                     const currentCycleInfoRound          = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRoundString    = Object.keys(currentCycleInfoRound)[0]
 //                     const highestVotedProposal  = governanceStorage.currentRoundHighestVotedProposalId;
 //                     const timelockProposal      = governanceStorage.timelockProposalId;
 
@@ -1848,7 +1787,7 @@
 //                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
 
 //                     // Assertions
-//                     assert.strictEqual(currentCycleInfo.roundString, "voting")
+//                     assert.strictEqual(currentCycleInfoRoundString, "voting")
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1868,11 +1807,11 @@
 
 //                     // Final values
 //                     governanceStorage           = await governanceInstance.storage()
-//                     const currentCycleInfo.round          = governanceStorage.currentCycleInfo.round
-//                     const currentCycleInfo.roundString    = Object.keys(currentCycleInfo.round)[0]
+//                     const currentCycleInfoRound          = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRoundString    = Object.keys(currentCycleInfoRound)[0]
 
 //                     // Assertions
-//                     assert.strictEqual(currentCycleInfo.roundString, "timelock")
+//                     assert.strictEqual(currentCycleInfoRoundString, "timelock")
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -1892,11 +1831,11 @@
 
 //                     // Final values
 //                     governanceStorage           = await governanceInstance.storage()
-//                     const currentCycleInfo.round          = governanceStorage.currentCycleInfo.round
-//                     const currentCycleInfo.roundString    = Object.keys(currentCycleInfo.round)[0]
+//                     const currentCycleInfoRound          = governanceStorage.currentCycleInfo.round
+//                     const currentCycleInfoRoundString    = Object.keys(currentCycleInfoRound)[0]
 
 //                     // Assertions
-//                     assert.strictEqual(currentCycleInfo.roundString, "proposal")
+//                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.equal(timelockProposal.toNumber(),highestVotedProposal.toNumber())
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -1962,16 +1901,16 @@
 //                     // Initial Values
 //                     await signerFactory(eve.sk)
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0]
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0]
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 //                     const firstProposalName          = "New Proposal #1";
 //                     const firstProposalDesc          = "Details about new proposal #1";
@@ -2005,16 +1944,16 @@
 //                     await signerFactory(eve.sk);
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0]
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0]
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 //                     const firstProposalName          = "New Proposal #1";
 //                     const firstProposalDesc          = "Details about new proposal #1";
@@ -2035,10 +1974,10 @@
 //                     await startNextRoundOperation.confirmation();
 
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     assert.strictEqual(currentCycleInfo.roundString, "voting");
+//                     assert.strictEqual(currentCycleInfoRoundString, "voting");
 
 //                     // Operation
 //                     await chai.expect(governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1})).to.be.rejected; 
@@ -2059,16 +1998,16 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 //                     const firstProposalName          = "New Proposal #1";
 //                     const firstProposalDesc          = "Details about new proposal #1";
@@ -2109,10 +2048,10 @@
 //                     };
 
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     assert.strictEqual(currentCycleInfo.roundString, "voting");
+//                     assert.strictEqual(currentCycleInfoRoundString, "voting");
 
 //                     // Operation
 //                     await chai.expect(governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", packedUpdateConfigSuccessRewardParam).send()).to.be.rejected; 
@@ -2126,16 +2065,16 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 //                     const firstProposalName          = "New Proposal #1";
 //                     const firstProposalDesc          = "Details about new proposal #1";
@@ -2189,16 +2128,16 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 //                     const firstProposalName          = "New Proposal #1";
 //                     const firstProposalDesc          = "Details about new proposal #1";
@@ -2233,16 +2172,16 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 //                     const firstProposalName          = "New Proposal #1";
 //                     const firstProposalDesc          = "Details about new proposal #1";
@@ -2274,16 +2213,16 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 //                     const firstProposalName          = "New Proposal #1";
 //                     const firstProposalDesc          = "Details about new proposal #1";
@@ -2311,16 +2250,16 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = 1;
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 
 //                     // Operation
@@ -2352,15 +2291,15 @@
 //                     governanceStorage           = await governanceInstance.storage()
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
                     
 //                     const firstProposalName          = "New Proposal #1";
@@ -2432,16 +2371,16 @@
 //                     await signerFactory(eve.sk);
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 //                     const firstProposalName          = "New Proposal #1";
 //                     const firstProposalDesc          = "Details about new proposal #1";
@@ -2494,15 +2433,15 @@
 //                     governanceStorage           = await governanceInstance.storage()
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
                     
 //                     const firstProposalName          = "New Proposal #1";
@@ -2566,15 +2505,15 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage()
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 //                     await chai.expect(governanceInstance.methods.dropProposal(1).send()).to.be.rejected;
 //                 } catch(e){
@@ -2587,15 +2526,15 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
                     
 //                     const firstProposalName          = "New Proposal #1";
@@ -2641,20 +2580,20 @@
 
 //                     // Final values
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     assert.strictEqual(currentCycleInfo.roundString, "voting");
+//                     assert.strictEqual(currentCycleInfoRoundString, "voting");
 
 //                     const dropProposalOperation = await governanceInstance.methods.dropProposal(proposalId).send();
 //                     await dropProposalOperation.confirmation();
 
 //                     // Final values
 //                     governanceStorage           = await governanceInstance.storage();
-//                     currentCycleInfo.round                = governanceStorage.currentCycleInfo.round;
-//                     currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0];
+//                     currentCycleInfoRound                = governanceStorage.currentCycleInfo.round;
+//                     currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0];
 
-//                     assert.strictEqual(currentCycleInfo.roundString, "proposal");
+//                     assert.strictEqual(currentCycleInfoRoundString, "proposal");
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -2671,16 +2610,16 @@
 //                 try{
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 
 //                     await chai.expect(governanceInstance.methods.votingRoundVote("yay").send()).to.be.rejected;
@@ -2694,16 +2633,16 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
 //                     // Operation
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
 
 //                     const firstProposalName          = "New Proposal #1";
@@ -2793,15 +2732,15 @@
 //                     await signerFactory(eve.sk)
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
                     
 //                     const firstProposalName          = "New Proposal #1";
@@ -2856,11 +2795,11 @@
 
                     
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 //                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
-//                     assert.strictEqual(currentCycleInfo.roundString, "proposal")
+//                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, true)
 //                 } catch(e){
 //                     console.dir(e, {depth: 5})
@@ -2872,15 +2811,15 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
                     
 //                     const firstProposalName          = "New Proposal #1";
@@ -2941,15 +2880,15 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
                     
 //                     const firstProposalName          = "New Proposal #1";
@@ -3004,11 +2943,11 @@
 
                     
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 //                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
-//                     assert.strictEqual(currentCycleInfo.roundString, "proposal")
+//                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, true)
 
 //                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
@@ -3022,15 +2961,15 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
                     
 //                     const firstProposalName          = "New Proposal #1";
@@ -3087,11 +3026,11 @@
 //                     await startNextRoundOperation.confirmation();
                     
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 //                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
-//                     assert.strictEqual(currentCycleInfo.roundString, "proposal")
+//                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, false)
 //                     assert.strictEqual(proposal.status, "DROPPED")
 
@@ -3106,15 +3045,15 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
                     
 //                     const firstProposalName          = "New Proposal #1";
@@ -3148,11 +3087,11 @@
 //                     await startNextRoundOperation.confirmation();
                     
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 //                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
-//                     assert.strictEqual(currentCycleInfo.roundString, "proposal")
+//                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, false)
                     
 //                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
@@ -3166,15 +3105,15 @@
 //                     // Initial Values
 //                     governanceStorage           = await governanceInstance.storage();
 //                     const proposalId            = governanceStorage.nextProposalId; 
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 
-//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfo.roundString !== "proposal"){
+//                     while(governanceStorage.currentCycleInfo.cycleEndLevel == 0 || currentCycleInfoRoundString !== "proposal"){
 //                         var startNextRoundOperation = await governanceInstance.methods.startNextRound(true).send();
 //                         await startNextRoundOperation.confirmation();
 //                         governanceStorage           = await governanceInstance.storage();
-//                         currentCycleInfo.round                = governanceStorage.currentCycleInfo.round
-//                         currentCycleInfo.roundString          = Object.keys(currentCycleInfo.round)[0]
+//                         currentCycleInfoRound                = governanceStorage.currentCycleInfo.round
+//                         currentCycleInfoRoundString          = Object.keys(currentCycleInfoRound)[0]
 //                     }
                     
 //                     const firstProposalName          = "New Proposal #1";
@@ -3186,7 +3125,7 @@
 //                     var proposeOperation = await governanceInstance.methods.propose(firstProposalName, firstProposalDesc, firstProposalIpfs, firstProposalSourceCode).send({amount: 0.1});
 //                     await proposeOperation.confirmation();
 
-//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", "TestWithWrongData").send();
+//                     const addDataOperation = await governanceInstance.methods.addUpdateProposalData(proposalId, "Metadata#1", Buffer.from("TestWithWrongData", 'ascii').toString('hex')).send();
 //                     await addDataOperation.confirmation()
 
 //                     const lockOperation = await governanceInstance.methods.lockProposal(proposalId).send();
@@ -3208,11 +3147,11 @@
 //                     await startNextRoundOperation.confirmation();
                     
 //                     governanceStorage           = await governanceInstance.storage();
-//                     var currentCycleInfo.round            = governanceStorage.currentCycleInfo.round;
-//                     var currentCycleInfo.roundString      = Object.keys(currentCycleInfo.round)[0];
+//                     var currentCycleInfoRound            = governanceStorage.currentCycleInfo.round;
+//                     var currentCycleInfoRoundString      = Object.keys(currentCycleInfoRound)[0];
 //                     const proposal              = await governanceStorage.proposalLedger.get(proposalId);
 
-//                     assert.strictEqual(currentCycleInfo.roundString, "proposal")
+//                     assert.strictEqual(currentCycleInfoRoundString, "proposal")
 //                     assert.strictEqual(proposal.executed, false)
 
 //                     await chai.expect(governanceInstance.methods.executeProposal().send()).to.be.rejected;
@@ -3224,6 +3163,14 @@
 //     })
 
 //     describe("%breakGlass", async () => {
+
+//         before("Update emergency config", async () => {
+//             await signerFactory(bob.sk)
+//             var updateConfigOperation       = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
+//             await updateConfigOperation.confirmation();
+//             updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
+//             await updateConfigOperation.confirmation();
+//         });
 
 //         beforeEach("Set signer to satellite", async () => {
 //             await signerFactory(eve.sk)
@@ -3262,10 +3209,6 @@
 //                 }
 
 //                 // Trigger emergency governance and breakGlass
-//                 var updateConfigOperation       = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
-//                 await updateConfigOperation.confirmation();
-//                 updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
-//                 await updateConfigOperation.confirmation();
 //                 const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
 //                     "Test emergency governance", 
 //                     "For tests"
@@ -3288,7 +3231,7 @@
 
 //                     // Check admin
 //                     if(storage.hasOwnProperty('admin')){
-//                         assert.equal(storage.admin, governanceAddress.address)
+//                         assert.equal(storage.admin, governanceProxyAddress.address)
 //                     }
 
 //                     // Check pause
@@ -3308,17 +3251,12 @@
 //             }
 //         })
 
-//         it('Emergency Governance contract should be able to call this entrypoint and call setAdmin/pauseAll in all contracts of the generalContracts map', async () => {
+//         it('Emergency Governance contract should be able to call this entrypoint and call set the governance admin to the breakGlass address', async () => {
 //             try{
 //                 // Set all contracts admin to governance address if it is not
 //                 await signerFactory(bob.sk);
 //                 governanceStorage             = await governanceInstance.storage();
 //                 var generalContracts          = governanceStorage.generalContracts.entries();
-
-//                 var updateConfigOperation       = await emergencyGovernanceInstance.methods.updateConfig(1,"configStakedMvkPercentRequired").send();
-//                 await updateConfigOperation.confirmation();
-//                 updateConfigOperation           = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
-//                 await updateConfigOperation.confirmation();
 
 //                 for (let entry of generalContracts){
 //                     // Get contract storage
@@ -3326,18 +3264,13 @@
 //                     var storage:any     = await contract.storage();
 
 //                     // Check admin
-//                     if(storage.hasOwnProperty('admin') && storage.admin!==governanceAddress.address && storage.admin!==breakGlassAddress.address){
+//                     if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
 //                         var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
 //                         await setAdminOperation.confirmation()
 //                     }
 //                 }
 
 //                 // Trigger emergency governance and breakGlass
-//                 // const emergencyControlOperation = await emergencyGovernanceInstance.methods.triggerEmergencyControl(
-//                 //     "Test emergency governance", 
-//                 //     "For tests"
-//                 // ).send();
-//                 // await emergencyControlOperation.confirmation();
 //                 const voteOperation             = await emergencyGovernanceInstance.methods.voteForEmergencyControl().send();
 //                 await voteOperation.confirmation();
 
@@ -3348,25 +3281,7 @@
 
 //                 // Check admin and pause in all contracts
 //                 governanceStorage       = await governanceInstance.storage();
-//                 generalContracts        = governanceStorage.generalContracts.entries();
-//                 for (let entry of generalContracts){
-//                     // Get contract storage
-//                     var contract        = await utils.tezos.contract.at(entry[1]);
-//                     var storage:any     = await contract.storage();
-
-//                     // Check admin
-//                     if(storage.hasOwnProperty('admin')){
-//                         assert.equal(storage.admin, breakGlassAddress.address)
-//                     }
-
-//                     // Check pause
-//                     var breakGlassConfig    = storage.breakGlassConfig
-//                     if(storage.hasOwnProperty('breakGlassConfig')){
-//                         for (let [key, value] of Object.entries(breakGlassConfig)){
-//                             assert.equal(value, true);
-//                         }
-//                     }
-//                 }
+//                 assert.strictEqual(governanceStorage.admin, breakGlassAddress.address);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }

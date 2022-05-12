@@ -909,8 +909,11 @@ block {
                 if String.length(councilActionRequestTokensParams.tokenName) > s.config.requestTokenNameMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if entrypoint exist on Governance Contract
-                var govenanceAddress : address := s.governanceAddress;
-                const _checkEntrypoint : contract(councilActionRequestTokensType) = sendRequestTokensParams(govenanceAddress);
+                var governanceFinancialAddress : address := case s.generalContracts["governanceFinancial"] of [
+                    Some(_address) -> _address
+                    | None -> failwith(error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                ];
+                const _checkEntrypoint : contract(councilActionRequestTokensType) = sendRequestTokensParams(governanceFinancialAddress);
 
                 // Check if type is correct
                 if councilActionRequestTokensParams.tokenType = "FA12" or
@@ -985,8 +988,11 @@ block {
                 if String.length(councilActionRequestMintParams.purpose) > s.config.requestPurposeMaxLength then failwith(error_WRONG_INPUT_PROVIDED) else skip;
 
                 // Check if entrypoint exists on Governance Contract
-                var govenanceAddress : address := s.governanceAddress;
-                const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(govenanceAddress);
+                var governanceFinancialAddress : address := case s.generalContracts["governanceFinancial"] of [
+                    Some(_address) -> _address
+                    | None -> failwith(error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                ];
+                const _checkEntrypoint: contract(councilActionRequestTokensType)    = sendRequestTokensParams(governanceFinancialAddress);
 
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
@@ -1048,8 +1054,11 @@ block {
         | LambdaCouncilSetContractBaker(councilActionSetContractBakerParams) -> {
 
                 // Check if entrypoint exist on Governance contract
-                var govenanceAddress : address := s.governanceAddress;
-                const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendContractBakerParams(govenanceAddress);
+                var governanceFinancialAddress : address := case s.generalContracts["governanceFinancial"] of [
+                    Some(_address) -> _address
+                    | None -> failwith(error_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND)
+                ];
+                const _checkEntrypoint : contract(councilActionSetContractBakerType) = sendContractBakerParams(governanceFinancialAddress);
 
                 const keyHash : option(key_hash) = councilActionSetContractBakerParams.keyHash; 
 

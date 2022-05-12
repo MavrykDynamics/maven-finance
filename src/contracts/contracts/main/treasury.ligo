@@ -107,6 +107,18 @@ function checkSenderIsAllowed(const s: treasuryStorage): unit is
 
 
 
+function checkSenderIsAdminOrGovernanceFinancial(const s: treasuryStorage): unit is
+    block{
+        const governanceFinancialAddress: address = case s.whitelistContracts["governanceFinancial"] of [
+              Some (_address) -> _address
+          |   None -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED): address)
+        ];
+        if (Tezos.sender = s.admin or Tezos.sender = governanceFinancialAddress) then skip
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+    } with(unit)
+
+
+
 function checkSenderIsGovernanceOrFactory(const s: treasuryStorage): unit is
 block {
     
@@ -116,7 +128,7 @@ block {
     else{
         const treasuryFactoryAddress: address = case s.whitelistContracts["treasuryFactory"] of [
               Some (_address) -> _address
-          |   None -> (failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED): address)
+          |   None -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND): address)
         ];
         if Tezos.sender = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
     };

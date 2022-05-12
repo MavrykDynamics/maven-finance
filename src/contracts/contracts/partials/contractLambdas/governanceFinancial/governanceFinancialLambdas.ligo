@@ -113,6 +113,24 @@ block {
 
 } with (noOperations, s)
 
+
+
+(*  updateWhitelistTokenContracts lambda *)
+function lambdaUpdateWhitelistTokenContracts(const governanceFinancialLambdaAction : governanceFinancialLambdaActionType; var s: governanceFinancialStorage): return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    case governanceFinancialLambdaAction of [
+        | LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
+                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
 // ------------------------------------------------------------------------------
@@ -157,7 +175,7 @@ block {
                 const keyHash : option(key_hash) = (None : option(key_hash));
 
                 // Check if token is in whitelist token map
-                if not checkInWhitelistTokenContracts(requestTokensParams.tokenContractAddress, s.whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else skip;
+                if requestTokensParams.tokenType =/= "TEZ" and not checkInWhitelistTokenContracts(requestTokensParams.tokenContractAddress, s.whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else skip;
 
                 var newFinancialRequest : financialRequestRecordType := record [
                     requesterAddress     = Tezos.sender;
@@ -569,7 +587,7 @@ block {
                                 // --- --- ---
 
                                 // Check if token is in whitelist token map
-                                if not checkInWhitelistTokenContracts(_financialRequest.tokenContractAddress, s.whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else skip;
+                                if _financialRequest.tokenType =/= "TEZ" and not checkInWhitelistTokenContracts(_financialRequest.tokenContractAddress, s.whitelistTokenContracts) then failwith(error_TOKEN_NOT_WHITELISTED) else skip;
 
                                 const transferTokenParams : transferActionType = list[
                                 record [
