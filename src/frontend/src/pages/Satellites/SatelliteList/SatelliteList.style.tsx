@@ -1,4 +1,5 @@
 import styled from 'styled-components/macro'
+
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const SatelliteListStyled = styled.div<{ theme: MavrykTheme }>`
@@ -6,18 +7,16 @@ export const SatelliteListStyled = styled.div<{ theme: MavrykTheme }>`
   margin-top: 30px;
 `
 
-export const SatelliteListEmptyContainer = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
+export const SatelliteListEmptyContainer = styled.figure<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 10px;
+  margin: 0;
   margin-top: 30px;
-  border-radius: 10px;
-  color: ${({ theme }) => theme.primaryColor};
+  color: ${({ theme }) => theme.headerColor};
   font-size: 18px;
   font-weight: 800;
-  max-height: 100px;
+  flex-direction: column;
 `
 export const SatelliteSearchFilter = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};

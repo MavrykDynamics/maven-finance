@@ -5,11 +5,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
 
+import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { SatelliteList } from './SatelliteList/SatelliteList.controller'
 import { delegate, getDelegationStorage, undelegate } from './Satellites.actions'
 import { SatelliteSideBar } from './SatelliteSideBar/SatelliteSideBar.controller'
-import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 
 export const Satellites = () => {
   const dispatch = useDispatch()
