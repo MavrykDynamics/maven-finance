@@ -1,12 +1,10 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
+import { Card, CardHeader } from 'styles'
 
-export const SatelliteSideBarStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
-  padding: 20px;
+export const SatelliteSideBarStyled = styled(Card)`
+  padding: 24px 20px;
   margin-top: 30px;
-  border-radius: 10px;
-  height: fit-content;
 `
 
 export const SideBarSection = styled.div<{ theme: MavrykTheme }>`

@@ -25,7 +25,7 @@ type RoutingButtonViewProps = {
 export const RoutingButtonView = ({
   text,
   icon,
-  kind,
+  kind = 'primary',
   onClick,
   clickCallback,
   clicked,

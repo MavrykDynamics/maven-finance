@@ -3,6 +3,7 @@ import { MavrykTheme } from '../../../styles/interfaces'
 
 export const SatelliteListStyled = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
+  margin-top: 30px;
 `
 
 export const SatelliteListEmptyContainer = styled.div<{ theme: MavrykTheme }>`
