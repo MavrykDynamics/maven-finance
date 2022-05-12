@@ -1,20 +1,17 @@
+import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Input } from 'app/App.components/Input/Input.controller'
-import Select from 'react-select'
-import {
-  SatelliteListEmptyContainer,
-  SatelliteListStyled,
-  SatelliteSearchFilter,
-  SelectContainer,
-} from './SatelliteList.style'
-import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
-import { darkMode, lightMode } from '../../../styles'
-import { useSelector } from 'react-redux'
-import { State } from '../../../reducers'
-import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
-import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
 import * as React from 'react'
 import { useState } from 'react'
-import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
+import { useSelector } from 'react-redux'
+import Select from 'react-select'
+
+import { DropDown } from '../../../app/App.components/DropDown/DropDown.controller'
+import { State } from '../../../reducers'
+import { darkMode, lightMode } from '../../../styles'
+import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
+// prettier-ignore
+import { SatelliteListEmptyContainer, SatelliteListStyled, SatelliteSearchFilter, SelectContainer } from './SatelliteList.style'
+import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
 
 type SatelliteListViewProps = {
   loading: boolean
@@ -59,7 +56,12 @@ export const SatelliteListView = ({
 }
 
 const EmptySatelliteList = () => {
-  return <SatelliteListEmptyContainer>No satellites currently active</SatelliteListEmptyContainer>
+  return (
+    <SatelliteListEmptyContainer>
+      <img src="/images/not-found.svg" alt="No satellites found" />
+      <figcaption>No satellites found</figcaption>
+    </SatelliteListEmptyContainer>
+  )
 }
 
 const ListWithSatellites = ({
