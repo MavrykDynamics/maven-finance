@@ -1,4 +1,11 @@
-import styled from 'styled-components/macro';
+import styled, { createGlobalStyle } from 'styled-components/macro';
+import { MavrykTheme } from 'styles/interfaces';
+
+export const GlobalStyle = createGlobalStyle<{ theme: MavrykTheme }>`
+  body {
+    min-width: unset;
+  }
+`;
 
 export const MobilePlugBackground = styled.div`
   width: 100vw;
