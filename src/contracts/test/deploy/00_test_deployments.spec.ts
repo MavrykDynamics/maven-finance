@@ -64,7 +64,6 @@ import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
 import { lpStorage } from "../../storage/testLPTokenStorage";
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
-import { delegationStorageType } from "test/types/delegationStorageType";
 
 describe('Contracts Deployment for Tests', async () => {
   var utils: Utils
