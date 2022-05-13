@@ -12,6 +12,4 @@ class CouncilActionRequestMintParameter(BaseModel):
 
     treasuryAddress: str
     tokenAmount: str
-    tokenType: str
-    tokenId: str
     purpose: str

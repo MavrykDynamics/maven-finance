@@ -29,11 +29,45 @@ class UpdateConfigActionItem2(BaseModel):
     configMinimumStakedMvkBalance: Dict[str, Any]
 
 
+class UpdateConfigActionItem3(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configSatDescMaxLength: Dict[str, Any]
+
+
+class UpdateConfigActionItem4(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configSatImageMaxLength: Dict[str, Any]
+
+
+class UpdateConfigActionItem5(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configSatNameMaxLength: Dict[str, Any]
+
+
+class UpdateConfigActionItem6(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configSatWebsiteMaxLength: Dict[str, Any]
+
+
 class UpdateConfigParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
     updateConfigNewValue: str
     updateConfigAction: Union[
-        UpdateConfigActionItem, UpdateConfigActionItem1, UpdateConfigActionItem2
+        UpdateConfigActionItem,
+        UpdateConfigActionItem1,
+        UpdateConfigActionItem2,
+        UpdateConfigActionItem3,
+        UpdateConfigActionItem4,
+        UpdateConfigActionItem5,
+        UpdateConfigActionItem6,
     ]

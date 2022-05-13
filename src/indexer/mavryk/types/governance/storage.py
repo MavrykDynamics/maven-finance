@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict, List, Union
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel, Extra, Field
 
 
 class Config(BaseModel):
@@ -13,80 +13,62 @@ class Config(BaseModel):
         extra = Extra.forbid
 
     successReward: str
+    cycleVotersReward: str
     minProposalRoundVotePercentage: str
     minProposalRoundVotesRequired: str
     minQuorumPercentage: str
     minQuorumMvkTotal: str
     votingPowerRatio: str
-    proposalSubmissionFee: str
+    proposalSubmissionFeeMutez: str
     minimumStakeReqPercentage: str
     maxProposalsPerDelegate: str
-    newBlockTimeLevel: str
-    newBlocksPerMinute: str
     blocksPerMinute: str
     blocksPerProposalRound: str
     blocksPerVotingRound: str
     blocksPerTimelockRound: str
-    financialRequestApprovalPercentage: str
-    financialRequestDurationInDays: str
+    proposalMetadataTitleMaxLength: str
+    proposalTitleMaxLength: str
+    proposalDescriptionMaxLength: str
+    proposalInvoiceMaxLength: str
+    proposalSourceCodeMaxLength: str
 
 
-class VoteItem(BaseModel):
+class TokenItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    approve: Dict[str, Any]
+    fa12: str
 
 
-class VoteItem1(BaseModel):
+class Fa2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    disapprove: Dict[str, Any]
-
-
-class Voters(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    vote: Union[VoteItem, VoteItem1]
-    totalVotingPower: str
-    timeVoted: str
-
-
-class FinancialRequestLedger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    requesterAddress: str
-    requestType: str
-    status: bool
-    ready: bool
-    executed: bool
-    treasuryAddress: str
     tokenContractAddress: str
-    tokenAmount: str
-    tokenName: str
-    tokenType: str
     tokenId: str
-    requestPurpose: str
-    voters: Dict[str, Voters]
-    approveVoteTotal: str
-    disapproveVoteTotal: str
-    snapshotStakedMvkTotalSupply: str
-    stakedMvkPercentageForApproval: str
-    stakedMvkRequiredForApproval: str
-    requestedDateTime: str
-    expiryDateTime: str
 
 
-class FinancialRequestSnapshotLedger(BaseModel):
+class TokenItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    totalMvkBalance: str
-    totalDelegatedAmount: str
-    totalVotingPower: str
+    fa2: Fa2
+
+
+class TokenItem2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    tez: Dict[str, Any]
+
+
+class PaymentMetadata(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    to_: str
+    token: Union[TokenItem, TokenItem1, TokenItem2]
+    amount: str
 
 
 class PassVotersMap(BaseModel):
@@ -97,13 +79,34 @@ class PassVotersMap(BaseModel):
     timestamp: str
 
 
-class Voters1(BaseModel):
+class OrItem(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    nat_0: str
-    nat_1: str
+    abstain: Dict[str, Any]
+
+
+class OrItem1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nay: Dict[str, Any]
+
+
+class OrItem2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    yay: Dict[str, Any]
+
+
+class Voters(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    nat: str
     timestamp: str
+    or_: Union[OrItem, OrItem1, OrItem2] = Field(..., alias='or')
 
 
 class ProposalLedger(BaseModel):
@@ -112,6 +115,8 @@ class ProposalLedger(BaseModel):
 
     proposerAddress: str
     proposalMetadata: Dict[str, str]
+    proposalMetadataExecutionCounter: str
+    paymentMetadata: Dict[str, PaymentMetadata]
     status: str
     title: str
     description: str
@@ -119,6 +124,8 @@ class ProposalLedger(BaseModel):
     sourceCode: str
     successReward: str
     executed: bool
+    isSuccessful: bool
+    paymentProcessed: bool
     locked: bool
     passVoteCount: str
     passVoteMvkTotal: str
@@ -131,7 +138,7 @@ class ProposalLedger(BaseModel):
     downvoteMvkTotal: str
     abstainCount: str
     abstainMvkTotal: str
-    voters: Dict[str, Voters1]
+    voters: Dict[str, Voters]
     minQuorumPercentage: str
     minQuorumMvkTotal: str
     quorumCount: str
@@ -153,34 +160,61 @@ class SnapshotLedger(BaseModel):
     currentCycleEndLevel: str
 
 
+class RoundItem(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    proposal: Dict[str, Any]
+
+
+class RoundItem1(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    timelock: Dict[str, Any]
+
+
+class RoundItem2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    voting: Dict[str, Any]
+
+
+class CurrentCycleInfo(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    round: Union[RoundItem, RoundItem1, RoundItem2]
+    blocksPerProposalRound: str
+    blocksPerVotingRound: str
+    blocksPerTimelockRound: str
+    roundStartLevel: str
+    roundEndLevel: str
+    cycleEndLevel: str
+    roundProposals: Dict[str, str]
+    roundProposers: Dict[str, List[str]]
+    roundVotes: Dict[str, str]
+    cycleTotalVotersReward: str
+
+
 class GovernanceStorage(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    activeSatellitesMap: Dict[str, str]
     admin: str
+    metadata: Dict[str, str]
     config: Config
-    currentCycleEndLevel: str
-    currentRound: str
-    currentRoundEndLevel: str
-    currentRoundHighestVotedProposalId: str
-    currentRoundProposals: Dict[str, str]
-    currentRoundStartLevel: str
-    currentRoundVotes: Dict[str, str]
-    cycleCounter: str
-    financialRequestCounter: str
-    financialRequestLedger: Dict[str, FinancialRequestLedger]
-    financialRequestSnapshotLedger: Dict[str, Dict[str, FinancialRequestSnapshotLedger]]
-    generalContracts: Dict[str, str]
-    governanceLambdaLedger: Dict[str, str]
     mvkTokenAddress: str
-    nextProposalId: str
+    governanceProxyAddress: str
+    whitelistDevelopers: List[str]
+    generalContracts: Dict[str, str]
     proposalLedger: Dict[str, ProposalLedger]
     snapshotLedger: Dict[str, SnapshotLedger]
-    snapshotMvkTotalSupply: str
-    snapshotStakedMvkTotalSupply: str
-    startLevel: str
-    tempFlag: str
+    currentCycleInfo: CurrentCycleInfo
+    nextProposalId: str
+    cycleCounter: str
+    currentRoundHighestVotedProposalId: str
     timelockProposalId: str
-    whitelistContracts: Dict[str, str]
-    whitelistTokenContracts: Dict[str, str]
+    snapshotMvkTotalSupply: str
+    lambdaLedger: Dict[str, str]

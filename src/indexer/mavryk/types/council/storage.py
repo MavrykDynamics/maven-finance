@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, Extra
 
@@ -12,39 +12,57 @@ class Config(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    actionExpiryDays: str
     threshold: str
+    actionExpiryDays: str
+    councilMemberNameMaxLength: str
+    councilMemberWebsiteMaxLength: str
+    councilMemberImageMaxLength: str
+    requestTokenNameMaxLength: str
+    requestPurposeMaxLength: str
+
+
+class CouncilMembers(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    name: str
+    website: str
+    image: str
 
 
 class CouncilActionsLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    initiator: str
     actionType: str
-    addressMap: Dict[str, str]
+    signers: List[str]
+    status: str
+    signersCount: str
     executed: bool
+    addressMap: Dict[str, str]
+    stringMap: Dict[str, str]
+    natMap: Dict[str, str]
+    keyHash: Optional[str]
+    startDateTime: str
+    startLevel: str
     executedDateTime: str
     executedLevel: str
     expirationDateTime: str
-    initiator: str
-    natMap: Dict[str, str]
-    signers: List[str]
-    signersCount: str
-    startDateTime: str
-    startLevel: str
-    status: str
-    stringMap: Dict[str, str]
 
 
 class CouncilStorage(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    actionCounter: str
     admin: str
-    config: Config
-    councilActionsLedger: Dict[str, CouncilActionsLedger]
-    councilMembers: List[str]
-    generalContracts: Dict[str, str]
     mvkTokenAddress: str
+    governanceAddress: str
+    metadata: Dict[str, str]
+    config: Config
+    councilMembers: Dict[str, CouncilMembers]
     whitelistContracts: Dict[str, str]
+    generalContracts: Dict[str, str]
+    councilActionsLedger: Dict[str, CouncilActionsLedger]
+    actionCounter: str
+    lambdaLedger: Dict[str, str]

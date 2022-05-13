@@ -26,17 +26,31 @@ class UpdateConfigActionItem2(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configRequiredFee: Dict[str, Any]
+    configProposalDescMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem3(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    configStakedMvkPercentRequired: Dict[str, Any]
+    configProposalTitleMaxLength: Dict[str, Any]
 
 
 class UpdateConfigActionItem4(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configRequiredFeeMutez: Dict[str, Any]
+
+
+class UpdateConfigActionItem5(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configStakedMvkPercentRequired: Dict[str, Any]
+
+
+class UpdateConfigActionItem6(BaseModel):
     class Config:
         extra = Extra.forbid
 
@@ -54,4 +68,6 @@ class UpdateConfigParameter(BaseModel):
         UpdateConfigActionItem2,
         UpdateConfigActionItem3,
         UpdateConfigActionItem4,
+        UpdateConfigActionItem5,
+        UpdateConfigActionItem6,
     ]

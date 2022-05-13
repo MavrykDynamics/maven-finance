@@ -39,9 +39,12 @@ class MvkStorage(BaseModel):
 
     admin: str
     generalContracts: Dict[str, str]
+    governanceAddress: str
+    inflationRate: str
     ledger: Dict[str, str]
     maximumSupply: str
     metadata: Dict[str, str]
+    nextInflationTimestamp: str
     operators: List[Operator]
     token_metadata: Dict[str, TokenMetadata]
     totalSupply: str
