@@ -97,7 +97,7 @@ const ListWithSatellites = ({
   ]
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(undefined)
+  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)

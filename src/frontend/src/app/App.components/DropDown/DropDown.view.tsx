@@ -3,6 +3,9 @@ import * as PropTypes from 'prop-types'
 
 import { DropDownStyled, DropDownMenu, DropDownListContainer, DropDownList, DropDownListItem } from './DropDown.style'
 
+// components
+import Icon from '../Icon/Icon.view'
+
 type DropDownViewProps = {
   icon?: string
   placeholder: string
@@ -45,25 +48,17 @@ export const DropDownView = ({
       >
         {itemSelected !== undefined ? itemSelected : placeholder}
         <span>
-          {/* <Icon id="switch" /> */}
-          {isOpen ? (
-            <svg>
-              <use xlinkHref={`/icons/sprites.svg#arrow-up`} />
-            </svg>
-          ) : (
-            <svg>
-              <use xlinkHref={`/icons/sprites.svg#arrow-down`} />
-            </svg>
-          )}
+          <Icon className={isOpen ? 'open' : ''} id="arrow-down" />
         </span>
       </DropDownMenu>
       {isOpen && (
         <DropDownListContainer id={'dropDownListContainer'}>
           <DropDownList>
             {items.map((value, index) => {
+              const isActive = itemSelected === value
               return (
                 <DropDownListItem onClick={() => clickItem(value)} key={Math.random()}>
-                  {value}
+                  {value} {isActive ? <Icon id="check-stroke" /> : null}
                 </DropDownListItem>
               )
             })}

@@ -201,7 +201,7 @@
                   stroke="#7068AA" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
     </symbol>
-    <symbol id="man-check" viewBox="0 0 24 24">
+    <symbol id="man--stroke" viewBox="0 0 24 24">
         <g>
             <path d="M5.25 6.75C6.90685 6.75 8.25 5.40685 8.25 3.75C8.25 2.09315 6.90685 0.75 5.25 0.75C3.59315 0.75 2.25 2.09315 2.25 3.75C2.25 5.40685 3.59315 6.75 5.25 6.75Z"
                   fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -282,7 +282,7 @@
             </clipPath>
         </defs>
     </symbol>
-    <symbol id="check" viewBox="0 0 24 24">
+    <symbol id="-stroke" viewBox="0 0 24 24">
         <g clip-path="url(#clip0_1510_12545)">
             <path d="M1 6L6 11L16 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
                   fill="none"/>
@@ -433,5 +433,8 @@
   <symbol id="question" viewBox="0 0 12 12" >
     <path fill-rule="evenodd" clip-rule="evenodd" d="M6 11.25C8.8995 11.25 11.25 8.8995 11.25 6C11.25 3.10051 8.8995 0.75 6 0.75C3.10051 0.75 0.75 3.10051 0.75 6C0.75 8.8995 3.10051 11.25 6 11.25ZM6 12C9.31371 12 12 9.31371 12 6C12 2.68629 9.31371 0 6 0C2.68629 0 0 2.68629 0 6C0 9.31371 2.68629 12 6 12Z" />
     <path d="M5.3921 6.63229H6.2961V5.89629C7.1601 5.70429 7.7681 5.06429 7.7681 4.34429C7.7681 3.47229 7.0641 2.80829 6.0081 2.80829C5.2161 2.80829 4.6001 3.17629 4.1521 3.68829L4.7361 4.28029C5.0321 3.95229 5.4081 3.70429 5.8721 3.70429C6.4161 3.70429 6.7681 4.04829 6.7681 4.44029C6.7681 4.86429 6.2001 5.20029 5.3921 5.24829V6.63229ZM5.8481 8.49629C6.1841 8.49629 6.4641 8.20829 6.4641 7.85629C6.4641 7.52829 6.1841 7.24029 5.8481 7.24029C5.4801 7.24029 5.2081 7.52829 5.2081 7.85629C5.2081 8.20829 5.4801 8.49629 5.8481 8.49629Z" />
+  </symbol>
+  <symbol id="check-stroke"  viewBox="0 0 12 13" fill="none" >
+    <path d="M1 7L5 11.5L11 1.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
 </svg>
