@@ -14,6 +14,7 @@ export const SatelliteListEmptyContainer = styled.figure<{ theme: MavrykTheme }>
   font-size: 18px;
   font-weight: 800;
   flex-direction: column;
+  padding-top: 16px;
 `
 export const SatelliteSearchFilter = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};

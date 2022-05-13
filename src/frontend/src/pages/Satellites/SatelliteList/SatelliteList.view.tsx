@@ -109,6 +109,8 @@ const ListWithSatellites = ({
     handleSelect(chosenItem.value)
   }
 
+  console.log('%c ||||| satelliteFound', 'color:yellowgreen', satelliteFound)
+
   return (
     <SatelliteListStyled>
       <SatelliteSearchFilter>
@@ -133,7 +135,7 @@ const ListWithSatellites = ({
           />{' '}
         </DropdownContainer>
       </SatelliteSearchFilter>
-      {satelliteFound === false && <SatelliteListEmptyContainer>Satellite Not Found</SatelliteListEmptyContainer>}
+      {satelliteFound === false && <EmptySatelliteList />}
       {satellitesList.map((item, index) => {
         return (
           <SatelliteListCard
