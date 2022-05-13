@@ -10,7 +10,8 @@ class UpdateSatelliteRecordParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    string_0: str
-    string_1: str
-    string_2: str
-    nat: str
+    name: str
+    description: str
+    image: str
+    website: str
+    satelliteFee: str

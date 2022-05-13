@@ -10,6 +10,6 @@ class AddUpdateProposalDataParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    nat: str
-    string: str
-    bytes: str
+    proposalId: str
+    title: str
+    proposalBytes: str

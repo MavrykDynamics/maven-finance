@@ -10,5 +10,5 @@ class SetSingleContractAdminParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    address_0: str
-    address_1: str
+    newAdminAddress: str
+    targetContractAddress: str

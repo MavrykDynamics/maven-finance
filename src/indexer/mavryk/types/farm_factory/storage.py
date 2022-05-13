@@ -22,9 +22,13 @@ class FarmFactoryStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    blocksPerMinute: str
-    breakGlassConfig: BreakGlassConfig
-    generalContracts: Dict[str, str]
+    metadata: Dict[str, str]
     mvkTokenAddress: str
-    trackedFarms: List[str]
+    governanceAddress: str
+    config: str
+    breakGlassConfig: BreakGlassConfig
     whitelistContracts: Dict[str, str]
+    generalContracts: Dict[str, str]
+    trackedFarms: List[str]
+    lambdaLedger: Dict[str, str]
+    farmLambdaLedger: Dict[str, str]

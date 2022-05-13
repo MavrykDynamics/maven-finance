@@ -3,8 +3,14 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class CouncilActionAddMemberParameter(BaseModel):
-    __root__: str
+    class Config:
+        extra = Extra.forbid
+
+    memberAddress: str
+    memberName: str
+    memberWebsite: str
+    memberImage: str

@@ -15,7 +15,9 @@ class Config(BaseModel):
     decimals: str
     minStakedMvkRequiredToTrigger: str
     minStakedMvkRequiredToVote: str
-    requiredFee: str
+    proposalDescMaxLength: str
+    proposalTitleMaxLength: str
+    requiredFeeMutez: str
     stakedMvkPercentageRequired: str
     voteExpiryDays: str
 
@@ -33,7 +35,6 @@ class EmergencyGovernanceLedger(BaseModel):
         extra = Extra.forbid
 
     proposerAddress: str
-    status: bool
     executed: bool
     dropped: bool
     title: str
@@ -54,10 +55,12 @@ class EmergencyGovernanceStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    config: Config
-    currentEmergencyGovernanceId: str
-    emergencyGovernanceLedger: Dict[str, EmergencyGovernanceLedger]
-    generalContracts: Dict[str, str]
     mvkTokenAddress: str
-    nextEmergencyGovernanceProposalId: str
-    tempStakedMvkTotalSupply: str
+    governanceAddress: str
+    metadata: Dict[str, str]
+    config: Config
+    generalContracts: Dict[str, str]
+    emergencyGovernanceLedger: Dict[str, EmergencyGovernanceLedger]
+    currentEmergencyGovernanceId: str
+    nextEmergencyGovernanceId: str
+    lambdaLedger: Dict[str, str]

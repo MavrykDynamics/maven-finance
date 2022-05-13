@@ -8,46 +8,64 @@ from typing import Dict
 from pydantic import BaseModel, Extra
 
 
+class Config(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    minimumStakedMvkBalance: str
+    delegationRatio: str
+    maxSatellites: str
+    satelliteNameMaxLength: str
+    satelliteDescriptionMaxLength: str
+    satelliteImageMaxLength: str
+    satelliteWebsiteMaxLength: str
+
+
 class BreakGlassConfig(BaseModel):
     class Config:
         extra = Extra.forbid
 
     delegateToSatelliteIsPaused: bool
+    distributeRewardIsPaused: bool
     registerAsSatelliteIsPaused: bool
     undelegateFromSatelliteIsPaused: bool
     unregisterAsSatelliteIsPaused: bool
     updateSatelliteRecordIsPaused: bool
 
 
-class Config(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    delegationRatio: str
-    maxSatellites: str
-    minimumStakedMvkBalance: str
-
-
 class DelegateLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    delegatedDateTime: str
     satelliteAddress: str
+    delegatedDateTime: str
+    delegatedSMvkBalance: str
 
 
 class SatelliteLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    status: str
+    stakedMvkBalance: str
+    satelliteFee: str
+    totalDelegatedAmount: str
+    name: str
     description: str
     image: str
-    name: str
+    website: str
     registeredDateTime: str
-    satelliteFee: str
-    stakedMvkBalance: str
-    status: str
-    totalDelegatedAmount: str
+
+
+class SatelliteRewardsLedger(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    unpaid: str
+    paid: str
+    participationRewardsPerShare: str
+    satelliteAccumulatedRewardsPerShare: str
+    satelliteReferenceAddress: str
 
 
 class DelegationStorage(BaseModel):
@@ -55,10 +73,14 @@ class DelegationStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    breakGlassConfig: BreakGlassConfig
-    config: Config
-    delegateLedger: Dict[str, DelegateLedger]
-    generalContracts: Dict[str, str]
     mvkTokenAddress: str
-    satelliteLedger: Dict[str, SatelliteLedger]
+    governanceAddress: str
+    metadata: Dict[str, str]
+    config: Config
     whitelistContracts: Dict[str, str]
+    generalContracts: Dict[str, str]
+    breakGlassConfig: BreakGlassConfig
+    delegateLedger: Dict[str, DelegateLedger]
+    satelliteLedger: Dict[str, SatelliteLedger]
+    satelliteRewardsLedger: Dict[str, SatelliteRewardsLedger]
+    lambdaLedger: Dict[str, str]

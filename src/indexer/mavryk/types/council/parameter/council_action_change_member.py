@@ -12,3 +12,6 @@ class CouncilActionChangeMemberParameter(BaseModel):
 
     oldCouncilMemberAddress: str
     newCouncilMemberAddress: str
+    newCouncilMemberName: str
+    newCouncilMemberWebsite: str
+    newCouncilMemberImage: str

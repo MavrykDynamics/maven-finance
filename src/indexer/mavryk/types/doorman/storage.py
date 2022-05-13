@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Dict
 
 from pydantic import BaseModel, Extra
 
@@ -12,9 +12,9 @@ class BreakGlassConfig(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    compoundIsPaused: bool
     stakeIsPaused: bool
     unstakeIsPaused: bool
+    compoundIsPaused: bool
 
 
 class UserStakeBalanceLedger(BaseModel):
@@ -22,6 +22,9 @@ class UserStakeBalanceLedger(BaseModel):
         extra = Extra.forbid
 
     balance: str
+    totalExitFeeRewardsClaimed: str
+    totalSatelliteRewardsClaimed: str
+    totalFarmRewardsClaimed: str
     participationFeesPerShare: str
 
 
@@ -29,19 +32,16 @@ class DoormanStorage(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    accumulatedFeesPerShare: str
     admin: str
-    breakGlassConfig: BreakGlassConfig
-    generalContracts: Dict[str, str]
-    logExitFee: str
-    logFinalAmount: str
-    minMvkAmount: str
     mvkTokenAddress: str
-    stakedMvkTotalSupply: str
-    tempClaimAmount: Optional[str]
-    tempClaimDelegator: Optional[str]
-    tempClaimForceTransfer: Optional[bool]
-    tempUnstakeAmount: Optional[str]
-    unclaimedRewards: str
-    userStakeBalanceLedger: Dict[str, UserStakeBalanceLedger]
+    governanceAddress: str
+    metadata: Dict[str, str]
+    minMvkAmount: str
     whitelistContracts: Dict[str, str]
+    generalContracts: Dict[str, str]
+    breakGlassConfig: BreakGlassConfig
+    userStakeBalanceLedger: Dict[str, UserStakeBalanceLedger]
+    stakedMvkTotalSupply: str
+    unclaimedRewards: str
+    accumulatedFeesPerShare: str
+    lambdaLedger: Dict[str, str]

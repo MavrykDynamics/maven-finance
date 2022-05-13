@@ -10,7 +10,7 @@ class AddVesteeParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    address: str
-    nat_0: str
-    nat_1: str
-    nat_2: str
+    vesteeAddress: str
+    totalAllocatedAmount: str
+    cliffInMonths: str
+    vestingInMonths: str

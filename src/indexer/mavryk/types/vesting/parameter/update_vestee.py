@@ -10,7 +10,7 @@ class UpdateVesteeParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    address: str
-    nat_0: str
-    nat_1: str
-    nat_2: str
+    vesteeAddress: str
+    newTotalAllocatedAmount: str
+    newCliffInMonths: str
+    newVestingInMonths: str

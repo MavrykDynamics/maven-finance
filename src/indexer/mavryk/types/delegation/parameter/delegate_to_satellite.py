@@ -3,8 +3,12 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class DelegateToSatelliteParameter(BaseModel):
-    __root__: str
+    class Config:
+        extra = Extra.forbid
+
+    userAddress: str
+    satelliteAddress: str
