@@ -115,7 +115,7 @@ const ListWithSatellites = ({
         <Input
           type="text"
           kind={'search'}
-          placeholder="Search by address..."
+          placeholder="Search by address or name..."
           onChange={handleSearch}
           onBlur={() => {}}
         />

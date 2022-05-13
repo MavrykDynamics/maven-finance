@@ -39,7 +39,7 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
     MVK_TOKEN_STORAGE_QUERY_VARIABLE,
   )
 
-  const convertedStorage = storageToTypeConverter('mvkToken', storage.mvk_token[0])
+  const convertedStorage = storageToTypeConverter('mvkToken', storage?.mvk_token[0])
   //
   // const myLedgerEntry = accountPkh ? await storage['ledger'].get(accountPkh) : undefined
   // const myBalance = myLedgerEntry ? calcWithoutMu(myLedgerEntry?.toNumber()) : 0
