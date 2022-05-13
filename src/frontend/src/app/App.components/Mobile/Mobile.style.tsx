@@ -93,3 +93,5 @@ export const SocialIconsWrapper = styled.div`
     margin-top: 80px;
   }
 `;
+
+export const SocialIconLink = styled.a``;

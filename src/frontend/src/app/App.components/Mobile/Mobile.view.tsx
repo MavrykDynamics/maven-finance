@@ -3,6 +3,7 @@ import * as React from 'react';
 import {
   GlobalStyle,
   MobilePlugBackground,
+  SocialIconLink,
   MobilePlugWrapper,
   MobilePLugLogo,
   MobilePlugLogoWrapper,
@@ -35,11 +36,21 @@ export default function Modile() {
         </MobilePlugText>
         <MobilePlugBottomWrapper>
           <SocialIconsWrapper>
-            <TwitterIcon width="48px" height="48px" id="twitter-icon" />
-            <GitHubIcon width="32px" height="32px" id="github-icon" />
-            <MediumIcon width="36px" height="31px" id="medium-icon" />
-            <DiscordIcon width="40px" height="32px" id="discord-icon" />
-            <TelegramIcon width="30px" height="30px" id="telegram-icon" />
+            <SocialIconLink href="https://twitter.com/Mavryk_Finance">
+              <TwitterIcon width="48px" height="48px" id="twitter-icon" />
+            </SocialIconLink>
+            <SocialIconLink href="https://discord.com/invite/7VXPR4gkT6">
+              <DiscordIcon width="40px" height="32px" id="discord-icon" />
+            </SocialIconLink>
+            <SocialIconLink href="https://t.me/Mavryk_Finance">
+              <TelegramIcon width="30px" height="30px" id="telegram-icon" />
+            </SocialIconLink>
+            <SocialIconLink href="https://medium.com/@Mavryk_Finance">
+              <MediumIcon width="36px" height="31px" id="medium-icon" />
+            </SocialIconLink>
+            <SocialIconLink href="https://github.com/mavrykfinance/">
+              <GitHubIcon width="32px" height="32px" id="github-icon" />
+            </SocialIconLink>
           </SocialIconsWrapper>
           <MobilePlugText
             textSize={'18px'}
