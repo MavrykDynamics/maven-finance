@@ -1,13 +1,10 @@
-import { TransactionOperation, TezosToolkit, MichelsonMap } from '@taquito/taquito'
 import { InMemorySigner } from '@taquito/signer'
-
+import { MichelsonMap, TezosToolkit, TransactionOperation } from '@taquito/taquito'
 import { BigNumber } from 'bignumber.js'
 
-import { confirmOperation } from '../../scripts/confirmation'
-
-import mvkTokenDecimals from '../../helpers/mvkTokenDecimals.json';
-
 import env from '../../env'
+import mvkTokenDecimals from '../../helpers/mvkTokenDecimals.json';
+import { confirmOperation } from '../../scripts/confirmation'
 
 const defaultNetwork = 'development'
 const network = env.network || defaultNetwork
