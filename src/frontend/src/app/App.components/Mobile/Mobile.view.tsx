@@ -11,6 +11,7 @@ import {
 } from './Mobile.style';
 
 import { DiscordIcon, TwitterIcon, TelegramIcon, MediumIcon, GitHubIcon } from './assets/index';
+import { containerColor, medialeColor } from 'styles/colors';
 
 export default function Modile() {
   return (
@@ -21,13 +22,13 @@ export default function Modile() {
         </MobilePlugLogoWrapper>
         <MobilePlugText
           textSize={'22px'}
-          textColor={'#F7F9FD'}
+          textColor={containerColor}
           topMargin={'125px'}
           topMarginMobile={'60px'}
         >
           Mobile and tablet version of our dapp is not available at this time.
         </MobilePlugText>
-        <MobilePlugText textSize={'22px'} textColor={'#F7F9FD'} topMargin={'10px'}>
+        <MobilePlugText textSize={'22px'} textColor={containerColor} topMargin={'10px'}>
           Please open on a desktop screen or laptop.
         </MobilePlugText>
         <MobilePlugBottomWrapper>
@@ -40,7 +41,7 @@ export default function Modile() {
           </SocialIconsWrapper>
           <MobilePlugText
             textSize={'18px'}
-            textColor={'#38237C'}
+            textColor={medialeColor}
             topMargin={'60px'}
             topMarginMobile={'35px'}
           >
@@ -50,7 +51,7 @@ export default function Modile() {
 
           <MobilePlugText
             textSize={'18px'}
-            textColor={'#38237C'}
+            textColor={medialeColor}
             topMargin={'61px'}
             topMarginMobile={'35px'}
             fontWeight={'400'}
