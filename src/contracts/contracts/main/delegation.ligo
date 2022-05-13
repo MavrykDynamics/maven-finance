@@ -50,12 +50,12 @@ type delegationAction is
     | TogglePauseDistributeReward       of (unit)
 
       // Delegation Entrypoints
-    | DelegateToSatellite               of (address)    
+    | DelegateToSatellite               of delegateToSatelliteType    
     | UndelegateFromSatellite           of (address)
     
       // Satellite Entrypoints
     | RegisterAsSatellite               of newSatelliteRecordType
-    | UnregisterAsSatellite             of (unit)
+    | UnregisterAsSatellite             of (address)
     | UpdateSatelliteRecord             of updateSatelliteRecordType
     | DistributeReward                  of distributeRewardTypes
 
@@ -120,20 +120,20 @@ function checkSenderIsSelf(const _p : unit) : unit is
 
 
 
-function checkSourceIsSatellite(var s : delegationStorage) : unit is 
-  if (Map.mem(Tezos.source, s.satelliteLedger)) then unit
+function checkUserIsSatellite(const userAddress: address; var s : delegationStorage) : unit is 
+  if (Map.mem(userAddress, s.satelliteLedger)) then unit
   else failwith(error_ONLY_SATELLITE_ALLOWED);
 
 
 
-function checkSourceIsNotSatellite(var s : delegationStorage) : unit is 
-  if (Map.mem(Tezos.source, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
+function checkUserIsNotSatellite(const userAddress: address; var s : delegationStorage) : unit is 
+  if (Map.mem(userAddress, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
   else unit;
 
 
 
-function checkSourceIsNotDelegate(var s : delegationStorage) : unit is 
-  if (Big_map.mem(Tezos.source, s.delegateLedger)) then failwith(error_DELEGATE_NOT_ALLOWED)
+function checkUserIsNotDelegate(const userAddress: address; var s : delegationStorage) : unit is 
+  if (Big_map.mem(userAddress, s.delegateLedger)) then failwith(error_DELEGATE_NOT_ALLOWED)
   else unit;
 
 
@@ -270,12 +270,12 @@ function checkDistributeRewardIsNotPaused(var s : delegationStorage) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : contract(address) is
+function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : contract(delegateToSatelliteType) is
   case (Tezos.get_entrypoint_opt(
       "%delegateToSatellite",
-      delegationAddress) : option(contract(address))) of [
+      delegationAddress) : option(contract(delegateToSatelliteType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
+  | None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(delegateToSatelliteType))
 ];
 
 
@@ -755,7 +755,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* delegateToSatellite entrypoint *)
-function delegateToSatellite(const satelliteAddress : address; var s : delegationStorage) : return is 
+function delegateToSatellite(const delegateToSatelliteParams : delegateToSatelliteType; var s : delegationStorage) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDelegateToSatellite"] of [
@@ -764,7 +764,7 @@ block {
     ];
 
     // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaDelegateToSatellite(satelliteAddress);
+    const delegationLambdaAction : delegationLambdaActionType = LambdaDelegateToSatellite(delegateToSatelliteParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
@@ -774,7 +774,7 @@ block {
 
 
 (* undelegateFromSatellite entrypoint *)
-function undelegateFromSatellite(const userAddress: address; var s : delegationStorage) : return is
+function undelegateFromSatellite(const undelegateToSatelliteParams: address; var s : delegationStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUndelegateFromSatellite"] of [
@@ -783,7 +783,7 @@ block {
     ];
 
     // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaUndelegateFromSatellite(userAddress);
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUndelegateFromSatellite(undelegateToSatelliteParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
@@ -820,7 +820,7 @@ block {
 
 
 (* unregisterAsSatellite entrypoint *)
-function unregisterAsSatellite(var s : delegationStorage) : return is
+function unregisterAsSatellite(const userAddress: address; var s : delegationStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnregisterAsSatellite"] of [
@@ -829,7 +829,7 @@ block {
     ];
 
     // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaUnregisterAsSatellite(unit);
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUnregisterAsSatellite(userAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
@@ -988,7 +988,7 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         
           // Satellite Entrypoints
         | RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)
-        | UnregisterAsSatellite(_parameters)            -> unregisterAsSatellite(s)
+        | UnregisterAsSatellite(parameters)             -> unregisterAsSatellite(parameters, s)
         | UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
         | DistributeReward(parameters)                  -> distributeReward(parameters, s)
 

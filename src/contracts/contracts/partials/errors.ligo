@@ -171,14 +171,13 @@
 [@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                                                                     = 124n;
 [@inline] const error_SATELLITE_TREASURY_CONTRACT_NOT_FOUND                                                             = 125n;
 [@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                                                                  = 126n;
-[@inline] const error_ONLY_SELF_OR_DELEGATE_ALLOWED                                                                     = 127n;
+[@inline] const error_ONLY_SELF_OR_SENDER_ALLOWED                                                                       = 127n;
 
 [@inline] const error_ONLY_SATELLITE_ALLOWED                                                                            = 128n;
 [@inline] const error_SATELLITE_NOT_ALLOWED                                                                             = 129n;
 [@inline] const error_SATELLITE_NOT_FOUND                                                                               = 130n;
 [@inline] const error_SATELLITE_ALREADY_EXISTS                                                                          = 131n;
 
-[@inline] const error_ONLY_SELF_OR_DELEGATE_ALLOWED                                                                     = 132n;
 [@inline] const error_DELEGATE_NOT_ALLOWED                                                                              = 133n;
 [@inline] const error_DELEGATE_NOT_FOUND                                                                                = 134n;
 [@inline] const error_DELEGATE_ALREADY_EXISTS                                                                           = 135n;

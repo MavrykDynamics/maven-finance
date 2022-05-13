@@ -346,7 +346,7 @@
 //                 const stakeAmountOperation = await doormanInstance.methods.stake(stakeAmount).send();
 //                 await stakeAmountOperation.confirmation();
 
-//                 const delegationOperation   = await delegationInstance.methods.delegateToSatellite(eve.pkh).send();
+//                 const delegationOperation   = await delegationInstance.methods.delegateToSatellite(alice.pkh, eve.pkh).send();
 //                 await delegationOperation.confirmation();
 
 //                 // Final values
@@ -594,7 +594,7 @@
 //         it('Satellite should be able to call this entrypoint and unregister', async () => {
 //             try{
 //                 // Unregisters as a satellite
-//                 const unregisterAsSatelliteOperation = await delegationInstance.methods.unregisterAsSatellite().send();
+//                 const unregisterAsSatelliteOperation = await delegationInstance.methods.unregisterAsSatellite(alice.pkh).send();
 //                 await unregisterAsSatelliteOperation.confirmation();
 
 //                 // Check state after unregistering as satellite
@@ -610,7 +610,7 @@
 //             try{
 //                 // Unregisters as a satellite
 //                 await signerFactory(mallory.sk);
-//                 await chai.expect(delegationInstance.methods.unregisterAsSatellite().send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.unregisterAsSatellite(mallory.pkh).send()).to.be.rejected;
 //             } catch(e){
 //                 console.log(e);
 //             } 
@@ -633,7 +633,7 @@
 
 //                 await signerFactory(alice.sk)
 //                 await chai.expect(delegationInstance.methods
-//                     .unregisterAsSatellite().send()
+//                     .unregisterAsSatellite(alice.pkh).send()
 //                 ).to.be.rejected;
 
 //                 // Reset admin
@@ -801,7 +801,7 @@
 //                 const stakeAmountOperation = await doormanInstance.methods.stake(stakeAmount).send();
 //                 await stakeAmountOperation.confirmation();
     
-//                 await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh, eve.pkh).send()).to.be.rejected;
 
 //                 // Final values
 //                 delegationStorage   = await delegationInstance.storage();
@@ -843,7 +843,7 @@
 //                 delegationStorage       = await delegationInstance.storage();
 //                 const isPausedEnd       = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
 
-//                 await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.delegateToSatellite(bob.pkh, eve.pkh).send()).to.be.rejected;
 
 //                 // Reset admin
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseDelegateToSatellite().send();
@@ -878,7 +878,7 @@
 //                 const stakeAmountOperation = await doormanInstance.methods.stake(stakeAmount).send();
 //                 await stakeAmountOperation.confirmation();
 
-//                 const delegationOperation   = await delegationInstance.methods.delegateToSatellite(eve.pkh).send();
+//                 const delegationOperation   = await delegationInstance.methods.delegateToSatellite(alice.pkh, eve.pkh).send();
 //                 await delegationOperation.confirmation();
 
 //                 // Final values
@@ -896,7 +896,7 @@
 
 //         it('User should not be able to delegate to the same satellite twice', async () => {
 //             try{
-//                 await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.delegateToSatellite(alice.pkh, eve.pkh).send()).to.be.rejected;
 //             } catch(e){
 //                 console.log(e);
 //             }
@@ -910,7 +910,7 @@
 //                 await updateOperation.confirmation();
 
 //                 // Initial values
-//                 await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.delegateToSatellite(bob.pkh, eve.pkh).send()).to.be.rejected;
 
 //                 // Reset operation
 //                 await signerFactory(bob.sk)
@@ -939,7 +939,7 @@
 //                 const stakeAmountOperation = await doormanInstance.methods.stake(userStake).send();
 //                 await stakeAmountOperation.confirmation();
 
-//                 await chai.expect(delegationInstance.methods.delegateToSatellite(mallory.pkh).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.delegateToSatellite(alice.pkh, mallory.pkh).send()).to.be.rejected;
 
 //                 // Final values
 //                 delegationStorage           = await delegationInstance.storage();
@@ -1026,7 +1026,7 @@
 //                 const satelliteRecord           = await delegationStorage.satelliteLedger.get(previousSatellite);
 //                 const previousDelegatedAmount   = satelliteRecord.totalDelegatedAmount;
 
-//                 const redelegateOperation       = await delegationInstance.methods.delegateToSatellite(oscar.pkh).send();
+//                 const redelegateOperation       = await delegationInstance.methods.delegateToSatellite(alice.pkh, oscar.pkh).send();
 //                 await redelegateOperation.confirmation();
                 
 //                 delegationStorage               = await delegationInstance.storage();
@@ -1127,7 +1127,7 @@
 
 //         it('User should not be able to call this entrypoint if the provided satellite does not exist', async () => {
 //             try{
-//                 await chai.expect(delegationInstance.methods.delegateToSatellite(bob.pkh).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.delegateToSatellite(alice.pkh, bob.pkh).send()).to.be.rejected;
 //             } catch(e){
 //                 console.log(e);
 //             }
@@ -1142,7 +1142,7 @@
 
 //                 // Initial values
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.delegateToSatellite(alice.pkh, eve.pkh).send()).to.be.rejected;
 
 //                 // Reset operation
 //                 await signerFactory(bob.sk)
@@ -1211,7 +1211,7 @@
 //                 delegationStorage       = await delegationInstance.storage();
 //                 const isPausedEnd       = delegationStorage.breakGlassConfig.delegateToSatelliteIsPaused
 
-//                 await chai.expect(delegationInstance.methods.delegateToSatellite(eve.pkh).send()).to.be.rejected;
+//                 await chai.expect(delegationInstance.methods.delegateToSatellite(bob.pkh, eve.pkh).send()).to.be.rejected;
 
 //                 // Reset admin
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseDelegateToSatellite().send();
@@ -1333,7 +1333,7 @@
 //     describe("%togglePauseUnregisterSatellite", async () => {
 //         before("Alice delegates to Eve's Satellite", async () => {
 //             await signerFactory(alice.sk)
-//             const delegateOperation = await delegationInstance.methods.delegateToSatellite(eve.pkh).send();
+//             const delegateOperation = await delegationInstance.methods.delegateToSatellite(alice.pkh, eve.pkh).send();
 //             await delegateOperation.confirmation();
 //         });
 
@@ -1356,7 +1356,7 @@
 //                 const isPausedEnd       = delegationStorage.breakGlassConfig.unregisterAsSatelliteIsPaused
 
 //                 await chai.expect(delegationInstance.methods
-//                     .unregisterAsSatellite().send()
+//                     .unregisterAsSatellite(bob.pkh).send()
 //                 ).to.be.rejected;
 
 //                 // Reset admin
