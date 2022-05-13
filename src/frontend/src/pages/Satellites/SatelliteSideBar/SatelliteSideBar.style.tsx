@@ -4,7 +4,7 @@ import { Card, CardHeader } from 'styles'
 
 export const SatelliteSideBarStyled = styled(Card)`
   padding: 24px 0;
-  margin-top: 30px;
+  margin-top: 0;
 
   h2 {
     font-weight: 700;

@@ -59,10 +59,20 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
         ...state,
         //delegationStorage: action.delegationStorage,
 
-        // test
+        // test empty
+        // delegationStorage: {
+        //   ...action.delegationStorage,
+        //   satelliteLedger: []
+        // },
+
+        // test 3
         delegationStorage: {
           ...action.delegationStorage,
-          satelliteLedger: []
+          satelliteLedger: [
+            action.delegationStorage.satelliteLedger[0],
+            action.delegationStorage.satelliteLedger[0],
+            action.delegationStorage.satelliteLedger[0],
+          ],
         },
       }
     case DELEGATE_REQUEST:

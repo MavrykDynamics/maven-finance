@@ -73,4 +73,7 @@ export const PageContent = styled.div`
   display: grid;
   grid-template-columns: 1fr 310px;
   grid-gap: 30px;
+  align-items: baseline;
+  align-items: start;
+  padding-top: 30px;
 `
