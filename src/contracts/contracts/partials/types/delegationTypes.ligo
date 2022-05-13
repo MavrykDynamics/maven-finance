@@ -106,6 +106,11 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes;
 ]
 
+type delegateToSatelliteType is [@layout:comb] record [
+    userAddress      : address;
+    satelliteAddress : address;
+]
+
 type distributeRewardTypes is [@layout:comb] record [
     eligibleSatellites    : set(address);
     totalSMvkReward       : nat;
@@ -138,12 +143,12 @@ type delegationLambdaActionType is
 | LambdaPauseDistributeReward                 of (unit)
 
   // Delegation Lambdas
-| LambdaDelegateToSatellite                   of (address)
+| LambdaDelegateToSatellite                   of delegateToSatelliteType
 | LambdaUndelegateFromSatellite               of (address)
 
   // Satellite Lambdas
 | LambdaRegisterAsSatellite                   of newSatelliteRecordType
-| LambdaUnregisterAsSatellite                 of (unit)
+| LambdaUnregisterAsSatellite                 of (address)
 | LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
 | LambdaDistributeReward                      of distributeRewardTypes
 
