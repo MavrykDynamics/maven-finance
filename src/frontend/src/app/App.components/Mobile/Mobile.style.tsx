@@ -9,7 +9,8 @@ export const GlobalStyle = createGlobalStyle`
 
 export const MobilePlugBackground = styled.div`
   width: 100vw;
-  height: 100vh;
+  height: fit-content;
+  min-height: 100vh;
   background-image: url('./mobile-plug-background.png');
   background-size: cover;
   background-position: center center;
@@ -18,25 +19,25 @@ export const MobilePlugBackground = styled.div`
 export const MobilePlugWrapper = styled.div`
   width: 100%;
   max-width: 540px;
-  height: 100vh;
+  height: fit-content;
+  min-height: 100vh;
   display: flex;
   justify-content: flex-start;
   flex-direction: column;
   align-items: center;
-  padding-top: 85px;
+  padding: 85px 0;
   margin: 0 auto;
   @media only screen and (max-width: 565px) {
     width: 100vw;
-    padding: 85px 35px 0 35px;
+    padding: 85px 35px 30px 35px;
   }
 
   @media only screen and (max-width: 425px) {
     width: 100vw;
-    padding: 85px 20px 0 20px;
+    padding: 85px 20px 30px 20px;
   }
 
   @media only screen and (min-height: 890px) and (min-width: 650px) {
-    padding-bottom: 85px;
     justify-content: space-between;
   }
 `;
