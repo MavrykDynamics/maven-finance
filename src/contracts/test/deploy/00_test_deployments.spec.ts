@@ -1,12 +1,3 @@
-const {
-  TezosToolkit,
-  ContractAbstraction,
-  ContractProvider,
-  TezosOperationError,
-  WalletParamsWithKind,
-  OpKind, 
-  Tezos, 
-} = require("@taquito/taquito")
 const { InMemorySigner, importKey } = require("@taquito/signer");
 import assert, { ok, rejects, strictEqual } from "assert";
 import { MVK, Utils, zeroAddress } from "../helpers/Utils";
