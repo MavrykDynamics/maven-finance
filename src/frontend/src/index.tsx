@@ -1,17 +1,17 @@
-import * as React from 'react'
-import ReactDOM from 'react-dom'
-import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3'
-import { Provider } from 'react-redux'
+import * as React from 'react';
+import ReactDOM from 'react-dom';
+import { GoogleReCaptchaProvider } from 'react-google-recaptcha-v3';
+import { Provider } from 'react-redux';
 
-import DarkThemeProvider from './app/App.components/DarkThemeProvider/DarkThemeProvider.view'
-import { App, store } from './app/App.controller'
-import reportWebVitals from './reportWebVitals'
-import { unregister } from './serviceWorker'
-import { GlobalStyle } from './styles'
-import { isMobile } from './utils/device-info'
-import Modile from './app/App.components/Mobile/Mobile.view'
+import DarkThemeProvider from './app/App.components/DarkThemeProvider/DarkThemeProvider.view';
+import { App, store } from './app/App.controller';
+import reportWebVitals from './reportWebVitals';
+import { unregister } from './serviceWorker';
+import { GlobalStyle } from './styles';
+import { isMobile } from './utils/device-info';
+import Modile from './app/App.components/Mobile/Mobile.view';
 
-import './styles/fonts.css'
+import './styles/fonts.css';
 
 export const Root = () => {
   return (
@@ -23,11 +23,11 @@ export const Root = () => {
         </DarkThemeProvider>
       </Provider>
     </GoogleReCaptchaProvider>
-  )
-}
+  );
+};
 
-const rootElement = document.getElementById('root')
-ReactDOM.render(<Root />, rootElement)
+const rootElement = document.getElementById('root');
+ReactDOM.render(<Root />, rootElement);
 
-unregister()
-reportWebVitals()
+unregister();
+reportWebVitals();
