@@ -42,6 +42,37 @@ export const SatelliteListCard = ({
   const totalDelegatedMVK = satellite.totalDelegatedAmount
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
+
+  const delegationButtons = userIsDelegatedToThisSatellite ? (
+    <>
+      {satellite.active ? (
+        <Button
+          text="Undelegate"
+          icon="man-close"
+          kind={ACTION_SECONDARY}
+          loading={loading}
+          onClick={() => undelegateCallback(satellite.address)}
+        />
+      ) : null}
+    </>
+  ) : (
+    <>
+      {satellite.active ? (
+        <Button
+          text="Delegate"
+          icon="man-check"
+          kind={ACTION_PRIMARY}
+          loading={loading}
+          onClick={() => delegateCallback(satellite.address)}
+        />
+      ) : (
+        <div>
+          <StatusFlag status={DOWN} text={'INACTIVE'} />
+        </div>
+      )}
+    </>
+  )
+
   return (
     <SatelliteCard key={String(`satellite${satellite.address}`)}>
       <SatelliteCardInner>
@@ -89,32 +120,7 @@ export const SatelliteListCard = ({
             <SatelliteSubText>Fee</SatelliteSubText>
           </SatelliteTextGroup>
         </SatelliteCardTopRow>
-        <SatelliteCardButtons>
-          {satellite.active ? (
-            <Button
-              text="Delegate"
-              icon="man-check"
-              kind={ACTION_PRIMARY}
-              loading={loading}
-              onClick={() => delegateCallback(satellite.address)}
-            />
-          ) : (
-            <div>
-              <StatusFlag status={DOWN} text={'INACTIVE'} />
-            </div>
-          )}
-          {satellite.active ? (
-            <Button
-              text="Undelegate"
-              icon="man-close"
-              kind={ACTION_SECONDARY}
-              loading={loading}
-              onClick={() => undelegateCallback(satellite.address)}
-            />
-          ) : (
-            <div />
-          )}
-        </SatelliteCardButtons>
+        <SatelliteCardButtons>{delegationButtons}</SatelliteCardButtons>
       </SatelliteCardInner>
       <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>
     </SatelliteCard>
