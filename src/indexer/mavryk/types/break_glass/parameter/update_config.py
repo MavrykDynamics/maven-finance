@@ -19,6 +19,27 @@ class UpdateConfigActionItem1(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    configCouncilImageMaxLength: Dict[str, Any]
+
+
+class UpdateConfigActionItem2(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configCouncilNameMaxLength: Dict[str, Any]
+
+
+class UpdateConfigActionItem3(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    configCouncilWebsiteMaxLength: Dict[str, Any]
+
+
+class UpdateConfigActionItem4(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
     configThreshold: Dict[str, Any]
 
 
@@ -27,4 +48,10 @@ class UpdateConfigParameter(BaseModel):
         extra = Extra.forbid
 
     updateConfigNewValue: str
-    updateConfigAction: Union[UpdateConfigActionItem, UpdateConfigActionItem1]
+    updateConfigAction: Union[
+        UpdateConfigActionItem,
+        UpdateConfigActionItem1,
+        UpdateConfigActionItem2,
+        UpdateConfigActionItem3,
+        UpdateConfigActionItem4,
+    ]

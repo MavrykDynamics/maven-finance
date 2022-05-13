@@ -8,51 +8,24 @@ from typing import Dict
 from pydantic import BaseModel, Extra
 
 
-class ClaimLedger(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    amountClaimed: str
-    blockLevelClaimed: str
-    dateTimeClaimed: str
-    remainderVested: str
-
-
-class Config(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    blocksPerMinute: str
-    blocksPerMonth: str
-    defaultCliffPeriod: str
-    defaultCooldownPeriod: str
-    newBlockTimeLevel: str
-    newBlocksPerMinute: str
-
-
 class VesteeLedger(BaseModel):
     class Config:
         extra = Extra.forbid
 
+    totalAllocatedAmount: str
     claimAmountPerMonth: str
+    startTimestamp: str
+    vestingMonths: str
     cliffMonths: str
-    endCliffBlock: str
     endCliffDateTime: str
-    endVestingBlock: str
     endVestingDateTime: str
-    lastClaimedBlock: str
-    lastClaimedTimestamp: str
+    status: str
+    totalRemainder: str
+    totalClaimed: str
     monthsClaimed: str
     monthsRemaining: str
-    nextRedemptionBlock: str
     nextRedemptionTimestamp: str
-    startBlock: str
-    startTimestamp: str
-    status: str
-    totalAllocatedAmount: str
-    totalClaimed: str
-    totalRemainder: str
-    vestingMonths: str
+    lastClaimedTimestamp: str
 
 
 class VestingStorage(BaseModel):
@@ -60,11 +33,11 @@ class VestingStorage(BaseModel):
         extra = Extra.forbid
 
     admin: str
-    claimLedger: Dict[str, ClaimLedger]
-    config: Config
-    generalContracts: Dict[str, str]
     mvkTokenAddress: str
-    tempBlockLevel: str
-    totalVestedAmount: str
-    vesteeLedger: Dict[str, VesteeLedger]
+    governanceAddress: str
+    metadata: Dict[str, str]
     whitelistContracts: Dict[str, str]
+    generalContracts: Dict[str, str]
+    vesteeLedger: Dict[str, VesteeLedger]
+    totalVestedAmount: str
+    lambdaLedger: Dict[str, str]

@@ -3,11 +3,8 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Extra
+from pydantic import BaseModel
 
 
 class UnregisterAsSatelliteParameter(BaseModel):
-    pass
-
-    class Config:
-        extra = Extra.forbid
+    __root__: str

@@ -3,8 +3,11 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra
 
 
 class ExecuteProposalParameter(BaseModel):
-    __root__: str
+    pass
+
+    class Config:
+        extra = Extra.forbid

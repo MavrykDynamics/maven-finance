@@ -10,5 +10,8 @@ class ChangeCouncilMemberParameter(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    address_0: str
-    address_1: str
+    oldCouncilMemberAddress: str
+    newCouncilMemberAddress: str
+    newCouncilMemberName: str
+    newCouncilMemberWebsite: str
+    newCouncilMemberImage: str

@@ -8,6 +8,26 @@ from typing import Dict, List
 from pydantic import BaseModel, Extra
 
 
+class Config(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    threshold: str
+    actionExpiryDays: str
+    councilMemberNameMaxLength: str
+    councilMemberWebsiteMaxLength: str
+    councilMemberImageMaxLength: str
+
+
+class CouncilMembers(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    name: str
+    website: str
+    image: str
+
+
 class ActionsLedger(BaseModel):
     class Config:
         extra = Extra.forbid
@@ -25,27 +45,22 @@ class ActionsLedger(BaseModel):
     startDateTime: str
     startLevel: str
     status: str
-
-
-class Config(BaseModel):
-    class Config:
-        extra = Extra.forbid
-
-    actionExpiryDays: str
-    threshold: str
+    stringMap: Dict[str, str]
 
 
 class BreakGlassStorage(BaseModel):
     class Config:
         extra = Extra.forbid
 
-    actionCounter: str
-    actionsLedger: Dict[str, ActionsLedger]
     admin: str
-    config: Config
-    councilMembers: List[str]
-    developerAddress: str
-    generalContracts: Dict[str, str]
-    glassBroken: bool
     mvkTokenAddress: str
+    governanceAddress: str
+    metadata: Dict[str, str]
+    config: Config
+    glassBroken: bool
+    councilMembers: Dict[str, CouncilMembers]
     whitelistContracts: Dict[str, str]
+    generalContracts: Dict[str, str]
+    actionsLedger: Dict[str, ActionsLedger]
+    actionCounter: str
+    lambdaLedger: Dict[str, str]
