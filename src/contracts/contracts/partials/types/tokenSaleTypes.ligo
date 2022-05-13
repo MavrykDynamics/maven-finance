@@ -3,22 +3,41 @@ type userAddressType                is address
 type metadataType                   is big_map (string, bytes);
 
 type tokenSaleConfigType is [@layout:comb] record [
-    maxWhitelistCount            : nat; 
-    maxAmountPerWhitelistWallet  : nat;
-    maxAmountPerWalletTotal      : nat; 
-
-    whitelistStartTimestamp      : timestamp;
-    whitelistEndTimestamp        : timestamp;
     
-    whitelistMaxAmountCap        : nat;    
-    overallMaxAmountCap          : nat;  
+    whitelistStartTimestamp               : timestamp;
+    whitelistEndTimestamp                 : timestamp;
 
-    dailyYield                   : nat; 
-    // vestingInDays                : nat;
-    vestingInMonths              : nat;
+    maxAmountOptionOnePerWalletTotal      : nat; 
+    maxAmountOptionTwoPerWalletTotal      : nat; 
+    maxAmountOptionThreePerWalletTotal    : nat; 
 
-    blocksPerMinute              : nat;
-    
+    whitelistMaxAmountOptionOneTotal      : nat; 
+    whitelistMaxAmountOptionTwoTotal      : nat; 
+    whitelistMaxAmountOptionThreeTotal    : nat; 
+
+    optionOneMaxAmountCap                 : nat;    
+    optionTwoMaxAmountCap                 : nat;    
+    optionThreeMaxAmountCap               : nat;    
+
+    vestingOptionOneInMonths              : nat;   
+    vestingOptionTwoInMonths              : nat;   
+    vestingOptionThreeInMonths            : nat;    
+
+    optionOneTokensPerTez                 : nat;
+    optionTwoTokensPerTez                 : nat;
+    optionThreeTokensPerTez               : nat;
+
+    blocksPerMinute                       : nat;
+]
+
+type optionType is 
+  OptionOne     of unit
+| OptionTwo     of unit
+| OptionThree   of unit 
+
+type buyTokenType is [@layout:comb] record [
+  amount        : nat;
+  tokenOption   : optionType;
 ]
 
 type tokenSaleUpdateConfigActionType is 
@@ -42,10 +61,26 @@ type updateMetadataType is [@layout:comb] record [
 ]
 
 type tokenSaleRecordType is [@layout:comb] record [
-    amountBoughtInTez   : nat;          // amount in mutez
-    totalClaimed        : nat; 
-    lastBought          : timestamp;
-    lastClaimed         : timestamp;
+    optionOneBought     : nat;
+    optionTwoBought     : nat;
+    optionThreeBought   : nat;
+
+    optionOneClaimedAmount    : nat;
+    optionTwoClaimedAmount    : nat;
+    optionThreeClaimedAmount  : nat;
+
+    optionOneLastClaimed    : timestamp;
+    optionTwoLastClaimed    : timestamp;
+    optionThreeLastClaimed  : timestamp;
+
+    optionOneLastClaimedBlockLevel    : nat;
+    optionTwoLastClaimedBlockLevel    : nat;
+    optionThreeLastClaimedBLockLevel  : nat;
+
+    optionOneMonthsClaimed    : nat;
+    optionTwoMonthsClaimed    : nat;
+    optionThreeMonthsClaimed  : nat;
+
 ]
 type tokenSaleLedgerType is big_map(userAddressType, tokenSaleRecordType)
 
@@ -73,7 +108,11 @@ type tokenSaleStorage is record [
     tokenSaleEndBlockLevel      : nat;
     endVestingTimestamp         : timestamp;
 
-    whitelistAmountTotal        : nat;
-    overallAmountTotal          : nat; 
-    tokenPerTez                 : nat;
+    // whitelistAmountTotal        : nat;
+    // overallAmountTotal          : nat; 
+    // tokenPerTez                 : nat;
+
+    optionOneBoughtTotal        : nat;
+    optionTwoBoughtTotal        : nat;
+    optionThreeBoughtTotal      : nat;
 ]
