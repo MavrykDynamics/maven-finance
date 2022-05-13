@@ -13,11 +13,15 @@ import {
   SatelliteSubText,
   SatelliteTextGroup,
   SideBySideImageAndText,
+  SatelliteCardInner,
+  SatelliteCardButtons,
+  SatelliteProfileDetails,
 } from './SatelliteListCard.style'
 import { RoutingButton } from '../../../../app/App.components/RoutingButton/RoutingButton.controller'
 import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
 import { StatusFlag } from '../../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { DOWN } from '../../../../app/App.components/StatusFlag/StatusFlag.constants'
+import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../../app/App.components/Button/Button.constants'
 
 type SatelliteListCardViewProps = {
   satellite: SatelliteRecord
@@ -40,71 +44,78 @@ export const SatelliteListCard = ({
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   return (
     <SatelliteCard key={String(`satellite${satellite.address}`)}>
-      <SatelliteCardTopRow>
-        <SideBySideImageAndText>
-          <SatelliteProfileImageContainer>
-            <SatelliteProfileImage src={satellite.image} />
-          </SatelliteProfileImageContainer>
+      <SatelliteCardInner>
+        <SatelliteCardTopRow>
+          <SideBySideImageAndText>
+            <SatelliteProfileImageContainer>
+              <SatelliteProfileImage src={satellite.image} />
+            </SatelliteProfileImageContainer>
+            <SatelliteTextGroup>
+              <SatelliteMainText>{satellite.name}</SatelliteMainText>
+              <TzAddress tzAddress={satellite.address} type={'secondary'} hasIcon={true} isBold={true} />
+            </SatelliteTextGroup>
+          </SideBySideImageAndText>
           <SatelliteTextGroup>
-            <SatelliteMainText>{satellite.name}</SatelliteMainText>
-            <TzAddress tzAddress={satellite.address} type={'secondary'} hasIcon={true} isBold={true} />
+            <SatelliteMainText>
+              <CommaNumber value={totalDelegatedMVK} />
+            </SatelliteMainText>
+            <SatelliteSubText>Delegated MVK</SatelliteSubText>
           </SatelliteTextGroup>
-        </SideBySideImageAndText>
-        <SatelliteTextGroup>
-          <SatelliteMainText>
-            <CommaNumber value={totalDelegatedMVK} />
-          </SatelliteMainText>
-          <SatelliteSubText>Delegated MVK</SatelliteSubText>
-        </SatelliteTextGroup>
-        <SatelliteTextGroup>
-          <SatelliteMainText>
-            {userIsDelegatedToThisSatellite ? <CommaNumber value={myDelegatedMVK} /> : <div>0</div>}
-          </SatelliteMainText>
-          <SatelliteSubText>Your delegated MVK</SatelliteSubText>
-        </SatelliteTextGroup>
-        {satellite.active ? (
-          <Button
-            text="Delegate"
-            icon="man-check"
-            loading={loading}
-            onClick={() => delegateCallback(satellite.address)}
-          />
-        ) : (
-          <div>
-            <StatusFlag status={DOWN} text={'INACTIVE'} />
-          </div>
-        )}
-        <RoutingButton
-          icon="man"
-          text="Profile Details"
-          kind="transparent"
-          pathName={`/satellite-details/${satellite.address}`}
-        />
-        <SatelliteTextGroup>
-          <SatelliteMainText>
-            <CommaNumber value={Number(satellite.totalDelegatedAmount)} endingText="%" />
-          </SatelliteMainText>
-          <SatelliteSubText>Participation</SatelliteSubText>
-        </SatelliteTextGroup>
-        <SatelliteTextGroup>
-          <SatelliteMainText>
-            <CommaNumber value={Number(satellite.satelliteFee)} endingText="%" />
-          </SatelliteMainText>
-          <SatelliteSubText>Fee</SatelliteSubText>
-        </SatelliteTextGroup>
-        {satellite.active ? (
-          <Button
-            text="Undelegate"
-            icon="man-close"
-            kind="secondary"
-            loading={loading}
-            onClick={() => undelegateCallback(satellite.address)}
-          />
-        ) : (
-          <div />
-        )}
-      </SatelliteCardTopRow>
-      <ColoredLine kind="secondary" />
+          <SatelliteTextGroup>
+            <SatelliteMainText>
+              {userIsDelegatedToThisSatellite ? <CommaNumber value={myDelegatedMVK} /> : <div>0</div>}
+            </SatelliteMainText>
+            <SatelliteSubText>Your delegated MVK</SatelliteSubText>
+          </SatelliteTextGroup>
+
+          <SatelliteProfileDetails>
+            <RoutingButton
+              icon="man"
+              text="Profile Details"
+              kind="transparent"
+              pathName={`/satellite-details/${satellite.address}`}
+            />
+          </SatelliteProfileDetails>
+          <SatelliteTextGroup>
+            <SatelliteMainText>
+              <CommaNumber value={Number(satellite.totalDelegatedAmount)} endingText="%" />
+            </SatelliteMainText>
+            <SatelliteSubText>Participation</SatelliteSubText>
+          </SatelliteTextGroup>
+          <SatelliteTextGroup>
+            <SatelliteMainText>
+              <CommaNumber value={Number(satellite.satelliteFee)} endingText="%" />
+            </SatelliteMainText>
+            <SatelliteSubText>Fee</SatelliteSubText>
+          </SatelliteTextGroup>
+        </SatelliteCardTopRow>
+        <SatelliteCardButtons>
+          {satellite.active ? (
+            <Button
+              text="Delegate"
+              icon="man-check"
+              kind={ACTION_PRIMARY}
+              loading={loading}
+              onClick={() => delegateCallback(satellite.address)}
+            />
+          ) : (
+            <div>
+              <StatusFlag status={DOWN} text={'INACTIVE'} />
+            </div>
+          )}
+          {satellite.active ? (
+            <Button
+              text="Undelegate"
+              icon="man-close"
+              kind={ACTION_SECONDARY}
+              loading={loading}
+              onClick={() => undelegateCallback(satellite.address)}
+            />
+          ) : (
+            <div />
+          )}
+        </SatelliteCardButtons>
+      </SatelliteCardInner>
       <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>
     </SatelliteCard>
   )
