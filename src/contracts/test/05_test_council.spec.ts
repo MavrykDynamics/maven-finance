@@ -18,6 +18,7 @@
 // import delegationAddress from '../deployments/delegationAddress.json';
 // import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 // import governanceAddress from '../deployments/governanceAddress.json';
+// import governanceFinancialAddress from '../deployments/governanceFinancialAddress.json';
 // import councilAddress from '../deployments/councilAddress.json';
 // import mockFa12TokenAddress  from '../deployments/mockFa12TokenAddress.json';
 // import mockFa2TokenAddress   from '../deployments/mockFa2TokenAddress.json';
@@ -30,7 +31,7 @@
 //     let doormanInstance;
 //     let delegationInstance;
 //     let mvkTokenInstance;
-//     let governanceInstance;
+//     let governanceFinancialInstance;
 //     let vestingInstance;
 //     let councilInstance;
 //     let mockFa12TokenInstance;
@@ -40,7 +41,7 @@
 //     let doormanStorage;
 //     let delegationStorage;
 //     let mvkTokenStorage;
-//     let governanceStorage;
+//     let governanceFinancialStorage;
 //     let vestingStorage;
 //     let councilStorage;
 //     let mockFa12TokenStorage;
@@ -61,7 +62,7 @@
 //         doormanInstance    = await utils.tezos.contract.at(doormanAddress.address);
 //         delegationInstance = await utils.tezos.contract.at(delegationAddress.address);
 //         mvkTokenInstance   = await utils.tezos.contract.at(mvkTokenAddress.address);
-//         governanceInstance = await utils.tezos.contract.at(governanceAddress.address);
+//         governanceFinancialInstance = await utils.tezos.contract.at(governanceFinancialAddress.address);
 //         councilInstance    = await utils.tezos.contract.at(councilAddress.address);
 //         mockFa12TokenInstance  = await utils.tezos.contract.at(mockFa12TokenAddress.address);
 //         mockFa2TokenInstance   = await utils.tezos.contract.at(mockFa2TokenAddress.address);
@@ -71,7 +72,7 @@
 //         doormanStorage    = await doormanInstance.storage();
 //         delegationStorage = await delegationInstance.storage();
 //         mvkTokenStorage   = await mvkTokenInstance.storage();
-//         governanceStorage = await governanceInstance.storage();
+//         governanceFinancialStorage = await governanceFinancialInstance.storage();
 //         councilStorage         = await councilInstance.storage();
 //         mockFa12TokenStorage   = await mockFa12TokenInstance.storage();
 //         mockFa2TokenStorage    = await mockFa2TokenInstance.storage();
@@ -82,7 +83,7 @@
 //         console.log('Doorman Contract deployed at:', doormanInstance.address);
 //         console.log('Delegation Contract deployed at:', delegationInstance.address);
 //         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
-//         console.log('Governance Contract deployed at:', governanceInstance.address);
+//         console.log('Governance Financial Contract deployed at:', governanceFinancialInstance.address);
 //         console.log('Council Contract deployed at:', councilInstance.address);
 //         console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
 //         console.log('Mock Fa2 Token Contract deployed at:' , mockFa2TokenInstance.address);
@@ -2767,8 +2768,8 @@
 //                 const tokenAmount           = MVK(3);
 //                 const tokenId               = 0;
 //                 const nextActionID          = councilStorage.actionCounter;
-//                 governanceStorage           = await governanceInstance.storage();
-//                 const governanceActionID    = governanceStorage.financialRequestCounter; 
+//                 governanceFinancialStorage  = await governanceFinancialInstance.storage();
+//                 const governanceActionID    = governanceFinancialStorage.financialRequestCounter; 
 
 //                 // Operation
 //                 const newActionOperation = await councilInstance.methods.councilActionRequestTokens(
@@ -2817,8 +2818,8 @@
 //                 stringMap           = await action.stringMap;
 //                 natMap              = await action.natMap;
 
-//                 governanceStorage       = await governanceInstance.storage();
-//                 const governanceAction  = await governanceStorage.financialRequestLedger.get(governanceActionID)
+//                 governanceFinancialStorage       = await governanceFinancialInstance.storage();
+//                 const governanceAction          = await governanceFinancialStorage.financialRequestLedger.get(governanceActionID)
 
 //                 assert.strictEqual(action.initiator, alice.pkh);
 //                 assert.strictEqual(action.status, "EXECUTED");
@@ -2847,8 +2848,8 @@
 //                 const purpose               = "For testing purposes";
 //                 const tokenAmount           = MVK(3);
 //                 const nextActionID          = councilStorage.actionCounter;
-//                 governanceStorage           = await governanceInstance.storage();
-//                 const governanceActionID    = governanceStorage.financialRequestCounter; 
+//                 governanceFinancialStorage           = await governanceFinancialInstance.storage();
+//                 const governanceActionID    = governanceFinancialStorage.financialRequestCounter; 
 
 //                 // Operation
 //                 const newActionOperation = await councilInstance.methods.councilActionRequestMint(
@@ -2889,8 +2890,8 @@
 //                 stringMap           = await action.stringMap;
 //                 natMap              = await action.natMap;
 
-//                 governanceStorage       = await governanceInstance.storage();
-//                 const governanceAction  = await governanceStorage.financialRequestLedger.get(governanceActionID)
+//                 governanceFinancialStorage       = await governanceFinancialInstance.storage();
+//                 const governanceAction  = await governanceFinancialStorage.financialRequestLedger.get(governanceActionID)
 
 //                 assert.strictEqual(action.initiator, alice.pkh);
 //                 assert.strictEqual(action.status, "EXECUTED");
@@ -2911,8 +2912,8 @@
 //             try{
 //                 // Initial Values
 //                 councilStorage              = await councilInstance.storage();
-//                 governanceStorage           = await governanceInstance.storage();
-//                 const requestID             = governanceStorage.financialRequestCounter - 1;
+//                 governanceFinancialStorage           = await governanceFinancialInstance.storage();
+//                 const requestID             = governanceFinancialStorage.financialRequestCounter - 1;
 //                 const nextActionID          = councilStorage.actionCounter;
 
 //                 // Operation
@@ -2945,8 +2946,8 @@
 //                 actionSigner        = action.signers.includes(alice.pkh)
 //                 natMap              = await action.natMap;
 
-//                 governanceStorage       = await governanceInstance.storage();
-//                 const dropAction        = await governanceStorage.financialRequestLedger.get(requestID)
+//                 governanceFinancialStorage       = await governanceFinancialInstance.storage();
+//                 const dropAction        = await governanceFinancialStorage.financialRequestLedger.get(requestID)
 
 //                 assert.strictEqual(action.initiator, alice.pkh);
 //                 assert.strictEqual(action.status, "EXECUTED");
