@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import {
+  GlobalStyle,
   MobilePlugBackground,
   MobilePlugWrapper,
   MobilePLugLogo,
@@ -16,6 +17,7 @@ import { containerColor, medialeColor } from 'styles/colors';
 export default function Modile() {
   return (
     <MobilePlugBackground>
+      <GlobalStyle />
       <MobilePlugWrapper>
         <MobilePlugLogoWrapper>
           <MobilePLugLogo src="./mobile-plug-logo.png" />
