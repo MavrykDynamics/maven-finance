@@ -80,6 +80,9 @@ export const SatelliteMainText = styled.div<{ theme: MavrykTheme }>`
   font-size: 14px;
   line-height: 14px;
   margin-bottom: 2px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   p {
     margin: 0;
