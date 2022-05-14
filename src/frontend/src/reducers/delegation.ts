@@ -6,6 +6,8 @@ import { GET_SATELLITE_BY_ADDRESS } from '../pages/SatelliteDetails/SatelliteDet
 import { getItemFromStorage } from '../utils/storage'
 import { DelegateRecord, DelegationStorage, SatelliteRecord } from '../utils/TypesAndInterfaces/Delegation'
 
+import {SATELLITE_LEDGER_LIST} from '../consts/delegation.test.const'
+
 export const DELEGATE = 'DELEGATE'
 export const UNDELEGATE = 'UNDELEGATE'
 export const SATELLITE_ACTION = 'SATELLITE_ACTION'
@@ -68,11 +70,7 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
         // test 3
         delegationStorage: {
           ...action.delegationStorage,
-          satelliteLedger: [
-            action.delegationStorage.satelliteLedger[0],
-            action.delegationStorage.satelliteLedger[0],
-            action.delegationStorage.satelliteLedger[0],
-          ],
+          satelliteLedger: SATELLITE_LEDGER_LIST,
         },
       }
     case DELEGATE_REQUEST:
