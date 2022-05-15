@@ -142,6 +142,7 @@ const ListWithSatellites = ({
         return (
           <SatelliteListCard
             key={String(index + item.address)}
+            className="iterable"
             satellite={item}
             loading={loading}
             delegateCallback={delegateCallback}

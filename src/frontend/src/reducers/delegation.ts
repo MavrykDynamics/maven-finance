@@ -5,7 +5,7 @@ import { SATELLITE_LEDGER_LIST } from '../consts/delegation.test.const'
 import { REGISTER_AS_SATELLITE_ERROR, REGISTER_AS_SATELLITE_REQUEST, REGISTER_AS_SATELLITE_RESULT, UNREGISTER_AS_SATELLITE_ERROR, UNREGISTER_AS_SATELLITE_REQUEST, UNREGISTER_AS_SATELLITE_RESULT, UPDATE_AS_SATELLITE_ERROR, UPDATE_AS_SATELLITE_REQUEST, UPDATE_AS_SATELLITE_RESULT } from '../pages/BecomeSatellite/BecomeSatellite.actions'
 import { GET_SATELLITE_BY_ADDRESS } from '../pages/SatelliteDetails/SatelliteDetails.actions'
 import { getItemFromStorage } from '../utils/storage'
-import { DelegateRecord, DelegationStorage, SatelliteRecord } from '../utils/TypesAndInterfaces/Delegation'
+import { DelegateRecord, DelegationStorage, ParticipationMetrics, SatelliteRecord } from '../utils/TypesAndInterfaces/Delegation'
 
 export const DELEGATE = 'DELEGATE'
 export const UNDELEGATE = 'UNDELEGATE'
@@ -16,6 +16,7 @@ export interface DelegationState {
   amount?: number
   error?: any
   currentSatellite: SatelliteRecord
+  participationMetrics: ParticipationMetrics
 }
 
 const defaultDelegationStorage: DelegationStorage = {
@@ -49,6 +50,11 @@ const delegationDefaultState: DelegationState = {
     satelliteFee: 0,
     totalDelegatedAmount: 0,
     unregisteredDateTime: new Date(),
+  },
+  participationMetrics: {
+    pollParticipation: 0,
+    proposalParticipation: 0,
+    communication: 0,
   },
 }
 
