@@ -3,25 +3,16 @@ import { ColoredLine } from 'app/App.components/ColoredLine/ColoredLine.view'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { TzAddress } from 'app/App.components/TzAddress/TzAddress.view'
 import * as React from 'react'
-import {
-  SatelliteCard,
-  SatelliteCardRow,
-  SatelliteCardTopRow,
-  SatelliteMainText,
-  SatelliteProfileImage,
-  SatelliteProfileImageContainer,
-  SatelliteSubText,
-  SatelliteTextGroup,
-  SideBySideImageAndText,
-  SatelliteCardInner,
-  SatelliteCardButtons,
-  SatelliteProfileDetails,
-} from './SatelliteListCard.style'
-import { RoutingButton } from '../../../../app/App.components/RoutingButton/RoutingButton.controller'
-import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
-import { StatusFlag } from '../../../../app/App.components/StatusFlag/StatusFlag.controller'
-import { DOWN } from '../../../../app/App.components/StatusFlag/StatusFlag.constants'
+/* @ts-ignore */
+import Time from 'react-pure-time'
+
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../../app/App.components/Button/Button.constants'
+import { RoutingButton } from '../../../../app/App.components/RoutingButton/RoutingButton.controller'
+import { DOWN } from '../../../../app/App.components/StatusFlag/StatusFlag.constants'
+import { StatusFlag } from '../../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
+// prettier-ignore
+import { SatelliteCard, SatelliteCardButtons, SatelliteCardInner, SatelliteCardRow, SatelliteCardTopRow, SatelliteMainText, SatelliteProfileDetails, SatelliteProfileImage, SatelliteProfileImageContainer, SatelliteSubText, SatelliteTextGroup, SideBySideImageAndText } from './SatelliteListCard.style'
 
 type SatelliteListCardViewProps = {
   satellite: SatelliteRecord
@@ -30,6 +21,9 @@ type SatelliteListCardViewProps = {
   undelegateCallback: (satelliteAddress: string) => void
   userStakedBalance: number
   satelliteUserIsDelegatedTo: string
+  isDetaisPage?: boolean
+  className?: string
+  children?: React.ReactNode
 }
 export const SatelliteListCard = ({
   satellite,
@@ -38,10 +32,18 @@ export const SatelliteListCard = ({
   undelegateCallback,
   userStakedBalance,
   satelliteUserIsDelegatedTo,
+  isDetaisPage = false,
+  children = null,
+  className = '',
 }: SatelliteListCardViewProps) => {
   const totalDelegatedMVK = satellite.totalDelegatedAmount
   const myDelegatedMVK = userStakedBalance
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
+  const lastVotedTimestamp = satellite?.proposalVotingHistory?.[0]?.timestamp || ''
+
+  // const lastVoted = lastVotedTimestamp ? new Date(lastVotedTimestamp) : ''
+  // console.log('%c ||||| lastVoted', 'color:yellowgreen', lastVoted)
+  // console.log(lastVoted?.getMonth() + 1 + '/' + lastVoted?.getDate() + '/' + lastVoted.getFullYear())
 
   const delegationButtons = userIsDelegatedToThisSatellite ? (
     <>
@@ -74,7 +76,7 @@ export const SatelliteListCard = ({
   )
 
   return (
-    <SatelliteCard key={String(`satellite${satellite.address}`)}>
+    <SatelliteCard className={className} key={String(`satellite${satellite.address}`)}>
       <SatelliteCardInner>
         <SatelliteCardTopRow>
           <SideBySideImageAndText>
@@ -100,12 +102,21 @@ export const SatelliteListCard = ({
           </SatelliteTextGroup>
 
           <SatelliteProfileDetails>
-            <RoutingButton
-              icon="man"
-              text="Profile Details"
-              kind="transparent"
-              pathName={`/satellite-details/${satellite.address}`}
-            />
+            {isDetaisPage ? (
+              <SatelliteTextGroup className="voted">
+                <SatelliteMainText>
+                  <Time value={lastVotedTimestamp} format="M d\t\h, Y" />
+                </SatelliteMainText>
+                <SatelliteSubText>Last Voted</SatelliteSubText>
+              </SatelliteTextGroup>
+            ) : (
+              <RoutingButton
+                icon="man"
+                text="Profile Details"
+                kind="transparent"
+                pathName={`/satellite-details/${satellite.address}`}
+              />
+            )}
           </SatelliteProfileDetails>
           <SatelliteTextGroup>
             <SatelliteMainText>
@@ -122,7 +133,7 @@ export const SatelliteListCard = ({
         </SatelliteCardTopRow>
         <SatelliteCardButtons>{delegationButtons}</SatelliteCardButtons>
       </SatelliteCardInner>
-      <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>
+      {children || <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>}
     </SatelliteCard>
   )
 }

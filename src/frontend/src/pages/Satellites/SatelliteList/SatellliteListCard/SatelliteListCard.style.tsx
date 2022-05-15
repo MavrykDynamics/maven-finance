@@ -5,9 +5,13 @@ import { MavrykTheme } from '../../../../styles/interfaces'
 
 export const SatelliteCard = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  margin-top: 20px;
   border-radius: 10px;
   padding: 0;
+  margin-top: 0;
+
+  &.iterable {
+    margin-top: 20px;
+  }
 `
 export const SatelliteCardTopRow = styled.div`
   display: grid;
@@ -74,6 +78,10 @@ export const SatelliteTextGroup = styled.div`
   margin-left: 10px;
   width: 112px;
   justify-content: center;
+
+  &.voted {
+    margin-left: 70px;
+  }
 `
 export const SatelliteMainText = styled.div<{ theme: MavrykTheme }>`
   color: ${({ theme }) => theme.valueColor};
