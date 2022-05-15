@@ -1,12 +1,11 @@
 import { MichelsonMap } from '@taquito/taquito'
 import { DELEGATE_ERROR, DELEGATE_REQUEST, DELEGATE_RESULT, GET_DELEGATION_STORAGE, UNDELEGATE_ERROR, UNDELEGATE_REQUEST, UNDELEGATE_RESULT } from 'pages/Satellites/Satellites.actions'
 
+import { SATELLITE_LEDGER_LIST } from '../consts/delegation.test.const'
 import { REGISTER_AS_SATELLITE_ERROR, REGISTER_AS_SATELLITE_REQUEST, REGISTER_AS_SATELLITE_RESULT, UNREGISTER_AS_SATELLITE_ERROR, UNREGISTER_AS_SATELLITE_REQUEST, UNREGISTER_AS_SATELLITE_RESULT, UPDATE_AS_SATELLITE_ERROR, UPDATE_AS_SATELLITE_REQUEST, UPDATE_AS_SATELLITE_RESULT } from '../pages/BecomeSatellite/BecomeSatellite.actions'
 import { GET_SATELLITE_BY_ADDRESS } from '../pages/SatelliteDetails/SatelliteDetails.actions'
 import { getItemFromStorage } from '../utils/storage'
 import { DelegateRecord, DelegationStorage, SatelliteRecord } from '../utils/TypesAndInterfaces/Delegation'
-
-import {SATELLITE_LEDGER_LIST} from '../consts/delegation.test.const'
 
 export const DELEGATE = 'DELEGATE'
 export const UNDELEGATE = 'UNDELEGATE'
@@ -56,7 +55,7 @@ const delegationDefaultState: DelegationState = {
 export function delegation(state = delegationDefaultState, action: any): DelegationState {
   switch (action.type) {
     case GET_DELEGATION_STORAGE:
-      console.log('%c ||||| action.delegationStorage', 'color:yellowgreen', action.delegationStorage);
+      //console.log('%c ||||| action.delegationStorage', 'color:yellowgreen', action.delegationStorage);
       return {
         ...state,
         //delegationStorage: action.delegationStorage,
@@ -67,7 +66,7 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
         //   satelliteLedger: []
         // },
 
-        // test 3
+        //test 5
         delegationStorage: {
           ...action.delegationStorage,
           satelliteLedger: SATELLITE_LEDGER_LIST,

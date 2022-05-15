@@ -1,6 +1,7 @@
 import styled from 'styled-components/macro'
-import { MavrykTheme } from '../../../../styles/interfaces'
 import { Card } from 'styles'
+
+import { MavrykTheme } from '../../../../styles/interfaces'
 
 export const SatelliteCard = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
@@ -84,8 +85,11 @@ export const SatelliteMainText = styled.div<{ theme: MavrykTheme }>`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  p {
+  * {
     margin: 0;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `
 export const SatelliteSubText = styled.div<{ theme: MavrykTheme }>`
