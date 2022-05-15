@@ -1,6 +1,6 @@
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Input } from 'app/App.components/Input/Input.controller'
-import * as React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import Select from 'react-select'
@@ -106,8 +106,12 @@ const ListWithSatellites = ({
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
-    handleSelect(chosenItem.value)
+    handleSelect(chosenItem)
   }
+
+  useEffect(() => {
+    handleSelect(itemsForDropDown[0])
+  }, [])
 
   return (
     <SatelliteListStyled>
