@@ -205,14 +205,16 @@ export const BecomeSatelliteView = ({
           ) : (
             <label className="label">5- Enter your fee (%)</label>
           )}
-          <Input
-            type="number"
-            placeholder="Fee"
-            value={form.fee}
-            onChange={(e: any) => setForm({ ...form, fee: Number(e.target.value) })}
-            onBlur={(e: any) => handleOnBlur(e, 'FEE')}
-            inputStatus={formInputStatus.fee}
-          />
+          <div className="input-fee-wrap">
+            <Input
+              type="number"
+              placeholder="Fee"
+              value={form.fee}
+              onChange={(e: any) => setForm({ ...form, fee: Number(e.target.value) })}
+              onBlur={(e: any) => handleOnBlur(e, 'FEE')}
+              inputStatus={formInputStatus.fee}
+            />
+          </div>
           <IPFSUploader
             imageIpfsUrl={form.image}
             setIpfsImageUrl={(e: any) => setForm({ ...form, image: e })}
@@ -238,7 +240,7 @@ export const BecomeSatelliteView = ({
             />
           </BecomeSatelliteButttons>
         </BecomeSatelliteForm>
-        <SatelliteSideBar />
+        <SatelliteSideBar isButton={false} />
       </PageContent>
     </Page>
   )

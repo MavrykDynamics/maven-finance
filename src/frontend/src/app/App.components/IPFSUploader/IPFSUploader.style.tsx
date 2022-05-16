@@ -58,6 +58,7 @@ export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
 
   .uploaded-image {
     position: relative;
+    object-fit: cover;
   }
 `
 
