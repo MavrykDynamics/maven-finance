@@ -1,0 +1,54 @@
+{
+  "root": "apps/oracle-node",
+  "sourceRoot": "apps/oracle-node/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/oracle-node",
+        "main": "apps/oracle-node/src/main.ts",
+        "generatePackageJson": true,
+        "tsConfig": "apps/oracle-node/tsconfig.app.json",
+        "assets": ["apps/oracle-node/src/assets"],
+        "webpackConfig": "apps/oracle-node/webpack.config.js"
+      },
+      "configurations": {
+        "production": {
+          "optimization": true,
+          "extractLicenses": true,
+          "inspect": false,
+          "fileReplacements": [
+            {
+              "replace": "apps/oracle-node/src/environments/environment.ts",
+              "with": "apps/oracle-node/src/environments/environment.prod.ts"
+            }
+          ]
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nrwl/node:node",
+      "options": {
+        "buildTarget": "oracle-node:build"
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/oracle-node/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/apps/oracle-node"],
+      "options": {
+        "jestConfig": "apps/oracle-node/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

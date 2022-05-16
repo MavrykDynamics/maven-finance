@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "projects": {
+    "admin": "libs/admin",
+    "coingecko-fetcher": "libs/coingecko-fetcher",
+    "contracts": "libs/contracts",
+    "messari-fetcher": "libs/messari-fetcher",
+    "oracle": "libs/oracle",
+    "oracle-node": "apps/oracle-node",
+    "price-fetcher": "libs/price-fetcher",
+    "tx-manager": "libs/tx-manager"
+  }
+}
