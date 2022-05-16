@@ -46,6 +46,7 @@ import { Treasury } from '../helpers/treasuryHelper'
 import { TreasuryFactory } from '../helpers/treasuryFactoryHelper'
 import { MockFa12Token } from '../helpers/mockFa12TokenHelper'
 import { MockFa2Token } from '../helpers/mockFa2TokenHelper'
+import { TokenSale } from '../helpers/tokenSaleHelper'
 
 import { doormanStorage } from '../../storage/doormanStorage'
 import { delegationStorage } from '../../storage/delegationStorage'
@@ -64,6 +65,7 @@ import { farmFactoryStorage } from "../../storage/farmFactoryStorage";
 import { lpStorage } from "../../storage/testLPTokenStorage";
 import { mockFa12TokenStorage } from '../../storage/mockFa12TokenStorage'
 import { mockFa2TokenStorage } from '../../storage/mockFa2TokenStorage'
+import { tokenSaleStorage } from '../../storage/tokenSaleStorage'
 
 describe('Contracts Deployment for Tests', async () => {
   var utils: Utils
@@ -85,6 +87,7 @@ describe('Contracts Deployment for Tests', async () => {
   var lpToken: LPToken;
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
+  var tokenSale : tokenSale
   var tezos
   
 
@@ -351,6 +354,15 @@ describe('Contracts Deployment for Tests', async () => {
 
     await saveContractAddress('governanceProxyAddress', governanceProxy.contract.address)
     console.log('Governance Proxy Contract deployed at:', governanceProxy.contract.address)
+
+    
+    tokenSale = await TokenSale.originate(
+      utils.tezos,
+      tokenSaleStorage
+    )
+
+    await saveContractAddress('tokenSaleAddress', tokenSale.contract.address)
+    console.log('Token Sale Contract deployed at:', tokenSale.contract.address)
 
     /* ---- ---- ---- ---- ---- */
 
