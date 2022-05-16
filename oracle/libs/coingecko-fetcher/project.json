@@ -1,0 +1,34 @@
+{
+  "root": "libs/coingecko-fetcher",
+  "sourceRoot": "libs/coingecko-fetcher/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/coingecko-fetcher",
+        "tsConfig": "libs/coingecko-fetcher/tsconfig.lib.json",
+        "packageJson": "libs/coingecko-fetcher/package.json",
+        "main": "libs/coingecko-fetcher/src/index.ts",
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/coingecko-fetcher/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/coingecko-fetcher"],
+      "options": {
+        "jestConfig": "libs/coingecko-fetcher/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}
