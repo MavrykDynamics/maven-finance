@@ -8,27 +8,46 @@ async def on_delegation_origination(
     ctx: HandlerContext,
     delegation_origination: Origination[DelegationStorage],
 ) -> None:
+
     # Get operation values
-    delegationAddress               = delegation_origination.data.originated_contract_address
-    minimumSmvkBalance              = int(delegation_origination.storage.config.minimumStakedMvkBalance)
-    delegationRatio                 = int(delegation_origination.storage.config.delegationRatio)
-    maxSatellites                   = int(delegation_origination.storage.config.maxSatellites)
-    delegateToSatellitePaused       = delegation_origination.storage.breakGlassConfig.delegateToSatelliteIsPaused
-    undelegateFromSatellitePaused   = delegation_origination.storage.breakGlassConfig.undelegateFromSatelliteIsPaused
-    registerAsSatellitePaused       = delegation_origination.storage.breakGlassConfig.registerAsSatelliteIsPaused
-    unregisterAsSatellitePaused     = delegation_origination.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
-    update_satellite_record_paused  = delegation_origination.storage.breakGlassConfig.updateSatelliteRecordIsPaused
+    address                             = delegation_origination.data.originated_contract_address
+    admin                               = delegation_origination.storage.admin
+    governance_address                  = delegation_origination.storage.governanceAddress
+    minimum_smvk_balance                = float(delegation_origination.storage.config.minimumStakedMvkBalance)
+    delegation_ratio                    = int(delegation_origination.storage.config.delegationRatio)
+    max_satellites                      = int(delegation_origination.storage.config.maxSatellites)
+    satellite_name_max_length           = int(delegation_origination.storage.config.satelliteNameMaxLength)
+    satellite_description_max_length    = int(delegation_origination.storage.config.satelliteDescriptionMaxLength)
+    satellite_image_max_length          = int(delegation_origination.storage.config.satelliteImageMaxLength)
+    satellite_website_max_length        = int(delegation_origination.storage.config.satelliteWebsiteMaxLength)
+    delegate_to_satellite_paused        = delegation_origination.storage.breakGlassConfig.delegateToSatelliteIsPaused
+    undelegate_from_satellite_paused    = delegation_origination.storage.breakGlassConfig.undelegateFromSatelliteIsPaused
+    register_as_satellite_paused        = delegation_origination.storage.breakGlassConfig.registerAsSatelliteIsPaused
+    unregister_as_satellite_paused      = delegation_origination.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
+    update_satellite_record_paused      = delegation_origination.storage.breakGlassConfig.updateSatelliteRecordIsPaused
+    distribute_reward_paused            = delegation_origination.storage.breakGlassConfig.distributeRewardIsPaused
+
+    # Get or create governance record
+    governance, _ = await models.Governance.get_or_create(address=governance_address)
+    await governance.save();
 
     # Create contract
     delegation = models.Delegation(
-        address                             = delegationAddress,
-        minimum_smvk_balance                = minimumSmvkBalance,
-        delegation_ratio                    = delegationRatio,
-        max_satellites                      = maxSatellites,
-        delegate_to_satellite_paused        = delegateToSatellitePaused,
-        undelegate_from_satellite_paused    = undelegateFromSatellitePaused,
-        register_as_satellite_paused        = registerAsSatellitePaused,
-        unregister_as_satellite_paused      = unregisterAsSatellitePaused,
-        update_satellite_record_paused      = update_satellite_record_paused
+        address                             = address,
+        admin                               = admin,
+        governance                          = governance,
+        minimum_smvk_balance                = minimum_smvk_balance,
+        delegation_ratio                    = delegation_ratio,
+        max_satellites                      = max_satellites,
+        satellite_name_max_length           = satellite_name_max_length,
+        satellite_description_max_length    = satellite_description_max_length,
+        satellite_image_max_length          = satellite_image_max_length,
+        satellite_website_max_length        = satellite_website_max_length,
+        delegate_to_satellite_paused        = delegate_to_satellite_paused,
+        undelegate_from_satellite_paused    = undelegate_from_satellite_paused,
+        register_as_satellite_paused        = register_as_satellite_paused,
+        unregister_as_satellite_paused      = unregister_as_satellite_paused,
+        update_satellite_record_paused      = update_satellite_record_paused,
+        distribute_reward_paused            = distribute_reward_paused,
     )
     await delegation.save()

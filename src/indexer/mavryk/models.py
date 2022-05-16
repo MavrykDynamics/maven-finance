@@ -23,10 +23,9 @@ class ActionStatus(IntEnum):
     EXECUTED    = 2
 
 class GovernanceRoundType(IntEnum):
-    NONE        = 0
-    PROPOSAL    = 1
-    VOTING      = 2
-    TIMELOCK    = 3
+    PROPOSAL    = 0
+    VOTING      = 1
+    TIMELOCK    = 2
 
 class GovernanceRecordStatus(IntEnum):
     ACTIVE      = 0
@@ -37,18 +36,62 @@ class GovernanceVoteType(IntEnum):
     YAY         = 1
     ABSTAIN     = 2
 
+class TokenType(IntEnum):
+    XTZ         = 0
+    FA12        = 1
+    FA2         = 2
+    OTHER       = 3
+
+class GeneralContract(Model):
+    id                              = fields.BigIntField(pk=True)
+    target_contract                 = fields.CharField(max_length=36)
+    contract                        = fields.CharField(max_length=36)
+
+    class Meta:
+        table = 'general_contract'
+
+class WhitelistContract(Model):
+    id                              = fields.BigIntField(pk=True)
+    target_contract                 = fields.CharField(max_length=36)
+    contract                        = fields.CharField(max_length=36)
+
+    class Meta:
+        table = 'whitelist_contract'
+
+class WhitelistTokenContract(Model):
+    id                              = fields.BigIntField(pk=True)
+    target_contract                 = fields.CharField(max_length=36)
+    contract                        = fields.CharField(max_length=36)
+
+    class Meta:
+        table = 'whitelist_token_contract'
+
+class WhitelistDeveloper(Model):
+    id                              = fields.BigIntField(pk=True)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='whitelist_developers')
+    developer                       = fields.ForeignKeyField('models.MavrykUser', related_name='whitelist_developers')
+
+    class Meta:
+        table = 'whitelist_developer'
+
 class MVKToken(Model):
     address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='mvk_token')
     maximum_supply                  = fields.BigIntField(default=0)
     total_supply                    = fields.BigIntField(default=0)
+    inflation_rate                  = fields.SmallIntField(default=0)
+    next_inflation_timestamp        = fields.DatetimeField()
 
     class Meta:
         table = 'mvk_token'
 
 class Doorman(Model):
     address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='doormans')
     smvk_total_supply               = fields.FloatField(default=0)
-    min_mvk_amount                  = fields.BigIntField(default=0)
+    min_mvk_amount                  = fields.FloatField(default=0)
     unclaimed_rewards               = fields.FloatField(default=0)
     accumulated_fees_per_share      = fields.FloatField(default=0)
     stake_paused                    = fields.BooleanField(default=False)
@@ -60,20 +103,28 @@ class Doorman(Model):
 
 class Farm(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    lp_token                        = fields.CharField(max_length=36, default='')
-    lp_balance                      = fields.BigIntField(default=0)
-    open                            = fields.BooleanField(default=False)
-    rewards_from_treasury           = fields.BooleanField(default=False)
-    init_block                      = fields.BigIntField(default=0)
-    last_block_update               = fields.BigIntField(default=0)
-    accumulated_mvk_per_share       = fields.FloatField(default=0)
-    total_blocks                    = fields.BigIntField(default=0)
-    reward_per_block                = fields.FloatField(default=0)
-    blocks_per_minute               = fields.BigIntField(default=0)
+    admin                           = fields.CharField(max_length=36, default='')
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='farms', null=True)
+    blocks_per_minute               = fields.SmallIntField(default=0)
+    force_rewards_from_transfer     = fields.BooleanField(default=False)
     infinite                        = fields.BooleanField(default=False)
+    lp_token_address                = fields.CharField(max_length=36, default='')
+    lp_token_id                     = fields.SmallIntField(default=0)
+    lp_token_standard               = fields.IntEnumField(enum_type=TokenType, default=TokenType.OTHER)
+    lp_token_balance                = fields.BigIntField(default=0)
+    total_blocks                    = fields.BigIntField(default=0)
+    current_reward_per_block        = fields.FloatField(default=0)
+    total_rewards                   = fields.FloatField(default=0)
     deposit_paused                  = fields.BooleanField(default=False)
     withdraw_paused                 = fields.BooleanField(default=False)
     claim_paused                    = fields.BooleanField(default=False)
+    last_block_update               = fields.BigIntField(default=0)
+    open                            = fields.BooleanField(default=False)
+    init                            = fields.BooleanField(default=False)
+    init_block                      = fields.BigIntField(default=0)
+    accumulated_rewards_per_share   = fields.FloatField(default=0)
+    unpaid_rewards                  = fields.FloatField(default=0)
+    paid_rewards                    = fields.FloatField(default=0)
     farm_factory                    = fields.ForeignKeyField('models.FarmFactory', related_name='farms', null=True)
 
     class Meta:
@@ -81,6 +132,8 @@ class Farm(Model):
 
 class FarmFactory(Model):
     address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='farm_factories')
     create_farm_paused              = fields.BooleanField(default=False)
     track_farm_paused               = fields.BooleanField(default=False)
     untrack_farm_paused             = fields.BooleanField(default=False)
@@ -90,20 +143,29 @@ class FarmFactory(Model):
 
 class Delegation(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    minimum_smvk_balance            = fields.BigIntField(default=0)
-    delegation_ratio                = fields.BigIntField(default=0)
-    max_satellites                  = fields.BigIntField(default=0)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='delegations')
+    minimum_smvk_balance            = fields.FloatField(default=0)
+    delegation_ratio                = fields.SmallIntField(default=0)
+    max_satellites                  = fields.SmallIntField(default=0)
+    satellite_name_max_length       = fields.SmallIntField(default=0)
+    satellite_description_max_length= fields.SmallIntField(default=0)
+    satellite_image_max_length      = fields.SmallIntField(default=0)
+    satellite_website_max_length    = fields.SmallIntField(default=0)
     delegate_to_satellite_paused    = fields.BooleanField(default=False)
     undelegate_from_satellite_paused= fields.BooleanField(default=False)
     register_as_satellite_paused    = fields.BooleanField(default=False)
     unregister_as_satellite_paused  = fields.BooleanField(default=False)
     update_satellite_record_paused  = fields.BooleanField(default=False)
+    distribute_reward_paused        = fields.BooleanField(default=False)
 
     class Meta:
         table = 'delegation'
 
 class Council(Model):
     address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='councils')
     threshold                       = fields.BigIntField(default=0)
     action_expiry_days              = fields.BigIntField(default=0)
     action_counter                  = fields.BigIntField(default=0)
@@ -113,8 +175,8 @@ class Council(Model):
 
 class Vesting(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    default_cliff_period            = fields.BigIntField(default=0)
-    default_cooldown_period         = fields.BigIntField(default=0)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='vestings')
     total_vested_amount             = fields.BigIntField(default=0)
 
     class Meta:
@@ -122,21 +184,31 @@ class Vesting(Model):
 
 class EmergencyGovernance(Model):
     address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='emergency_governances')
+    decimals                        = fields.SmallIntField(default=0)
+    min_smvk_required_to_trigger    = fields.FloatField(default=0)
+    min_smvk_required_to_vote       = fields.FloatField(default=0)
+    proposal_desc_max_length        = fields.SmallIntField(default=0)
+    proposal_title_max_length       = fields.SmallIntField(default=0)
+    required_fee_mutez              = fields.BigIntField(default=0)
+    smvk_percentage_required        = fields.SmallIntField(default=0)
+    vote_expiry_days                = fields.SmallIntField(default=0)
     current_emergency_record_id     = fields.BigIntField(default=0)
     next_emergency_record_id        = fields.BigIntField(default=0)
-    required_fee                    = fields.FloatField(default=0)
-    smvk_percentage_required        = fields.BigIntField(default=0)
-    min_smvk_required_to_vote       = fields.FloatField(default=0)
-    min_smvk_required_to_trigger    = fields.FloatField(default=0)
-    vote_expiry_days                = fields.BigIntField(default=0)
 
     class Meta:
         table = 'emergency_governance'
 
 class BreakGlass(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    threshold                       = fields.BigIntField(default=0)
-    action_expiry_days              = fields.BigIntField(default=0)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='break_glasses')
+    threshold                       = fields.SmallIntField(default=0)
+    action_expiry_days              = fields.SmallIntField(default=0)
+    council_member_name_max_length  = fields.SmallIntField(default=0)
+    council_member_website_max_length= fields.SmallIntField(default=0)
+    council_member_image_max_length = fields.SmallIntField(default=0)
     glass_broken                    = fields.BooleanField(default=False)
     action_counter                  = fields.BigIntField(default=0)
 
@@ -145,29 +217,38 @@ class BreakGlass(Model):
 
 class Governance(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    success_reward                  = fields.BigIntField(default=0)
-    min_quorum_percentage           = fields.BigIntField(default=0)
-    min_quorum_mvk_total            = fields.BigIntField(default=0)
-    voting_power_ratio              = fields.BigIntField(default=0)
-    proposal_submission_fee         = fields.BigIntField(default=0)
-    proposal_round_vote_percentage  = fields.BigIntField(default=0)
+    governance_proxy_address        = fields.CharField(max_length=36, default="")
+    success_reward                  = fields.FloatField(default=0)
+    cycle_voters_reward             = fields.FloatField(default=0)
+    proposal_round_vote_percentage  = fields.SmallIntField(default=0)
     proposal_round_vote_required    = fields.BigIntField(default=0)
-    minimum_stake_req_percentage    = fields.BigIntField(default=0)
-    max_proposal_per_delegate       = fields.BigIntField(default=0)
-    new_blocktime_level             = fields.BigIntField(default=0)
-    new_block_per_minute            = fields.BigIntField(default=0)
-    blocks_per_minute               = fields.BigIntField(default=0)
+    quorum_percentage               = fields.SmallIntField(default=0)
+    quorum_mvk_total                = fields.BigIntField(default=0)
+    voting_power_ratio              = fields.SmallIntField(default=0)
+    proposal_submission_fee_mutez   = fields.BigIntField(default=0)
+    minimum_stake_req_percentage    = fields.SmallIntField(default=0)
+    max_proposal_per_delegate       = fields.SmallIntField(default=0)
+    blocks_per_minute               = fields.SmallIntField(default=0)
     blocks_per_proposal_round       = fields.BigIntField(default=0)
     blocks_per_voting_round         = fields.BigIntField(default=0)
     blocks_per_timelock_round       = fields.BigIntField(default=0)
-    financial_req_approval_percent  = fields.BigIntField(default=0)
-    financial_req_duration_in_days  = fields.BigIntField(default=0)
-    start_level                     = fields.BigIntField(default=0)
-    current_round                   = fields.IntEnumField(enum_type=GovernanceRoundType)
+    proposal_metadata_title_max_length= fields.BigIntField(default=0)
+    proposal_title_max_length       = fields.BigIntField(default=0)
+    proposal_description_max_length = fields.BigIntField(default=0)
+    proposal_invoice_max_length     = fields.BigIntField(default=0)
+    proposal_source_code_max_length = fields.BigIntField(default=0)
+    current_round                   = fields.IntEnumField(enum_type=GovernanceRoundType, default=GovernanceRoundType.PROPOSAL)
+    current_blocks_per_proposal_round= fields.BigIntField(default=0)
+    current_blocks_per_voting_round = fields.BigIntField(default=0)
+    current_blocks_per_timelock_round= fields.BigIntField(default=0)
     current_round_start_level       = fields.BigIntField(default=0)
     current_round_end_level         = fields.BigIntField(default=0)
     current_cycle_end_level         = fields.BigIntField(default=0)
+    current_cycle_total_voters_reward= fields.FloatField(default=0)
     next_proposal_id                = fields.BigIntField(default=0)
+    cycle_counter                   = fields.BigIntField(default=0)
+    current_round_highest_voted_proposal_id = fields.BigIntField(default=0)
+    timelock_proposal_id            = fields.BigIntField(default=0)
 
     class Meta:
         table = 'governance'
@@ -186,10 +267,24 @@ class MavrykUser(Model):
 
 class Treasury(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    balance                         = fields.BigIntField(default=0)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='treasuries')
+    transfer_paused                 = fields.BooleanField(default=False)
+    mint_mvk_and_transfer_paused    = fields.BooleanField(default=False)
 
     class Meta:
         table = 'treasury'
+
+class TreasuryFactory(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    admin                           = fields.CharField(max_length=36)
+    governance                      = fields.ForeignKeyField('models.Governance', related_name='treasury_factories')
+    create_treasury_paused          = fields.BooleanField(default=False)
+    track_treasury_paused           = fields.BooleanField(default=False)
+    untrack_treasury_paused         = fields.BooleanField(default=False)
+
+    class Meta:
+        table = 'treasury_factory'
 
 class MavrykUserOperator(Model):
     id                              = fields.BigIntField(pk=True, default=0)
@@ -217,9 +312,9 @@ class SatelliteRecord(Model):
     unregistered_datetime           = fields.DatetimeField()
     active                          = fields.BooleanField(default=False)
     fee                             = fields.BigIntField(default=0)
-    name                            = fields.CharField(max_length=255) #TODO: Set max length in contract + here
-    description                     = fields.CharField(max_length=255) #TODO: Set max length in contract + here
-    image                           = fields.CharField(max_length=255) #TODO: Set max length in contract + here
+    name                            = fields.CharField(max_length=255)
+    description                     = fields.CharField(max_length=255)
+    image                           = fields.CharField(max_length=255)
 
     class Meta:
         table = 'satellite_record'
@@ -350,6 +445,16 @@ class EmergencyGovernanceVote(Model):
     class Meta:
         table = 'emergency_governance_vote'
 
+class BreakGlassCouncilMember(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    break_glass                     = fields.ForeignKeyField('models.BreakGlass', related_name='break_glass_council_members')
+    name                            = fields.CharField(max_length=36)
+    website                         = fields.CharField(max_length=36)
+    image                           = fields.SmallIntField(default=0)
+
+    class Meta:
+        table = 'break_glass_council_member'
+
 class BreakGlassActionRecord(Model):
     id                              = fields.BigIntField(pk=True)
     break_glass                     = fields.ForeignKeyField('models.BreakGlass', related_name='break_glass_action_records')
@@ -406,8 +511,8 @@ class GovernanceProposalRecord(Model):
     current_cycle_start_level       = fields.BigIntField(default=0)
     current_cycle_end_level         = fields.BigIntField(default=0)
     current_round_proposal          = fields.BooleanField(default=True)
-    round_highest_voted_proposal    = fields.BooleanField(default=False) # If true, it is the current voted proposal in the voting round
-    timelock_proposal               = fields.BooleanField(default=False)
+    # round_highest_voted_proposal    = fields.BooleanField(default=False) # If true, it is the current voted proposal in the voting round
+    # timelock_proposal               = fields.BooleanField(default=False)
 
     class Meta:
         table = 'governance_proposal_record'
