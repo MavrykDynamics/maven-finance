@@ -1,14 +1,10 @@
-import * as React from 'react'
 import * as PropTypes from 'prop-types'
-import { IPFSUploaderStatusType } from './IPFSUploader.controller'
-import {
-  IpfsUploadedImageContainer,
-  IPFSUploaderStyled,
-  UploaderFileSelector,
-  UploadIcon,
-  UploadIconContainer,
-} from './IPFSUploader.style'
+import * as React from 'react'
 import { Ref } from 'react'
+
+import { IPFSUploaderStatusType } from './IPFSUploader.controller'
+// prettier-ignore
+import { IpfsUploadedImageContainer, IPFSUploaderStyled, UploaderFileSelector, UploadIcon, UploadIconContainer } from './IPFSUploader.style'
 
 type IPFSUploaderViewProps = {
   title?: string
@@ -42,9 +38,9 @@ export const IPFSUploaderView = ({
   return (
     <IPFSUploaderStyled id={'ipfsUploaderContainer'}>
       {title && listNumber && (
-        <p>
+        <label>
           {listNumber}- {title}
-        </p>
+        </label>
       )}
       <UploaderFileSelector>
         {isUploading ? (
@@ -65,7 +61,7 @@ export const IPFSUploaderView = ({
               <UploadIcon>
                 <use xlinkHref={`/icons/sprites.svg#upload`} />
               </UploadIcon>
-              <div>Upload file</div>
+              <div>Upload picture</div>
             </UploadIconContainer>
           </div>
         )}

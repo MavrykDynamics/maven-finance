@@ -1,9 +1,15 @@
 import styled, { keyframes } from 'styled-components/macro'
+
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 5px;
-  margin-top: 30px;
+  margin-top: 23px;
+
+  label {
+    margin-bottom: 10px;
+  }
+
   > p {
     font-weight: 700;
     color: ${({ theme }) => theme.textColor};
@@ -11,11 +17,10 @@ export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
-  margin: 15px 0;
   cursor: pointer;
-  height: 100px;
+  height: 85px;
   width: 100%;
-  border: 2px dashed ${({ theme }) => theme.borderColor};
+  border: 2px dashed ${({ theme }) => theme.headerColor};
   background-color: ${({ theme }) => theme.containerColor};
   display: inline-block;
   border-radius: 10px;
@@ -47,13 +52,13 @@ export const UploadIconContainer = styled.div<{ theme: MavrykTheme }>`
   text-align: center;
 
   > div {
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 400;
-    color: ${({ theme }) => theme.primaryColor};
+    color: ${({ theme }) => theme.headerColor};
   }
 `
 export const UploadIcon = styled.svg<{ theme: MavrykTheme }>`
-  stroke: ${({ theme }) => theme.primaryColor};
+  stroke: ${({ theme }) => theme.headerColor};
   width: 37px;
   height: 37px;
 

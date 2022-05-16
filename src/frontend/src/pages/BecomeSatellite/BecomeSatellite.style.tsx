@@ -1,5 +1,7 @@
 import styled from 'styled-components/macro'
 import { Card } from 'styles'
+
+import { cianColor, headerColor, upColor } from '../../styles/colors'
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const BecomeSatelliteStyled = styled.div<{ theme: MavrykTheme }>`
@@ -7,17 +9,31 @@ export const BecomeSatelliteStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const BecomeSatelliteForm = styled(Card)`
-  padding-bottom: 80px;
+  padding-bottom: 20px;
+  margin-top: 0;
 
   > h1 {
     margin: 0;
+    color: ${headerColor};
+    padding-bottom: 28px;
   }
-  > p,
-  > div > p {
-    margin-top: 30px;
+
+  input.success,
+  input.error {
+    border-color: ${({ theme }) => theme.cardBorderColor};
+  }
+
+  label,
+  .label {
     font-weight: 600;
     font-size: 14px;
-    color: ${({ theme }) => theme.textColor};
+    color: ${({ theme }) => theme.headerColor};
+    margin-bottom: 12px;
+    display: block;
+
+    p {
+      margin: 0;
+    }
   }
 
   > button {
@@ -36,12 +52,24 @@ export const BecomeSatelliteFormTitle = styled.h1<{ theme: MavrykTheme }>`
 
 export const BecomeSatelliteFormBalanceCheck = styled.div<{ balanceOk: boolean; theme: MavrykTheme }>`
   color: ${({ balanceOk, theme }) => (balanceOk ? theme.upColor : theme.downColor)};
+  display: flex;
+  padding-bottom: 30px;
+
+  p {
+    margin: 0;
+  }
+
+  svg {
+    stroke: ${({ balanceOk, theme }) => (balanceOk ? theme.upColor : theme.downColor)};
+    width: 12px;
+    height: 12px;
+    margin-right: 8px;
+  }
 `
 export const BecomeSatelliteFormFeeCheck = styled.div<{ feeOk: boolean; theme: MavrykTheme }>`
   color: ${({ feeOk, theme }) => (feeOk ? theme.upColor : theme.downColor)};
 `
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
-  margin: 15px 0;
   cursor: pointer;
   height: 100px;
   width: 100%;
@@ -106,5 +134,21 @@ export const BecomeSatelliteProfilePic = styled.div`
   min-height: 200px;
   > img {
     height: 100%;
+  }
+`
+export const BecomeSatelliteFormHorizontal = styled.div`
+  display: grid;
+  grid-template-columns: 290px 290px;
+  column-gap: 33px;
+  padding-bottom: 19px;
+`
+export const BecomeSatelliteButttons = styled.div`
+  display: flex;
+  padding-top: 36px;
+  justify-content: flex-end;
+
+  button {
+    width: 255px;
+    margin-left: 40px;
   }
 `
