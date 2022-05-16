@@ -15,7 +15,14 @@ export type tokenSaleStorageType = {
   whitelistedAddresses      : MichelsonMap<MichelsonMapKey, unknown>;
 
   tokenSaleHasStarted       : boolean;
-  whitelistAmountTotal      : BigNumber;
-  overallAmountTotal        : BigNumber;
+  tokenSaleHasEnded         : boolean;
+  tokenSalePaused           : boolean;
+
+  tokenSaleEndTimestamp     : Date;
+  tokenSaleEndBlockLevel    : BigNumber;
+
+  optionOneBoughtTotal      : BigNumber;
+  optionTwoBoughtTotal      : BigNumber;
+  optionThreeBoughtTotal    : BigNumber;
   
 }
