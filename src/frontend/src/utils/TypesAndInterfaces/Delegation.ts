@@ -70,6 +70,7 @@ export interface SatelliteRecord {
   name: string
   image: string
   description: string
+  website: string
   satelliteFee: number
   active: boolean
   mvkBalance: number
