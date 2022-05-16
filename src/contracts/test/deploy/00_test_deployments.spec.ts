@@ -92,7 +92,7 @@ describe('Contracts Deployment for Tests', async () => {
   var lpToken: LPToken;
   var mockFa12Token : MockFa12Token
   var mockFa2Token : MockFa2Token
-  var tokenSale : tokenSale
+  var tokenSale : TokenSale
   var tezos
   
 
@@ -341,6 +341,9 @@ describe('Contracts Deployment for Tests', async () => {
     await saveContractAddress('mockFa2TokenAddress', mockFa2Token.contract.address)
     console.log('Mock Fa2 Token Contract deployed at:', mockFa2Token.contract.address)
 
+    tokenSaleStorage.governanceAddress = governance.contract.address;
+    tokenSaleStorage.treasuryAddress   = treasury.contract.address;
+    tokenSaleStorage.mvkTokenAddress   = mvkToken.contract.address;
     tokenSale = await TokenSale.originate(
       utils.tezos,
       tokenSaleStorage
