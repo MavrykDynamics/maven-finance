@@ -36,6 +36,10 @@ export const BecomeSatelliteForm = styled(Card)`
     }
   }
 
+  .input-fee-wrap {
+    width: 163px;
+  }
+
   > button {
     width: 300px;
     float: right;
@@ -138,7 +142,7 @@ export const BecomeSatelliteProfilePic = styled.div`
 `
 export const BecomeSatelliteFormHorizontal = styled.div`
   display: grid;
-  grid-template-columns: 290px 290px;
+  grid-template-columns: 1fr 1fr;
   column-gap: 33px;
   padding-bottom: 19px;
 `
