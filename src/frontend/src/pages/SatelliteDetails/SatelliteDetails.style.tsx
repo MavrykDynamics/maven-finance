@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { cianColor, containerColor, darkCianColor, headerColor, subTextColor } from 'styles'
+import { cianColor, containerColor, darkCianColor, headerColor, skyColor, subTextColor } from 'styles'
 
 export const SatelliteDetailsStyled = styled.div`
   background-color: ${containerColor};
@@ -38,5 +38,24 @@ export const SatelliteCardBottomRow = styled.div`
 
   .descr {
     padding-bottom: 4px;
+  }
+
+  .satellite-info-block {
+    margin-bottom: 38px;
+  }
+
+  .satellite-info-block-metrics {
+    display: grid;
+    grid-template-columns: 180px 100px;
+    align-items: center;
+    padding-top: 10px;
+
+    h5 {
+      margin: 0;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 21px;
+      color: ${skyColor};
+    }
   }
 `
