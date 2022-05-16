@@ -31,16 +31,19 @@ type tokenSaleAction is
     // Housekeeping Entrypoints
   | SetAdmin                    of address
   | UpdateMetadata              of updateMetadataType
-  | UpdateConfig                of tokenSaleUpdateConfigActionType
+  | UpdateConfig                of tokenSaleUpdateConfigParamsType
 
-    // Token Sale Entrypoints
+    // Admin Token Sale Entrypoints
+  | SetWhitelistDateTime        of setWhitelistDateTimeActionType
   | AddToWhitelist              of list(address)
   | RemoveFromWhitelist         of list(address)
-  | BuyTokens                   of buyTokenType
-  | ClaimTokens                 of unit
   | StartSale                   of unit
   | CloseSale                   of unit
   | PauseSale                   of unit
+  
+    // Token Sale Entrypoints
+  | BuyTokens                   of buyTokenType
+  | ClaimTokens                 of unit
   
   
 const noOperations : list (operation) = nil;
@@ -133,9 +136,9 @@ block {
 
 
 
-function addToWhitelist (const newUserAddress : address; var whitelistedAddresses : whitelistedAddressesType) : whitelistedAddressesType is {
-  whitelistedAddresses [newUserAddress] := True 
-} with whitelistedAddresses
+// function addToWhitelist (const newUserAddress : address; var whitelistedAddresses : whitelistedAddressesType) : whitelistedAddressesType is {
+//   whitelistedAddresses [newUserAddress] := True 
+// } with whitelistedAddresses
 
 
 
@@ -266,21 +269,44 @@ block {
 
 
 (*  updateConfig entrypoint  *)
-function updateConfig(const _updateConfigParams : tokenSaleUpdateConfigActionType; var s : tokenSaleStorage) : return is 
+function updateConfig(const updateConfigParams : tokenSaleUpdateConfigParamsType; var s : tokenSaleStorage) : return is 
 block {
 
   checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
   checkSenderIsAdmin(s); // check that sender is admin
 
-  // case updateConfigParams of [
-  //       ConfigMaxWhitelistCount (_v)          -> s.config.maxWhitelistCount              := _v
-  //     | ConfigMaxAmountPerWhitelist (_v)      -> s.config.maxAmountPerWhitelistWallet    := _v  
-  //     | ConfigMaxAmountPerWalletTotal (_v)    -> s.config.maxAmountPerWalletTotal        := _v
-  //     | ConfigWhitelistStartTimestamp (_v)    -> s.config.whitelistStartTimestamp        := _v  
-  //     | ConfigWhitelistEndTimestamp (_v)      -> s.config.whitelistEndTimestamp          := _v  
-  //     | ConfigWhitelistMaxAmountCap (_v)      -> s.config.whitelistMaxAmountCap          := _v  
-  //     | ConfigOverallMaxAmountCap (_v)        -> s.config.overallMaxAmountCap            := _v  
-  // ];
+  const updateConfigAction    : tokenSaleUpdateConfigActionType   = updateConfigParams.updateConfigAction;
+  const updateConfigNewValue  : tokenSaleUpdateConfigNewValueType = updateConfigParams.updateConfigNewValue;
+
+  case updateConfigAction of [
+
+        MaxAmountOptOnePerWalletTotal (_v)          -> s.config.maxAmountOptionOnePerWalletTotal    := updateConfigNewValue
+      | MaxAmountOptTwoPerWalletTotal (_v)          -> s.config.maxAmountOptionTwoPerWalletTotal    := updateConfigNewValue  
+      | MaxAmountOptThreePerWalletTotal (_v)        -> s.config.maxAmountOptionThreePerWalletTotal  := updateConfigNewValue
+      
+      | WhitelistMaxAmountOptOneTotal (_v)          -> s.config.whitelistMaxAmountOptionOneTotal    := updateConfigNewValue  
+      | WhitelistMaxAmountOptTwoTotal (_v)          -> s.config.whitelistMaxAmountOptionTwoTotal    := updateConfigNewValue  
+      | WhitelistMaxAmountOptThreeTotal (_v)        -> s.config.whitelistMaxAmountOptionThreeTotal  := updateConfigNewValue  
+
+      | OptionOneMaxAmountCap (_v)                  -> s.config.optionOneMaxAmountCap               := updateConfigNewValue  
+      | OptionTwoMaxAmountCap (_v)                  -> s.config.optionTwoMaxAmountCap               := updateConfigNewValue  
+      | OptionThreeMaxAmountCap (_v)                -> s.config.optionThreeMaxAmountCap             := updateConfigNewValue  
+
+      | VestingOptionOneInMonths (_v)               -> s.config.vestingOptionOneInMonths            := updateConfigNewValue  
+      | VestingOptionTwoInMonths (_v)               -> s.config.vestingOptionTwoInMonths            := updateConfigNewValue  
+      | VestingOptionThreeInMonths (_v)             -> s.config.vestingOptionThreeInMonths          := updateConfigNewValue  
+
+      | OptionOneTezPerToken (_v)                   -> s.config.optionOneTezPerToken                := updateConfigNewValue  
+      | OptionTwoTezPerToken (_v)                   -> s.config.optionTwoTezPerToken                := updateConfigNewValue  
+      | OptionThreeTezPerToken (_v)                 -> s.config.optionThreeTezPerToken              := updateConfigNewValue  
+
+      | MinOptionOneAmountInTez (_v)                -> s.config.minOptionOneAmountInTez             := updateConfigNewValue  
+      | MinOptionTwoAmountInTez (_v)                -> s.config.minOptionTwoAmountInTez             := updateConfigNewValue  
+      | MinOptionThreeAmountInTez (_v)              -> s.config.minOptionThreeAmountInTez           := updateConfigNewValue  
+
+      | BlocksPerMinute (_v)                        -> s.config.blocksPerMinute                     := updateConfigNewValue  
+
+  ];
 
 } with (noOperations, s)
 
@@ -292,6 +318,24 @@ block {
 // ------------------------------------------------------------------------------
 // Token Sale Entrypoints Begin
 // ------------------------------------------------------------------------------
+
+(*  setWhitelistDateTime entrypoint *)
+function setWhitelistDateTime(const setWhitelistDateTimeParams : setWhitelistDateTimeActionType; var s : tokenSaleStorage) : return is
+block {
+
+  checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+  checkSenderIsAdmin(s); // check that sender is admin
+
+  // init params
+  const whitelistStartDateTime  : timestamp  = setWhitelistDateTimeParams.whitelistStartDateTime;
+  const whitelistEndDateTime    : timestamp  = setWhitelistDateTimeParams.whitelistEndDateTime;
+
+  // update whitelist dates
+  s.whitelistStartDateTime  := whitelistStartDateTime;
+  s.whitelistEndDateTime    := whitelistEndDateTime;
+
+} with (noOperations, s)
+
 
 (*  addToWhitelist entrypoint *)
 function addToWhitelist(const userAddressList : list(address); var s : tokenSaleStorage) : return is
@@ -348,14 +392,14 @@ block {
       var operations : list(operation) := nil;
 
       // check if whitelist sale has started
-      if Tezos.now < s.config.whitelistStartTimestamp 
+      if Tezos.now < s.whitelistStartDateTime
       then failwith(error_WHITELIST_SALE_HAS_NOT_STARTED) 
       else skip;
 
       // check if whitelist sale has ended -> proceed to public sale
-      if Tezos.now > s.config.whitelistEndTimestamp 
+      if Tezos.now > s.whitelistEndDateTime
       then skip 
-      else if Tezos.now > s.config.whitelistStartTimestamp then block {
+      else if Tezos.now > s.whitelistStartDateTime then block {
           
           // whitelist sale has started
 
@@ -786,7 +830,8 @@ block {
     checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
     
-    s.tokenSaleHasStarted       := True;
+    s.tokenSaleHasStarted     := True;
+    s.tokenSaleHasEnded       := False;
     
 } with (noOperations, s)
 
@@ -845,13 +890,16 @@ function main (const action : tokenSaleAction; const s : tokenSaleStorage) : ret
         | UpdateMetadata(parameters)              -> updateMetadata(parameters, s)  
         | UpdateConfig(parameters)                -> updateConfig(parameters, s)
 
-          // Token Sale Entrypoints
+          // Admin Token Sale Entrypoints
+        | SetWhitelistDateTime(parameters)        -> setWhitelistDateTime(parameters, s)
         | AddToWhitelist(parameters)              -> addToWhitelist(parameters, s)
         | RemoveFromWhitelist(parameters)         -> removeFromWhitelist(parameters, s)
-        | BuyTokens(parameters)                   -> buyTokens(parameters, s)
-        | ClaimTokens(_parameters)                -> claimTokens(s)
         | StartSale(_parameters)                  -> startSale(s)
         | CloseSale(_parameters)                  -> closeSale(s)
         | PauseSale(_parameters)                  -> pauseSale(s)
+
+          // Token Sale Entrypoints
+        | BuyTokens(parameters)                   -> buyTokens(parameters, s)
+        | ClaimTokens(_parameters)                -> claimTokens(s)
         
     ]
