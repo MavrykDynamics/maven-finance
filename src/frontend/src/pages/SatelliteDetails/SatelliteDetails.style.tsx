@@ -1,5 +1,6 @@
 import styled from 'styled-components/macro'
-import { cianColor, containerColor, darkCianColor, headerColor, skyColor, subTextColor } from 'styles'
+// prettier-ignore
+import { cianColor, containerColor, darkCianColor, downColor, headerColor, skyColor, subTextColor, upColor } from 'styles'
 
 export const SatelliteDetailsStyled = styled.div`
   background-color: ${containerColor};
@@ -56,6 +57,26 @@ export const SatelliteCardBottomRow = styled.div`
       font-size: 14px;
       line-height: 21px;
       color: ${skyColor};
+    }
+  }
+
+  .satellite-voting-history {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding-top: 4px;
+
+    b {
+      font-weight: 700;
+      font-size: 14px;
+
+      &.voting-yes {
+        color: ${upColor};
+      }
+
+      &.voting-no {
+        color: ${downColor};
+      }
     }
   }
 `

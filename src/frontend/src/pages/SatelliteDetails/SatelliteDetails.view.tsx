@@ -107,9 +107,24 @@ export const SatelliteDetailsView = ({
                 </div>
               </div>
 
-              <div>
-                <h4>Voting History:</h4>
-              </div>
+              {satellite.proposalVotingHistory?.length ? (
+                <div>
+                  <h4>Voting History:</h4>
+                  <div>
+                    {satellite.proposalVotingHistory.map((item) => {
+                      return (
+                        <div className="satellite-voting-history" key={item.id}>
+                          <p>Proposal 42 - Adjusting Auction Parameters</p>
+                          <span>
+                            Voted {item.vote ? <b className="voting-yes">YES </b> : <b className="voting-no">NO </b>}
+                            on Oct 11th, 2021
+                          </span>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              ) : null}
             </SatelliteCardBottomRow>
           </SatelliteListCard>
         )}
