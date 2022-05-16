@@ -116,7 +116,7 @@ export class DeviationTriggerService implements OnModuleInit {
     );
 
     const {
-      aggregatorConfig: {
+      config: {
         rewardAmountXTZ,
         minimalTezosAmountDeviationTrigger: tezStake,
         perthousandDeviationTrigger: thresholdPerthousand,

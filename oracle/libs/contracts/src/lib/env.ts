@@ -1,4 +1,4 @@
-import { accountPerNetwork } from '../accounts';
+import { accountPerNetwork } from './accounts';
 
 export type NetworkName =
   | 'development'
