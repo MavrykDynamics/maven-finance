@@ -16,6 +16,7 @@ type InputProps = {
   type: string
   errorMessage?: string
   disabled?: boolean
+  required?: boolean
   pinnedText?: string
   kind?: InputKind
 }
@@ -33,12 +34,14 @@ export const Input = ({
   disabled,
   pinnedText,
   kind,
+  required,
 }: InputProps) => {
   return (
     <InputView
       type={type}
       icon={icon}
       name={name}
+      required={required}
       placeholder={placeholder}
       value={value}
       onChange={onChange}

@@ -1,4 +1,5 @@
 import * as React from 'react'
+
 import { DECIMALS_TO_SHOW } from '../../../utils/constants'
 import { LoadingIcon } from './CommaNumber.style'
 
@@ -7,19 +8,21 @@ export const CommaNumber = ({
   loading,
   endingText,
   beginningText,
+  className = '',
   showDecimal = true,
 }: {
   value: number
   loading?: boolean
   endingText?: string
   beginningText?: string
+  className?: string
   showDecimal?: boolean
 }) => {
   const numberWithCommas = value.toLocaleString('en-US', { maximumFractionDigits: showDecimal ? DECIMALS_TO_SHOW : 0 })
   return (
     <>
       {loading ? (
-        <div>
+        <div className={className}>
           <LoadingIcon className={'secondary'}>
             <use xlinkHref="/icons/sprites.svg#loading" />
           </LoadingIcon>
@@ -27,7 +30,7 @@ export const CommaNumber = ({
       ) : (
         <>
           {beginningText || endingText ? (
-            <div>
+            <div className={className}>
               <p>
                 {beginningText ? beginningText + ' ' : ''}
                 {numberWithCommas}
@@ -35,7 +38,7 @@ export const CommaNumber = ({
               </p>
             </div>
           ) : (
-            <div>{numberWithCommas}</div>
+            <div className={className}>{numberWithCommas}</div>
           )}
         </>
       )}

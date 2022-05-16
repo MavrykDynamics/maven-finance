@@ -48,6 +48,12 @@ export const StakeUnstakeInputColumn = styled.div`
 
   input {
     padding-right: 90px;
+    height: 50px;
+    font-size: 18px;
+
+    & ~ div {
+      top: 18px;
+    }
   }
 `
 export const StakeUnstakeInputLabels = styled.div`

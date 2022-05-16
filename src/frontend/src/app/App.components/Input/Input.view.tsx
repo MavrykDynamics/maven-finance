@@ -1,16 +1,9 @@
-import * as React from 'react'
 import * as PropTypes from 'prop-types'
+import * as React from 'react'
 
-import {
-  InputStyled,
-  InputComponent,
-  InputStatus,
-  InputIcon,
-  InputErrorMessage,
-  InputLabel,
-  InputComponentContainer,
-} from './Input.style'
 import { InputKind, InputStatusType } from './Input.controller'
+// prettier-ignore
+import { InputComponent, InputComponentContainer, InputErrorMessage, InputIcon, InputLabel, InputStatus, InputStyled } from './Input.style'
 
 type InputViewProps = {
   icon?: string
@@ -24,6 +17,7 @@ type InputViewProps = {
   errorMessage?: string
   disabled?: boolean
   pinnedText?: string
+  required?: boolean
   kind?: InputKind
 }
 
@@ -40,6 +34,7 @@ export const InputView = ({
   disabled,
   pinnedText,
   kind,
+  required,
 }: InputViewProps) => {
   let classNames = kind
   let status = inputStatus !== undefined ? inputStatus : 'none'
@@ -56,6 +51,7 @@ export const InputView = ({
           id={'inputComponent'}
           type={type}
           name={name}
+          required={required}
           className={classNames}
           placeholder={placeholder}
           value={value}
