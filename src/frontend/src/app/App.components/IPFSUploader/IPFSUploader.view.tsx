@@ -1,10 +1,11 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { Ref } from 'react'
-
+// components
+import Icon from '../Icon/Icon.view'
 import { IPFSUploaderStatusType } from './IPFSUploader.controller'
 // prettier-ignore
-import { IpfsUploadedImageContainer, IPFSUploaderStyled, UploaderFileSelector, UploadIcon, UploadIconContainer } from './IPFSUploader.style'
+import { IpfsUploadedImageContainer, IPFSUploaderStyled, UploaderFileSelector,  UploadIconContainer } from './IPFSUploader.style'
 
 type IPFSUploaderViewProps = {
   title?: string
@@ -44,7 +45,7 @@ export const IPFSUploaderView = ({
       )}
       <UploaderFileSelector>
         {isUploading ? (
-          <div>Uploading...</div>
+          <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
         ) : (
           <div>
             <input
@@ -58,15 +59,22 @@ export const IPFSUploaderView = ({
               onBlur={onBlur}
             />
             <UploadIconContainer onClick={handleIconClick}>
-              <UploadIcon>
-                <use xlinkHref={`/icons/sprites.svg#upload`} />
-              </UploadIcon>
-              <div>Upload picture</div>
+              {isUploaded && imageIpfsUrl ? (
+                <IpfsUploadedImageContainer>
+                  <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
+                  <img className="uploaded-image" src={imageIpfsUrl} alt="" />
+                  <div className="pencil-wrap">
+                    <Icon id="pencil-stroke" />
+                  </div>
+                </IpfsUploadedImageContainer>
+              ) : (
+                <>
+                  <Icon className="upload-icon" id="upload" />
+                  <div>Upload picture</div>
+                </>
+              )}
             </UploadIconContainer>
           </div>
-        )}
-        {isUploaded && (
-          <IpfsUploadedImageContainer>{imageIpfsUrl && <img src={imageIpfsUrl} alt="" />}</IpfsUploadedImageContainer>
         )}
       </UploaderFileSelector>
     </IPFSUploaderStyled>

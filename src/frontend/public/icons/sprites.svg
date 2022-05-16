@@ -446,4 +446,10 @@
     <path d="M1 1.5L11 10.5"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     <path d="M11 1.5L1 10.5"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
+  <symbol id="pencil-stroke" viewBox="0 0 10 10" fill="none" >
+    <path d="M9.24583 0.754278C9.10393 0.61296 8.93544 0.501161 8.75008 0.42534C8.56472 0.349519 8.36618 0.311179 8.16592 0.312535C7.96566 0.313891 7.76765 0.354916 7.58334 0.43324C7.39902 0.511564 7.23206 0.625635 7.09208 0.768861L1.05042 6.81053L0.3125 9.68761L3.18958 8.94969L9.23125 2.90803C9.37448 2.76805 9.48855 2.60109 9.56687 2.41677C9.6452 2.23246 9.68622 2.03445 9.68758 1.83419C9.68893 1.63393 9.65059 1.43539 9.57477 1.25003C9.49895 1.06467 9.38715 0.896177 9.24583 0.754278V0.754278Z"  stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6.91895 0.941895L9.05811 3.08106"  stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6.04688 1.81396L8.18604 3.95313"  stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M1.05078 6.81055L3.19203 8.94763"  stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
 </svg>
