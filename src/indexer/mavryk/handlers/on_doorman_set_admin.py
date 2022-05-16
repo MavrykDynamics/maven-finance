@@ -1,0 +1,11 @@
+
+from mavryk.types.doorman.storage import DoormanStorage
+from dipdup.context import HandlerContext
+from dipdup.models import Transaction
+from mavryk.types.doorman.parameter.set_admin import SetAdminParameter
+
+async def on_doorman_set_admin(
+    ctx: HandlerContext,
+    set_admin: Transaction[SetAdminParameter, DoormanStorage],
+) -> None:
+    ...

@@ -9,22 +9,30 @@ async def on_council_origination(
     council_origination: Origination[CouncilStorage],
 ) -> None:
     # Get operation values
-    councilAddress              = council_origination.data.originated_contract_address
-    councilThreshold            = int(council_origination.storage.config.threshold)
-    councilActionExpiryDays     = int(council_origination.storage.config.actionExpiryDays)
-    councilActionCounter        = int(council_origination.storage.actionCounter)
-    councilMembers              = council_origination.storage.councilMembers
+    address                 = council_origination.data.originated_contract_address
+    admin                   = council_origination.storage.admin
+    governance_address      = council_origination.storage.governanceAddress
+    threshold               = int(council_origination.storage.config.threshold)
+    action_expiry_days      = int(council_origination.storage.config.actionExpiryDays)
+    action_counter          = int(council_origination.storage.actionCounter)
+    council_members         = council_origination.storage.councilMembers
+
+    # Get or create governance record
+    governance, _ = await models.Governance.get_or_create(address=governance_address)
+    await governance.save();
 
     # Update and create record
     council = models.Council(
-        address                 = councilAddress,
-        threshold               = councilThreshold,
-        action_expiry_days      = councilActionExpiryDays,
-        action_counter          = councilActionCounter
+        address                 = address,
+        admin                   = admin,
+        governance              = governance,
+        threshold               = threshold,
+        action_expiry_days      = action_expiry_days,
+        action_counter          = action_counter
     )
     await council.save()
 
-    for member in councilMembers:
+    for member in council_members:
         user, _ = await models.MavrykUser.get_or_create(
             address = member
         )

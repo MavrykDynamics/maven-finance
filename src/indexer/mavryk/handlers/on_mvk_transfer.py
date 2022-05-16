@@ -9,6 +9,8 @@ async def on_mvk_transfer(
     ctx: HandlerContext,
     transfer: Transaction[TransferParameter, MvkStorage],
 ) -> None:
+
+    # Get transfer batch
     transaction_batch = transfer.parameter.__root__
     timestamp = transfer.data.timestamp
     mvk_address = transfer.data.target_address
