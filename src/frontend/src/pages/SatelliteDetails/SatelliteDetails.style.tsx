@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 // prettier-ignore
-import { cianColor, containerColor, darkCianColor, downColor, headerColor, skyColor, subTextColor, upColor } from 'styles'
+import { cianColor, containerColor, darkCianColor, downColor, headerColor, skyColor, subTextColor, tezosColor, upColor } from 'styles'
 
 export const SatelliteDetailsStyled = styled.div`
   background-color: ${containerColor};
@@ -39,6 +39,10 @@ export const SatelliteCardBottomRow = styled.div`
 
   .descr {
     padding-bottom: 4px;
+    p {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
   }
 
   .satellite-info-block {
@@ -50,6 +54,11 @@ export const SatelliteCardBottomRow = styled.div`
     grid-template-columns: 180px 100px;
     align-items: center;
     padding-top: 10px;
+
+    p {
+      margin-top: 7px;
+      margin-bottom: 7px;
+    }
 
     h5 {
       margin: 0;
@@ -79,4 +88,12 @@ export const SatelliteCardBottomRow = styled.div`
       }
     }
   }
-`
+
+  .satellite-website {
+    color: ${tezosColor};
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 14px;
+    text-decoration: underline;
+  }
+` // SatelliteCardBottomRow

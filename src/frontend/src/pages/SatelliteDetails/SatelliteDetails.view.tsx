@@ -9,6 +9,8 @@ import { SatelliteCard, SatelliteCardRow, SatelliteCardTopRow, SatelliteMainText
 import { SatelliteListCard } from 'pages/Satellites/SatelliteList/SatellliteListCard/SatelliteListCard.view'
 import { SatelliteSideBar } from 'pages/Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import * as React from 'react'
+/* @ts-ignore */
+import Time from 'react-pure-time'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { State } from 'reducers'
@@ -41,7 +43,7 @@ export const SatelliteDetailsView = ({
   const totalDelegatedMVK = satellite?.totalDelegatedAmount ?? 0
   const myDelegatedMVK = userStakedBalanceInSatellite
 
-  console.log('%c ||||| proposalVotingHistory', 'color:yellowgreen', satellite.proposalVotingHistory)
+  console.log('%c ||||| satellite', 'color:yellowgreen', satellite)
 
   const options: HTMLReactParserOptions = {
     replace: (domNode: any) => {
@@ -93,6 +95,10 @@ export const SatelliteDetailsView = ({
               <div className="descr satellite-info-block">
                 <h4>Description:</h4>
                 <p>{parse(satellite.description, options)}</p>
+
+                <a className="satellite-website" href={satellite.website} target="_blank" rel="noreferrer">
+                  Website
+                </a>
               </div>
 
               <div className="satellite-info-block">
@@ -117,7 +123,7 @@ export const SatelliteDetailsView = ({
                           <p>Proposal 42 - Adjusting Auction Parameters</p>
                           <span>
                             Voted {item.vote ? <b className="voting-yes">YES </b> : <b className="voting-no">NO </b>}
-                            on Oct 11th, 2021
+                            on <Time value={item.timestamp} format="M d\t\h, Y" />
                           </span>
                         </div>
                       )

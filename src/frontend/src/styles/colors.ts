@@ -8,6 +8,7 @@ export const headerColor = '#8D86EB'
 export const textsColor = '#160E3F'
 export const cianColor = '#86D4C9'
 export const darkCianColor = '#503EAA'
+export const tezosColor = '#0D61FF'
 
 export const containerColor = '#F7F9FD'
 export const borderColor = '#4F457C' 

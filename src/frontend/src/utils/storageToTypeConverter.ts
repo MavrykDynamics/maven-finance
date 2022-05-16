@@ -1,35 +1,19 @@
-import { setItemInStorage } from './storage'
-import { calcWithoutMu } from './calcFunctions'
 import { MichelsonMap } from '@taquito/taquito'
-import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
-import {
-  DelegateRecord,
-  DelegationStorage,
-  SatelliteFinancialRequestVotingHistory,
-  SatelliteProposalVotingHistory,
-  SatelliteRecord,
-} from './TypesAndInterfaces/Delegation'
-import { DoormanStorage } from './TypesAndInterfaces/Doorman'
-import { FarmStorage } from './TypesAndInterfaces/Farm'
-import { FarmFactoryStorage } from './TypesAndInterfaces/FarmFactory'
-import {
-  EmergencyGovernanceProposalRecord,
-  EmergencyGovernanceStorage,
-  EmergencyGovProposalVoter,
-} from './TypesAndInterfaces/EmergencyGovernance'
+
+import treasuryAddress from '../deployments/treasuryAddress.json'
+import { ContractAddressesState } from '../reducers/contractAddresses'
+import { calcWithoutMu } from './calcFunctions'
+import { setItemInStorage } from './storage'
 import { BreakGlassActionRecord, BreakGlassActionSigner, BreakGlassStorage } from './TypesAndInterfaces/BreakGlass'
 import { CouncilActionRecord, CouncilActionSigner, CouncilStorage } from './TypesAndInterfaces/Council'
+import { DelegateRecord, DelegationStorage, SatelliteFinancialRequestVotingHistory, SatelliteProposalVotingHistory, SatelliteRecord } from './TypesAndInterfaces/Delegation'
+import { DoormanStorage } from './TypesAndInterfaces/Doorman'
+import { EmergencyGovernanceProposalRecord, EmergencyGovernanceStorage, EmergencyGovProposalVoter } from './TypesAndInterfaces/EmergencyGovernance'
+import { FarmStorage } from './TypesAndInterfaces/Farm'
+import { FarmFactoryStorage } from './TypesAndInterfaces/FarmFactory'
+import { FinancialRequestRecord, FinancialRequestVote, GovernanceStorage, ProposalRecordType, ProposalVote, SnapshotRecordType } from './TypesAndInterfaces/Governance'
+import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { VestingStorage } from './TypesAndInterfaces/Vesting'
-import {
-  FinancialRequestRecord,
-  FinancialRequestVote,
-  GovernanceStorage,
-  ProposalRecordType,
-  ProposalVote,
-  SnapshotRecordType,
-} from './TypesAndInterfaces/Governance'
-import { ContractAddressesState } from '../reducers/contractAddresses'
-import treasuryAddress from '../deployments/treasuryAddress.json'
 
 export default function storageToTypeConverter(contract: string, storage: any): any {
   let res = {}
@@ -288,6 +272,7 @@ function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecor
   const newSatelliteRecord: SatelliteRecord = {
     address: satelliteRecord.user_id,
     description: satelliteRecord.description,
+    website: satelliteRecord.website,
     image: satelliteRecord.image,
     mvkBalance: calcWithoutMu(satelliteRecord.user.mvk_balance),
     sMvkBalance: calcWithoutMu(satelliteRecord.user.smvk_balance),
