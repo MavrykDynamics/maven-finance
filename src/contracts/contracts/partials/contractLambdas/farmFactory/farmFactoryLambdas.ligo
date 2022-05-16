@@ -311,7 +311,6 @@ block{
                 ];
 
                 // Create needed records for farm contract
-                const farmDepositors : big_map(depositor, depositorRecord) = Big_map.empty;
                 const farmClaimedRewards : claimedRewards = record[
                     paid=0n;
                     unpaid=0n;
@@ -370,7 +369,7 @@ block{
                     lastBlockUpdate         = Tezos.level;
                     accumulatedRewardsPerShare  = 0n;
                     claimedRewards          = farmClaimedRewards;
-                    depositors              = farmDepositors;
+                    depositors              = big_map[];
                     open                    = True ;
                     init                    = True;
                     initBlock               = Tezos.level;

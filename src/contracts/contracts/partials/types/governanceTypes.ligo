@@ -49,8 +49,12 @@ type voteForProposalChoiceType is
   Yay of unit
 | Nay of unit
 | Abstain of unit
-type votingRoundVoteType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
-type votersMapType is map (address, votingRoundVoteType)
+type votingRoundVoteType is [@layout:comb] record [
+  vote  : voteForProposalChoiceType;
+  empty : unit;
+]
+type votingRoundRecordType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
+type votersMapType is map (address, votingRoundRecordType)
 
 type proposalMetadataType is map (string, bytes)
 type paymentMetadataType  is map (string, transferDestinationType)
@@ -261,7 +265,7 @@ type governanceLambdaActionType is
 | LambdaAddUpdateProposalData                 of addUpdateProposalDataType
 | LambdaAddUpdatePaymentData                  of addUpdatePaymentDataType
 | LambdaLockProposal                          of proposalIdType
-| LambdaVotingRoundVote                       of (voteForProposalChoiceType)
+| LambdaVotingRoundVote                       of votingRoundVoteType
 | LambdaExecuteProposal                       of (unit)
 | LambdaProcessProposalPayment                of proposalIdType
 | LambdaProcessProposalSingleData             of (unit)

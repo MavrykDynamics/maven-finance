@@ -43,7 +43,7 @@ type governanceAction is
     | AddUpdateProposalData           of addUpdateProposalDataType
     | AddUpdatePaymentData            of addUpdatePaymentDataType
     | LockProposal                    of proposalIdType      
-    | VotingRoundVote                 of (voteForProposalChoiceType)    
+    | VotingRoundVote                 of (votingRoundVoteType)    
     | ExecuteProposal                 of (unit)
     | ProcessProposalPayment          of proposalIdType
     | ProcessProposalSingleData       of (unit)
@@ -419,8 +419,8 @@ function sendRewardsToVoters(var s: governanceStorage): operation is
     const voters: votersMapType         = proposal.voters;
     
     // Get voters
-    var votersAddresses: set(address)   := Set.empty;
-    function getVotersAddresses(const voters: set(address); const voter: address * votingRoundVoteType): set(address) is
+    var votersAddresses: set(address)   := (Set.empty: set(address));
+    function getVotersAddresses(const voters: set(address); const voter: address * votingRoundRecordType): set(address) is
       Set.add(voter.0, voters);
     var votersAddresses := Map.fold(getVotersAddresses, voters, votersAddresses);
 
@@ -1046,7 +1046,7 @@ block {
 
 
 // (* votingRoundVote entrypoint *)
-function votingRoundVote(const voteType : voteForProposalChoiceType; var s : governanceStorage) : return is 
+function votingRoundVote(const voteType : votingRoundVoteType; var s : governanceStorage) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVotingRoundVote"] of [

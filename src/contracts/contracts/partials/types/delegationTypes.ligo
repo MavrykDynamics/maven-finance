@@ -52,7 +52,7 @@ type satelliteRecordType is [@layout:comb] record [
 ]
 type satelliteLedgerType is map (address, satelliteRecordType)
 
-type satelliteRewardsLedgerType is map (address, satelliteRewards)
+type satelliteRewardsLedgerType is big_map (address, satelliteRewards)
 
 type requestSatelliteSnapshotType is  [@layout:comb] record [
     satelliteAddress      : address;

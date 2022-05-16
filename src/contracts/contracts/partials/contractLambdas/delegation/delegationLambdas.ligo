@@ -931,7 +931,7 @@ block {
                         else userSatellite.totalDelegatedAmount := abs(userSatellite.totalDelegatedAmount - stakeAmount);
 
                         _delegatorRecord.delegatedSMvkBalance  := stakedMvkBalance;
-                        s.delegateLedger   := Map.update(userAddress, Some(_delegatorRecord), s.delegateLedger);
+                        s.delegateLedger   := Big_map.update(userAddress, Some(_delegatorRecord), s.delegateLedger);
                         s.satelliteLedger  := Map.update(_delegatorRecord.satelliteAddress, Some(userSatellite), s.satelliteLedger);
                     } 
                     // Force User to undelegate if it does not have an active satellite anymore

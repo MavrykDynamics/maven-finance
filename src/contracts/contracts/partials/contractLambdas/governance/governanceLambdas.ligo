@@ -360,7 +360,7 @@ block {
                     | Voting -> case currentRoundHighestVotedProposal of [
                         Some (proposal) -> block{
                             // Check if proposal has voters. Send rewards to all voters
-                            if Set.cardinal(proposal.voters) > 0n then operations  := sendRewardsToVoters(s) # operations
+                            if Map.size(proposal.voters) > 0n then operations  := sendRewardsToVoters(s) # operations
                             else skip;
 
                             if proposal.upvoteMvkTotal < proposal.minQuorumMvkTotal then {
@@ -910,7 +910,10 @@ block {
     else skip; 
 
     case governanceLambdaAction of [
-        | LambdaVotingRoundVote(voteType) -> {
+        | LambdaVotingRoundVote(voteRecord) -> {
+
+                // get vote from record 
+                const voteType: voteForProposalChoiceType   = voteRecord.vote;
                 
                 // check if satellite exists in the active satellites map
                 const delegationAddress : address = case s.generalContracts["delegation"] of [
