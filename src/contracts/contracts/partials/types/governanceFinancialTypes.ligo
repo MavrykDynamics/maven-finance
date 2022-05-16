@@ -49,8 +49,8 @@ type voteForProposalChoiceType is
   Yay of unit
 | Nay of unit
 | Abstain of unit
-type votingRoundVoteType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
-type votersMapType is map (address, votingRoundVoteType)
+type votingRoundRecordType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
+type votersMapType is map (address, votingRoundRecordType)
 
 type proposalMetadataType is map (string, bytes)
 type paymentMetadataType  is map (string, transferDestinationType)
