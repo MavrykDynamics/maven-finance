@@ -216,7 +216,7 @@ export class SetObservationService implements OnModuleInit {
       round,
       observationCommits,
       switchBlock,
-      aggregatorConfig: { rewardAmountXTZ, decimals },
+      config: { rewardAmountXTZ, decimals },
     }: AggregatorStorage = await aggregator.storage();
 
     if (observationCommits === undefined || observationCommits === null) {
@@ -299,7 +299,7 @@ export class SetObservationService implements OnModuleInit {
       switchBlock,
       observationCommits,
       observationReveals,
-      aggregatorConfig: { rewardAmountXTZ },
+      config: { rewardAmountXTZ },
     }: AggregatorStorage = await aggregator.storage();
 
     if (

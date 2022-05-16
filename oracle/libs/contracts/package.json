@@ -2,27 +2,6 @@
   "name": "@mavryk-oracle-node/contracts",
   "version": "0.0.1",
   "type": "commonjs",
-  "scripts": {
-    "pre-compile": "ts-node src/lib/scripts/cli.ts compile -o src/lib/contracts/compiled -c",
-    "pre-compile-m1": "ts-node src/lib/scripts/cli.ts compile -o src/lib/contracts/compiled -m true -c",
-    "pre-compile-all": "rm -rf ./src/lib/contracts/compiled && ts-node src/lib/scripts/cli.ts compile -p src/lib/contracts/main -o src/lib/contracts/compiled",
-    "pre-compile-all-m1": "rm -rf ./src/lib/contracts/compiled && ts-node src/lib/scripts/cli.ts compile -p src/lib/contracts/main -o src/lib/contracts/compiled -m true",
-    "compile": "yarn pre-compile-all && rm -rf ./build && ts-node src/lib/scripts/cli.ts compile -f json -o src/lib/contracts/json ",
-    "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node src/lib/scripts/cli.ts compile -f json -o src/lib/contracts/json -m true ",
-    "migrate": "yarn compile && ts-node src/lib/scripts/cli.ts migrate",
-    "migrate-testnet": "yarn compile && ts-node src/lib/scripts/cli.ts migrate ithacanet",
-    "migrate-testnet-kms": "yarn compile && ts-node src/lib/scripts/cli.ts migrate ithacanet-kms",
-    "migrate-only": "ts-node src/lib/scripts/cli.ts migrate",
-    "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=hangzhounet ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 900000",
-    "test": "yarn migrate && ts-mocha --paths src/test/*.spec.ts --bail --timeout 900000",
-    "test-full": "yarn compile && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
-    "test-full-m1": "yarn compile-m1 && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
-    "test-only": "ts-mocha --paths src/test/*.spec.ts --bail --timeout 300000",
-    "test-single-file": "ts-mocha --bail --timeout 300000 --paths",
-    "pytest": "yarn migrate && pytest -s",
-    "pytest-only": "pytest -s",
-    "clean": "rm -rf ./build && rm -rf src/lib/contracts/compiled && rm -rf ./deployments"
-  },
   "devDependencies": {
     "ts-node": "^10.7.0"
   }

@@ -1,4 +1,3 @@
-import * as AggregatorFactoryRaw from './contracts/json/aggregatorFactory.json';
 import { MichelsonMap } from '@taquito/michelson-encoder';
 import { ContractAbstraction } from '@taquito/taquito';
 import { ContractProvider } from '@taquito/taquito/dist/types/contract/interface';
@@ -9,7 +8,6 @@ import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-metho
 import { ContractView } from '@taquito/taquito/dist/types/contract/contract';
 import BigNumber from 'bignumber.js';
 
-export const AggregatorFactoryCode = AggregatorFactoryRaw.michelson;
 
 export type AggregatorFactoryStorage = {
   admin: string;

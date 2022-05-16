@@ -1,4 +1,4 @@
-import { NetworkName } from './scripts/env';
+import { NetworkName } from './env';
 
 export type Account = {
   pkh: string;

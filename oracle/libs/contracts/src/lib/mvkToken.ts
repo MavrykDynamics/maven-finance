@@ -1,4 +1,3 @@
-import * as MVKTokenRaw from './contracts/json/mvkToken.json';
 import { ContractAbstraction } from '@taquito/taquito';
 import { ContractProvider } from '@taquito/taquito/dist/types/contract/interface';
 import { Wallet } from '@taquito/taquito/dist/types/wallet';
@@ -8,9 +7,7 @@ import { ContractView } from '@taquito/taquito/dist/types/contract/contract';
 import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder';
 import BigNumber from 'bignumber.js';
 import { accountPerNetwork } from './accounts';
-import { networkConfig, NetworkName } from './scripts/env';
-
-export const MVKTokenCode = MVKTokenRaw.michelson;
+import { networkConfig, NetworkName } from './env';
 
 export type MVKTokenStorage = {
   admin: string;
