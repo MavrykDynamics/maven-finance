@@ -1,5 +1,5 @@
 
-from mavryk.types.governance.storage import GovernanceStorage
+from mavryk.types.governance.storage import GovernanceStorage, RoundItem as proposal, RoundItem1 as timelock, RoundItem2 as voting
 from dipdup.context import HandlerContext
 from dipdup.models import Origination
 import mavryk.models as models
@@ -8,66 +8,84 @@ async def on_governance_origination(
     ctx: HandlerContext,
     governance_origination: Origination[GovernanceStorage],
 ) -> None:
+
     # Get operation values
-    governanceAddress                               = governance_origination.data.originated_contract_address
-    governanceSuccessReward                         = int(governance_origination.storage.config.successReward)
-    governanceMinQuorumPercentage                   = int(governance_origination.storage.config.minQuorumPercentage)
-    governanceMinQuorumMvkTotal                     = int(governance_origination.storage.config.minQuorumMvkTotal)
-    governanceVotingPowerRatio                      = int(governance_origination.storage.config.votingPowerRatio)
-    governanceProposalSubmissionFee                 = int(governance_origination.storage.config.proposalSubmissionFee)
-    governanceProposalRoundVotePercentage           = int(governance_origination.storage.config.minProposalRoundVotePercentage)
-    governanceProposalRoundVoteRequired             = int(governance_origination.storage.config.minProposalRoundVotesRequired)
-    governanceMinimumStakeReqPercentage             = int(governance_origination.storage.config.minimumStakeReqPercentage)
-    governanceMaxProposalsPerDelegate               = int(governance_origination.storage.config.maxProposalsPerDelegate)
-    governanceNewBlockTimeLevel                     = int(governance_origination.storage.config.newBlockTimeLevel)
-    governanceNewBlocksPerMinute                    = int(governance_origination.storage.config.newBlocksPerMinute)
-    governanceBlocksPerMinute                       = int(governance_origination.storage.config.blocksPerMinute)
-    governanceBlocksPerProposalRound                = int(governance_origination.storage.config.blocksPerProposalRound)
-    governanceBlocksPerVotingRound                  = int(governance_origination.storage.config.blocksPerVotingRound)
-    governanceBlocksPerTimelockRound                = int(governance_origination.storage.config.blocksPerTimelockRound)
-    governanceFinancialRequestApprovalPercentage    = int(governance_origination.storage.config.financialRequestApprovalPercentage)
-    governanceFinancialRequestDurationInDays        = int(governance_origination.storage.config.financialRequestDurationInDays)
-    governanceStartLevel                            = int(governance_origination.storage.startLevel)
-    governanceCurrentRound                          = governance_origination.storage.currentRound
-    governanceCurrentRoundStartLevel                = int(governance_origination.storage.currentRoundStartLevel)
-    governanceCurrentRoundEndLevel                  = int(governance_origination.storage.currentRoundEndLevel)
-    governanceCurrentCycleEndLevel                  = int(governance_origination.storage.currentCycleEndLevel)
-    governanceNextProposalID                        = int(governance_origination.storage.nextProposalId)
+    address                                 = governance_origination.data.originated_contract_address
+    governance_proxy_address                = governance_origination.storage.governanceProxyAddress
+    success_reward                          = float(governance_origination.storage.config.successReward)
+    cycle_voters_reward                     = float(governance_origination.storage.config.cycleVotersReward)
+    proposal_round_vote_percentage          = int(governance_origination.storage.config.minProposalRoundVotePercentage)
+    proposal_round_vote_required            = int(governance_origination.storage.config.minProposalRoundVotesRequired)
+    quorum_percentage                       = int(governance_origination.storage.config.minQuorumPercentage)
+    quorum_mvk_total                        = int(governance_origination.storage.config.minQuorumMvkTotal)
+    voting_power_ratio                      = int(governance_origination.storage.config.votingPowerRatio)
+    proposal_submission_fee                 = int(governance_origination.storage.config.proposalSubmissionFeeMutez)
+    minimum_stake_req_percentage            = int(governance_origination.storage.config.minimumStakeReqPercentage)
+    max_proposals_per_delegate              = int(governance_origination.storage.config.maxProposalsPerDelegate)
+    blocks_per_minute                       = int(governance_origination.storage.config.blocksPerMinute)
+    blocks_per_Proposal_round               = int(governance_origination.storage.config.blocksPerProposalRound)
+    blocks_per_voting_round                 = int(governance_origination.storage.config.blocksPerVotingRound)
+    blocks_per_timelock_round               = int(governance_origination.storage.config.blocksPerTimelockRound)
+    proposal_metadata_title_max_length      = int(governance_origination.storage.config.proposalMetadataTitleMaxLength)
+    proposal_title_max_length               = int(governance_origination.storage.config.proposalTitleMaxLength)
+    proposal_description_max_length         = int(governance_origination.storage.config.proposalDescriptionMaxLength)
+    proposal_invoice_max_length             = int(governance_origination.storage.config.proposalInvoiceMaxLength)
+    proposal_source_code_max_length         = int(governance_origination.storage.config.proposalSourceCodeMaxLength)
+    current_round                           = governance_origination.storage.currentCycleInfo.round
+    current_blocks_per_proposal_round       = int(governance_origination.storage.currentCycleInfo.blocksPerProposalRound)
+    current_blocks_per_voting_round         = int(governance_origination.storage.currentCycleInfo.blocksPerVotingRound)
+    current_blocks_per_timelock_round       = int(governance_origination.storage.currentCycleInfo.blocksPerTimelockRound)
+    current_round_start_level               = int(governance_origination.storage.currentCycleInfo.roundStartLevel)
+    current_round_end_level                 = int(governance_origination.storage.currentCycleInfo.roundEndLevel)
+    current_cycle_end_level                 = int(governance_origination.storage.currentCycleInfo.cycleEndLevel)
+    current_cycle_total_voters_reward       = int(governance_origination.storage.currentCycleInfo.cycleTotalVotersReward)
+    next_proposal_id                        = int(governance_origination.storage.nextProposalId)
+    cycle_counter                           = int(governance_origination.storage.cycleCounter)
+    current_round_highest_voted_proposal_id = int(governance_origination.storage.currentRoundHighestVotedProposalId)
+    timelock_proposal_id                    = int(governance_origination.storage.timelockProposalId)
 
     # Current round
-    governanceRoundType = models.GovernanceRoundType.NONE
-    if governanceCurrentRound == "proposal":
-        governanceRoundType = models.GovernanceRoundType.PROPOSAL
-    elif governanceCurrentRound == "timelock":
-        governanceRoundType = models.GovernanceRoundType.TIMELOCK
-    elif governanceCurrentRound == "voting":
-        governanceRoundType = models.GovernanceRoundType.VOTING
+    governance_round_type = models.GovernanceRoundType.PROPOSAL
+    if current_round == proposal:
+        governance_round_type = models.GovernanceRoundType.PROPOSAL
+    elif current_round == timelock:
+        governance_round_type = models.GovernanceRoundType.TIMELOCK
+    elif current_round == voting:
+        governance_round_type = models.GovernanceRoundType.VOTING
 
     # Create record
-    governance  = models.Governance(
-        address                                 = governanceAddress,
-        next_proposal_id                        = governanceNextProposalID,
-        success_reward                          = governanceSuccessReward,
-        min_quorum_percentage                   = governanceMinQuorumPercentage,
-        min_quorum_mvk_total                    = governanceMinQuorumMvkTotal,
-        voting_power_ratio                      = governanceVotingPowerRatio,
-        proposal_submission_fee                 = governanceProposalSubmissionFee,
-        proposal_round_vote_percentage          = governanceProposalRoundVotePercentage,
-        governanceProposalRoundVoteRequired     = governanceProposalRoundVoteRequired,
-        minimum_stake_req_percentage            = governanceMinimumStakeReqPercentage,
-        max_proposal_per_delegate               = governanceMaxProposalsPerDelegate,
-        new_blocktime_level                     = governanceNewBlockTimeLevel,
-        new_block_per_minute                    = governanceNewBlocksPerMinute,
-        blocks_per_minute                       = governanceBlocksPerMinute,
-        blocks_per_proposal_round               = governanceBlocksPerProposalRound,
-        blocks_per_voting_round                 = governanceBlocksPerVotingRound,
-        blocks_per_timelock_round               = governanceBlocksPerTimelockRound,
-        financial_req_approval_percent          = governanceFinancialRequestApprovalPercentage,
-        financial_req_duration_in_days          = governanceFinancialRequestDurationInDays,
-        start_level                             = governanceStartLevel,
-        current_round                           = governanceRoundType,
-        current_round_start_level               = governanceCurrentRoundStartLevel,
-        current_round_end_level                 = governanceCurrentRoundEndLevel,
-        current_cycle_end_level                 = governanceCurrentCycleEndLevel
-    )
+    governance, _  = await models.Governance.get_or_create(address = address)
+    governance.address                                 = address
+    governance.governance_proxy_address                = governance_proxy_address
+    governance.success_reward                          = success_reward
+    governance.cycle_voters_reward                     = cycle_voters_reward
+    governance.proposal_round_vote_percentage          = proposal_round_vote_percentage
+    governance.proposal_round_vote_required            = proposal_round_vote_required
+    governance.quorum_percentage                       = quorum_percentage
+    governance.quorum_mvk_total                        = quorum_mvk_total
+    governance.voting_power_ratio                      = voting_power_ratio
+    governance.proposal_submission_fee_mutez           = proposal_submission_fee
+    governance.minimum_stake_req_percentage            = minimum_stake_req_percentage
+    governance.max_proposal_per_delegate               = max_proposals_per_delegate
+    governance.blocks_per_minute                       = blocks_per_minute
+    governance.blocks_per_proposal_round               = blocks_per_Proposal_round
+    governance.blocks_per_voting_round                 = blocks_per_voting_round
+    governance.blocks_per_timelock_round               = blocks_per_timelock_round
+    governance.proposal_metadata_title_max_length      = proposal_metadata_title_max_length
+    governance.proposal_title_max_length               = proposal_title_max_length
+    governance.proposal_description_max_length         = proposal_description_max_length
+    governance.proposal_invoice_max_length             = proposal_invoice_max_length
+    governance.proposal_source_code_max_length         = proposal_source_code_max_length
+    governance.current_round                           = governance_round_type
+    governance.current_blocks_per_proposal_round       = current_blocks_per_proposal_round
+    governance.current_blocks_per_voting_round         = current_blocks_per_voting_round
+    governance.current_blocks_per_timelock_round       = current_blocks_per_timelock_round
+    governance.current_round_start_level               = current_round_start_level
+    governance.current_round_end_level                 = current_round_end_level
+    governance.current_cycle_end_level                 = current_cycle_end_level
+    governance.current_cycle_total_voters_reward       = current_cycle_total_voters_reward
+    governance.next_proposal_id                        = next_proposal_id
+    governance.cycle_counter                           = cycle_counter
+    governance.current_round_highest_voted_proposal_id = current_round_highest_voted_proposal_id
+    governance.timelock_proposal_id                    = timelock_proposal_id
     await governance.save()
