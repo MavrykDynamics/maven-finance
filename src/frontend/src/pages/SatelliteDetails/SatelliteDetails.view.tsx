@@ -41,8 +41,7 @@ export const SatelliteDetailsView = ({
   const totalDelegatedMVK = satellite?.totalDelegatedAmount ?? 0
   const myDelegatedMVK = userStakedBalanceInSatellite
 
-  console.log('%c ||||| satellite', 'color:yellowgreen', satellite)
-  console.log('%c ||||| participationMetrics', 'color:yellowgreen', participationMetrics)
+  console.log('%c ||||| proposalVotingHistory', 'color:yellowgreen', satellite.proposalVotingHistory)
 
   const options: HTMLReactParserOptions = {
     replace: (domNode: any) => {
@@ -91,28 +90,25 @@ export const SatelliteDetailsView = ({
             isDetaisPage
           >
             <SatelliteCardBottomRow>
-              <div className="descr">
+              <div className="descr satellite-info-block">
                 <h4>Description:</h4>
                 <p>{parse(satellite.description, options)}</p>
               </div>
 
+              <div className="satellite-info-block">
+                <h4>Participation Metrics:</h4>
+                <div className="satellite-info-block-metrics">
+                  <h5>Poll participation</h5>
+                  <p>{participationMetrics.pollParticipation}%</p>
+                  <h5>Proposal participation</h5>
+                  <p>{participationMetrics.proposalParticipation}%</p>
+                  <h5>Communication</h5>
+                  <p>{participationMetrics.communication}%</p>
+                </div>
+              </div>
+
               <div>
                 <h4>Voting History:</h4>
-              </div>
-              <div>
-                <h4>Participation Metrics:</h4>
-                <div>
-                  <h5>Poll participation Proposal participation Communication</h5>
-                  <p>{participationMetrics.pollParticipation}</p>
-                </div>
-                <div>
-                  <h5>Proposal participation</h5>
-                  <p>{participationMetrics.proposalParticipation}</p>
-                </div>
-                <div>
-                  <h5>Communication</h5>
-                  <p>{participationMetrics.communication}</p>
-                </div>
               </div>
             </SatelliteCardBottomRow>
           </SatelliteListCard>
