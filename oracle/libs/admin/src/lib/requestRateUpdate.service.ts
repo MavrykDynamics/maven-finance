@@ -83,7 +83,7 @@ export class RequestRateUpdateService implements OnModuleInit {
           (Date.now() - Date.parse(priceDateTime)) / (60 * 1000);
 
         this.logger.debug(
-          `MANIA - minutes since last round ${lastCompletedRound} (started at ${priceDateTime}): ${minutesSinceLastRound}`
+          `Minutes since last round ${lastCompletedRound} (started at ${priceDateTime}): ${minutesSinceLastRound}`
         );
 
         if (minutesSinceLastRound < this.adminConfig.roundDurationMinutes) {
