@@ -1,6 +1,7 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
 
 import { BigNumber } from "bignumber.js";
+import { zeroAddress } from "test/helpers/Utils";
 
 const { bob } = require('../scripts/sandbox/accounts')
 
@@ -8,9 +9,6 @@ import { tokenSaleStorageType } from "../test/types/tokenSaleStorageType";
 
 
 const config = {
-    
-    whitelistStartTimestamp               : Date.now(),
-    whitelistEndTimestamp                 : Date.now(),
 
     maxAmountOptionOnePerWalletTotal      : 200000000,   // 200 tez
     maxAmountOptionTwoPerWalletTotal      : 200000000,
@@ -57,12 +55,15 @@ export const tokenSaleStorage: tokenSaleStorageType = {
   metadata                  : metadata,
   config                    : config,
 
-  governanceAddress         : "",
-  treasuryAddress           : "",
-  mvkTokenAddress           : "",
+  governanceAddress         : zeroAddress,
+  treasuryAddress           : zeroAddress,
+  mvkTokenAddress           : zeroAddress,
 
-  whitelistedAddresses      : MichelsonMap.fromLiteral({}),
   tokenSaleLedger           : MichelsonMap.fromLiteral({}),
+  whitelistedAddresses      : MichelsonMap.fromLiteral({}),
+
+  whitelistStartDateTime    : new Date(),
+  whitelistEndDateTime      : new Date(),
 
   tokenSaleHasStarted       : false,
   tokenSaleHasEnded         : false,
