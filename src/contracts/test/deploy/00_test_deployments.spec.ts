@@ -361,7 +361,7 @@ describe('Contracts Deployment for Tests', async () => {
     await signerFactory(bob.sk);
       
     // Governance Setup Proxy Lambdas (external contracts)
-      const governanceProxyLambdaBatch = await tezos.wallet
+      const governanceProxyFirstLambdaBatch = await tezos.wallet
       .batch()
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(0, governanceProxyLambdas[0])) // executeGovernanceLambdaProxy
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(1, governanceProxyLambdas[1])) // updateProxyLambda
@@ -379,6 +379,12 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(13, governanceProxyLambdas[13])) // updateEmergencyConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(14, governanceProxyLambdas[14])) // updateBreakGlassConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[15])) // updateCouncilConfig
+  
+      const setupGovernanceProxyFirstLambdasOperation = await governanceProxyFirstLambdaBatch.send()
+      await setupGovernanceProxyFirstLambdasOperation.confirmation()
+
+      const governanceProxySecondLambdaBatch = await tezos.wallet
+      .batch()
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[16])) // updateFarmConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[17])) // updateDoormanMinMvkAmount
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[18])) // updateWhitelistDevelopersSet
@@ -396,8 +402,8 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[30])) // updateInflationRate
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(31, governanceProxyLambdas[31])) // triggerInflation
   
-      const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
-      await setupGovernanceProxyLambdasOperation.confirmation()
+      const setupGovernanceProxySecondLambdasOperation = await governanceProxySecondLambdaBatch.send()
+      await setupGovernanceProxySecondLambdasOperation.confirmation()
       console.log("Governance Proxy Lambdas Setup")
 
 
