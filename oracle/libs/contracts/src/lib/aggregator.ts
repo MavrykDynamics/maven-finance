@@ -1,4 +1,3 @@
-import * as AggregatorRaw from './contracts/json/aggregator.json';
 import { MichelsonMap } from '@taquito/michelson-encoder';
 import BigNumber from 'bignumber.js';
 import { ContractAbstraction } from '@taquito/taquito';
@@ -9,7 +8,6 @@ import { ContractMethodObject } from '@taquito/taquito/dist/types/contract/contr
 import { OnChainView } from '@taquito/taquito/dist/types/contract/contract-methods/contract-on-chain-view';
 import { ContractView } from '@taquito/taquito/dist/types/contract/contract';
 
-export const AggregatorCode = AggregatorRaw.michelson;
 export type aggregatorConfigType = {
   decimals: BigNumber;
   percentOracleThreshold: BigNumber;
@@ -40,7 +38,7 @@ export type AggregatorStorage = {
   observationCommits: MichelsonMap<string, string>;
   observationReveals: MichelsonMap<string, BigNumber>;
   owner: string;
-  aggregatorConfig: aggregatorConfigType;
+  config: aggregatorConfigType;
   switchBlock: BigNumber;
 };
 

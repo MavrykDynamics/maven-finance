@@ -208,7 +208,7 @@ describe('Contracts Deployment for Tests', async () => {
     farmStorage.config.lpToken.tokenStandard = {
       fa12: ""
     };
-    
+
     farmFactoryStorage.governanceAddress = governance.contract.address
     farmFactoryStorage.mvkTokenAddress  = mvkToken.contract.address;
     farmFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
@@ -390,11 +390,11 @@ describe('Contracts Deployment for Tests', async () => {
     tezos = doorman.tezos
     console.log('====== break ======')
 
-    // Set Lambdas 
+    // Set Lambdas
 
     await signerFactory(bob.sk);
-    
-    // Governance Proxy Setup Lambdas 
+
+    // Governance Proxy Setup Lambdas
     const governanceProxyLambdaBatch = await tezos.wallet
       .batch()
       .withContractCall(governanceProxy.contract.methods.setLambda("lambdaSetAdmin"                              , governanceProxyLambdas[0]))  // setAdmin
@@ -406,7 +406,7 @@ describe('Contracts Deployment for Tests', async () => {
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
       await setupGovernanceProxyLambdasOperation.confirmation()
       console.log("Governance Proxy Lambdas Setup")
-      
+
     // Governance Proxy Setup Proxy Lambdas (external contracts)
       const governanceProxyFirstLambdaBatch = await tezos.wallet
       .batch()
@@ -426,7 +426,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(13, governanceProxyLambdas[19])) // updateEmergencyConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(14, governanceProxyLambdas[20])) // updateBreakGlassConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[21])) // updateCouncilConfig
-  
+
       const setupGovernanceProxyFirstLambdasOperation = await governanceProxyFirstLambdaBatch.send()
       await setupGovernanceProxyFirstLambdasOperation.confirmation()
 
@@ -455,7 +455,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(36, governanceProxyLambdas[42])) // removeVestee
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(37, governanceProxyLambdas[43])) // updateVestee
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(38, governanceProxyLambdas[44])) // toggleVesteeLock
-  
+
       const setupGovernanceProxySecondLambdasOperation = await governanceProxySecondLambdaBatch.send()
       await setupGovernanceProxySecondLambdasOperation.confirmation()
       console.log("Governance Proxy Proxy Lambdas Setup")
@@ -478,7 +478,7 @@ describe('Contracts Deployment for Tests', async () => {
       const setupGovernanceFinancialLambdasOperation = await governanceFinancialLambdaBatch.send()
       await setupGovernanceFinancialLambdasOperation.confirmation()
       console.log("Governance Financial Lambdas Setup")
-  
+
 
       // Governance Setup Lambdas
       const governanceLambdaFirstBatch = await tezos.wallet
@@ -736,7 +736,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaDeposit"                     , farmLambdas[14])) // deposit
       .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaWithdraw"                    , farmLambdas[15])) // withdraw
       .withContractCall(farmFactory.contract.methods.setProductLambda("lambdaClaim"                       , farmLambdas[16])) // claim
-      
+
       const setupFarmFactoryProductLambdasOperation = await farmFactoryProductLambdaBatch.send()
       await setupFarmFactoryProductLambdasOperation.confirmation()
       console.log("Farm Factory Product Lambdas Setup")
@@ -833,6 +833,10 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStakeMvk"                     , treasuryLambdas[16]))  // stakeMvk
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstakeMvk"                   , treasuryLambdas[17]))  // unstakeMvk
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> feat: add oracle code
       const setupTreasuryFactoryProductLambdasOperation = await treasuryFactoryProductLambdaBatch.send()
       await setupTreasuryFactoryProductLambdasOperation.confirmation()
       console.log("Treasury Factory Product Lambdas Setup")
@@ -895,6 +899,74 @@ describe('Contracts Deployment for Tests', async () => {
     // Set remaining contract addresses - post-deployment
     //----------------------------
     // MVK Token Contract - set governance contract address
+
+
+
+    const oracleMap = MichelsonMap.fromLiteral({
+      [bob.pkh]: true,
+      [eve.pkh]: true,
+      [mallory.pkh]: true,
+    }) as MichelsonMap<
+        string,
+        boolean
+        >
+
+    const createAggregatorsBatch = await tezos.wallet
+        .batch()
+        .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+            'USD',
+            'BTC',
+            oracleMap,
+            mvkToken.contract.address,
+            delegation.contract.address,
+            new BigNumber(8),
+            alice.pkh,
+            new BigNumber(1),
+            new BigNumber(2),
+            new BigNumber(60),
+            new BigNumber(5),
+            new BigNumber(1),
+            new BigNumber(500),
+            aggregatorFactory.contract.address
+        ))
+        .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+            'USD',
+            'XTZ',
+            oracleMap,
+            mvkToken.contract.address,
+            delegation.contract.address,
+            new BigNumber(8),
+            alice.pkh,
+            new BigNumber(1),
+            new BigNumber(2),
+            new BigNumber(60),
+            new BigNumber(5),
+            new BigNumber(1),
+            new BigNumber(500),
+            aggregatorFactory.contract.address
+        ))
+        .withContractCall(aggregatorFactory.contract.methods.createAggregator(
+            'USD',
+            'DOGE',
+            oracleMap,
+            mvkToken.contract.address,
+            delegation.contract.address,
+            new BigNumber(16),
+            alice.pkh,
+            new BigNumber(1),
+            new BigNumber(2),
+            new BigNumber(60),
+            new BigNumber(5),
+            new BigNumber(1),
+            new BigNumber(500),
+            aggregatorFactory.contract.address
+        ))
+
+    const createAggregatorsBatchOperation = await createAggregatorsBatch.send()
+    await createAggregatorsBatchOperation.confirmation()
+
+    console.log("Aggregators deployed")
+
     // MVK Token Contract - set general contract addresses [doorman]
     // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
 
@@ -1040,7 +1112,7 @@ describe('Contracts Deployment for Tests', async () => {
     console.log('Governance Financial Contract - set whitelist token contract addresss [mockFA12, mockFA2, MVK]')
 
 
-    
+
     // Emergency Governance Contract - set contract addresses map [breakGlass]
     const emergencyGovernanceContractsBatch = await tezos.wallet
     .batch()
