@@ -1,0 +1,34 @@
+{
+  "root": "libs/admin",
+  "sourceRoot": "libs/admin/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/node:webpack",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/admin",
+        "tsConfig": "libs/admin/tsconfig.lib.json",
+        "packageJson": "libs/admin/package.json",
+        "main": "libs/admin/src/index.ts",
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/admin/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/admin"],
+      "options": {
+        "jestConfig": "libs/admin/jest.config.js",
+        "passWithNoTests": true
+      }
+    }
+  },
+  "tags": []
+}

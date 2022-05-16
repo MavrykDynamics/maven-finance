@@ -1,0 +1,256 @@
+version: '3.7'
+
+
+volumes:
+  esdata:
+  bcdshare:
+  db:
+    driver: local
+
+services:
+  elastic:
+    image: ghcr.io/baking-bad/bcdhub-elastic:latest
+    restart: always
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+    logging: &bcd-logging
+      options:
+        max-size: 10m
+        max-file: "5"
+
+  db:
+    image: postgres:12
+    shm_size: 1g
+    restart: always
+    environment:
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_DB=indexer
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - db:/var/lib/postgresql/data
+    logging: *bcd-logging
+
+  api:
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-api:latest
+    environment:
+      - BCD_ENV=sandbox
+      - GIN_MODE=debug
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - SANDBOX_NODE_URI=http://sandbox:20000
+      - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
+    depends_on:
+      - elastic
+      - db
+    ports:
+      - 14000:14000
+    volumes:
+      - bcdshare:/etc/bcd
+    links:
+      - "flextesa:sandbox"
+    logging: *bcd-logging
+
+  indexer:
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-indexer:latest
+    environment:
+      - BCD_ENV=sandbox
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - SANDBOX_NODE_URI=http://sandbox:20000
+      - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
+    depends_on:
+      - db
+      - metrics
+    links:
+      - "flextesa:sandbox"
+    volumes:
+      - bcdshare:/etc/bcd
+    logging: *bcd-logging
+
+  metrics:
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-metrics:latest
+    environment:
+      - BCD_ENV=sandbox
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=root
+      - SANDBOX_NODE_URI=http://sandbox:20000
+      - SANDBOX_IPFS_GATEWAY=https://cloudflare-ipfs.com
+    depends_on:
+      - elastic
+      - db
+    links:
+      - "flextesa:sandbox"
+    volumes:
+      - bcdshare:/etc/bcd
+    logging: *bcd-logging
+
+  flextesa:
+    container_name: flextesa
+    restart: always
+    image: oxheadalpha/flextesa:20220127
+    #--add-bootstrap-account "bob,edpkurPsQ8eUApnLUJ9ZPDvu98E8VNj4KtJa1aZr16Cr5ow5VHKnz4,tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6,unencrypted:edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt@2_000_000_000_000"
+    #--no-daemons-for=bob
+    command: hangzbox start
+      --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6,unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e@2_000_000_000_000"
+      --no-daemons-for=eve
+      --add-bootstrap-account "mallory,edpkujwsG5JMrWVXQwmRMBoR9yJkokRbn6wy3monpQKBpnZTs1ogRR,tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L,unencrypted:edsk3W5Fz1yWK39sLY6vidmgkfmGAXh6V2JqUiri9W1pFeeYWbFbJL@2_000_000_000_000"
+      --no-daemons-for=mallory
+      --add-bootstrap-account "oscar,edpkvJm4eyR4vL7cY3B8zRyFMAGE4W8AuDtjio6v1GSm7dgS79rL23,tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc,unencrypted:edsk3Wz91mGzhGcq2jVnbTnfkyY7Zod8gdQp2dHfnzud5gRAJ2uoaK@2_000_000_000_000"
+      --no-daemons-for=oscar
+      --add-bootstrap-account "trudy,edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg,tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px,unencrypted:edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf@2_000_000_000_000"
+      --no-daemons-for=trudy
+      --add-bootstrap-account "isaac,edpkuZxa3i78gthryUa1aqh5AwuCqqLG7P55Tsh79pZaSryxZzhCVZ,tz1Uqnf6CKSXTkhRNwkr59ZCkjM9TckqyzRb,unencrypted:edsk3ULsmx8aEogiMs2T4Td8rLzfvd6Vv8D5CJqeKQKrsjZHVqRDrX@2_000_000_000_000"
+      --no-daemons-for=isaac
+      --add-bootstrap-account "david,edpkucHyjuibNhFC4ZMmidjurjr4BXPP95a9fLo1LTADvw3ztSp78p,tz1eeVgxwqeciAiB7t8qqp7jYPMQmGBaNotk,unencrypted:edsk3S7NRL14arofJk4YESBzLaw9GMzweoVHSFsw4ycj7ya4BFgBp8@2_000_000_000_000"
+      --no-daemons-for=david
+      --add-bootstrap-account "susie,edpkv8C5fAVfNEEWZivnumqGKRGz2aK2uNVVw72JheSUHmXGEUKsh5,tz1brV73Mq4muSwhWUZM1KGaHTxzFQoC2Rmq,unencrypted:edsk3YkX5ZcHQEBkVcEhukt9WpTextmQiiY93zEaj27fD1p1pf2k17@2_000_000_000_000"
+      --no-daemons-for=susie
+      --add-bootstrap-account "ivan,edpkukdsnybt7rMjmHp1t2eXX1iTdAFUmR5xUb9eqHsKLnk33UBaic,tz1agyRPh6c42G3KN7kBFeieHfapUTYmaj8a,unencrypted:edsk3UMB8zmwbiR1ynx4UZMQLukxkhv6PJTEv6H2cC2kj1m3NquTBB@2_000_000_000_000"
+      --no-daemons-for=ivan
+    environment:
+      - block_time=4
+      - flextesa_node_cors_origin=*
+    ports:
+      - 8732:20000
+      - 20000:20000
+    logging: *bcd-logging
+
+  gui:
+    container_name: sandbox-gui
+    restart: always
+    image: ghcr.io/baking-bad/bcdhub-gui:latest
+    depends_on:
+      - api
+    ports:
+      - 8000:80
+    logging: *bcd-logging
+
+  oracle-admin:
+    container_name: oracle-admin
+    build:
+      dockerfile: apps/oracle-node/dev.Dockerfile
+      context: .
+    depends_on:
+      - flextesa
+    environment:
+      - RPC_URL=http://flextesa:20000
+      - ADMIN_PKH=tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb # Alice
+      - ROUND_DURATION_MINUTES=2
+      - ENABLE_MAINTAINER_MODE=true
+      - ORACLE_PKH=tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6 # Bob
+      - ORACLE_WITHDRAW_ADDRESS=tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6 # Bob
+      - ORACLE_WITHDRAW_CRON_STRING=* * * * *
+      - CONFIRMATION_POLLING_INTERVAL_SECOND=2
+      - DEVIATION_TRIGGER_CRON_STRING=0,30 * * * * *
+      - SIGNER_URL=http://signatory:6732
+    env_file:
+      - .contracts.env
+      - .api-keys.env
+    volumes:
+      - './:/home/node/'
+      - '/home/node/node_modules'
+
+  oracle-1:
+    container_name: oracle-1
+    build:
+      dockerfile: apps/oracle-node/dev.Dockerfile
+      context: .
+    depends_on:
+      - flextesa
+    environment:
+      - RPC_URL=http://flextesa:20000
+      - ORACLE_PKH=tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6 # Eve
+      - ORACLE_WITHDRAW_ADDRESS=tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6 # Eve
+      - ORACLE_WITHDRAW_CRON_STRING=* * * * *
+      - CONFIRMATION_POLLING_INTERVAL_SECOND=2
+      - DEVIATION_TRIGGER_CRON_STRING=10,40 * * * * *
+      - SIGNER_URL=http://signatory:6732
+    env_file:
+      - .contracts.env
+      - .api-keys.env
+    volumes:
+      - './:/home/node/'
+      - '/home/node/node_modules'
+
+  oracle-2:
+    container_name: oracle-2
+    build:
+      dockerfile: apps/oracle-node/dev.Dockerfile
+      context: .
+    depends_on:
+      - flextesa
+    environment:
+      - RPC_URL=http://flextesa:20000
+      - ORACLE_PKH=tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L # Mallory
+      - ORACLE_WITHDRAW_ADDRESS=tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L # Mallory
+      - ORACLE_WITHDRAW_CRON_STRING=* * * * *
+      - CONFIRMATION_POLLING_INTERVAL_SECOND=1
+      - DEVIATION_TRIGGER_CRON_STRING=20,50 * * * * *
+      - SIGNER_URL=http://signatory:6732
+    env_file:
+      - .contracts.env
+      - .api-keys.env
+    volumes:
+      - './:/home/node/'
+      - '/home/node/node_modules'
+
+  oracle-3:
+    container_name: oracle-3
+    build:
+      dockerfile: apps/oracle-node/dev.Dockerfile
+      context: .
+    depends_on:
+      - flextesa
+    environment:
+      - RPC_URL=http://flextesa:20000
+      - ORACLE_PKH=tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc # Oscar
+      - ORACLE_WITHDRAW_ADDRESS=tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc # Oscar
+      - ORACLE_WITHDRAW_CRON_STRING=* * * * *
+      - CONFIRMATION_POLLING_INTERVAL_SECOND=1
+      - DEVIATION_TRIGGER_CRON_STRING=20,50 * * * * *
+      - SIGNER_URL=http://signatory:6732
+    env_file:
+      - .contracts.env
+      - .api-keys.env
+    volumes:
+      - './:/home/node/'
+      - '/home/node/node_modules'
+
+  oracle-4:
+    container_name: oracle-4
+    build:
+      dockerfile: apps/oracle-node/dev.Dockerfile
+      context: .
+    depends_on:
+      - flextesa
+    environment:
+      - RPC_URL=http://flextesa:20000
+      - ORACLE_PKH=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
+      - ORACLE_WITHDRAW_ADDRESS=tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px # Trudy
+      - ORACLE_WITHDRAW_CRON_STRING=* * * * *
+      - CONFIRMATION_POLLING_INTERVAL_SECOND=1
+      - DEVIATION_TRIGGER_CRON_STRING=20,50 * * * * *
+      - SIGNER_URL=http://signatory:6732
+    env_file:
+      - .contracts.env
+      - .api-keys.env
+    volumes:
+      - './:/home/node/'
+      - '/home/node/node_modules'
+
+
+  signatory:
+    image: ecadlabs/signatory:v0.3.0-beta-rc2-amd64
+    ports:
+      - "6732:6732"
+    volumes:
+      - ./signatory.dev.yaml:/etc/signatory.yaml
+      - ./secret.json:/etc/secret.json

@@ -1,0 +1,34 @@
+{
+  "root": "libs/contracts",
+  "sourceRoot": "libs/contracts/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/contracts",
+        "main": "libs/contracts/src/index.ts",
+        "tsConfig": "libs/contracts/tsconfig.lib.json",
+        "generatePackageJson": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/contracts/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/contracts"],
+      "options": {
+        "jestConfig": "libs/contracts/jest.config.js",
+        "passWithNoTests": true,
+        "runInBand": true
+      }
+    }
+  },
+  "tags": []
+}
