@@ -14,8 +14,6 @@ const SatellitePagination = () => {
   const satelliteLedger = delegationStorage?.satelliteLedger
   const satelliteId = params?.satelliteId || ''
 
-  console.log('ТТТТТ - satelliteLedger')
-  console.table(satelliteLedger, ['address', 'name'])
   const prevIndex = useMemo(() => {
     return satelliteLedger?.length ? satelliteLedger.findIndex((item) => item.address === satelliteId) : 0
   }, [satelliteLedger, satelliteId])
@@ -29,7 +27,6 @@ const SatellitePagination = () => {
         <Icon id="arrow-left-stroke" />
         Back to satellites
       </Link>
-
       {prevSatellite ? (
         <Link className="pagination-link prev" to={`/satellite-details/${prevSatellite.address}`}>
           <Icon id="arrow-obtuse-angle" />

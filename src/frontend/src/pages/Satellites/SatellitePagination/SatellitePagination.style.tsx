@@ -8,6 +8,7 @@ export const SatellitePaginationStyled = styled(Card)`
   align-items: center;
   padding-left: 24px;
   padding-right: 24px;
+  height: 74px;
 
   .pagination-link {
     display: flex;
