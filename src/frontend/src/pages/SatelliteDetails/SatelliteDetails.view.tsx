@@ -98,10 +98,11 @@ export const SatelliteDetailsView = ({
                 <div className="descr satellite-info-block">
                   <h4>Description:</h4>
                   <p>{parse(satellite.description, options)}</p>
-
-                  <a className="satellite-website" href={satellite.website} target="_blank" rel="noreferrer">
-                    Website
-                  </a>
+                  {satellite.website ? (
+                    <a className="satellite-website" href={satellite.website} target="_blank" rel="noreferrer">
+                      Website
+                    </a>
+                  ) : null}
                 </div>
 
                 <div className="satellite-info-block">

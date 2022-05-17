@@ -120,7 +120,7 @@ export const SatelliteListCard = ({
           </SatelliteProfileDetails>
           <SatelliteTextGroup>
             <SatelliteMainText>
-              <CommaNumber value={Number(satellite.totalDelegatedAmount)} endingText="%" />
+              <CommaNumber value={Number(satellite.participation || 0)} endingText="%" />
             </SatelliteMainText>
             <SatelliteSubText>Participation</SatelliteSubText>
           </SatelliteTextGroup>

@@ -27,6 +27,7 @@ export const BecomeSatellite = () => {
           image: '',
           description: '',
           website: '',
+          participation: 0,
           satelliteFee: 0,
           active: false,
           mvkBalance: 0,

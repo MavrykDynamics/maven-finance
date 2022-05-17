@@ -273,6 +273,7 @@ function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecor
     address: satelliteRecord.user_id,
     description: satelliteRecord.description,
     website: satelliteRecord.website,
+    participation: satelliteRecord.participation,
     image: satelliteRecord.image,
     mvkBalance: calcWithoutMu(satelliteRecord.user.mvk_balance),
     sMvkBalance: calcWithoutMu(satelliteRecord.user.smvk_balance),
