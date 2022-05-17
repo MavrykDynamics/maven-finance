@@ -41,10 +41,7 @@ export const SatelliteListCard = ({
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const lastVotedTimestamp = satellite?.proposalVotingHistory?.[0]?.timestamp || ''
 
-  // const lastVoted = lastVotedTimestamp ? new Date(lastVotedTimestamp) : ''
-  // console.log('%c ||||| lastVoted', 'color:yellowgreen', lastVoted)
-  // console.log(lastVoted?.getMonth() + 1 + '/' + lastVoted?.getDate() + '/' + lastVoted.getFullYear())
-
+  console.log('%c ||||| satellite', 'color:yellowgreen', satellite)
   const delegationButtons = userIsDelegatedToThisSatellite ? (
     <>
       {satellite.active ? (
@@ -133,7 +130,7 @@ export const SatelliteListCard = ({
         </SatelliteCardTopRow>
         <SatelliteCardButtons>{delegationButtons}</SatelliteCardButtons>
       </SatelliteCardInner>
-      {children || <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>}
+      {children || <SatelliteCardRow>Currently supporting Proposal -------------</SatelliteCardRow>}
     </SatelliteCard>
   )
 }
