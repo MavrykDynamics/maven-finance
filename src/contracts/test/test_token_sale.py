@@ -11,11 +11,7 @@ import json
 import logging
 import pytest
 import os 
-<<<<<<< HEAD
 import error_codes
-=======
-
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
 # set to localhost sandbox mode for testing
 pytezos = pytezos.using(shell='http://localhost:8732', key='edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq')
@@ -61,10 +57,7 @@ eve   = 'tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6'
 fox   = 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L'
 mallory = 'tz1TJTq4Rcx4hqCxkGnmwJRpqeDNzoEpjk6n'
 
-<<<<<<< HEAD
 sec_hour  = 3600
-=======
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 sec_day   = 86400
 sec_week  = 604800
 sec_month = 2592000 # 30 days
@@ -72,17 +65,6 @@ sec_month = 2592000 # 30 days
 blocks_day = 2880
 blocks_month = blocks_day * 30 # 86400 per month
 
-<<<<<<< HEAD
-=======
-error_only_administrator    = 0
-error_sender_not_allowed    = 'Error. Sender is not allowed to call this entrypoint.'
-error_unable_to_claim_now   = 'Error. You are unable to claim now.'
-error_vestee_is_locked      = 'Error. Vestee is locked.'
-error_vestee_not_found      = 'Error. Vestee is not found.'
-error_vestee_exists         = 'Error. Vestee already exists'
-error_vestee_doesnt_exists = 'Error. Vestee is not found.'
-
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 class TokenSaleContract(TestCase):
     
     @classmethod
@@ -125,11 +107,7 @@ class TokenSaleContract(TestCase):
         init_token_sale_storage = deepcopy(self.tokenSaleStorage)
 
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.setAdmin(eve).interpret(storage = init_token_sale_storage, sender = bob)
-=======
-        res = self.tokenSaleContract.setAdmin(eve).interpret(storage=init_token_sale_storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(eve, res.storage['admin'])
@@ -142,18 +120,12 @@ class TokenSaleContract(TestCase):
         init_token_sale_storage = deepcopy(self.tokenSaleStorage)
 
         # Operation
-<<<<<<< HEAD
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.setAdmin(eve).interpret(storage = init_token_sale_storage, sender = alice);
-=======
-        with self.raisesMichelsonError(error_only_administrator):
-            self.tokenSaleContract.setAdmin(eve).interpret(storage=init_token_sale_storage, sender=alice);
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         print('✅ Non-admin should not be able to call this entrypoint')
 
     ###
-<<<<<<< HEAD
     # %updateMetadata
     ##
 
@@ -163,11 +135,6 @@ class TokenSaleContract(TestCase):
     # %updateConfig
     ##
     def test_20_admin_can_update_config(self):
-=======
-    # %updateConfig
-    ##
-    def test_10_admin_can_update_config(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
 
@@ -225,189 +192,109 @@ class TokenSaleContract(TestCase):
 
         newBlocksPerMinute                    = 3
 
-<<<<<<< HEAD
         # Operations
-=======
-        # Operation
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # max amount by option per wallet total
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "maxAmountOptOnePerWalletTotal",
             "updateConfigNewValue" : newMaxAmountOptionOnePerWalletTotal
-<<<<<<< HEAD
         }).interpret(storage = init_token_sale_storage, sender = bob)
-=======
-        }).interpret(storage=init_token_sale_storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "maxAmountOptTwoPerWalletTotal",
             "updateConfigNewValue" : newMaxAmountOptionTwoPerWalletTotal
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "maxAmountOptThreePerWalletTotal",
             "updateConfigNewValue" : newMaxAmountOptionThreePerWalletTotal
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # whitelist max amount by option 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "whitelistMaxAmountOptOneTotal",
             "updateConfigNewValue" : newWhitelistMaxAmountOptionOneTotal
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "whitelistMaxAmountOptTwoTotal",
             "updateConfigNewValue" : newWhitelistMaxAmountOptionTwoTotal
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "whitelistMaxAmountOptThreeTotal",
             "updateConfigNewValue" : newWhitelistMaxAmountOptionThreeTotal
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # options max amount cap
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "optionOneMaxAmountCap",
             "updateConfigNewValue" : newOptionOneMaxAmountCap
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "optionTwoMaxAmountCap",
             "updateConfigNewValue" : newOptionTwoMaxAmountCap
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "optionThreeMaxAmountCap",
             "updateConfigNewValue" : newOptionThreeMaxAmountCap
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # vesting option in months
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "vestingOptionOneInMonths",
             "updateConfigNewValue" : newVestingOptionOneInMonths
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "vestingOptionTwoInMonths",
             "updateConfigNewValue" : newVestingOptionTwoInMonths
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "vestingOptionThreeInMonths",
             "updateConfigNewValue" : newVestingOptionThreeInMonths
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # options tez per token
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "optionOneTezPerToken",
             "updateConfigNewValue" : newOptionOneTezPerToken
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "optionTwoTezPerToken",
             "updateConfigNewValue" : newOptionTwoTezPerToken
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "optionThreeTezPerToken",
             "updateConfigNewValue" : newOptionThreeTezPerToken
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # min option amount in tez
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "minOptionOneAmountInTez",
             "updateConfigNewValue" : newMinOptionOneAmountInTez
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "minOptionTwoAmountInTez",
             "updateConfigNewValue" : newMinOptionTwoAmountInTez
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "minOptionThreeAmountInTez",
             "updateConfigNewValue" : newMinOptionThreeAmountInTez
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # blocks per minute
         res = self.tokenSaleContract.updateConfig({
             "updateConfigAction"   : "blocksPerMinute",
             "updateConfigNewValue" : newBlocksPerMinute
-<<<<<<< HEAD
         }).interpret(storage = res.storage, sender = bob)
-=======
-        }).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         
         # Assertions
         self.assertEqual(res.storage['config']["maxAmountOptionOnePerWalletTotal"]   , newMaxAmountOptionOnePerWalletTotal)
@@ -437,7 +324,6 @@ class TokenSaleContract(TestCase):
         self.assertEqual(res.storage['config']["blocksPerMinute"]                    , newBlocksPerMinute)
         
         print('--%updateConfig--')
-<<<<<<< HEAD
         print('✅ Admin can update config variables')
 
     def test_21_non_admin_should_not_be_able_to_update_config(self):
@@ -652,28 +538,16 @@ class TokenSaleContract(TestCase):
             self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = eve)
 
         print('✅ Non-admin should not be able to set whitelist date time')
-=======
-        print('✅ Admin can update config')
-
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
     ###
     # %addToWhitelist
     ##
-<<<<<<< HEAD
     def test_40_admin_can_add_single_user_to_whitelist(self):
-=======
-    def test_20_admin_can_add_single_user_to_whitelist(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
 
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.addToWhitelist([eve]).interpret(storage = init_token_sale_storage, sender = bob)
-=======
-        res = self.tokenSaleContract.addToWhitelist([eve]).interpret(storage=init_token_sale_storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['whitelistedAddresses'][eve], True)
@@ -681,39 +555,22 @@ class TokenSaleContract(TestCase):
         print('--%addToWhitelist--')
         print('✅ Admin can add a single user to whitelist')
 
-<<<<<<< HEAD
     def test_41_non_admin_should_not_add_be_able_to_whitelist(self):
-=======
-    def test_21_non_admin_should_not_add_be_able_to_whitelist(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Operation
-<<<<<<< HEAD
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.addToWhitelist([bob]).interpret(storage = init_token_sale_storage, sender = eve)
 
         print('✅ Non-admin should not be able to add to whitelist')
 
     def test_42_admin_can_add_multiple_users_to_whitelist(self):
-=======
-        with self.raisesMichelsonError(error_only_administrator):
-            self.tokenSaleContract.addToWhitelist([bob]).interpret(storage=init_token_sale_storage, sender=eve)
-
-        print('✅ Non-admin should not be able to add to whitelist')
-
-    def test_22_admin_can_add_multiple_users_to_whitelist(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
 
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage = init_token_sale_storage, sender = bob)
-=======
-        res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage=init_token_sale_storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['whitelistedAddresses'][eve], True)
@@ -722,22 +579,13 @@ class TokenSaleContract(TestCase):
         
         print('✅ Admin can add multiple users to whitelist')
         
-<<<<<<< HEAD
     def test_43_if_whitelist_user_already_exists_nothing_happens(self):
-=======
-    def test_23_if_whitelist_user_already_exists_nothing_happens(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
 
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage = init_token_sale_storage, sender = bob)
         res = self.tokenSaleContract.addToWhitelist([eve,fox]).interpret(storage = res.storage, sender = bob)
-=======
-        res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage=init_token_sale_storage, sender=bob)
-        res = self.tokenSaleContract.addToWhitelist([eve,fox]).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['whitelistedAddresses'][eve], True)
@@ -749,22 +597,13 @@ class TokenSaleContract(TestCase):
     # ###
     # # %removeFromWhitelist
     # ##
-<<<<<<< HEAD
     def test_50_admin_can_remove_single_user_from_whitelist(self):
-=======
-    def test_30_admin_can_remove_single_user_from_whitelist(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
 
         # Operations
-<<<<<<< HEAD
         res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage = init_token_sale_storage, sender = bob)
         res = self.tokenSaleContract.removeFromWhitelist([eve]).interpret(storage = res.storage, sender = bob)
-=======
-        res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage=init_token_sale_storage, sender=bob)
-        res = self.tokenSaleContract.removeFromWhitelist([eve]).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['whitelistedAddresses'][eve], None)    # eve removed from whitelisted addresses
@@ -774,22 +613,13 @@ class TokenSaleContract(TestCase):
         print('--%removeFromWhitelist--')
         print('✅ Admin can remove single user from whitelist')
 
-<<<<<<< HEAD
     def test_51_admin_can_remove_multiple_users_from_whitelist(self):
-=======
-    def test_31_admin_can_remove_multiple_users_from_whitelist(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
 
         # Operations
-<<<<<<< HEAD
         res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage = init_token_sale_storage, sender = bob)
         res = self.tokenSaleContract.removeFromWhitelist([eve,fox,mallory]).interpret(storage = res.storage, sender = bob)
-=======
-        res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage=init_token_sale_storage, sender=bob)
-        res = self.tokenSaleContract.removeFromWhitelist([eve,fox,mallory]).interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['whitelistedAddresses'][eve], None)      # eve removed from whitelisted addresses
@@ -799,20 +629,12 @@ class TokenSaleContract(TestCase):
         print('✅ Admin can remove multiple users from whitelist')
 
 
-<<<<<<< HEAD
     def test_52_non_admin_should_not_be_able_to_remove_whitelist_users(self):
-=======
-    def test_32_non_admin_should_not_be_able_to_remove_whitelist_users(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
 
         # Storage preparation
-<<<<<<< HEAD
         res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage = init_token_sale_storage, sender = bob)
-=======
-        res = self.tokenSaleContract.addToWhitelist([eve,fox,mallory]).interpret(storage=init_token_sale_storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['whitelistedAddresses'][eve], True) 
@@ -820,30 +642,17 @@ class TokenSaleContract(TestCase):
         self.assertEqual(res.storage['whitelistedAddresses'][mallory], True)
 
         # Operation
-<<<<<<< HEAD
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
             self.tokenSaleContract.removeFromWhitelist([fox,mallory]).interpret(storage = res.storage, sender = eve)
 
         print('✅ Non-admin should not be able to remove whitelist users')
 
     def test_53_nothing_happens_if_non_existent_user_is_removed_from_whitelisted_addresses(self):
-=======
-        with self.raisesMichelsonError(error_only_administrator):
-            self.tokenSaleContract.removeFromWhitelist([fox,mallory]).interpret(storage=res.storage, sender=eve)
-
-        print('✅ Non-admin should not be able to remove whitelist users')
-
-    def test_33_nothing_happens_if_non_existent_user_is_removed_from_whitelisted_addresses(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.removeFromWhitelist([fox]).interpret(storage = init_token_sale_storage, sender = bob)
-=======
-        res = self.tokenSaleContract.removeFromWhitelist([fox]).interpret(storage=init_token_sale_storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         with pytest.raises(KeyError):
@@ -854,20 +663,12 @@ class TokenSaleContract(TestCase):
     # ###
     # # %startSale
     # ##
-<<<<<<< HEAD
     def test_60_admin_should_be_able_to_start_sale(self):
-=======
-    def test_40_admin_should_be_able_to_start_sale(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.startSale().interpret(storage = init_token_sale_storage, sender = bob)
-=======
-        res = self.tokenSaleContract.startSale().interpret(storage=init_token_sale_storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertion
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
@@ -875,22 +676,13 @@ class TokenSaleContract(TestCase):
         print('--%startSale--')
         print('✅ Admin should be able to start sale')
 
-<<<<<<< HEAD
     def test_61_non_admin_should_not_be_able_to_start_sale(self):
-=======
-    def test_40_non_admin_should_not_be_able_to_start_sale(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Operation
-<<<<<<< HEAD
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
           self.tokenSaleContract.startSale().interpret(storage = init_token_sale_storage, sender = eve)
-=======
-        with self.raisesMichelsonError(error_only_administrator):
-          self.tokenSaleContract.startSale().interpret(storage=init_token_sale_storage, sender=eve)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertion
         self.assertEqual(init_token_sale_storage['tokenSaleHasStarted'], False)
@@ -900,22 +692,13 @@ class TokenSaleContract(TestCase):
     # ###
     # # %pauseSale
     # ##
-<<<<<<< HEAD
     def test_70_admin_should_be_able_to_pause_sale(self):
-=======
-    def test_50_admin_should_be_able_to_pause_sale(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.startSale().interpret(storage = init_token_sale_storage, sender = bob)
         res = self.tokenSaleContract.pauseSale().interpret(storage = res.storage, sender = bob)
-=======
-        res = self.tokenSaleContract.startSale().interpret(storage=init_token_sale_storage, sender=bob)
-        res = self.tokenSaleContract.pauseSale().interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertion
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
@@ -924,65 +707,39 @@ class TokenSaleContract(TestCase):
         print('--%pauseSale--')
         print('✅ Admin should be able to pause sale')
 
-<<<<<<< HEAD
     def test_71_non_admin_should_not_be_able_to_pause_sale(self):
-=======
-    def test_51_non_admin_should_not_be_able_to_pause_sale(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Storage preparation
-<<<<<<< HEAD
         res = self.tokenSaleContract.startSale().interpret(storage = init_token_sale_storage, sender = bob)
-=======
-        res = self.tokenSaleContract.startSale().interpret(storage=init_token_sale_storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
         self.assertEqual(res.storage['tokenSalePaused'], False)
         
-<<<<<<< HEAD
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
           self.tokenSaleContract.pauseSale().interpret(storage = res.storage, sender = eve)
-=======
-        with self.raisesMichelsonError(error_only_administrator):
-          self.tokenSaleContract.pauseSale().interpret(storage=res.storage, sender=eve)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertion
         self.assertEqual(res.storage['tokenSalePaused'], False)
 
         print('✅ Non-admin should not be able to pause sale')
 
-<<<<<<< HEAD
     def test_72_admin_should_be_able_to_pause_then_unpause_sale(self):
-=======
-    def test_52_admin_should_be_able_to_pause_then_unpause_sale(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.startSale().interpret(storage = init_token_sale_storage, sender = bob)
         res = self.tokenSaleContract.pauseSale().interpret(storage = res.storage, sender = bob)
-=======
-        res = self.tokenSaleContract.startSale().interpret(storage=init_token_sale_storage, sender=bob)
-        res = self.tokenSaleContract.pauseSale().interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertion
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
         self.assertEqual(res.storage['tokenSalePaused'], True)
 
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.pauseSale().interpret(storage = res.storage, sender = bob)
-=======
-        res = self.tokenSaleContract.pauseSale().interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertion
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
@@ -993,22 +750,13 @@ class TokenSaleContract(TestCase):
     # ###
     # # %closeSale
     # ##
-<<<<<<< HEAD
     def test_80_admin_should_be_able_to_close_sale(self):
-=======
-    def test_60_admin_should_be_able_to_close_sale(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.startSale().interpret(storage = init_token_sale_storage, sender = bob)
         res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob)
-=======
-        res = self.tokenSaleContract.startSale().interpret(storage=init_token_sale_storage, sender=bob)
-        res = self.tokenSaleContract.closeSale().interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertion
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
@@ -1018,33 +766,20 @@ class TokenSaleContract(TestCase):
         print('--%closeSale--')
         print('✅ Admin should be able to close sale')
 
-<<<<<<< HEAD
     def test_81_non_admin_should_not_be_able_to_close_sale(self):
-=======
-    def test_61_non_admin_should_not_be_able_to_close_sale(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Storage preparation
-<<<<<<< HEAD
         res = self.tokenSaleContract.startSale().interpret(storage = init_token_sale_storage, sender = bob)
-=======
-        res = self.tokenSaleContract.startSale().interpret(storage=init_token_sale_storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
         self.assertEqual(res.storage['tokenSaleHasEnded'], False)
         self.assertEqual(res.storage['tokenSalePaused'], False)
         
-<<<<<<< HEAD
         with self.raisesMichelsonError(error_ONLY_ADMINISTRATOR_ALLOWED):
           self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = eve)
-=======
-        with self.raisesMichelsonError(error_only_administrator):
-          self.tokenSaleContract.closeSale().interpret(storage=res.storage, sender=eve)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
@@ -1053,22 +788,13 @@ class TokenSaleContract(TestCase):
 
         print('✅ Non-admin should not be able to close sale')
 
-<<<<<<< HEAD
     def test_82_admin_should_be_able_to_close_sale_then_restart_if_necessary(self):
-=======
-    def test_52_admin_should_be_able_to_close_sale_then_restart_if_necessary(self):
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.startSale().interpret(storage = init_token_sale_storage, sender = bob)
         res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob)
-=======
-        res = self.tokenSaleContract.startSale().interpret(storage=init_token_sale_storage, sender=bob)
-        res = self.tokenSaleContract.closeSale().interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
@@ -1076,11 +802,7 @@ class TokenSaleContract(TestCase):
         self.assertEqual(res.storage['tokenSalePaused'], False)
 
         # Operation
-<<<<<<< HEAD
         res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
-=======
-        res = self.tokenSaleContract.startSale().interpret(storage=res.storage, sender=bob)
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
 
         # Assertions
         self.assertEqual(res.storage['tokenSaleHasStarted'], True)
@@ -1092,8 +814,7 @@ class TokenSaleContract(TestCase):
     # ###
     # # %buyTokens
     # ##
-<<<<<<< HEAD
-    def test_90_whitelisted_users_should_be_able_to_buy_tokens_after_token_sale_start(self):
+    def test_900_whitelisted_users_should_be_able_to_buy_tokens_after_token_sale_start(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1137,7 +858,7 @@ class TokenSaleContract(TestCase):
         print('--%buyTokens--')
         print('✅ Whitelisted users should be able to buy tokens after token sale start')
     
-    def test_91_non_whitelisted_users_should_not_be_able_to_buy_tokens_after_token_sale_start(self):
+    def test_901_non_whitelisted_users_should_not_be_able_to_buy_tokens_after_token_sale_start(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1182,7 +903,7 @@ class TokenSaleContract(TestCase):
     
         print('✅ Non-whitelisted users should not be able to buy tokens after token sale start')
 
-    def test_92_whitelisted_users_should_send_the_correct_amount_of_tez_for_the_amount_they_are_buying(self):
+    def test_902_whitelisted_users_should_send_the_correct_amount_of_tez_for_the_amount_they_are_buying(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1229,7 +950,7 @@ class TokenSaleContract(TestCase):
         print('✅ Whitelisted users should send the correct amount of tez for the amount they are buying')
 
 
-    def test_93_whitelisted_users_should_not_be_able_to_buy_tokens_before_token_sale_start(self):
+    def test_903_whitelisted_users_should_not_be_able_to_buy_tokens_before_token_sale_start(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1274,7 +995,7 @@ class TokenSaleContract(TestCase):
     
         print('✅ Whitelisted users should not be able to buy tokens before token sale start')
     
-    def test_94_whitelisted_users_can_only_buy_tokens_above_the_minimum_amount_required_per_option(self):
+    def test_904_whitelisted_users_can_only_buy_tokens_above_the_minimum_amount_required_per_option(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1341,7 +1062,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Whitelisted users can only buy tokens above the minimum amount required per option')
     
-    def test_95_whitelisted_users_can_only_buy_tokens_up_to_the_whitelist_max_amount_per_option_per_wallet(self):
+    def test_905_whitelisted_users_can_only_buy_tokens_up_to_the_whitelist_max_amount_per_option_per_wallet(self):
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1390,7 +1111,7 @@ class TokenSaleContract(TestCase):
         
         print('✅ Whitelisted users can only buy tokens up to the whitelist maximum amount per option per wallet')
 
-    def test_96_whitelisted_users_can_buy_tokens_multiple_times_above_the_min_amount_and_up_to_the_whitelist_max_amount_per_option_per_wallet(self):        
+    def test_906_whitelisted_users_can_buy_tokens_multiple_times_above_the_min_amount_and_up_to_the_whitelist_max_amount_per_option_per_wallet(self):        
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1508,7 +1229,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Whitelisted users can buy tokens multiple times above the min amount per option and up to the whitelist maximum amount per option per wallet')
         
-    def test_97_whitelisted_users_should_not_be_able_to_buy_tokens_if_token_sale_is_paused_or_closed_after_it_has_started(self):        
+    def test_907_whitelisted_users_should_not_be_able_to_buy_tokens_if_token_sale_is_paused_or_closed(self):        
         # Initial values
         init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime     = pytezos.now()
@@ -1665,7 +1386,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Whitelisted users should not be able to buy tokens if token sale is paused or closed after it has started')
 
-    def test_97_whitelisted_users_can_continue_to_buy_tokens_during_public_sale_up_to_the_max_amount_per_option_per_wallet(self):        
+    def test_908_whitelisted_users_can_continue_to_buy_tokens_during_public_sale_up_to_the_max_amount_per_option_per_wallet(self):        
         # Initial values
         init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime       = pytezos.now()
@@ -1764,7 +1485,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Whitelisted users can continue to buy tokens during public sale up to the max amount per option per wallet')
 
-    def test_98_non_whitelisted_users_can_buy_tokens_during_public_sale(self):        
+    def test_909_non_whitelisted_users_can_buy_tokens_during_public_sale(self):        
         # Initial values
         init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime       = pytezos.now()
@@ -1846,7 +1567,7 @@ class TokenSaleContract(TestCase):
 
         print('✅ Non-whitelisted users can buy tokens during public sale (above the min amount required per option, and up to the max amount per option per wallet.')
 
-    def test_99_no_users_can_buy_tokens_above_the_overall_option_caps(self):        
+    def test_910_no_users_can_buy_tokens_above_the_overall_option_caps(self):        
         # Initial values
         init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
         whitelistStartDateTime       = pytezos.now()
@@ -2850,7 +2571,10 @@ class TokenSaleContract(TestCase):
         self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
         self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
 
-        # operations sent to treasury on amount to claim
+        # operations sent to treasury on amount to claim 
+        # - no more operations for option one as it is fully claimed
+        with pytest.raises(KeyError):
+          _ = res.operations[2]
         self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
         self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
 
@@ -3321,326 +3045,3 @@ class TokenSaleContract(TestCase):
         self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
 
         print('✅ User should be able to claim for the first time on day zero and every three months subsequently')
-=======
-    # def test_70_whitelisted_users_should_be_able_to_buy_tokens_after_token_sale_start(self):
-    #     # Initial values
-    #     init_token_sale_storage    = deepcopy(self.tokenSaleStorage)
-        
-    #     # Operations
-    #     res = self.tokenSaleContract.addToWhitelist([eve]).interpret(storage=init_token_sale_storage, sender=bob)
-    #     res = self.tokenSaleContract.startSale().interpret(storage=res.storage, sender=bob)
-
-    #     # Assertions
-    #     self.assertEqual(res.storage['whitelistedAddresses'][eve], True)
-    #     self.assertEqual(res.storage['tokenSaleHasStarted'], True)
-    #     self.assertEqual(res.storage['tokenSaleHasEnded'], False)
-    #     self.assertEqual(res.storage['tokenSalePaused'], False)
-
-    #     print('--%buyTokens--')
-    #     print('✅ User should be able to buy tokens after token sale start')
-    
-
-
-    # ###
-    # # %claim
-    # ##
-    # def test_60_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     print('--%claim--')
-    #     print('✅ User should be able to call this entrypoint if it is a vestee')
-
-    # def test_61_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 30)
-    #     claimAmount += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-    #     self.assertEqual(claimAmount, totalVestedAmount)
-
-    #     print('✅ User should be able to claim previous months if it did not claimed for a long time')
-
-    # def test_62_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 160)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-    #     self.assertEqual(claimAmount, totalVestedAmount)
-
-    #     print('✅ User should be able to claim after the vesting period without claiming extra token')
-
-    # def test_63_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 10)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     # Update process
-    #     newTotalVestedAmount        = self.MVK(4000000)
-    #     newTotalCliffInMonths       = 1
-    #     newTotalVestingInMonths     = 12
-
-    #     res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=res.storage, sender=bob)
-
-    #     # Assertions
-    #     self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 160)
-    #     claimAmount += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     self.assertEqual(claimAmount, newTotalVestedAmount)
-
-    #     print('✅ User should be able to claim the correct amount if its vestee record was updated during the process')
-
-    # def test_64_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 0
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 13)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     # Update process
-    #     newTotalVestedAmount        = self.MVK(4000000)
-    #     newTotalCliffInMonths       = 0
-    #     newTotalVestingInMonths     = 12
-
-    #     res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=res.storage, sender=bob)
-
-    #     # Assertions
-    #     self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 160)
-    #     claimAmount += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     self.assertEqual(claimAmount, newTotalVestedAmount)
-
-    #     print('✅ User should be able to claim without cliff period')
-
-    # def test_64_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 4
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 5)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     # Update process
-    #     newTotalVestedAmount        = self.MVK(4000000)
-    #     newTotalCliffInMonths       = 10
-    #     newTotalVestingInMonths     = 12
-
-    #     res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage=res.storage, sender=bob)
-
-    #     # Assertions
-    #     self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff + sec_month * 160)
-    #     claimAmount += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     self.assertEqual(claimAmount, newTotalVestedAmount)
-
-    #     print('✅ User should be able to claim with an updated longer cliff period')
-
-    # def test_61_non_vestee_should_not_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
-    #     currentTimestamp            = pytezos.now()
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     with self.raisesMichelsonError(error_vestee_doesnt_exists):
-    #         self.vestingContract.claim().interpret(storage=res.storage, sender=alice, now=firstClaimAfterCliff)
-        
-    #     print('✅ User should not be able to call this entrypoint if it is not a vestee')
-
-    # def test_65_vestee_should_not_claim_if_locked(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
-    #     currentTimestamp            = pytezos.now()
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-        
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
-    #     res = self.vestingContract.toggleVesteeLock(bob).interpret(storage=res.storage, sender=bob)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-    #     self.assertEqual("LOCKED", res.storage['vesteeLedger'][bob]['status'])
-
-    #     # Operation
-    #     with self.raisesMichelsonError(error_vestee_is_locked):
-    #         self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff)
-
-    #     print('✅ User should not be able to call this entrypoint if its vesting is locked')
-
-    # def test_66_vestee_should_not_claim_if_already_claimed(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
-    #     currentTimestamp            = pytezos.now()
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-        
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage=init_vesting_storage, sender=bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage=res.storage, sender=bob, now=currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     res = self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff)
-    #     with self.raisesMichelsonError(error_unable_to_claim_now):
-    #         self.vestingContract.claim().interpret(storage=res.storage, sender=bob, now=firstClaimAfterCliff)
-
-    #     print('✅ User should not be able to call this entrypoint if it already claimed during the same month')
->>>>>>> 92623556 (Token sale contract updates and token sale tests)
