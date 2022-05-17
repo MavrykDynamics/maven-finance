@@ -17,10 +17,13 @@ import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
 
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+// view
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { DOWN } from '../../app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
+import SatellitePagination from '../Satellites/SatellitePagination/SatellitePagination.view'
+// style
 import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
 
 type SatelliteDetailsViewProps = {
@@ -42,8 +45,6 @@ export const SatelliteDetailsView = ({
   const { participationMetrics } = useSelector((state: State) => state.delegation)
   const totalDelegatedMVK = satellite?.totalDelegatedAmount ?? 0
   const myDelegatedMVK = userStakedBalanceInSatellite
-
-  console.log('%c ||||| satellite', 'color:yellowgreen', satellite)
 
   const options: HTMLReactParserOptions = {
     replace: (domNode: any) => {
@@ -70,70 +71,73 @@ export const SatelliteDetailsView = ({
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
       <PageContent>
-        {!satellite && <Loader />}
-        {satellite && satellite.address === 'None' && (
-          <SatelliteCard>
-            <SatelliteCardTopRow>No Satellite found..</SatelliteCardTopRow>
-            <div>
-              <Link to="/satellites/">
-                <Button text="To Satellites" icon="satellite" kind="primary" />
-              </Link>
-            </div>
-          </SatelliteCard>
-        )}
-        {satellite && satellite.address !== 'None' && (
-          <SatelliteListCard
-            satellite={satellite}
-            loading={loading}
-            delegateCallback={delegateCallback}
-            undelegateCallback={undelegateCallback}
-            userStakedBalance={myDelegatedMVK}
-            satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
-            isDetaisPage
-          >
-            <SatelliteCardBottomRow>
-              <div className="descr satellite-info-block">
-                <h4>Description:</h4>
-                <p>{parse(satellite.description, options)}</p>
-
-                <a className="satellite-website" href={satellite.website} target="_blank" rel="noreferrer">
-                  Website
-                </a>
+        <div>
+          <SatellitePagination />
+          {!satellite && <Loader />}
+          {satellite && satellite.address === 'None' && (
+            <SatelliteCard>
+              <SatelliteCardTopRow>No Satellite found..</SatelliteCardTopRow>
+              <div>
+                <Link to="/satellites/">
+                  <Button text="To Satellites" icon="satellite" kind="primary" />
+                </Link>
               </div>
+            </SatelliteCard>
+          )}
+          {satellite && satellite.address !== 'None' && (
+            <SatelliteListCard
+              satellite={satellite}
+              loading={loading}
+              delegateCallback={delegateCallback}
+              undelegateCallback={undelegateCallback}
+              userStakedBalance={myDelegatedMVK}
+              satelliteUserIsDelegatedTo={user.satelliteMvkIsDelegatedTo}
+              isDetaisPage
+            >
+              <SatelliteCardBottomRow>
+                <div className="descr satellite-info-block">
+                  <h4>Description:</h4>
+                  <p>{parse(satellite.description, options)}</p>
 
-              <div className="satellite-info-block">
-                <h4>Participation Metrics:</h4>
-                <div className="satellite-info-block-metrics">
-                  <h5>Poll participation</h5>
-                  <p>{participationMetrics.pollParticipation}%</p>
-                  <h5>Proposal participation</h5>
-                  <p>{participationMetrics.proposalParticipation}%</p>
-                  <h5>Communication</h5>
-                  <p>{participationMetrics.communication}%</p>
+                  <a className="satellite-website" href={satellite.website} target="_blank" rel="noreferrer">
+                    Website
+                  </a>
                 </div>
-              </div>
 
-              {satellite.proposalVotingHistory?.length ? (
-                <div>
-                  <h4>Voting History:</h4>
-                  <div>
-                    {satellite.proposalVotingHistory.map((item) => {
-                      return (
-                        <div className="satellite-voting-history" key={item.id}>
-                          <p>Proposal 42 - Adjusting Auction Parameters</p>
-                          <span>
-                            Voted {item.vote ? <b className="voting-yes">YES </b> : <b className="voting-no">NO </b>}
-                            on <Time value={item.timestamp} format="M d\t\h, Y" />
-                          </span>
-                        </div>
-                      )
-                    })}
+                <div className="satellite-info-block">
+                  <h4>Participation Metrics:</h4>
+                  <div className="satellite-info-block-metrics">
+                    <h5>Poll participation</h5>
+                    <p>{participationMetrics.pollParticipation}%</p>
+                    <h5>Proposal participation</h5>
+                    <p>{participationMetrics.proposalParticipation}%</p>
+                    <h5>Communication</h5>
+                    <p>{participationMetrics.communication}%</p>
                   </div>
                 </div>
-              ) : null}
-            </SatelliteCardBottomRow>
-          </SatelliteListCard>
-        )}
+
+                {satellite.proposalVotingHistory?.length ? (
+                  <div>
+                    <h4>Voting History:</h4>
+                    <div>
+                      {satellite.proposalVotingHistory.map((item) => {
+                        return (
+                          <div className="satellite-voting-history" key={item.id}>
+                            <p>Proposal 42 - Adjusting Auction Parameters</p>
+                            <span>
+                              Voted {item.vote ? <b className="voting-yes">YES </b> : <b className="voting-no">NO </b>}
+                              on <Time value={item.timestamp} format="M d\t\h, Y" />
+                            </span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                ) : null}
+              </SatelliteCardBottomRow>
+            </SatelliteListCard>
+          )}
+        </div>
         <SatelliteSideBar />
       </PageContent>
     </Page>

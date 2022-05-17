@@ -1,11 +1,12 @@
 import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { Ref } from 'react'
+
 // components
 import Icon from '../Icon/Icon.view'
 import { IPFSUploaderStatusType } from './IPFSUploader.controller'
 // prettier-ignore
-import { IpfsUploadedImageContainer, IPFSUploaderStyled, UploaderFileSelector,  UploadIconContainer } from './IPFSUploader.style'
+import { IpfsUploadedImageContainer, IPFSUploaderStyled, UploaderFileSelector, UploadIconContainer } from './IPFSUploader.style'
 
 type IPFSUploaderViewProps = {
   title?: string
