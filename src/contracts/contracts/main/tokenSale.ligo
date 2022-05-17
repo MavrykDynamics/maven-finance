@@ -42,7 +42,7 @@ type tokenSaleAction is
   | PauseSale                   of unit
   
     // Token Sale Entrypoints
-  | BuyTokens                   of buyTokenType
+  | BuyTokens                   of buyTokensType
   | ClaimTokens                 of unit
   
   
@@ -111,6 +111,12 @@ function checkTokenSaleHasStarted(var s : tokenSaleStorage) : unit is
 function checkTokenSaleHasEnded(var s : tokenSaleStorage) : unit is
     if (s.tokenSaleHasEnded = True) then unit
     else failwith(error_TOKEN_SALE_HAS_NOT_ENDED);
+
+
+
+function checkTokenSaleHasNotEnded(var s : tokenSaleStorage) : unit is
+    if (s.tokenSaleHasEnded = True) then failwith(error_TOKEN_SALE_HAS_ENDED)
+    else unit;
 
 
 
@@ -370,7 +376,7 @@ block {
 
 
 (*  buyTokens entrypoint *)
-function buyTokens(const buyTokensParams : buyTokenType; var s : tokenSaleStorage) : return is
+function buyTokens(const buyTokensParams : buyTokensType; var s : tokenSaleStorage) : return is
 block {
     
       // check if sale has started
@@ -378,6 +384,9 @@ block {
 
       // check that token sale is not paused
       checkTokenSaleIsNotPaused(s);
+
+      // check that token sale has not ended
+      checkTokenSaleHasNotEnded(s);
 
       // init params
       const amountBought  : nat         = buyTokensParams.amount;
@@ -509,7 +518,7 @@ block {
 
               // check if option one whitelist max amount cap has been exceeded
               const newOptionOneBoughtAmountTotal : nat = s.optionOneBoughtTotal + amountBought;
-              if newOptionOneBoughtAmountTotal > s.config.optionOneMaxAmountCap then failwith(error_WHITELIST_MAX_AMOUNT_CAP_REACHED) else s.optionOneBoughtTotal := newOptionOneBoughtAmountTotal;
+              if newOptionOneBoughtAmountTotal > s.config.optionOneMaxAmountCap then failwith(error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED) else s.optionOneBoughtTotal := newOptionOneBoughtAmountTotal;
 
               // update user token sale record
               userTokenSaleRecord.optionOneBought      := userTokenSaleRecord.optionOneBought + amountBought;
@@ -524,7 +533,7 @@ block {
 
               // check if option one whitelist max amount cap has been exceeded
               const newOptionTwoBoughtAmountTotal : nat = s.optionTwoBoughtTotal + amountBought;
-              if newOptionTwoBoughtAmountTotal > s.config.optionTwoMaxAmountCap then failwith(error_WHITELIST_MAX_AMOUNT_CAP_REACHED) else s.optionTwoBoughtTotal := newOptionTwoBoughtAmountTotal;
+              if newOptionTwoBoughtAmountTotal > s.config.optionTwoMaxAmountCap then failwith(error_OPTION_TWO_MAX_AMOUNT_CAP_REACHED) else s.optionTwoBoughtTotal := newOptionTwoBoughtAmountTotal;
 
               // update user token sale record
               userTokenSaleRecord.optionTwoBought      := userTokenSaleRecord.optionTwoBought + amountBought;
@@ -539,7 +548,7 @@ block {
 
               // check if option one whitelist max amount cap has been exceeded
               const newOptionThreeBoughtAmountTotal : nat = s.optionThreeBoughtTotal + amountBought;
-              if newOptionThreeBoughtAmountTotal > s.config.optionThreeMaxAmountCap then failwith(error_WHITELIST_MAX_AMOUNT_CAP_REACHED) else s.optionThreeBoughtTotal := newOptionThreeBoughtAmountTotal;
+              if newOptionThreeBoughtAmountTotal > s.config.optionThreeMaxAmountCap then failwith(error_OPTION_THREE_MAX_AMOUNT_CAP_REACHED) else s.optionThreeBoughtTotal := newOptionThreeBoughtAmountTotal;
 
               // update user token sale record
               userTokenSaleRecord.optionThreeBought   := userTokenSaleRecord.optionThreeBought + amountBought;
