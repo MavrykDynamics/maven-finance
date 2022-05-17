@@ -71,6 +71,7 @@ export interface SatelliteRecord {
   image: string
   description: string
   website: string
+  participation: number
   satelliteFee: number
   active: boolean
   mvkBalance: number

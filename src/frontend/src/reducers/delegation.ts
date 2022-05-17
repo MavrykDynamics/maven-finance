@@ -43,6 +43,7 @@ const delegationDefaultState: DelegationState = {
     address: '',
     description: '',
     website: '',
+    participation: 0,
     image: '',
     mvkBalance: 0,
     name: '',
@@ -65,7 +66,7 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
       //console.log('%c ||||| action.delegationStorage', 'color:yellowgreen', action.delegationStorage);
       return {
         ...state,
-        delegationStorage: action.delegationStorage,
+         delegationStorage: action.delegationStorage,
 
         // test empty
         // delegationStorage: {

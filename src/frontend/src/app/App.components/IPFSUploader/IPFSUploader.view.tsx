@@ -56,7 +56,7 @@ export const IPFSUploaderView = ({
       dispatch(showToaster(INFO, 'File is too big!', `Max size is ${IMG_MAX_SIZE}MB`))
     }
   }
-  console.log('%c ||||| disabled', 'color:yellowgreen', disabled)
+
   return (
     <IPFSUploaderStyled id={'ipfsUploaderContainer'}>
       {title && listNumber && (
