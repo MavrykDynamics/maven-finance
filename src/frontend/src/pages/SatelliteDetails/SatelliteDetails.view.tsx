@@ -122,9 +122,10 @@ export const SatelliteDetailsView = ({
                     <h4>Voting History:</h4>
                     <div>
                       {satellite.proposalVotingHistory.map((item) => {
+                        console.log('%c ||||| item', 'color:yellowgreen', item)
                         return (
                           <div className="satellite-voting-history" key={item.id}>
-                            <p>Proposal 42 - Adjusting Auction Parameters</p>
+                            <p>Proposal ------------</p>
                             <span>
                               Voted {item.vote ? <b className="voting-yes">YES </b> : <b className="voting-no">NO </b>}
                               on <Time value={item.timestamp} format="M d\t\h, Y" />
