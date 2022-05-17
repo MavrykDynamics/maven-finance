@@ -32,6 +32,21 @@ type BecomeSatelliteViewProps = {
   usersSatellite: SatelliteRecord
 }
 
+const FORM_DEFAULT = {
+  name: '',
+  description: '',
+  website: '',
+  fee: 0,
+  image: '',
+}
+const FORM_VALID_DEFAULT = {
+  name: false,
+  description: false,
+  website: false,
+  fee: false,
+  image: false,
+}
+
 export const BecomeSatelliteView = ({
   loading,
   myTotalStakeBalance,
@@ -44,20 +59,8 @@ export const BecomeSatelliteView = ({
   const dispatch = useDispatch()
   const [balanceOk, setBalanceOk] = useState(false)
   const updateSatellite = usersSatellite?.address !== ''
-  const [form, setForm] = useState<RegisterAsSatelliteForm>({
-    name: '',
-    description: '',
-    website: '',
-    fee: 0,
-    image: '',
-  })
-  const [validForm, setValidForm] = useState<ValidRegisterAsSatelliteForm>({
-    name: false,
-    description: false,
-    website: false,
-    fee: false,
-    image: false,
-  })
+  const [form, setForm] = useState<RegisterAsSatelliteForm>(FORM_DEFAULT)
+  const [validForm, setValidForm] = useState<ValidRegisterAsSatelliteForm>(FORM_VALID_DEFAULT)
   const [formInputStatus, setFormInputStatus] = useState<RegisterAsSatelliteFormInputStatus>({
     name: '',
     description: '',
@@ -65,21 +68,51 @@ export const BecomeSatelliteView = ({
     fee: '',
     image: '',
   })
+  const handleValidateLoad = (formFields: RegisterAsSatelliteForm) => {
+    setFormInputStatus({
+      name: isNotAllWhitespace(formFields.name) ? 'success' : 'error',
+      description: isNotAllWhitespace(formFields.description) ? 'success' : 'error',
+      website: isNotAllWhitespace(formFields.website) ? 'success' : 'error',
+      fee: formFields.fee >= 0 ? 'success' : 'error',
+      image: isNotAllWhitespace(formFields.image || '') ? 'success' : 'error',
+    })
+    setValidForm({
+      name: isNotAllWhitespace(formFields.name),
+      description: isNotAllWhitespace(formFields.description),
+      website: isNotAllWhitespace(formFields.website),
+      fee: formFields.fee >= 0,
+      image: isNotAllWhitespace(formFields.image || ''),
+    })
+  }
+
   useEffect(() => {
-    if (accountPkh && myTotalStakeBalance >= minimumStakedMvkBalance) {
-      setBalanceOk(true)
-    }
+    setForm(FORM_DEFAULT)
+    setValidForm(FORM_VALID_DEFAULT)
+    setFormInputStatus({
+      name: '',
+      description: '',
+      website: '',
+      fee: '',
+      image: '',
+    })
     if (updateSatellite && usersSatellite) {
-      setForm({
+      const data = {
         name: usersSatellite?.name,
         description: usersSatellite?.description,
         website: usersSatellite?.website,
         fee: Number(usersSatellite?.satelliteFee),
         image: usersSatellite?.image,
-      })
+      }
+      setForm(data)
+      handleValidateLoad(data)
     }
-  }, [accountPkh, myTotalStakeBalance, updateSatellite, balanceOk, usersSatellite, minimumStakedMvkBalance, form.fee])
-  console.log('%c ||||| form', 'color:green', form)
+  }, [updateSatellite, usersSatellite])
+
+  useEffect(() => {
+    if (accountPkh && myTotalStakeBalance >= minimumStakedMvkBalance) {
+      setBalanceOk(true)
+    }
+  }, [accountPkh, myTotalStakeBalance, minimumStakedMvkBalance])
 
   const handleValidate = (formField: string) => {
     let updatedState, validityCheckResult
@@ -102,12 +135,6 @@ export const BecomeSatelliteView = ({
         updatedState = { ...validForm, website: validityCheckResult }
         setFormInputStatus({ ...formInputStatus, website: updatedState.website ? 'success' : 'error' })
         break
-      case 'IMAGE':
-        validityCheckResult = Boolean(form.image)
-        setValidForm({ ...validForm, image: validityCheckResult })
-        updatedState = { ...validForm, image: validityCheckResult }
-        setFormInputStatus({ ...formInputStatus, image: updatedState.website ? 'success' : 'error' })
-        break
       case 'FEE':
         setValidForm({ ...validForm, fee: form.fee >= 0 && form.fee <= 100 })
         updatedState = { ...validForm, fee: form.fee >= 0 }
@@ -120,8 +147,6 @@ export const BecomeSatelliteView = ({
   }
 
   const handleSubmit = () => {
-    console.log('%c ||||| validForm', 'color:yellowgreen', validForm)
-    console.log('%c ||||| formInputStatus', 'color:yellowgreen', formInputStatus)
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) {
       if (updateSatellite) {
@@ -180,6 +205,7 @@ export const BecomeSatelliteView = ({
                 type="text"
                 placeholder="Name"
                 required
+                disabled={!balanceOk}
                 value={form.name}
                 onChange={(e: any) => {
                   setForm({ ...form, name: e.target.value })
@@ -198,6 +224,7 @@ export const BecomeSatelliteView = ({
               <Input
                 type="text"
                 placeholder="website"
+                disabled={!balanceOk}
                 value={form.website}
                 onChange={(e: any) => {
                   setForm({ ...form, website: e.target.value })
@@ -217,6 +244,7 @@ export const BecomeSatelliteView = ({
           <TextArea
             placeholder="Your description here..."
             value={form.description}
+            disabled={!balanceOk}
             onChange={(e: any) => {
               setForm({ ...form, description: e.target.value })
               handleValidate('DESCRIPTION')
@@ -233,6 +261,7 @@ export const BecomeSatelliteView = ({
             <Input
               type="number"
               placeholder="Fee"
+              disabled={!balanceOk}
               value={form.fee}
               onChange={(e: any) => {
                 setForm({ ...form, fee: e.target.value })
@@ -243,10 +272,12 @@ export const BecomeSatelliteView = ({
             />
           </div>
           <IPFSUploader
+            disabled={!balanceOk}
             imageIpfsUrl={form.image}
             setIpfsImageUrl={(e: any) => {
               setForm({ ...form, image: e })
-              handleValidate('IMAGE')
+              setValidForm({ ...validForm, image: Boolean(e) })
+              setFormInputStatus({ ...formInputStatus, image: Boolean(e) ? 'success' : 'error' })
             }}
             title={'Upload Profile Pic'}
             listNumber={6}
@@ -256,6 +287,7 @@ export const BecomeSatelliteView = ({
               <Button
                 icon="close-stroke"
                 kind={ACTION_SECONDARY}
+                disabled={!balanceOk}
                 text={'Unregister Satellite'}
                 loading={loading}
                 onClick={handleUnregisterSatellite}
@@ -263,8 +295,9 @@ export const BecomeSatelliteView = ({
             )}
             <Button
               icon="satellite-stroke"
-              text={updateSatellite ? 'Update Satellite Info' : 'Register as Satellite'}
+              text={updateSatellite ? 'Update Satellite Info' : 'Become a satellite'}
               loading={loading}
+              disabled={!balanceOk}
               kind={ACTION_PRIMARY}
               onClick={handleSubmit}
             />
