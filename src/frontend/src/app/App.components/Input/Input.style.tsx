@@ -38,8 +38,7 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   }
 
   &:disabled {
-    color: ${({ theme }) => theme.subTextColor};
-    opacity: 0.9;
+    opacity: 0.4;
   }
 
   &:hover:not(:disabled) {

@@ -11,7 +11,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   min-width: 100%;
   width: 100%;
   font-family: 'Metropolis', Helvetica, Arial, sans-serif;
-  height: 84px;
+  height: 106px;
   background-color: ${({ theme }) => theme.backgroundColor};
   font-weight: 500;
   border: 1px solid ${({ theme }) => theme.cardBorderColor};
@@ -21,7 +21,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   appearance: none;
   display: block;
   position: relative;
-  padding: 13px 16px 13px 20px;
+  padding: 22px 16px 13px 20px;
   border-radius: 10px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
@@ -30,8 +30,7 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
     color: ${({ theme }) => theme.inputPlaceholder};
   }
   &:disabled {
-    color: ${({ theme }) => theme.subTextColor};
-    opacity: 0.9;
+    opacity: 0.4;
   }
 
   &:hover:not(:disabled) {

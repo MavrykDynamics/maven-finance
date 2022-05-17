@@ -9,13 +9,14 @@ export const BecomeSatelliteStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const BecomeSatelliteForm = styled(Card)`
-  padding-bottom: 20px;
+  padding-bottom: 53px;
   margin-top: 0;
+  padding-top: 28px;
 
   > h1 {
     margin: 0;
     color: ${headerColor};
-    padding-bottom: 28px;
+    padding-bottom: 26px;
   }
 
   input.success,
@@ -28,12 +29,16 @@ export const BecomeSatelliteForm = styled(Card)`
     font-weight: 600;
     font-size: 14px;
     color: ${({ theme }) => theme.headerColor};
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     display: block;
 
     p {
       margin: 0;
     }
+  }
+
+  #textAreaContainer {
+    margin-bottom: 18px;
   }
 
   .input-fee-wrap {
@@ -57,7 +62,7 @@ export const BecomeSatelliteFormTitle = styled.h1<{ theme: MavrykTheme }>`
 export const BecomeSatelliteFormBalanceCheck = styled.div<{ balanceOk: boolean; theme: MavrykTheme }>`
   color: ${({ balanceOk, theme }) => (balanceOk ? theme.upColor : theme.downColor)};
   display: flex;
-  padding-bottom: 30px;
+  padding-bottom: 20px;
 
   p {
     margin: 0;
@@ -148,7 +153,7 @@ export const BecomeSatelliteFormHorizontal = styled.div`
 `
 export const BecomeSatelliteButttons = styled.div`
   display: flex;
-  padding-top: 36px;
+  padding-top: 40px;
   justify-content: flex-end;
 
   button {

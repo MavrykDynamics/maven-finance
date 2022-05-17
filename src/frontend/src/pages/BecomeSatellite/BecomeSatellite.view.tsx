@@ -223,7 +223,7 @@ export const BecomeSatelliteView = ({
               )}
               <Input
                 type="text"
-                placeholder="website"
+                placeholder="Website"
                 disabled={!balanceOk}
                 value={form.website}
                 onChange={(e: any) => {
