@@ -211,15 +211,10 @@
                   stroke-linejoin="round"/>
         </g>
     </symbol>
-    <symbol id="upload" viewBox="0 0 37 37">
-        <g>
-            <path d="M18.502 5.78125V24.2812" fill="none" stroke-width="1.5" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <path d="M11.5645 17.3438L18.502 24.2812L25.4395 17.3438" fill="none" stroke-width="1.5"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M35.8457 24.2812V26.5937C35.8457 27.8204 35.3584 28.9968 34.4911 29.8641C33.6237 30.7315 32.4473 31.2187 31.2207 31.2187H5.7832C4.55658 31.2187 3.38019 30.7315 2.51283 29.8641C1.64548 28.9968 1.1582 27.8204 1.1582 26.5937V24.2812"
-                  fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
+    <symbol id="upload" viewBox="0 0 24 24" fill="none">
+    <path d="M15.752 8.5H18C18.7956 8.5 19.5587 8.81607 20.1213 9.37868C20.6839 9.94129 21 10.7044 21 11.5V20.25C21 21.0456 20.6839 21.8087 20.1213 22.3713C19.5587 22.9339 18.7956 23.25 18 23.25H6C5.20435 23.25 4.44129 22.9339 3.87868 22.3713C3.31607 21.8087 3 21.0456 3 20.25V11.5C3 10.7044 3.31607 9.94129 3.87868 9.37868C4.44129 8.81607 5.20435 8.5 6 8.5H8.25"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12 18L12 1"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M16.502 5.5L12.002 1L7.50195 5.5"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
     <symbol id="copyToClipboard" viewBox="0 0 15 15">
         <g fill="none">

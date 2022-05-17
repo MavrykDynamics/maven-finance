@@ -1,13 +1,17 @@
 import styled, { keyframes } from 'styled-components/macro'
 
 import { MavrykTheme } from '../../../styles/interfaces'
+import { primaryColor } from 'styles'
 
 export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 5px;
-  margin-top: 23px;
+  margin-top: 19px;
 
   label {
     margin-bottom: 10px;
+
+    & + div {
+    }
   }
 
   > p {
@@ -18,7 +22,7 @@ export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
 
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   cursor: pointer;
-  height: 85px;
+  height: 96px;
   width: 100%;
   border: 2px dashed ${({ theme }) => theme.headerColor};
   background-color: ${({ theme }) => theme.containerColor};
@@ -74,17 +78,31 @@ export const UploadIconContainer = styled.div<{ theme: MavrykTheme }>`
   flex-direction: column;
   align-items: center;
 
-  > div {
+  .upload-figure {
     font-size: 12px;
     font-weight: 400;
     color: ${({ theme }) => theme.headerColor};
     white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0;
+
+    small {
+      font-weight: 400;
+      padding-top: 2px;
+      font-size: 10px;
+      line-height: 10px;
+      color: ${primaryColor};
+    }
   }
 
   .upload-icon {
     stroke: ${({ theme }) => theme.headerColor};
-    width: 37px;
-    height: 37px;
+    width: 24px;
+    height: 24px;
+    display: block;
+    margin-bottom: 4px;
   }
 
   .pencil-wrap {
