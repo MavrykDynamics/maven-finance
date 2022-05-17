@@ -79,7 +79,7 @@ type optionType is
 | OptionTwo     of unit
 | OptionThree   of unit 
 
-type buyTokenType is [@layout:comb] record [
+type buyTokensType is [@layout:comb] record [
   amount        : nat;
   tokenOption   : optionType;
 ]
