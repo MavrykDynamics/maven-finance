@@ -28,7 +28,7 @@ export const registerAsSatellite =
       console.log('contract', contract)
 
       const transaction = await contract?.methods
-        .registerAsSatellite(form.name, form.description, form.image, form.fee * PRECISION_NUMBER)
+        .registerAsSatellite(form.name, form.description, form.image, form.website, form.fee * PRECISION_NUMBER)
         .send()
       console.log('transaction', transaction)
 
@@ -77,7 +77,7 @@ export const updateSatelliteRecord = (form: RegisterAsSatelliteForm) => async (d
     console.log('contract', contract)
 
     const transaction = await contract?.methods
-      .updateSatelliteRecord(form.name, form.description, form.image, form.fee * PRECISION_NUMBER)
+      .updateSatelliteRecord(form.name, form.description, form.image, form.website, form.fee * PRECISION_NUMBER)
       .send()
     console.log('transaction', transaction)
 

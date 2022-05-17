@@ -31,7 +31,7 @@ export function isValidIPFSUrl(input: string) {
 }
 
 export function isNotAllWhitespace(input: string) {
-  return !(input.length > 0 && input.replace(/\s/g, '').length === 0) && input.length > 0
+  return !(input?.length > 0 && input?.replace(/\s/g, '').length === 0) && input?.length > 0
 }
 
 export function isHexadecimalByteString(input: string) {

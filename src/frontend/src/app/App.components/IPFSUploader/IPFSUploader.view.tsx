@@ -37,6 +37,8 @@ export const IPFSUploaderView = ({
   errorMessage,
 }: IPFSUploaderViewProps) => {
   let status = ipfsUploaderStatus !== undefined ? ipfsUploaderStatus : 'none'
+  console.log('%c ||||| isUploaded', 'color:yellowgreen', isUploaded)
+  console.log('%c ||||| imageIpfsUrl', 'color:yellowgreen', imageIpfsUrl)
   return (
     <IPFSUploaderStyled id={'ipfsUploaderContainer'}>
       {title && listNumber && (
@@ -60,7 +62,7 @@ export const IPFSUploaderView = ({
               onBlur={onBlur}
             />
             <UploadIconContainer onClick={handleIconClick}>
-              {isUploaded && imageIpfsUrl ? (
+              {imageIpfsUrl ? (
                 <IpfsUploadedImageContainer>
                   <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
                   <img className="uploaded-image" src={imageIpfsUrl} alt="" />
