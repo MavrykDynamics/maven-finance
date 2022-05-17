@@ -42,7 +42,7 @@ type tokenSaleAction is
   | PauseSale                   of unit
   
     // Token Sale Entrypoints
-  | BuyTokens                   of buyTokenType
+  | BuyTokens                   of buyTokensType
   | ClaimTokens                 of unit
   
   
@@ -71,29 +71,33 @@ const fpa10e18 : nat = 1_000_000_000_000_000_000n;               // 10^17
 [@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 4n;
 
 [@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                           = 5n;
-[@inline] const error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 5n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                              = 6n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_ENDED                                = 7n;
-[@inline] const error_TOKEN_SALE_IS_NOT_PAUSED                                = 7n;
-[@inline] const error_TOKEN_SALE_IS_PAUSED                                    = 7n;
+[@inline] const error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 6n;
+[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                              = 7n;
+[@inline] const error_TOKEN_SALE_HAS_NOT_ENDED                                = 8n;
+[@inline] const error_TOKEN_SALE_HAS_ENDED                                    = 9n;
+[@inline] const error_TOKEN_SALE_IS_NOT_PAUSED                                = 10n;
+[@inline] const error_TOKEN_SALE_IS_PAUSED                                    = 11n;
 
-[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                          = 8n;
-[@inline] const error_USER_IS_NOT_WHITELISTED                                 = 9n;
+[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                          = 12n;
+[@inline] const error_USER_IS_NOT_WHITELISTED                                 = 13n;
 
-[@inline] const error_MAX_AMOUNT_OPTION_ONE_WHITELIST_WALLET_EXCEEDED                = 10n;
-[@inline] const error_MAX_AMOUNT_OPTION_TWO_WHITELIST_WALLET_EXCEEDED                = 10n;
-[@inline] const error_MAX_AMOUNT_OPTION_THREE_WHITELIST_WALLET_EXCEEDED                = 10n;
+[@inline] const error_MAX_AMOUNT_OPTION_ONE_WHITELIST_WALLET_EXCEEDED         = 14n;
+[@inline] const error_MAX_AMOUNT_OPTION_TWO_WHITELIST_WALLET_EXCEEDED         = 15n;
+[@inline] const error_MAX_AMOUNT_OPTION_THREE_WHITELIST_WALLET_EXCEEDED       = 16n;
 
-[@inline] const error_MAX_AMOUNT_OPTION_ONE_PER_WALLET_TOTAL_EXCEEDED         = 11n;
-[@inline] const error_MAX_AMOUNT_OPTION_TWO_PER_WALLET_TOTAL_EXCEEDED         = 11n;
-[@inline] const error_MAX_AMOUNT_OPTION_THREE_PER_WALLET_TOTAL_EXCEEDED       = 11n;
+[@inline] const error_MAX_AMOUNT_OPTION_ONE_PER_WALLET_TOTAL_EXCEEDED         = 17n;
+[@inline] const error_MAX_AMOUNT_OPTION_TWO_PER_WALLET_TOTAL_EXCEEDED         = 18n;
+[@inline] const error_MAX_AMOUNT_OPTION_THREE_PER_WALLET_TOTAL_EXCEEDED       = 19n;
 
-[@inline] const error_MIN_AMOUNT_OPTION_ONE_REQUIRED                          = 11n;
-[@inline] const error_MIN_AMOUNT_OPTION_TWO_REQUIRED                          = 11n;
-[@inline] const error_MIN_AMOUNT_OPTION_THREE_REQUIRED                        = 11n;
+[@inline] const error_MIN_AMOUNT_OPTION_ONE_REQUIRED                          = 20n;
+[@inline] const error_MIN_AMOUNT_OPTION_TWO_REQUIRED                          = 21n;
+[@inline] const error_MIN_AMOUNT_OPTION_THREE_REQUIRED                        = 22n;
 
-[@inline] const error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 12n;
-[@inline] const error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 13n;
+[@inline] const error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED                       = 23n;
+[@inline] const error_OPTION_TWO_MAX_AMOUNT_CAP_REACHED                       = 24n;
+[@inline] const error_OPTION_THREE_MAX_AMOUNT_CAP_REACHED                     = 25n;
+[@inline] const error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 26n;
+[@inline] const error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 27n;
 
 // ------------------------------------------------------------------------------
 //
@@ -140,6 +144,12 @@ function checkTokenSaleHasStarted(var s : tokenSaleStorage) : unit is
 function checkTokenSaleHasEnded(var s : tokenSaleStorage) : unit is
     if (s.tokenSaleHasEnded = True) then unit
     else failwith(error_TOKEN_SALE_HAS_NOT_ENDED);
+
+
+
+function checkTokenSaleHasNotEnded(var s : tokenSaleStorage) : unit is
+    if (s.tokenSaleHasEnded = True) then failwith(error_TOKEN_SALE_HAS_ENDED)
+    else unit;
 
 
 
@@ -350,7 +360,7 @@ block {
 
 
 (*  buyTokens entrypoint *)
-function buyTokens(const buyTokensParams : buyTokenType; var s : tokenSaleStorage) : return is
+function buyTokens(const buyTokensParams : buyTokensType; var s : tokenSaleStorage) : return is
 block {
     
       // check if sale has started
@@ -358,6 +368,9 @@ block {
 
       // check that token sale is not paused
       checkTokenSaleIsNotPaused(s);
+
+      // check that token sale has not ended
+      checkTokenSaleHasNotEnded(s);
 
       // init params
       const amountBought  : nat         = buyTokensParams.amount;
@@ -489,7 +502,7 @@ block {
 
               // check if option one whitelist max amount cap has been exceeded
               const newOptionOneBoughtAmountTotal : nat = s.optionOneBoughtTotal + amountBought;
-              if newOptionOneBoughtAmountTotal > s.config.optionOneMaxAmountCap then failwith(error_WHITELIST_MAX_AMOUNT_CAP_REACHED) else s.optionOneBoughtTotal := newOptionOneBoughtAmountTotal;
+              if newOptionOneBoughtAmountTotal > s.config.optionOneMaxAmountCap then failwith(error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED) else s.optionOneBoughtTotal := newOptionOneBoughtAmountTotal;
 
               // update user token sale record
               userTokenSaleRecord.optionOneBought      := userTokenSaleRecord.optionOneBought + amountBought;
@@ -504,7 +517,7 @@ block {
 
               // check if option one whitelist max amount cap has been exceeded
               const newOptionTwoBoughtAmountTotal : nat = s.optionTwoBoughtTotal + amountBought;
-              if newOptionTwoBoughtAmountTotal > s.config.optionTwoMaxAmountCap then failwith(error_WHITELIST_MAX_AMOUNT_CAP_REACHED) else s.optionTwoBoughtTotal := newOptionTwoBoughtAmountTotal;
+              if newOptionTwoBoughtAmountTotal > s.config.optionTwoMaxAmountCap then failwith(error_OPTION_TWO_MAX_AMOUNT_CAP_REACHED) else s.optionTwoBoughtTotal := newOptionTwoBoughtAmountTotal;
 
               // update user token sale record
               userTokenSaleRecord.optionTwoBought      := userTokenSaleRecord.optionTwoBought + amountBought;
@@ -519,7 +532,7 @@ block {
 
               // check if option one whitelist max amount cap has been exceeded
               const newOptionThreeBoughtAmountTotal : nat = s.optionThreeBoughtTotal + amountBought;
-              if newOptionThreeBoughtAmountTotal > s.config.optionThreeMaxAmountCap then failwith(error_WHITELIST_MAX_AMOUNT_CAP_REACHED) else s.optionThreeBoughtTotal := newOptionThreeBoughtAmountTotal;
+              if newOptionThreeBoughtAmountTotal > s.config.optionThreeMaxAmountCap then failwith(error_OPTION_THREE_MAX_AMOUNT_CAP_REACHED) else s.optionThreeBoughtTotal := newOptionThreeBoughtAmountTotal;
 
               // update user token sale record
               userTokenSaleRecord.optionThreeBought   := userTokenSaleRecord.optionThreeBought + amountBought;
