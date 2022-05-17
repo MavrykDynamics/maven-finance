@@ -13,6 +13,7 @@ type IPFSUploaderViewProps = {
   listNumber?: number
   imageIpfsUrl?: string
   imageOk: boolean
+  disabled?: boolean
   isUploading: boolean
   isUploaded: boolean
   inputFile: Ref<any>
@@ -30,6 +31,7 @@ export const IPFSUploaderView = ({
   isUploading,
   isUploaded,
   inputFile,
+  disabled,
   handleUpload,
   handleIconClick,
   onBlur,
@@ -37,8 +39,7 @@ export const IPFSUploaderView = ({
   errorMessage,
 }: IPFSUploaderViewProps) => {
   let status = ipfsUploaderStatus !== undefined ? ipfsUploaderStatus : 'none'
-  console.log('%c ||||| isUploaded', 'color:yellowgreen', isUploaded)
-  console.log('%c ||||| imageIpfsUrl', 'color:yellowgreen', imageIpfsUrl)
+
   return (
     <IPFSUploaderStyled id={'ipfsUploaderContainer'}>
       {title && listNumber && (
@@ -54,6 +55,7 @@ export const IPFSUploaderView = ({
             <input
               id="uploader"
               type="file"
+              disabled={disabled}
               accept="image/*"
               ref={inputFile}
               onChange={(e: any) => {
