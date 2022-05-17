@@ -79,8 +79,9 @@ export const BecomeSatelliteView = ({
       })
     }
   }, [accountPkh, myTotalStakeBalance, updateSatellite, balanceOk, usersSatellite, minimumStakedMvkBalance, form.fee])
+  console.log('%c ||||| form', 'color:green', form)
 
-  const handleOnBlur = (e: any, formField: string) => {
+  const handleValidate = (formField: string) => {
     let updatedState, validityCheckResult
     switch (formField) {
       case 'NAME':
@@ -95,6 +96,18 @@ export const BecomeSatelliteView = ({
         updatedState = { ...validForm, description: validityCheckResult }
         setFormInputStatus({ ...formInputStatus, description: updatedState.description ? 'success' : 'error' })
         break
+      case 'WEBSITE':
+        validityCheckResult = isNotAllWhitespace(form.website)
+        setValidForm({ ...validForm, website: validityCheckResult })
+        updatedState = { ...validForm, website: validityCheckResult }
+        setFormInputStatus({ ...formInputStatus, website: updatedState.website ? 'success' : 'error' })
+        break
+      case 'IMAGE':
+        validityCheckResult = Boolean(form.image)
+        setValidForm({ ...validForm, image: validityCheckResult })
+        updatedState = { ...validForm, image: validityCheckResult }
+        setFormInputStatus({ ...formInputStatus, image: updatedState.website ? 'success' : 'error' })
+        break
       case 'FEE':
         setValidForm({ ...validForm, fee: form.fee >= 0 && form.fee <= 100 })
         updatedState = { ...validForm, fee: form.fee >= 0 }
@@ -107,6 +120,8 @@ export const BecomeSatelliteView = ({
   }
 
   const handleSubmit = () => {
+    console.log('%c ||||| validForm', 'color:yellowgreen', validForm)
+    console.log('%c ||||| formInputStatus', 'color:yellowgreen', formInputStatus)
     const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
     if (formIsValid) {
       if (updateSatellite) {
@@ -166,8 +181,11 @@ export const BecomeSatelliteView = ({
                 placeholder="Name"
                 required
                 value={form.name}
-                onChange={(e: any) => setForm({ ...form, name: e.target.value })}
-                onBlur={(e: any) => handleOnBlur(e, 'NAME')}
+                onChange={(e: any) => {
+                  setForm({ ...form, name: e.target.value })
+                  handleValidate('NAME')
+                }}
+                onBlur={(e: any) => handleValidate('NAME')}
                 inputStatus={formInputStatus.name}
               />
             </article>
@@ -181,8 +199,11 @@ export const BecomeSatelliteView = ({
                 type="text"
                 placeholder="website"
                 value={form.website}
-                onChange={(e: any) => setForm({ ...form, website: e.target.value })}
-                onBlur={(e: any) => handleOnBlur(e, 'WEBSITE')}
+                onChange={(e: any) => {
+                  setForm({ ...form, website: e.target.value })
+                  handleValidate('WEBSITE')
+                }}
+                onBlur={(e: any) => handleValidate('WEBSITE')}
                 inputStatus={formInputStatus.website}
               />
             </article>
@@ -196,8 +217,11 @@ export const BecomeSatelliteView = ({
           <TextArea
             placeholder="Your description here..."
             value={form.description}
-            onChange={(e: any) => setForm({ ...form, description: e.target.value })}
-            onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
+            onChange={(e: any) => {
+              setForm({ ...form, description: e.target.value })
+              handleValidate('DESCRIPTION')
+            }}
+            onBlur={(e: any) => handleValidate('DESCRIPTION')}
             inputStatus={formInputStatus.description}
           />
           {updateSatellite ? (
@@ -210,14 +234,20 @@ export const BecomeSatelliteView = ({
               type="number"
               placeholder="Fee"
               value={form.fee}
-              onChange={(e: any) => setForm({ ...form, fee: Number(e.target.value) })}
-              onBlur={(e: any) => handleOnBlur(e, 'FEE')}
+              onChange={(e: any) => {
+                setForm({ ...form, fee: e.target.value })
+                handleValidate('FEE')
+              }}
+              onBlur={(e: any) => handleValidate('FEE')}
               inputStatus={formInputStatus.fee}
             />
           </div>
           <IPFSUploader
             imageIpfsUrl={form.image}
-            setIpfsImageUrl={(e: any) => setForm({ ...form, image: e })}
+            setIpfsImageUrl={(e: any) => {
+              setForm({ ...form, image: e })
+              handleValidate('IMAGE')
+            }}
             title={'Upload Profile Pic'}
             listNumber={6}
           />
