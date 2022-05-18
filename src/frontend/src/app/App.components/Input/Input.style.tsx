@@ -69,19 +69,19 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
 
 export const InputLabel = styled.div<{ theme: MavrykTheme }>`
   position: absolute;
-  right: 35px;
+  right: 16px;
   top: 18px;
   color: ${({ theme }) => theme.headerColor};
   font-size: 18px;
   font-weight: 600;
 
-  &.error {
+  /* &.error {
     color: ${({ theme }) => theme.downColor};
   }
 
   &.success {
     color: ${({ theme }) => theme.upColor};
-  }
+  } */
 `
 
 const zoomIn = keyframes`
@@ -99,7 +99,7 @@ export const InputStatus = styled.div`
   display: block;
   position: absolute;
   top: 14px;
-  right: 10px;
+  right: 66px;
   z-index: 1;
   line-height: 13px;
   text-align: center;
