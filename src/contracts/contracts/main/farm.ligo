@@ -45,7 +45,7 @@ type farmAction is
     // Farm Entrypoints
 |   Deposit                     of nat
 |   Withdraw                    of nat
-|   Claim                       of unit
+|   Claim                       of address
 
     // Lambda Entrypoints
 |   SetLambda                   of setLambdaType
@@ -129,13 +129,15 @@ block {
     |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
     ];
 
-    const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
-            Some (_address) -> _address
-        |   None -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND): address)
-    ];
-
-    if Tezos.sender = farmFactoryAddress or Tezos.sender = councilAddress then skip
-    else failwith(error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED);
+    if Tezos.sender =/= councilAddress then skip
+    else {
+      const farmFactoryAddress: address = case s.whitelistContracts["farmFactory"] of [
+              Some (_address) -> _address
+          |   None -> (failwith(error_FARM_FACTORY_CONTRACT_NOT_FOUND): address)
+      ];
+      if Tezos.sender = farmFactoryAddress then skip
+      else failwith(error_ONLY_FARM_FACTORY_OR_COUNCIL_CONTRACT_ALLOWED);
+    }
 
 } with(unit)
 
@@ -348,11 +350,8 @@ block{
 
 
 
-function updateUnclaimedRewards(var s: farmStorage): farmStorage is
+function updateUnclaimedRewards(const depositor: depositor; var s: farmStorage): farmStorage is
 block{
-
-    // Get depositor
-    const depositor: depositor = Tezos.sender;
 
     // Check if sender as already a record
     var depositorRecord: depositorRecord :=
@@ -856,7 +855,7 @@ block{
 
 
 (* Claim Entrypoint *)
-function claim(var s: farmStorage) : return is
+function claim(const depositor: depositor; var s: farmStorage) : return is
 block{
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaClaim"] of [
@@ -865,7 +864,7 @@ block{
     ];
 
     // init farm lambda action
-    const farmLambdaAction : farmLambdaActionType = LambdaClaim(unit);
+    const farmLambdaAction : farmLambdaActionType = LambdaClaim(depositor);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, farmLambdaAction, s);  
@@ -941,7 +940,7 @@ function main (const action: farmAction; var s: farmStorage): return is
             // Farm Entrypoints
         |   Deposit (parameters)                     -> deposit(parameters, s)
         |   Withdraw (parameters)                    -> withdraw(parameters, s)
-        |   Claim (_parameters)                      -> claim(s)
+        |   Claim (parameters)                       -> claim(parameters, s)
 
             // Lambda Entrypoints
         |   SetLambda(parameters)                    -> setLambda(parameters, s)

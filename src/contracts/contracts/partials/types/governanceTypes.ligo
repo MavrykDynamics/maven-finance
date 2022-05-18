@@ -51,7 +51,7 @@ type voteForProposalChoiceType is
 | Abstain of unit
 type votingRoundVoteType is [@layout:comb] record [
   vote  : voteForProposalChoiceType;
-  empty : unit;
+  empty : unit; // fixes the compilation and the deployment of the votingRoundVote entrypoint. Without it, %yay, %nay and %abstain become entrypoints.
 ]
 type votingRoundRecordType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundRecordType)

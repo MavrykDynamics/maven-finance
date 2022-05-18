@@ -205,18 +205,7 @@ function mintTokens(
     (to_, amount_),
     0tez,
     getMintEntrypointFromTokenAddress(tokenAddress)
-  );  
-
-
-
-// helper function to update satellite's balance
-function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceParams) is
-  case (Tezos.get_entrypoint_opt(
-    "%onStakeChange",
-    delegationAddress) : option(contract(updateSatelliteBalanceParams))) of [
-        Some(contr) -> contr
-      | None        -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteBalanceParams))
-    ];
+  );
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End

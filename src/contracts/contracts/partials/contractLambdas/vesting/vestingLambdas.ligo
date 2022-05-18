@@ -116,7 +116,7 @@ block {
         | LambdaAddVestee(addVesteeParams) -> {
                 
                 // check sender is from council contract
-                checkSenderIsCouncil(s);
+                checkSenderIsCouncilOrAdmin(s);
 
                 // init parameters
                 const vesteeAddress          : address  = addVesteeParams.vesteeAddress;
@@ -186,7 +186,7 @@ block {
     case vestingLambdaAction of [
         | LambdaRemoveVestee(vesteeAddress) -> {
                 
-                checkSenderIsCouncil(s);
+                checkSenderIsCouncilOrAdmin(s);
 
                 var _vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record
@@ -213,7 +213,7 @@ block {
     case vestingLambdaAction of [
         | LambdaUpdateVestee(updateVesteeParams) -> {
                 
-                checkSenderIsCouncil(s);
+                checkSenderIsCouncilOrAdmin(s);
                 
                 // init parameters
                 const vesteeAddress             : address  = updateVesteeParams.vesteeAddress;
@@ -284,7 +284,7 @@ block {
     case vestingLambdaAction of [
         | LambdaToggleVesteeLock(vesteeAddress) -> {
                 
-                checkSenderIsCouncil(s);
+                checkSenderIsCouncilOrAdmin(s);
 
                 var vestee : vesteeRecordType := case s.vesteeLedger[vesteeAddress] of [ 
                     | Some(_record) -> _record

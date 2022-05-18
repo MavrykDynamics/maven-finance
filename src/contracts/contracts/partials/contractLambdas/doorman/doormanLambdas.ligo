@@ -321,9 +321,12 @@ block {
 
   case doormanLambdaAction of [
         | LambdaStake(stakeAmount) -> {
+
+              // Get params
+              const userAddress: address  = Tezos.sender;
                 
               // Compound user rewards
-              s := compoundUserRewards(Tezos.sender, s);
+              s := compoundUserRewards(userAddress, s);
 
               // 1. verify that user is staking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
               if stakeAmount < s.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
@@ -339,7 +342,7 @@ block {
               // update user's MVK balance (stake) -> decrease user balance in mvk ledger
               const transferParameters: transferType = list[
                 record[
-                  from_=Tezos.sender;
+                  from_=userAddress;
                   txs=list[
                     record[
                       to_=Tezos.self_address;
@@ -356,14 +359,14 @@ block {
               );
 
               const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-                (Tezos.sender),
+                (userAddress),
                 0tez,
                 updateSatelliteBalance(delegationAddress)
               );
 
               // tell the delegation contract that the reward has been paid 
               const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                (Tezos.sender),
+                (userAddress),
                 0tez,
                 onSatelliteRewardPaid(delegationAddress)
               );
@@ -375,7 +378,7 @@ block {
               // 3. update record of user address with minted sMVK tokens
 
               // update user's staked balance in staked balance ledger
-              var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[Tezos.sender] of [
+              var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
                     Some(_val) -> _val
                   | None -> record[
                       balance                        = 0n;
@@ -386,7 +389,7 @@ block {
                     ]
               ];
               userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + stakeAmount; 
-              s.userStakeBalanceLedger[Tezos.sender] := userBalanceInStakeBalanceLedger;
+              s.userStakeBalanceLedger[userAddress] := userBalanceInStakeBalanceLedger;
 
               // update staked MVK total supply
               s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + stakeAmount;
@@ -427,16 +430,16 @@ block {
 
   case doormanLambdaAction of [
         | LambdaUnstake(unstakeAmount) -> {
+
+                // Get params
+                const userAddress   : address   = Tezos.sender;
                 
                 // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
                 if unstakeAmount < s.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip;
 
-                // Get depositor address
-                const depositorAddress: address  = Tezos.sender;
-
                 // Compound user rewards
-                s := compoundUserRewards(depositorAddress, s);
+                s := compoundUserRewards(userAddress, s);
 
                 const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
                 const mvkTotalSupply: nat = case mvkTotalSupplyView of [
@@ -464,7 +467,7 @@ block {
                 else skip;
 
                 // update user's staked balance in staked balance ledger
-                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[depositorAddress] of [
+                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
                       Some(_val) -> _val
                     | None       -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
                 ];
@@ -493,7 +496,7 @@ block {
                     from_=Tezos.self_address;
                     txs=list[
                       record[
-                        to_=depositorAddress;
+                        to_=userAddress;
                         token_id=0n;
                         amount=finalUnstakeAmount;
                       ]
@@ -521,19 +524,19 @@ block {
                 // Set the user's participationFeesPerShare 
                 userBalanceInStakeBalanceLedger.participationFeesPerShare := s.accumulatedFeesPerShare;
                 // Update the doormanStorage
-                s.userStakeBalanceLedger[depositorAddress] := userBalanceInStakeBalanceLedger;
+                s.userStakeBalanceLedger[userAddress] := userBalanceInStakeBalanceLedger;
 
 
                 // update satellite balance if user is delegated to a satellite
                 const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-                  (depositorAddress),
+                  (userAddress),
                   0tez,
                   updateSatelliteBalance(delegationAddress)
                 );
 
                 // tell the delegation contract that the reward has been paid 
                 const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (depositorAddress),
+                  (userAddress),
                   0tez,
                   onSatelliteRewardPaid(delegationAddress)
                 );
@@ -561,15 +564,15 @@ block {
   case doormanLambdaAction of [
         | LambdaUnstake(unstakeAmount) -> {
                 
+                // Get params
+                const userAddress   : address   = Tezos.sender;
+                
                 // 1. verify that user is unstaking at least 1 MVK tokens - note: amount should be converted (on frontend) to 10^18
                 if unstakeAmount < s.minMvkAmount then failwith(error_MVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip;
 
-                // Get depositor address
-                const depositorAddress: address  = Tezos.sender;
-
                 // Compound user rewards
-                s := compoundUserRewards(depositorAddress, s);
+                s := compoundUserRewards(userAddress, s);
 
                 const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
                 const mvkTotalSupply: nat = case mvkTotalSupplyView of [
@@ -597,7 +600,7 @@ block {
                 else skip;
 
                 // update user's staked balance in staked balance ledger
-                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[depositorAddress] of [
+                 var userBalanceInStakeBalanceLedger: userStakeBalanceRecordType := case s.userStakeBalanceLedger[userAddress] of [
                       Some(_val) -> _val
                     | None       -> failwith(error_USER_STAKE_RECORD_NOT_FOUND)
                 ];
@@ -626,7 +629,7 @@ block {
                     from_=Tezos.self_address;
                     txs=list[
                       record[
-                        to_=depositorAddress;
+                        to_=userAddress;
                         token_id=0n;
                         amount=finalUnstakeAmount;
                       ]
@@ -654,19 +657,19 @@ block {
                 // Set the user's participationFeesPerShare 
                 userBalanceInStakeBalanceLedger.participationFeesPerShare := s.accumulatedFeesPerShare;
                 // Update the doormanStorage
-                s.userStakeBalanceLedger[depositorAddress] := userBalanceInStakeBalanceLedger;
+                s.userStakeBalanceLedger[userAddress] := userBalanceInStakeBalanceLedger;
 
 
                 // update satellite balance if user is delegated to a satellite
                 const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-                  (depositorAddress),
+                  (userAddress),
                   0tez,
                   updateSatelliteBalance(delegationAddress)
                 );
 
                 // tell the delegation contract that the reward has been paid 
                 const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (depositorAddress),
+                  (userAddress),
                   0tez,
                   onSatelliteRewardPaid(delegationAddress)
                 );

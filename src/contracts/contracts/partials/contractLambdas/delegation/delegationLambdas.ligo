@@ -698,15 +698,15 @@ block {
 
     checkUpdateSatelliteRecordIsNotPaused(s);
 
-    // Get user address
-    const userAddress: address  = Tezos.sender;
-
-    // Update unclaimed rewards
-    s := updateRewards(userAddress, s);
-
     case delegationLambdaAction of [
         | LambdaUpdateSatelliteRecord(updateSatelliteRecordParams) -> {
 
+                // Get user address
+                const userAddress: address  = Tezos.sender;
+
+                // Update unclaimed rewards
+                s := updateRewards(userAddress, s);
+                
                 var satelliteRecord : satelliteRecordType := case s.satelliteLedger[userAddress] of [
                       Some(_val) -> _val
                     | None       -> failwith(error_SATELLITE_NOT_FOUND)
@@ -848,12 +848,8 @@ block {
 
     // Overall steps:
     // 1. check if user is a satellite 
-    // 2a. if user is a satellite, update satellite's bond amount depending on stakeAmount and stakeType
-    // 2b. if user is not a satellite, update satellite's total delegated amount depending on stakeAmount and stakeType
-    // Note: stakeType 1n to increase, stakeType 0n to decrease
-
-    // check sender is Doorman Contract or Treasury Contract
-    // checkSenderIsDoormanContract(s);
+    // 2a. if user is a satellite, update satellite's bond amount
+    // 2b. if user is not a satellite, update satellite's total delegated amount
     
     var operations: list(operation) := nil;
 
@@ -955,18 +951,19 @@ block {
 (* onSatelliteRewardPaid lambda *)
 function lambdaOnSatelliteRewardPaid(const delegationLambdaAction : delegationLambdaActionType; var s : delegationStorage) : return is 
 block {
-                
-    // Check sender is doorman contract
-    const doormanAddress : address = case s.generalContracts["doorman"] of [
-    Some(_address) -> _address
-    | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
-    ];
-    if doormanAddress = Tezos.sender then skip else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
     
     var operations: list(operation) := nil;
 
     case delegationLambdaAction of [
         | LambdaOnSatelliteRewardPaid(userAddress) -> {
+                
+                // Check sender is doorman contract
+                const doormanAddress : address = case s.generalContracts["doorman"] of [
+                Some(_address) -> _address
+                | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                ];
+                if doormanAddress = Tezos.sender then skip else failwith(error_ONLY_DOORMAN_CONTRACT_ALLOWED);
+                
                 // Get user address
                 const userAddress: address  = userAddress;
 

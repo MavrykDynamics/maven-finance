@@ -414,7 +414,7 @@ block{
                 checkFarmIsOpen(s);
 
                 // Depositor address
-                const depositor: depositor = Tezos.sender;
+                const depositor     : depositor = Tezos.sender;
 
                 // Check if sender as already a record
                 const existingDepositor: bool = Big_map.mem(depositor, s.depositors);
@@ -430,7 +430,7 @@ block{
                 // Get depositor deposit and perform a claim
                 if existingDepositor then {
                     // Update user's unclaimed rewards
-                    s := updateUnclaimedRewards(s);
+                    s := updateUnclaimedRewards(depositor, s);
 
                     // Refresh depositor deposit with updated unclaimed rewards
                     depositorRecord :=  case getDepositorDeposit(depositor, s) of [
@@ -482,7 +482,7 @@ block{
                 const depositor: depositor = Tezos.sender;
 
                 // Prepare to update user's unclaimedRewards if user already deposited tokens
-                s := updateUnclaimedRewards(s);
+                s := updateUnclaimedRewards(depositor, s);
 
                 var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [
                     Some (d)    -> d
@@ -531,15 +531,13 @@ block{
     var operations : list(operation) := nil;
 
     case farmLambdaAction of [
-        | LambdaClaim(_parameters) -> {
+        | LambdaClaim(depositor) -> {
                 
                 // Update pool farmStorage
                 s := updateFarm(s);
 
                 // Update user's unclaimed rewards
-                s := updateUnclaimedRewards(s);
-
-                const depositor: depositor = Tezos.sender;
+                s := updateUnclaimedRewards(depositor, s);
 
                 // Check if sender as already a record
                 var depositorRecord: depositorRecord := case getDepositorDeposit(depositor, s) of [

@@ -17,9 +17,6 @@ type delegateRecordType is [@layout:comb] record [
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
-// type newSatelliteRecordType is (string * string * string * nat) // name, description, image, satellite fee
-// type updateSatelliteRecordParams is (string * string * string * nat)
-
 type newSatelliteRecordType is [@layout:comb] record [
     name                  : string;
     description           : string;
