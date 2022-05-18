@@ -51,23 +51,20 @@ export const Doorman = () => {
 
   return (
     <Page>
-      {/* <div style="position: fixed;inset: 0;display: flex;justify-content: center;align-items: center;z-index: 222;background: rgb(0 0 0 / 50%);">
-        <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
-      </div> */}
       <ExitFeeModal />
-      <PageHeader page={'doorman'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'doorman'} kind={PRIMARY} loading={false} />
       <StakeUnstakeView
         myMvkTokenBalance={user?.myMvkTokenBalance}
         userStakeBalance={user?.mySMvkTokenBalance}
         stakeCallback={stakeCallback}
         unstakeCallback={unstakeCallback}
-        loading={loading}
+        loading={false}
         accountPkh={accountPkh}
       />
       <DoormanInfoStyled>
         <Chart list={chartList} header="MVK Staking analysis" />
         <DoormanStatsView
-          loading={loading}
+          loading={false}
           mvkTotalSupply={mvkTokenStorage?.totalSupply}
           totalStakedMvkSupply={totalStakedMvkSupply}
         />
