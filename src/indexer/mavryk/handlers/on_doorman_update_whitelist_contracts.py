@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_whitelist_contract
 from mavryk.types.doorman.parameter.update_whitelist_contracts import UpdateWhitelistContractsParameter
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -8,4 +9,6 @@ async def on_doorman_update_whitelist_contracts(
     ctx: HandlerContext,
     update_whitelist_contracts: Transaction[UpdateWhitelistContractsParameter, DoormanStorage],
 ) -> None:
-    ...
+
+    # Persist whitelist contract
+    await persist_whitelist_contract(update_whitelist_contracts)

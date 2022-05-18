@@ -1,4 +1,4 @@
-from mavryk.utils.actions import persist_council_action
+from mavryk.utils.persisters import persist_council_action
 from mavryk.types.council.parameter.council_action_add_vestee import CouncilActionAddVesteeParameter
 from dipdup.models import Transaction
 from dipdup.context import HandlerContext

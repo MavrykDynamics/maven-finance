@@ -1,6 +1,6 @@
 
 from dipdup.models import Transaction
-from mavryk.utils.actions import persist_council_action
+from mavryk.utils.persisters import persist_council_action
 from mavryk.types.council.parameter.council_action_drop_financial_req import CouncilActionDropFinancialReqParameter
 from dipdup.context import HandlerContext
 from mavryk.types.council.storage import CouncilStorage

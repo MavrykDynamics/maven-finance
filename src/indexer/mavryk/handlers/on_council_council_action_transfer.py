@@ -1,4 +1,4 @@
-from mavryk.utils.actions import persist_council_action
+from mavryk.utils.persisters import persist_council_action
 from mavryk.types.council.storage import CouncilStorage
 from mavryk.types.council.parameter.council_action_transfer import CouncilActionTransferParameter
 from dipdup.context import HandlerContext

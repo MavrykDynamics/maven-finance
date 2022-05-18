@@ -44,24 +44,27 @@ class TokenType(IntEnum):
 
 class GeneralContract(Model):
     id                              = fields.BigIntField(pk=True)
-    target_contract                 = fields.CharField(max_length=36)
-    contract                        = fields.CharField(max_length=36)
+    target_contract                 = fields.CharField(max_length=36, default="")
+    contract_name                   = fields.CharField(max_length=36, default="")
+    contract_address                = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'general_contract'
 
 class WhitelistContract(Model):
     id                              = fields.BigIntField(pk=True)
-    target_contract                 = fields.CharField(max_length=36)
-    contract                        = fields.CharField(max_length=36)
+    target_contract                 = fields.CharField(max_length=36, default="")
+    contract_name                   = fields.CharField(max_length=36, default="")
+    contract_address                = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'whitelist_contract'
 
 class WhitelistTokenContract(Model):
     id                              = fields.BigIntField(pk=True)
-    target_contract                 = fields.CharField(max_length=36)
-    contract                        = fields.CharField(max_length=36)
+    target_contract                 = fields.CharField(max_length=36, default="")
+    contract_name                   = fields.CharField(max_length=36, default="")
+    contract_address                = fields.CharField(max_length=36, default="")
 
     class Meta:
         table = 'whitelist_token_contract'
@@ -253,6 +256,17 @@ class Governance(Model):
     class Meta:
         table = 'governance'
 
+class GovernanceFinancial(Model):
+    address                         = fields.CharField(pk=True, max_length=36)
+    governance                      = fields.CharField(pk=True, max_length=36)
+    voting_power_ratio              = fields.SmallIntField(default=0)
+    fin_req_approval_percentage     = fields.SmallIntField(default=0)
+    fin_req_duration_in_days        = fields.SmallIntField(default=0)
+    fin_req_counter                 = fields.BigIntField(default=0)
+
+    class Meta:
+        table = 'governance_financial'
+
 class MavrykUser(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     mvk_balance                     = fields.BigIntField(default=0)
@@ -344,7 +358,6 @@ class StakeRecord(Model):
     timestamp                       = fields.DatetimeField()
     type                            = fields.IntEnumField(enum_type=StakeType)
     mvk_loyalty_index               = fields.FloatField(default=0.0)
-    exit_fee                        = fields.BigIntField(default=0)
     from_                           = fields.ForeignKeyField('models.MavrykUser', related_name='stake_records')
     desired_amount                  = fields.BigIntField(default=0)
     final_amount                    = fields.BigIntField(default=0)

@@ -1,6 +1,11 @@
 from dateutil import parser
 import mavryk.models as models
 
+###
+#
+# PERSIST ACTIONS
+#
+###
 async def persist_council_action(action):
     # Get operation values
     councilAddress                  = action.data.target_address
@@ -181,7 +186,6 @@ async def persist_break_glass_action(action):
             )
             await breakGlassActionRecordSigner.save()
 
-
 async def persist_financial_request(action):
     # Get operation values
     governanceAddress       = action.data.target_address
@@ -251,3 +255,84 @@ async def persist_financial_request(action):
                 requested_datetime              = requested_datetime
             )
             await requestRecord.save()
+
+###
+#
+# PERSIST CONTRACTS
+#
+###
+async def persist_general_contract(update_general_contracts):
+    # Get operation info
+    target_address          = update_general_contracts.data.target_address
+    contract_address        = update_general_contracts.parameter.generalContractAddress
+    contract_name           = update_general_contracts.parameter.generalContractName
+    contract_in_storage     = contract_name in update_general_contracts.storage.generalContracts
+
+    # Update general contracts record
+    general_contract, _ = await models.GeneralContract.get_or_create(
+        target_contract = target_address,
+        contract_name   = contract_name
+    )
+    general_contract.contract_address   = contract_address
+
+    if contract_in_storage:
+        await general_contract.save()
+    else:
+        await general_contract.delete()
+
+async def persist_whitelist_contract(update_whitelist_contracts):
+    # Get operation info
+    target_address          = update_whitelist_contracts.data.target_address
+    contract_address        = update_whitelist_contracts.parameter.whitelistContractAddress
+    contract_name           = update_whitelist_contracts.parameter.whitelistContractName
+    contract_in_storage     = contract_name in update_whitelist_contracts.storage.whitelistContracts
+
+    # Update general contracts record
+    whitelist_contract, _ = await models.WhitelistContract.get_or_create(
+        target_contract = target_address,
+        contract_name   = contract_name
+    )
+    whitelist_contract.contract_address   = contract_address
+
+    if contract_in_storage:
+        await whitelist_contract.save()
+    else:
+        await whitelist_contract.delete()
+
+async def persist_whitelist_token_contract(update_whitelist_token_contracts):
+    # Get operation info
+    target_address          = update_whitelist_token_contracts.data.target_address
+    contract_address        = update_whitelist_token_contracts.parameter.tokenContractAddress
+    contract_name           = update_whitelist_token_contracts.parameter.tokenContractName
+    contract_in_storage     = contract_name in update_whitelist_token_contracts.storage.whitelistTokenContracts
+
+    # Update general contracts record
+    whitelist_token_contract, _ = await models.WhitelistTokenContract.get_or_create(
+        target_contract = target_address,
+        contract_name   = contract_name
+    )
+    whitelist_token_contract.contract_address   = contract_address
+
+    if contract_in_storage:
+        await whitelist_token_contract.save()
+    else:
+        await whitelist_token_contract.delete()
+
+###
+#
+# PERSIST ADMIN/GOVERNANCE
+#
+###
+async def persist_admin(set_admin,contract):
+    # Get operation info
+    admin_address   = set_admin.parameter.__root__
+    contract.admin  = admin_address
+
+    await contract.save()
+
+async def persist_governance(set_governance,contract):
+    # Get operation info
+    governance_address      = set_governance.parameter.__root__
+    contract.governance     = governance_address
+
+    await contract.save()

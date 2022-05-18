@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_whitelist_contract
 from mavryk.types.treasury.storage import TreasuryStorage
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -8,4 +9,6 @@ async def on_treasury_update_whitelist_contracts(
     ctx: HandlerContext,
     update_whitelist_contracts: Transaction[UpdateWhitelistContractsParameter, TreasuryStorage],
 ) -> None:
-    ...
+
+    # Persist whitelist contract
+    await persist_whitelist_contract(update_whitelist_contracts)

@@ -1,6 +1,6 @@
 
 from dipdup.context import HandlerContext
-from mavryk.utils.actions import persist_break_glass_action
+from mavryk.utils.persisters import persist_break_glass_action
 from mavryk.types.break_glass.storage import BreakGlassStorage
 from mavryk.types.break_glass.parameter.pause_all_entrypoints import PauseAllEntrypointsParameter
 from dipdup.models import Transaction
