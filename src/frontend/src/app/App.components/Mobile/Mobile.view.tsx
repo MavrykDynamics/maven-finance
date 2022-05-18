@@ -15,7 +15,7 @@ import {
 import { DiscordIcon, TwitterIcon, TelegramIcon, MediumIcon, GitHubIcon } from './assets/index';
 import { containerColor, medialeColor } from 'styles/colors';
 
-export default function Modile() {
+export default function Mobile() {
   return (
     <MobilePlugBackground>
       <GlobalStyle />
@@ -69,7 +69,7 @@ export default function Modile() {
             topMarginMobile={'35px'}
             fontWeight={'400'}
           >
-            (c) Mavryk Finance 2022
+            © Mavryk Finance 2022
           </MobilePlugText>
         </MobilePlugBottomWrapper>
       </MobilePlugWrapper>
