@@ -142,7 +142,7 @@ services:
       - flextesa
     environment:
       - RPC_URL=http://flextesa:20000
-      - ADMIN_PKH=tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb # Alice
+      - ADMIN_PKH=tz1Uqnf6CKSXTkhRNwkr59ZCkjM9TckqyzRb # Alice
       - ROUND_DURATION_MINUTES=2
       - ENABLE_MAINTAINER_MODE=true
       - ORACLE_PKH=tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6 # Bob

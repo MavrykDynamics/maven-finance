@@ -22,6 +22,7 @@ export type aggregatorStorageType = {
   delegationAddress         : string;
 
   round                     : BigNumber;
+  roundStart                : string;
   switchBlock               : BigNumber;
   
   oracleAddresses           : MichelsonMap<MichelsonMapKey, unknown>;
@@ -36,7 +37,7 @@ export type aggregatorStorageType = {
     round: BigNumber;
     price: BigNumber;
     percentOracleResponse: BigNumber;
-    priceDateTime: BigNumber;
+    priceDateTime: string;
   };
 
   observationCommits        : MichelsonMap<MichelsonMapKey, unknown>;
