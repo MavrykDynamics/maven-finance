@@ -71,17 +71,25 @@ export type ProposalFinancialRequestInputStatus = {
   financialData: InputStatusType
 }
 
-export type RegisterAsSatelliteForm = { name: string; description: string; fee: number; image: string | undefined }
+export type RegisterAsSatelliteForm = {
+  name: string
+  description: string
+  website: string
+  fee: number
+  image: string | undefined
+}
 
 export type ValidRegisterAsSatelliteForm = {
   name: boolean | undefined
   description: boolean | undefined
+  website: boolean | undefined
   fee: boolean | undefined
   image: boolean | undefined
 }
 export type RegisterAsSatelliteFormInputStatus = {
   name: InputStatusType
   description: InputStatusType
+  website: InputStatusType
   fee: InputStatusType
   image: InputStatusType
 }
@@ -106,7 +114,7 @@ export type EmergencyGovernanceProposalFormInputStatus = {
 }
 
 export type StakeUnstakeForm = {
-  amount: number
+  amount: number | ''
 }
 
 export type ValidStakeUnstakeForm = {

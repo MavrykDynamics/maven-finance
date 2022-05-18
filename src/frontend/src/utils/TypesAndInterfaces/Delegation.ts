@@ -1,4 +1,5 @@
 import { MichelsonMap } from '@taquito/taquito'
+
 import { FinancialRequestVote, ProposalStatus, ProposalVote } from './Governance'
 
 export interface SatelliteProposalVotingHistory extends ProposalVote {
@@ -69,6 +70,8 @@ export interface SatelliteRecord {
   name: string
   image: string
   description: string
+  website: string
+  participation: number
   satelliteFee: number
   active: boolean
   mvkBalance: number
@@ -79,10 +82,17 @@ export interface SatelliteRecord {
   proposalVotingHistory?: SatelliteProposalVotingHistory[]
   financialRequestsVotes?: SatelliteFinancialRequestVotingHistory[]
 }
+
 export type DelegationConfig = {
   maxSatellites: string
   delegationRatio: string
   minimumStakedMvkBalance: number
+}
+
+export type ParticipationMetrics = {
+  pollParticipation: number
+  proposalParticipation: number
+  communication: number
 }
 export interface DelegationBreakGlassConfigType {
   delegateToSatelliteIsPaused: boolean

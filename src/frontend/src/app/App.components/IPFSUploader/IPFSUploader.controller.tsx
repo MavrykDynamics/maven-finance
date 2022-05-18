@@ -13,6 +13,7 @@ export type IPFSUploaderStatusType = 'success' | 'error' | '' | undefined
 type IPFSUploaderProps = {
   title?: string
   listNumber?: number
+  disabled?: boolean
   imageIpfsUrl: string
   setIpfsImageUrl: (imageUrl: string) => void
   formInputStatus?: any
@@ -24,6 +25,7 @@ const client = create({ url: 'https://ipfs.infura.io:5001/api/v0' })
 export const IPFSUploader = ({
   title,
   listNumber,
+  disabled,
   imageIpfsUrl,
   setIpfsImageUrl,
   formInputStatus,
@@ -65,6 +67,7 @@ export const IPFSUploader = ({
   return (
     <IPFSUploaderView
       title={title}
+      disabled={disabled}
       listNumber={listNumber}
       imageIpfsUrl={imageIpfsUrl}
       imageOk={imageOk}

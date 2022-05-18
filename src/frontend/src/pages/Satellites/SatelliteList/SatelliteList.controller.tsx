@@ -1,8 +1,8 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 
-import { SatelliteListView } from './SatelliteList.view'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
+import { SatelliteListView } from './SatelliteList.view'
 
 type SatelliteListProps = {
   satellitesList: SatelliteRecord[]
@@ -35,7 +35,9 @@ export const SatelliteList = ({
     const searchQuery = e.target.value
     let searchResult: SatelliteRecord[] = []
     if (searchQuery !== '') {
-      searchResult = allSatellites.filter((item: SatelliteRecord) => searchQuery === item.address)
+      searchResult = allSatellites.filter(
+        (item: SatelliteRecord) => item.address.includes(searchQuery) || item.name.includes(searchQuery),
+      )
     } else {
       searchResult = allSatellites
     }
@@ -50,11 +52,18 @@ export const SatelliteList = ({
   }
 
   const handleSelect = (selectedOption: any) => {
-    const sortLabel = selectedOption.label,
+    console.log('%c ||||| selectedOption', 'color:yellowgreen', selectedOption)
+    const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
+
+    console.log('%c ||||| sortLabel', 'color:yellowgreen', sortLabel)
+
+    console.log('%c ||||| sortValue', 'color:yellowgreen', sortValue)
     if (sortValue !== '') {
       setFilteredSatelliteList((data: SatelliteRecord[]) => {
         const dataToSort = [...data]
+
+        console.log('%c ||||| dataToSort', 'color:green', dataToSort)
         dataToSort.sort((a: any, b: any) => {
           let res = 0
           switch (sortLabel) {

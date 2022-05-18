@@ -5,10 +5,10 @@ import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from 'reducers'
 
-import { registerAsSatellite, updateSatelliteRecord } from './BecomeSatellite.actions'
-import { BecomeSatelliteView } from './BecomeSatellite.view'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import { RegisterAsSatelliteForm } from '../../utils/TypesAndInterfaces/Forms'
+import { registerAsSatellite, updateSatelliteRecord } from './BecomeSatellite.actions'
+import { BecomeSatelliteView } from './BecomeSatellite.view'
 
 export const BecomeSatellite = () => {
   const dispatch = useDispatch()
@@ -26,6 +26,8 @@ export const BecomeSatellite = () => {
           name: '',
           image: '',
           description: '',
+          website: '',
+          participation: 0,
           satelliteFee: 0,
           active: false,
           mvkBalance: 0,

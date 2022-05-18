@@ -1,20 +1,24 @@
-import * as React from 'react'
 import * as PropTypes from 'prop-types'
-import { IPFSUploaderStatusType } from './IPFSUploader.controller'
-import {
-  IpfsUploadedImageContainer,
-  IPFSUploaderStyled,
-  UploaderFileSelector,
-  UploadIcon,
-  UploadIconContainer,
-} from './IPFSUploader.style'
+import * as React from 'react'
 import { Ref } from 'react'
+import { useDispatch } from 'react-redux'
+
+// actions
+import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
+// const
+import { INFO } from 'app/App.components/Toaster/Toaster.constants'
+// components
+import Icon from '../Icon/Icon.view'
+import { IPFSUploaderStatusType } from './IPFSUploader.controller'
+// prettier-ignore
+import { IpfsUploadedImageContainer, IPFSUploaderStyled, UploaderFileSelector, UploadIconContainer } from './IPFSUploader.style'
 
 type IPFSUploaderViewProps = {
   title?: string
   listNumber?: number
   imageIpfsUrl?: string
   imageOk: boolean
+  disabled?: boolean
   isUploading: boolean
   isUploaded: boolean
   inputFile: Ref<any>
@@ -25,6 +29,8 @@ type IPFSUploaderViewProps = {
   errorMessage?: string
 }
 
+const IMG_MAX_SIZE = 20
+
 export const IPFSUploaderView = ({
   title,
   listNumber,
@@ -32,6 +38,7 @@ export const IPFSUploaderView = ({
   isUploading,
   isUploaded,
   inputFile,
+  disabled,
   handleUpload,
   handleIconClick,
   onBlur,
@@ -39,40 +46,61 @@ export const IPFSUploaderView = ({
   errorMessage,
 }: IPFSUploaderViewProps) => {
   let status = ipfsUploaderStatus !== undefined ? ipfsUploaderStatus : 'none'
+  const dispatch = useDispatch()
+
+  const handleChange = (e: any) => {
+    const fileSize = e.target.files[0].size / 1024 / 1024 // in MiB
+    if (fileSize <= IMG_MAX_SIZE) {
+      handleUpload(e.target.files[0])
+    } else {
+      dispatch(showToaster(INFO, 'File is too big!', `Max size is ${IMG_MAX_SIZE}MB`))
+    }
+  }
+
   return (
     <IPFSUploaderStyled id={'ipfsUploaderContainer'}>
       {title && listNumber && (
-        <p>
+        <label>
           {listNumber}- {title}
-        </p>
+        </label>
       )}
-      <UploaderFileSelector>
-        {isUploading ? (
-          <div>Uploading...</div>
-        ) : (
-          <div>
-            <input
-              id="uploader"
-              type="file"
-              accept="image/*"
-              ref={inputFile}
-              onChange={(e: any) => {
-                e.target && e.target.files && e.target.files[0] && handleUpload(e.target.files[0])
-              }}
-              onBlur={onBlur}
-            />
-            <UploadIconContainer onClick={handleIconClick}>
-              <UploadIcon>
-                <use xlinkHref={`/icons/sprites.svg#upload`} />
-              </UploadIcon>
-              <div>Upload file</div>
-            </UploadIconContainer>
-          </div>
-        )}
-        {isUploaded && (
-          <IpfsUploadedImageContainer>{imageIpfsUrl && <img src={imageIpfsUrl} alt="" />}</IpfsUploadedImageContainer>
-        )}
-      </UploaderFileSelector>
+      <div style={{ opacity: disabled ? 0.4 : 1 }}>
+        <UploaderFileSelector>
+          {isUploading ? (
+            <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
+          ) : (
+            <div>
+              <input
+                id="uploader"
+                type="file"
+                disabled={disabled}
+                accept="image/*"
+                required
+                ref={inputFile}
+                onChange={handleChange}
+                onBlur={onBlur}
+              />
+              <UploadIconContainer onClick={handleIconClick}>
+                {imageIpfsUrl ? (
+                  <IpfsUploadedImageContainer>
+                    <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
+                    <img className="uploaded-image" src={imageIpfsUrl} alt="" />
+                    <div className="pencil-wrap">
+                      <Icon id="pencil-stroke" />
+                    </div>
+                  </IpfsUploadedImageContainer>
+                ) : (
+                  <figure className="upload-figure">
+                    <Icon className="upload-icon" id="upload" />
+                    <figcaption>Upload picture</figcaption>
+                    <small>{`max size is ${IMG_MAX_SIZE}MB`}</small>
+                  </figure>
+                )}
+              </UploadIconContainer>
+            </div>
+          )}
+        </UploaderFileSelector>
+      </div>
     </IPFSUploaderStyled>
   )
 }
