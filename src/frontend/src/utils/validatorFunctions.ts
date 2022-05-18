@@ -1,6 +1,6 @@
-import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
 import { showToaster } from '../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../app/App.components/Toaster/Toaster.constants'
+import { AllValidFormTypes } from './TypesAndInterfaces/Forms'
 
 const isIPFS = require('is-ipfs')
 /**
@@ -72,4 +72,8 @@ export function validateFormAndThrowErrors(dispatch: any, validForm: AllValidFor
     dispatch(showToaster(ERROR, errorTitle, errorMessage, 3000))
     return false
   }
+}
+
+export function mathTrunkTwoDigit(digit: string | number | undefined): number | '' {
+  return digit ? Math.trunc(+digit * 100) / 100 : ''
 }
