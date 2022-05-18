@@ -66,16 +66,17 @@ export const StakeUnstakeView = ({
     }
   }
 
-  const checkInputIsOk = (value: number) => {
+  const checkInputIsOk = (value: number | '') => {
     let validityCheckResult = false
     setStakeUnstakeValueError('')
     if (accountPkh) {
-      validityCheckResult = isValidNumberValue(value, 1, Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)))
+      validityCheckResult = isValidNumberValue(+value, 1, Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)))
     } else {
-      validityCheckResult = isValidNumberValue(value, 1)
+      validityCheckResult = isValidNumberValue(+value, 1)
     }
+
     setStakeUnstakeValueOK({ amount: validityCheckResult })
-    setStakeUnstakeInputStatus({ amount: validityCheckResult ? 'success' : 'error' })
+    setStakeUnstakeInputStatus({ amount: value === '' ? '' : validityCheckResult ? 'success' : 'error' })
   }
 
   const onInputChange = (e: any) => {
@@ -86,13 +87,9 @@ export const StakeUnstakeView = ({
   }
 
   useEffect(() => {
-    checkInputIsOk(amount)
-    setInputAmount({ amount: amount === 0 ? amount : mathRoundTwoDigit(amount) })
+    checkInputIsOk(mathRoundTwoDigit(amount))
+    setInputAmount({ amount: mathRoundTwoDigit(amount) })
   }, [amount, accountPkh, showing])
-
-  // useEffect(() => {
-  //   if (amount) checkInputIsOk(amount)
-  // }, [accountPkh, showing, amount])
 
   const handleStakeUnstakeClick = (actionType: string) => {
     let validityCheckResult = isValidNumberValue(inputAmountValue, 1)
