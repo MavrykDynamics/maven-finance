@@ -196,12 +196,12 @@
     <symbol id="man" viewBox="0 0 24 24">
         <g>
             <path d="M5.25 6.75C6.90685 6.75 8.25 5.40685 8.25 3.75C8.25 2.09315 6.90685 0.75 5.25 0.75C3.59315 0.75 2.25 2.09315 2.25 3.75C2.25 5.40685 3.59315 6.75 5.25 6.75Z"
-                  stroke="#7068AA" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                   fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             <path d="M7.5 23.25L8.25 15.75H9.75V12.75C9.75 11.5565 9.27589 10.4119 8.43198 9.56802C7.58807 8.72411 6.44347 8.25 5.25 8.25C4.05653 8.25 2.91193 8.72411 2.06802 9.56802C1.22411 10.4119 0.75 11.5565 0.75 12.75V15.75H2.25L3 23.25H7.5Z"
-                  stroke="#7068AA" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                   fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
         </g>
     </symbol>
-    <symbol id="man-check" viewBox="0 0 24 24">
+    <symbol id="man--stroke" viewBox="0 0 24 24">
         <g>
             <path d="M5.25 6.75C6.90685 6.75 8.25 5.40685 8.25 3.75C8.25 2.09315 6.90685 0.75 5.25 0.75C3.59315 0.75 2.25 2.09315 2.25 3.75C2.25 5.40685 3.59315 6.75 5.25 6.75Z"
                   fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -211,15 +211,10 @@
                   stroke-linejoin="round"/>
         </g>
     </symbol>
-    <symbol id="upload" viewBox="0 0 37 37">
-        <g>
-            <path d="M18.502 5.78125V24.2812" fill="none" stroke-width="1.5" stroke-linecap="round"
-                  stroke-linejoin="round"/>
-            <path d="M11.5645 17.3438L18.502 24.2812L25.4395 17.3438" fill="none" stroke-width="1.5"
-                  stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M35.8457 24.2812V26.5937C35.8457 27.8204 35.3584 28.9968 34.4911 29.8641C33.6237 30.7315 32.4473 31.2187 31.2207 31.2187H5.7832C4.55658 31.2187 3.38019 30.7315 2.51283 29.8641C1.64548 28.9968 1.1582 27.8204 1.1582 26.5937V24.2812"
-                  fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
+    <symbol id="upload" viewBox="0 0 24 24" fill="none">
+    <path d="M15.752 8.5H18C18.7956 8.5 19.5587 8.81607 20.1213 9.37868C20.6839 9.94129 21 10.7044 21 11.5V20.25C21 21.0456 20.6839 21.8087 20.1213 22.3713C19.5587 22.9339 18.7956 23.25 18 23.25H6C5.20435 23.25 4.44129 22.9339 3.87868 22.3713C3.31607 21.8087 3 21.0456 3 20.25V11.5C3 10.7044 3.31607 9.94129 3.87868 9.37868C4.44129 8.81607 5.20435 8.5 6 8.5H8.25"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12 18L12 1"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M16.502 5.5L12.002 1L7.50195 5.5"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
     </symbol>
     <symbol id="copyToClipboard" viewBox="0 0 15 15">
         <g fill="none">
@@ -282,7 +277,7 @@
             </clipPath>
         </defs>
     </symbol>
-    <symbol id="check" viewBox="0 0 24 24">
+    <symbol id="-stroke" viewBox="0 0 24 24">
         <g clip-path="url(#clip0_1510_12545)">
             <path d="M1 6L6 11L16 1" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
                   fill="none"/>
@@ -433,5 +428,30 @@
   <symbol id="question" viewBox="0 0 12 12" >
     <path fill-rule="evenodd" clip-rule="evenodd" d="M6 11.25C8.8995 11.25 11.25 8.8995 11.25 6C11.25 3.10051 8.8995 0.75 6 0.75C3.10051 0.75 0.75 3.10051 0.75 6C0.75 8.8995 3.10051 11.25 6 11.25ZM6 12C9.31371 12 12 9.31371 12 6C12 2.68629 9.31371 0 6 0C2.68629 0 0 2.68629 0 6C0 9.31371 2.68629 12 6 12Z" />
     <path d="M5.3921 6.63229H6.2961V5.89629C7.1601 5.70429 7.7681 5.06429 7.7681 4.34429C7.7681 3.47229 7.0641 2.80829 6.0081 2.80829C5.2161 2.80829 4.6001 3.17629 4.1521 3.68829L4.7361 4.28029C5.0321 3.95229 5.4081 3.70429 5.8721 3.70429C6.4161 3.70429 6.7681 4.04829 6.7681 4.44029C6.7681 4.86429 6.2001 5.20029 5.3921 5.24829V6.63229ZM5.8481 8.49629C6.1841 8.49629 6.4641 8.20829 6.4641 7.85629C6.4641 7.52829 6.1841 7.24029 5.8481 7.24029C5.4801 7.24029 5.2081 7.52829 5.2081 7.85629C5.2081 8.20829 5.4801 8.49629 5.8481 8.49629Z" />
+  </symbol>
+  <symbol id="check-stroke"  viewBox="0 0 12 13" fill="none" >
+    <path d="M1 7L5 11.5L11 1.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="man-check" viewBox="0 0 24 24" fill="none" >
+    <path d="M5.25 6.75C6.90685 6.75 8.25 5.40685 8.25 3.75C8.25 2.09315 6.90685 0.75 5.25 0.75C3.59315 0.75 2.25 2.09315 2.25 3.75C2.25 5.40685 3.59315 6.75 5.25 6.75Z"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M7.5 23.25L8.25 15.75H9.75V12.75C9.75 11.5565 9.27589 10.4119 8.43198 9.56802C7.58807 8.72411 6.44347 8.25 5.25 8.25C4.05653 8.25 2.91193 8.72411 2.06802 9.56802C1.22411 10.4119 0.75 11.5565 0.75 12.75V15.75H2.25L3 23.25H7.5Z"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M12 6.66667L15.6667 10.3333L23 3"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="close-stroke" viewBox="0 0 12 12" fill="none">
+    <path d="M1 1.5L11 10.5"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11 1.5L1 10.5"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="pencil-stroke" viewBox="0 0 10 10" fill="none" >
+    <path d="M9.24583 0.754278C9.10393 0.61296 8.93544 0.501161 8.75008 0.42534C8.56472 0.349519 8.36618 0.311179 8.16592 0.312535C7.96566 0.313891 7.76765 0.354916 7.58334 0.43324C7.39902 0.511564 7.23206 0.625635 7.09208 0.768861L1.05042 6.81053L0.3125 9.68761L3.18958 8.94969L9.23125 2.90803C9.37448 2.76805 9.48855 2.60109 9.56687 2.41677C9.6452 2.23246 9.68622 2.03445 9.68758 1.83419C9.68893 1.63393 9.65059 1.43539 9.57477 1.25003C9.49895 1.06467 9.38715 0.896177 9.24583 0.754278V0.754278Z"  stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6.91895 0.941895L9.05811 3.08106"  stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6.04688 1.81396L8.18604 3.95313"  stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M1.05078 6.81055L3.19203 8.94763"  stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="arrow-left-stroke" viewBox="0 0 17 13" fill="none">
+    <path d="M15.583 6.1665L1.58301 6.1665"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M6.83301 0.916504L1.58301 6.1665L6.83301 11.4165"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="arrow-obtuse-angle" viewBox="0 0 8 17" fill="none" >
+    <path d="M6.66699 1.1665L1.33366 8.49984L6.66699 15.8332"  stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
   </symbol>
 </svg>

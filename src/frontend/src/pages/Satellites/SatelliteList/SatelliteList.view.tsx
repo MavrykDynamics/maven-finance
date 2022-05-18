@@ -1,6 +1,6 @@
 import { DropdownContainer } from 'app/App.components/DropDown/DropDown.style'
 import { Input } from 'app/App.components/Input/Input.controller'
-import * as React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import Select from 'react-select'
@@ -97,7 +97,7 @@ const ListWithSatellites = ({
   ]
   const [ddItems, _] = useState(itemsForDropDown.map(({ text }) => text))
   const [ddIsOpen, setDdIsOpen] = useState(false)
-  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(undefined)
+  const [chosenDdItem, setChosenDdItem] = useState<{ text: string; value: string } | undefined>(itemsForDropDown[0])
 
   const handleClickDropdown = () => {
     setDdIsOpen(!ddIsOpen)
@@ -106,8 +106,12 @@ const ListWithSatellites = ({
     const chosenItem = itemsForDropDown.filter((item) => item.text === e)[0]
     setChosenDdItem(chosenItem)
     setDdIsOpen(!ddIsOpen)
-    handleSelect(chosenItem.value)
+    handleSelect(chosenItem)
   }
+
+  useEffect(() => {
+    handleSelect(itemsForDropDown[0])
+  }, [])
 
   return (
     <SatelliteListStyled>
@@ -133,11 +137,12 @@ const ListWithSatellites = ({
           />{' '}
         </DropdownContainer>
       </SatelliteSearchFilter>
-      {satelliteFound === false && <SatelliteListEmptyContainer>Satellite Not Found</SatelliteListEmptyContainer>}
+      {satelliteFound === false && <EmptySatelliteList />}
       {satellitesList.map((item, index) => {
         return (
           <SatelliteListCard
             key={String(index + item.address)}
+            className="iterable"
             satellite={item}
             loading={loading}
             delegateCallback={delegateCallback}

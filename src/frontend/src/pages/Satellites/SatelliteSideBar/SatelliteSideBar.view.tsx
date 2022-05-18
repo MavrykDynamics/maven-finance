@@ -11,22 +11,27 @@ type SatelliteSideBarProps = {
   numberOfSatellites: number
   totalDelegatedMVK: number
   satelliteFactory: string
+  isButton: boolean
 }
 export const SatelliteSideBarView = ({
   userIsSatellite,
   numberOfSatellites,
   totalDelegatedMVK,
   satelliteFactory,
+  isButton,
 }: SatelliteSideBarProps) => {
   return (
     <SatelliteSideBarStyled>
       <SideBarSection>
-        <RoutingButton
-          icon="satellite-stroke"
-          text={userIsSatellite ? 'Edit Satellite Profile' : 'Become a Satellite'}
-          pathName={`/become-satellite`}
-          pathParams={{ userIsSatellite: userIsSatellite }}
-        />
+        {isButton ? (
+          <RoutingButton
+            icon="satellite-stroke"
+            text={userIsSatellite ? 'Edit Satellite Profile' : 'Become a Satellite'}
+            pathName={`/become-satellite`}
+            pathParams={{ userIsSatellite: userIsSatellite }}
+          />
+        ) : null}
+
         <h2>Statistics</h2>
         <SideBarItem>
           <h3>Satellite Factory</h3>

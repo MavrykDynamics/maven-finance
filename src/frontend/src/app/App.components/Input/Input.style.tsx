@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components/macro'
+
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const InputStyled = styled.div`
@@ -13,7 +14,7 @@ export const InputComponentContainer = styled.div<{ theme: MavrykTheme }>`
 
 export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   width: 100%;
-  height: 50px;
+  height: 40px;
   background-color: ${({ theme }) => theme.backgroundColor};
   font-weight: 500;
   border: 1px solid ${({ theme }) => theme.cardBorderColor};
@@ -27,7 +28,7 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   border-radius: 10px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
-  font-size: 18px;
+  font-size: 14px;
 
   &.search {
     color: ${({ theme }) => theme.headerColor};
@@ -37,11 +38,10 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
   }
 
   &:disabled {
-    background: ${({ theme }) => theme.placeholderColor};
-    color: ${({ theme }) => theme.subTextColor};
+    opacity: 0.4;
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: ${({ theme }) => theme.primaryColor}7F;
   }
 
@@ -69,19 +69,19 @@ export const InputComponent = styled.input<{ theme: MavrykTheme }>`
 
 export const InputLabel = styled.div<{ theme: MavrykTheme }>`
   position: absolute;
-  right: 35px;
+  right: 16px;
   top: 18px;
   color: ${({ theme }) => theme.headerColor};
   font-size: 18px;
   font-weight: 600;
 
-  &.error {
+  /* &.error {
     color: ${({ theme }) => theme.downColor};
   }
 
   &.success {
     color: ${({ theme }) => theme.upColor};
-  }
+  } */
 `
 
 const zoomIn = keyframes`
@@ -98,8 +98,8 @@ const zoomIn = keyframes`
 export const InputStatus = styled.div`
   display: block;
   position: absolute;
-  top: 18px;
-  right: 10px;
+  top: 14px;
+  right: 66px;
   z-index: 1;
   line-height: 13px;
   text-align: center;

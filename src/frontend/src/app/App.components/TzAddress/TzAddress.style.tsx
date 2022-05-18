@@ -12,8 +12,10 @@ export const TzAddressStyled = styled.div<{ theme: MavrykTheme }>`
   }
 
   &.secondary {
-    margin: 8px 8px 8px 0;
-    color: ${({ theme }) => theme.subTextColor};
+    color: ${({ theme }) => theme.headerColor};
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
   }
 
   &.transparent {
@@ -26,17 +28,18 @@ export const TzAddressStyled = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const TzAddressIcon = styled.svg<{ theme: MavrykTheme }>`
-  width: 24px;
-  height: 24px;
+  width: 16px;
+  height: 16px;
   display: inline-block;
   vertical-align: sub;
+  margin-left: 8px;
 
   &.primary {
     stroke: ${({ theme }) => theme.backgroundTextColor};
   }
 
   &.secondary {
-    stroke: ${({ theme }) => theme.subTextColor};
+    stroke: ${({ theme }) => theme.headerColor};
   }
 
   &.transparent {

@@ -69,7 +69,7 @@ export const CardHeader = styled.h2<{ theme: MavrykTheme }>`
   color: ${({ theme }) => theme.headerColor};
 `
 
-export const PageContent = styled.div`
+export const PageContent = styled.section`
   display: grid;
   grid-template-columns: 1fr 310px;
   grid-gap: 30px;

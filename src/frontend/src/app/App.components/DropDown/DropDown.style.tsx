@@ -40,6 +40,11 @@ export const DropDownMenu = styled.div<{ theme: MavrykTheme }>`
       stroke: ${({ theme }) => theme.headerColor};
       stroke-width: 3px;
       fill: none;
+      transition: 0.15s ease-in-out;
+
+      &.open {
+        transform: rotate(-180deg);
+      }
     }
   }
 `
@@ -74,8 +79,16 @@ export const DropDownListItem = styled.li`
   color: ${({ theme }) => theme.headerColor};
   font-weight: 400;
   font-size: 14px;
-  padding: 0 20px;
+  padding-left: 20px;
+  padding-right: 10px;
   cursor: pointer;
+  justify-content: space-between;
+
+  svg {
+    stroke: ${({ theme }) => theme.headerColor};
+    width: 10px;
+    height: 10px;
+  }
 
   &:hover {
     background-color: ${({ theme }) => theme.cardBorderColor};

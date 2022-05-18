@@ -1,4 +1,5 @@
 import styled, { keyframes } from 'styled-components/macro'
+
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const TextAreaStyled = styled.div`
@@ -9,31 +10,30 @@ export const TextAreaStyled = styled.div`
 export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   min-width: 100%;
   width: 100%;
-  height: 250px;
-  background-color: ${({ theme }) => theme.placeholderColor};
-  font-weight: 600;
-  font-family: Metropolis, Helvetica, Arial, sans-serif;
-  border: none;
-  margin: 10px 0;
-  color: ${({ theme }) => theme.subTextColor};
+  font-family: 'Metropolis', Helvetica, Arial, sans-serif;
+  height: 106px;
+  background-color: ${({ theme }) => theme.backgroundColor};
+  font-weight: 500;
+  border: 1px solid ${({ theme }) => theme.cardBorderColor};
+  margin: 0;
+  color: ${({ theme }) => theme.headerColor};
   -webkit-appearance: none;
   appearance: none;
   display: block;
   position: relative;
-  padding: 12px 16px 12px 16px;
-  border-radius: 6px;
+  padding: 22px 16px 13px 20px;
+  border-radius: 10px;
   transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
   will-change: border-color, box-shadow;
 
   &::placeholder {
-    color: ${({ theme }) => theme.subTextColor};
+    color: ${({ theme }) => theme.inputPlaceholder};
   }
   &:disabled {
-    background: ${({ theme }) => theme.backgroundTextColor};
-    color: ${({ theme }) => theme.subTextColor};
+    opacity: 0.4;
   }
 
-  &:hover {
+  &:hover:not(:disabled) {
     border-color: ${({ theme }) => theme.primaryColor}7F;
   }
 
@@ -43,7 +43,6 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   }
 
   &.error {
-    border-color: ${({ theme }) => theme.downColor};
     color: ${({ theme }) => theme.downColor};
     &:focus {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.downColor}7F;
@@ -51,7 +50,6 @@ export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   }
 
   &.success {
-    border-color: ${({ theme }) => theme.upColor};
     color: ${({ theme }) => theme.upColor};
     &:focus {
       box-shadow: 0 0 0 2px ${({ theme }) => theme.upColor}7F;

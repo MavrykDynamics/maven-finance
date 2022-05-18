@@ -16,6 +16,12 @@ export const ExitFeeModalContent = styled.div`
 
   input {
     margin-bottom: 0;
+    height: 50px;
+    font-size: 18px;
+
+    & ~ div {
+      top: 18px;
+    }
   }
 
   aside div {
