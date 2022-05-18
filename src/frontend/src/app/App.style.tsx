@@ -7,6 +7,16 @@ export const AppStyled = styled.div<{ theme: MavrykTheme }>`
   display: grid;
   grid-template-columns: 270px auto;
 `
+export const LoaderStyled = styled.div<{ theme: MavrykTheme }>`
+  position: fixed;
+  inset: 0;
+  transition: background-color 0.15s ease-in-out;
+  background-color: #00000070;
+  display: flex;
+  z-index: 6;
+  justify-content: center;
+  align-items: center;
+`
 
 export const AppBg = styled.div<{ theme: MavrykTheme }>`
   position: fixed;

@@ -1,8 +1,9 @@
-import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
 import * as React from 'react'
-import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -21,7 +22,7 @@ export const ProposalsView = ({
   return (
     <ProposalListContainer>
       <h1>{listTitle}</h1>
-      {proposalsList &&
+      {proposalsList?.values &&
         Array.from(proposalsList.values()).map((value, index) => {
           return (
             <ProposalListItem

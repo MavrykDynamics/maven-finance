@@ -1,18 +1,19 @@
 import * as React from 'react'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { State } from '../../reducers'
-import { getGovernanceStorage, proposalRoundVote, votingRoundVote } from './Governance.actions'
 import { Page } from 'styles'
-import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+import { State } from '../../reducers'
+import { calcTimeToBlock } from '../../utils/calcFunctions'
+import { ProposalStatus } from '../../utils/TypesAndInterfaces/Governance'
+import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
+import { getDelegationStorage } from '../Satellites/Satellites.actions'
+import { getGovernanceStorage, proposalRoundVote, votingRoundVote } from './Governance.actions'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
-import { ProposalStatus } from '../../utils/TypesAndInterfaces/Governance'
-import { getDelegationStorage } from '../Satellites/Satellites.actions'
 import { MOCK_PAST_PROPOSAL_LIST } from './mockProposals'
-import { calcTimeToBlock } from '../../utils/calcFunctions'
-import { getEmergencyGovernanceStorage } from '../EmergencyGovernance/EmergencyGovernance.actions'
 
 export type VoteStatistics = {
   passVotesMVKTotal: number
@@ -39,9 +40,9 @@ export const Governance = () => {
   const [periodEndsOn, _] = useState<Date>(new Date(currentDate.getTime() + timeToEndOfPeriod * (1000 * 60 * 60 * 24)))
   const daysLeftOfPeriod = timeToEndOfPeriod
   //console.log(daysLeftOfPeriod)
-  const firstKeyInProposalLedger = currentRoundProposals?.keys().next().value || 0
-  let rightSideContent = currentRoundProposals
-    ? currentRoundProposals?.get(firstKeyInProposalLedger)
+  const firstKeyInProposalLedger = currentRoundProposals?.keys ? currentRoundProposals.keys().next().value : 0
+  let rightSideContent = currentRoundProposals?.get
+    ? currentRoundProposals.get(firstKeyInProposalLedger)
     : {
         id: 0,
         proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
