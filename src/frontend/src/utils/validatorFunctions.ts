@@ -74,6 +74,6 @@ export function validateFormAndThrowErrors(dispatch: any, validForm: AllValidFor
   }
 }
 
-export function mathTrunkTwoDigit(digit: string | number | undefined): number | '' {
-  return digit ? Math.trunc(+digit * 100) / 100 : ''
+export function mathRoundTwoDigit(digit: string | number | undefined): number | '' {
+  return digit ? Math.round(+digit * 100) / 100 : ''
 }
