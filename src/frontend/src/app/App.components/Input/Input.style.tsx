@@ -99,13 +99,17 @@ export const InputStatus = styled.div`
   display: block;
   position: absolute;
   top: 14px;
-  right: 66px;
+  right: 16px;
   z-index: 1;
   line-height: 13px;
   text-align: center;
   visibility: visible;
   pointer-events: none;
   will-change: transform, opacity;
+
+  &.with-text {
+    right: 66px;
+  }
 
   &.error {
     background-image: url('/icons/input-error.svg');
