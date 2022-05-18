@@ -1,4 +1,5 @@
 
+from mavryk.utils.persisters import persist_whitelist_token_contract
 from mavryk.types.governance_financial.storage import GovernanceFinancialStorage
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
@@ -8,4 +9,6 @@ async def on_governance_financial_update_whitelist_token_contracts(
     ctx: HandlerContext,
     update_whitelist_token_contracts: Transaction[UpdateWhitelistTokenContractsParameter, GovernanceFinancialStorage],
 ) -> None:
-    ...
+    
+    # Persist whitelist token contract
+    await persist_whitelist_token_contract(update_whitelist_token_contracts)
