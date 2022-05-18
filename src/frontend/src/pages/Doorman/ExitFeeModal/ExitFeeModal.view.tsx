@@ -15,7 +15,7 @@ import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
 import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } from '../../../utils/TypesAndInterfaces/Forms'
 // helpers
 // prettier-ignore
-import { isValidNumberValue, mathTrunkTwoDigit } from '../../../utils/validatorFunctions'
+import { isValidNumberValue, mathRoundTwoDigit } from '../../../utils/validatorFunctions'
 import { DoormanList } from '../DoormanStats/DoormanStats.style'
 import { setExitFeeAmount } from './ExitFeeModal.actions'
 import { ExitFeeModalButtons, ExitFeeModalContent, ExitFeeModalFee, ExitFeeModalGrid } from './ExitFeeModal.style'
@@ -68,7 +68,7 @@ export const ExitFeeModalView = ({
   }
 
   const onInputChange = (e: any) => {
-    const value = mathTrunkTwoDigit(e.target.value)
+    const value = mathRoundTwoDigit(e.target.value)
     checkInputIsOk(+value)
 
     setInputAmount({ amount: value })

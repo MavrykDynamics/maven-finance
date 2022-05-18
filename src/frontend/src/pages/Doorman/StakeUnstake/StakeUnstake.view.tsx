@@ -10,7 +10,7 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 // prettier-ignore
 import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } from '../../../utils/TypesAndInterfaces/Forms'
 // helpers // prettier-ignore
-import { isValidNumberValue, mathTrunkTwoDigit, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import { isValidNumberValue, mathRoundTwoDigit, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { setExitFeeAmount } from '../ExitFeeModal/ExitFeeModal.actions'
 // actions
 import { rewardsCompound } from './StakeUnstake.actions'
@@ -55,13 +55,13 @@ export const StakeUnstakeView = ({
   const onUseMaxClick = (actionType: string) => {
     switch (actionType) {
       case 'STAKE':
-        setInputAmount({ amount: mathTrunkTwoDigit(myMvkTokenBalance) })
-        dispatch(setExitFeeAmount(Number(mathTrunkTwoDigit(myMvkTokenBalance))))
+        setInputAmount({ amount: mathRoundTwoDigit(myMvkTokenBalance) })
+        dispatch(setExitFeeAmount(Number(mathRoundTwoDigit(myMvkTokenBalance))))
         break
       case 'UNSTAKE':
       default:
-        setInputAmount({ amount: mathTrunkTwoDigit(userStakeBalance) })
-        dispatch(setExitFeeAmount(Number(mathTrunkTwoDigit(userStakeBalance))))
+        setInputAmount({ amount: mathRoundTwoDigit(userStakeBalance) })
+        dispatch(setExitFeeAmount(Number(mathRoundTwoDigit(userStakeBalance))))
         break
     }
   }
@@ -79,7 +79,7 @@ export const StakeUnstakeView = ({
   }
 
   const onInputChange = (e: any) => {
-    const value = mathTrunkTwoDigit(e.target.value)
+    const value = mathRoundTwoDigit(e.target.value)
 
     checkInputIsOk(Number(value))
     setInputAmount({ amount: value })
@@ -87,7 +87,7 @@ export const StakeUnstakeView = ({
 
   useEffect(() => {
     checkInputIsOk(amount)
-    setInputAmount({ amount: amount === 0 ? amount : mathTrunkTwoDigit(amount) })
+    setInputAmount({ amount: amount === 0 ? amount : mathRoundTwoDigit(amount) })
   }, [amount, accountPkh, showing])
 
   // useEffect(() => {
