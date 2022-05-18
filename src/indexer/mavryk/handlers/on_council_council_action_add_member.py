@@ -1,4 +1,4 @@
-from mavryk.utils.actions import persist_council_action
+from mavryk.utils.persisters import persist_council_action
 from mavryk.types.council.storage import CouncilStorage
 from dipdup.models import Transaction
 from mavryk.types.council.parameter.council_action_add_member import CouncilActionAddMemberParameter

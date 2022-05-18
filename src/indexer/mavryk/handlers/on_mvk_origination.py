@@ -9,6 +9,8 @@ async def on_mvk_origination(
     ctx: HandlerContext,
     mvk_origination: Origination[MvkStorage],
 ) -> None:
+    
+    # Get operation info
     mvk_address                 = mvk_origination.data.originated_contract_address
     admin                       = mvk_origination.storage.admin
     governance_address          = mvk_origination.storage.governanceAddress
