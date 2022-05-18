@@ -4,8 +4,6 @@ import { BigNumber } from 'bignumber.js'
 
 const { bob, eve, mallory, david } = require('../scripts/sandbox/accounts')
 
-import { zeroAddress } from '../test/helpers/Utils'
-
 import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 
 import delegationAddress from '../deployments/delegationAddress.json';
@@ -51,7 +49,7 @@ const lastCompletedRoundPrice = {
   round: new BigNumber(0),
   price: new BigNumber(0),
   percentOracleResponse: new BigNumber(0),
-  priceDateTime: new BigNumber(1)
+  priceDateTime: '1'
 }
 
 export const aggregatorStorage: aggregatorStorageType = {
@@ -64,6 +62,7 @@ export const aggregatorStorage: aggregatorStorageType = {
   delegationAddress         : delegationAddress.address,
 
   round                     : new BigNumber(0),
+  roundStart                : '1',
   switchBlock               : new BigNumber(0),
 
   oracleAddresses           : oracleAddresses,

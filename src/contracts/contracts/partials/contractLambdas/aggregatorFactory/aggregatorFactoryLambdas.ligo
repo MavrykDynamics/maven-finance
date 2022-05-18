@@ -198,6 +198,7 @@ block {
                   delegationAddress         = s.delegationAddress;
 
                   round                     = 0n;
+                  roundStart                = Tezos.now;
                   switchBlock               = 0n;
 
                   oracleAddresses           = createAggregatorParams.2.oracleAddresses;

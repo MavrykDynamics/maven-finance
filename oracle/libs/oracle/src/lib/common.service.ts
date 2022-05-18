@@ -8,7 +8,7 @@ import {
 } from '@mavryk-oracle-node/contracts';
 import { ContractProvider, TezosToolkit } from '@taquito/taquito';
 import BigNumber from 'bignumber.js';
-import { packDataBytes } from '@taquito/michel-codec';
+import { packDataBytes, MichelsonData, MichelsonType } from '@taquito/michel-codec';
 import { TxManagerService } from '@mavryk-oracle-node/tx-manager';
 
 @Injectable()
@@ -126,14 +126,20 @@ export class CommonService implements OnModuleInit {
     return ops.filter((op) => op !== null) as T[];
   }
 
-  public getCommitData(price: BigNumber, salt: string) {
-    const data: any = {
+  public getCommitData(price: BigNumber, salt: string, pkh: string) {
+    const data: MichelsonData = {
       prim: 'Pair',
-      args: [{ int: price.toString() }, { string: salt }],
+      args: [
+        { prim: 'Pair', args: [{ int: price.toString() }, { string: salt }] },
+        { string: pkh },
+      ],
     };
-    const typ: any = {
+    const typ: MichelsonType = {
       prim: 'pair',
-      args: [{ prim: 'int' }, { prim: 'string' }],
+      args: [
+        { prim: 'pair', args: [{ prim: 'nat' }, { prim: 'string' }] },
+        { prim: 'address' },
+      ],
     };
     const priceCodec = packDataBytes(data, typ);
     return priceCodec.bytes;
