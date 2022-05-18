@@ -9,7 +9,7 @@ import reportWebVitals from './reportWebVitals';
 import { unregister } from './serviceWorker';
 import { GlobalStyle } from './styles';
 import { isMobile } from './utils/device-info';
-import Modile from './app/App.components/Mobile/Mobile.view';
+import Mobile from './app/App.components/Mobile/Mobile.view';
 
 import './styles/fonts.css';
 
@@ -19,7 +19,7 @@ export const Root = () => {
       <Provider store={store}>
         <DarkThemeProvider>
           <GlobalStyle />
-          {isMobile ? <Modile /> : <App />}
+          {isMobile ? <Mobile /> : <App />}
         </DarkThemeProvider>
       </Provider>
     </GoogleReCaptchaProvider>
