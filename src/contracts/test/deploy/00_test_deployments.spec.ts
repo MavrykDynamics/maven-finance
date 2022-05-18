@@ -342,7 +342,8 @@ describe('Contracts Deployment for Tests', async () => {
       "emergencyGovernance"   : emergencyGovernance.contract.address,
       "farmFactory"           : farmFactory.contract.address,
       "council"               : council.contract.address,
-      "governanceFinancial"   : governanceFinancial.contract.address
+      "governanceFinancial"   : governanceFinancial.contract.address,
+      "vesting"               : vesting.contract.address
     });
     governanceProxyStorage.governanceAddress  = governance.contract.address;
     governanceProxyStorage.mvkTokenAddress    = mvkToken.contract.address;
@@ -401,6 +402,10 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(29, governanceProxyLambdas[29])) // mintMvkAndTransferTreasury
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[30])) // updateInflationRate
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(31, governanceProxyLambdas[31])) // triggerInflation
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(32, governanceProxyLambdas[32])) // addVestee
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(33, governanceProxyLambdas[33])) // removeVestee
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(34, governanceProxyLambdas[34])) // updateVestee
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(35, governanceProxyLambdas[35])) // toggleVesteeLock
   
       const setupGovernanceProxySecondLambdasOperation = await governanceProxySecondLambdaBatch.send()
       await setupGovernanceProxySecondLambdasOperation.confirmation()

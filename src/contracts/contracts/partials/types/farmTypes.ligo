@@ -116,7 +116,7 @@ type farmLambdaActionType is
     // Farm Entrypoints
 |   LambdaDeposit                     of nat
 |   LambdaWithdraw                    of nat
-|   LambdaClaim                       of unit
+|   LambdaClaim                       of address
 
 // ------------------------------------------------------------------------------
 // Storage

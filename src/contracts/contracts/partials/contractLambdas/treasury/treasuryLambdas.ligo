@@ -268,12 +268,6 @@ block {
                 // const txs : list(transferDestinationType)   = transferTokenParams.txs;
                 const txs : list(transferDestinationType)   = transferTokenParams;
                 
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                    Some(_address) -> _address
-                    | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-                
-                const mvkTokenAddress           : address                       = s.mvkTokenAddress;
                 const whitelistTokenContracts   : whitelistTokenContractsType   = s.whitelistTokenContracts;
 
                 function transferAccumulator (var accumulator : list(operation); const destination : transferDestinationType) : list(operation) is 
@@ -291,28 +285,6 @@ block {
                     ];
 
                     accumulator := transferTokenOperation # accumulator;
-
-                    // update user's satellite balance if MVK is transferred
-                    const checkIfMvkToken : bool = case token of [
-                        Tez -> False
-                        | Fa12(_token) -> False
-                        | Fa2(token) -> block {
-                                var mvkBool : bool := False;
-                                if token.tokenContractAddress = mvkTokenAddress then mvkBool := True else mvkBool := False;                
-                            } with mvkBool        
-                    ];
-
-                    if checkIfMvkToken = True then block {
-                        
-                        const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-                            (to_),
-                            0mutez,
-                            updateSatelliteBalance(delegationAddress)
-                        );
-
-                        accumulator := updateSatelliteBalanceOperation # accumulator;
-
-                    } else skip;    
 
                 } with accumulator;
 
@@ -353,25 +325,13 @@ block {
 
                 const mvkTokenAddress : address = s.mvkTokenAddress;
 
-                const delegationAddress : address = case s.generalContracts["delegation"] of [
-                Some(_address) -> _address
-                | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
-                ];
-
                 const mintMvkTokensOperation : operation = mintTokens(
                     to_,                // to address
                     amt,                // amount of mvk Tokens to be minted
                     mvkTokenAddress     // mvkTokenAddress
-                ); 
-
-                const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-                    (to_),
-                    0mutez,
-                    updateSatelliteBalance(delegationAddress)
                 );
 
                 operations := mintMvkTokensOperation # operations;
-                operations := updateSatelliteBalanceOperation # operations;
 
             }
         | _ -> skip

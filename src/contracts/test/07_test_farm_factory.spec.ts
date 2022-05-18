@@ -270,7 +270,7 @@
 //                     await chai.expect(farmFactoryInstance.methods.trackFarm(farmAddress).send()).to.be.rejected;
 //                     await chai.expect(farmInstance.methods.deposit(MVK(2)).send()).to.be.rejected;
 //                     await chai.expect(farmInstance.methods.withdraw(MVK()).send()).to.be.rejected;
-//                     await chai.expect(farmInstance.methods.claim().send()).to.be.rejected;
+//                     await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
 
 //                     // Assertion
 //                     assert.notEqual(depositIsPaused,depositIsPausedEnd);
@@ -375,7 +375,7 @@
 //                     await depositOperation.confirmation();
 //                     const withdrawOperation = await farmInstance.methods.withdraw(1).send();
 //                     await withdrawOperation.confirmation();
-//                     const claimOperation = await farmInstance.methods.claim().send();
+//                     const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
 //                     await claimOperation.confirmation();
 
 //                     // Assertion
@@ -651,10 +651,9 @@
 //             it('Untrack an unexisting farm', async () => {
 //                 try{
 //                     // Create a transaction for initiating a farm
-//                     const operation = await farmFactoryInstance.methods.untrackFarm(alice.pkh).send();
-//                     await operation.confirmation();
+//                     await chai.expect(farmFactoryInstance.methods.untrackFarm(alice.pkh).send()).to.be.rejected;
 //                 }catch(e){
-//                     assert.strictEqual(e.message, "The provided farm contract does not exist in the trackedFarms set");
+//                     console.log(e)
 //                 }
 //             })
 //         });
@@ -829,7 +828,7 @@
 
 //                     // Claim operation after a few blocks
 //                     await new Promise(resolve => setTimeout(resolve, 6000));
-//                     const claimOperation = await farmInstance.methods.claim().send();
+//                     const claimOperation = await farmInstance.methods.claim(bob.pkh).send();
 //                     await claimOperation.confirmation()
                     
 //                     farmStorage = await farmInstance.storage();
@@ -879,70 +878,9 @@
 
 //                     // Claim operation after a few blocks
 //                     await new Promise(resolve => setTimeout(resolve, 6000));
-//                     const claimOperation = await farmInstance.methods.claim().send();
-//                     await claimOperation.confirmation()
-                    
-//                     farmStorage = await farmInstance.storage();
-//                     doormanStorage = await doormanInstance.storage();
-
-//                     // Depositor's record
-//                     const depositorRecord = await farmStorage.depositors.get(bob.pkh)
-//                     console.log(depositorRecord)
-
-//                     // Depositor's record
-//                     const doormanRecord = await doormanStorage.userStakeBalanceLedger.get(bob.pkh)
-//                     console.log(doormanRecord)
+//                     await chai.expect(farmInstance.methods.claim(bob.pkh).send()).to.be.rejected;
 //                 }catch(e){
-//                     assert.strictEqual(e.message, "Error. The Farm is not tracked by the Farm Factory or it does not exist.")
-//                 }
-//             })
-
-//             it('Create a farm, deposit and try to claim in it without having the farm factory contract in the doorman generalContracts map', async () => {
-//                 try{
-//                     // Deposit
-//                     const amountToDeposit = 2;
-
-//                     // Create a transaction for initiating a farm
-//                     const createFarmOperation = await farmFactoryInstance.methods.createFarm(
-//                         false,
-//                         false,
-//                         100,
-//                         12000,
-//                         farmMetadataBase,
-//                         lpTokenAddress.address,
-//                         0,
-//                         "fa12"
-//                     ).send();
-//                     await createFarmOperation.confirmation()
-
-//                     // Created farms
-//                     farmFactoryStorage    = await farmFactoryInstance.storage();
-
-//                     // Get the new farm
-//                     farmAddress                             = farmFactoryStorage.trackedFarms[farmFactoryStorage.trackedFarms.length - 1];
-//                     farmInstance                            = await utils.tezos.contract.at(farmAddress);
-//                     farmStorage                             = await farmInstance.storage();
-
-//                      // Create a transaction for allowing farm to spend LP Token in the name of Bob
-//                     const bobLedgerStart = await lpTokenStorage.ledger.get(bob.pkh);
-//                     const bobApprovalsStart = await bobLedgerStart.allowances.get(farmAddress);
-
-//                     // Check Bob has no pending approvals for the farm
-//                     if(bobApprovalsStart===undefined || bobApprovalsStart<amountToDeposit){
-//                         const allowances = bobApprovalsStart===undefined ? amountToDeposit : Math.abs(bobApprovalsStart - amountToDeposit);
-//                         const approveOperation = await lpTokenInstance.methods.approve(farmAddress,allowances).send();
-//                         await approveOperation.confirmation();
-//                     }
-//                     // Deposit operation
-//                     const depositOperation = await farmInstance.methods.deposit(amountToDeposit).send();
-//                     await depositOperation.confirmation();
-
-//                     // Claim operation after a few blocks
-//                     await new Promise(resolve => setTimeout(resolve, 6000));
-//                     const claimOperation = await farmInstance.methods.claim().send();
-//                     await claimOperation.confirmation()
-//                 }catch(e){
-//                     assert.strictEqual(e.message, "Error. Farm Factory Contract is not found.")
+//                     console.log(e)
 //                 }
 //             })
 //         });

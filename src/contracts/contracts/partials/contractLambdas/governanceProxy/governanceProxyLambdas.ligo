@@ -61,6 +61,12 @@ block {
       (* MVK Token Control *)
       | UpdateMvkInflationRate (_v)            -> 30n
       | TriggerMvkInflation (_v)               -> 31n
+
+      (* Vesting Control *)
+      | AddVestee (_v)                         -> 32n
+      | RemoveVestee (_v)                      -> 33n
+      | UpdateVestee (_v)                      -> 34n
+      | ToggleVesteeLock (_v)                  -> 35n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -1298,6 +1304,170 @@ block {
           );
 
         operations := triggerInflationOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function addVestee(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      AddVestee(addVesteeParams) -> {
+
+        // find and get vesting contract address from the generalContracts map
+        const vestingAddress : address = case s.generalContracts["vesting"] of [
+              Some(_address) -> _address
+            | None           -> failwith(error_VESTING_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get addVestee entrypoint of Vesting contract
+        const addVesteeEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%addVestee",
+            vestingAddress) : option(contract(addVesteeType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(addVesteeType))
+            ];
+
+        // add a vestee
+        const addVesteeOperation : operation = Tezos.transaction(
+          (addVesteeParams),
+          0tez, 
+          addVesteeEntrypoint
+          );
+
+        operations := addVesteeOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function removeVestee(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      RemoveVestee(vesteeAddress) -> {
+
+        // find and get vesting contract address from the generalContracts map
+        const vestingAddress : address = case s.generalContracts["vesting"] of [
+              Some(_address) -> _address
+            | None           -> failwith(error_VESTING_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get removeVestee entrypoint of Vesting contract
+        const removeVesteeEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%removeVestee",
+            vestingAddress) : option(contract(address))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
+            ];
+
+        // remove a vestee
+        const removeVesteeOperation : operation = Tezos.transaction(
+          (vesteeAddress),
+          0tez, 
+          removeVesteeEntrypoint
+          );
+
+        operations := removeVesteeOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function updateVestee(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateVestee(updateVesteeParams) -> {
+
+        // find and get vesting contract address from the generalContracts map
+        const vestingAddress : address = case s.generalContracts["vesting"] of [
+              Some(_address) -> _address
+            | None           -> failwith(error_VESTING_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get removeVestee entrypoint of Vesting contract
+        const updateVesteeEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%updateVestee",
+            vestingAddress) : option(contract(updateVesteeType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(updateVesteeType))
+            ];
+
+        // update a vestee
+        const updateVesteeOperation : operation = Tezos.transaction(
+          (updateVesteeParams),
+          0tez, 
+          updateVesteeEntrypoint
+          );
+
+        operations := updateVesteeOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function toggleVesteeLock(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      ToggleVesteeLock(vesteeAddress) -> {
+
+        // find and get vesting contract address from the generalContracts map
+        const vestingAddress : address = case s.generalContracts["vesting"] of [
+              Some(_address) -> _address
+            | None           -> failwith(error_VESTING_CONTRACT_NOT_FOUND)
+        ];
+
+        // find and get removeVestee entrypoint of Vesting contract
+        const toggleVesteeLockEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%toggleVesteeLock",
+            vestingAddress) : option(contract(address))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND) : contract(address))
+            ];
+
+        // lock or unlock a vestee
+        const toggleVesteeLockOperation : operation = Tezos.transaction(
+          (vesteeAddress),
+          0tez, 
+          toggleVesteeLockEntrypoint
+          );
+
+        operations := toggleVesteeLockOperation # operations;
 
         }
     | _ -> skip
