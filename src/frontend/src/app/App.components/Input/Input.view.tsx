@@ -63,8 +63,8 @@ export const InputView = ({
           autoComplete={name}
           disabled={disabled}
         />
-        {pinnedText && <InputLabel className={classNames}>{pinnedText}</InputLabel>}
         <InputStatus className={classNames} />
+        {pinnedText && <InputLabel className={classNames}>{pinnedText}</InputLabel>}
       </InputComponentContainer>
       {errorMessage && <InputErrorMessage>{errorMessage}</InputErrorMessage>}
     </InputStyled>
