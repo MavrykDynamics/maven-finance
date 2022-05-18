@@ -12,6 +12,7 @@ type InputProps = {
   value?: string | number
   onChange: any
   onBlur: any
+  onFocus?: any
   inputStatus?: InputStatusType
   type: string
   errorMessage?: string
@@ -28,6 +29,7 @@ export const Input = ({
   value,
   onChange,
   onBlur,
+  onFocus,
   inputStatus,
   type,
   errorMessage,
@@ -46,6 +48,7 @@ export const Input = ({
       value={value}
       onChange={onChange}
       onBlur={onBlur}
+      onFocus={onFocus}
       inputStatus={inputStatus}
       errorMessage={errorMessage}
       disabled={disabled}

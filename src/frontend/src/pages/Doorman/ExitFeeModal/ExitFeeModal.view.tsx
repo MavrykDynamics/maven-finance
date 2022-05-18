@@ -15,7 +15,7 @@ import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
 import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } from '../../../utils/TypesAndInterfaces/Forms'
 // helpers
 // prettier-ignore
-import { isValidNumberValue, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import { isValidNumberValue, mathTrunkTwoDigit } from '../../../utils/validatorFunctions'
 import { DoormanList } from '../DoormanStats/DoormanStats.style'
 import { setExitFeeAmount } from './ExitFeeModal.actions'
 import { ExitFeeModalButtons, ExitFeeModalContent, ExitFeeModalFee, ExitFeeModalGrid } from './ExitFeeModal.style'
@@ -46,42 +46,65 @@ export const ExitFeeModalView = ({
   const stakedMvkTokens = totalStakedMvkSupply ?? 0
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
+  const [inputAmount, setInputAmount] = useState<StakeUnstakeForm>({ amount: 0 })
   const [stakeUnstakeValueOK, setStakeUnstakeValueOK] = useState<ValidStakeUnstakeForm>({ amount: false })
   const [stakeUnstakeInputStatus, setStakeUnstakeInputStatus] = useState<StakeUnstakeFormInputStatus>({ amount: '' })
   const [stakeUnstakeValueError, setStakeUnstakeValueError] = useState('')
   const { user } = useSelector((state: State) => state.user)
-
+  const inputAmountValue = +inputAmount.amount
   const myMvkTokenBalance = user?.myMvkTokenBalance
   const userStakeBalance = user?.mySMvkTokenBalance
 
-  const checkInputIsOk = () => {
+  const checkInputIsOk = (value: number) => {
     let validityCheckResult = false
     setStakeUnstakeValueError('')
     if (accountPkh) {
-      validityCheckResult = isValidNumberValue(amount, 1, Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)))
+      validityCheckResult = isValidNumberValue(value, 1, Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)))
     } else {
-      validityCheckResult = isValidNumberValue(amount, 1)
+      validityCheckResult = isValidNumberValue(value, 1)
     }
     setStakeUnstakeValueOK({ amount: validityCheckResult })
     setStakeUnstakeInputStatus({ amount: validityCheckResult ? 'success' : 'error' })
   }
 
   const onInputChange = (e: any) => {
-    checkInputIsOk()
-    dispatch(setExitFeeAmount(+e.target.value))
+    const value = mathTrunkTwoDigit(e.target.value)
+    checkInputIsOk(+value)
+
+    setInputAmount({ amount: value })
   }
 
   useEffect(() => {
-    checkInputIsOk()
+    checkInputIsOk(amount)
+    setInputAmount({ amount })
   }, [amount])
+
+  const handleFocus = (e: any) => {
+    const value = e.target.value
+
+    if (+value === 0) {
+      setInputAmount({ amount: '' })
+    }
+  }
 
   return (
     <ModalStyled showing={showing}>
       {showing && (
         <>
-          <ModalMask showing={showing} onClick={() => cancelCallback()} />
+          <ModalMask
+            showing={showing}
+            onClick={() => {
+              dispatch(setExitFeeAmount(inputAmountValue))
+              cancelCallback()
+            }}
+          />
           <ModalCard>
-            <ModalClose onClick={() => cancelCallback()}>
+            <ModalClose
+              onClick={() => {
+                dispatch(setExitFeeAmount(inputAmountValue))
+                cancelCallback()
+              }}
+            >
               <svg>
                 <use xlinkHref="/icons/sprites.svg#error" />
               </svg>
@@ -92,10 +115,10 @@ export const ExitFeeModalView = ({
                 <label>Amount to Unstake:</label>
                 <Input
                   type={'number'}
-                  placeholder={String(amount)}
                   onChange={onInputChange}
-                  onBlur={checkInputIsOk}
-                  value={amount}
+                  onBlur={() => checkInputIsOk(inputAmountValue)}
+                  value={inputAmount.amount}
+                  onFocus={handleFocus}
                   pinnedText={'MVK'}
                   inputStatus={stakeUnstakeInputStatus.amount}
                   errorMessage={stakeUnstakeValueError}
@@ -139,7 +162,10 @@ export const ExitFeeModalView = ({
                     kind={ACTION_SECONDARY}
                     icon="error"
                     loading={loading}
-                    onClick={() => cancelCallback()}
+                    onClick={() => {
+                      dispatch(setExitFeeAmount(inputAmountValue))
+                      cancelCallback()
+                    }}
                   />
                   <Button
                     text="Proceed"
@@ -147,7 +173,10 @@ export const ExitFeeModalView = ({
                     disabled={!stakeUnstakeValueOK.amount}
                     kind={ACTION_PRIMARY}
                     loading={loading}
-                    onClick={() => unstakeCallback(amount)}
+                    onClick={() => {
+                      dispatch(setExitFeeAmount(inputAmountValue))
+                      unstakeCallback(inputAmountValue)
+                    }}
                   />
                 </ExitFeeModalButtons>
               </ExitFeeModalContent>

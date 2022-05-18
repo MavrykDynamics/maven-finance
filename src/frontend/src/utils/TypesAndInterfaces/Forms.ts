@@ -114,7 +114,7 @@ export type EmergencyGovernanceProposalFormInputStatus = {
 }
 
 export type StakeUnstakeForm = {
-  amount: number
+  amount: number | ''
 }
 
 export type ValidStakeUnstakeForm = {
