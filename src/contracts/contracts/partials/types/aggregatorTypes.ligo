@@ -138,6 +138,7 @@ type aggregatorStorage is [@layout:comb] record [
     delegationAddress         : address;
 
     round                     : nat;
+    roundStart                : timestamp;
     switchBlock               : nat;
 
     oracleAddresses           : oracleAddressesType;

@@ -47,5 +47,62 @@ module.exports = {
         pkh: "tz1bPLbmiseCCWtW7RZ9t2RkNyboB9XT4exJ",
         sk: "edsk4AzUdwSFu383eMf8eve56Q2pJxy1eWt4BnzKkLKMdKurHgTeaf",
         pk: "edpku8MxEyEKHPsPeUBSBz5a5QbemdPbiQVsobdC3SnC9UDf4yMHTL"
-    }
+    },
+    //
+    // Local oracle adresses
+    //
+    oracleMaintainer: {
+        pkh: 'tz1Uqnf6CKSXTkhRNwkr59ZCkjM9TckqyzRb',
+        sk: 'edsk3ULsmx8aEogiMs2T4Td8rLzfvd6Vv8D5CJqeKQKrsjZHVqRDrX',
+        pk: 'edpkuZxa3i78gthryUa1aqh5AwuCqqLG7P55Tsh79pZaSryxZzhCVZ',
+    },
+    oracle0: {
+        pkh: 'tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6',
+        sk: 'edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e',
+        pk: 'edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4',
+    },
+    oracle1: {
+        pkh: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
+        sk: 'edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt',
+        pk: 'edpkurPsQ8eUApnLUJ9ZPDvu98E8VNj4KtJa1aZr16Cr5ow5VHKnz4',
+    },
+    oracle2: {
+        pkh: 'tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L',
+        sk: 'edsk3W5Fz1yWK39sLY6vidmgkfmGAXh6V2JqUiri9W1pFeeYWbFbJL',
+        pk: 'edpkujwsG5JMrWVXQwmRMBoR9yJkokRbn6wy3monpQKBpnZTs1ogRR',
+    },
+    oracle3: {
+        pkh: 'tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc',
+        sk: 'edsk3Wz91mGzhGcq2jVnbTnfkyY7Zod8gdQp2dHfnzud5gRAJ2uoaK',
+        pk: 'edpkvJm4eyR4vL7cY3B8zRyFMAGE4W8AuDtjio6v1GSm7dgS79rL23',
+    },
+    oracle4: {
+        pkh: 'tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px',
+        sk: 'edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf',
+        pk: 'edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg',
+    },
+    //
+    // AWS KMS oracle addresses, use for testnet deploy
+    //
+
+    // oracleMaintainer: {
+    //     pkh: 'tz3RTjXZkXJw3TvNsnKVL478CWYYNjfMRTCZ',
+    //     sk: '',
+    //     pk: '',
+    // },
+    // oracle1: {
+    //     pkh: 'tz3MY7GYiud8Y9YVk2MnbftrxYvZVBh4Rbkq',
+    //     sk: '',
+    //     pk: '',
+    // },
+    // oracle2: {
+    //     pkh: 'tz3Z8wLvEiauxuw4QHR4sjWNbDugB68NX8px',
+    //     sk: '',
+    //     pk: '',
+    // },
+    // oracle3: {
+    //     pkh: 'tz3N8cUSMpM5zknEzT7EuUCUmqYrv2A8o36P',
+    //     sk: '',
+    //     pk: '',
+    // },
 };

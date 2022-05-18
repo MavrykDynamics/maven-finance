@@ -154,7 +154,7 @@ export class DeviationTriggerService implements OnModuleInit {
           .toNumber()}‰ > ${thresholdPerthousand}‰ (${lastPrice} -> ${newPrice}))`
       );
       const salt = (Math.random() + 1).toString(36).substring(7);
-      const commitData = this.commonService.getCommitData(newPrice, salt);
+      const commitData = this.commonService.getCommitData(newPrice, salt, this.commonService.getPkh());
 
       const commitDataHash = createHash('sha256')
         .update(commitData)

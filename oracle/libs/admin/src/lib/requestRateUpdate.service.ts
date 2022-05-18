@@ -76,14 +76,15 @@ export class RequestRateUpdateService implements OnModuleInit {
         >(address);
 
         const {
-          lastCompletedRoundPrice: { round: lastCompletedRound, priceDateTime },
+          lastCompletedRoundPrice: { round: lastCompletedRound },
+          roundStart
         } = await aggregator.storage();
 
         const minutesSinceLastRound =
-          (Date.now() - Date.parse(priceDateTime)) / (60 * 1000);
+          (Date.now() - Date.parse(roundStart)) / (60 * 1000);
 
         this.logger.debug(
-          `Minutes since last round ${lastCompletedRound} (started at ${priceDateTime}): ${minutesSinceLastRound}`
+          `Minutes since last round ${lastCompletedRound} (started at ${roundStart}): ${minutesSinceLastRound}`
         );
 
         if (minutesSinceLastRound < this.adminConfig.roundDurationMinutes) {

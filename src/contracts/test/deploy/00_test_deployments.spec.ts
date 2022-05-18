@@ -899,9 +899,11 @@ describe('Contracts Deployment for Tests', async () => {
 
 
     const oracleMap = MichelsonMap.fromLiteral({
-      [bob.pkh]: true,
-      [eve.pkh]: true,
-      [mallory.pkh]: true,
+      [oracle0.pkh]: true,
+      [oracle1.pkh]: true,
+      [oracle2.pkh]: true,
+      [oracle3.pkh]: true,
+      [oracle4.pkh]: true,
     }) as MichelsonMap<
         string,
         boolean
@@ -916,13 +918,13 @@ describe('Contracts Deployment for Tests', async () => {
             mvkToken.contract.address,
             delegation.contract.address,
             new BigNumber(8),
-            alice.pkh,
-            new BigNumber(1),
-            new BigNumber(2),
-            new BigNumber(60),
-            new BigNumber(5),
-            new BigNumber(1),
-            new BigNumber(500),
+            oracleMaintainer.pkh,
+            new BigNumber(0), // minimalTezosAmountDeviationTrigger
+            new BigNumber(2), // perthousandDeviationTrigger
+            new BigNumber(60), // percentOracleThreshold
+            new BigNumber(5), // rewardAmountMVK
+            new BigNumber(500), // rewardAmountXTZ
+            new BigNumber(2), // numberBlocksDelay
             aggregatorFactory.contract.address
         ))
         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
@@ -932,13 +934,13 @@ describe('Contracts Deployment for Tests', async () => {
             mvkToken.contract.address,
             delegation.contract.address,
             new BigNumber(8),
-            alice.pkh,
-            new BigNumber(1),
-            new BigNumber(2),
-            new BigNumber(60),
-            new BigNumber(5),
-            new BigNumber(1),
-            new BigNumber(500),
+            oracleMaintainer.pkh,
+            new BigNumber(0), // minimalTezosAmountDeviationTrigger
+            new BigNumber(2), // perthousandDeviationTrigger
+            new BigNumber(60), // percentOracleThreshold
+            new BigNumber(5), // rewardAmountMVK
+            new BigNumber(500), // rewardAmountXTZ
+            new BigNumber(2), // numberBlocksDelay
             aggregatorFactory.contract.address
         ))
         .withContractCall(aggregatorFactory.contract.methods.createAggregator(
@@ -948,13 +950,13 @@ describe('Contracts Deployment for Tests', async () => {
             mvkToken.contract.address,
             delegation.contract.address,
             new BigNumber(16),
-            alice.pkh,
-            new BigNumber(1),
-            new BigNumber(2),
-            new BigNumber(60),
-            new BigNumber(5),
-            new BigNumber(1),
-            new BigNumber(500),
+            oracleMaintainer.pkh,
+            new BigNumber(0), // minimalTezosAmountDeviationTrigger
+            new BigNumber(2), // perthousandDeviationTrigger
+            new BigNumber(60), // percentOracleThreshold
+            new BigNumber(5), // rewardAmountMVK
+            new BigNumber(500), // rewardAmountXTZ
+            new BigNumber(2), // numberBlocksDelay
             aggregatorFactory.contract.address
         ))
 

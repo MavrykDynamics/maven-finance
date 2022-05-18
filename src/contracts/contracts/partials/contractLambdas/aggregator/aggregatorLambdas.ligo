@@ -161,6 +161,7 @@ block{
                 const newOracleRewardsXTZ = Map.update(Tezos.sender, Some (getRewardAmountXTZ(Tezos.sender, s) + s.config.rewardAmountXTZ), s.oracleRewardsXTZ);
 
                 s.round                   := newRound;
+                s.roundStart              := Tezos.now;
                 s.observationReveals      := emptyMapReveals;
                 s.observationCommits      := emptyMapCommit;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
@@ -226,6 +227,7 @@ block{
                 const newOracleRewardsXTZ = Map.update(Tezos.sender, Some (getRewardAmountXTZ(Tezos.sender, s) + s.config.rewardAmountXTZ), s.oracleRewardsXTZ);
 
                 s.round                   := newRound;
+                s.roundStart              := Tezos.now;
                 s.observationReveals      := emptyMapReveals;
                 s.observationCommits      := newObservationCommits;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
