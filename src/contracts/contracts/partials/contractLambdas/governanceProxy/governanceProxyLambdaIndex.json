@@ -126,5 +126,21 @@
   {
     "index": 31,
     "name": "triggerMvkInflation"
+  },
+  {
+    "index": 32,
+    "name": "addVestee"
+  },
+  {
+    "index": 33,
+    "name": "removeVestee"
+  },
+  {
+    "index": 34,
+    "name": "updateVestee"
+  },
+  {
+    "index": 35,
+    "name": "toggleVesteeLock"
   }
 ]

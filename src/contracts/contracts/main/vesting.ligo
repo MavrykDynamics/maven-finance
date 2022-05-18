@@ -108,14 +108,14 @@ function checkSenderIsAdmin(var s : vestingStorage) : unit is
 
 
 
-function checkSenderIsCouncil(var s : vestingStorage) : unit is
+function checkSenderIsCouncilOrAdmin(var s : vestingStorage) : unit is
     block{
         const councilAddress: address = case s.whitelistContracts["council"] of [
               Some (_address) -> _address
           |   None -> (failwith(error_COUNCIL_CONTRACT_NOT_FOUND): address)
         ];
-        if (Tezos.sender = councilAddress) then skip
-        else failwith(error_ONLY_COUNCIL_CONTRACT_ALLOWED);
+        if Tezos.sender = councilAddress or Tezos.sender = s.admin then skip
+        else failwith(error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED);
     } with (unit)
 
 
@@ -251,12 +251,6 @@ block {
 (* View: get vestee record *)
 [@view] function getVesteeOpt(const vesteeAddress : address; var s : vestingStorage) : option(vesteeRecordType) is 
     Big_map.find_opt(vesteeAddress, s.vesteeLedger)
-
-
-
-(* View: get total vested amount *)
-[@view] function getTotalVested(const _ : unit; var s : vestingStorage) : nat is 
-    s.totalVestedAmount
 
 
 

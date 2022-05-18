@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## WARNING: CAN ONLY BE USED BEFORE LAUNCHING THE PLATFORM
+
 # Get the error lines
 ERROR_FILE="./contracts/partials/errors.ligo"
 TMP_ERROR_FILE="./contracts/partials/errors_tmp.ligo"
