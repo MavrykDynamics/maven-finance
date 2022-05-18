@@ -245,10 +245,10 @@ export class SetObservationService implements OnModuleInit {
 
     const price = await this.priceService.getPrice(decimals, pair);
     const salt = (Math.random() + 1).toString(36).substring(7);
-    const commitData = this.commonService.getCommitData(price, salt);
+    const commitData = this.commonService.getCommitData(price, salt, this.commonService.getPkh());
 
     const commitDataHash = createHash('sha256')
-      .update(commitData)
+      .update(commitData, 'hex')
       .digest('hex');
 
     this.logger.log(
@@ -356,7 +356,7 @@ export class SetObservationService implements OnModuleInit {
     );
 
     const op = aggregator.methods
-      .setObservationReveal(price, salt, round)
+      .setObservationReveal(round, price, salt, pkh)
       .toTransferParams();
 
     const estimate = await toolkit.estimate.transfer(op);

@@ -24,6 +24,7 @@ export type AggregatorStorage = {
   oracleRewardsXTZ: MichelsonMap<string, BigNumber>;
   mvkTokenAddress: string;
   round: BigNumber;
+  roundStart: string;
   deviationTriggerInfos: {
     oracleAddress: string;
     amount: BigNumber;
@@ -82,9 +83,10 @@ type AggregatorContractMethods<T extends ContractProvider | Wallet> = {
   removeOracle: (oracleAddress: string) => ContractMethod<T>;
   setObservationCommit: (round: BigNumber, sign: string) => ContractMethod<T>;
   setObservationReveal: (
+    round: BigNumber,
     priceSalted_price: BigNumber,
     priceSalted_salt: string,
-    round: BigNumber
+    pkh: string
   ) => ContractMethod<T>;
   updateOwner: (owner: string) => ContractMethod<T>;
   updateAggregatorConfig: (
