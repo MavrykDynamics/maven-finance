@@ -44,7 +44,7 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
       width: 100vw;
       display: flex;
       display: flex;
-      background: backdropColor;
+      background: ${backdropColor};
       z-index: 10;
       align-items: flex-start;
       .burger-menu {
@@ -94,7 +94,7 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
     width: 100%;
     height: 2px;
     border-radius: 3px;
-    background-color: darkCianColor;
+    background-color: ${darkCianColor};
     margin: 3px 0;
   }
 `;
