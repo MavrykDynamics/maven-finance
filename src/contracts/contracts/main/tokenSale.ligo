@@ -54,7 +54,8 @@ const oneDayInSeconds : int = 86_400;
 const oneMonthInSeconds : int = 2_592_000;
 
 const fpa10e24 : nat = 1_000_000_000_000_000_000_000_000n;       // 10^24
-const fpa10e18 : nat = 1_000_000_000_000_000_000n;               // 10^17
+const fpa10e18 : nat = 1_000_000_000_000_000_000n;               // 10^18
+const fpa10e15 : nat = 1_000_000_000_000_000n;                   // 10^15
 
 
 // ------------------------------------------------------------------------------
@@ -70,34 +71,40 @@ const fpa10e18 : nat = 1_000_000_000_000_000_000n;               // 10^17
 [@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 3n;
 [@inline] const error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 4n;
 
-[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                           = 5n;
-[@inline] const error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 6n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                              = 7n;
-[@inline] const error_TOKEN_SALE_HAS_NOT_ENDED                                = 8n;
-[@inline] const error_TOKEN_SALE_HAS_ENDED                                    = 9n;
-[@inline] const error_TOKEN_SALE_IS_NOT_PAUSED                                = 10n;
-[@inline] const error_TOKEN_SALE_IS_PAUSED                                    = 11n;
+[@inline] const error_TREASURY_CONTRACT_NOT_FOUND                             = 5n;
+[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                           = 6n;
+[@inline] const error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 7n;
+[@inline] const error_TOKEN_SALE_HAS_NOT_STARTED                              = 8n;
+[@inline] const error_TOKEN_SALE_HAS_NOT_ENDED                                = 9n;
+[@inline] const error_TOKEN_SALE_HAS_ENDED                                    = 10n;
+[@inline] const error_TOKEN_SALE_IS_NOT_PAUSED                                = 11n;
+[@inline] const error_TOKEN_SALE_IS_PAUSED                                    = 12n;
 
-[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                          = 12n;
-[@inline] const error_USER_IS_NOT_WHITELISTED                                 = 13n;
+[@inline] const error_WHITELIST_SALE_HAS_NOT_STARTED                          = 13n;
+[@inline] const error_USER_IS_NOT_WHITELISTED                                 = 14n;
+[@inline] const error_USER_TOKEN_SALE_RECORD_NOT_FOUND                        = 15n;
 
-[@inline] const error_MAX_AMOUNT_OPTION_ONE_WHITELIST_WALLET_EXCEEDED         = 14n;
-[@inline] const error_MAX_AMOUNT_OPTION_TWO_WHITELIST_WALLET_EXCEEDED         = 15n;
-[@inline] const error_MAX_AMOUNT_OPTION_THREE_WHITELIST_WALLET_EXCEEDED       = 16n;
+[@inline] const error_MAX_AMOUNT_OPTION_ONE_WHITELIST_WALLET_EXCEEDED         = 16n;
+[@inline] const error_MAX_AMOUNT_OPTION_TWO_WHITELIST_WALLET_EXCEEDED         = 17n;
+[@inline] const error_MAX_AMOUNT_OPTION_THREE_WHITELIST_WALLET_EXCEEDED       = 18n;
 
-[@inline] const error_MAX_AMOUNT_OPTION_ONE_PER_WALLET_TOTAL_EXCEEDED         = 17n;
-[@inline] const error_MAX_AMOUNT_OPTION_TWO_PER_WALLET_TOTAL_EXCEEDED         = 18n;
-[@inline] const error_MAX_AMOUNT_OPTION_THREE_PER_WALLET_TOTAL_EXCEEDED       = 19n;
+[@inline] const error_MAX_AMOUNT_OPTION_ONE_PER_WALLET_TOTAL_EXCEEDED         = 19n;
+[@inline] const error_MAX_AMOUNT_OPTION_TWO_PER_WALLET_TOTAL_EXCEEDED         = 20n;
+[@inline] const error_MAX_AMOUNT_OPTION_THREE_PER_WALLET_TOTAL_EXCEEDED       = 21n;
 
-[@inline] const error_MIN_AMOUNT_OPTION_ONE_REQUIRED                          = 20n;
-[@inline] const error_MIN_AMOUNT_OPTION_TWO_REQUIRED                          = 21n;
-[@inline] const error_MIN_AMOUNT_OPTION_THREE_REQUIRED                        = 22n;
+[@inline] const error_MIN_AMOUNT_OPTION_ONE_REQUIRED                          = 22n;
+[@inline] const error_MIN_AMOUNT_OPTION_TWO_REQUIRED                          = 23n;
+[@inline] const error_MIN_AMOUNT_OPTION_THREE_REQUIRED                        = 24n;
 
-[@inline] const error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED                       = 23n;
-[@inline] const error_OPTION_TWO_MAX_AMOUNT_CAP_REACHED                       = 24n;
-[@inline] const error_OPTION_THREE_MAX_AMOUNT_CAP_REACHED                     = 25n;
-[@inline] const error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 26n;
-[@inline] const error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 27n;
+[@inline] const error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED                       = 25n;
+[@inline] const error_OPTION_TWO_MAX_AMOUNT_CAP_REACHED                       = 26n;
+[@inline] const error_OPTION_THREE_MAX_AMOUNT_CAP_REACHED                     = 27n;
+[@inline] const error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 28n;
+[@inline] const error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 29n;
+
+[@inline] const error_MAX_AMOUNT_CLAIMED_FOR_OPTION_ONE                       = 30n;
+[@inline] const error_MAX_AMOUNT_CLAIMED_FOR_OPTION_TWO                       = 31n;
+[@inline] const error_MAX_AMOUNT_CLAIMED_FOR_OPTION_THREE                     = 32n;
 
 // ------------------------------------------------------------------------------
 //
@@ -412,9 +419,9 @@ block {
                 optionTwoClaimedAmount            = 0n;
                 optionThreeClaimedAmount          = 0n;
 
-                optionOneMonthsClaimed            = 0n;
-                optionTwoMonthsClaimed            = 0n;
-                optionThreeMonthsClaimed          = 0n;
+                optionOneTimesClaimed             = 0n;
+                optionTwoTimesClaimed             = 0n;
+                optionThreeTimesClaimed           = 0n;
 
                 optionOneLastClaimed              = Tezos.now;
                 optionTwoLastClaimed              = Tezos.now;
@@ -476,9 +483,9 @@ block {
               optionTwoClaimedAmount            = 0n;
               optionThreeClaimedAmount          = 0n;
 
-              optionOneMonthsClaimed            = 0n;
-              optionTwoMonthsClaimed            = 0n;
-              optionThreeMonthsClaimed          = 0n;
+              optionOneTimesClaimed             = 0n;
+              optionTwoTimesClaimed             = 0n;
+              optionThreeTimesClaimed           = 0n;
 
               optionOneLastClaimed              = Tezos.now;
               optionTwoLastClaimed              = Tezos.now;
@@ -572,12 +579,12 @@ block {
       var operations                    : list(operation)  := nil;
 
       // check if token sale has ended
-      if today < tokenSaleEndTimestamp then failwith("Error. You cannot claim your tokens now.") else skip;
+      if today < tokenSaleEndTimestamp then failwith(error_TOKEN_SALE_HAS_NOT_ENDED) else skip;
 
       // get user token sale record
       var userTokenSaleRecord : tokenSaleRecordType := case s.tokenSaleLedger[buyer] of [
           Some(_record) -> _record
-        | None -> failwith("Error. User token sale record not found.")
+        | None -> failwith(error_USER_TOKEN_SALE_RECORD_NOT_FOUND)
       ];
 
       // get user token sale record
@@ -589,21 +596,16 @@ block {
       const optionTwoClaimedAmount    : nat         = userTokenSaleRecord.optionTwoClaimedAmount;
       const optionThreeClaimedAmount  : nat         = userTokenSaleRecord.optionThreeClaimedAmount;
 
-      // const optionOneLastClaimed      : timestamp   = userTokenSaleRecord.optionOneLastClaimed;
-      // const optionTwoLastClaimed      : timestamp   = userTokenSaleRecord.optionTwoLastClaimed;
-      // const optionThreeLastClaimed    : timestamp   = userTokenSaleRecord.optionThreeLastClaimed;
-
       const optionOneLastClaimedBlockLevel      : nat   = userTokenSaleRecord.optionOneLastClaimedBlockLevel;
       const optionTwoLastClaimedBlockLevel      : nat   = userTokenSaleRecord.optionTwoLastClaimedBlockLevel;
       const optionThreeLastClaimedBlockLevel    : nat   = userTokenSaleRecord.optionThreeLastClaimedBlockLevel;
 
-      const optionOneMonthsClaimed    : nat         = userTokenSaleRecord.optionOneMonthsClaimed;
-      const optionTwoMonthsClaimed    : nat         = userTokenSaleRecord.optionTwoMonthsClaimed;
-      const optionThreeMonthsClaimed  : nat         = userTokenSaleRecord.optionThreeMonthsClaimed;
+      const optionOneTimesClaimed     : nat         = userTokenSaleRecord.optionOneTimesClaimed;
+      const optionTwoTimesClaimed     : nat         = userTokenSaleRecord.optionTwoTimesClaimed;
+      const optionThreeTimesClaimed   : nat         = userTokenSaleRecord.optionThreeTimesClaimed;
 
       // calculate number of months that has passed since token sale has ended
-      const oneMonthBlocks            : nat = (s.config.blocksPerMinute * 60n * 24n) * 30n;
-      const monthsSinceTokenSaleEnd   : nat = abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks;
+      const oneMonthBlocks            : nat = (s.config.blocksPerMinute * 60n * 24n) * 30n; // 86400
 
       // init MVK token type to be used in transfer params
       const mvkTokenType : tokenType = Fa2(record [
@@ -612,24 +614,27 @@ block {
       ]); 
       
       // check if option one has been bought - skip otherwise
-      if optionOneBought = 0n then block {
+      if optionOneBought =/= 0n then block {
 
         // process claim for option one - skip if fully claimed (months claimed = vesting in months)  
-        if optionOneMonthsClaimed = vestingOptionOneInMonths then skip else block {
+        if optionOneTimesClaimed = vestingOptionOneInMonths then skip else block {
 
           // calculate months passed since last claimed for option one
           var monthsToClaim : nat := 0n;
           if optionOneLastClaimedBlockLevel = 0n then block {
+
             // first claim
-            monthsToClaim := monthsSinceTokenSaleEnd;
+            monthsToClaim := if abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks < 1n then 1n else (abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks) + 1n;
+            monthsToClaim := if monthsToClaim > vestingOptionOneInMonths then vestingOptionOneInMonths else monthsToClaim;
+
           } else block {
             // has claimed before
-            monthsToClaim := abs(Tezos.level - optionOneLastClaimedBlockLevel) / oneMonthBlocks;
+            monthsToClaim := abs(todayBlocks - optionOneLastClaimedBlockLevel) / oneMonthBlocks;
 
             // if total of months to claim + already claimed months is greater then vesting period (in months) then take the remaining months
             // e.g. vesting of 2 months, user claim once on day 0, then claim again for the second time in 6 months - we calculate months to claim as 2 - 1 = 1 month
-            if monthsToClaim + optionOneMonthsClaimed > vestingOptionOneInMonths 
-            then monthsToClaim := abs(vestingOptionOneInMonths - optionOneMonthsClaimed)
+            if monthsToClaim + optionOneTimesClaimed > vestingOptionOneInMonths 
+            then monthsToClaim := abs(vestingOptionOneInMonths - optionOneTimesClaimed)
             else monthsToClaim := monthsToClaim;
           };
 
@@ -639,14 +644,14 @@ block {
           // account for case where there is no vesting months for option one (least restrictive option)
           var optionOneTokenAmountSingleMonth : nat := 0n;
           if vestingOptionOneInMonths = 0n then block {
-            optionOneTokenAmountSingleMonth := ( (optionOneBought * fpa10e24) / optionOneTezPerToken)  * fpa10e18;
+            optionOneTokenAmountSingleMonth := ( (optionOneBought * fpa10e24) / optionOneTezPerToken)  / fpa10e15;
           } else block {
-            optionOneTokenAmountSingleMonth := ( ( (optionOneBought * fpa10e24) / optionOneTezPerToken) / vestingOptionOneInMonths) * fpa10e18;
+            optionOneTokenAmountSingleMonth := ( ( (optionOneBought * fpa10e24) / optionOneTezPerToken) / vestingOptionOneInMonths) / fpa10e15;
           };
 
           // check that user's max tokens claimable is not exceeded
-          const maxOptionOneTokenAmount : nat = ( (optionOneBought * fpa10e24) / optionOneTezPerToken)  * fpa10e18;
-          if optionOneClaimedAmount + optionOneTokenAmountSingleMonth > maxOptionOneTokenAmount then failwith("Error. Unable to claim more than the maximum for option one.") else skip;
+          const maxOptionOneTokenAmount : nat = ( (optionOneBought * fpa10e24) / optionOneTezPerToken)  / fpa10e15;
+          if optionOneClaimedAmount + optionOneTokenAmountSingleMonth > maxOptionOneTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED_FOR_OPTION_ONE) else skip;
 
           // calculate final value of option one token amount to be claimed
           const optionOneTokenAmount : nat = optionOneTokenAmountSingleMonth * monthsToClaim;
@@ -669,7 +674,7 @@ block {
           operations := sendOptionOneMvkTokensToBuyerOperation # operations;
 
           // update user token sale record
-          userTokenSaleRecord.optionOneMonthsClaimed          := userTokenSaleRecord.optionOneMonthsClaimed + monthsToClaim;
+          userTokenSaleRecord.optionOneTimesClaimed           := userTokenSaleRecord.optionOneTimesClaimed + monthsToClaim;
           userTokenSaleRecord.optionOneClaimedAmount          := userTokenSaleRecord.optionOneClaimedAmount + optionOneTokenAmount;
           userTokenSaleRecord.optionOneLastClaimed            := Tezos.now;
           userTokenSaleRecord.optionOneLastClaimedBlockLevel  := Tezos.level;
@@ -681,24 +686,27 @@ block {
 
 
       // check if option two has been bought - skip otherwise
-      if optionTwoBought = 0n then block {
+      if optionTwoBought =/= 0n then block {
 
         // process claim for option two - skip if fully claimed (months claimed = vesting in months        
-        if  optionTwoMonthsClaimed = vestingOptionTwoInMonths then skip else block {
+        if  optionTwoTimesClaimed = vestingOptionTwoInMonths then skip else block {
 
           // calculate months passed since last claimed for option two
           var monthsToClaim : nat := 0n;
           if optionTwoLastClaimedBlockLevel = 0n then block {
+            
             // first claim 
-            monthsToClaim := monthsSinceTokenSaleEnd;
+            monthsToClaim := if abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks < 1n then 1n else (abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks) + 1n;
+            monthsToClaim := if monthsToClaim > vestingOptionTwoInMonths then vestingOptionTwoInMonths else monthsToClaim;
+
           } else block {
             // has claimed before
-            monthsToClaim := abs(Tezos.level - optionTwoLastClaimedBlockLevel) / oneMonthBlocks;
+            monthsToClaim := abs(todayBlocks - optionTwoLastClaimedBlockLevel) / oneMonthBlocks;
 
             // if total of months to claim + already claimed months is greater then vesting period (in months) then take the remaining months
             // e.g. vesting of 2 months, user claim once on day 0, then claim again for the second time in 6 months - we calculate months to claim as 2 - 1 = 1 month
-            if monthsToClaim + optionTwoMonthsClaimed > vestingOptionTwoInMonths 
-            then monthsToClaim := abs(vestingOptionTwoInMonths - optionTwoMonthsClaimed)
+            if monthsToClaim + optionTwoTimesClaimed > vestingOptionTwoInMonths 
+            then monthsToClaim := abs(vestingOptionTwoInMonths - optionTwoTimesClaimed)
             else monthsToClaim := monthsToClaim;
           };
 
@@ -707,11 +715,11 @@ block {
 
           // account for case where there is no vesting months for option one (least restrictive option)
           // options two and three should not have zero vesting months 
-          var optionTwoTokenAmountSingleMonth : nat := ( ( (optionTwoBought * fpa10e24) / optionTwoTezPerToken) / vestingOptionTwoInMonths) * fpa10e18;
+          var optionTwoTokenAmountSingleMonth : nat := ( ( (optionTwoBought * fpa10e24) / optionTwoTezPerToken) / vestingOptionTwoInMonths) / fpa10e15;
         
           // check that user's max tokens claimable is not exceeded
-          const maxOptionTwoTokenAmount : nat = ( (optionTwoBought * fpa10e24) / optionTwoTezPerToken)  * fpa10e18;
-          if optionTwoClaimedAmount + optionTwoTokenAmountSingleMonth > maxOptionTwoTokenAmount then failwith("Error. Unable to claim more than the maximum for option two.") else skip;
+          const maxOptionTwoTokenAmount : nat = ( (optionTwoBought * fpa10e24) / optionTwoTezPerToken)  / fpa10e15;
+          if optionTwoClaimedAmount + optionTwoTokenAmountSingleMonth > maxOptionTwoTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED_FOR_OPTION_TWO) else skip;
 
           // calculate final value of option two token amount to be claimed
           const optionTwoTokenAmount : nat = optionTwoTokenAmountSingleMonth * monthsToClaim;
@@ -734,7 +742,7 @@ block {
           operations := sendOptionTwoMvkTokensToBuyerOperation # operations;
 
           // update user token sale record
-          userTokenSaleRecord.optionTwoMonthsClaimed          := userTokenSaleRecord.optionTwoMonthsClaimed + monthsToClaim;
+          userTokenSaleRecord.optionTwoTimesClaimed          := userTokenSaleRecord.optionTwoTimesClaimed + monthsToClaim;
           userTokenSaleRecord.optionTwoClaimedAmount          := userTokenSaleRecord.optionTwoClaimedAmount + optionTwoTokenAmount;
           userTokenSaleRecord.optionTwoLastClaimed            := Tezos.now;
           userTokenSaleRecord.optionTwoLastClaimedBlockLevel  := Tezos.level;
@@ -746,24 +754,27 @@ block {
 
       
       // check if option three has been bought - skip otherwise
-      if optionThreeBought = 0n then block {
+      if optionThreeBought =/= 0n then block {
 
         // process claim for option three - skip if fully claimed (months claimed = vesting in months  
-        if optionThreeMonthsClaimed = vestingOptionThreeInMonths then skip else block {
+        if optionThreeTimesClaimed = vestingOptionThreeInMonths then skip else block {
 
           // calculate months passed since last claimed for option three
           var monthsToClaim : nat := 0n;
           if optionThreeLastClaimedBlockLevel = 0n then block {
+
             // first claim 
-            monthsToClaim := monthsSinceTokenSaleEnd;
+            monthsToClaim := if abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks < 1n then 1n else (abs(todayBlocks - tokenSaleEndBlockLevel) / oneMonthBlocks) + 1n;
+            monthsToClaim := if monthsToClaim > vestingOptionThreeInMonths then vestingOptionThreeInMonths else monthsToClaim;
+
           } else block {
             // has claimed before
-            monthsToClaim := abs(Tezos.level - optionThreeLastClaimedBlockLevel) / oneMonthBlocks;
+            monthsToClaim := abs(todayBlocks - optionThreeLastClaimedBlockLevel) / oneMonthBlocks;
 
             // if total of months to claim + already claimed months is greater then vesting period (in months) then take the remaining months
             // e.g. vesting of 2 months, user claim once on day 0, then claim again for the second time in 6 months - we calculate months to claim as 2 - 1 = 1 month
-            if monthsToClaim + optionThreeMonthsClaimed > vestingOptionThreeInMonths 
-            then monthsToClaim := abs(vestingOptionThreeInMonths - optionThreeMonthsClaimed)
+            if monthsToClaim + optionThreeTimesClaimed > vestingOptionThreeInMonths 
+            then monthsToClaim := abs(vestingOptionThreeInMonths - optionThreeTimesClaimed)
             else monthsToClaim := monthsToClaim;
           };
 
@@ -772,11 +783,11 @@ block {
 
           // account for case where there is no vesting months for option one (least restrictive option)
           // options two and three should not have zero vesting months 
-          var optionThreeTokenAmountSingleMonth : nat := ( ( (optionThreeBought * fpa10e24) / optionThreeTezPerToken) / vestingOptionThreeInMonths) * fpa10e18;
+          var optionThreeTokenAmountSingleMonth : nat := ( ( (optionThreeBought * fpa10e24) / optionThreeTezPerToken) / vestingOptionThreeInMonths) / fpa10e15;
 
           // check that user's max tokens claimable is not exceeded
-          const maxOptionThreeTokenAmount : nat = ( (optionThreeBought * fpa10e24) / optionThreeTezPerToken)  * fpa10e18;
-          if optionThreeClaimedAmount + optionThreeTokenAmountSingleMonth > maxOptionThreeTokenAmount then failwith("Error. Unable to claim more than the maximum for option three.") else skip;
+          const maxOptionThreeTokenAmount : nat = ( (optionThreeBought * fpa10e24) / optionThreeTezPerToken)  / fpa10e15;
+          if optionThreeClaimedAmount + optionThreeTokenAmountSingleMonth > maxOptionThreeTokenAmount then failwith(error_MAX_AMOUNT_CLAIMED_FOR_OPTION_THREE) else skip;
 
           // calculate final value of option three token amount to be claimed
           const optionThreeTokenAmount : nat = optionThreeTokenAmountSingleMonth * monthsToClaim;
@@ -799,7 +810,7 @@ block {
           operations := sendOptionThreeMvkTokensToBuyerOperation # operations;
 
           // update user token sale record
-          userTokenSaleRecord.optionThreeMonthsClaimed          := userTokenSaleRecord.optionThreeMonthsClaimed + monthsToClaim;
+          userTokenSaleRecord.optionThreeTimesClaimed           := userTokenSaleRecord.optionThreeTimesClaimed + monthsToClaim;
           userTokenSaleRecord.optionThreeClaimedAmount          := userTokenSaleRecord.optionThreeClaimedAmount + optionThreeTokenAmount;
           userTokenSaleRecord.optionThreeLastClaimed            := Tezos.now;
           userTokenSaleRecord.optionThreeLastClaimedBlockLevel  := Tezos.level;

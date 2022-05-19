@@ -20,9 +20,9 @@ type tokenSaleConfigType is [@layout:comb] record [
     optionTwoMaxAmountCap                 : nat;    
     optionThreeMaxAmountCap               : nat;    
 
-    vestingOptionOneInMonths              : nat;   
-    vestingOptionTwoInMonths              : nat;   
-    vestingOptionThreeInMonths            : nat;    
+    vestingOptionOneInMonths              : nat;   // 7
+    vestingOptionTwoInMonths              : nat;   // 9  
+    vestingOptionThreeInMonths            : nat;   // 13  
 
     optionOneTezPerToken                  : nat;
     optionTwoTezPerToken                  : nat;
@@ -39,21 +39,21 @@ type whitelistedAddressesType is big_map(userAddressType, bool)
 
 type tokenSaleRecordType is [@layout:comb] record [
   
-    optionOneBought           : nat;
-    optionTwoBought           : nat;
-    optionThreeBought         : nat;
+    optionOneBought                   : nat;
+    optionTwoBought                   : nat;
+    optionThreeBought                 : nat;
 
-    optionOneClaimedAmount    : nat;
-    optionTwoClaimedAmount    : nat;
-    optionThreeClaimedAmount  : nat;
+    optionOneClaimedAmount            : nat;
+    optionTwoClaimedAmount            : nat;
+    optionThreeClaimedAmount          : nat;
 
-    optionOneMonthsClaimed    : nat;
-    optionTwoMonthsClaimed    : nat;
-    optionThreeMonthsClaimed  : nat;
+    optionOneTimesClaimed             : nat;
+    optionTwoTimesClaimed             : nat;
+    optionThreeTimesClaimed           : nat;
 
-    optionOneLastClaimed      : timestamp;
-    optionTwoLastClaimed      : timestamp;
-    optionThreeLastClaimed    : timestamp;
+    optionOneLastClaimed              : timestamp;
+    optionTwoLastClaimed              : timestamp;
+    optionThreeLastClaimed            : timestamp;
 
     optionOneLastClaimedBlockLevel    : nat;
     optionTwoLastClaimedBlockLevel    : nat;
