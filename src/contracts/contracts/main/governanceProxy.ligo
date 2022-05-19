@@ -60,11 +60,21 @@
 // ------------------------------------------------------------------------------
 
 type governanceProxyAction is 
-  | SetProxyLambda               of setProxyLambdaType
-  | ExecuteGovernanceAction      of (bytes)
-  | DataPackingHelper            of executeActionType
-  // | ExecuteGovernanceProposal    of proposalIdType
-  // | CallGovernanceLambdaProxy    of executeActionType
+  // Housekeeping Entrypoints
+    SetAdmin                        of (address)
+  | SetGovernance                   of (address)
+  | UpdateMetadata                  of updateMetadataType
+  | UpdateWhitelistContracts        of updateWhitelistContractsParams
+  | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
+  | UpdateGeneralContracts          of updateGeneralContractsParams
+
+  // Main entrypoints
+  | SetProxyLambda                  of setProxyLambdaType
+  | ExecuteGovernanceAction         of (bytes)
+  | DataPackingHelper               of executeActionType
+
+  // Lambda Entrypoints
+  | SetLambda                   of setLambdaType
 
 const noOperations : list (operation) = nil;
 type return is list (operation) * governanceProxyStorage
@@ -122,6 +132,21 @@ function checkSenderIsAdminOrGovernance(var s : governanceProxyStorage) : unit i
 function checkNoAmount(const _p : unit) : unit is
     if (Tezos.amount = 0tez) then unit
     else failwith(error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ);
+
+
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+
+
+// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
+#include "../partials/whitelistTokenContractsMethod.ligo"
+
+
+
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -295,6 +320,126 @@ case (Tezos.get_entrypoint_opt(
 //
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  setAdmin entrypoint *)
+function setAdmin(const newAdminAddress : address; var s : governanceProxyStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetAdmin"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance proxy lambda action
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+    
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : governanceProxyStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance proxy lambda action
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);
+
+} with response
+
+
+
+(*  updateMetadata entrypoint: update the metadata at a given key *)
+function updateMetadata(const updateMetadataParams : updateMetadataType; var s : governanceProxyStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMetadata"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance proxy lambda action
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateMetadata(updateMetadataParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceProxyStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance proxy lambda action
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateWhitelistTokenContracts entrypoint *)
+function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: governanceProxyStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance proxy lambda action
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateWhitelistTokenContracts(updateWhitelistTokenContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceProxyStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance proxy lambda action
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Housekeeping Entrypoints End
+// ------------------------------------------------------------------------------
+
 (* setProxyLambda entrypoint *)
 function setProxyLambda(const setProxyLambdaParams: setProxyLambdaType; var s : governanceProxyStorage) : return is 
 block {
@@ -343,6 +488,27 @@ function dataDataPackingHelper(const _governanceAction : executeActionType; var 
   (noOperations, s)
 
 
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(* setLambda entrypoint *)
+function setLambda(const setLambdaParams: setLambdaType; var s: governanceProxyStorage): return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.lambdaLedger[lambdaName] := lambdaBytes;
+
+} with(noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Lambda Entrypoints End
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //
@@ -361,12 +527,21 @@ function main (const action : governanceProxyAction; const s : governanceProxySt
   } with (
 
     case action of [
-        
-        | SetProxyLambda(parameters)              -> setProxyLambda(parameters, s)
-        | ExecuteGovernanceAction(parameters)     -> executeGovernanceAction(parameters, s)
-        | DataPackingHelper(parameters)           -> dataDataPackingHelper(parameters, s)
-        // | ExecuteGovernanceProposal(parameters)   -> executeGovernanceProposal(parameters, s)
-        // | CallGovernanceLambdaProxy(parameters)   -> callGovernanceLambdaProxy(parameters, s)
+      // Housekeeping entrypoints
+        SetAdmin(parameters)                      -> setAdmin(parameters, s)
+      | SetGovernance(parameters)                 -> setGovernance(parameters, s)
+      | UpdateMetadata(parameters)                -> updateMetadata(parameters, s)
+      | UpdateWhitelistContracts(parameters)      -> updateWhitelistContracts(parameters, s)
+      | UpdateWhitelistTokenContracts(parameters) -> updateWhitelistTokenContracts(parameters, s)
+      | UpdateGeneralContracts(parameters)        -> updateGeneralContracts(parameters, s)
+
+      // Main entrypoints
+      | SetProxyLambda(parameters)                -> setProxyLambda(parameters, s)
+      | ExecuteGovernanceAction(parameters)       -> executeGovernanceAction(parameters, s)
+      | DataPackingHelper(parameters)             -> dataDataPackingHelper(parameters, s)
+
+        // Lambda Entrypoints
+      | SetLambda(parameters)                     -> setLambda(parameters, s)
 
     ]
   )

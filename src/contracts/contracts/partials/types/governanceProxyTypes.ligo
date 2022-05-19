@@ -77,6 +77,16 @@ type targetTreasuryMintMvkAndTransferType is [@layout:comb] record [
   treasuryMint              : mintMvkAndTransferType;
 ]
 
+type stakeTreasuryType is [@layout:comb] record [
+  targetTreasuryAddress     : address;
+  treasuryStake             : nat;
+]
+
+type unstakeTreasuryType is [@layout:comb] record [
+  targetTreasuryAddress     : address;
+  treasuryUnstake           : nat;
+]
+
 type executeActionParamsType is 
 
   UpdateProxyLambda                  of setProxyLambdaType
@@ -112,6 +122,8 @@ type executeActionParamsType is
 | UntrackTreasury                    of (address)
 | TransferTreasury                   of targetTreasuryTransferType
 | MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType
+| StakeTreasury                      of stakeTreasuryType
+| UnstakeTreasury                    of unstakeTreasuryType
 
 | UpdateMvkInflationRate             of (nat)
 | TriggerMvkInflation                of unit
@@ -123,6 +135,16 @@ type executeActionParamsType is
 
 type executeActionType is (executeActionParamsType)
 
+
+type governanceProxyLambdaActionType is 
+
+  // Housekeeping Lambdas
+  LambdaSetAdmin                        of address
+| LambdaSetGovernance                   of (address)
+| LambdaUpdateMetadata                  of updateMetadataType
+| LambdaUpdateWhitelistContracts        of updateWhitelistContractsParams
+| LambdaUpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
+| LambdaUpdateGeneralContracts          of updateGeneralContractsParams
 
 // ------------------------------------------------------------------------------
 // Storage

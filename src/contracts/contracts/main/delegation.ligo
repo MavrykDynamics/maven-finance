@@ -61,7 +61,6 @@ type delegationAction is
 
       // General Entrypoints
     | OnStakeChange                     of onStakeChangeParams
-    | OnSatelliteRewardPaid             of address
 
       // Lambda Entrypoints
     | SetLambda                         of setLambdaType
@@ -901,25 +900,6 @@ block {
 
 } with response
 
-
-
-(* onSatelliteRewardPaid entrypoint *)
-function onSatelliteRewardPaid(const userAddress : address; var s : delegationStorage) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnSatelliteRewardPaid"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaOnSatelliteRewardPaid(userAddress);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
-
-} with response
-
 // ------------------------------------------------------------------------------
 // General Entrypoints End
 // ------------------------------------------------------------------------------
@@ -994,7 +974,6 @@ function main (const action : delegationAction; const s : delegationStorage) : r
 
           // General Entrypoints
         | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
-        | OnSatelliteRewardPaid(parameters)             -> onSatelliteRewardPaid(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                         -> setLambda(parameters, s)    
