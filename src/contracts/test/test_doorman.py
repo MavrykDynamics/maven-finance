@@ -170,8 +170,14 @@ class DoormanContract(TestCase):
         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
+        farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
         stakeAmount = self.MVK(2)
         unstakeAmount = self.MVK()
+        recipientAddress = alice
+        mintedTokens = self.MVK(2)
+        forceTransfer = False
+        mvkTotalSupply = self.MVK(100)
+        mvkMaximumSupply = self.MVK(1000)
 
         # Operation
         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
@@ -180,6 +186,7 @@ class DoormanContract(TestCase):
         finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
         finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+        finalFarmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
 
         # Tests operations
         with self.raisesMichelsonError(error_codes.error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
@@ -190,11 +197,18 @@ class DoormanContract(TestCase):
         
         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
+        
+        with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
+            res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                farmFactoryAddress+"%checkFarmExists": True,
+                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+            });
 
         self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
         self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
         self.assertNotEqual(compoundIsPaused, finalCompoundIsPaused)
+        self.assertNotEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
         print('----')
         print('✅ Admin tries to pause all entrypoints')
@@ -204,6 +218,8 @@ class DoormanContract(TestCase):
         print(finalUnstakeIsPaused)
         print('compound is paused:')
         print(finalCompoundIsPaused)
+        print('farmClaim is paused:')
+        print(finalFarmClaimIsPaused)
 
     def test_21_non_admin_call_entrypoint(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
@@ -212,9 +228,11 @@ class DoormanContract(TestCase):
         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
+        farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
         finalStakeIsPaused = stakeIsPaused
         finalUnstakeIsPaused = unstakeIsPaused
         finalCompoundIsPaused = compoundIsPaused
+        finalFarmClaimIsPaused = farmClaimIsPaused
 
         # Operation
         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED):
@@ -224,10 +242,12 @@ class DoormanContract(TestCase):
             finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
             finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
             finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+            finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
         self.assertEqual(stakeIsPaused, finalStakeIsPaused)
         self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
         self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
+        self.assertEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
         print('----')
         print('✅ Non-admin tries to pause all entrypoints')
@@ -237,6 +257,8 @@ class DoormanContract(TestCase):
         print(finalUnstakeIsPaused)
         print('compound is paused:')
         print(finalCompoundIsPaused)
+        print('farmClaim is paused:')
+        print(finalFarmClaimIsPaused)
 
     ###
     # %unpauseAll
@@ -249,6 +271,7 @@ class DoormanContract(TestCase):
         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
+        farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
         stakeAmount = self.MVK(2)
         unstakeAmount = self.MVK()
         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
@@ -257,6 +280,7 @@ class DoormanContract(TestCase):
         pauseStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
         pauseUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
         pauseCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+        pauseFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
         # Operation
         res = self.doormanContract.unpauseAll().interpret(storage=res.storage, sender=bob)
@@ -272,14 +296,17 @@ class DoormanContract(TestCase):
         finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
         finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+        finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
         self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(stakeIsPaused, pauseStakeIsPaused)
         self.assertNotEqual(unstakeIsPaused, pauseUnstakeIsPaused)
         self.assertNotEqual(compoundIsPaused, pauseCompoundIsPaused)
+        self.assertNotEqual(farmClaimIsPaused, pauseFarmClaimIsPaused)
         self.assertEqual(stakeIsPaused, finalStakeIsPaused)
         self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
         self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
+        self.assertEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
         print('----')
         print('✅ Admin tries to unpause all entrypoints')
@@ -289,6 +316,8 @@ class DoormanContract(TestCase):
         print(finalUnstakeIsPaused)
         print('compound is paused:')
         print(finalCompoundIsPaused)
+        print('farmClaim is paused:')
+        print(finalFarmClaimIsPaused)
 
     def test_23_non_admin_call_entrypoint(self):
         init_doorman_storage = deepcopy(self.doormanStorage)
@@ -298,14 +327,23 @@ class DoormanContract(TestCase):
         stakeIsPaused = init_doorman_storage['breakGlassConfig']['stakeIsPaused']
         unstakeIsPaused = init_doorman_storage['breakGlassConfig']['unstakeIsPaused']
         compoundIsPaused = init_doorman_storage['breakGlassConfig']['compoundIsPaused']
+        farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
         stakeAmount = self.MVK(2)
         unstakeAmount = self.MVK()
+        recipientAddress = alice
+        mintedTokens = self.MVK(2)
+        forceTransfer = False
+        mvkTotalSupply = self.MVK(100)
+        mvkMaximumSupply = self.MVK(1000)
+
+        # First operation
         res = self.doormanContract.pauseAll().interpret(storage=init_doorman_storage, sender=bob)
 
         # Paused values
         pauseStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
         pauseUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
         pauseCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+        pauseFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
         # Operation
         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED):
@@ -317,24 +355,32 @@ class DoormanContract(TestCase):
         
         with self.raisesMichelsonError(error_codes.error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.unstake(unstakeAmount).interpret(storage=res.storage, sender=bob, view_results={
-            mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
-        })
+                mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
+            })
         
         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
+        
+        with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
+            res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                farmFactoryAddress+"%checkFarmExists": True,
+                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+            });
         
         # Final values
         finalStakeIsPaused = res.storage['breakGlassConfig']['stakeIsPaused']
         finalUnstakeIsPaused = res.storage['breakGlassConfig']['unstakeIsPaused']
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
+        finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
         self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(stakeIsPaused, pauseStakeIsPaused)
         self.assertNotEqual(unstakeIsPaused, pauseUnstakeIsPaused)
         self.assertNotEqual(compoundIsPaused, pauseCompoundIsPaused)
+        self.assertNotEqual(farmClaimIsPaused, pauseFarmClaimIsPaused)
         self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
         self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
-        self.assertNotEqual(compoundIsPaused, finalCompoundIsPaused)
+        self.assertNotEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
         print('----')
         print('✅ Non-admin tries to unpause all entrypoints')
@@ -344,6 +390,8 @@ class DoormanContract(TestCase):
         print(finalUnstakeIsPaused)
         print('compound is paused:')
         print(finalCompoundIsPaused)
+        print('farmClaim is paused:')
+        print(finalFarmClaimIsPaused)
 
     ###
     # %togglePauseStake
@@ -500,7 +548,7 @@ class DoormanContract(TestCase):
 
         # Operation
         with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
-            res = self.doormanContract.togglePauseStake().interpret(storage=init_doorman_storage, sender=alice)
+            res = self.doormanContract.togglePauseCompound().interpret(storage=init_doorman_storage, sender=alice)
 
             # Final values
             finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
@@ -515,6 +563,74 @@ class DoormanContract(TestCase):
         print('✅ Non-admin tries to pause compound entrypoint')
         print('compound is paused:')
         print(finalCompoundIsPaused)
+
+     ###
+    # %togglePauseFarmClaim
+    ##
+    def test_27_admin_pause_farm_claim(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
+        recipientAddress = alice
+        mintedTokens = self.MVK(2)
+        forceTransfer = False
+        mvkTotalSupply = self.MVK(100)
+        mvkMaximumSupply = self.MVK(1000)
+
+        # Operation
+        res = self.doormanContract.togglePauseFarmClaim().interpret(storage=init_doorman_storage, sender=bob)
+
+        # Final values
+        finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
+
+        # Tests operations
+        with self.raisesMichelsonError(error_codes.error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
+            res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                farmFactoryAddress+"%checkFarmExists": True,
+                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+            });
+
+        self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
+        self.assertNotEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
+
+        print('----')
+        print('✅ Admin tries to pause farmClaim entrypoint')
+        print('farmClaim is paused:')
+        print(finalFarmClaimIsPaused)
+    
+    def test_28_non_admin_pause_compound(self):
+        init_doorman_storage = deepcopy(self.doormanStorage)
+
+        # Initial values
+        farmClaimIsPaused = init_doorman_storage['breakGlassConfig']['farmClaimIsPaused']
+        finalFarmClaimIsPaused = farmClaimIsPaused;
+        recipientAddress = alice
+        mintedTokens = self.MVK(2)
+        forceTransfer = False
+        mvkTotalSupply = self.MVK(100)
+        mvkMaximumSupply = self.MVK(1000)
+
+        # Operation
+        with self.raisesMichelsonError(error_codes.error_ONLY_ADMINISTRATOR_ALLOWED):
+            res = self.doormanContract.togglePauseStake().interpret(storage=init_doorman_storage, sender=alice)
+
+            # Final values
+            finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
+
+            # Tests operations
+            res = self.doormanContract.farmClaim(recipientAddress,mintedTokens,forceTransfer).interpret(storage=init_doorman_storage, sender=bob, view_results={
+                farmFactoryAddress+"%checkFarmExists": True,
+                mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
+            });
+
+            self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
+            self.assertEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
+
+        print('----')
+        print('✅ Non-admin tries to pause farmClaim entrypoint')
+        print('farmClaim is paused:')
+        print(finalFarmClaimIsPaused)
     
     ###
     # %stake

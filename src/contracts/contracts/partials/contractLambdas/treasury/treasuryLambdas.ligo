@@ -393,19 +393,58 @@ block {
 
 
 
+(* update_operators lambda *)
+function lambdaUpdateOperators(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+block {
+    
+    // Steps Overview:
+    // 1. Check that sender is admin
+    // 2. Update operators of this treasury to the mvk token contract
+
+    checkSenderIsAdmin(s);
+
+    var operations : list(operation) := nil;
+
+
+    case treasuryLambdaAction of [
+        | LambdaUpdateOperators(updateOperatorsParams) -> {
+                
+                // Get update_operators entrypoint in doorman
+                const updateEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%update_operators",
+                    s.mvkTokenAddress) : option(contract(updateOperatorsParams))) of [
+                            Some (contr)    -> contr
+                        |   None            -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(updateOperatorsParams))
+                ];
+
+                const updateOperation : operation = Tezos.transaction(
+                    (updateOperatorsParams),
+                    0tez, 
+                    updateEntrypoint
+                );
+
+                operations := updateOperation # operations;
+
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
 (* stake lambda *)
 function lambdaStake(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
-    // 1. Check that sender is in whitelist (governance)
+    // 1. Check that sender is admin
     // 2. Send stake operation to Doorman Contract
 
     // break glass check
     checkStakeIsNotPaused(s);
 
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-      else skip;
+    checkSenderIsAdmin(s);
 
     var operations : list(operation) := nil;
 
@@ -415,8 +454,8 @@ block {
                 
                 // Get doorman address
                 const doormanAddress: address   = case s.generalContracts["doorman"] of [
-                    Some (_address)     -> address
-                    None                -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                    Some (_address)     -> _address
+                |   None                -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get stake entrypoint in doorman
@@ -448,14 +487,13 @@ function lambdaUnstake(const treasuryLambdaAction : treasuryLambdaActionType; va
 block {
     
     // Steps Overview:
-    // 1. Check that sender is in whitelist (governance)
+    // 1. Check that sender is admin
     // 2. Send stake operation to Doorman Contract
 
     // break glass check
     checkUnstakeIsNotPaused(s);
 
-    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
-      else skip;
+    checkSenderIsAdmin(s);
 
     var operations : list(operation) := nil;
 
@@ -465,8 +503,8 @@ block {
                 
                 // Get doorman address
                 const doormanAddress: address   = case s.generalContracts["doorman"] of [
-                    Some (_address)     -> address
-                    None                -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                    Some (_address)     -> _address
+                |   None                -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
                 ];
 
                 // Get stake entrypoint in doorman

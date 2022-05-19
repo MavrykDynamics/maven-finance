@@ -18,6 +18,9 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
+// MvkToken Types
+#include "../partials/types/mvkTokenTypes.ligo"
+
 // Delegation Type for updateConfig
 #include "../partials/types/delegationTypes.ligo"
 
@@ -80,7 +83,10 @@ const noOperations : list (operation) = nil;
 type return is list (operation) * governanceProxyStorage
 
 // proxy lambdas -> executing proposals to external contracts within MAVRYK system
-type governanceProxyLambdaFunctionType is (executeActionType * governanceProxyStorage) -> return
+type governanceProxyProxyLambdaFunctionType is (executeActionType * governanceProxyStorage) -> return
+
+// governance proxy contract methods lambdas
+type governanceProxyUnpackLambdaFunctionType is (governanceProxyLambdaActionType * governanceProxyStorage) -> return
 
 
 
@@ -110,6 +116,12 @@ type governanceProxyLambdaFunctionType is (executeActionType * governanceProxySt
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : governanceProxyStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(var s : governanceProxyStorage) : unit is
     if (Tezos.sender = s.admin) then unit
@@ -252,6 +264,16 @@ case (Tezos.get_entrypoint_opt(
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function unpackLambda(const lambdaBytes : bytes; const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyUnpackLambdaFunctionType)) of [
+        Some(f) -> f(governanceProxyLambdaAction, s)
+      | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
+    ];
+
+} with (res.0, res.1)
 
 // ------------------------------------------------------------------------------
 // Lambda Helper Functions End
@@ -410,7 +432,7 @@ block {
     ];
 
     // init governance proxy lambda action
-    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateWhitelistTokenContracts(updateWhitelistTokenContractsParams);
+    const governanceProxyLambdaAction : governanceProxyLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceProxyLambdaAction, s);  
@@ -474,7 +496,7 @@ block {
     ];
 
     // reference: type governanceLambdaFunctionType is (executeActionType * governanceStorage) -> return
-    const response : return = case (Bytes.unpack(executeGovernanceActionLambdaBytes) : option(governanceProxyLambdaFunctionType)) of [
+    const response : return = case (Bytes.unpack(executeGovernanceActionLambdaBytes) : option(governanceProxyProxyLambdaFunctionType)) of [
         Some(f) -> f(governanceAction, s)
       | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];

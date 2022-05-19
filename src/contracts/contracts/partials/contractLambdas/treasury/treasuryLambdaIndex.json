@@ -61,10 +61,14 @@
     },
     {
       "index": 15,
-      "name": "lambdaStake"
+      "name": "lambdaUpdateOperators"
     },
     {
       "index": 16,
+      "name": "lambdaStake"
+    },
+    {
+      "index": 17,
       "name": "lambdaUnstake"
     }
 ]

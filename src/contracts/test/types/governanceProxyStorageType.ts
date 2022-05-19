@@ -12,4 +12,6 @@ export type governanceProxyStorageType = {
   whitelistTokenContracts   : MichelsonMap<MichelsonMapKey, unknown>;
 
   proxyLambdaLedger         : MichelsonMap<MichelsonMapKey, unknown>;
+
+  lambdaLedger              : MichelsonMap<MichelsonMapKey, unknown>;
 };

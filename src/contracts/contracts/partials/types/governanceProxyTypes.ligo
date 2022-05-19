@@ -77,14 +77,19 @@ type targetTreasuryMintMvkAndTransferType is [@layout:comb] record [
   treasuryMint              : mintMvkAndTransferType;
 ]
 
+type updateOperatorsTreasuryType is [@layout:comb] record [
+  targetTreasuryAddress     : address;
+  treasuryUpdatedOperators  : updateOperatorsParams;
+]
+
 type stakeTreasuryType is [@layout:comb] record [
   targetTreasuryAddress     : address;
-  treasuryStake             : nat;
+  stakeAmount               : nat;
 ]
 
 type unstakeTreasuryType is [@layout:comb] record [
   targetTreasuryAddress     : address;
-  treasuryUnstake           : nat;
+  unstakeAmount             : nat;
 ]
 
 type executeActionParamsType is 
@@ -122,6 +127,7 @@ type executeActionParamsType is
 | UntrackTreasury                    of (address)
 | TransferTreasury                   of targetTreasuryTransferType
 | MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType
+| UpdateOperatorsTreasury            of updateOperatorsTreasuryType
 | StakeTreasury                      of stakeTreasuryType
 | UnstakeTreasury                    of unstakeTreasuryType
 
@@ -143,7 +149,7 @@ type governanceProxyLambdaActionType is
 | LambdaSetGovernance                   of (address)
 | LambdaUpdateMetadata                  of updateMetadataType
 | LambdaUpdateWhitelistContracts        of updateWhitelistContractsParams
-| LambdaUpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
+| LambdaUpdateWhitelistTokens           of updateWhitelistTokenContractsParams
 | LambdaUpdateGeneralContracts          of updateGeneralContractsParams
 
 // ------------------------------------------------------------------------------
@@ -162,4 +168,7 @@ type governanceProxyStorage is record [
     whitelistTokenContracts     : whitelistTokenContractsType;      
 
     proxyLambdaLedger           : proxyLambdaLedgerType;
+
+    // lambda storage
+    lambdaLedger                : lambdaLedgerType;             // governance proxy contract lambdas
 ]
