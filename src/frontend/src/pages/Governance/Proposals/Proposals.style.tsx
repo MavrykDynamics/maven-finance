@@ -9,15 +9,13 @@ export const ProposalListContainer = styled.div`
     color: ${({ theme }) => theme.headerColor};
     font-size: 25px;
     margin: 0;
-    margin-top: -4px;
-    margin-bottom: 5px;
   }
 `
 
 export const ProposalListItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   border: 1px solid ${darkCianColor};
-  min-height: 56px;
+  min-height: 57px;
   width: 100%;
   display: flex;
   align-items: center;
@@ -26,13 +24,14 @@ export const ProposalListItem = styled.div<{ selected: boolean; theme: MavrykThe
   padding: 0 18px;
   border-radius: 10px;
   font-weight: 600;
-  padding: 8px 18px;
+  padding: 8px 28px;
+  cursor: pointer;
 
   ${({ selected }) =>
     selected &&
     css`
       border-color: ${cianColor};
-      box-shadow: 2px 4px 4px ${boxShadowColor};
+      box-shadow: 0px 4px 4px ${boxShadowColor};
     `}
 `
 
