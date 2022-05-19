@@ -5,47 +5,71 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateMinMvkAmount"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMinMvkAmount"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaMigrateFunds"
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseUnstake"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaStake"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaUnstake"
+      "name": "lambdaTogglePauseStake"
     },
     {
       "index": 10,
-      "name": "lambdaCompound"
+      "name": "lambdaTogglePauseUnstake"
     },
     {
       "index": 11,
+      "name": "lambdaTogglePauseCompound"
+    },
+    {
+      "index": 12,
+      "name": "lambdaTogglePauseFarmClaim"
+    },
+    {
+      "index": 13,
+      "name": "lambdaStake"
+    },
+    {
+      "index": 14,
+      "name": "lambdaUnstake"
+    },
+    {
+      "index": 15,
+      "name": "lambdaCompound"
+    },
+    {
+      "index": 16,
       "name": "lambdaFarmClaim"
+    },
+    {
+      "index": 17,
+      "name": "lambdaNewUnstake"
     }
 ]
   

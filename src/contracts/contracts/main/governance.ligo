@@ -2,14 +2,11 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
-// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
-#include "../partials/whitelistContractsType.ligo"
-
 // General Contracts: generalContractsType, updateGeneralContractsParams
 #include "../partials/generalContractsType.ligo"
 
-// Whitelist Token Contracts: whitelistTokenContractsType, updateWhitelistTokenContractsParams 
-#include "../partials/whitelistTokenContractsType.ligo"
+// Treasury transfers Type
+#include "../partials/functionalTypes/treasuryTransferTypes.ligo"
 
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
@@ -17,12 +14,6 @@
 // ------------------------------------------------------------------------------
 // Contract Types
 // ------------------------------------------------------------------------------
-
-// Treasury Type for mint and transfers
-#include "../partials/types/treasuryTypes.ligo"
-
-// Council Type for financial requests
-#include "../partials/types/councilTypes.ligo"
 
 // Governance Type
 #include "../partials/types/governanceTypes.ligo"
@@ -32,16 +23,18 @@
 type governanceAction is 
 
       // Break Glass Entrypoint
-    | BreakGlass                      of (unit)
+      BreakGlass                      of (unit)
+    | PropagateBreakGlass             of (unit)
 
       // Housekeeping Entrypoints
     | SetAdmin                        of (address)
-    | SetGovernanceProxyAddress       of (address)
+    | SetGovernanceProxy              of (address)
     | UpdateMetadata                  of updateMetadataType
     | UpdateConfig                    of governanceUpdateConfigParamsType
-    | UpdateWhitelistContracts        of updateWhitelistContractsParams
     | UpdateGeneralContracts          of updateGeneralContractsParams
-    | UpdateWhitelistTokenContracts   of updateWhitelistTokenContractsParams
+    | UpdateWhitelistDevelopers       of (address)
+    | SetContractAdmin                of setContractAdminType
+    | SetContractGovernance           of setContractGovernanceType
     
       // Governance Cycle Entrypoints
     | StartNextRound                  of bool
@@ -50,20 +43,11 @@ type governanceAction is
     | AddUpdateProposalData           of addUpdateProposalDataType
     | AddUpdatePaymentData            of addUpdatePaymentDataType
     | LockProposal                    of proposalIdType      
-    | VotingRoundVote                 of (voteForProposalChoiceType)    
+    | VotingRoundVote                 of (votingRoundVoteType)    
     | ExecuteProposal                 of (unit)
     | ProcessProposalPayment          of proposalIdType
+    | ProcessProposalSingleData       of (unit)
     | DropProposal                    of proposalIdType
-
-      // Financial Governance Entrypoints
-    | RequestTokens                   of requestTokensType
-    | RequestMint                     of requestMintType
-    | SetContractBaker                of setContractBakerType
-    | DropFinancialRequest            of (nat)
-    | VoteForRequest                  of voteForRequestType
-
-      // Satellite Governance Entrypoints
-    // | SuspendSatellite                of suspendSatelliteType
 
       // Lambda Entrypoints
     | SetLambda                       of setLambdaType
@@ -99,44 +83,8 @@ const maxRoundDuration : nat = 20_160n; // One week with blockTime = 30sec
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                            = 0n;
-[@inline] const error_ONLY_SELF_ALLOWED                                     = 1n;
-[@inline] const error_ONLY_ADMIN_OR_SELF_ALLOWED                            = 2n;
-[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                         = 3n;
-[@inline] const error_ONLY_DELEGATION_CONTRACT_ALLOWED                      = 4n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                       = 5n;
-[@inline] const error_ONLY_COUNCIL_CONTRACT_ALLOWED                         = 6n;
-[@inline] const error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED            = 7n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                     = 8n;
-
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                            = 9n;
-[@inline] const error_DELEGATION_CONTRACT_NOT_FOUND                         = 10n;
-[@inline] const error_COUNCIL_CONTRACT_NOT_FOUND                            = 11n;
-[@inline] const error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND               = 12n;
-
-// temp
-[@inline] const error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                        = 13n;
-// [@inline] const error_EXECUTE_GOVERNANCE_PROPOSAL_ENTRYPOINT_NOT_FOUND      = 13n;
-[@inline] const error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND        = 13n;
-//
-
-[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 13n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 14n;
-[@inline] const error_START_PROPOSAL_ROUND_ENTRYPOINT_NOT_FOUND             = 15n;
-[@inline] const error_EXECUTE_PROPOSAL_ENTRYPOINT_NOT_FOUND                 = 16n;
-[@inline] const error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_NOT_FOUND         = 17n;
-[@inline] const error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND          = 18n;
-[@inline] const error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND     = 19n;
-
-[@inline] const error_VIEW_GET_TOTAL_SUPPLY_NOT_FOUND                       = 20n;
-[@inline] const error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND                  = 21n;
-[@inline] const error_TRANSFER_ENTRYPOINT_NOT_FOUND                         = 22n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND            = 23n;
-[@inline] const error_SET_BAKER_ENTRYPOINT_NOT_FOUND                        = 24n;
-[@inline] const error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND                  = 25n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                      = 26n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 27n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -165,12 +113,6 @@ function checkSenderIsAdmin(var s : governanceStorage) : unit is
 function checkSenderIsSelf(const _p : unit) : unit is
     if (Tezos.sender = Tezos.self_address) then unit
     else failwith(error_ONLY_SELF_ALLOWED);
-
-
-
-function checkSenderIsAdminOrSelf(var s : governanceStorage) : unit is
-    if (Tezos.sender = s.admin or Tezos.sender = Tezos.self_address) then unit
-    else failwith(error_ONLY_ADMIN_OR_SELF_ALLOWED);
 
 
 
@@ -251,18 +193,8 @@ block{
 
 
 
-// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
-#include "../partials/whitelistContractsMethod.ligo"
-
-
-
 // General Contracts: checkInGeneralContracts, updateGeneralContracts
 #include "../partials/generalContractsMethod.ligo"
-
-
-
-// Whitelist Token Contracts: checkInWhitelistTokenContracts, updateWhitelistTokenContracts
-#include "../partials/whitelistTokenContractsMethod.ligo"
 
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
@@ -280,29 +212,29 @@ function getSetAdminEntrypoint(const contractAddress : address) : contract(addre
       "%setAdmin",
       contractAddress) : option(contract(address))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_NOT_FOUND) : contract(address))
+        | None        -> (failwith(error_SET_ADMIN_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
       ];
 
 
 
-// governance proxy lamba helper function to get executeGovernanceProposal entrypoint
-// function getExecuteGovernanceProposalEntrypoint(const contractAddress : address) : contract(bytes) is
-// case (Tezos.get_entrypoint_opt(
-//       "%executeGovernanceProposal",
-//       contractAddress) : option(contract(bytes))) of [
-//           Some(contr) -> contr
-//         | None        -> (failwith(error_EXECUTE_GOVERNANCE_PROPOSAL_ENTRYPOINT_NOT_FOUND) : contract(bytes))
-//       ];
+// governance proxy lamba helper function to get setGovernance entrypoint
+function getSetGovernanceEntrypoint(const contractAddress : address) : contract(address) is
+  case (Tezos.get_entrypoint_opt(
+      "%setGovernance",
+      contractAddress) : option(contract(address))) of [
+          Some(contr) -> contr
+        | None        -> (failwith(error_SET_GOVERNANCE_ENTRYPOINT_IN_CONTRACT_NOT_FOUND) : contract(address))
+      ];
 
 
-
+      
 // governance proxy lamba helper function to get executeGovernanceProposal entrypoint
 function getExecuteGovernanceActionEntrypoint(const contractAddress : address) : contract(bytes) is
 case (Tezos.get_entrypoint_opt(
       "%executeGovernanceAction",
       contractAddress) : option(contract(bytes))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_NOT_FOUND) : contract(bytes))
+        | None        -> (failwith(error_EXECUTE_GOVERNANCE_ACTION_ENTRYPOINT_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND) : contract(bytes))
       ];
 
 
@@ -313,30 +245,8 @@ case (Tezos.get_entrypoint_opt(
       "%transfer",
       contractAddress) : option(contract(transferActionType))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
+        | None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
       ];
-
-
-
-// helper function to send mint MVK and transfer operation to treasury
-function sendMintMvkAndTransferOperationToTreasury(const contractAddress : address) : contract(mintMvkAndTransferType) is
-case (Tezos.get_entrypoint_opt(
-      "%mintMvkAndTransfer",
-      contractAddress) : option(contract(mintMvkAndTransferType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(mintMvkAndTransferType))
-];
-
-
-
-// helper function to set baker for treasury
-function setTreasuryBaker(const contractAddress : address) : contract(setBakerType) is
-case (Tezos.get_entrypoint_opt(
-      "%setBaker",
-      contractAddress) : option(contract(setBakerType))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_SET_BAKER_ENTRYPOINT_NOT_FOUND) : contract(setBakerType))
-];
 
 
 
@@ -345,7 +255,7 @@ case (Tezos.get_entrypoint_opt(
       "%executeProposal",
       contractAddress) : option(contract(unit))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_EXECUTE_PROPOSAL_ENTRYPOINT_NOT_FOUND) : contract(unit))
+  | None -> (failwith(error_EXECUTE_PROPOSAL_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(unit))
 ];
 
 
@@ -355,7 +265,7 @@ case (Tezos.get_entrypoint_opt(
       "%addUpdateProposalData",
       contractAddress) : option(contract(addUpdateProposalDataType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_NOT_FOUND) : contract(addUpdateProposalDataType))
+  | None -> (failwith(error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(addUpdateProposalDataType))
 ];
 
 
@@ -365,7 +275,7 @@ case (Tezos.get_entrypoint_opt(
       "%addUpdatePaymentData",
       contractAddress) : option(contract(addUpdatePaymentDataType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_NOT_FOUND) : contract(addUpdatePaymentDataType))
+  | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(addUpdatePaymentDataType))
 ];
 
 
@@ -382,37 +292,6 @@ function transferTez(const to_ : contract(unit); const amt : tez) : operation is
 // Governance Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function restartProposalRoundOperation(const _p : unit) : operation is 
-block {
-
-  // restart - another proposal round
-  const restartProposalRoundEntrypoint: contract(unit) =
-    case (Tezos.get_entrypoint_opt("%startProposalRound", Tezos.self_address) : option(contract(unit))) of [
-      Some(contr) -> contr
-    | None -> (failwith(error_START_PROPOSAL_ROUND_ENTRYPOINT_NOT_FOUND): contract(unit))
-  ];
-
-  const restartProposalRoundOperation : operation = Tezos.transaction(
-      unit, 
-      0tez, 
-      restartProposalRoundEntrypoint
-  );
-
-} with restartProposalRoundOperation
-
-
-
-// helper function to send operation to governance lambda
-// function sendOperationToGovernanceLambda(const _p : unit) : contract(executeActionType) is
-//   case (Tezos.get_entrypoint_opt(
-//       "%callGovernanceLambdaProxy",
-//       Tezos.self_address) : option(contract(executeActionType))) of [
-//           Some(contr) -> contr
-//         | None -> (failwith(error_CALL_GOVERNANCE_LAMBDA_PROXY_ENTRYPOINT_NOT_FOUND) : contract(executeActionType))
-//       ];  
-
-
-
 // helper function to get satellite snapshot 
 function getSatelliteSnapshotRecord (const satelliteAddress : address; const s : governanceStorage) : snapshotRecordType is
 block {
@@ -422,8 +301,8 @@ block {
         totalMvkBalance         = 0n;                            // log of satellite's total mvk balance for this cycle
         totalDelegatedAmount    = 0n;                            // log of satellite's total delegated amount 
         totalVotingPower        = 0n;                            // calculated total voting power based on votingPowerRatio (i.e. self bond percentage)   
-        currentCycleStartLevel  = s.currentRoundStartLevel;      // log of current cycle's starting block level
-        currentCycleEndLevel    = s.currentCycleEndLevel         // log of when cycle (proposal + voting) will end
+        currentCycleStartLevel  = s.currentCycleInfo.roundStartLevel;      // log of current cycle's starting block level
+        currentCycleEndLevel    = s.currentCycleInfo.cycleEndLevel         // log of when cycle (proposal + voting) will end
       ];
 
     case s.snapshotLedger[satelliteAddress] of [
@@ -432,41 +311,6 @@ block {
     ];
 
 } with satelliteSnapshotRecord
-
-
-
-function requestSatelliteSnapshot(const satelliteSnapshot : requestSatelliteSnapshotType; var s : governanceStorage) : governanceStorage is 
-block {
-    // init variables
-    const financialRequestId    : nat     = satelliteSnapshot.requestId;
-    const satelliteAddress      : address = satelliteSnapshot.satelliteAddress;
-    const stakedMvkBalance      : nat     = satelliteSnapshot.stakedMvkBalance; 
-    const totalDelegatedAmount  : nat     = satelliteSnapshot.totalDelegatedAmount; 
-
-    const maxTotalVotingPower = abs(stakedMvkBalance * 10000 / s.config.votingPowerRatio);
-    const mvkBalanceAndTotalDelegatedAmount = stakedMvkBalance + totalDelegatedAmount; 
-    var totalVotingPower : nat := 0n;
-    if mvkBalanceAndTotalDelegatedAmount > maxTotalVotingPower then totalVotingPower := maxTotalVotingPower
-    else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
-
-    var satelliteSnapshotRecord : financialRequestSnapshotRecordType := record [
-        totalMvkBalance         = stakedMvkBalance; 
-        totalDelegatedAmount    = totalDelegatedAmount; 
-        totalVotingPower        = totalVotingPower;
-      ];
-    
-    var financialRequestSnapshot : financialRequestSnapshotMapType := case s.financialRequestSnapshotLedger[financialRequestId] of [ 
-        None -> failwith(error_FINANCIAL_REQUEST_SNAPSHOT_NOT_FOUND)
-      | Some(snapshot) -> snapshot
-    ];
-
-    // update financal request snapshot map with record of satellite's total voting power
-    financialRequestSnapshot[satelliteAddress]           := satelliteSnapshotRecord;
-
-    // update financial request snapshot ledger bigmap with updated satellite's details
-    s.financialRequestSnapshotLedger[financialRequestId] := financialRequestSnapshot;
-
-} with (s)
 
 
 
@@ -570,28 +414,28 @@ function sendRewardsToVoters(var s: governanceStorage): operation is
     const highestVotedProposalId: nat   = s.currentRoundHighestVotedProposalId;
     const proposal: proposalRecordType  = case Big_map.find_opt(highestVotedProposalId, s.proposalLedger) of [
       Some (_record) -> _record
-    | None -> failwith("Error. Highest voted proposal not found")
+    | None -> failwith(error_HIGHEST_VOTED_PROPOSAL_NOT_FOUND)
     ];
     const voters: votersMapType         = proposal.voters;
     
     // Get voters
-    var votersAddresses: set(address)   := Set.empty;
-    function getVotersAddresses(const voters: set(address); const voter: address * votingRoundVoteType): set(address) is
+    var votersAddresses: set(address)   := (Set.empty: set(address));
+    function getVotersAddresses(const voters: set(address); const voter: address * votingRoundRecordType): set(address) is
       Set.add(voter.0, voters);
     var votersAddresses := Map.fold(getVotersAddresses, voters, votersAddresses);
 
     // Get rewards
-    const roundReward: nat  = s.currentCycleTotalVotersReward;
+    const roundReward: nat  = s.currentCycleInfo.cycleTotalVotersReward;
 
     // Send rewards to all satellites
     const delegationAddress : address = case s.generalContracts["delegation"] of [
       Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found")
+      | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
     ];
     const distributeRewardsEntrypoint: contract(set(address) * nat) =
       case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
         Some(contr) -> contr
-      | None -> (failwith("Error. DistributeReward entrypoint not found in Delegation contract."): contract(set(address) * nat))
+      | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED): contract(set(address) * nat))
     ];
     const distributeOperation: operation = Tezos.transaction((votersAddresses, roundReward), 0tez, distributeRewardsEntrypoint);
   } with(distributeOperation)
@@ -604,7 +448,7 @@ function sendRewardToProposer(var s: governanceStorage): operation is
     const timelockProposalId: nat   = s.timelockProposalId;
     const proposal: proposalRecordType  = case Big_map.find_opt(timelockProposalId, s.proposalLedger) of [
       Some (_record) -> _record
-    | None -> failwith("Error. Timelock proposal not found")
+    | None -> failwith(error_TIMELOCK_PROPOSAL_NOT_FOUND)
     ];
     const proposerAddress: address         = proposal.proposerAddress;
     
@@ -614,12 +458,12 @@ function sendRewardToProposer(var s: governanceStorage): operation is
     // Send rewards to the proposer
     const delegationAddress : address = case s.generalContracts["delegation"] of [
       Some(_address) -> _address
-      | None -> failwith("Error. Delegation Contract is not found")
+      | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
     ];
     const distributeRewardsEntrypoint: contract(set(address) * nat) =
       case (Tezos.get_entrypoint_opt("%distributeReward", delegationAddress) : option(contract(set(address) * nat))) of [
         Some(contr) -> contr
-      | None -> (failwith("Error. DistributeReward entrypoint not found in Delegation contract."): contract(set(address) * nat))
+      | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED): contract(set(address) * nat))
     ];
     const distributeOperation: operation = Tezos.transaction((set[proposerAddress], proposerReward), 0tez, distributeRewardsEntrypoint);
   } with(distributeOperation)
@@ -634,17 +478,17 @@ block {
     var emptyVotesMap     : map(address, nat)       := map [];
     var emptyProposerMap  : map(address, set(nat))  := map [];
 
-    s.currentRound                         := (Proposal : roundType);
-    s.currentBlocksPerProposalRound        := s.config.blocksPerProposalRound;
-    s.currentBlocksPerVotingRound          := s.config.blocksPerVotingRound;
-    s.currentBlocksPerTimelockRound        := s.config.blocksPerTimelockRound;
-    s.currentRoundStartLevel               := Tezos.level;
-    s.currentRoundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
-    s.currentCycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
-    s.currentCycleTotalVotersReward        := s.config.cycleVotersReward;
-    s.currentRoundProposals                := emptyProposalMap;    // flush proposals
-    s.currentRoundProposers                := emptyProposerMap;    // flush proposals
-    s.currentRoundVotes                    := emptyVotesMap;       // flush voters
+    s.currentCycleInfo.round                         := (Proposal : roundType);
+    s.currentCycleInfo.blocksPerProposalRound        := s.config.blocksPerProposalRound;
+    s.currentCycleInfo.blocksPerVotingRound          := s.config.blocksPerVotingRound;
+    s.currentCycleInfo.blocksPerTimelockRound        := s.config.blocksPerTimelockRound;
+    s.currentCycleInfo.roundStartLevel               := Tezos.level;
+    s.currentCycleInfo.roundEndLevel                 := Tezos.level + s.config.blocksPerProposalRound;
+    s.currentCycleInfo.cycleEndLevel                 := Tezos.level + s.config.blocksPerProposalRound + s.config.blocksPerVotingRound + s.config.blocksPerTimelockRound;
+    s.currentCycleInfo.cycleTotalVotersReward        := s.config.cycleVotersReward;
+    s.currentCycleInfo.roundProposals                := emptyProposalMap;    // flush proposals
+    s.currentCycleInfo.roundProposers                := emptyProposerMap;    // flush proposals
+    s.currentCycleInfo.roundVotes                    := emptyVotesMap;       // flush voters
     s.currentRoundHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
 
     const delegationAddress : address = case s.generalContracts["delegation"] of [
@@ -656,14 +500,14 @@ block {
     const mvkTotalSupplyView : option (nat) = Tezos.call_view ("getTotalSupply", unit, s.mvkTokenAddress);
     s.snapshotMvkTotalSupply := case mvkTotalSupplyView of [
         Some (value) -> value
-      | None -> (failwith (error_VIEW_GET_TOTAL_SUPPLY_NOT_FOUND) : nat)
+      | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
     ];
 
     // Get active satellites from the delegation contract and loop through them
     const activeSatellitesView : option (map(address,satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
     const activeSatellites: map(address,satelliteRecordType) = case activeSatellitesView of [
         Some (value) -> value
-      | None -> failwith (error_VIEW_GET_ACTIVE_SATELLITES_NOT_FOUND)
+      | None -> failwith (error_GET_ACTIVE_SATELLITES_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
     ];
 
     for satelliteAddress -> satellite in map activeSatellites block {
@@ -686,8 +530,8 @@ block {
       satelliteSnapshotRecord.totalMvkBalance         := mvkBalance; 
       satelliteSnapshotRecord.totalDelegatedAmount    := totalDelegatedAmount; 
       satelliteSnapshotRecord.totalVotingPower        := totalVotingPower;
-      satelliteSnapshotRecord.currentCycleStartLevel  := s.currentRoundStartLevel; 
-      satelliteSnapshotRecord.currentCycleEndLevel    := s.currentCycleEndLevel; 
+      satelliteSnapshotRecord.currentCycleStartLevel  := s.currentCycleInfo.roundStartLevel; 
+      satelliteSnapshotRecord.currentCycleEndLevel    := s.currentCycleInfo.cycleEndLevel; 
 
       s.snapshotLedger[satelliteAddress] := satelliteSnapshotRecord;
     }
@@ -701,9 +545,9 @@ function setupVotingRound(const highestVotedProposalId: nat; var s: governanceSt
 block {
 
     // boundaries fixed to the start and end of the cycle (calculated at start of proposal round)
-    s.currentRound               := (Voting : roundType);
-    s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
-    s.currentRoundEndLevel       := s.currentRoundEndLevel + s.currentBlocksPerVotingRound;
+    s.currentCycleInfo.round               := (Voting : roundType);
+    s.currentCycleInfo.roundStartLevel     := s.currentCycleInfo.roundEndLevel + 1n;
+    s.currentCycleInfo.roundEndLevel       := s.currentCycleInfo.roundEndLevel + s.currentCycleInfo.blocksPerVotingRound;
 
     s.timelockProposalId         := 0n;                  // flush proposal id in timelock - reset to 0
 
@@ -712,7 +556,7 @@ block {
 
     // flush current round votes - to prepare for voting round
     const emptyCurrentRoundVotes : map(address, nat) = map[];
-    s.currentRoundVotes := emptyCurrentRoundVotes;
+    s.currentCycleInfo.roundVotes := emptyCurrentRoundVotes;
 
 } with (s)
 
@@ -723,9 +567,9 @@ function setupTimelockRound(var s: governanceStorage): governanceStorage is
 block {
 
     // boundaries remain fixed to the start and end of the cycle (calculated at start of proposal round)
-    s.currentRound               := (Timelock : roundType);
-    s.currentRoundStartLevel     := s.currentRoundEndLevel + 1n;
-    s.currentRoundEndLevel       := s.currentCycleEndLevel;
+    s.currentCycleInfo.round               := (Timelock : roundType);
+    s.currentCycleInfo.roundStartLevel     := s.currentCycleInfo.roundEndLevel + 1n;
+    s.currentCycleInfo.roundEndLevel       := s.currentCycleInfo.cycleEndLevel;
 
     // set timelockProposalId to currentRoundHighestVotedProposalId
     s.timelockProposalId         := s.currentRoundHighestVotedProposalId;
@@ -770,10 +614,81 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-(* View: get Proposal Record *)
-[@view] function getProposalRecordView(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
-  s.proposalLedger[proposalId]
+(* View: get config *)
+[@view] function getConfig(const _: unit; var s : governanceStorage) : governanceConfigType is
+  s.config
 
+
+
+(* View: get Governance Proxy address *)
+[@view] function getGovernanceProxyAddress(const _: unit; var s : governanceStorage) : address is
+  s.governanceProxyAddress
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : governanceStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get Whitelist developers *)
+[@view] function getWhitelistDevelopers(const _: unit; var s : governanceStorage) : whitelistDevelopersType is
+  s.whitelistDevelopers
+
+
+
+(* View: get a proposal *)
+[@view] function getProposalOpt(const proposalId: nat; var s : governanceStorage) : option(proposalRecordType) is
+  Big_map.find_opt(proposalId, s.proposalLedger)
+
+
+
+(* View: get a satellite snapshot *)
+[@view] function getSnapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
+  Big_map.find_opt(satelliteAddress, s.snapshotLedger)
+
+
+
+(* View: get current cycle info *)
+[@view] function getCurrentCycleInfo(const _: unit; var s : governanceStorage) : currentCycleInfoType is
+  s.currentCycleInfo
+
+
+
+(* View: get next proposal id *)
+[@view] function getNextProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.nextProposalId
+
+
+
+(* View: get cycle counter *)
+[@view] function getCycleCounter(const _: unit; var s : governanceStorage) : nat is
+  s.cycleCounter
+
+
+
+(* View: get current cycle highest voted proposal id *)
+[@view] function getRoundHighestVotedProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.currentRoundHighestVotedProposalId
+
+
+
+(* View: get timelock proposal id *)
+[@view] function getTimelockProposalId(const _: unit; var s : governanceStorage) : nat is
+  s.timelockProposalId
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : governanceStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : governanceStorage) : lambdaLedgerType is
+  s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //
@@ -827,6 +742,25 @@ block {
     
 } with response
 
+
+
+(*  propagateBreakGlass entrypoint *)
+function propagateBreakGlass(var s : governanceStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPropagateBreakGlass"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaPropagateBreakGlass(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+    
+} with response
+
 // ------------------------------------------------------------------------------
 // Break Glass Entrypoint End
 // ------------------------------------------------------------------------------
@@ -857,17 +791,17 @@ block {
 
 
 
-(*  setGovernanceProxyAddress entrypoint *)
-function setGovernanceProxyAddress(const newGovernanceProxyAddress : address; var s : governanceStorage) : return is
+(*  setGovernanceProxy entrypoint *)
+function setGovernanceProxy(const newGovernanceProxyAddress : address; var s : governanceStorage) : return is
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernanceProxyAddress"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernanceProxy"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaSetGovernanceProxyAddress(newGovernanceProxyAddress);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaSetGovernanceProxy(newGovernanceProxyAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -914,25 +848,6 @@ block {
 
 
 
-// (*  updateWhitelistContracts entrypoint *)
-function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: governanceStorage): return is
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
 // (*  updateGeneralContracts entrypoint *)
 function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: governanceStorage): return is
 block {
@@ -952,17 +867,55 @@ block {
 
 
 
-// (*  updateWhitelistTokenContracts entrypoint *)
-function updateWhitelistTokenContracts(const updateWhitelistTokenContractsParams: updateWhitelistTokenContractsParams; var s: governanceStorage): return is
+// (*  updateWhitelistDevelopers entrypoint *)
+function updateWhitelistDevelopers(const developer: address; var s: governanceStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistTokenContracts"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistDevelopers"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateWhitelistDevelopers(developer);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
+// (*  setContractAdmin entrypoint *)
+function setContractAdmin(const setContractAdminParams: setContractAdminType; var s: governanceStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetContractAdmin"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaSetContractAdmin(setContractAdminParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
+// (*  setContractGovernance entrypoint *)
+function setContractGovernance(const setContractGovernanceParams: setContractGovernanceType; var s: governanceStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetContractGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaSetContractGovernance(setContractGovernanceParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1093,7 +1046,7 @@ block {
 
 
 // (* votingRoundVote entrypoint *)
-function votingRoundVote(const voteType : voteForProposalChoiceType; var s : governanceStorage) : return is 
+function votingRoundVote(const voteType : votingRoundVoteType; var s : governanceStorage) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaVotingRoundVote"] of [
@@ -1131,7 +1084,7 @@ block {
 
 
 // (* processProposalPayment entrypoint *)
-function processProposalPayment(var s : governanceStorage) : return is 
+function processProposalPayment(const proposalID: proposalIdType; var s : governanceStorage) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaProcessProposalPayment"] of [
@@ -1140,7 +1093,26 @@ block {
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaExecuteProposal(unit);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaProcessProposalPayment(proposalID);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
+
+} with response
+
+
+
+// (* processProposalSingleData entrypoint *)
+function processProposalSingleData(var s : governanceStorage) : return is 
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaProcessProposalSingleData"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init governance lambda action
+    const governanceLambdaAction : governanceLambdaActionType = LambdaProcessProposalSingleData(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1168,109 +1140,6 @@ block {
 
 // ------------------------------------------------------------------------------
 // Governance Cycle Entrypoints End
-// ------------------------------------------------------------------------------
-
-
-
-// ------------------------------------------------------------------------------
-// Financial Governance Entrypoints Begin
-// ------------------------------------------------------------------------------
-
-(* requestTokens entrypoint *)
-function requestTokens(const requestTokensParams : councilActionRequestTokensType; var s : governanceStorage) : return is 
-block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestTokens"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaRequestTokens(requestTokensParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
-(* requestMint entrypoint *)
-function requestMint(const requestMintParams : councilActionRequestMintType; var s : governanceStorage) : return is 
-block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaRequestMint"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaRequestMint(requestMintParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
-(* setContractBaker entrypoint *)
-function setContractBaker(const setContractBakerParams : councilActionSetContractBakerType; var s : governanceStorage) : return is 
-block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetContractBaker"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaSetContractBaker(setContractBakerParams);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
-(* dropFinancialRequest entrypoint *)
-function dropFinancialRequest(const requestId : nat; var s : governanceStorage) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDropFinancialRequest"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaDropFinancialRequest(requestId);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-
-} with response
-
-
-
-(* voteForRequest entrypoint *)
-function voteForRequest(const voteForRequest : voteForRequestType; var s : governanceStorage) : return is 
-block {
-  
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaVoteForRequest"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaVoteForRequest(voteForRequest);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
-  
-} with response
-
-// ------------------------------------------------------------------------------
-// Financial Governance Entrypoints End
 // ------------------------------------------------------------------------------
 
 
@@ -1312,15 +1181,17 @@ function main (const action : governanceAction; const s : governanceStorage) : r
 
           // Break Glass Entrypoint
         | BreakGlass(_parameters)                     -> breakGlass(s)
+        | PropagateBreakGlass(_parameters)            -> propagateBreakGlass(s)
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                        -> setAdmin(parameters, s)
-        | SetGovernanceProxyAddress(parameters)       -> setGovernanceProxyAddress(parameters, s)
+        | SetGovernanceProxy(parameters)              -> setGovernanceProxy(parameters, s)
         | UpdateMetadata(parameters)                  -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                    -> updateConfig(parameters, s)
-        | UpdateWhitelistContracts(parameters)        -> updateWhitelistContracts(parameters, s)
         | UpdateGeneralContracts(parameters)          -> updateGeneralContracts(parameters, s)
-        | UpdateWhitelistTokenContracts(parameters)   -> updateWhitelistTokenContracts(parameters, s)
+        | UpdateWhitelistDevelopers(parameters)       -> updateWhitelistDevelopers(parameters, s)
+        | SetContractAdmin(parameters)                -> setContractAdmin(parameters, s)
+        | SetContractGovernance(parameters)           -> setContractGovernance(parameters, s)
 
           // Governance Cycle Entrypoints
         | StartNextRound(parameters)                  -> startNextRound(parameters, s)
@@ -1331,18 +1202,9 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | LockProposal(parameters)                    -> lockProposal(parameters, s)
         | VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
         | ExecuteProposal(_parameters)                -> executeProposal(s)
-        | ProcessProposalPayment(_parameters)         -> processProposalPayment(s)
+        | ProcessProposalPayment(parameters)          -> processProposalPayment(parameters, s)
+        | ProcessProposalSingleData(_parameters)      -> processProposalSingleData(s)
         | DropProposal(parameters)                    -> dropProposal(parameters, s)
-
-          // Financial Governance Entrypoints
-        | RequestTokens(parameters)                   -> requestTokens(parameters, s)
-        | RequestMint(parameters)                     -> requestMint(parameters, s)
-        | SetContractBaker(parameters)                -> setContractBaker(parameters, s)
-        | DropFinancialRequest(parameters)            -> dropFinancialRequest(parameters, s)
-        | VoteForRequest(parameters)                  -> voteForRequest(parameters, s)
-
-          // Satellite Governance Entrypoints
-        // | SuspendSatellite(parameters)                   -> suspendSatellite(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                       -> setLambda(parameters, s)

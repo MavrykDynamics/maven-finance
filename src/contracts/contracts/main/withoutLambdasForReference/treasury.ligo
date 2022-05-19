@@ -181,18 +181,7 @@ function mintTokens(
     (to_, amount_),
     0tez,
     getMintEntrypointFromTokenAddress(tokenAddress)
-  );  
-
-
-
-// helper function to update satellite's balance
-function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceParams) is
-  case (Tezos.get_entrypoint_opt(
-    "%onStakeChange",
-    delegationAddress) : option(contract(updateSatelliteBalanceParams))) of [
-      Some(contr) -> contr
-    | None        -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_NOT_FOUND_IN_DELEGATION_CONTRACT) : contract(updateSatelliteBalanceParams))
-  ];
+  );
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -445,28 +434,6 @@ block {
 
         accumulator := transferTokenOperation # accumulator;
 
-        // update user's satellite balance if MVK is transferred
-        const checkIfMvkToken : bool = case token of [
-              Tez -> False
-            | Fa12(_token) -> False
-            | Fa2(token) -> block {
-                    var mvkBool : bool := False;
-                    if token.tokenContractAddress = mvkTokenAddress then mvkBool := True else mvkBool := False;                
-                } with mvkBool        
-        ];
-
-        if checkIfMvkToken = True then block {
-            
-            const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-                (to_),
-                0mutez,
-                updateSatelliteBalance(delegationAddress)
-            );
-
-            accumulator := updateSatelliteBalanceOperation # accumulator;
-
-        } else skip;    
-
     } with accumulator;
 
     const emptyOperation : list(operation) = list[];
@@ -507,16 +474,9 @@ block {
         to_,                // to address
         amt,                // amount of mvk Tokens to be minted
         mvkTokenAddress     // mvkTokenAddress
-    ); 
-
-    const updateSatelliteBalanceOperation : operation = Tezos.transaction(
-        (to_),
-        0mutez,
-        updateSatelliteBalance(delegationAddress)
     );
 
     operations := mintMvkTokensOperation # operations;
-    operations := updateSatelliteBalanceOperation # operations;
 
 } with (operations, s)
 

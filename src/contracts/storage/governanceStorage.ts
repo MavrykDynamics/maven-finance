@@ -30,9 +30,6 @@ const config = {
     blocksPerVotingRound                : 14400,
     blocksPerTimelockRound              : 5760,
 
-    financialRequestApprovalPercentage  : 6700,
-    financialRequestDurationInDays      : 3,
-
     proposalMetadataTitleMaxLength      : 400,
     proposalTitleMaxLength              : 400,
     proposalDescriptionMaxLength        : 400,
@@ -60,8 +57,7 @@ export const governanceStorage: governanceStorageType = {
   metadata                : metadata,
   config                  : config,
   
-  whitelistContracts      : MichelsonMap.fromLiteral({}),
-  whitelistTokenContracts : MichelsonMap.fromLiteral({}),
+  whitelistDevelopers     : [],
   generalContracts        : MichelsonMap.fromLiteral({}),
 
   proposalLedger          : MichelsonMap.fromLiteral({}),
@@ -71,28 +67,24 @@ export const governanceStorage: governanceStorageType = {
   nextProposalId          : new BigNumber(1),
   cycleCounter            : new BigNumber(1),
 
-  currentRound            : { proposal: null },
-  currentBlocksPerProposalRound :  new BigNumber(0),
-  currentBlocksPerVotingRound   :  new BigNumber(0),
-  currentBlocksPerTimelockRound :  new BigNumber(0),
-  currentRoundStartLevel  : new BigNumber(0),
-  currentRoundEndLevel    : new BigNumber(0),
-  currentCycleEndLevel    : new BigNumber(0),
-  currentRoundProposals   : MichelsonMap.fromLiteral({}),
-  currentRoundProposers   : MichelsonMap.fromLiteral({}),
-  currentRoundVotes       : MichelsonMap.fromLiteral({}),
-  currentCycleTotalVotersReward: new BigNumber(0),
+  currentCycleInfo         : {
+    round                     : { proposal: null },
+    blocksPerProposalRound    :  new BigNumber(0),
+    blocksPerVotingRound      :  new BigNumber(0),
+    blocksPerTimelockRound    :  new BigNumber(0),
+    roundStartLevel           : new BigNumber(0),
+    roundEndLevel             : new BigNumber(0),
+    cycleEndLevel             : new BigNumber(0),
+    roundProposals            : MichelsonMap.fromLiteral({}),
+    roundProposers            : MichelsonMap.fromLiteral({}),
+    roundVotes                : MichelsonMap.fromLiteral({}),
+    cycleTotalVotersReward    : new BigNumber(0),
+  },
 
   currentRoundHighestVotedProposalId : new BigNumber(0),
   timelockProposalId                 : new BigNumber(0),
   
   snapshotMvkTotalSupply             : new BigNumber(1000000000),
-  snapshotStakedMvkTotalSupply       : new BigNumber(0),
 
-  lambdaLedger                       : MichelsonMap.fromLiteral({}),
-
-  financialRequestLedger             : MichelsonMap.fromLiteral({}),
-  financialRequestSnapshotLedger     : MichelsonMap.fromLiteral({}),
-  financialRequestCounter            : new BigNumber(1),
-
+  lambdaLedger                       : MichelsonMap.fromLiteral({})
 };

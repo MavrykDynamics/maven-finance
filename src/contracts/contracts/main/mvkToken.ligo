@@ -21,6 +21,7 @@ type action is
 
   // Housekeeping Entrypoints
   SetAdmin                  of address
+| SetGovernance             of address
 | UpdateWhitelistContracts  of updateWhitelistContractsParams
 | UpdateGeneralContracts    of updateGeneralContractsParams
 
@@ -68,6 +69,12 @@ const one_year       : int              = one_day * 365;
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : mvkTokenStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith("ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED");
+
+
 
 function checkSenderIsAdmin(const store: mvkTokenStorage): unit is
   if Tezos.sender =/= store.admin then failwith("ONLY_ADMINISTRATOR_ALLOWED")
@@ -189,6 +196,36 @@ block{
 //
 // ------------------------------------------------------------------------------
 
+(* get: general contracts *)
+[@view] function getGeneralContracts(const _: unit; const store: mvkTokenStorage) : generalContractsType is
+  store.generalContracts
+
+
+
+(* get: whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; const store: mvkTokenStorage) : whitelistContractsType is
+  store.whitelistContracts
+
+
+
+(* get: inflation rate *)
+[@view] function getInflationRate(const _: unit; const store: mvkTokenStorage) : nat is
+  store.inflationRate
+
+
+
+(* get: next inflation timestamp *)
+[@view] function getNextInflationTimestamp(const _: unit; const store: mvkTokenStorage) : timestamp is
+  store.nextInflationTimestamp
+
+
+
+(* get: operator *)
+[@view] function getOperatorOpt(const operator: (owner * operator * nat); const store: mvkTokenStorage) : option(unit) is
+  Big_map.find_opt(operator, store.operators)
+
+
+
 (* getBalance View *)
 [@view] function getBalance(const user: owner; const store: mvkTokenStorage) : tokenBalance is
   case Big_map.find_opt(user, store.ledger) of [
@@ -238,6 +275,17 @@ block {
 
   checkSenderIsAdmin(store);
   store.admin := newAdminAddress;
+
+} with (noOperations, store)
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var store : mvkTokenStorage) : return is
+block {
+    
+  checkSenderIsAllowed(store);
+  store.governanceAddress := newGovernanceAddress;
 
 } with (noOperations, store)
 
@@ -398,7 +446,7 @@ block {
 
     // Check if the minted token exceed the maximumSupply defined in the mvkTokenStorage
     const tempTotalSupply: tokenBalance = store.totalSupply + mintedTokens;
-    if tempTotalSupply > store.maximumSupply then failwith("Maximum total supply of MVK exceeded") 
+    if tempTotalSupply > store.maximumSupply then failwith("MAXIMUM_SUPPLY_EXCEEDED") 
     else skip;
 
     // Update sender's balance
@@ -427,7 +475,7 @@ block {
     checkSenderIsAdmin(store);
 
     // Update the inflation rate
-    if newInflationRate > 2000n then failwith("Error. The inflation rate cannot exceed 20%")
+    if newInflationRate > 2000n then failwith("INFLATION_RATE_TOO_HIGH")
     else store.inflationRate  := newInflationRate
 
 } with (noOperations, store)
@@ -452,7 +500,7 @@ block {
       // Update the next change date
       store.nextInflationTimestamp  := Tezos.now + one_year;
     }
-    else failwith("Error. You cannot trigger inflation now");
+    else failwith("CANNOT_TRIGGER_INFLATION_NOW");
 
 } with (noOperations, store)
 
@@ -480,6 +528,7 @@ function main (const action : action; const store : mvkTokenStorage) : return is
 
         // Housekeeping Entrypoints
         SetAdmin (params)                   -> setAdmin(params, store)
+      | SetGovernance (params)              -> setGovernance(params, store)
       | UpdateWhitelistContracts (params)   -> updateWhitelistContracts(params, store)
       | UpdateGeneralContracts (params)     -> updateGeneralContracts(params, store)
 

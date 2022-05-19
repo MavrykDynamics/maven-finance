@@ -2,7 +2,6 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 
 import { BigNumber } from 'bignumber.js'
 import { Buffer } from 'buffer'
-import { array } from 'yargs'
 
 const { bob, alice, eve, mallory, oscar, trudy } = require('../scripts/sandbox/accounts')
 
@@ -76,6 +75,7 @@ const nextInflationTimestamp  = Math.round(currentTimestamp.getTime() / 1000);
 
 export const mvkStorage: mvkStorageType = {
   admin: bob.pkh,
+  governanceAddress: bob.pkh,
   
   generalContracts: MichelsonMap.fromLiteral({}),
   whitelistContracts: MichelsonMap.fromLiteral({}),
@@ -86,7 +86,7 @@ export const mvkStorage: mvkStorageType = {
   totalSupply: initialSupply,
   maximumSupply: new BigNumber(maximumSupply),
   inflationRate: new BigNumber(500),
-  nextInflationTimestamp: new BigNumber(nextInflationTimestamp),
+  nextInflationTimestamp: nextInflationTimestamp.toString(),
 
   ledger: ledger,
   operators: MichelsonMap.fromLiteral({}),

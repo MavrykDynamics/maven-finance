@@ -20,7 +20,8 @@
 type emergencyGovernanceAction is 
 
     // Housekeeping Entrypoints
-  | SetAdmin                  of (address)
+    SetAdmin                  of (address)
+  | SetGovernance             of (address)
   | UpdateMetadata            of updateMetadataType
   | UpdateConfig              of emergencyUpdateConfigParamsType    
   | UpdateGeneralContracts    of updateGeneralContractsParams
@@ -65,16 +66,8 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                          = 0n;
-[@inline] const error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                     = 1n;
-[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                       = 2n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                   = 3n;
-
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                          = 4n;
-[@inline] const error_BREAK_GLASS_ENTRYPOINT_NOT_FOUND                    = 5n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                    = 6n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                             = 7n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -93,6 +86,12 @@ const zeroAddress : address = ("tz1ZZZZZZZZZZZZZZZZZZZZZZZZZZZZNkiRg" : address)
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : emergencyGovernanceStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(var s : emergencyGovernanceStorage) : unit is
   if (Tezos.sender = s.admin) then unit
@@ -209,6 +208,61 @@ block {
 
 // ------------------------------------------------------------------------------
 //
+// Views Begin
+//
+// ------------------------------------------------------------------------------
+
+(* View: getConfig *)
+[@view] function getConfig (const _: unit; var s : emergencyGovernanceStorage) : emergencyConfigType is
+  s.config
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts (const _: unit; var s : emergencyGovernanceStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get emergency governance *)
+[@view] function getEmergencyGovernanceOpt (const recordId: nat; var s : emergencyGovernanceStorage) : option(emergencyGovernanceRecordType) is
+  Big_map.find_opt(recordId, s.emergencyGovernanceLedger)
+
+
+
+(* View: get current emergency governance id *)
+[@view] function getCurrentEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
+  s.currentEmergencyGovernanceId
+
+
+
+(* View: get next emergency governance id *)
+[@view] function getNextEmergencyGovernanceId (const _: unit; var s : emergencyGovernanceStorage) : nat is
+  s.nextEmergencyGovernanceId
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : emergencyGovernanceStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : emergencyGovernanceStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+
+// ------------------------------------------------------------------------------
+//
+// Views End
+//
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+//
 // Entrypoints Begin
 //
 // ------------------------------------------------------------------------------
@@ -231,6 +285,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : emergencyGovernanceStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init emergencyGovernance lambda action
+    const emergencyGovernanceLambdaAction : emergencyGovernanceLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, emergencyGovernanceLambdaAction, s);
 
 } with response
 
@@ -396,6 +469,7 @@ function main (const action : emergencyGovernanceAction; const s : emergencyGove
 
         // Housekeeping Entrypoints
       | SetAdmin(parameters)                  -> setAdmin(parameters, s)
+      | SetGovernance(parameters)            -> setGovernance(parameters, s)
       | UpdateMetadata(parameters)            -> updateMetadata(parameters, s)
       | UpdateConfig(parameters)              -> updateConfig(parameters, s)
       | UpdateGeneralContracts(parameters)    -> updateGeneralContracts(parameters, s)

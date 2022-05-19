@@ -5,47 +5,71 @@
     },
     {
       "index": 1,
-      "name": "lambdaSetBaker"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetBaker"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaUpdateWhitelistTokenContracts"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
       "index": 7,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseTransfer"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseMintMvkAndTransfer"
+      "name": "lambdaTogglePauseTransfer"
     },
     {
       "index": 10,
-      "name": "lambdaTransfer"
+      "name": "lambdaTogglePauseMintMvkAndTransfer"
     },
     {
       "index": 11,
+      "name": "lambdaTogglePauseStake"
+    },
+    {
+      "index": 12,
+      "name": "lambdaTogglePauseUnstake"
+    },
+    {
+      "index": 13,
+      "name": "lambdaTransfer"
+    },
+    {
+      "index": 14,
       "name": "lambdaMintMvkAndTransfer"
+    },
+    {
+      "index": 15,
+      "name": "lambdaUpdateOperators"
+    },
+    {
+      "index": 16,
+      "name": "lambdaStake"
+    },
+    {
+      "index": 17,
+      "name": "lambdaUnstake"
     }
 ]
   

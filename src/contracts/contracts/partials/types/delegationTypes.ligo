@@ -17,9 +17,6 @@ type delegateRecordType is [@layout:comb] record [
 ]
 type delegateLedgerType is big_map (address, delegateRecordType)
 
-// type newSatelliteRecordType is (string * string * string * nat) // name, description, image, satellite fee
-// type updateSatelliteRecordParams is (string * string * string * nat)
-
 type newSatelliteRecordType is [@layout:comb] record [
     name                  : string;
     description           : string;
@@ -52,7 +49,7 @@ type satelliteRecordType is [@layout:comb] record [
 ]
 type satelliteLedgerType is map (address, satelliteRecordType)
 
-type satelliteRewardsLedgerType is map (address, satelliteRewards)
+type satelliteRewardsLedgerType is big_map (address, satelliteRewards)
 
 type requestSatelliteSnapshotType is  [@layout:comb] record [
     satelliteAddress      : address;
@@ -106,6 +103,11 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes;
 ]
 
+type delegateToSatelliteType is [@layout:comb] record [
+    userAddress      : address;
+    satelliteAddress : address;
+]
+
 type distributeRewardTypes is [@layout:comb] record [
     eligibleSatellites    : set(address);
     totalSMvkReward       : nat;
@@ -115,12 +117,13 @@ type setLambdaType is [@layout:comb] record [
       name                  : string;
       func_bytes            : bytes;
 ]
-type lambdaLedgerType is big_map(string, bytes)
+type lambdaLedgerType is map(string, bytes)
 
 type delegationLambdaActionType is 
 
   // Housekeeping Lambdas
   LambdaSetAdmin                              of address
+| LambdaSetGovernance                         of (address)
 | LambdaUpdateMetadata                        of updateMetadataType
 | LambdaUpdateConfig                          of delegationUpdateConfigParamsType
 | LambdaUpdateWhitelistContracts              of updateWhitelistContractsParams
@@ -137,18 +140,17 @@ type delegationLambdaActionType is
 | LambdaPauseDistributeReward                 of (unit)
 
   // Delegation Lambdas
-| LambdaDelegateToSatellite                   of (address)
+| LambdaDelegateToSatellite                   of delegateToSatelliteType
 | LambdaUndelegateFromSatellite               of (address)
 
   // Satellite Lambdas
 | LambdaRegisterAsSatellite                   of newSatelliteRecordType
-| LambdaUnregisterAsSatellite                 of (unit)
+| LambdaUnregisterAsSatellite                 of (address)
 | LambdaUpdateSatelliteRecord                 of updateSatelliteRecordType
 | LambdaDistributeReward                      of distributeRewardTypes
 
   // General Lambdas
 | LambdaOnStakeChange                         of onStakeChangeParams
-| LambdaOnSatelliteRewardPaid                 of address
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -159,11 +161,12 @@ type distributeRewardsTypes is [@layout:comb] record [
 ]
 
 type delegationStorage is [@layout:comb] record [
-    admin                   : address;
-    mvkTokenAddress         : address;
-    metadata                : metadata;
-
-    config                  : delegationConfigType;
+    admin                : address;
+    mvkTokenAddress      : address;
+    governanceAddress    : address;
+    metadata             : metadata;
+    
+    config               : delegationConfigType;
 
     whitelistContracts      : whitelistContractsType;      
     generalContracts        : generalContractsType;

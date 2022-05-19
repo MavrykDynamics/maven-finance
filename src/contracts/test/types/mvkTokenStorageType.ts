@@ -3,6 +3,7 @@ import { BigNumber } from "bignumber.js";
 
 export type mvkStorageType = {
   admin: string;
+  governanceAddress: string;
   
   generalContracts: MichelsonMap<MichelsonMapKey, unknown>;
   whitelistContracts: MichelsonMap<MichelsonMapKey, unknown>;
@@ -13,7 +14,7 @@ export type mvkStorageType = {
   totalSupply: BigNumber;
   maximumSupply: BigNumber;
   inflationRate: BigNumber;
-  nextInflationTimestamp: BigNumber;
+  nextInflationTimestamp: string;
 
   ledger: MichelsonMap<MichelsonMapKey, unknown>;
   operators: MichelsonMap<MichelsonMapKey, unknown>;

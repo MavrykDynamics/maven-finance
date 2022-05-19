@@ -39,12 +39,13 @@ export const emergencyGovernanceStorage: emergencyGovernanceStorageType = {
   admin                               : bob.pkh,
   config                              : config,
   mvkTokenAddress                     : "",
+  governanceAddress                   : "",
   metadata                            : metadata,
   generalContracts                    : MichelsonMap.fromLiteral({}),
 
   emergencyGovernanceLedger           : MichelsonMap.fromLiteral({}),
   currentEmergencyGovernanceId        : new BigNumber(0),
-  nextEmergencyGovernanceProposalId   : new BigNumber(1),
+  nextEmergencyGovernanceId   : new BigNumber(1),
 
   lambdaLedger                        : MichelsonMap.fromLiteral({}),
 }

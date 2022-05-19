@@ -5,50 +5,54 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateBlocksPerMinute"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 5,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateBlocksPerMinute"
     },
     {
       "index": 6,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseCreateFarm"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseTrackFarm"
+      "name": "lambdaTogglePauseCreateFarm"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseUntrackFarm"
+      "name": "lambdaTogglePauseTrackFarm"
     },
     {
       "index": 10,
-      "name": "lambdaCreateFarm"
+      "name": "lambdaTogglePauseUntrackFarm"
     },
     {
       "index": 11,
-      "name": "lambdaTrackFarm"
+      "name": "lambdaCreateFarm"
     },
     {
       "index": 12,
+      "name": "lambdaTrackFarm"
+    },
+    {
+      "index": 13,
       "name": "lambdaUntrackFarm"
     }
 ]
