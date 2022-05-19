@@ -17,43 +17,43 @@ hasura:
 
 contracts:
   mvk:
-    address: KT1N9HBaNfcHDqhah9JehNqz4n81zKLVFhtn
+    address: KT1KrD1ndatUfaxic6HcQX91JtFaw7v8zwXv
     typename: mvk
   governance:
-    address: KT1RXuukNn7Geh7j7XvUM3FHLGGhJgLNbAhg
+    address: KT1UNTLHfryi9BFpmC7Asr5mqb44dWT7XUeo
     typename: governance
   doorman:
-    address: KT1XiEQRmQaetgzpmCU5jpedjnPUtkpK3vnG
+    address: KT1VXFimMAS2jLd24pGWNT9AFyJgAMuHJdKG
     typename: doorman
   farm:
-    address: KT1QeYgAESBjE63KUYLob6RZ3RMfDrAL7Pqa
+    address: KT1PaY8u2vd36Sec8AZ85xfUZUxakYDucN5M
     typename: farm
   farm_factory:
-    address: KT1FH3VkiWKRJaNx5nxq7aCeGET15b78DDDv
+    address: KT1BXVecWNTMjFWscsgeKx3T2zLtEJn5iS5c
     typename: farm_factory
   delegation:
-    address: KT1BqbjtnWHZbKHTKCT63xv6xM2XML8U9rfL
+    address: KT1BBQZFcdXkbT1uhmpML9Bmr2EKtL75N7UV
     typename: delegation
   vesting:
-    address: KT1Wjr7UPkEhaReT6uG1EgTbgzcaQzWKAaqV
+    address: KT1QBUuZnUyz7p3NuD8XfXxf2gGhWfZ94QxZ
     typename: vesting
   emergency_governance:
-    address: KT1UaU4AHByzADTZ8tAQAUfQQUgUAm3VNobQ
+    address: KT1PNVGYeYwLwWZ1zgxyGBo9rFXpjDP3kaqG
     typename: emergency_governance
   council:
-    address: KT1WmAYnwSJH2yb5QR8XGG7WYRwnRMwc4D9c
+    address: KT1S16Zde1Zzy7ZhHCeWRZemdo7WTYZPgRte
     typename: council
   break_glass:
-    address: KT1VULwsxKKZvrDsL8EuGZChwVRz7K88cr86
+    address: KT1TFGr4t8wuNCK2vaTXvS3DEtLHVicSFNPg
     typename: break_glass
   governance_financial:
-    address: KT1DDMsU4b7bBVCx8W1AYm7c423k7FiG8rGS
+    address: KT1LjeGBfnhR6smy2MJWNtwE3ogP3uscUWfa
     typename: governance_financial
   treasury:
-    address: KT1XBrofhTXm5CszF9MZB2d6ciFsZXFB2jkT
+    address: KT19ptWfjP5iPJo2mf1peKYJRgNvGw97kevR
     typename: treasury
   treasury_factory:
-    address: KT1W1Y8bxWj74SKXhjidDwa38b9owwfweLHV
+    address: KT1Db4g6d8jRNtCdYfBGP1kbCqFVDM6jtRWr
     typename: treasury_factory
 
 datasources:

@@ -258,7 +258,7 @@ class Governance(Model):
 
 class GovernanceFinancial(Model):
     address                         = fields.CharField(pk=True, max_length=36)
-    governance                      = fields.CharField(pk=True, max_length=36)
+    governance                      = fields.CharField(max_length=36)
     voting_power_ratio              = fields.SmallIntField(default=0)
     fin_req_approval_percentage     = fields.SmallIntField(default=0)
     fin_req_duration_in_days        = fields.SmallIntField(default=0)
@@ -575,7 +575,7 @@ class GovernanceSatelliteSnapshotRecord(Model):
 
 class GovernanceFinancialRequestRecord(Model):
     id                              = fields.BigIntField(pk=True)
-    governance                      = fields.ForeignKeyField('models.Governance', related_name='governance_financial_request_records')
+    governance_financial            = fields.ForeignKeyField('models.GovernanceFinancial', related_name='governance_financial_request_records')
     treasury                        = fields.ForeignKeyField('models.Treasury', related_name='governance_financial_request_records')
     requester                       = fields.ForeignKeyField('models.MavrykUser', related_name='governance_financial_request_records')
     request_type                    = fields.CharField(max_length=255)

@@ -9,6 +9,7 @@ async def on_farm_claim(
     ctx: HandlerContext,
     claim: Transaction[ClaimParameter, FarmStorage],
 ) -> None:
+    breakpoint()
     # Get operation data
     userParticipation = float(claim.data.diffs[-1]['content']['value']['participationMVKPerShare'])
     userAddress = claim.data.sender_address
