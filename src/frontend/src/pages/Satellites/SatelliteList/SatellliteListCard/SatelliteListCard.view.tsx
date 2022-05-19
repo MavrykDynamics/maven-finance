@@ -41,7 +41,6 @@ export const SatelliteListCard = ({
   const userIsDelegatedToThisSatellite = satellite.address === satelliteUserIsDelegatedTo
   const lastVotedTimestamp = satellite?.proposalVotingHistory?.[0]?.timestamp || ''
 
-  console.log('%c ||||| satellite', 'color:yellowgreen', satellite)
   const delegationButtons = userIsDelegatedToThisSatellite ? (
     <>
       {satellite.active ? (

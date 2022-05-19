@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { State } from '../../../reducers'
 import { connect } from '../Menu/Menu.actions'
-
 import { ConnectWalletView } from './ConnectWallet.view'
 
 type ConnectWalletProps = {
@@ -28,7 +27,7 @@ export const ConnectWallet = ({ type }: ConnectWalletProps) => {
   return (
     <ConnectWalletView
       type={type}
-      loading={loading}
+      loading={false}
       wallet={wallet}
       ready={ready}
       accountPkh={accountPkh}

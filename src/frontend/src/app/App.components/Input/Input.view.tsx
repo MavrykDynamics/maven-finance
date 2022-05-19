@@ -63,7 +63,7 @@ export const InputView = ({
           autoComplete={name}
           disabled={disabled}
         />
-        <InputStatus className={classNames} />
+        <InputStatus className={`${classNames} ${pinnedText ? 'with-text' : ''}`} />
         {pinnedText && <InputLabel className={classNames}>{pinnedText}</InputLabel>}
       </InputComponentContainer>
       {errorMessage && <InputErrorMessage>{errorMessage}</InputErrorMessage>}

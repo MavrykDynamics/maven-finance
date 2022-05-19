@@ -10,7 +10,7 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 // prettier-ignore
 import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } from '../../../utils/TypesAndInterfaces/Forms'
 // helpers // prettier-ignore
-import { isValidNumberValue, mathTrunkTwoDigit, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import { isValidNumberValue, mathRoundTwoDigit, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { setExitFeeAmount } from '../ExitFeeModal/ExitFeeModal.actions'
 // actions
 import { rewardsCompound } from './StakeUnstake.actions'
@@ -55,44 +55,43 @@ export const StakeUnstakeView = ({
   const onUseMaxClick = (actionType: string) => {
     switch (actionType) {
       case 'STAKE':
-        setInputAmount({ amount: mathTrunkTwoDigit(myMvkTokenBalance) })
-        dispatch(setExitFeeAmount(Number(mathTrunkTwoDigit(myMvkTokenBalance))))
+        setInputAmount({ amount: mathRoundTwoDigit(myMvkTokenBalance) })
+        dispatch(setExitFeeAmount(Number(mathRoundTwoDigit(myMvkTokenBalance))))
         break
       case 'UNSTAKE':
       default:
-        setInputAmount({ amount: mathTrunkTwoDigit(userStakeBalance) })
-        dispatch(setExitFeeAmount(Number(mathTrunkTwoDigit(userStakeBalance))))
+        setInputAmount({ amount: mathRoundTwoDigit(userStakeBalance) })
+        dispatch(setExitFeeAmount(Number(mathRoundTwoDigit(userStakeBalance))))
         break
     }
   }
 
-  const checkInputIsOk = (value: number) => {
+  const checkInputIsOk = (value: number | '') => {
     let validityCheckResult = false
     setStakeUnstakeValueError('')
     if (accountPkh) {
-      validityCheckResult = isValidNumberValue(value, 1, Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)))
+      validityCheckResult = isValidNumberValue(+value, 1, Math.max(Number(myMvkTokenBalance), Number(userStakeBalance)))
     } else {
-      validityCheckResult = isValidNumberValue(value, 1)
+      validityCheckResult = isValidNumberValue(+value, 1)
     }
+
     setStakeUnstakeValueOK({ amount: validityCheckResult })
-    setStakeUnstakeInputStatus({ amount: validityCheckResult ? 'success' : 'error' })
+    const status = value === '' ? '' : validityCheckResult ? 'success' : 'error'
+    console.log('%c ||||| status', 'color:green', status)
+    setStakeUnstakeInputStatus({ amount: status })
   }
 
   const onInputChange = (e: any) => {
-    const value = mathTrunkTwoDigit(e.target.value)
+    const value = mathRoundTwoDigit(e.target.value)
 
     checkInputIsOk(Number(value))
     setInputAmount({ amount: value })
   }
 
   useEffect(() => {
-    checkInputIsOk(amount)
-    setInputAmount({ amount: amount === 0 ? amount : mathTrunkTwoDigit(amount) })
+    checkInputIsOk(amount || '')
+    setInputAmount({ amount: mathRoundTwoDigit(amount) })
   }, [amount, accountPkh, showing])
-
-  // useEffect(() => {
-  //   if (amount) checkInputIsOk(amount)
-  // }, [accountPkh, showing, amount])
 
   const handleStakeUnstakeClick = (actionType: string) => {
     let validityCheckResult = isValidNumberValue(inputAmountValue, 1)
@@ -155,7 +154,6 @@ export const StakeUnstakeView = ({
     if (inputIsValid) stakeCallback(inputAmountValue)
   }
   const handleUnstakeAction = () => {
-    console.log('%c ||||| isSuccess', 'color:yellowgreen', isSuccess)
     const inputIsValid = validateFormAndThrowErrors(dispatch, { amount: isSuccess })
     if (inputIsValid) unstakeCallback(inputAmountValue)
   }
@@ -169,6 +167,19 @@ export const StakeUnstakeView = ({
 
     if (+value === 0) {
       setInputAmount({ amount: '' })
+    }
+  }
+
+  const handleBlur = (e: any) => {
+    const value = e.target.value
+
+    if (+value === 0) {
+      checkInputIsOk('')
+    }
+
+    if (value === '') {
+      checkInputIsOk('')
+      setInputAmount({ amount: 0 })
     }
   }
 
@@ -187,7 +198,7 @@ export const StakeUnstakeView = ({
               type={'number'}
               placeholder={String(inputAmount.amount)}
               onChange={onInputChange}
-              onBlur={(e) => checkInputIsOk(+e.target.value)}
+              onBlur={handleBlur}
               onFocus={handleFocus}
               value={inputAmount.amount}
               pinnedText={'MVK'}

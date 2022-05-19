@@ -1,45 +1,60 @@
 import styled from 'styled-components/macro'
+import { Card, cianColor, skyColor } from 'styles'
+
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
   display: flex;
   width: 100%;
   flex-direction: row;
+  justify-content: space-between;
 `
 
-export const GovernanceRightContainer = styled.div<{ theme: MavrykTheme }>`
+export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  width: 50%;
-  margin: 0 0 0 10px;
-  padding: 30px;
+  width: calc(50% - 25px);
+  padding: 28px 30px;
   border-radius: 10px;
   height: min-content;
+  margin-top: 0;
+  flex-shrink: 0;
+  margin-left: 30px;
 
-  #votingDeadline {
-    font-size: 12px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.subTextColor};
+  article {
+    margin-bottom: 18px;
+    a {
+      text-decoration: underline;
+    }
+  }
+
+  hr {
+    border: none;
+    height: 1px;
+    background-color: ${({ theme }) => theme.cardBorderColor};
+    margin-top: 40px;
+    margin-bottom: 40px;
   }
 `
 
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`
-  width: 50%;
-  margin-right: 10px;
+  width: 100%;
+  padding-top: 28px;
 `
 
 export const GovRightContainerTitleArea = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: inherit;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 
   > h1 {
-    color: ${({ theme }) => theme.textColor};
+    color: ${({ theme }) => theme.headerColor};
     font-size: 25px;
     margin: 0;
-  }
-  > div {
+
+    &::after {
+      margin-bottom: 7px;
+    }
   }
 `
 
@@ -59,11 +74,25 @@ export const RightSideVotingArea = styled.div<{ theme: MavrykTheme }>`
 export const RightSideSubHeader = styled.div<{ theme: MavrykTheme }>`
   font-size: 18px;
   font-weight: 600;
-  margin-top: 35px;
+  margin-bottom: 12px;
+  color: ${({ theme }) => theme.headerColor};
 `
 export const RightSideSubContent = styled.p<{ theme: MavrykTheme }>`
-  font-size: 12px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 21px;
   font-weight: normal;
-  color: ${({ theme }) => theme.subTextColor};
+  color: ${skyColor};
   word-break: break-all;
+
+  * {
+    color: ${skyColor};
+    stroke: ${skyColor};
+  }
+
+  &#votingDeadline {
+    color: ${cianColor};
+    font-size: 12px;
+    line-height: 1;
+  }
 `

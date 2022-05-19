@@ -1,44 +1,55 @@
 import styled, { css } from 'styled-components/macro'
+import { boxShadowColor, cianColor, darkCianColor } from 'styles'
+
 import { MavrykTheme } from '../../../styles/interfaces'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 export const ProposalListContainer = styled.div`
   > h1 {
-    color: ${({ theme }) => theme.textColor};
+    color: ${({ theme }) => theme.headerColor};
     font-size: 25px;
-    margin: 15px 0 0 0;
+    margin: 0;
   }
 `
 
 export const ProposalListItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  height: 56px;
+  border: 1px solid ${darkCianColor};
+  min-height: 57px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin: 10px auto;
-  padding: 0 25px;
-  border-radius: 15px;
+  padding: 0 18px;
+  border-radius: 10px;
   font-weight: 600;
+  padding: 8px 28px;
+  cursor: pointer;
 
   ${({ selected }) =>
     selected &&
     css`
-      box-shadow: 2px 4px 4px ${({ theme }) => theme.boxShadowColor};
+      border-color: ${cianColor};
+      box-shadow: 0px 4px 4px ${boxShadowColor};
     `}
 `
 
 export const ProposalItemLeftSide = styled.div<{ theme: MavrykTheme }>`
   display: flex;
+  font-size: 14px;
+  align-items: center;
 
-  > div {
-    margin-right: 10px;
-    color: ${({ theme }) => theme.subTextColor};
+  > span {
+    font-weight: 400;
+    margin-right: 30px;
+    color: ${({ theme }) => theme.headerColor};
   }
 
   > h4 {
     font-weight: 600;
+    color: ${cianColor};
+    padding-right: 8px;
   }
 `
 

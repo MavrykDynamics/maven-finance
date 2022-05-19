@@ -1,12 +1,13 @@
-import { MavrykTheme } from '../../../styles/interfaces'
 import styled from 'styled-components/macro'
+import { Card, cianColor } from 'styles'
 
-export const GovernanceTopBarStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
-  margin: 15px auto;
+import { MavrykTheme } from '../../../styles/interfaces'
+
+export const GovernanceTopBarStyled = styled(Card)`
+  margin: 30px auto 20px;
   display: flex;
   width: 100%;
-  height: 50px;
+  height: 75px;
   flex-direction: row;
   border-radius: 10px;
   padding: 10px 20px;
@@ -25,13 +26,13 @@ export const GovTopBarSidewaysArrowIcon = styled.svg<{ theme: MavrykTheme }>`
   display: inline-block;
   vertical-align: sub;
   margin: 0 15px;
-  stroke: ${({ theme }) => theme.subTextColor};
+  stroke: ${({ theme }) => theme.connectInfoColor};
 `
 
 export const GovTopBarPhaseText = styled.div<{ isCorrectPhase?: boolean; theme: MavrykTheme }>`
   margin: 0 10px;
-  color: ${({ isCorrectPhase, theme }) => (isCorrectPhase ? theme.infoColor : theme.textColor)};
-  font-weight: 800;
+  color: ${({ isCorrectPhase, theme }) => (isCorrectPhase ? theme.valueColor : theme.headerColor)};
+  font-weight: 600;
   font-size: 18px;
 `
 export const GovTopBarEmergencyGovText = styled.div<{ theme: MavrykTheme }>`
@@ -42,12 +43,12 @@ export const GovTopBarEmergencyGovText = styled.div<{ theme: MavrykTheme }>`
 `
 export const TimeLeftArea = styled.div<{ theme: MavrykTheme }>`
   border: 1px solid;
-  border-left-color: ${({ theme }) => theme.textColor};
+  border-left-color: ${cianColor};
   border-right: none;
   border-top: none;
   border-bottom: none;
   padding: 5px 0 5px 10px;
-  color: ${({ theme }) => theme.textColor};
+  color: ${cianColor};
   font-weight: 800;
   font-size: 18px;
 `

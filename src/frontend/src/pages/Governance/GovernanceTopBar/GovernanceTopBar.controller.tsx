@@ -1,5 +1,5 @@
-import { GovernanceTopBarView } from './GovernanceTopBar.view'
 import { GovernancePhase } from '../../../reducers/governance'
+import { GovernanceTopBarView } from './GovernanceTopBar.view'
 
 export type GovernanceTopBarProps = {
   loading: boolean
@@ -19,7 +19,7 @@ export const GovernanceTopBar = ({
   }
   return (
     <GovernanceTopBarView
-      loading={loading}
+      loading={false}
       governancePhase={governancePhase}
       timeLeftInPhase={timeLeftInPhase}
       isInEmergencyGovernance={isInEmergencyGovernance}
