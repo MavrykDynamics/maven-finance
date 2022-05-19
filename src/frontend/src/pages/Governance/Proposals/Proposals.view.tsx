@@ -1,4 +1,4 @@
-import * as React from 'react'
+import { useEffect } from 'react'
 
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
@@ -19,11 +19,13 @@ export const ProposalsView = ({
   selectedProposal,
   isProposalPhase,
 }: ProposalsViewProps) => {
+  const listProposalsArray = proposalsList?.values ? Array.from(proposalsList.values()) : []
+
   return (
     <ProposalListContainer>
       <h1>{listTitle}</h1>
-      {proposalsList?.values &&
-        Array.from(proposalsList.values()).map((value, index) => {
+      {listProposalsArray.length &&
+        listProposalsArray.map((value, index) => {
           return (
             <ProposalListItem
               key={value.id}

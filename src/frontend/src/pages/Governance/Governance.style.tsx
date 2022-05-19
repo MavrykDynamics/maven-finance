@@ -18,6 +18,7 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   height: min-content;
   margin-top: 0;
   flex-shrink: 0;
+  margin-left: 30px;
 `
 
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`

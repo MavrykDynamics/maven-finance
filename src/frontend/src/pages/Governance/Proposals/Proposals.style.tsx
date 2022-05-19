@@ -5,8 +5,6 @@ import { MavrykTheme } from '../../../styles/interfaces'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 
 export const ProposalListContainer = styled.div`
-  padding-right: 30px;
-
   > h1 {
     color: ${({ theme }) => theme.headerColor};
     font-size: 25px;

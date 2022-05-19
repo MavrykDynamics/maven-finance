@@ -45,7 +45,7 @@ export const GovernanceView = ({
   const location = useLocation()
   const onProposalHistoryPage = location.pathname === '/proposal-history'
   const [selectedProposalToShow, setSelectedProposalToShow] = useState<number>(Number(selectedProposal?.id || 1))
-  const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(selectedProposal)
+  const [rightSideContent, setRightSideContent] = useState<ProposalRecordType | undefined>(undefined)
   // const options: HTMLReactParserOptions = {
   //   replace: (domNode: any) => {
   //     const isElement: boolean = domNode.type && domNode.type === 'tag' && domNode.name
@@ -68,11 +68,15 @@ export const GovernanceView = ({
   //   },
   // }
 
+  // useEffect(() => {
+  //   if (rightSideContent?.id === 0 && selectedProposal?.id !== 0) {
+  //     setRightSideContent(selectedProposal)
+  //   }
+  // }, [rightSideContent?.id, selectedProposal])
+
   useEffect(() => {
-    if (rightSideContent?.id === 0 && selectedProposal?.id !== 0) {
-      setRightSideContent(selectedProposal)
-    }
-  }, [rightSideContent?.id, selectedProposal])
+    setRightSideContent(undefined)
+  }, [location.pathname])
 
   const _handleItemSelect = (chosenProposal: ProposalRecordType) => {
     setSelectedProposalToShow(chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id)
