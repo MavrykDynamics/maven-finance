@@ -1,7 +1,8 @@
-import { ProposalsView } from './Proposals.view'
 import { useSelector } from 'react-redux'
+
 import { State } from '../../../reducers'
 import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+import { ProposalsView } from './Proposals.view'
 
 type ProposalsProps = {
   proposalsList: Map<string, ProposalRecordType>

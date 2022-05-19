@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card } from 'styles'
+import { Card, cianColor } from 'styles'
 
 import { MavrykTheme } from '../../styles/interfaces'
 
@@ -16,10 +16,12 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   padding: 28px 30px;
   border-radius: 10px;
   height: min-content;
+  margin-top: 0;
+  flex-shrink: 0;
 `
 
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`
-  width: 50%;
+  width: 100%;
   padding-top: 28px;
 `
 
@@ -63,4 +65,8 @@ export const RightSideSubContent = styled.p<{ theme: MavrykTheme }>`
   font-weight: normal;
   color: ${({ theme }) => theme.headerColor};
   word-break: break-all;
+
+  &#votingDeadline {
+    color: ${cianColor};
+  }
 `

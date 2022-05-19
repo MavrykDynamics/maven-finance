@@ -16,22 +16,23 @@ const dropShadow = keyframes`
 export const VotingContainer = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: column;
-  margin: 20px 0;
+  margin-top: 42px;
 
   text-align: end;
 `
 export const QuorumBar = styled.div<{ width: number; theme: MavrykTheme }>`
   width: ${({ width }) => width}%;
   min-width: fit-content;
-  border: 2px solid;
-  border-right-color: ${({ theme }) => theme.placeholderTextColor};
+  border: 1px solid;
+  border-right-color: ${({ theme }) => theme.headerColor};
   border-top: none;
   border-bottom: none;
   border-left: none;
-  padding: 8px 9px 8px 0;
-  margin-bottom: 6px;
-  color: ${skyColor};
+  padding: 4px 9px 4px 0;
+  margin-bottom: 10px;
+  color: ${({ theme }) => theme.headerColor};
   font-weight: 400;
+  font-size: 12px;
 `
 export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
   z-index: 20;
