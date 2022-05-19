@@ -31,7 +31,7 @@ export const ProposalsView = ({
               selected={selectedProposal ? selectedProposal.id === value.id : value.id === 1}
             >
               <ProposalItemLeftSide>
-                <div>{value.id}</div>
+                <span>{value.id}</span>
                 <h4>{value.title}</h4>
               </ProposalItemLeftSide>
               <div>

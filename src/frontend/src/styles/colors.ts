@@ -10,6 +10,7 @@ export const cianColor = '#86D4C9'
 export const darkCianColor = '#503EAA'
 export const tezosColor = '#0D61FF'
 export const primaryColor = '#7068AA'
+export const boxShadowColor=  'rgba(112, 104, 170, 0.3)'
 
 export const containerColor = '#F7F9FD'
 export const borderColor = '#4F457C' 

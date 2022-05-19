@@ -1,20 +1,22 @@
 import styled from 'styled-components/macro'
+import { Card } from 'styles'
+
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
   display: flex;
   width: 100%;
   flex-direction: row;
 `
 
-export const GovernanceRightContainer = styled.div<{ theme: MavrykTheme }>`
+export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   width: 50%;
   margin: 0 0 0 10px;
   padding: 30px;
   border-radius: 10px;
   height: min-content;
+  margin-top: 2px;
 
   #votingDeadline {
     font-size: 12px;
@@ -25,7 +27,7 @@ export const GovernanceRightContainer = styled.div<{ theme: MavrykTheme }>`
 
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`
   width: 50%;
-  margin-right: 10px;
+  padding-right: 20px;
 `
 
 export const GovRightContainerTitleArea = styled.div<{ theme: MavrykTheme }>`
