@@ -27,6 +27,8 @@ export const Governance = () => {
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
+
+  console.log('%c ||||| governancePhase', 'color:yellowgreen', governancePhase)
   const { currentRoundProposals } = governanceStorage
   const { emergencyGovernanceStorage } = useSelector((state: State) => state.emergencyGovernance)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)

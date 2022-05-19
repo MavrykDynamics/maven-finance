@@ -39,3 +39,18 @@ export const AppWrapper = styled.div`
   /* height: 100vh; */
   will-change: transform, opacity;
 `
+export const EmptyContainer = styled.figure<{ theme: MavrykTheme }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  color: ${({ theme }) => theme.headerColor};
+  font-size: 18px;
+  font-weight: 800;
+  flex-direction: column;
+  padding-top: 16px;
+
+  & ~ figure {
+    display: none;
+  }
+`

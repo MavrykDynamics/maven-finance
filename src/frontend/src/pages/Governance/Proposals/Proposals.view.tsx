@@ -19,12 +19,10 @@ export const ProposalsView = ({
   selectedProposal,
   isProposalPhase,
 }: ProposalsViewProps) => {
-  const isProposalsListValues = proposalsList?.values()
-
   return (
     <ProposalListContainer>
       <h1>{listTitle}</h1>
-      {isProposalsListValues &&
+      {proposalsList?.values &&
         Array.from(proposalsList.values()).map((value, index) => {
           return (
             <ProposalListItem
