@@ -7,6 +7,7 @@ export const VotingAreaStyled = styled.div`
   justify-content: space-between;
   align-items: center;
   font-weight: 600;
+  margin-bottom: 48px;
 
   > button {
     max-width: 40%;

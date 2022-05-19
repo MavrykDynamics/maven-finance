@@ -14,6 +14,7 @@ export const StatusFlagStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 
   &.primary {
     color: ${({ theme }) => theme.primaryColor};

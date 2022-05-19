@@ -78,6 +78,8 @@ export const GovernanceView = ({
     setRightSideContent(undefined)
   }, [location.pathname])
 
+  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
+
   const _handleItemSelect = (chosenProposal: ProposalRecordType) => {
     setSelectedProposalToShow(chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id)
     setRightSideContent(chosenProposal)
@@ -147,25 +149,26 @@ export const GovernanceView = ({
             selectedProposal={rightSideContent}
             voteStatistics={voteStatistics}
           />
-          {/*<div>*/}
-          {/*  <RightSideSubHeader>Details</RightSideSubHeader>*/}
-          {/*  <RightSideSubContent>{selectedProposal.details}</RightSideSubContent>*/}
-          {/*</div>*/}
-          <div>
+          <hr />
+          <article>
+            <RightSideSubHeader>Details</RightSideSubHeader>
+            <RightSideSubContent>{rightSideContent.details}</RightSideSubContent>
+          </article>
+          <article>
             <RightSideSubHeader>Description</RightSideSubHeader>
             <RightSideSubContent>{rightSideContent.description}</RightSideSubContent>
-          </div>
-          <div>
+          </article>
+          <article>
             <RightSideSubHeader>Proposer</RightSideSubHeader>
             <RightSideSubContent>
-              <TzAddress tzAddress={rightSideContent.proposerId} type={'primary'} hasIcon={true} isBold={true} />
+              <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
             </RightSideSubContent>
-          </div>
-          <div>
+          </article>
+          <article>
             <a target="_blank" rel="noopener noreferrer" href={rightSideContent.invoice}>
               <p>Invoice</p>
             </a>
-          </div>
+          </article>
           {/*<Table tableData={selectedProposal.invoiceTable} />*/}
         </GovernanceRightContainer>
       ) : null}
