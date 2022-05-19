@@ -47,7 +47,12 @@ const AppContainer = () => {
       <AppStyled>
         {loading ? (
           <LoaderStyled>
-            <Lottie width={250} height={200} options={shipLoopOptions} isClickToPauseDisabled={true} />
+            <figure>
+              <div>
+                <Lottie width={250} height={200} options={shipLoopOptions} isClickToPauseDisabled={true} />
+              </div>
+              <figcaption>Loading...</figcaption>
+            </figure>
           </LoaderStyled>
         ) : null}
         <Menu />
