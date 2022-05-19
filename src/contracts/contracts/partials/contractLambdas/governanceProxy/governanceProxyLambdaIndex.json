@@ -145,34 +145,38 @@
   },
   {
     "index": 36,
-    "name": "stakeTreasury"
+    "name": "updateOperatorsTreasury"
   },
   {
     "index": 37,
-    "name": "unstakeTreasury"
+    "name": "stakeTreasury"
   },
   {
     "index": 38,
-    "name": "updateMvkInflationRate"
+    "name": "unstakeTreasury"
   },
   {
     "index": 39,
-    "name": "triggerMvkInflation"
+    "name": "updateMvkInflationRate"
   },
   {
     "index": 40,
-    "name": "addVestee"
+    "name": "triggerMvkInflation"
   },
   {
     "index": 41,
-    "name": "removeVestee"
+    "name": "addVestee"
   },
   {
     "index": 42,
-    "name": "updateVestee"
+    "name": "removeVestee"
   },
   {
     "index": 43,
+    "name": "updateVestee"
+  },
+  {
+    "index": 44,
     "name": "toggleVesteeLock"
   }
 ]

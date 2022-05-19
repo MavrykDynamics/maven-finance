@@ -5,6 +5,120 @@
 // ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
+// Housekeeping Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(* setAdmin lambda *)
+function lambdaSetAdmin(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorage) : return is
+block {
+    
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount  
+    checkSenderIsAllowed(s); 
+
+    case governanceProxyLambdaAction of [
+        | LambdaSetAdmin(newAdminAddress) -> {
+                s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorage) : return is
+block {
+    
+    checkSenderIsAllowed(s);
+
+    case governanceProxyLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* updateMetadata lambda - update the metadata at a given key *)
+function lambdaUpdateMetadata(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s : governanceProxyStorage) : return is
+block {
+
+    checkSenderIsAdmin(s);
+    
+    case governanceProxyLambdaAction of [
+        | LambdaUpdateMetadata(updateMetadataParams) -> {
+                
+                const metadataKey   : string = updateMetadataParams.metadataKey;
+                const metadataHash  : bytes  = updateMetadataParams.metadataHash;
+                
+                s.metadata  := Big_map.update(metadataKey, Some (metadataHash), s.metadata);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* updateWhitelistContracts lambda *)
+function lambdaUpdateWhitelistContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorage): return is
+block {
+    
+    checkSenderIsAdmin(s);
+    
+    case governanceProxyLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* updateGeneralContracts lambda *)
+function lambdaUpdateGeneralContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorage): return is
+block {
+
+    checkSenderIsAdmin(s);
+    
+    case governanceProxyLambdaAction of [
+        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* updateWhitelistTokenContracts lambda *)
+function lambdaUpdateWhitelistTokenContracts(const governanceProxyLambdaAction : governanceProxyLambdaActionType; var s: governanceProxyStorage): return is
+block {
+
+    checkSenderIsAdmin(s);
+
+    case governanceProxyLambdaAction of [
+        | LambdaUpdateWhitelistTokens(updateWhitelistTokenContractsParams) -> {
+                s.whitelistTokenContracts := updateWhitelistTokenContractsMap(updateWhitelistTokenContractsParams, s.whitelistTokenContracts);
+            }
+        | _ -> skip
+    ];
+
+
+} with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Housekeeping Lambdas End
+// ------------------------------------------------------------------------------
+
+// ------------------------------------------------------------------------------
 // Basic Lambdas Begin
 // ------------------------------------------------------------------------------
 
@@ -57,18 +171,19 @@ block {
       | UntrackTreasury (_v)                   -> 27n
       | TransferTreasury (_v)                  -> 28n
       | MintMvkAndTransferTreasury (_v)        -> 29n
-      | StakeTreasury (_v)                     -> 30n
-      | UnstakeTreasury (_v)                   -> 31n
+      | UpdateOperatorsTreasury (_v)           -> 30n
+      | StakeTreasury (_v)                     -> 31n
+      | UnstakeTreasury (_v)                   -> 32n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 32n
-      | TriggerMvkInflation (_v)               -> 33n
+      | UpdateMvkInflationRate (_v)            -> 33n
+      | TriggerMvkInflation (_v)               -> 34n
 
       (* Vesting Control *)
-      | AddVestee (_v)                         -> 34n
-      | RemoveVestee (_v)                      -> 35n
-      | UpdateVestee (_v)                      -> 36n
-      | ToggleVesteeLock (_v)                  -> 37n
+      | AddVestee (_v)                         -> 35n
+      | RemoveVestee (_v)                      -> 36n
+      | UpdateVestee (_v)                      -> 37n
+      | ToggleVesteeLock (_v)                  -> 38n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -76,8 +191,8 @@ block {
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
-    // reference: type governanceProxyLambdaFunctionType is (executeActionType * governanceProxyStorage) -> return
-    const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyLambdaFunctionType)) of [
+    // reference: type governanceProxyProxyLambdaFunctionType is (executeActionType * governanceProxyStorage) -> return
+    const res : return = case (Bytes.unpack(lambdaBytes) : option(governanceProxyProxyLambdaFunctionType)) of [
       | Some(f) -> f(executeAction, s)
       | None    -> failwith(error_UNABLE_TO_UNPACK_LAMBDA)
     ];
@@ -1204,6 +1319,46 @@ block {
 
 
 
+function updateOperatorsTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UpdateOperatorsTreasury(updateOperatorsTreasuryParams) -> {
+
+        // assign params to constants for better code readability
+        const targetTreasuryAddress   : address                  = updateOperatorsTreasuryParams.targetTreasuryAddress;
+        const updatedOperators        : updateOperatorsParams    = updateOperatorsTreasuryParams.treasuryUpdatedOperators;
+
+
+        // find and get update_operators entrypoint of treasury contract
+        const updateEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%update_operators",
+            targetTreasuryAddress) : option(contract(updateOperatorsParams))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED) : contract(updateOperatorsParams))
+            ];
+
+        // update operators operation
+        const updateOperation : operation = Tezos.transaction(
+          (updatedOperators),
+          0tez, 
+          updateEntrypoint
+          );
+
+        operations := updateOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
 function mintMvkAndTransferTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
@@ -1263,9 +1418,9 @@ block {
         // find and get stake entrypoint of treasury contract
         const stakeEntrypoint = case (Tezos.get_entrypoint_opt(
             "%stake",
-            targetTreasuryAddress) : option(contract(stakeTreasuryType))) of [
+            targetTreasuryAddress) : option(contract(nat))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_STAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(stakeTreasuryType))
+                | None        -> (failwith(error_STAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(nat))
             ];
 
         // stake MVK operation
@@ -1303,9 +1458,9 @@ block {
         // find and get unstake entrypoint of treasury contract
         const unstakeEntrypoint = case (Tezos.get_entrypoint_opt(
             "%unstake",
-            targetTreasuryAddress) : option(contract(unstakeTreasuryType))) of [
+            targetTreasuryAddress) : option(contract(nat))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(unstakeTreasuryType))
+                | None        -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(nat))
             ];
 
         // unstake MVK operation

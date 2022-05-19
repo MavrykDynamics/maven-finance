@@ -284,6 +284,7 @@ block{
       ];
 
       // If user never delegated or registered as a satellite, it does not calculates its rewards
+      var satelliteUnpaidRewards: nat := 0n;
       if userHasSatelliteRewards then
       block{
         const getSatelliteRewardsOpt: option(satelliteRewards) = case getSatelliteRewardsOptView of [
@@ -291,7 +292,7 @@ block{
         | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
         ];
 
-        const satelliteUnpaidRewards: nat = case getSatelliteRewardsOpt of [
+        satelliteUnpaidRewards := case getSatelliteRewardsOpt of [
           Some (_rewards) -> block{
             const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
             const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [

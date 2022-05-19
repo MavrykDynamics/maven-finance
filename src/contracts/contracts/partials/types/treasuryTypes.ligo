@@ -60,6 +60,7 @@ type treasuryLambdaActionType is
   // Treasury Entrypoints
 | LambdaTransfer                       of transferActionType
 | LambdaMintMvkAndTransfer             of mintMvkAndTransferType
+| LambdaUpdateOperators                of updateOperatorsParams
 | LambdaStake                          of (nat)
 | LambdaUnstake                        of (nat)
 
