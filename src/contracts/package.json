@@ -52,7 +52,7 @@
     "compile-m1": "yarn pre-compile-all-m1 && rm -rf ./build && ts-node scripts/cli.ts compile -f json -o build -m true && yarn compile-lambdas",
     "qps-migrate": "yarn compile && ts-node scripts/cli.ts migrate -n development",
     "migrate": "ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 600000",
-    "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ithacanet ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 900000",
+    "test-net-deploy": "NODE_ENV=development NETWORK_TO_MIGRATE_TO=ithacanet ts-mocha --paths test/deploy/00_test_deployments.spec.ts --bail --timeout 3600000",
     "test": "yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 900000",
     "test-full": "yarn compile && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
     "test-full-m1": "yarn compile-m1 && yarn migrate && ts-mocha --paths test/*.spec.ts --bail --timeout 500000",
