@@ -75,5 +75,5 @@ export function validateFormAndThrowErrors(dispatch: any, validForm: AllValidFor
 }
 
 export function mathRoundTwoDigit(digit: string | number | undefined): number | '' {
-  return digit ? Math.round(+digit * 100) / 100 : ''
+  return digit ? Math.round(+digit * 100) / 100 : 0
 }

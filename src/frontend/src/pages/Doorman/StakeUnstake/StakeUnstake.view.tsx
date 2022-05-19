@@ -76,7 +76,9 @@ export const StakeUnstakeView = ({
     }
 
     setStakeUnstakeValueOK({ amount: validityCheckResult })
-    setStakeUnstakeInputStatus({ amount: value === '' ? '' : validityCheckResult ? 'success' : 'error' })
+    const status = value === '' ? '' : validityCheckResult ? 'success' : 'error'
+    console.log('%c ||||| status', 'color:green', status)
+    setStakeUnstakeInputStatus({ amount: status })
   }
 
   const onInputChange = (e: any) => {
@@ -87,7 +89,7 @@ export const StakeUnstakeView = ({
   }
 
   useEffect(() => {
-    checkInputIsOk(mathRoundTwoDigit(amount))
+    checkInputIsOk(amount || '')
     setInputAmount({ amount: mathRoundTwoDigit(amount) })
   }, [amount, accountPkh, showing])
 
@@ -152,7 +154,6 @@ export const StakeUnstakeView = ({
     if (inputIsValid) stakeCallback(inputAmountValue)
   }
   const handleUnstakeAction = () => {
-    console.log('%c ||||| isSuccess', 'color:yellowgreen', isSuccess)
     const inputIsValid = validateFormAndThrowErrors(dispatch, { amount: isSuccess })
     if (inputIsValid) unstakeCallback(inputAmountValue)
   }
@@ -166,6 +167,19 @@ export const StakeUnstakeView = ({
 
     if (+value === 0) {
       setInputAmount({ amount: '' })
+    }
+  }
+
+  const handleBlur = (e: any) => {
+    const value = e.target.value
+
+    if (+value === 0) {
+      checkInputIsOk('')
+    }
+
+    if (value === '') {
+      checkInputIsOk('')
+      setInputAmount({ amount: 0 })
     }
   }
 
@@ -184,7 +198,7 @@ export const StakeUnstakeView = ({
               type={'number'}
               placeholder={String(inputAmount.amount)}
               onChange={onInputChange}
-              onBlur={(e) => checkInputIsOk(+e.target.value)}
+              onBlur={handleBlur}
               onFocus={handleFocus}
               value={inputAmount.amount}
               pinnedText={'MVK'}

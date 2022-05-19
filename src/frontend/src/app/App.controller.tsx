@@ -42,7 +42,7 @@ const AppContainer = () => {
 
   return (
     <Router>
-      <ThemeToggle />
+      {/* <ThemeToggle /> */}
       <ProgressBar />
       <AppStyled>
         {loading ? (
