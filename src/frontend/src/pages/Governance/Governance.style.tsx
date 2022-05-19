@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, cianColor } from 'styles'
+import { Card, cianColor, skyColor } from 'styles'
 
 import { MavrykTheme } from '../../styles/interfaces'
 
@@ -19,6 +19,21 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   margin-top: 0;
   flex-shrink: 0;
   margin-left: 30px;
+
+  article {
+    margin-bottom: 18px;
+    a {
+      text-decoration: underline;
+    }
+  }
+
+  hr {
+    border: none;
+    height: 1px;
+    background-color: ${({ theme }) => theme.cardBorderColor};
+    margin-top: 40px;
+    margin-bottom: 40px;
+  }
 `
 
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`
@@ -59,15 +74,25 @@ export const RightSideVotingArea = styled.div<{ theme: MavrykTheme }>`
 export const RightSideSubHeader = styled.div<{ theme: MavrykTheme }>`
   font-size: 18px;
   font-weight: 600;
-  margin-top: 35px;
+  margin-bottom: 12px;
+  color: ${({ theme }) => theme.headerColor};
 `
 export const RightSideSubContent = styled.p<{ theme: MavrykTheme }>`
-  font-size: 12px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 21px;
   font-weight: normal;
-  color: ${({ theme }) => theme.headerColor};
+  color: ${skyColor};
   word-break: break-all;
+
+  * {
+    color: ${skyColor};
+    stroke: ${skyColor};
+  }
 
   &#votingDeadline {
     color: ${cianColor};
+    font-size: 12px;
+    line-height: 1;
   }
 `
