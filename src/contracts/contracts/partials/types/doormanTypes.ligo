@@ -13,6 +13,7 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
     compoundIsPaused        : bool;
+    farmClaimIsPaused       : bool;
 ]
 
 type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer

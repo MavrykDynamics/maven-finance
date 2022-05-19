@@ -14,6 +14,7 @@
 // import { bob, alice, eve, mallory, oscar, trudy, isaac, david } from "../scripts/sandbox/accounts";
 
 // import treasuryAddress from '../deployments/treasuryAddress.json';
+// import doormanAddress from '../deployments/doormanAddress.json';
 // import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 // import governanceAddress from '../deployments/governanceAddress.json';
 // import mockFa12TokenAddress  from '../deployments/mockFa12TokenAddress.json';
@@ -23,13 +24,15 @@
 // describe("Treasury tests", async () => {
 //     var utils: Utils;
 
-//     let treasuryInstance;    
+//     let treasuryInstance;
+//     let doormanInstance;    
 //     let mvkTokenInstance;
 //     let governanceInstance;
 //     let mockFa12TokenInstance;
 //     let mockFa2TokenInstance;
 
 //     let treasuryStorage;
+//     let doormanStorage;
 //     let mvkTokenStorage;
 //     let governanceStorage;
 //     let mockFa12TokenStorage;
@@ -49,12 +52,14 @@
 //         console.log(treasuryAddress.address);
 
 //         treasuryInstance       = await utils.tezos.contract.at(treasuryAddress.address);
+//         doormanInstance        = await utils.tezos.contract.at(doormanAddress.address);
 //         mvkTokenInstance       = await utils.tezos.contract.at(mvkTokenAddress.address);
 //         governanceInstance     = await utils.tezos.contract.at(governanceAddress.address);
 //         mockFa12TokenInstance  = await utils.tezos.contract.at(mockFa12TokenAddress.address);
 //         mockFa2TokenInstance   = await utils.tezos.contract.at(mockFa2TokenAddress.address);
             
 //         treasuryStorage        = await treasuryInstance.storage();
+//         doormanStorage         = await doormanInstance.storage();
 //         mvkTokenStorage        = await mvkTokenInstance.storage();
 //         governanceStorage      = await governanceInstance.storage();
 //         mockFa12TokenStorage   = await mockFa12TokenInstance.storage();
@@ -62,6 +67,7 @@
 
 //         console.log('-- -- -- -- -- Treasury Tests -- -- -- --')
 //         console.log('Treasury Contract deployed at:', treasuryInstance.address);
+//         console.log('Doorman Contract deployed at:', doormanInstance.address);
 //         console.log('MVK Token Contract deployed at:', mvkTokenInstance.address);
 //         console.log('Governance Contract deployed at:', governanceInstance.address);
 //         console.log('Mock Fa12 Token Contract deployed at:', mockFa12TokenInstance.address);
@@ -78,23 +84,10 @@
 //         it('Non-admin should not be able to call this entrypoint', async () => {
 //             try{        
 
-//                 await signerFactory(bob.sk);
-//                 const setAdminOperation = await treasuryInstance.methods.setAdmin(eve.pkh).send();
-//                 await setAdminOperation.confirmation();
-
-//                 const updatedTreasuryStorage   = await treasuryInstance.storage();            
-//                 assert.equal(updatedTreasuryStorage.admin, eve.pkh);
-
-//                 // reset treasury admin to bob
 //                 await signerFactory(eve.sk);
-//                 const resetAdminOperation = await treasuryInstance.methods.setAdmin(bob.pkh).send();
-//                 await resetAdminOperation.confirmation();
-
-//                 const resetTreasuryStorage   = await treasuryInstance.storage();            
-//                 assert.equal(resetTreasuryStorage.admin, bob.pkh);
-
+//                 await chai.expect(treasuryInstance.methods.setAdmin(eve.pkh).send()).to.be.eventually.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         }); 
         
@@ -117,7 +110,7 @@
 //                 assert.equal(resetTreasuryStorage.admin, bob.pkh);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 //     })
@@ -139,7 +132,7 @@
 //                 assert.equal(treasuryTezBalance, depositAmountMutez);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -163,7 +156,7 @@
 //                 assert.equal(treasuryMockFa12TokenBalance.balance, depositAmount);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -194,7 +187,7 @@
 //                 assert.equal(treasuryMockFa2TokenBalance, depositAmount);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -228,7 +221,7 @@
 //                 assert.equal(finalTreasuryMvkTokenBalance.toNumber(), initTreasuryMvkTokenBalance.toNumber() + depositAmount);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -274,7 +267,7 @@
 //                 assert.equal(treasuryTezBalance, finalTezBalance);
                 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -306,7 +299,7 @@
 //                 assert.equal(treasuryMockFa12TokenBalance.balance, finalMockFa12TokenBalance);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -342,7 +335,7 @@
 //                 assert.equal(treasuryMockFa2TokenBalance, finalMockFa2TokenBalance);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -383,7 +376,7 @@
 //                 assert.equal(finalUserMvkTokenBalance.toNumber(), initUserMvkTokenBalance.toNumber() + amount);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -409,7 +402,7 @@
 //                 await chai.expect(failTransferTezOperation.send()).to.be.eventually.rejected;
                 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -469,7 +462,7 @@
 
                 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -535,7 +528,7 @@
 //                 assert.equal(parseInt(finalRecipientThreeBalance.balance), initialRecipientThreeBalance + amount_three);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -611,7 +604,7 @@
 //                 assert.equal(parseInt(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -687,7 +680,7 @@
 //                 assert.equal(parseInt(finalRecipientThreeBalance), initialRecipientThreeBalance + amount_three);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -786,7 +779,7 @@
 //                 assert.equal(parseInt(finalRecipientThreeMvkTokenBalance.toNumber()),             initialRecipientFourBalance   + amount_four);
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -811,7 +804,7 @@
 //                 await chai.expect(failTransferMockFa12TokenOperation.send()).to.be.eventually.rejected;
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -840,7 +833,7 @@
 //                 await chai.expect(failTransferMockFa2TokenOperation.send()).to.be.eventually.rejected;
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -868,46 +861,144 @@
 //                 );
 //                 await chai.expect(failTransferMvkTokenOperation.send()).to.be.eventually.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
+//             } 
+//         });
+//     })
+
+//     describe('%stake', function() {
+
+//         it('Admin should be able to call this entrypoint and stake MVK', async () => {
+//             try{        
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+//                 doormanStorage                      = await doormanInstance.storage();
+//                 mvkTokenStorage                     = await mvkTokenInstance.storage();
+//                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 const initTreasurySMvkTokenBalance  = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
+//                 const stakeAmount                   = MVK(10);
+
+//                 // Operations
+//                 const stakeOperation = await treasuryInstance.methods.stake(stakeAmount).send();
+//                 await stakeOperation.confirmation();
+
+//                 // Final values
+//                 mvkTokenStorage                     = await mvkTokenInstance.storage();
+//                 doormanStorage                      = await doormanInstance.storage();
+//                 const finalTreasuryMvkTokenBalance  = await mvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 const finalTreasurySMvkTokenBalance = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
+
+//                 assert.equal(initTreasuryMvkTokenBalance.toNumber() - stakeAmount, finalTreasuryMvkTokenBalance.toNumber());
+//                 assert.strictEqual(initTreasurySMvkTokenBalance, undefined);
+//                 assert.notStrictEqual(finalTreasurySMvkTokenBalance, undefined);
+
+//             } catch(e){
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
-//         it('Whitelist contract should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map', async () => {
+//         it('Non-admin should not be able to call this entrypoint and stake MVK', async () => {
 //             try{
-//                 const to_                      = oscar.pkh;
-//                 const amount                   = MVK(10);
-//                 const tokenContractAddress     = mvkTokenAddress.address;
-//                 const tokenId                  = 0;
+//                 // Initial values
+//                 const stakeAmount     = MVK(10);
+
+//                 // Operations
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.stake(stakeAmount).send()).to.be.eventually.rejected;
+//             } catch(e){
+//                 console.dir(e, {depth:  5});
+//             } 
+//         });
+
+//         it('Admin should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
+//             try{
+//                 // Initial values
+//                 const stakeAmount     = MVK(10);
 
 //                 // Update config
 //                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
 
-//                 await chai.expect(treasuryInstance.methods.transfer(
-//                     [
-//                         {
-//                             "to_"    : to_,
-//                             "token"  : {
-//                                 "fa2" : {
-//                                     "tokenContractAddress" : tokenContractAddress,
-//                                     "tokenId" : tokenId
-//                                 }
-//                             },
-//                             "amount" : amount
-//                         }
-//                     ]
-//                 ).send()).to.be.eventually.rejected;
+//                 // Operations
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.stake(stakeAmount).send()).to.be.eventually.rejected;
 
 //                 // Reset config
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
+//                 await signerFactory(bob.sk);
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
 //                 await updateGeneralContractOperation.confirmation();
-                
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             }
 //         });
-//     })
+//     });
+
+//     describe('%unstake', function() {
+
+//         it('Admin should be able to call this entrypoint and unstake MVK', async () => {
+//             try{        
+//                 // Initial values
+//                 await signerFactory(bob.sk);
+//                 doormanStorage                      = await doormanInstance.storage();
+//                 mvkTokenStorage                     = await mvkTokenInstance.storage();
+//                 const initTreasuryMvkTokenBalance   = await mvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 const initTreasurySMvkTokenBalance  = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
+//                 const unstakeAmount                 = MVK(5);
+
+//                 // Operations
+//                 const stakeOperation = await treasuryInstance.methods.unstake(unstakeAmount).send();
+//                 await stakeOperation.confirmation();
+
+//                 // Final values
+//                 mvkTokenStorage                     = await mvkTokenInstance.storage();
+//                 const finalTreasuryMvkTokenBalance  = await mvkTokenStorage.ledger.get(treasuryAddress.address);
+//                 const finalTreasurySMvkTokenBalance = await doormanStorage.userStakeBalanceLedger.get(treasuryAddress.address);
+
+//                 assert.notEqual(initTreasuryMvkTokenBalance.toNumber(), finalTreasuryMvkTokenBalance.toNumber());
+//                 assert.notEqual(initTreasurySMvkTokenBalance.balance.toNumber() - unstakeAmount, finalTreasurySMvkTokenBalance.balance.toNumber());
+
+//             } catch(e){
+//                 console.dir(e, {depth:  5});
+//             } 
+//         });
+
+//         it('Non-admin should not be able to call this entrypoint and stake MVK', async () => {
+//             try{
+//                 // Initial values
+//                 const unstakeAmount     = MVK(2);
+
+//                 // Operations
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.unstake(unstakeAmount).send()).to.be.eventually.rejected;
+//             } catch(e){
+//                 console.dir(e, {depth:  5});
+//             } 
+//         });
+
+//         it('Whitelist contract should not be able to call this entrypoint if the doorman contract is not referenced in the generalContracts map', async () => {
+//             try{
+//                 // Initial values
+//                 const unstakeAmount     = MVK(2);
+
+//                 // Update config
+//                 await signerFactory(bob.sk);
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+
+//                 // Operations
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.unstake(unstakeAmount).send()).to.be.eventually.rejected;
+
+//                 // Reset config
+//                 await signerFactory(bob.sk);
+//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("doorman", doormanAddress.address).send();
+//                 await updateGeneralContractOperation.confirmation();
+//             } catch(e){
+//                 console.dir(e, {depth:  5});
+//             }
+//         });
+//     });
 
 //     describe('%mintMvkAndTransfer', function() {
 
@@ -935,7 +1026,7 @@
                 
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
 //         });
 
@@ -952,33 +1043,8 @@
 //                 await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
 
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             } 
-//         });
-
-//         it('Whitelist contract should not be able to call this entrypoint if the delegation contract is not referenced in the generalContracts map', async () => {
-//             try{
-//                 const to_                      = oscar.pkh;
-//                 const amount                   = MVK(10);
-
-//                 // Update config
-//                 await signerFactory(bob.sk);
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
-//                 await updateGeneralContractOperation.confirmation();
-
-//                 // Operation
-//                 const failMintMvkAndTransferOperation = await treasuryInstance.methods.mintMvkAndTransfer(
-//                      to_,
-//                      amount,
-//                 );
-//                 await chai.expect(failMintMvkAndTransferOperation.send()).to.be.eventually.rejected;
-
-//                 // Reset config
-//                 var updateGeneralContractOperation = await treasuryInstance.methods.updateGeneralContracts("delegation", delegationAddress.address).send();
-//                 await updateGeneralContractOperation.confirmation();
-//             } catch(e){
-//                 console.log(e);
-//             }
 //         });
 //     });
 
@@ -1028,7 +1094,7 @@
 //                 assert.equal(isPausedStart, false);
 //                 assert.equal(isPausedEnd, true);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             }
 //         });
 //         it('Non-admin should not be able to call the entrypoint', async () => {
@@ -1036,7 +1102,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(treasuryInstance.methods.togglePauseTransfer().send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             }
 //         });
 //     })
@@ -1074,7 +1140,7 @@
 //                 assert.equal(isPausedStart, false);
 //                 assert.equal(isPausedEnd, true);
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             }
 //         });
 //         it('Non-admin should not be able to call the entrypoint', async () => {
@@ -1082,7 +1148,95 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(treasuryInstance.methods.togglePauseMintMvkAndTransfer().send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
+//             }
+//         });
+//     });
+
+//     describe('%togglePauseStake', function() {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+//         it('Admin should be able to call this entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage                 = await treasuryInstance.storage();
+//                 const isPausedStart             = treasuryStorage.breakGlassConfig.stakeIsPaused
+//                 const amount                    = MVK(10); // 10 MVK
+
+//                 // Operation
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseStake().send();
+//                 await togglePauseOperation.confirmation();
+
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.stakeIsPaused
+
+//                 await chai.expect(treasuryInstance.methods.stake(
+//                     amount,
+//                 ).send()).to.be.rejected;
+
+//                 // Reset admin
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseStake().send();
+//                 await togglePauseOperation.confirmation();
+
+//                 // Assertions
+//                 assert.equal(isPausedStart, false);
+//                 assert.equal(isPausedEnd, true);
+//             } catch(e){
+//                 console.dir(e, {depth:  5});
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.togglePauseStake().send()).to.be.rejected;
+//             } catch(e){
+//                 console.dir(e, {depth:  5});
+//             }
+//         });
+//     });
+
+//     describe('%togglePauseUnstake', function() {
+//         beforeEach("Set signer to admin", async () => {
+//             await signerFactory(bob.sk)
+//         });
+//         it('Admin should be able to call this entrypoint', async () => {
+//             try{
+//                 // Initial Values
+//                 treasuryStorage                 = await treasuryInstance.storage();
+//                 const isPausedStart             = treasuryStorage.breakGlassConfig.unstakeIsPaused
+//                 const amount                    = MVK(10); // 10 MVK
+
+//                 // Operation
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseUnstake().send();
+//                 await togglePauseOperation.confirmation();
+
+//                 // Final values
+//                 treasuryStorage       = await treasuryInstance.storage();
+//                 const isPausedEnd       = treasuryStorage.breakGlassConfig.unstakeIsPaused
+
+//                 await chai.expect(treasuryInstance.methods.unstake(
+//                     amount,
+//                 ).send()).to.be.rejected;
+
+//                 // Reset admin
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseUnstake().send();
+//                 await togglePauseOperation.confirmation();
+
+//                 // Assertions
+//                 assert.equal(isPausedStart, false);
+//                 assert.equal(isPausedEnd, true);
+//             } catch(e){
+//                 console.dir(e, {depth:  5});
+//             }
+//         });
+//         it('Non-admin should not be able to call the entrypoint', async () => {
+//             try{
+//                 await signerFactory(alice.sk);
+//                 await chai.expect(treasuryInstance.methods.togglePauseUnstake().send()).to.be.rejected;
+//             } catch(e){
+//                 console.dir(e, {depth:  5});
 //             }
 //         });
 //     });
@@ -1110,7 +1264,7 @@
 //                     assert.equal(value, true);
 //                 }
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             }
 //         });
 //         it('Non-admin should not be able to call the entrypoint', async () => {
@@ -1118,7 +1272,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(treasuryInstance.methods.pauseAll().send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             }
 //         });
 //     })
@@ -1146,7 +1300,7 @@
 //                     assert.equal(value, false);
 //                 }
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             }
 //         });
 //         it('Non-admin should not be able to call the entrypoint', async () => {
@@ -1154,7 +1308,7 @@
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(treasuryInstance.methods.unpauseAll().send()).to.be.rejected;
 //             } catch(e){
-//                 console.log(e);
+//                 console.dir(e, {depth:  5});
 //             }
 //         });
 //     })

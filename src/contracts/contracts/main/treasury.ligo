@@ -49,10 +49,13 @@ type treasuryAction is
     | UnpauseAll                     of (unit)
     | TogglePauseTransfer            of (unit)
     | TogglePauseMintMvkAndTransfer  of (unit)
+    | TogglePauseStake               of (unit)
+    | TogglePauseUnstake             of (unit)
 
     // Treasury Entrypoints
     | Transfer                       of transferActionType
     | MintMvkAndTransfer             of mintMvkAndTransferType
+    | Update_operators               of updateOperatorsParams
     | Stake                          of (nat)
     | Unstake                        of (nat)
 
@@ -672,6 +675,25 @@ block {
 
 
 
+(* update_operators entrypoint *)
+function updateOperators(const updateOperatorsParams : updateOperatorsParams ; var s : treasuryStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateOperators"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateOperators(updateOperatorsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
 (* stake entrypoint *)
 function stake(const stakeAmount : nat ; var s : treasuryStorage) : return is 
 block {
@@ -771,6 +793,7 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
           // Treasury Entrypoints
         | Transfer(parameters)                          -> transfer(parameters, s)
         | MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
+        | Update_operators(parameters)                  -> updateOperators(parameters, s)
         | Stake(parameters)                             -> stake(parameters, s)
         | Unstake(parameters)                           -> unstake(parameters, s)
 

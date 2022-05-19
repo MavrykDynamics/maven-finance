@@ -287,7 +287,7 @@ describe('Contracts Deployment for Tests', async () => {
     treasuryStorage.governanceAddress = governance.contract.address
     treasuryStorage.mvkTokenAddress  = mvkToken.contract.address
     treasuryStorage.generalContracts = MichelsonMap.fromLiteral({
-      "delegation"   : delegation.contract.address,
+      "doorman"   : doorman.contract.address,
     });
     treasuryStorage.whitelistContracts = MichelsonMap.fromLiteral({
       doorman                   : doorman.contract.address,
@@ -306,7 +306,7 @@ describe('Contracts Deployment for Tests', async () => {
     treasuryFactoryStorage.governanceAddress = governance.contract.address
     treasuryFactoryStorage.mvkTokenAddress  = mvkToken.contract.address
     treasuryFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
-      "delegation"    : delegation.contract.address,
+      "doorman"   : doorman.contract.address,
     });
     treasuryFactoryStorage.whitelistTokenContracts = MichelsonMap.fromLiteral({
       mvk             : mvkToken.contract.address,
@@ -367,9 +367,9 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setLambda("lambdaSetAdmin"                              , governanceProxyLambdas[0]))  // setAdmin
       .withContractCall(governanceProxy.contract.methods.setLambda("lambdaSetGovernance"                         , governanceProxyLambdas[1]))  // setGovernance
       .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateMetadata"                        , governanceProxyLambdas[2]))  // updateMetadata
-      .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateGeneralContracts"                , governanceProxyLambdas[3]))  // updateGeneralContracts
-      .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateWhitelistContracts"              , governanceProxyLambdas[4]))  // updateWhitelistContracts
-      .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"         , governanceProxyLambdas[5]))  // updateWhitelistTokenContracts
+      .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateWhitelistContracts"              , governanceProxyLambdas[3]))  // updateWhitelistContracts
+      .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateWhitelistTokenContracts"         , governanceProxyLambdas[4]))  // updateWhitelistTokenContracts
+      .withContractCall(governanceProxy.contract.methods.setLambda("lambdaUpdateGeneralContracts"                , governanceProxyLambdas[5]))  // updateGeneralContracts
       const setupGovernanceProxyLambdasOperation = await governanceProxyLambdaBatch.send()
       await setupGovernanceProxyLambdasOperation.confirmation()
       console.log("Governance Proxy Lambdas Setup")
@@ -413,14 +413,15 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(27, governanceProxyLambdas[33])) // untrackTreasury
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(28, governanceProxyLambdas[34])) // transferTreasury
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(29, governanceProxyLambdas[35])) // mintMvkAndTransferTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[36])) // stakeTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(31, governanceProxyLambdas[37])) // unstakeTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(32, governanceProxyLambdas[38])) // updateInflationRate
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(33, governanceProxyLambdas[39])) // triggerInflation
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(34, governanceProxyLambdas[40])) // addVestee
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(35, governanceProxyLambdas[41])) // removeVestee
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(36, governanceProxyLambdas[42])) // updateVestee
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(37, governanceProxyLambdas[43])) // toggleVesteeLock
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[36])) // updateOperatorsTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(31, governanceProxyLambdas[37])) // stakeTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(32, governanceProxyLambdas[38])) // unstakeTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(33, governanceProxyLambdas[39])) // updateInflationRate
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(34, governanceProxyLambdas[40])) // triggerInflation
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(35, governanceProxyLambdas[41])) // addVestee
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(36, governanceProxyLambdas[42])) // removeVestee
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(37, governanceProxyLambdas[43])) // updateVestee
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(38, governanceProxyLambdas[44])) // toggleVesteeLock
   
       const setupGovernanceProxySecondLambdasOperation = await governanceProxySecondLambdaBatch.send()
       await setupGovernanceProxySecondLambdasOperation.confirmation()
@@ -746,8 +747,9 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseUnstake"                     , treasuryLambdas[12]))  // togglePauseUnstake
       .withContractCall(treasury.contract.methods.setLambda("lambdaTransfer"                               , treasuryLambdas[13]))  // transfer
       .withContractCall(treasury.contract.methods.setLambda("lambdaMintMvkAndTransfer"                     , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaStake"                                  , treasuryLambdas[15]))  // stake
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUnstake"                                , treasuryLambdas[16]))  // unstake
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateOperators"                        , treasuryLambdas[15]))  // update_operators
+      .withContractCall(treasury.contract.methods.setLambda("lambdaStake"                                  , treasuryLambdas[16]))  // stake
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUnstake"                                , treasuryLambdas[17]))  // unstake
 
       
       const setupTreasuryLambdasOperation = await treasuryLambdaBatch.send()
@@ -794,8 +796,9 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseUnstake"           , treasuryLambdas[12]))  // togglePauseUnstake
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTransfer"                     , treasuryLambdas[13]))  // transfer
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaMintMvkAndTransfer"           , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStake"                        , treasuryLambdas[15]))  // stake
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstake"                      , treasuryLambdas[16]))  // unstake
+      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateOperators"              , treasuryLambdas[15]))  // update_operators
+      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStake"                        , treasuryLambdas[16]))  // stake
+      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstake"                      , treasuryLambdas[17]))  // unstake
 
       
       const setupTreasuryFactoryProductLambdasOperation = await treasuryFactoryProductLambdaBatch.send()
@@ -850,6 +853,17 @@ describe('Contracts Deployment for Tests', async () => {
       ])
       .send()
     await transferToTreasury.confirmation()
+    const updateOperatorsTreasury = await treasury.contract.methods
+      .update_operators([
+        {
+          add_operator: {
+              owner: treasury.contract.address,
+              operator: doorman.contract.address,
+              token_id: 0,
+          },
+      }])
+      .send()
+    await updateOperatorsTreasury.confirmation()
 
     // Doorman Contract - set general contract addresses [delegation, farmTreasury, satelliteTreasury, farmFactory]
     const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts('delegation', delegation.contract.address).send()
