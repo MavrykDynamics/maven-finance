@@ -4,10 +4,10 @@ import { Card, CardHeader } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const GovernanceTopBarStyled = styled(Card)`
-  margin: 18px auto 30px;
+  margin: 30px auto 20px;
   display: flex;
   width: 100%;
-  height: 53px;
+  height: 75px;
   flex-direction: row;
   border-radius: 10px;
   padding: 10px 20px;

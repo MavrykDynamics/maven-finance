@@ -10,7 +10,7 @@ export const StatusFlagStyled = styled.div<{ theme: MavrykTheme }>`
   width: 110px;
   padding: 0;
   font-size: 12px;
-  height: 32px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;

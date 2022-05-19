@@ -7,41 +7,36 @@ export const GovernanceStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   width: 100%;
   flex-direction: row;
+  justify-content: space-between;
 `
 
 export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  width: 50%;
-  margin: 0 0 0 10px;
-  padding: 30px;
+  width: calc(50% - 25px);
+  padding: 28px 30px;
   border-radius: 10px;
   height: min-content;
-  margin-top: 2px;
-
-  #votingDeadline {
-    font-size: 12px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.subTextColor};
-  }
 `
 
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`
   width: 50%;
-  padding-right: 20px;
+  padding-top: 28px;
 `
 
 export const GovRightContainerTitleArea = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: inherit;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
 
   > h1 {
-    color: ${({ theme }) => theme.textColor};
+    color: ${({ theme }) => theme.headerColor};
     font-size: 25px;
     margin: 0;
-  }
-  > div {
+
+    &::after {
+      margin-bottom: 7px;
+    }
   }
 `
 
@@ -66,6 +61,6 @@ export const RightSideSubHeader = styled.div<{ theme: MavrykTheme }>`
 export const RightSideSubContent = styled.p<{ theme: MavrykTheme }>`
   font-size: 12px;
   font-weight: normal;
-  color: ${({ theme }) => theme.subTextColor};
+  color: ${({ theme }) => theme.headerColor};
   word-break: break-all;
 `

@@ -1,6 +1,7 @@
 import styled, { keyframes } from 'styled-components/macro'
+import { skyColor, upColor } from 'styles'
+
 import { MavrykTheme } from '../../../../styles/interfaces'
-import { upColor } from '../../../../styles'
 
 const dropShadow = keyframes`
   0% {
@@ -22,17 +23,19 @@ export const VotingContainer = styled.div<{ theme: MavrykTheme }>`
 export const QuorumBar = styled.div<{ width: number; theme: MavrykTheme }>`
   width: ${({ width }) => width}%;
   min-width: fit-content;
-  border: 1px solid;
+  border: 2px solid;
   border-right-color: ${({ theme }) => theme.placeholderTextColor};
   border-top: none;
   border-bottom: none;
   border-left: none;
-  padding: 10px 10px 10px 0;
-  margin-bottom: 10px;
+  padding: 8px 9px 8px 0;
+  margin-bottom: 6px;
+  color: ${skyColor};
+  font-weight: 400;
 `
 export const VotingBarStyled = styled.div<{ theme: MavrykTheme }>`
   z-index: 20;
-  height: 10px;
+  height: 4px;
   display: flex;
   flex-direction: row;
 
