@@ -1,5 +1,4 @@
 import styled, { createGlobalStyle } from 'styled-components/macro';
-import { MavrykTheme } from 'styles/interfaces';
 
 export const GlobalStyle = createGlobalStyle`
   body {
