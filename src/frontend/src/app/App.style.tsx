@@ -1,12 +1,17 @@
-import styled from 'styled-components/macro'
+import styled from 'styled-components/macro';
 
-import { MavrykTheme } from '../styles/interfaces'
+import { MavrykTheme } from '../styles/interfaces';
 
 export const AppStyled = styled.div<{ theme: MavrykTheme }>`
   min-height: 100vh;
   display: grid;
   grid-template-columns: 270px auto;
-`
+
+  @media screen and (max-width: 1460px) {
+    grid-template-columns: 72px auto;
+  }
+`;
+
 export const LoaderStyled = styled.div<{ theme: MavrykTheme }>`
   position: fixed;
   inset: 0;
@@ -37,7 +42,7 @@ export const AppBg = styled.div<{ theme: MavrykTheme }>`
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover; */
-`
+`;
 
 export const AppWrapper = styled.div`
   position: absolute;
@@ -46,7 +51,8 @@ export const AppWrapper = styled.div`
   background: url('/images/grid.svg') repeat center top;
   /* height: 100vh; */
   will-change: transform, opacity;
-`
+`;
+
 export const EmptyContainer = styled.figure<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: center;

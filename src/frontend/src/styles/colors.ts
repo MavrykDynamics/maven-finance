@@ -25,6 +25,8 @@ export const warningColor = '#FF7A00'
 export const infoColor = '#00C2FF'
 export const selectedColor = '#aea3ff3d'
 
+export const backdropColor = '#08062880'
+
 export const darkMode = {
   backgroundColor: darkColor,
   containerColor: middleColor,
