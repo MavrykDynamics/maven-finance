@@ -2,7 +2,7 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 
 import { BigNumber } from 'bignumber.js'
 
-const { bob, eve, mallory, david } = require('../scripts/sandbox/accounts')
+const { oracleMaintainer, oracle0, oracle1, oracle2 } = require('../scripts/sandbox/accounts')
 
 import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 
@@ -11,7 +11,7 @@ import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 
 const config = {
   decimals                            : new BigNumber(8),
-  maintainer                          : bob.pkh,
+  maintainer                          : oracleMaintainer.pkh,
   minimalTezosAmountDeviationTrigger  : new BigNumber(1),
   perthousandDeviationTrigger         : new BigNumber(2),
   percentOracleThreshold              : new BigNumber(49),
@@ -33,14 +33,14 @@ const metadata = MichelsonMap.fromLiteral({
 })
 
 const oracleAddresses = MichelsonMap.fromLiteral({
-  [bob.pkh] : true,
-  [eve.pkh] : true,
-  [mallory.pkh] : true,
-  [david.pkh] : true,
+  [oracleMaintainer.pkh] : true,
+  [oracle0.pkh] : true,
+  [oracle1.pkh] : true,
+  [oracle2.pkh] : true,
 });
 
 const deviationTriggerInfos = {
-  oracleAddress : bob.pkh,
+  oracleAddress : oracleMaintainer.pkh,
   amount : new BigNumber(0),
   roundPrice: new BigNumber(0),
 }
@@ -54,7 +54,7 @@ const lastCompletedRoundPrice = {
 
 export const aggregatorStorage: aggregatorStorageType = {
 
-  admin                     : bob.pkh,
+  admin                     : oracleMaintainer.pkh,
   config                    : config,
   metadata                  : metadata,
   

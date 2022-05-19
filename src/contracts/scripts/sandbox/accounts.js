@@ -80,29 +80,65 @@ module.exports = {
         pkh: 'tz1NdjbFHLxbKEUXhXgjyLfQSCbq6oy5b7Px',
         sk: 'edsk3ZBmJ3e34AhZViEanGN87QvayUQupJ28Q89xUpFFSv18xF2Lqf',
         pk: 'edpkv3sej4FWX2cUg8DR9F9QmsEb3YdodhDbVg1o1ooeWUDkuRGTsg',
-    },
-    //
-    // AWS KMS oracle addresses, use for testnet deploy
-    //
-
-    // oracleMaintainer: {
-    //     pkh: 'tz3RTjXZkXJw3TvNsnKVL478CWYYNjfMRTCZ',
-    //     sk: '',
-    //     pk: '',
-    // },
-    // oracle1: {
-    //     pkh: 'tz3MY7GYiud8Y9YVk2MnbftrxYvZVBh4Rbkq',
-    //     sk: '',
-    //     pk: '',
-    // },
-    // oracle2: {
-    //     pkh: 'tz3Z8wLvEiauxuw4QHR4sjWNbDugB68NX8px',
-    //     sk: '',
-    //     pk: '',
-    // },
-    // oracle3: {
-    //     pkh: 'tz3N8cUSMpM5zknEzT7EuUCUmqYrv2A8o36P',
-    //     sk: '',
-    //     pk: '',
-    // },
+    }
 };
+
+// Ithacanet addresses
+
+// module.exports = {
+//     alice: {
+//         pkh: 'tz1eAoFgsys8PhTUvT3V3eq2BFaZp8UsGNsr',
+//         sk: 'edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt',
+//         pk: 'edpkv9DgHWm6HY6b35Mv77hgZcWrJVD4ADebp9RjYxXVmFvGs4VYi1',
+//     },
+//     bob: {
+//         pkh: 'tz1MBNfBnNn8fZCJVrrXV95FSgyuUxbmt3Mm',
+//         sk: 'edskRpPWgoNUfJgZRiycPg9539KMX6Ksw5yNVDw2ukds8VEgqXLLuBDrB6dr6m7fgsAZrLMDpPkxN7kRpcNyRzwkPYhoWsBJsZ',
+//         pk: 'edpkunKYLbEfRLKLtn9yi9avyjQbAAbQxuPVN759ajQEDKpp4RE6GV',
+//     },
+//     eve: {
+//         pkh: 'tz1PSmvRd3ySbh5aviFEMYGD6542LL5QnrMk',
+//         sk: 'edskRzrnZoreVanzsedvSDgWV1DkNycfjMXyri9LQLVYdXTXJrxNHzdtpouGJTQ1CrQiWK6ECvHCpoYfQ2LM7j8GjJdkjqrsLE',
+//         pk: 'edpkuVjyKad7yCnNrCbGea7hi5Zh1zp5Cb1TvxUmnxC33fwKhq7daN',
+//     },
+//     mallory: {
+//         pkh: 'tz1KrELvNVY4xKnujkXwrVLWuzWJEg9FvA8v',
+//         sk: 'edskRjjhoUjvSZ2eGgGpvcMk6SrtpajjkzGUXDpr2EAa25VTfdtNSoD1JLhEoEnotYR6ZtRC2bCk56kwf79eqgygrMeR145ENq',
+//         pk: 'edpku7vkvS6XaWzFjmPDYULNyYrS7Rf1vHuoQ9FD8zVcaFNJ51bJ82',
+//     },
+//     oscar: {
+//         pkh: 'tz1YKquTvvSE2B5kvGyf1AYeXD6b6cMDSzDe',
+//         sk: 'edskRts3yovQnSAaK6WbyiaZdBnLk1cSeq8UEWo24xNyo1T6gZZ9yQpQ48YmvCwjjW1FpSgJ1LPZ9T3jazmh3HXLLKHDaJZVx2',
+//         pk: 'edpkuqoXhgeXYZxn6yVWuy9UrWKazyahPaAbwnuZYknRefeLVVK3ar',
+//     },
+//     trudy: {
+//         pkh: 'tz1S3yZiTz316jY4NVVC4HFCgecMvryZ9Kk1',
+//         sk: 'edskRnLBuG23ucD8zD8pQKK9A1va5fVRNpSgK6JiDW5251mdJjFjkT9Lw9WipWxmivxG8gnr8swmnUuKcHrMxEEtThdszDkDP4',
+//         pk: '',
+//     },
+//     isaac: {
+//         pkh: 'tz1cPsRXpj1yA2nBSFtUo2HHLsgr6hDKWvCB',
+//         sk: 'edskRce5phNTy39eQAbe4gDmrr84HFmSrqmKRDLDj9c6VuuVEgeVtaaffXjfPNwMkhqQyvWdoufbDHqG2TvwnPwLfc8q7621po',
+//         pk: '',
+//     },
+//     oracleMaintainer: {
+//         pkh: 'tz3RTjXZkXJw3TvNsnKVL478CWYYNjfMRTCZ',
+//         sk: '',
+//         pk: '',
+//     },
+//     oracle0: {
+//         pkh: 'tz3MY7GYiud8Y9YVk2MnbftrxYvZVBh4Rbkq',
+//         sk: '',
+//         pk: '',
+//     },
+//     oracle1: {
+//         pkh: 'tz3Z8wLvEiauxuw4QHR4sjWNbDugB68NX8px',
+//         sk: '',
+//         pk: '',
+//     },
+//     oracle2: {
+//         pkh: 'tz3N8cUSMpM5zknEzT7EuUCUmqYrv2A8o36P',
+//         sk: '',
+//         pk: '',
+//     },
+// };
