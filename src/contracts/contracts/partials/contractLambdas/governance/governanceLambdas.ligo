@@ -625,7 +625,7 @@ block {
                 else skip;
 
                 // check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.source then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if proposalRecord.proposerAddress =/= Tezos.sender and Tezos.self_address =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 // check that proposer is still a satellite
@@ -683,7 +683,7 @@ block {
                 else skip;
 
                 // check that sender is the creator of the proposal 
-                if proposalRecord.proposerAddress =/= Tezos.source then failwith(error_ONLY_PROPOSER_ALLOWED)
+                if proposalRecord.proposerAddress =/= Tezos.sender and Tezos.self_address =/= Tezos.sender then failwith(error_ONLY_PROPOSER_ALLOWED)
                 else skip;
 
                 // check that proposer is still a satellite

@@ -45,11 +45,27 @@
     },
     {
       "index": 11,
-      "name": "lambdaTransfer"
+      "name": "lambdaTogglePauseStake"
     },
     {
       "index": 12,
+      "name": "lambdaTogglePauseUnstake"
+    },
+    {
+      "index": 13,
+      "name": "lambdaTransfer"
+    },
+    {
+      "index": 14,
       "name": "lambdaMintMvkAndTransfer"
+    },
+    {
+      "index": 15,
+      "name": "lambdaStake"
+    },
+    {
+      "index": 16,
+      "name": "lambdaUnstake"
     }
 ]
   

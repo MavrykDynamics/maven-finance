@@ -589,7 +589,7 @@ block {
                     Some (value) -> value
                 | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = s.governanceAddress or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
+                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                 const addressMap   : addressMapType      = map [
@@ -659,7 +659,7 @@ block {
                     Some (value) -> value
                 | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                 ];
-                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = s.governanceAddress or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
+                if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
                 else failwith(error_DEVELOPER_NOT_WHITELISTED);
                 
                 const addressMap   : addressMapType      = map [
@@ -1097,7 +1097,7 @@ block {
                             Some (value) -> value
                         | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
-                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = s.governanceAddress or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
+                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
                         else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                         const setSingleContractAdminOperation : operation = Tezos.transaction(
@@ -1134,7 +1134,7 @@ block {
                             Some (value) -> value
                         | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
                         ];
-                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = s.governanceAddress or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
+                        if Set.mem(newAdminAddress, whitelistDevelopers) or newAdminAddress = Tezos.self_address or newAdminAddress = governanceProxyAddress then skip
                         else failwith(error_DEVELOPER_NOT_WHITELISTED);
 
                         // Set self as contract admin

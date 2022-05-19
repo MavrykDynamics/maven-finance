@@ -41,6 +41,7 @@ type doormanLambdaActionType is
 | LambdaTogglePauseStake            of (unit)
 | LambdaTogglePauseUnstake          of (unit)
 | LambdaTogglePauseCompound         of (unit)
+| LambdaTogglePauseFarmClaim        of (unit)
 
   // Doorman Lambdas
 | LambdaStake                       of (nat)

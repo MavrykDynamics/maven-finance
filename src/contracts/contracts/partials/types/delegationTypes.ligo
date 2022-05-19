@@ -151,7 +151,6 @@ type delegationLambdaActionType is
 
   // General Lambdas
 | LambdaOnStakeChange                         of onStakeChangeParams
-| LambdaOnSatelliteRewardPaid                 of address
 
 // ------------------------------------------------------------------------------
 // Storage

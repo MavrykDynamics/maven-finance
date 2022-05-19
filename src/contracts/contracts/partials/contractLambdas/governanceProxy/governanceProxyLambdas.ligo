@@ -57,16 +57,18 @@ block {
       | UntrackTreasury (_v)                   -> 27n
       | TransferTreasury (_v)                  -> 28n
       | MintMvkAndTransferTreasury (_v)        -> 29n
+      | StakeTreasury (_v)                     -> 30n
+      | UnstakeTreasury (_v)                   -> 31n
 
       (* MVK Token Control *)
-      | UpdateMvkInflationRate (_v)            -> 30n
-      | TriggerMvkInflation (_v)               -> 31n
+      | UpdateMvkInflationRate (_v)            -> 32n
+      | TriggerMvkInflation (_v)               -> 33n
 
       (* Vesting Control *)
-      | AddVestee (_v)                         -> 32n
-      | RemoveVestee (_v)                      -> 33n
-      | UpdateVestee (_v)                      -> 34n
-      | ToggleVesteeLock (_v)                  -> 35n
+      | AddVestee (_v)                         -> 34n
+      | RemoveVestee (_v)                      -> 35n
+      | UpdateVestee (_v)                      -> 36n
+      | ToggleVesteeLock (_v)                  -> 37n
     ];
 
     const lambdaBytes : bytes = case s.proxyLambdaLedger[id] of [
@@ -1234,6 +1236,86 @@ block {
           );
 
         operations := mintOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function stakeTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      StakeTreasury(stakeTreasuryParams) -> {
+
+        // assign params to constants for better code readability
+        const targetTreasuryAddress   : address       = stakeTreasuryParams.targetTreasuryAddress;
+        const treasuryStake           : nat           = stakeTreasuryParams.stakeAmount;
+
+
+        // find and get stake entrypoint of treasury contract
+        const stakeEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%stake",
+            targetTreasuryAddress) : option(contract(stakeTreasuryType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_STAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(stakeTreasuryType))
+            ];
+
+        // stake MVK operation
+        const stakeOperation : operation = Tezos.transaction(
+          (treasuryStake),
+          0tez, 
+          stakeEntrypoint
+          );
+
+        operations := stakeOperation # operations;
+
+        }
+    | _ -> skip
+    ]
+} with (operations, s)
+
+
+
+function unstakeTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+block {
+
+    checkSenderIsAdminOrGovernance(s);
+
+    var operations: list(operation) := nil;
+
+    case executeAction of [
+      
+      UnstakeTreasury(unstakeTreasuryParams) -> {
+
+        // assign params to constants for better code readability
+        const targetTreasuryAddress   : address       = unstakeTreasuryParams.targetTreasuryAddress;
+        const treasuryUnstake         : nat           = unstakeTreasuryParams.unstakeAmount;
+
+
+        // find and get unstake entrypoint of treasury contract
+        const unstakeEntrypoint = case (Tezos.get_entrypoint_opt(
+            "%unstake",
+            targetTreasuryAddress) : option(contract(unstakeTreasuryType))) of [
+                  Some(contr) -> contr
+                | None        -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(unstakeTreasuryType))
+            ];
+
+        // unstake MVK operation
+        const unstakeOperation : operation = Tezos.transaction(
+          (treasuryUnstake),
+          0tez, 
+          unstakeEntrypoint
+          );
+
+        operations := unstakeOperation # operations;
 
         }
     | _ -> skip
