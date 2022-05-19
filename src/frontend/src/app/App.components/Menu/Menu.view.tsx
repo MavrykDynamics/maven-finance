@@ -35,7 +35,6 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
     setExpandedMenuMob(true);
     setExpanded(id === isExpanded ? 0 : id);
   };
-  console.log('isExpanded', isExpanded);
 
   return (
     <MenuStyled
@@ -45,7 +44,7 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
         setExpandedMenuMob(false);
       }}
     >
-      <MenuTopSection className="menu-top" onClick={e => e.stopPropagation()}>
+      <MenuTopSection onClick={e => e.stopPropagation()}>
         <MenuMobileBurger
           onClick={e => {
             e.stopPropagation();
@@ -87,11 +86,6 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
           MAVRYK App <p>v1.0</p>
         </MenuFooter>
       </MenuTopSection>
-      {/* <MenuBottomSection className='menu-bottom'>
-        <MenuFooter>
-          MAVRYK App <p>v1.0</p>
-        </MenuFooter>
-      </MenuBottomSection> */}
     </MenuStyled>
   );
 };

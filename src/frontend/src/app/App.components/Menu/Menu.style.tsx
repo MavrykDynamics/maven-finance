@@ -12,12 +12,12 @@ export const moveDown = keyframes`
 `;
 export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
   width: 270px;
-  transition: all 0.25s;
+  transition: all 0.3s;
   .mobile-logo {
     display: none;
   }
 
-  @media screen and (max-width: 1445px) {
+  @media screen and (max-width: 1460px) {
     &:not(.menu-expanded) {
       width: 72px;
       .desctop-logo,
@@ -42,11 +42,25 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
       width: 100vw;
       display: flex;
       display: flex;
-      background: rgba(255, 255, 255, 0.3);
+      background: #08062880;
       z-index: 10;
       align-items: flex-start;
       .burger-menu {
-        width: 50%;
+        margin: 21px 29px 0 auto;
+        transform: rotate(45deg);
+        > div {
+          display: none;
+        }
+
+        > div:first-child {
+          display: block;
+          transform: rotate(90deg) translateX(3px);
+        }
+
+        > div:last-child {
+          display: block;
+          transform: translateY(-5px);
+        }
       }
 
       .menu-backdrop {
@@ -68,9 +82,10 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
   margin-top: 21px;
   justify-content: center;
   flex-direction: column;
+  transition: all 0.3s;
   align-items: center;
   cursor: pointer;
-  @media screen and (max-width: 1445px) {
+  @media screen and (max-width: 1460px) {
     display: flex;
   }
   > div {
@@ -113,18 +128,6 @@ export const MenuGrid = styled.div`
   width: 100%;
 `;
 
-export const MenuBottomSection = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: center;
-  margin-top: 40px;
-`;
-
-export const MenuBanner = styled.img`
-  margin: 0 auto 15px auto;
-`;
-
 export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
   font-size: 11px;
   color: ${({ theme }) => theme.footerColor};
@@ -134,7 +137,7 @@ export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
   left: 50%;
   transform: translateX(-50%);
 
-  @media screen and (max-width: 1445px) {
+  @media screen and (max-width: 1460px) {
     padding: 0 10px;
     font-size: 10px;
   }

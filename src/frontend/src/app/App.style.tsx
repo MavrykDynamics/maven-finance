@@ -7,7 +7,7 @@ export const AppStyled = styled.div<{ theme: MavrykTheme }>`
   display: grid;
   grid-template-columns: 270px auto;
 
-  @media screen and (max-width: 1445px) {
+  @media screen and (max-width: 1460px) {
     grid-template-columns: 72px auto;
   }
 `;
