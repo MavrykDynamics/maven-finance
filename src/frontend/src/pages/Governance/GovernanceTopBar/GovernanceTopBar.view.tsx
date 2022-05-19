@@ -1,13 +1,9 @@
-import {
-  GovTopBarSidewaysArrowIcon,
-  GovernanceTopBarStyled,
-  GovTopBarPhaseText,
-  TimeLeftArea,
-  GovTopBarEmergencyGovText,
-} from './GovernanceTopBar.style'
 import * as React from 'react'
-import { GovernancePhase } from '../../../reducers/governance'
+
 import { Button } from '../../../app/App.components/Button/Button.controller'
+import { GovernancePhase } from '../../../reducers/governance'
+// prettier-ignore
+import { GovernanceTopBarStyled, GovTopBarEmergencyGovText, GovTopBarPhaseText, GovTopBarSidewaysArrowIcon, TimeLeftArea } from './GovernanceTopBar.style'
 
 export type GovernanceTopBarViewProps = {
   loading: boolean
@@ -26,7 +22,7 @@ export const GovernanceTopBarView = ({
   const isInExecution =
     governancePhase !== 'PROPOSAL' && governancePhase !== 'VOTING' && governancePhase !== 'TIME_LOCK'
   return (
-    <GovernanceTopBarStyled>
+    <GovernanceTopBarStyled id="governanceTopBar">
       {isInEmergencyGovernance ? (
         <GovTopBarEmergencyGovText>EMERGENCY GOVERNANCE PROTOCOL ACTIVE</GovTopBarEmergencyGovText>
       ) : (

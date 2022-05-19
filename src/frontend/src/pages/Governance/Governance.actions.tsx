@@ -1,19 +1,17 @@
-import { State } from '../../reducers'
-import governanceAddress from '../../deployments/governanceAddress.json'
 import { MichelsonMap, TezosToolkit } from '@taquito/taquito'
-import { getContractBigmapKeys } from '../../utils/api'
+
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
-import { GovernanceStorage, ProposalRecordType, SnapshotRecordType } from '../../utils/TypesAndInterfaces/Governance'
+import governanceAddress from '../../deployments/governanceAddress.json'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { COUNCIL_STORAGE_QUERY, COUNCIL_STORAGE_QUERY_NAME, COUNCIL_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
+// prettier-ignore
+import { GOVERNANCE_STORAGE_QUERY, GOVERNANCE_STORAGE_QUERY_NAME, GOVERNANCE_STORAGE_QUERY_VARIABLE } from '../../gql/queries/getGovernanceStorage'
+import { State } from '../../reducers'
+import { getContractBigmapKeys } from '../../utils/api'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
+import { GovernanceStorage, ProposalRecordType, SnapshotRecordType } from '../../utils/TypesAndInterfaces/Governance'
 import { GET_COUNCIL_STORAGE } from '../Treasury/Treasury.actions'
-import {
-  GOVERNANCE_STORAGE_QUERY,
-  GOVERNANCE_STORAGE_QUERY_NAME,
-  GOVERNANCE_STORAGE_QUERY_VARIABLE,
-} from '../../gql/queries/getGovernanceStorage'
 
 export const SET_GOVERNANCE_PHASE = 'SET_GOVERNANCE_PHASE'
 export const GET_GOVERNANCE_STORAGE = 'GET_GOVERNANCE_STORAGE'
@@ -130,6 +128,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     GOVERNANCE_STORAGE_QUERY_NAME,
     GOVERNANCE_STORAGE_QUERY_VARIABLE,
   )
+
   const convertedStorage = storageToTypeConverter('governance', storage)
 
   dispatch({

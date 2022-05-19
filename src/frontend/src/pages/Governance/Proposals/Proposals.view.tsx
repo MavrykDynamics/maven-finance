@@ -1,8 +1,9 @@
-import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
-import * as React from 'react'
-import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+import { useEffect } from 'react'
+
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
+import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from './Proposals.style'
 
 type ProposalsViewProps = {
   listTitle: string
@@ -18,11 +19,13 @@ export const ProposalsView = ({
   selectedProposal,
   isProposalPhase,
 }: ProposalsViewProps) => {
+  const listProposalsArray = proposalsList?.values ? Array.from(proposalsList.values()) : []
+
   return (
     <ProposalListContainer>
       <h1>{listTitle}</h1>
-      {proposalsList &&
-        Array.from(proposalsList.values()).map((value, index) => {
+      {listProposalsArray.length &&
+        listProposalsArray.map((value, index) => {
           return (
             <ProposalListItem
               key={value.id}
@@ -30,7 +33,7 @@ export const ProposalsView = ({
               selected={selectedProposal ? selectedProposal.id === value.id : value.id === 1}
             >
               <ProposalItemLeftSide>
-                <div>{value.id}</div>
+                <span>{value.id}</span>
                 <h4>{value.title}</h4>
               </ProposalItemLeftSide>
               <div>
