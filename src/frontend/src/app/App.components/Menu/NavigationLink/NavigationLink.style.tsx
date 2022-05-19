@@ -1,8 +1,12 @@
-import styled, { css } from 'styled-components/macro'
+import styled, { css } from 'styled-components/macro';
 
-import { MavrykTheme } from '../../../../styles/interfaces'
+import { MavrykTheme } from '../../../../styles/interfaces';
 
-export const NavigationLinkContainer = styled.div<{ selected: boolean; theme: MavrykTheme }>`
+export const NavigationLinkContainer = styled.div<{
+  selected: boolean;
+  isMobMenuExpanded: boolean;
+  theme: MavrykTheme;
+}>`
   width: 100%;
 
   &:nth-of-type(1) {
@@ -11,7 +15,23 @@ export const NavigationLinkContainer = styled.div<{ selected: boolean; theme: Ma
     }
   }
 
-  ${(props) =>
+  @media screen and (max-width: 1460px) {
+    ${({ isMobMenuExpanded }) =>
+      !isMobMenuExpanded
+        ? css`
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .navLinkIcon,
+            a {
+              width: fit-content;
+              margin: 0;
+            }
+          `
+        : ''}
+  }
+
+  ${props =>
     props.selected &&
     css`
       background: ${({ theme }) => theme.navLinkBackgroundActive};
@@ -24,9 +44,13 @@ export const NavigationLinkContainer = styled.div<{ selected: boolean; theme: Ma
         }
       }
     `}
-`
+`;
 
-export const NavigationLinkItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
+export const NavigationLinkItem = styled.div<{
+  selected: boolean;
+  isMobMenuExpanded: boolean;
+  theme: MavrykTheme;
+}>`
   width: 100%;
 
   > a {
@@ -43,7 +67,7 @@ export const NavigationLinkItem = styled.div<{ selected: boolean; theme: MavrykT
       justify-content: space-around;
     }
 
-    ${(props) =>
+    ${props =>
       props.selected &&
       css`
         .navLinkTitle {
@@ -51,7 +75,23 @@ export const NavigationLinkItem = styled.div<{ selected: boolean; theme: MavrykT
         }
       `}
   }
-`
+
+  @media screen and (max-width: 1460px) {
+    ${({ isMobMenuExpanded }) =>
+      !isMobMenuExpanded
+        ? css`
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            .navLinkIcon,
+            > a {
+              width: fit-content;
+              margin: 0;
+            }
+          `
+        : ''}
+  }
+`;
 export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   width: 50px;
   cursor: pointer;
@@ -67,18 +107,18 @@ export const NavigationLinkIcon = styled.div<{ selected: boolean; theme: MavrykT
     vertical-align: top;
   }
 
-  ${(props) =>
+  ${props =>
     props.selected &&
     css`
       > svg {
         fill: ${({ theme }) => theme.navLinkTextActive};
       }
     `}
-`
+`;
 
 export const NavigationSubLinks = styled.div<{ theme: MavrykTheme }>`
   background: ${({ theme }) => theme.backgroundColor};
-`
+`;
 export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
 
@@ -93,7 +133,7 @@ export const SubNavLink = styled.div<{ theme: MavrykTheme }>`
       flex-shrink: 0;
     }
   }
-`
+`;
 
 export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
   font-size: 12px;
@@ -107,7 +147,7 @@ export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
     color: ${({ theme }) => theme.navTitleColor};
   }
 
-  ${(props) =>
+  ${props =>
     props.selected &&
     css`
       color: ${({ theme }) => theme.navLinkTextActive};
@@ -116,4 +156,4 @@ export const SubLinkText = styled.p<{ selected: boolean; theme: MavrykTheme }>`
         color: ${({ theme }) => theme.navLinkSubTitleActive};
       }
     `}
-`
+`;
