@@ -52,19 +52,10 @@ type farmMetadataType is record[
     authors                  : string;
 ]
 
-type createFarmFuncType is (option(key_hash) * tez * farmStorage) -> (operation * address)
-const createFarmFunc: createFarmFuncType =
-[%Michelson ( {| { UNPPAIIR ;
-                  CREATE_CONTRACT
-#include "../../compiled/farm.tz"
-        ;
-          PAIR } |}
-: createFarmFuncType)];
-
-type initFarmParamsType is record[
-    totalBlocks: nat;
-    currentRewardPerBlock: nat;
-]
+// type initFarmParamsType is record[
+//     totalBlocks: nat;
+//     currentRewardPerBlock: nat;
+// ]
 
 type farmFactoryBreakGlassConfigType is record [
     createFarmIsPaused     : bool;
@@ -85,6 +76,7 @@ type farmFactoryLambdaActionType is
 
     // Housekeeping Entrypoints
     LambdaSetAdmin                    of (address)
+|   LambdaSetGovernance               of (address)
 |   LambdaUpdateMetadata              of updateMetadataType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 |   LambdaUpdateGeneralContracts      of updateGeneralContractsParams
@@ -111,6 +103,7 @@ type farmFactoryStorage is [@layout:comb] record[
     admin                  : address;
     metadata               : metadata;
     mvkTokenAddress        : address;
+    governanceAddress      : address;
     config                 : farmFactoryConfigType;
     breakGlassConfig       : farmFactoryBreakGlassConfigType;
 
@@ -120,4 +113,5 @@ type farmFactoryStorage is [@layout:comb] record[
     trackedFarms           : set(address);
 
     lambdaLedger           : lambdaLedgerType;
+    farmLambdaLedger       : lambdaLedgerType;
 ]

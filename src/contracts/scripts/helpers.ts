@@ -76,7 +76,7 @@ export const compile = async (
     const michelson: string = execSync(
       `${ligo} compile contract $PWD/${contractsDir}/${contract}.ligo ${
         format === 'json' ? '--michelson-format json' : ''
-      } --protocol hangzhou`,
+      } --protocol ithaca`,
       { maxBuffer: 1024 * 500 * 1024 },
     ).toString()
 
@@ -125,7 +125,7 @@ console.log(name);
   try {
     for (const lambda of lambdas) {
       const michelson = execSync(
-        `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/${contract} --protocol hangzhou`,
+        `${ligo} compile expression pascaligo 'Bytes.pack(${lambda.name})' --michelson-format json --init-file $PWD/${contract} --protocol ithaca`,
         { maxBuffer: 1024 * 500 },
       ).toString()
 

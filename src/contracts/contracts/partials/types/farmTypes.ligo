@@ -95,6 +95,7 @@ type farmLambdaActionType is
 
   // Housekeeping Entrypoints
     LambdaSetAdmin                    of (address)
+|   LambdaSetGovernance               of (address)
 |   LambdaUpdateMetadata              of updateMetadataType
 |   LambdaUpdateConfig                of farmUpdateConfigParamsType
 |   LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
@@ -115,7 +116,7 @@ type farmLambdaActionType is
     // Farm Entrypoints
 |   LambdaDeposit                     of nat
 |   LambdaWithdraw                    of nat
-|   LambdaClaim                       of unit
+|   LambdaClaim                       of address
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -124,6 +125,7 @@ type farmLambdaActionType is
 type farmStorage is [@layout:comb] record[
     admin                   : address;
     mvkTokenAddress         : address;
+    governanceAddress       : address;
     metadata                : metadata;
     config                  : farmConfigType;
 
@@ -133,7 +135,7 @@ type farmStorage is [@layout:comb] record[
     breakGlassConfig        : farmBreakGlassConfigType;
 
     lastBlockUpdate         : nat;
-    accumulatedMVKPerShare  : tokenBalance;
+    accumulatedRewardsPerShare  : tokenBalance;
     claimedRewards          : claimedRewards;
     depositors              : big_map(depositor, depositorRecord);
     open                    : bool;

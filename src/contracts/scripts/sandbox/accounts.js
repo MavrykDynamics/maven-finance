@@ -5,9 +5,8 @@ module.exports = {
         pk: "edpkvGfYw3LyB1UcCahKQk4rF2tvbMUk8GFiTuMjL75uGXrpvKXhjn"
     },
     bob: {
-        pkh: "tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6",
-        sk: "edsk3RFfvaFaxbHx8BMtEW1rKQcPtDML3LXjNqMNLCzC3wLC1bWbAt",
-        pk: "edpkurPsQ8eUApnLUJ9ZPDvu98E8VNj4KtJa1aZr16Cr5ow5VHKnz4"
+        pkh: "tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD",
+        sk: "edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq",
     },
     eve: {
         pkh: "tz1PrFSuTikuSWfZkACrXpmaS4RuKmEcZMSP",

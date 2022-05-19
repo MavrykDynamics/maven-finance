@@ -37,6 +37,7 @@ type treasuryAction is
 
     // Housekeeping Entrypoints
     | SetAdmin                       of (address)
+    | SetGovernance                  of (address)
     | SetBaker                       of option(key_hash)
     | UpdateMetadata                 of updateMetadataType
     | UpdateWhitelistContracts       of updateWhitelistContractsParams
@@ -48,10 +49,15 @@ type treasuryAction is
     | UnpauseAll                     of (unit)
     | TogglePauseTransfer            of (unit)
     | TogglePauseMintMvkAndTransfer  of (unit)
+    | TogglePauseStake               of (unit)
+    | TogglePauseUnstake             of (unit)
 
     // Treasury Entrypoints
     | Transfer                       of transferActionType
     | MintMvkAndTransfer             of mintMvkAndTransferType
+    | Update_operators               of updateOperatorsParams
+    | Stake                          of (nat)
+    | Unstake                        of (nat)
 
     // Lambda Entrypoints
     | SetLambda                      of setLambdaType
@@ -71,19 +77,8 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED                                 = 1n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 2n;
-
-[@inline] const error_TRANSFER_ENTRYPOINT_IS_PAUSED                                          = 3n;
-[@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IS_PAUSED                             = 4n;
-[@inline] const error_MINT_ENTRYPOINT_NOT_FOUND                                              = 5n;
-[@inline] const error_ON_STAKE_CHANGE_ENTRYPOINT_NOT_FOUND_IN_DELEGATION_CONTRACT            = 6n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA12_CONTRACT_NOT_FOUND                         = 7n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND                          = 8n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 9n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 10n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -103,6 +98,8 @@ type treasuryUnpackLambdaFunctionType is (treasuryLambdaActionType * treasurySto
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+
+
 function checkSenderIsAdmin(var s : treasuryStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
@@ -110,17 +107,35 @@ function checkSenderIsAdmin(var s : treasuryStorage) : unit is
 
 
 function checkSenderIsAllowed(const s: treasuryStorage): unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
+function checkSenderIsAdminOrGovernanceFinancial(const s: treasuryStorage): unit is
+    block{
+        const governanceFinancialAddress: address = case s.whitelistContracts["governanceFinancial"] of [
+              Some (_address) -> _address
+          |   None -> (failwith(error_ONLY_ADMIN_OR_GOVERNANCE_FINANCIAL_CONTRACT_ALLOWED): address)
+        ];
+        if (Tezos.sender = s.admin or Tezos.sender = governanceFinancialAddress) then skip
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+    } with(unit)
+
+
+
+function checkSenderIsGovernanceOrFactory(const s: treasuryStorage): unit is
 block {
     
     // First check because a treasury without a factory should still be accessible
-    if Tezos.sender = s.admin 
+    if Tezos.sender = s.admin or Tezos.sender = s.governanceAddress
     then skip
     else{
         const treasuryFactoryAddress: address = case s.whitelistContracts["treasuryFactory"] of [
               Some (_address) -> _address
-          |   None -> (failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED): address)
+          |   None -> (failwith(error_TREASURY_FACTORY_CONTRACT_NOT_FOUND): address)
         ];
-        if Tezos.sender = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_FACTORY_CONTRACT_ALLOWED);
+        if Tezos.sender = treasuryFactoryAddress then skip else failwith(error_ONLY_ADMIN_OR_TREASURY_FACTORY_CONTRACT_ALLOWED);
     };
 
 } with(unit)
@@ -157,13 +172,25 @@ function checkNoAmount(const _p : unit) : unit is
 // ------------------------------------------------------------------------------
 
 function checkTransferIsNotPaused(var s : treasuryStorage) : unit is
-    if s.breakGlassConfig.transferIsPaused then failwith(error_TRANSFER_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.transferIsPaused then failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorage) : unit is
-    if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+function checkStakeIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+function checkUnstakeIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -181,7 +208,7 @@ function getMintEntrypointFromTokenAddress(const token_address : address) : cont
       "%mint",
       token_address) : option(contract(mintParams))) of [
           Some(contr) -> contr
-        | None -> (failwith(error_MINT_ENTRYPOINT_NOT_FOUND) : contract(mintParams))
+        | None -> (failwith(error_MINT_ENTRYPOINT_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : contract(mintParams))
       ];
 
 
@@ -195,18 +222,7 @@ function mintTokens(
     (to_, amount_),
     0tez,
     getMintEntrypointFromTokenAddress(tokenAddress)
-  );  
-
-
-
-// helper function to update satellite's balance
-function updateSatelliteBalance(const delegationAddress : address) : contract(updateSatelliteBalanceParams) is
-  case (Tezos.get_entrypoint_opt(
-    "%onStakeChange",
-    delegationAddress) : option(contract(updateSatelliteBalanceParams))) of [
-        Some(contr) -> contr
-      | None        -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_NOT_FOUND_IN_DELEGATION_CONTRACT) : contract(updateSatelliteBalanceParams))
-    ];
+  );
 
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
@@ -302,7 +318,51 @@ block {
 //
 // ------------------------------------------------------------------------------
 
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
 
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig(const _: unit; var s : treasuryStorage) : treasuryBreakGlassConfigType is
+  s.breakGlassConfig
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : treasuryStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(* View: get whitelist token contracts *)
+[@view] function getWhitelistTokenContracts(const _: unit; var s : treasuryStorage) : whitelistTokenContractsType is
+  s.whitelistTokenContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : treasuryStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : treasuryStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+// ------------------------------------------------------------------------------
+//
+// Entrypoints Begin
+//
+// ------------------------------------------------------------------------------
 
 // ------------------------------------------------------------------------------
 //
@@ -328,6 +388,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : treasuryStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);
 
 } with response
 
@@ -510,6 +589,44 @@ block {
 
 } with response
 
+
+
+(* togglePauseStake entrypoint *)
+function togglePauseStake(var s : treasuryStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseStake"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseStake(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* togglePauseUnstake entrypoint *)
+function togglePauseUnstake(var s : treasuryStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnstake"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseUnstake(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
 // ------------------------------------------------------------------------------
@@ -550,6 +667,63 @@ block {
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaMintMvkAndTransfer(mintMvkAndTransferParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* update_operators entrypoint *)
+function updateOperators(const updateOperatorsParams : updateOperatorsParams ; var s : treasuryStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateOperators"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateOperators(updateOperatorsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* stake entrypoint *)
+function stake(const stakeAmount : nat ; var s : treasuryStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaStake"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaStake(stakeAmount);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* unstake entrypoint *)
+function unstake(const unstakeAmount : nat ; var s : treasuryStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnstake"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnstake(unstakeAmount);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -601,6 +775,7 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         
           // Housekeeping Entrypoints
         | SetAdmin(parameters)                          -> setAdmin(parameters, s)
+        | SetGovernance(parameters)                     -> setGovernance(parameters, s)
         | SetBaker(parameters)                          -> setBaker(parameters, s)
         | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
@@ -612,10 +787,15 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         | UnpauseAll (_parameters)                      -> unpauseAll(s)
         | TogglePauseTransfer (_parameters)             -> togglePauseTransfer(s)
         | TogglePauseMintMvkAndTransfer (_parameters)   -> togglePauseMintMvkAndTransfer(s)
+        | TogglePauseStake (_parameters)                -> togglePauseStake(s)
+        | TogglePauseUnstake (_parameters)              -> togglePauseUnstake(s)
         
           // Treasury Entrypoints
         | Transfer(parameters)                          -> transfer(parameters, s)
         | MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
+        | Update_operators(parameters)                  -> updateOperators(parameters, s)
+        | Stake(parameters)                             -> stake(parameters, s)
+        | Unstake(parameters)                           -> unstake(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                         -> setLambda(parameters, s)

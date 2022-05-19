@@ -63,6 +63,7 @@ type emergencyGovernanceLambdaActionType is
 
   // Housekeeping Entrypoints
 | LambdaSetAdmin                  of (address)
+| LambdaSetGovernance             of (address)
 | LambdaUpdateMetadata            of updateMetadataType
 | LambdaUpdateConfig              of emergencyUpdateConfigParamsType    
 | LambdaUpdateGeneralContracts    of updateGeneralContractsParams
@@ -79,16 +80,17 @@ type emergencyGovernanceLambdaActionType is
 
 type emergencyGovernanceStorage is [@layout:comb] record [
     admin                               : address;
-    config                              : emergencyConfigType;
     mvkTokenAddress                     : address;
+    governanceAddress                   : address;
     metadata                            : metadata;
+    config                              : emergencyConfigType;
     
     generalContracts                    : generalContractsType;
 
     emergencyGovernanceLedger           : emergencyGovernanceLedgerType; 
     
     currentEmergencyGovernanceId        : nat;
-    nextEmergencyGovernanceProposalId   : nat;
+    nextEmergencyGovernanceId           : nat;
 
     lambdaLedger                        : lambdaLedgerType;
 ]

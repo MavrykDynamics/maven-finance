@@ -16,6 +16,8 @@ type tokenId is nat;
 type treasuryBreakGlassConfigType is [@layout:comb] record [
     transferIsPaused            : bool; 
     mintMvkAndTransferIsPaused  : bool;
+    stakeIsPaused               : bool;
+    unstakeIsPaused             : bool;
 ]
 
 type mintMvkAndTransferType is [@layout:comb] record [
@@ -29,7 +31,7 @@ type setLambdaType is [@layout:comb] record [
       name                  : string;
       func_bytes            : bytes;
 ]
-type lambdaLedgerType is big_map(string, bytes)
+type lambdaLedgerType is map(string, bytes)
 
 type updateMetadataType is [@layout:comb] record [
     metadataKey      : string;
@@ -40,6 +42,7 @@ type treasuryLambdaActionType is
 
   // Housekeeping Entrypoints
 | LambdaSetAdmin                       of (address)
+| LambdaSetGovernance                  of (address)
 | LambdaSetBaker                       of option(key_hash)
 | LambdaUpdateMetadata                 of updateMetadataType
 | LambdaUpdateWhitelistContracts       of updateWhitelistContractsParams
@@ -51,10 +54,15 @@ type treasuryLambdaActionType is
 | LambdaUnpauseAll                     of (unit)
 | LambdaTogglePauseTransfer            of (unit)
 | LambdaTogglePauseMintTransfer        of (unit)
+| LambdaTogglePauseStake               of (unit)
+| LambdaTogglePauseUnstake             of (unit)
 
   // Treasury Entrypoints
 | LambdaTransfer                       of transferActionType
 | LambdaMintMvkAndTransfer             of mintMvkAndTransferType
+| LambdaUpdateOperators                of updateOperatorsParams
+| LambdaStake                          of (nat)
+| LambdaUnstake                        of (nat)
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -63,6 +71,7 @@ type treasuryLambdaActionType is
 type treasuryStorage is [@layout:comb] record [
     admin                      : address;
     mvkTokenAddress            : address;
+    governanceAddress          : address;
     metadata                   : metadata;
     
     breakGlassConfig           : treasuryBreakGlassConfigType;

@@ -84,6 +84,8 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes; 
 ]
 
+type whitelistDevelopersType is set(address)
+
 type breakGlassLambdaActionType is 
 
     // Break Glass
@@ -91,6 +93,7 @@ type breakGlassLambdaActionType is
 
     // Housekeeping Entrypoints - Glass Broken Not Required
 | LambdaSetAdmin                      of (address)
+| LambdaSetGovernance               of (address)
 | LambdaUpdateMetadata                of updateMetadataType
 | LambdaUpdateConfig                  of breakGlassUpdateConfigParamsType    
 | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
@@ -103,6 +106,7 @@ type breakGlassLambdaActionType is
 | LambdaChangeCouncilMember           of councilChangeMemberType
 
     // Glass Broken Required
+| LambdaPropagateBreakGlass           of (unit)
 | LambdaSetSingleContractAdmin        of setSingleContractAdminType
 | LambdaSetAllContractsAdmin          of (address)               
 | LambdaPauseAllEntrypoints           of (unit)             
@@ -120,12 +124,12 @@ type breakGlassLambdaActionType is
 type breakGlassStorage is [@layout:comb] record [
     admin                       : address;               
     mvkTokenAddress             : address;
+    governanceAddress           : address;
     metadata                    : metadataType;
     
     config                      : breakGlassConfigType;
     glassBroken                 : bool;
     councilMembers              : councilMembersType;        // set of council member addresses
-    developerAddress            : address;                   // developer address
 
     whitelistContracts          : whitelistContractsType;    // whitelist of contracts that can access restricted entrypoints
     generalContracts            : generalContractsType;      // map of all contract addresses (e.g. doorman, delegation, vesting)

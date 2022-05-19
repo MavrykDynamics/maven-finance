@@ -12,11 +12,28 @@
 function lambdaSetAdmin(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
 block {
     
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     case farmFactoryLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage) : return is
+block {
+    
+    checkSenderIsAllowed(s);
+
+    case farmFactoryLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
             }
         | _ -> skip
     ];
@@ -85,7 +102,7 @@ function lambdaUpdateBlocksPerMinute(const farmFactoryLambdaAction : farmFactory
 block {
 
     // check that source is admin or factory
-    checkSenderOrSourceIsCouncil(s);
+    checkSenderIsCouncil(s);
 
     var operations : list(operation) := nil;
 
@@ -122,7 +139,7 @@ block {
 function lambdaPauseAll(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     var operations : list(operation) := nil;
 
@@ -159,7 +176,7 @@ block {
 function lambdaUnpauseAll(const farmFactoryLambdaAction : farmFactoryLambdaActionType; var s : farmFactoryStorage): return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     var operations: list(operation) := nil;
 
@@ -264,10 +281,10 @@ function lambdaCreateFarm(const farmFactoryLambdaAction : farmFactoryLambdaActio
 block{
 
     // Check if Sender is admin
-        checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s);
 
-        // Break glass check
-        checkCreateFarmIsNotPaused(s);
+    // Break glass check
+    checkCreateFarmIsNotPaused(s);
 
     var operations : list(operation) := nil;
 
@@ -277,7 +294,7 @@ block{
                 // Add FarmFactory Address to whitelistContracts of created farm
                 const councilAddress : address = case s.whitelistContracts["council"] of [ 
                         Some (_address) -> _address
-                    |   None            -> failwith("Council contract not found in whitelist contracts")
+                    |   None            -> failwith(error_COUNCIL_CONTRACT_NOT_FOUND)
                 ];
                 const farmWhitelistContract : whitelistContractsType = map[
                     ("farmFactory")  -> (Tezos.self_address: address);
@@ -287,14 +304,13 @@ block{
                 // Add FarmFactory Address to doormanContracts of created farm
                 const doormanAddress : address = case s.generalContracts["doorman"] of [ 
                         Some (_address) -> _address
-                    |   None            -> failwith("Doorman contract not found in general contracts")
+                    |   None            -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
                 ];
                 const farmGeneralContracts : generalContractsType = map[
                     ("doorman") -> (doormanAddress: address)
                 ];
 
                 // Create needed records for farm contract
-                const farmDepositors : big_map(depositor, depositorRecord) = Big_map.empty;
                 const farmClaimedRewards : claimedRewards = record[
                     paid=0n;
                     unpaid=0n;
@@ -331,15 +347,16 @@ block{
                     ("", Bytes.pack("tezos-storage:data"));
                     ("data", createFarmParams.metadata);
                 ]); 
-                const farmLambdaLedger : big_map(string, bytes) = Big_map.empty;
+                const farmLambdaLedger : map(string, bytes) = s.farmLambdaLedger;
 
                 // Check wether the farm is infinite or its total blocks has been set
-                if not farmInfinite and createFarmParams.plannedRewards.totalBlocks = 0n then failwith("This farm should be either infinite or have a specified duration") else skip;
+                if not farmInfinite and createFarmParams.plannedRewards.totalBlocks = 0n then failwith(error_FARM_SHOULD_BE_INFINITE_OR_HAVE_A_DURATION) else skip;
 
                 // Originate a farm 
                 const originatedFarmStorage : farmStorage = record[
                     admin                   = s.admin;                   // If governance is the admin, it makes sense that the factory passes its admin to the farm it creates
                     mvkTokenAddress         = s.mvkTokenAddress;
+                    governanceAddress       = s.governanceAddress;
                     metadata                = farmMetadata;
 
                     config                  = farmConfig;
@@ -350,9 +367,9 @@ block{
                     breakGlassConfig        = farmBreakGlassConfig;
 
                     lastBlockUpdate         = Tezos.level;
-                    accumulatedMVKPerShare  = 0n;
+                    accumulatedRewardsPerShare  = 0n;
                     claimedRewards          = farmClaimedRewards;
-                    depositors              = farmDepositors;
+                    depositors              = big_map[];
                     open                    = True ;
                     init                    = True;
                     initBlock               = Tezos.level;
@@ -393,7 +410,7 @@ block{
         | LambdaTrackFarm(farmContract) -> {
                 
                 s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of [
-                        True  -> (failwith("The provided farm contract already exists in the trackedFarms set"): set(address))
+                        True  -> (failwith(error_FARM_ALREADY_TRACKED): set(address))
                     |   False -> Set.add(farmContract, s.trackedFarms)
                 ];
 
@@ -420,7 +437,7 @@ block{
                 
                 s.trackedFarms := case Set.mem(farmContract, s.trackedFarms) of [
                         True  -> Set.remove(farmContract, s.trackedFarms)
-                    |   False -> (failwith("The provided farm contract does not exist in the trackedFarms set"): set(address))
+                    |   False -> (failwith(error_FARM_NOT_TRACKED): set(address))
                 ];
 
             }
