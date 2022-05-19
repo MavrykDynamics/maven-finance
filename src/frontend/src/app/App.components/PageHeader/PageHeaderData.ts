@@ -105,7 +105,7 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
     {
       title: 'Break Glass',
       subText: 'Break Glass and emergency shutdown protocol',
-      foregroundImageSrc: '/images/break-glass-header-fg.svg',
+      foregroundImageSrc: '/images/break-glass-header.svg',
       backgroundImageSrc: '/images/dapp-header-bg.svg',
     },
   ],
@@ -114,7 +114,7 @@ export const PAGE_HEADER_DATA = new Map<string, PageHeaderContent>([
     {
       title: 'Emergency Governance',
       subText: 'Fast proposal and execution for emergency situations',
-      foregroundImageSrc: '/images/break-glass-header-fg.svg',
+      foregroundImageSrc: '/images/break-glass-header.svg',
       backgroundImageSrc: '/images/dapp-header-bg.svg',
     },
   ],
