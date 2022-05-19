@@ -456,6 +456,7 @@
 [@inline] const error_CURRENT_ROUND_NOT_FINISHED                                                                        = 348n;
 [@inline] const error_MAX_PROPOSAL_REACHED                                                                              = 349n;
 [@inline] const error_DEVELOPER_NOT_WHITELISTED                                                                         = 350n;
+[@inline] const error_NOT_ENOUGH_WHITELISTED_DEVELOPERS                                                                 = 350n;
 
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                             = 351n;
 [@inline] const error_SET_GOVERNANCE_PROXY_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                  = 352n;
