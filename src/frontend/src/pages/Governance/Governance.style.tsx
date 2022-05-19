@@ -48,8 +48,6 @@ export const GovRightContainerTitleArea = styled.div<{ theme: MavrykTheme }>`
   align-items: flex-start;
 
   > h1 {
-    color: ${({ theme }) => theme.headerColor};
-    font-size: 25px;
     margin: 0;
 
     &::after {
