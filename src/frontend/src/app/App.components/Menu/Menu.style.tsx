@@ -2,6 +2,8 @@ import styled, { keyframes } from 'styled-components/macro';
 
 import { MavrykTheme } from '../../../styles/interfaces';
 
+import { backdropColor, darkCianColor } from 'styles/colors';
+
 export const moveDown = keyframes`
   from {
     transform: translateY(-5rem);
@@ -42,7 +44,7 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
       width: 100vw;
       display: flex;
       display: flex;
-      background: #08062880;
+      background: backdropColor;
       z-index: 10;
       align-items: flex-start;
       .burger-menu {
@@ -92,7 +94,7 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
     width: 100%;
     height: 2px;
     border-radius: 3px;
-    background-color: #503eaa;
+    background-color: darkCianColor;
     margin: 3px 0;
   }
 `;
