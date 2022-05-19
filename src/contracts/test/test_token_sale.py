@@ -74,34 +74,40 @@ error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 2
 error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 3
 error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 4
 
-error_TRANSFER_ENTRYPOINT_NOT_FOUND                           = 5
-error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 6
-error_TOKEN_SALE_HAS_NOT_STARTED                              = 7
-error_TOKEN_SALE_HAS_NOT_ENDED                                = 8
-error_TOKEN_SALE_HAS_ENDED                                    = 9
-error_TOKEN_SALE_IS_NOT_PAUSED                                = 10
-error_TOKEN_SALE_IS_PAUSED                                    = 11
+error_TREASURY_CONTRACT_NOT_FOUND                             = 5
+error_TRANSFER_ENTRYPOINT_NOT_FOUND                           = 6
+error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 7
+error_TOKEN_SALE_HAS_NOT_STARTED                              = 8
+error_TOKEN_SALE_HAS_NOT_ENDED                                = 9
+error_TOKEN_SALE_HAS_ENDED                                    = 10
+error_TOKEN_SALE_IS_NOT_PAUSED                                = 11
+error_TOKEN_SALE_IS_PAUSED                                    = 12
 
-error_WHITELIST_SALE_HAS_NOT_STARTED                          = 12
-error_USER_IS_NOT_WHITELISTED                                 = 13
+error_WHITELIST_SALE_HAS_NOT_STARTED                          = 13
+error_USER_IS_NOT_WHITELISTED                                 = 14
+error_USER_TOKEN_SALE_RECORD_NOT_FOUND                        = 15
 
-error_MAX_AMOUNT_OPTION_ONE_WHITELIST_WALLET_EXCEEDED         = 14
-error_MAX_AMOUNT_OPTION_TWO_WHITELIST_WALLET_EXCEEDED         = 15
-error_MAX_AMOUNT_OPTION_THREE_WHITELIST_WALLET_EXCEEDED       = 16
+error_MAX_AMOUNT_OPTION_ONE_WHITELIST_WALLET_EXCEEDED         = 16
+error_MAX_AMOUNT_OPTION_TWO_WHITELIST_WALLET_EXCEEDED         = 17
+error_MAX_AMOUNT_OPTION_THREE_WHITELIST_WALLET_EXCEEDED       = 18
 
-error_MAX_AMOUNT_OPTION_ONE_PER_WALLET_TOTAL_EXCEEDED         = 17
-error_MAX_AMOUNT_OPTION_TWO_PER_WALLET_TOTAL_EXCEEDED         = 18
-error_MAX_AMOUNT_OPTION_THREE_PER_WALLET_TOTAL_EXCEEDED       = 19
+error_MAX_AMOUNT_OPTION_ONE_PER_WALLET_TOTAL_EXCEEDED         = 19
+error_MAX_AMOUNT_OPTION_TWO_PER_WALLET_TOTAL_EXCEEDED         = 20
+error_MAX_AMOUNT_OPTION_THREE_PER_WALLET_TOTAL_EXCEEDED       = 21
 
-error_MIN_AMOUNT_OPTION_ONE_REQUIRED                          = 20
-error_MIN_AMOUNT_OPTION_TWO_REQUIRED                          = 21
-error_MIN_AMOUNT_OPTION_THREE_REQUIRED                        = 22
+error_MIN_AMOUNT_OPTION_ONE_REQUIRED                          = 22
+error_MIN_AMOUNT_OPTION_TWO_REQUIRED                          = 23
+error_MIN_AMOUNT_OPTION_THREE_REQUIRED                        = 24
 
-error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED                       = 23
-error_OPTION_TWO_MAX_AMOUNT_CAP_REACHED                       = 24
-error_OPTION_THREE_MAX_AMOUNT_CAP_REACHED                     = 25
-error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 26
-error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 27
+error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED                       = 25
+error_OPTION_TWO_MAX_AMOUNT_CAP_REACHED                       = 26
+error_OPTION_THREE_MAX_AMOUNT_CAP_REACHED                     = 27
+error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 28
+error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 29
+
+error_MAX_AMOUNT_CLAIMED_FOR_OPTION_ONE                       = 30
+error_MAX_AMOUNT_CLAIMED_FOR_OPTION_TWO                       = 31
+error_MAX_AMOUNT_CLAIMED_FOR_OPTION_THREE                     = 32
 
 # ---- ---- ----
 
@@ -1679,306 +1685,1406 @@ class TokenSaleContract(TestCase):
 
         print('✅ No user can buy tokens above the overall option caps')
 
-    # ###
-    # # %claimTokens
-    # ##
-
-    # def test_60_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage = init_vesting_storage, sender = bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage = res.storage, sender = bob, now = currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     print('--%claim--')
-    #     print('✅ User should be able to call this entrypoint if it is a vestee')
-
-    # def test_61_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage = init_vesting_storage, sender = bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage = res.storage, sender = bob, now = currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff + sec_month * 30)
-    #     claimAmount += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-    #     self.assertEqual(claimAmount, totalVestedAmount)
-
-    #     print('✅ User should be able to claim previous months if it did not claimed for a long time')
-
-    # def test_62_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage = init_vesting_storage, sender = bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage = res.storage, sender = bob, now = currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff + sec_month * 160)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-    #     self.assertEqual(claimAmount, totalVestedAmount)
-
-    #     print('✅ User should be able to claim after the vesting period without claiming extra token')
-
-    # def test_63_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage = init_vesting_storage, sender = bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage = res.storage, sender = bob, now = currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff + sec_month * 10)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     # Update process
-    #     newTotalVestedAmount        = self.MVK(4000000)
-    #     newTotalCliffInMonths       = 1
-    #     newTotalVestingInMonths     = 12
-
-    #     res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage = res.storage, sender = bob)
-
-    #     # Assertions
-    #     self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff + sec_month * 160)
-    #     claimAmount += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     self.assertEqual(claimAmount, newTotalVestedAmount)
-
-    #     print('✅ User should be able to claim the correct amount if its vestee record was updated during the process')
-
-    # def test_64_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 0
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage = init_vesting_storage, sender = bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage = res.storage, sender = bob, now = currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff + sec_month * 13)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     # Update process
-    #     newTotalVestedAmount        = self.MVK(4000000)
-    #     newTotalCliffInMonths       = 0
-    #     newTotalVestingInMonths     = 12
-
-    #     res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage = res.storage, sender = bob)
-
-    #     # Assertions
-    #     self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff + sec_month * 160)
-    #     claimAmount += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     self.assertEqual(claimAmount, newTotalVestedAmount)
-
-    #     print('✅ User should be able to claim without cliff period')
-
-    # def test_64_vestee_should_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 4
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths  
-    #     currentTimestamp            = pytezos.now()
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage = init_vesting_storage, sender = bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage = res.storage, sender = bob, now = currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff + sec_month * 5)
-    #     claimAmount = int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     # Update process
-    #     newTotalVestedAmount        = self.MVK(4000000)
-    #     newTotalCliffInMonths       = 10
-    #     newTotalVestingInMonths     = 12
-
-    #     res = self.vestingContract.updateVestee(bob, newTotalVestedAmount, newTotalCliffInMonths, newTotalVestingInMonths).interpret(storage = res.storage, sender = bob)
-
-    #     # Assertions
-    #     self.assertEqual(newTotalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(newTotalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(newTotalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff + sec_month * 160)
-    #     claimAmount += int(res.operations[-1]['parameters']['value']['args'][-1]['int'])
-
-    #     self.assertEqual(claimAmount, newTotalVestedAmount)
-
-    #     print('✅ User should be able to claim with an updated longer cliff period')
-
-    # def test_61_non_vestee_should_not_claim(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
-    #     currentTimestamp            = pytezos.now()
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
-
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage = init_vesting_storage, sender = bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage = res.storage, sender = bob, now = currentTimestamp)
-
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-
-    #     # Operation
-    #     with self.raisesMichelsonError(error_vestee_doesnt_exists):
-    #         self.vestingContract.claim().interpret(storage = res.storage, sender = alice, now = firstClaimAfterCliff)
+    ###
+    # %claimTokens
+    ##
+    def test_9_100_user_should_not_be_able_to_claim_before_token_sale_closed(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
         
-    #     print('✅ User should not be able to call this entrypoint if it is not a vestee')
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
 
-    # def test_65_vestee_should_not_claim_if_locked(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
-    #     currentTimestamp            = pytezos.now()
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
+        amountToBuy                  = 30000000     # 30 tez
+
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # Operations - eve should not be able to claim tokens before token sale ends
+        with self.raisesMichelsonError(error_TOKEN_SALE_HAS_NOT_ENDED):
+          res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed - 1000, level = 150000)
+
+        print('--%claimTokens--')
+        print('✅ User should not be able to claim tokens before token sale ends')
+
+    def test_9_101_user_should_not_be_able_to_claim_if_he_has_nothing_to_claim(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
         
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage = init_vesting_storage, sender = bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage = res.storage, sender = bob, now = currentTimestamp)
-    #     res = self.vestingContract.toggleVesteeLock(bob).interpret(storage = res.storage, sender = bob)
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
 
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
-    #     self.assertEqual("LOCKED", res.storage['vesteeLedger'][bob]['status'])
+        amountToBuy                  = 30000000     # 30 tez
 
-    #     # Operation
-    #     with self.raisesMichelsonError(error_vestee_is_locked):
-    #         self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff)
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+        res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob, now = tokenSaleClosed, level = 100)
 
-    #     print('✅ User should not be able to call this entrypoint if its vesting is locked')
+        # Operations - eve should not be able to claim tokens before token sale ends
+        with self.raisesMichelsonError(error_USER_TOKEN_SALE_RECORD_NOT_FOUND):
+          res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + 1000, level = 150000)
 
-    # def test_66_vestee_should_not_claim_if_already_claimed(self):
-    #     # Initial values
-    #     init_vesting_storage        = deepcopy(self.vestingStorage)
-    #     totalVestedAmount           = self.MVK(3000000)
-    #     totalCliffInMonths          = 2
-    #     totalVestingInMonths        = 24
-    #     totalClaimAmountPerMonth    = totalVestedAmount // totalVestingInMonths
-    #     currentTimestamp            = pytezos.now()
-    #     firstClaimAfterCliff        = totalCliffInMonths * sec_month + currentTimestamp + 1
+        print('✅ User should not be able to claim tokens if he has nothing to claim')
+
+
+    def test_9_102_user_should_be_able_to_claim_for_the_first_time_on_day_zero_after_token_sale_closed_opt_one_and_opt_two_and_opt_three(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
         
-    #     # Storage preparation
-    #     res = self.vestingContract.updateWhitelistContracts("authorized", bob).interpret(storage = init_vesting_storage, sender = bob);
-    #     res = self.vestingContract.addVestee(bob, totalVestedAmount, totalCliffInMonths, totalVestingInMonths).interpret(storage = res.storage, sender = bob, now = currentTimestamp)
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
 
-    #     # Assertions
-    #     self.assertEqual(totalVestedAmount, res.storage['vesteeLedger'][bob]['totalAllocatedAmount'])
-    #     self.assertEqual(totalClaimAmountPerMonth, res.storage['vesteeLedger'][bob]['claimAmountPerMonth'])
-    #     self.assertEqual(totalCliffInMonths, res.storage['vesteeLedger'][bob]['cliffMonths'])
-    #     self.assertEqual(totalVestingInMonths, res.storage['vesteeLedger'][bob]['vestingMonths'])
+        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
+        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
+        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
 
-    #     # Operation
-    #     res = self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff)
-    #     with self.raisesMichelsonError(error_unable_to_claim_now):
-    #         self.vestingContract.claim().interpret(storage = res.storage, sender = bob, now = firstClaimAfterCliff)
+        vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
+        vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
+        vestingOptionThreeInMonths   = init_token_sale_storage["config"]["vestingOptionThreeInMonths"]
 
-    #     print('✅ User should not be able to call this entrypoint if it already claimed during the same month')
+        amountToBuy                  = 30000000     # 30 tez
+
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # Close Sale
+        res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob, now = tokenSaleClosed, level = 100)
+
+        # Operations - eve claim tokens on day zero (opt one + opt two + opt three)
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + 1000, level = tokenSaleClosedLevel + 100)
+
+        monthsToClaim = 1
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      # 50000000
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      # 41666666
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  # 31250000
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], 1)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], 1)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], 1)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + 1000)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + 1000)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + 1000)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountToClaim)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountToClaim)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
+
+        print('✅ User should be able to claim for the first time on day zero after token sale closed (opt one + opt two + opt three)')
+
+    def test_9_103_user_should_be_able_to_claim_for_the_first_time_on_day_zero_after_token_sale_closed_partial_options_bought(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
+        
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
+
+        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
+        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
+        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+
+        vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
+        vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
+        vestingOptionThreeInMonths   = init_token_sale_storage["config"]["vestingOptionThreeInMonths"]
+
+        amountToBuy                  = 30000000     # 30 tez
+
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+
+        # eve buys option one and option two
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+        }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+        }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # fox buys option one and option three
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+          }).interpret(storage = res.storage, sender = fox, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+        }).interpret(storage = res.storage, sender = fox, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # mallory buys option two and option three
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+          }).interpret(storage = res.storage, sender = mallory, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+        }).interpret(storage = res.storage, sender = mallory, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # Close Sale
+        res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob, now = tokenSaleClosed, level = 100)
+
+        # Operations 
+        # - eve claim tokens on day zero (opt one + opt two)
+        # - fox claim tokens on day zero (opt one + opt three)
+        # - mallory claim tokens on day zero (opt two + opt three)
+        eveRes     = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + 1000, level = tokenSaleClosedLevel + 100)
+        foxRes     = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = fox, now = tokenSaleClosed + 1000, level = tokenSaleClosedLevel + 100)
+        malloryRes = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = mallory, now = tokenSaleClosed + 1000, level = tokenSaleClosedLevel + 100)
+
+        monthsToClaim = 1
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        zeroAmount               = 0
+
+        # Assertions
+        # eve token sale ledger user record (opt one + opt two)
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], zeroAmount) 
+
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], 1)      
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], 1)      
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], zeroAmount)  
+
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + 100)      
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + 100)      
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], zeroAmount)  
+
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + 1000)      
+        self.assertEqual(eveRes.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + 1000)      
+
+        # fox token sale ledger user record (opt one + opt three)
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionTwoClaimedAmount"], zeroAmount)      
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionThreeClaimedAmount"], optionThreeAmountToClaim) 
+
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionOneTimesClaimed"], 1)      
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionTwoTimesClaimed"], zeroAmount)      
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionThreeTimesClaimed"], 1)  
+
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + 100)      
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionTwoLastClaimedBlockLevel"], zeroAmount)      
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + 100)  
+
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionOneLastClaimed"], tokenSaleClosed + 1000)      
+        self.assertEqual(foxRes.storage['tokenSaleLedger'][fox]["optionThreeLastClaimed"], tokenSaleClosed + 1000)      
+
+        # mallory token sale ledger user record (opt two + opt three)
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionOneClaimedAmount"], zeroAmount)     
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionTwoClaimedAmount"], optionTwoAmountToClaim) 
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionThreeClaimedAmount"], optionThreeAmountToClaim) 
+
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionOneTimesClaimed"], zeroAmount)      
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionTwoTimesClaimed"], 1)      
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionThreeTimesClaimed"], 1)  
+
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionOneLastClaimedBlockLevel"], zeroAmount)      
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + 100)      
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + 100)  
+
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionTwoLastClaimed"], tokenSaleClosed + 1000)      
+        self.assertEqual(malloryRes.storage['tokenSaleLedger'][mallory]["optionThreeLastClaimed"], tokenSaleClosed + 1000)          
+
+        print('✅ User should be able to claim for the first time on day zero after token sale closed (opt one + opt two)')
+        print('✅ User should be able to claim for the first time on day zero after token sale closed (opt one + opt three)')
+        print('✅ User should be able to claim for the first time on day zero after token sale closed (opt two + opt three)')
+
+    def test_9_104_user_should_be_able_to_claim_for_the_first_time_after_two_months_after_token_sale_is_closed(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
+        
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
+
+        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
+        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
+        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+
+        vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
+        vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
+        vestingOptionThreeInMonths   = init_token_sale_storage["config"]["vestingOptionThreeInMonths"]
+
+        amountToBuy                  = 30000000     # 30 tez
+
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # Close Sale
+        res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob, now = tokenSaleClosed, level = 100)
+
+        # Operations - eve claim tokens after two months
+        afterMonths = 2
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim = 3 # month 0, month 1, month 2
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountToClaim)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountToClaim)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
+
+        print('✅ User should be able to claim for the first time after two months after token sale closed')
+
+    def test_9_105_user_should_be_able_to_claim_for_the_first_time_after_six_months_after_token_sale_is_closed(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
+        
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
+
+        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
+        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
+        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+
+        vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
+        vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
+        vestingOptionThreeInMonths   = init_token_sale_storage["config"]["vestingOptionThreeInMonths"]
+
+        amountToBuy                  = 30000000     # 30 tez
+
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # Close Sale
+        res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob, now = tokenSaleClosed, level = 100)
+
+        # Operations - eve claim tokens after 6 months
+        afterMonths = 6
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 7 # month 0, 1, 2, 3, 4, 5, 6
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      # 50000000
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      # 41666666
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  # 31250000
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountToClaim)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountToClaim)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
+
+        print('✅ User should be able to claim for the first time after six months after token sale closed (opt one fully claimed)')
+
+    def test_9_106_user_should_be_able_to_claim_for_the_first_time_after_eight_months_after_token_sale_is_closed(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
+        
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
+
+        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
+        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
+        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+
+        vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
+        vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
+        vestingOptionThreeInMonths   = init_token_sale_storage["config"]["vestingOptionThreeInMonths"]
+
+        amountToBuy                  = 30000000     # 30 tez
+
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # Close Sale
+        res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob, now = tokenSaleClosed, level = 100)
+
+        # Operations - eve claim tokens after 8 months
+        afterMonths = 8
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 9 # month 0, 1, 2, 3, 4, 5, 6, 7, 8
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      # 50000000
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      # 41666666
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  # 31250000
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], maxOptionTwoMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountToClaim)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountToClaim)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
+
+        print('✅ User should be able to claim for the first time after eight months after token sale closed (opt one and opt two fully claimed)')
+
+    def test_9_107_user_should_be_able_to_claim_for_the_first_time_after_twelve_months_after_token_sale_is_closed(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
+        
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
+
+        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
+        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
+        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+
+        vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
+        vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
+        vestingOptionThreeInMonths   = init_token_sale_storage["config"]["vestingOptionThreeInMonths"]
+
+        amountToBuy                  = 30000000     # 30 tez
+
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # Close Sale
+        res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob, now = tokenSaleClosed, level = 100)
+
+        # Operations - eve claim tokens after 12 months
+        afterMonths = 12
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 13 # month 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * maxOptionThreeMonths
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], maxOptionTwoMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], maxOptionThreeMonths)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountToClaim)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountToClaim)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
+
+        print('✅ User should be able to claim for the first time after twelve months after token sale closed (opt one, opt two, and opt three fully claimed)')
+
+
+
+    def test_9_108_user_should_be_able_to_claim_for_the_first_time_on_day_zero_and_every_month_subsequently(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
+        
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
+
+        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
+        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
+        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+
+        vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
+        vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
+        vestingOptionThreeInMonths   = init_token_sale_storage["config"]["vestingOptionThreeInMonths"]
+
+        amountToBuy                  = 30000000     # 30 tez
+
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # Close Sale
+        res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob, now = tokenSaleClosed, level = 100)
+
+        # Operations - eve claim tokens on day zero
+        afterMonths = 0
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 1 # month 0
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountSingleMonth)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after one month
+        afterMonths = 1
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 2 # month 0, 1
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountSingleMonth)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after two months
+        afterMonths = 2
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 3 # month 0, 1, 2
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountSingleMonth)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after three months
+        afterMonths = 3
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 4 # month 0, 1, 2, 3
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountSingleMonth)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after four months
+        afterMonths = 4
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 5 # month 0, 1, 3, 4, 5
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountSingleMonth)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after five months
+        afterMonths = 5
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 6 # month 0, 1, 2, 3, 4, 5
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountSingleMonth)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after six months
+        afterMonths = 6
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 7 # month 0, 1, 2, 3, 4, 5, 6
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+        zeroAmount           = 0
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (5 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (5 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after seven months
+        afterMonths = 7
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 8 # month 0, 1, 2, 3, 4, 5, 6, 7
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+        zeroAmount           = 0
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (5 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (5 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after eight months
+        afterMonths = 8
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 9 # month 0, 1, 2, 3, 4, 5, 6, 7, 8
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+        zeroAmount           = 0
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], maxOptionTwoMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (5 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (7 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (5 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (7 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after nine months
+        afterMonths = 9
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 10 # month 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+        zeroAmount           = 0
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], maxOptionTwoMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (5 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (7 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (5 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (7 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after ten months
+        afterMonths = 10
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 11 # month 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+        zeroAmount           = 0
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], maxOptionTwoMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (5 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (7 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (5 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (7 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # Operations - eve claim tokens again after eleven months
+        afterMonths = 11
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 12 # month 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+        zeroAmount           = 0
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * maxOptionTwoMonths
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], maxOptionTwoMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (5 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (7 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (5 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (7 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        print('✅ User should be able to claim for the first time on day zero and every month subsequently')
+
+    def test_9_109_user_should_be_able_to_claim_for_the_first_time_on_day_zero_and_every_three_months_subsequently(self):        
+        # Initial values
+        init_token_sale_storage      = deepcopy(self.tokenSaleStorage)
+        
+        whitelistStartDateTime       = pytezos.now()
+        whitelistEndDateTime         = pytezos.now() + 1 * sec_day
+        duringPublicSale             = whitelistEndDateTime + 6 * sec_hour 
+        tokenSaleClosed              = duringPublicSale + 2 * sec_day
+        tokenSaleClosedLevel         = 100
+
+        optionOneTezPerToken         = init_token_sale_storage["config"]["optionOneTezPerToken"]
+        optionTwoTezPerToken         = init_token_sale_storage["config"]["optionTwoTezPerToken"]
+        optionThreeTezPerToken       = init_token_sale_storage["config"]["optionThreeTezPerToken"]
+
+        vestingOptionOneInMonths     = init_token_sale_storage["config"]["vestingOptionOneInMonths"]
+        vestingOptionTwoInMonths     = init_token_sale_storage["config"]["vestingOptionTwoInMonths"]
+        vestingOptionThreeInMonths   = init_token_sale_storage["config"]["vestingOptionThreeInMonths"]
+
+        amountToBuy                  = 30000000     # 30 tez
+
+        # Storage preparation
+        res = self.tokenSaleContract.setWhitelistDateTime(whitelistStartDateTime, whitelistEndDateTime).interpret(storage = init_token_sale_storage, sender = bob)
+        res = self.tokenSaleContract.startSale().interpret(storage = res.storage, sender = bob)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionOne"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionTwo"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        res = self.tokenSaleContract.buyTokens({
+              "amount"      : amountToBuy, 
+              "tokenOption" : "optionThree"
+          }).interpret(storage = res.storage, sender = eve, now =  duringPublicSale + 500, amount = amountToBuy)
+
+        # Close Sale
+        res = self.tokenSaleContract.closeSale().interpret(storage = res.storage, sender = bob, now = tokenSaleClosed, level = 100)
+
+        # Operations - eve claim tokens on day zero
+        afterMonths = 0
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsToClaim        = 1 # month 0
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], monthsToClaim)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], monthsToClaim)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountSingleMonth)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountSingleMonth)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountSingleMonth)
+
+        # ----------
+        # Operations - eve claim tokens again after three months
+        afterMonths = 3
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsClaimed        = 1
+        totalTimesClaimed    = 4 # month 0, 1, 2, 3
+        monthsToClaim        = totalTimesClaimed - monthsClaimed
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * monthsToClaim
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        optionOneAmountClaimed   = optionOneAmountSingleMonth * totalTimesClaimed
+        optionTwoAmountClaimed   = optionTwoAmountSingleMonth * totalTimesClaimed
+        optionThreeAmountClaimed = optionThreeAmountSingleMonth * totalTimesClaimed
+
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountClaimed)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], totalTimesClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], totalTimesClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], totalTimesClaimed)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountToClaim)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountToClaim)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
+
+        # ----------
+        # Operations - eve claim tokens again after another three months
+        afterMonths = 6
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsClaimed        = 4
+        totalTimesClaimed    = 7 # month 0, 1, 2, 3, 4, 5, 6
+        monthsToClaim        = totalTimesClaimed - monthsClaimed
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * (maxOptionOneMonths - monthsClaimed)
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * monthsToClaim
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        optionOneAmountClaimed   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountClaimed   = optionTwoAmountSingleMonth * totalTimesClaimed
+        optionThreeAmountClaimed = optionThreeAmountSingleMonth * totalTimesClaimed
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountClaimed)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], totalTimesClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], totalTimesClaimed)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[2]["parameters"]["value"][-1]["args"][-1]["int"]), optionOneAmountToClaim)
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountToClaim)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
+
+        # ----------
+        # Operations - eve claim tokens again after another three months
+        afterMonths = 9
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsClaimed        = 7
+        totalTimesClaimed    = 10 # month 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+        monthsToClaim        = totalTimesClaimed - monthsClaimed
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * (maxOptionOneMonths - monthsClaimed)
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * (maxOptionTwoMonths - monthsClaimed)
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * monthsToClaim
+
+        optionOneAmountClaimed   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountClaimed   = optionTwoAmountSingleMonth * maxOptionTwoMonths
+        optionThreeAmountClaimed = optionThreeAmountSingleMonth * totalTimesClaimed
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountClaimed)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], maxOptionTwoMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], totalTimesClaimed)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (6 * blocks_month) + 100)     
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (6 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[1]["parameters"]["value"][-1]["args"][-1]["int"]), optionTwoAmountToClaim)
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
+
+        # ----------
+        # Operations - eve claim tokens again after another three months
+        afterMonths = 12
+        res = self.tokenSaleContract.claimTokens().interpret(storage = res.storage, sender = eve, now = tokenSaleClosed + (afterMonths * sec_month) + 100, level = tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)
+
+        monthsClaimed        = 10
+        totalTimesClaimed    = 12 # month 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+        monthsToClaim        = totalTimesClaimed - monthsClaimed
+        maxOptionOneMonths   = 6
+        maxOptionTwoMonths   = 8
+        maxOptionThreeMonths = 12
+
+        optionOneAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionOneTezPerToken) / vestingOptionOneInMonths) / 10 ** 3 )
+        optionTwoAmountSingleMonth   = int( int( int(amountToBuy * 10 ** 12 / optionTwoTezPerToken) / vestingOptionTwoInMonths) / 10 ** 3)
+        optionThreeAmountSingleMonth = int( int( int(amountToBuy * 10 ** 12 / optionThreeTezPerToken) / vestingOptionThreeInMonths) / 10 ** 3)
+
+        optionOneAmountToClaim   = optionOneAmountSingleMonth * (maxOptionOneMonths - monthsClaimed)
+        optionTwoAmountToClaim   = optionTwoAmountSingleMonth * (maxOptionTwoMonths - monthsClaimed)
+        optionThreeAmountToClaim = optionThreeAmountSingleMonth * (maxOptionThreeMonths - monthsClaimed)
+
+        optionOneAmountClaimed   = optionOneAmountSingleMonth * maxOptionOneMonths
+        optionTwoAmountClaimed   = optionTwoAmountSingleMonth * maxOptionTwoMonths
+        optionThreeAmountClaimed = optionThreeAmountSingleMonth * maxOptionThreeMonths
+
+        # Assertions
+        # token sale ledger user record
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneClaimedAmount"], optionOneAmountClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoClaimedAmount"], optionTwoAmountClaimed)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeClaimedAmount"], optionThreeAmountClaimed)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneTimesClaimed"], maxOptionOneMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoTimesClaimed"], maxOptionTwoMonths)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeTimesClaimed"], maxOptionThreeMonths)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimedBlockLevel"], tokenSaleClosedLevel + (6 * blocks_month) + 100)     
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimedBlockLevel"], tokenSaleClosedLevel + (9 * blocks_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimedBlockLevel"], tokenSaleClosedLevel + (afterMonths * blocks_month) + 100)  
+
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionOneLastClaimed"], tokenSaleClosed + (6 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionTwoLastClaimed"], tokenSaleClosed + (9 * sec_month) + 100)      
+        self.assertEqual(res.storage['tokenSaleLedger'][eve]["optionThreeLastClaimed"], tokenSaleClosed + (afterMonths * sec_month) + 100)  
+
+        # operations sent to treasury on amount to claim
+        self.assertEqual(int(res.operations[0]["parameters"]["value"][-1]["args"][-1]["int"]), optionThreeAmountToClaim)
+
+        print('✅ User should be able to claim for the first time on day zero and every three months subsequently')
