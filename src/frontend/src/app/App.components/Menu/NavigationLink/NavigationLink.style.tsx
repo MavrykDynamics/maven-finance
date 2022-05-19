@@ -15,7 +15,7 @@ export const NavigationLinkContainer = styled.div<{
     }
   }
 
-  @media screen and (max-width: 1445px) {
+  @media screen and (max-width: 1460px) {
     ${({ isMobMenuExpanded }) =>
       !isMobMenuExpanded
         ? css`
@@ -76,7 +76,7 @@ export const NavigationLinkItem = styled.div<{
       `}
   }
 
-  @media screen and (max-width: 1445px) {
+  @media screen and (max-width: 1460px) {
     ${({ isMobMenuExpanded }) =>
       !isMobMenuExpanded
         ? css`
