@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom'
 
 import { StatusFlag } from '../../app/App.components/StatusFlag/StatusFlag.controller'
 import { TzAddress } from '../../app/App.components/TzAddress/TzAddress.view'
+import { EmptyContainer } from '../../app/App.style'
 import { GovernancePhase } from '../../reducers/governance'
 import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from './Governance.controller'
@@ -85,37 +86,44 @@ export const GovernanceView = ({
       unusedVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
     })
   }
+
+  const emptyContainer = (
+    <EmptyContainer>
+      <img src="/images/not-found.svg" alt=" No proposals to show" />
+      <figcaption> No proposals to show</figcaption>
+    </EmptyContainer>
+  )
+
   return (
     <GovernanceStyled>
       <GovernanceLeftContainer>
-        {!onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'VOTING' && (
+        {!onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'VOTING' ? (
           <Proposals
             proposalsList={ongoingProposals}
             handleItemSelect={_handleItemSelect}
             selectedProposal={rightSideContent}
           />
-        )}
-        {!onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'TIME_LOCK' && (
+        ) : !onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'TIME_LOCK' ? (
           <Proposals
             proposalsList={ongoingProposals}
             handleItemSelect={_handleItemSelect}
             selectedProposal={rightSideContent}
           />
-        )}
-        {!onProposalHistoryPage && nextProposals !== undefined && governancePhase === 'PROPOSAL' && (
+        ) : !onProposalHistoryPage && nextProposals !== undefined && governancePhase === 'PROPOSAL' ? (
           <Proposals
             proposalsList={nextProposals}
             handleItemSelect={_handleItemSelect}
             selectedProposal={rightSideContent}
           />
-        )}
-        {onProposalHistoryPage && pastProposals !== undefined && (
+        ) : onProposalHistoryPage && pastProposals !== undefined ? (
           <Proposals
             proposalsList={pastProposals}
             handleItemSelect={_handleItemSelect}
             selectedProposal={rightSideContent}
             isProposalHistory={true}
           />
+        ) : (
+          emptyContainer
         )}
       </GovernanceLeftContainer>
 
