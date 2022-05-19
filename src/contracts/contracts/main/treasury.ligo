@@ -53,6 +53,8 @@ type treasuryAction is
     // Treasury Entrypoints
     | Transfer                       of transferActionType
     | MintMvkAndTransfer             of mintMvkAndTransferType
+    | Stake                          of (nat)
+    | Unstake                        of (nat)
 
     // Lambda Entrypoints
     | SetLambda                      of setLambdaType
@@ -174,6 +176,18 @@ function checkTransferIsNotPaused(var s : treasuryStorage) : unit is
 
 function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorage) : unit is
     if s.breakGlassConfig.mintMvkAndTransferIsPaused then failwith(error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+function checkStakeIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+    else unit;
+
+
+
+function checkUnstakeIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -572,6 +586,44 @@ block {
 
 } with response
 
+
+
+(* togglePauseStake entrypoint *)
+function togglePauseStake(var s : treasuryStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseStake"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseStake(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* togglePauseUnstake entrypoint *)
+function togglePauseUnstake(var s : treasuryStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnstake"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseUnstake(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
 // ------------------------------------------------------------------------------
@@ -612,6 +664,44 @@ block {
 
     // init treasury lambda action
     const treasuryLambdaAction : treasuryLambdaActionType = LambdaMintMvkAndTransfer(mintMvkAndTransferParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* stake entrypoint *)
+function stake(const stakeAmount : nat ; var s : treasuryStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaStake"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaStake(stakeAmount);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
+
+} with response
+
+
+
+(* unstake entrypoint *)
+function unstake(const unstakeAmount : nat ; var s : treasuryStorage) : return is 
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnstake"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasury lambda action
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnstake(unstakeAmount);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -675,10 +765,14 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         | UnpauseAll (_parameters)                      -> unpauseAll(s)
         | TogglePauseTransfer (_parameters)             -> togglePauseTransfer(s)
         | TogglePauseMintMvkAndTransfer (_parameters)   -> togglePauseMintMvkAndTransfer(s)
+        | TogglePauseStake (_parameters)                -> togglePauseStake(s)
+        | TogglePauseUnstake (_parameters)              -> togglePauseUnstake(s)
         
           // Treasury Entrypoints
         | Transfer(parameters)                          -> transfer(parameters, s)
         | MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
+        | Stake(parameters)                             -> stake(parameters, s)
+        | Unstake(parameters)                           -> unstake(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                         -> setLambda(parameters, s)

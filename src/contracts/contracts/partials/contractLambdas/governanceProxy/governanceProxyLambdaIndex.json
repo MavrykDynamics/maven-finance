@@ -1,146 +1,178 @@
 [
   {
     "index": 0,
-    "name": "executeGovernanceLambdaProxy"
+    "name": "lambdaSetAdmin"
   },
   {
     "index": 1,
-    "name": "updateProxyLambda"
+    "name": "lambdaSetGovernance"
   },
   {
     "index": 2,
-    "name": "setContractAdmin"
+    "name": "lambdaUpdateMetadata"
   },
   {
     "index": 3,
-    "name": "setContractGovernance"
+    "name": "lambdaUpdateWhitelistContracts"
   },
   {
     "index": 4,
-    "name": "setContractLambda"
+    "name": "lambdaUpdateWhitelistTokenContracts"
   },
   {
     "index": 5,
-    "name": "setFactoryProductLambda"
+    "name": "lambdaUpdateGeneralContracts"
   },
   {
     "index": 6,
-    "name": "updateContractMetadata"
+    "name": "executeGovernanceLambdaProxy"
   },
   {
     "index": 7,
-    "name": "updateContractWhitelistMap"
+    "name": "updateProxyLambda"
   },
   {
     "index": 8,
-    "name": "updateContractGeneralMap"
+    "name": "setContractAdmin"
   },
   {
     "index": 9,
-    "name": "updateContractWhitelistTokenMap"
+    "name": "setContractGovernance"
   },
   {
     "index": 10,
-    "name": "updateGovernanceConfig"
+    "name": "setContractLambda"
   },
   {
     "index": 11,
-    "name": "updateGovernanceFinancialConfig"
+    "name": "setFactoryProductLambda"
   },
   {
     "index": 12,
-    "name": "updateDelegationConfig"
+    "name": "updateContractMetadata"
   },
   {
     "index": 13,
-    "name": "updateEmergencyConfig"
+    "name": "updateContractWhitelistMap"
   },
   {
     "index": 14,
-    "name": "updateBreakGlassConfig"
+    "name": "updateContractGeneralMap"
   },
   {
     "index": 15,
-    "name": "updateCouncilConfig"
+    "name": "updateContractWhitelistTokenMap"
   },
   {
     "index": 16,
-    "name": "updateFarmConfig"
+    "name": "updateGovernanceConfig"
   },
   {
     "index": 17,
-    "name": "updateDoormanMinMvkAmount"
+    "name": "updateGovernanceFinancialConfig"
   },
   {
     "index": 18,
-    "name": "updateWhitelistDevelopersSet"
+    "name": "updateDelegationConfig"
   },
   {
     "index": 19,
-    "name": "setGovernanceProxy"
+    "name": "updateEmergencyConfig"
   },
   {
     "index": 20,
-    "name": "createFarm"
+    "name": "updateBreakGlassConfig"
   },
   {
     "index": 21,
-    "name": "trackFarm"
+    "name": "updateCouncilConfig"
   },
   {
     "index": 22,
-    "name": "untrackFarm"
+    "name": "updateFarmConfig"
   },
   {
     "index": 23,
-    "name": "initFarm"
+    "name": "updateDoormanMinMvkAmount"
   },
   {
     "index": 24,
-    "name": "closeFarm"
+    "name": "updateWhitelistDevelopersSet"
   },
   {
     "index": 25,
-    "name": "createTreasury"
+    "name": "setGovernanceProxy"
   },
   {
     "index": 26,
-    "name": "trackTreasury"
+    "name": "createFarm"
   },
   {
     "index": 27,
-    "name": "untrackTreasury"
+    "name": "trackFarm"
   },
   {
     "index": 28,
-    "name": "transferTreasury"
+    "name": "untrackFarm"
   },
   {
     "index": 29,
-    "name": "mintMvkAndTransferTreasury"
+    "name": "initFarm"
   },
   {
     "index": 30,
-    "name": "updateMvkInflationRate"
+    "name": "closeFarm"
   },
   {
     "index": 31,
-    "name": "triggerMvkInflation"
+    "name": "createTreasury"
   },
   {
     "index": 32,
-    "name": "addVestee"
+    "name": "trackTreasury"
   },
   {
     "index": 33,
-    "name": "removeVestee"
+    "name": "untrackTreasury"
   },
   {
     "index": 34,
-    "name": "updateVestee"
+    "name": "transferTreasury"
   },
   {
     "index": 35,
+    "name": "mintMvkAndTransferTreasury"
+  },
+  {
+    "index": 36,
+    "name": "stakeTreasury"
+  },
+  {
+    "index": 37,
+    "name": "unstakeTreasury"
+  },
+  {
+    "index": 38,
+    "name": "updateMvkInflationRate"
+  },
+  {
+    "index": 39,
+    "name": "triggerMvkInflation"
+  },
+  {
+    "index": 40,
+    "name": "addVestee"
+  },
+  {
+    "index": 41,
+    "name": "removeVestee"
+  },
+  {
+    "index": 42,
+    "name": "updateVestee"
+  },
+  {
+    "index": 43,
     "name": "toggleVesteeLock"
   }
 ]

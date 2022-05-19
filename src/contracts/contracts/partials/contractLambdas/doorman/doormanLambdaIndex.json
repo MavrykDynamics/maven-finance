@@ -49,22 +49,26 @@
     },
     {
       "index": 12,
-      "name": "lambdaStake"
+      "name": "lambdaTogglePauseFarmClaim"
     },
     {
       "index": 13,
-      "name": "lambdaUnstake"
+      "name": "lambdaStake"
     },
     {
       "index": 14,
-      "name": "lambdaCompound"
+      "name": "lambdaUnstake"
     },
     {
       "index": 15,
-      "name": "lambdaFarmClaim"
+      "name": "lambdaCompound"
     },
     {
       "index": 16,
+      "name": "lambdaFarmClaim"
+    },
+    {
+      "index": 17,
       "name": "lambdaNewUnstake"
     }
 ]

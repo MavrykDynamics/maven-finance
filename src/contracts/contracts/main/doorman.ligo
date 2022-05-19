@@ -49,6 +49,7 @@ type doormanAction is
   | TogglePauseStake            of (unit)
   | TogglePauseUnstake          of (unit)
   | TogglePauseCompound         of (unit)
+  | TogglePauseFarmClaim        of (unit)
 
     // Doorman Entrypoints
   | Stake                       of (nat)
@@ -183,6 +184,12 @@ function checkCompoundIsNotPaused(var s : doormanStorage) : unit is
   if s.breakGlassConfig.compoundIsPaused then failwith(error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
     else unit;
 
+
+
+function checkFarmClaimIsNotPaused(var s : doormanStorage) : unit is
+  if s.breakGlassConfig.farmClaimIsPaused then failwith(error_FARM_CLAIM_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED)
+    else unit;
+
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
@@ -199,17 +206,6 @@ function updateSatelliteBalance(const delegationAddress : address) : contract(up
       delegationAddress) : option(contract(updateSatelliteBalanceParams))) of [
     Some(contr) -> contr
   | None -> (failwith(error_ON_STAKE_CHANGE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(updateSatelliteBalanceParams))
-];
-
-
-
-// helper function to update satellite's balance
-function onSatelliteRewardPaid(const delegationAddress : address) : contract(address) is
-  case (Tezos.get_entrypoint_opt(
-      "%onSatelliteRewardPaid",
-      delegationAddress) : option(contract(address))) of [
-    Some(contr) -> contr
-  | None -> (failwith(error_ON_SATELLITE_REWARD_PAID_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
 ];
 
 
@@ -280,32 +276,43 @@ block{
       ];
       
       // -- Satellite rewards -- //
-      // Check if user is satellite or delegate
+      // Get the user satelliteRewards record
       const getSatelliteRewardsOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", userAddress, delegationAddress);
-      const getSatelliteRewardsOpt: option(satelliteRewards) = case getSatelliteRewardsOptView of [
-        Some (value) -> value
-      | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+      const userHasSatelliteRewards: bool = case getSatelliteRewardsOptView of [
+        Some (_v) -> True
+      | None -> False
       ];
 
-      const satelliteUnpaidRewards: nat = case getSatelliteRewardsOpt of [
-        Some (_rewards) -> block{
-          const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
-          const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
-            Some (value) -> value
-          | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
-          ];
-          
-          // Calculate the user unclaimed rewards
-          const satelliteReward: nat  = case getUserReferenceRewardOpt of [
-            Some (_referenceRewards) -> block{
-              const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
-              const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
-            } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
-          | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
-          ];
-        } with (satelliteReward)
-      | None -> 0n
-      ];
+      // If user never delegated or registered as a satellite, it does not calculates its rewards
+      if userHasSatelliteRewards then
+      block{
+        const getSatelliteRewardsOpt: option(satelliteRewards) = case getSatelliteRewardsOptView of [
+          Some (value) -> value
+        | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+        ];
+
+        const satelliteUnpaidRewards: nat = case getSatelliteRewardsOpt of [
+          Some (_rewards) -> block{
+            const getUserReferenceRewardOptView : option (option(satelliteRewards)) = Tezos.call_view ("getSatelliteRewardsOpt", _rewards.satelliteReferenceAddress, delegationAddress);
+            const getUserReferenceRewardOpt: option(satelliteRewards) = case getUserReferenceRewardOptView of [
+              Some (value) -> value
+            | None -> failwith (error_GET_SATELLITE_REWARDS_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
+            ];
+            
+            // Calculate the user unclaimed rewards
+            const satelliteReward: nat  = case getUserReferenceRewardOpt of [
+              Some (_referenceRewards) -> block{
+                const satelliteRewardsRatio: nat  = abs(_referenceRewards.satelliteAccumulatedRewardsPerShare - _rewards.participationRewardsPerShare);
+                const satelliteRewards: nat       = userRecord.balance * satelliteRewardsRatio;
+              } with (_rewards.unpaid + satelliteRewards / fixedPointAccuracy)
+            | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
+            ];
+          } with (satelliteReward)
+        | None -> 0n
+        ];
+      }
+      else skip;
+
 
       // -- Exit fee rewards -- //
       // Calculate what fees the user missed since his/her last claim
@@ -701,6 +708,25 @@ block {
 
 } with response
 
+
+
+(*  togglePauseFarmClaim entrypoint *)
+function togglePauseFarmClaim(var s : doormanStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseFarmClaim"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init doorman lambda action
+    const doormanLambdaAction : doormanLambdaActionType = LambdaTogglePauseFarmClaim(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, doormanLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints End
 // ------------------------------------------------------------------------------
@@ -845,6 +871,7 @@ function main (const action : doormanAction; const s : doormanStorage) : return 
       | TogglePauseStake(_parameters)         -> togglePauseStake(s)
       | TogglePauseUnstake(_parameters)       -> togglePauseUnstake(s)
       | TogglePauseCompound(_parameters)      -> togglePauseCompound(s)
+      | TogglePauseFarmClaim(_parameters)     -> togglePauseFarmClaim(s)
 
         // Doorman Entrypoints
       | Stake(parameters)                     -> stake(parameters, s)  

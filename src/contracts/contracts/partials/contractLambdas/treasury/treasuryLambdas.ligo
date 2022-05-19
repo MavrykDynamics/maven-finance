@@ -162,6 +162,12 @@ block {
                 if s.breakGlassConfig.mintMvkAndTransferIsPaused then skip
                 else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
 
+                if s.breakGlassConfig.stakeIsPaused then skip
+                else s.breakGlassConfig.stakeIsPaused := True;
+
+                if s.breakGlassConfig.unstakeIsPaused then skip
+                else s.breakGlassConfig.unstakeIsPaused := True;
+
             }
         | _ -> skip
     ];
@@ -185,6 +191,12 @@ block {
                 else skip;
 
                 if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
                 else skip;
 
             }
@@ -235,6 +247,48 @@ block {
 
 } with (noOperations, s)
 
+
+
+(* togglePauseStake lambda *)
+function lambdaTogglePauseStake(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    case treasuryLambdaAction of [
+        | LambdaTogglePauseStake(_parameters) -> {
+                
+                if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
+                else s.breakGlassConfig.stakeIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(* togglePauseUnstake lambda *)
+function lambdaTogglePauseUnstake(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+block {
+
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+
+    case treasuryLambdaAction of [
+        | LambdaTogglePauseUnstake(_parameters) -> {
+                
+                if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
+                else s.breakGlassConfig.unstakeIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End
 // ------------------------------------------------------------------------------
@@ -252,7 +306,6 @@ block {
     // Steps Overview:
     // 1. Check that sender is in whitelist (governance)
     // 2. Send transfer operation from Treasury account to user account
-    // 3. Update user's satellite details in Delegation contract
 
     if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
       else skip;
@@ -306,7 +359,6 @@ block {
     // Steps Overview:
     // 1. Check that sender is in whitelist (governance)
     // 2. Send mint operation to MVK Token Contract
-    // 3. Update user's satellite details in Delegation contract
 
     // break glass check
     checkMintMvkAndTransferIsNotPaused(s);
@@ -332,6 +384,106 @@ block {
                 );
 
                 operations := mintMvkTokensOperation # operations;
+
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* stake lambda *)
+function lambdaStake(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+block {
+    
+    // Steps Overview:
+    // 1. Check that sender is in whitelist (governance)
+    // 2. Send stake operation to Doorman Contract
+
+    // break glass check
+    checkStakeIsNotPaused(s);
+
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
+      else skip;
+
+    var operations : list(operation) := nil;
+
+
+    case treasuryLambdaAction of [
+        | LambdaStake(stakeAmount) -> {
+                
+                // Get doorman address
+                const doormanAddress: address   = case s.generalContracts["doorman"] of [
+                    Some (_address)     -> address
+                    None                -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                ];
+
+                // Get stake entrypoint in doorman
+                const stakeEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%stake",
+                    doormanAddress) : option(contract(nat))) of [
+                            Some (contr)    -> contr
+                        |   None            -> (failwith(error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+                ];
+
+                const stakeOperation : operation = Tezos.transaction(
+                    (stakeAmount),
+                    0tez, 
+                    stakeEntrypoint
+                );
+
+                operations := stakeOperation # operations;
+
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(* unstake lambda *)
+function lambdaUnstake(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+block {
+    
+    // Steps Overview:
+    // 1. Check that sender is in whitelist (governance)
+    // 2. Send stake operation to Doorman Contract
+
+    // break glass check
+    checkUnstakeIsNotPaused(s);
+
+    if not checkInWhitelistContracts(Tezos.sender, s.whitelistContracts) then failwith(error_ONLY_WHITELISTED_ADDRESSES_ALLOWED)
+      else skip;
+
+    var operations : list(operation) := nil;
+
+
+    case treasuryLambdaAction of [
+        | LambdaUnstake(unstakeAmount) -> {
+                
+                // Get doorman address
+                const doormanAddress: address   = case s.generalContracts["doorman"] of [
+                    Some (_address)     -> address
+                    None                -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
+                ];
+
+                // Get stake entrypoint in doorman
+                const unstakeEntrypoint = case (Tezos.get_entrypoint_opt(
+                    "%unstake",
+                    doormanAddress) : option(contract(nat))) of [
+                            Some (contr)    -> contr
+                        |   None            -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_NOT_FOUND) : contract(nat))
+                ];
+
+                const unstakeOperation : operation = Tezos.transaction(
+                    (unstakeAmount),
+                    0tez, 
+                    unstakeEntrypoint
+                );
+
+                operations := unstakeOperation # operations;
 
             }
         | _ -> skip

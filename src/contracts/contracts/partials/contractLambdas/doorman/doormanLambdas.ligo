@@ -131,7 +131,7 @@ block {
         | LambdaMigrateFunds(destinationAddress) -> {
                 
                 // Check if all entrypoints are paused
-                if s.breakGlassConfig.stakeIsPaused and s.breakGlassConfig.unstakeIsPaused and s.breakGlassConfig.compoundIsPaused then skip
+                if s.breakGlassConfig.stakeIsPaused and s.breakGlassConfig.unstakeIsPaused and s.breakGlassConfig.compoundIsPaused and s.breakGlassConfig.farmClaimIsPaused then skip
                 else failwith(error_ALL_DOORMAN_CONTRACT_ENTRYPOINTS_SHOULD_BE_PAUSED_TO_MIGRATE_FUNDS);
 
                 // Get Doorman MVK balance
@@ -195,6 +195,9 @@ block {
 
               if s.breakGlassConfig.compoundIsPaused then skip
               else s.breakGlassConfig.compoundIsPaused := True;
+
+              if s.breakGlassConfig.farmClaimIsPaused then skip
+              else s.breakGlassConfig.farmClaimIsPaused := True;
               
           }
       | _ -> skip
@@ -221,6 +224,9 @@ block {
             else skip;
             
             if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
+            else skip;
+            
+            if s.breakGlassConfig.farmClaimIsPaused then s.breakGlassConfig.farmClaimIsPaused := False
             else skip;
               
           }
@@ -282,6 +288,26 @@ block {
                 
               if s.breakGlassConfig.compoundIsPaused then s.breakGlassConfig.compoundIsPaused := False
               else s.breakGlassConfig.compoundIsPaused := True;
+                
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseFarmClaim lambda *)
+function lambdaTogglePauseFarmClaim(const doormanLambdaAction : doormanLambdaActionType; var s : doormanStorage) : return is
+block {
+    
+    checkSenderIsAdmin(s);
+
+    case doormanLambdaAction of [
+        | LambdaTogglePauseFarmClaim(_parameters) -> {
+                
+              if s.breakGlassConfig.farmClaimIsPaused then s.breakGlassConfig.farmClaimIsPaused := False
+              else s.breakGlassConfig.farmClaimIsPaused := True;
                 
             }
         | _ -> skip
@@ -364,16 +390,9 @@ block {
                 updateSatelliteBalance(delegationAddress)
               );
 
-              // tell the delegation contract that the reward has been paid 
-              const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                (userAddress),
-                0tez,
-                onSatelliteRewardPaid(delegationAddress)
-              );
-
               // list of operations: burn mvk tokens first, then mint smvk tokens
               // const operations : list(operation) = list [burnMvkTokensOperation; mintSMvkTokensOperation; updateSatelliteBalanceOperation];
-              operations  := list [transferOperation; onSatelliteRewardPaidOperation; updateSatelliteBalanceOperation];
+              operations  := list [transferOperation; updateSatelliteBalanceOperation];
 
               // 3. update record of user address with minted sMVK tokens
 
@@ -534,15 +553,8 @@ block {
                   updateSatelliteBalance(delegationAddress)
                 );
 
-                // tell the delegation contract that the reward has been paid 
-                const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (userAddress),
-                  0tez,
-                  onSatelliteRewardPaid(delegationAddress)
-                );
-
                 // fill a list of operations
-                operations := list[transferOperation; onSatelliteRewardPaidOperation; updateSatelliteBalanceOperation]
+                operations := list[transferOperation; updateSatelliteBalanceOperation]
             }
         | _ -> skip
     ];
@@ -667,15 +679,8 @@ block {
                   updateSatelliteBalance(delegationAddress)
                 );
 
-                // tell the delegation contract that the reward has been paid 
-                const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (userAddress),
-                  0tez,
-                  onSatelliteRewardPaid(delegationAddress)
-                );
-
                 // fill a list of operations
-                operations := list[transferOperation; onSatelliteRewardPaidOperation; updateSatelliteBalanceOperation]
+                operations := list[transferOperation; updateSatelliteBalanceOperation]
             }
         | _ -> skip
     ];
@@ -707,14 +712,7 @@ block{
                 // update satellite balance if user is delegated to a satellite
                 const onStakeChangeOperation: operation = Tezos.transaction((userAddress), 0tez, updateSatelliteBalance(delegationAddress));
 
-                // tell the delegation contract that the reward has been paid 
-                const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (userAddress),
-                  0tez,
-                  onSatelliteRewardPaid(delegationAddress)
-                );
-
-                operations  := list [onSatelliteRewardPaidOperation; onStakeChangeOperation]
+                operations  := list [onStakeChangeOperation]
             }
         | _ -> skip
     ];
@@ -726,6 +724,8 @@ block{
 (* farmClaim lambda *)
 function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; var s: doormanStorage): return is
   block{
+    
+    checkFarmClaimIsNotPaused(s);
 
     var operations : list(operation) := nil;
 
@@ -860,14 +860,6 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
 
                 // Update satellite balance
                 operations  := updateSatelliteBalanceOperation # operations;
-
-                // tell the delegation contract that the reward has been paid with the compound operation
-                const onSatelliteRewardPaidOperation : operation = Tezos.transaction(
-                  (delegator),
-                  0tez,
-                  onSatelliteRewardPaid(delegationAddress)
-                );
-                operations  := onSatelliteRewardPaidOperation # operations;
 
             }
         | _ -> skip
