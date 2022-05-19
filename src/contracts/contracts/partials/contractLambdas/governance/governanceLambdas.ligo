@@ -243,8 +243,11 @@ block {
 
     case governanceLambdaAction of [
         | LambdaUpdateWhitelistDevelopers(developer) -> 
+
             if Set.mem(developer, s.whitelistDevelopers) then 
-                s.whitelistDevelopers := Set.remove(developer, s.whitelistDevelopers)
+                if Set.size(s.whitelistDevelopers) > 1n then 
+                    s.whitelistDevelopers := Set.remove(developer, s.whitelistDevelopers)
+                        else failwith(error_NOT_ENOUGH_WHITELISTED_DEVELOPERS)
             else 
                 s.whitelistDevelopers := Set.add(developer, s.whitelistDevelopers)
         | _ -> skip
