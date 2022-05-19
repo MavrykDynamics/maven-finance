@@ -3,11 +3,17 @@ import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const StatusFlagStyled = styled.div<{ theme: MavrykTheme }>`
-  padding: 9px 25px;
   border-radius: 10px;
   border: 1px solid;
   text-align: center;
   font-weight: 600;
+  width: 110px;
+  padding: 0;
+  font-size: 12px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &.primary {
     color: ${({ theme }) => theme.primaryColor};

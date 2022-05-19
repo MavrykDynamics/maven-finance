@@ -1,12 +1,13 @@
-import { MavrykTheme } from '../../../styles/interfaces'
 import styled from 'styled-components/macro'
+import { Card, CardHeader } from 'styles'
 
-export const GovernanceTopBarStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
-  margin: 15px auto;
+import { MavrykTheme } from '../../../styles/interfaces'
+
+export const GovernanceTopBarStyled = styled(Card)`
+  margin: 18px auto 30px;
   display: flex;
   width: 100%;
-  height: 50px;
+  height: 53px;
   flex-direction: row;
   border-radius: 10px;
   padding: 10px 20px;
