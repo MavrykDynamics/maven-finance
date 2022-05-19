@@ -52,18 +52,13 @@ export const SatelliteList = ({
   }
 
   const handleSelect = (selectedOption: any) => {
-    console.log('%c ||||| selectedOption', 'color:yellowgreen', selectedOption)
     const sortLabel = selectedOption.text,
       sortValue = selectedOption.value
 
-    console.log('%c ||||| sortLabel', 'color:yellowgreen', sortLabel)
-
-    console.log('%c ||||| sortValue', 'color:yellowgreen', sortValue)
     if (sortValue !== '') {
       setFilteredSatelliteList((data: SatelliteRecord[]) => {
         const dataToSort = [...data]
 
-        console.log('%c ||||| dataToSort', 'color:green', dataToSort)
         dataToSort.sort((a: any, b: any) => {
           let res = 0
           switch (sortLabel) {
