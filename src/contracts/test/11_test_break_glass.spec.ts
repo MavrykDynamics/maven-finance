@@ -18,6 +18,7 @@
 // import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 // import councilAddress from '../deployments/councilAddress.json';
 // import governanceAddress from '../deployments/governanceAddress.json';
+// import governanceProxyAddress from '../deployments/governanceProxyAddress.json';
 // import emergencyGovernanceAddress from '../deployments/emergencyGovernanceAddress.json';
 // import breakGlassAddress from '../deployments/breakGlassAddress.json';
 // import vestingAddress from '../deployments/vestingAddress.json';
@@ -123,7 +124,7 @@
 //                     assert.strictEqual(newAdmin, alice.pkh);
 //                     assert.strictEqual(currentAdmin, bob.pkh);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -144,7 +145,7 @@
 //                     // Assertions
 //                     assert.strictEqual(newAdmin, currentAdmin);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
@@ -171,7 +172,7 @@
 //                     // Assertions
 //                     assert.equal(updateConfigValue, newConfigValue);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -193,7 +194,7 @@
 //                     assert.notEqual(newConfigValue, currentConfigValue);
 //                     assert.equal(updateConfigValue.toNumber(), currentConfigValue.toNumber());
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -214,7 +215,7 @@
 //                     // Assertions
 //                     assert.equal(updateConfigValue, newConfigValue);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
     
@@ -228,7 +229,7 @@
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(breakGlassInstance.methods.updateConfig(newConfigValue,"configThreshold").send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
@@ -265,7 +266,7 @@
 //                     assert.notStrictEqual(councilMember.image, oldMemberImage);
 //                     assert.notStrictEqual(councilMember.website, oldMemberWebsite);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -281,7 +282,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.updateCouncilMemberInfo(newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
@@ -324,7 +325,7 @@
 //                     assert.equal(stringMap.get("councilMemberWebsite"), newMemberWebsite);
 //                     assert.equal(stringMap.get("councilMemberImage"), newMemberImage);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -340,7 +341,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.addCouncilMember(councilMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -357,7 +358,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.addCouncilMember(councilMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -393,7 +394,7 @@
 //                     assert.equal(action.signersCount, 1);
 //                     assert.equal(addressMap.get("councilMemberAddress"), councilMember);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -425,7 +426,7 @@
 //                     updateConfigOperation = await breakGlassInstance.methods.updateConfig(2,"configThreshold").send();
 //                     await updateConfigOperation.confirmation();
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -438,7 +439,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.removeCouncilMember(councilMember).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -452,7 +453,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.removeCouncilMember(councilMember).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -498,7 +499,7 @@
 //                     assert.equal(stringMap.get("newCouncilMemberWebsite"), newMemberWebsite);
 //                     assert.equal(stringMap.get("newCouncilMemberImage"), newMemberImage);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -515,7 +516,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.changeCouncilMember(oldCouncilMember, newCouncilMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -532,7 +533,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.changeCouncilMember(oldCouncilMember, newCouncilMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -550,7 +551,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.changeCouncilMember(oldCouncilMember, newCouncilMember, newMemberName, newMemberWebsite, newMemberImage).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -573,7 +574,7 @@
 //                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
 //                     assert.equal(glassBroken, false);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
@@ -595,7 +596,7 @@
 //                     await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
 //                     assert.equal(glassBroken, false);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
@@ -616,7 +617,7 @@
 //                     await chai.expect(breakGlassInstance.methods.pauseAllEntrypoints().send()).to.be.rejected;
 //                     assert.equal(glassBroken, false);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
@@ -637,7 +638,7 @@
 //                     await chai.expect(breakGlassInstance.methods.unpauseAllEntrypoints().send()).to.be.rejected;
 //                     assert.equal(glassBroken, false);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
@@ -658,7 +659,7 @@
 //                     await chai.expect(breakGlassInstance.methods.removeBreakGlassControl().send()).to.be.rejected;
 //                     assert.equal(glassBroken, false);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
@@ -678,10 +679,88 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
+
+
+
+
+//         describe("%signAction", async () => {
+
+//             beforeEach("Set signer to council member", async () => {
+//                 await signerFactory(alice.sk)
+//             });
+
+//             it('pauseAllEntrypoints --> should fail if glass not broken', async () => {
+//                 try{
+//                     // Initial Values
+//                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     const nextActionID      = breakGlassStorage.actionCounter;
+
+//                     // Operation
+//                     await chai.expect(breakGlassInstance.methods.pauseAllEntrypoints().send()).to.be.rejected;
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             });
+
+//             it('unpauseAllEntrypoints --> should fail if glass not broken', async () => {
+//                 try{
+//                     // Initial Values
+//                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     const nextActionID      = breakGlassStorage.actionCounter;
+
+//                     // Operation
+//                     await chai.expect(breakGlassInstance.methods.unpauseAllEntrypoints().send()).to.be.rejected;
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             });
+
+//             it('setSingleContractAdmin --> should fail if glass not broken', async () => {
+//                 try{
+//                     // Initial Values
+//                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     const nextActionID      = breakGlassStorage.actionCounter;
+//                     const newAdmin          = oscar.pkh;
+//                     const targetContract    = doormanAddress.address;
+
+//                     // Operation
+//                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             });
+
+//             it('setAllContractAdmin --> should fail if glass not broken', async () => {
+//                 try{
+//                     // Initial Values
+//                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     const nextActionID      = breakGlassStorage.actionCounter;
+//                     const newAdmin          = bob.pkh;
+
+//                     // Operation
+//                     await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             });
+
+//             it('removeBreakGlassControl --> should fail if glass not broken', async () => {
+//                 try{
+//                     // Initial Values
+//                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     const nextActionID      = breakGlassStorage.actionCounter;
+
+//                     // Operation
+//                     await chai.expect(breakGlassInstance.methods.removeBreakGlassControl().send()).to.be.rejected;
+//                 } catch(e){
+//                     console.dir(e, {depth: 5});
+//                 }
+//             });
+//         })
 
 //         describe("%breakGlass", async () => {
 //             beforeEach("Set signer to council member", async () => {
@@ -693,7 +772,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.breakGlass().send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -713,7 +792,7 @@
 //                     updateConfigOperation         = await emergencyGovernanceInstance.methods.updateConfig(0,"configRequiredFeeMutez").send();
 //                     await updateConfigOperation.confirmation();
 
-//                     var setAdminOperation         = await governanceInstance.methods.setAdmin(governanceAddress.address).send();
+//                     var setAdminOperation         = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                     await setAdminOperation.confirmation();
 
 //                     for (let entry of generalContracts){
@@ -722,8 +801,8 @@
 //                         var storage:any     = await contract.storage();
 
 //                         // Check admin
-//                         if(storage.hasOwnProperty('admin') && storage.admin!==governanceAddress.address && storage.admin!==breakGlassAddress.address){
-//                             setAdminOperation   = await contract.methods.setAdmin(governanceAddress.address).send();
+//                         if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
+//                             setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
 //                             await setAdminOperation.confirmation()
 //                         }
 //                     }
@@ -761,187 +840,26 @@
 //                     breakGlassStorage       = await breakGlassInstance.storage();
 //                     const glassBroken       = breakGlassStorage.glassBroken;
 //                     assert.equal(glassBroken, true);
+
+//                     // Propagate break glass
+//                     await signerFactory(bob.sk)
+//                     breakGlassStorage   = await breakGlassInstance.storage();
+//                     var breakGlassActionID    = breakGlassStorage.actionCounter;
+//                     const propagateActionOperation    = await breakGlassInstance.methods.propagateBreakGlass().send();
+//                     await propagateActionOperation.confirmation();
+
+//                     // Sign action propagate action
+//                     await signerFactory(alice.sk);
+//                     var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+//                     await signActionOperation.confirmation();
+//                     await signerFactory(eve.sk);
+//                     signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
+//                     await signActionOperation.confirmation();
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         });
-
-
-//         // describe("%signAction", async () => {
-
-//         //     beforeEach("Set signer to council member", async () => {
-//         //         await signerFactory(alice.sk)
-//         //     });
-
-//         //     it('pauseAllEntrypoints --> should fail if glass not broken', async () => {
-//         //         try{
-//         //             // Initial Values
-//         //             breakGlassStorage       = await breakGlassInstance.storage();
-//         //             const nextActionID      = breakGlassStorage.actionCounter;
-
-//         //             // Operation
-//         //             const newActionOperation = await breakGlassInstance.methods.pauseAllEntrypoints().send();
-//         //             await newActionOperation.confirmation();
-
-//         //             // Final values
-//         //             breakGlassStorage   = await breakGlassInstance.storage();
-//         //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-//         //             const actionSigner  = action.signers.includes(alice.pkh)
-
-//         //             // Assertions
-//         //             assert.strictEqual(action.initiator, alice.pkh);
-//         //             assert.strictEqual(action.status, "PENDING");
-//         //             assert.strictEqual(action.actionType, "pauseAllEntrypoints");
-//         //             assert.equal(action.executed, false);
-//         //             assert.equal(actionSigner, true);
-//         //             assert.equal(action.signersCount, 1);
-//         //             assert.equal(breakGlassStorage.glassBroken, true);
-
-//         //             // Operation
-//         //             await signerFactory(eve.sk);
-//         //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-//         //         } catch(e){
-//         //             console.log(e);
-//         //         }
-//         //     });
-
-//         //     it('unpauseAllEntrypoints --> should fail if glass not broken', async () => {
-//         //         try{
-//         //             // Initial Values
-//         //             breakGlassStorage       = await breakGlassInstance.storage();
-//         //             const nextActionID      = breakGlassStorage.actionCounter;
-
-//         //             // Operation
-//         //             const newActionOperation = await breakGlassInstance.methods.unpauseAllEntrypoints().send();
-//         //             await newActionOperation.confirmation();
-
-//         //             // Final values
-//         //             breakGlassStorage   = await breakGlassInstance.storage();
-//         //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-//         //             const actionSigner  = action.signers.includes(alice.pkh)
-
-//         //             // Assertions
-//         //             assert.strictEqual(action.initiator, alice.pkh);
-//         //             assert.strictEqual(action.status, "PENDING");
-//         //             assert.strictEqual(action.actionType, "unpauseAllEntrypoints");
-//         //             assert.equal(action.executed, false);
-//         //             assert.equal(actionSigner, true);
-//         //             assert.equal(action.signersCount, 1);
-//         //             assert.equal(breakGlassStorage.glassBroken, true);
-
-//         //             // Operation
-//         //             await signerFactory(eve.sk);
-//         //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-//         //         } catch(e){
-//         //             console.log(e);
-//         //         }
-//         //     });
-
-//         //     it('setSingleContractAdmin --> should fail if glass not broken', async () => {
-//         //         try{
-//         //             // Initial Values
-//         //             breakGlassStorage       = await breakGlassInstance.storage();
-//         //             const nextActionID      = breakGlassStorage.actionCounter;
-//         //             const newAdmin          = oscar.pkh;
-//         //             const targetContract    = doormanAddress.address;
-
-//         //             // Operation
-//         //             const newActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
-//         //             await newActionOperation.confirmation();
-
-//         //             // Final values
-//         //             breakGlassStorage   = await breakGlassInstance.storage();
-//         //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-//         //             const actionSigner  = action.signers.includes(alice.pkh)
-//         //             const addressMap    = await action.addressMap;
-
-//         //             // Assertions
-//         //             assert.strictEqual(action.initiator, alice.pkh);
-//         //             assert.strictEqual(action.status, "PENDING");
-//         //             assert.strictEqual(action.actionType, "setSingleContractAdmin");
-//         //             assert.equal(action.executed, false);
-//         //             assert.equal(actionSigner, true);
-//         //             assert.equal(action.signersCount, 1);
-//         //             assert.equal(addressMap.get("newAdminAddress"), newAdmin);
-//         //             assert.equal(addressMap.get("targetContractAddress"), targetContract);
-//         //             assert.equal(breakGlassStorage.glassBroken, true);
-
-//         //             // Operation
-//         //             await signerFactory(eve.sk);
-//         //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-//         //         } catch(e){
-//         //             console.log(e);
-//         //         }
-//         //     });
-
-//         //     it('setAllContractAdmin --> should fail if glass not broken', async () => {
-//         //         try{
-//         //             // Initial Values
-//         //             breakGlassStorage       = await breakGlassInstance.storage();
-//         //             const nextActionID      = breakGlassStorage.actionCounter;
-//         //             const newAdmin          = bob.pkh;
-
-//         //             // Operation
-//         //             const newActionOperation = await breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send();
-//         //             await newActionOperation.confirmation();
-
-//         //             // Final values
-//         //             breakGlassStorage   = await breakGlassInstance.storage();
-//         //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-//         //             const actionSigner  = action.signers.includes(alice.pkh)
-//         //             const addressMap    = await action.addressMap;
-
-//         //             // Assertions
-//         //             assert.strictEqual(action.initiator, alice.pkh);
-//         //             assert.strictEqual(action.status, "PENDING");
-//         //             assert.strictEqual(action.actionType, "setAllContractsAdmin");
-//         //             assert.equal(action.executed, false);
-//         //             assert.equal(actionSigner, true);
-//         //             assert.equal(action.signersCount, 1);
-//         //             assert.equal(addressMap.get("newAdminAddress"), newAdmin);
-//         //             assert.equal(breakGlassStorage.glassBroken, true);
-
-//         //             // Operation
-//         //             await signerFactory(eve.sk);
-//         //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-//         //         } catch(e){
-//         //             console.log(e);
-//         //         }
-//         //     });
-
-//         //     it('removeBreakGlassControl --> should fail if glass not broken', async () => {
-//         //         try{
-//         //             // Initial Values
-//         //             breakGlassStorage       = await breakGlassInstance.storage();
-//         //             const nextActionID      = breakGlassStorage.actionCounter;
-
-//         //             // Operation
-//         //             const newActionOperation = await breakGlassInstance.methods.removeBreakGlassControl().send();
-//         //             await newActionOperation.confirmation();
-
-//         //             // Final values
-//         //             breakGlassStorage   = await breakGlassInstance.storage();
-//         //             var action          = await breakGlassStorage.actionsLedger.get(nextActionID);
-//         //             const actionSigner  = action.signers.includes(alice.pkh)
-
-//         //             // Assertions
-//         //             assert.strictEqual(action.initiator, alice.pkh);
-//         //             assert.strictEqual(action.status, "PENDING");
-//         //             assert.strictEqual(action.actionType, "removeBreakGlassControl");
-//         //             assert.equal(action.executed, false);
-//         //             assert.equal(actionSigner, true);
-//         //             assert.equal(action.signersCount, 1);
-//         //             assert.equal(breakGlassStorage.glassBroken, true);
-
-//         //             // Operation
-//         //             await signerFactory(eve.sk);
-//         //             await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
-//         //         } catch(e){
-//         //             console.log(e);
-//         //         }
-//         //     });
-//         // })
 //     });
 
 //     describe("Glass broken", async () => {
@@ -956,8 +874,9 @@
 //                 try{
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
+//                     doormanStorage          = await doormanInstance.storage();
 //                     const nextActionID      = breakGlassStorage.actionCounter;
-//                     const newAdmin          = oscar.pkh;
+//                     const newAdmin          = bob.pkh;
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
@@ -981,7 +900,7 @@
 //                     assert.equal(addressMap.get("targetContractAddress"), targetContract);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -995,7 +914,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1009,7 +928,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -1025,7 +944,7 @@
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
 //                     const nextActionID      = breakGlassStorage.actionCounter;
-//                     const newAdmin          = oscar.pkh;
+//                     const newAdmin          = bob.pkh;
 
 //                     // Operation
 //                     const newActionOperation = await breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send();
@@ -1047,7 +966,7 @@
 //                     assert.equal(addressMap.get("newAdminAddress"), newAdmin);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1060,7 +979,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -1095,7 +1014,7 @@
 //                     assert.equal(action.signersCount, 1);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1108,7 +1027,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -1143,7 +1062,7 @@
 //                     assert.equal(action.signersCount, 1);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1156,7 +1075,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -1191,7 +1110,7 @@
 //                     assert.equal(action.signersCount, 1);
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1204,7 +1123,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.setAllContractsAdmin(newAdmin).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -1242,7 +1161,7 @@
 //                     assert.equal(breakGlassStorage.glassBroken, true);
 //                     assert.equal(natMap.get("actionId"), flushedAction);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1255,7 +1174,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.flushAction(flushedAction).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1267,7 +1186,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.flushAction(flushedAction).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1313,7 +1232,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.flushAction(flushActionId).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1376,7 +1295,7 @@
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(breakGlassInstance.methods.flushAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })
@@ -1384,21 +1303,25 @@
 //         describe("%signAction", async () => {
 
 //             before("Set breakGlass admin to Bob for various tests", async() => {
-//                 breakGlassStorage               = await breakGlassInstance.storage();
-//                 const nextActionID              = breakGlassStorage.actionCounter;
+//                 try{
+//                     breakGlassStorage               = await breakGlassInstance.storage();
+//                     const nextActionID              = breakGlassStorage.actionCounter;
 
-//                 var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, breakGlassAddress.address).send();
-//                 await setContractAdminOperation.confirmation();
+//                     var setContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, breakGlassAddress.address).send();
+//                     await setContractAdminOperation.confirmation();
 
-//                 await signerFactory(eve.sk);
-//                 var voteOperation   = await breakGlassInstance.methods.signAction(nextActionID).send();
-//                 await voteOperation.confirmation();
+//                     await signerFactory(eve.sk);
+//                     var voteOperation   = await breakGlassInstance.methods.signAction(nextActionID).send();
+//                     await voteOperation.confirmation();
 
-//                 await signerFactory(bob.sk);
-//                 var updateConfigOperation = await breakGlassInstance.methods.updateConfig(1,"configActionExpiryDays").send();
-//                 await updateConfigOperation.confirmation();
-
-//                 await signerFactory(alice.sk);
+//                     await signerFactory(bob.sk);
+//                     var updateConfigOperation = await breakGlassInstance.methods.updateConfig(1,"configActionExpiryDays").send();
+//                     await updateConfigOperation.confirmation();
+    
+//                     await signerFactory(alice.sk);
+//                 } catch (e) {
+//                     console.dir(e, {depth: 5});
+//                 }
 //             })
 
 //             beforeEach("Set signer to council member", async () => {
@@ -1462,7 +1385,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1520,7 +1443,7 @@
 //                     assert.equal(action.status, "EXECUTED");
 //                     assert.equal(newCouncilStorage, true);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1554,7 +1477,7 @@
 //                     await signerFactory(bob.sk);
 //                     await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1605,7 +1528,7 @@
 //                     assert.equal(action.status, "EXECUTED");
 //                     assert.equal(newCouncilStorage, false);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1632,7 +1555,7 @@
 //                     await signerFactory(bob.sk);
 //                     await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1689,7 +1612,7 @@
 //                     updateConfigOperation = await breakGlassInstance.methods.updateConfig(2,"configThreshold").send();
 //                     await updateConfigOperation.confirmation();
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1754,7 +1677,7 @@
 //                     assert.equal(action.status, "EXECUTED");
 //                     assert.equal(newCouncilStorage, false);
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1790,7 +1713,7 @@
 //                     await signerFactory(bob.sk);
 //                     await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1826,7 +1749,7 @@
 //                     await signerFactory(bob.sk);
 //                     await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1835,6 +1758,16 @@
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
 //                     const nextActionID      = breakGlassStorage.actionCounter;
+
+//                     var gContracts      = governanceStorage.generalContracts.entries();
+//                     for (let entry of gContracts){
+//                         // Get contract storage
+//                         var contract        = await utils.tezos.contract.at(entry[1]);
+//                         var storage:any     = await contract.storage();
+
+//                         // Check pause
+//                         var breakGlassConfig    = storage.breakGlassConfig
+//                     }
 
 //                     // Operation
 //                     const newActionOperation = await breakGlassInstance.methods.pauseAllEntrypoints().send();
@@ -1883,7 +1816,7 @@
 //                         }
 //                     }
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1940,7 +1873,7 @@
 //                         }
 //                     }
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -1949,7 +1882,7 @@
 //                     // Initial Values
 //                     breakGlassStorage       = await breakGlassInstance.storage();
 //                     const nextActionID      = breakGlassStorage.actionCounter;
-//                     const newAdmin          = oscar.pkh;
+//                     const newAdmin          = bob.pkh;
 //                     const targetContract    = doormanAddress.address;
 
 //                     // Operation
@@ -1993,11 +1926,11 @@
 //                     }
 
 //                     // Reset contract admin
-//                     await signerFactory(oscar.sk);
+//                     await signerFactory(bob.sk);
 //                     const resetOperation    = await doormanInstance.methods.setAdmin(breakGlassAddress.address).send();
 //                     await resetOperation.confirmation();
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2062,7 +1995,7 @@
 //                     var setAdminOperation   = await breakGlassInstance.methods.setAdmin(breakGlassAddress.address).send();
 //                     await setAdminOperation.confirmation();
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2116,7 +2049,7 @@
 //                     var updateConfigOperation = await breakGlassInstance.methods.updateConfig(1,"configActionExpiryDays").send();
 //                     await updateConfigOperation.confirmation();
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2188,11 +2121,11 @@
 
 //                         // Check admin
 //                         if(storage.hasOwnProperty('admin')){
-//                             assert.equal(storage.admin, governanceAddress.address)
+//                             assert.equal(storage.admin, governanceProxyAddress.address)
 //                         }
 //                     }
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2251,7 +2184,7 @@
 //                     assert.equal(otherAction.executed, false);
 //                     assert.equal(otherAction.status, "FLUSHED");
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2281,7 +2214,7 @@
 //                     await signerFactory(bob.sk);
 //                     await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2301,8 +2234,6 @@
 //                     assert.strictEqual(action.actionType, "flushAction");
 //                     assert.equal(action.executed, false);
 //                     assert.equal(actionSigner, true);
-//                     assert.equal(action.signersCount.toNumber(), 1);
-//                     assert.equal(natMap.get("actionId").toNumber(), flushedAction);
 
 //                     action              = await breakGlassStorage.actionsLedger.get(nextActionID);
 //                     assert.equal(action.status, "FLUSHED");
@@ -2311,7 +2242,7 @@
 //                     await signerFactory(eve.sk);
 //                     await chai.expect(breakGlassInstance.methods.signAction(flushedAction).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2330,7 +2261,7 @@
 //                     await signerFactory(eve.sk);
 //                     await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2348,7 +2279,7 @@
 //                     await signerFactory(eve.sk);
 //                     await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2367,7 +2298,7 @@
 //                     await signerFactory(eve.sk);
 //                     await chai.expect(breakGlassInstance.methods.signAction(nextActionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 
@@ -2380,7 +2311,7 @@
 //                     // Operation
 //                     await chai.expect(breakGlassInstance.methods.signAction(actionID).send()).to.be.rejected;
 //                 } catch(e){
-//                     console.log(e);
+//                     console.dir(e, {depth: 5});
 //                 }
 //             });
 //         })

@@ -33,6 +33,7 @@ const metadata = MichelsonMap.fromLiteral({
 export const councilStorage: councilStorageType = {
   admin                 : bob.pkh,
   mvkTokenAddress       : "",
+  governanceAddress     : "",
   metadata              : metadata,
   
   config                : config,

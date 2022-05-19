@@ -33,6 +33,7 @@ type delegationAction is
 
       // Housekeeping Entrypoints
     | SetAdmin                          of (address)
+    | SetGovernance                     of (address)
     | UpdateMetadata                    of updateMetadataType
     | UpdateConfig                      of delegationUpdateConfigParamsType
     | UpdateWhitelistContracts          of updateWhitelistContractsParams
@@ -49,18 +50,17 @@ type delegationAction is
     | TogglePauseDistributeReward       of (unit)
 
       // Delegation Entrypoints
-    | DelegateToSatellite               of (address)    
+    | DelegateToSatellite               of delegateToSatelliteType    
     | UndelegateFromSatellite           of (address)
     
       // Satellite Entrypoints
     | RegisterAsSatellite               of newSatelliteRecordType
-    | UnregisterAsSatellite             of (unit)
+    | UnregisterAsSatellite             of (address)
     | UpdateSatelliteRecord             of updateSatelliteRecordType
     | DistributeReward                  of distributeRewardTypes
 
       // General Entrypoints
     | OnStakeChange                     of onStakeChangeParams
-    | OnSatelliteRewardPaid             of address
 
       // Lambda Entrypoints
     | SetLambda                         of setLambdaType
@@ -80,32 +80,8 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                            = 0n;
-[@inline] const error_ONLY_SELF_ALLOWED                                     = 1n;
-[@inline] const error_ONLY_DOORMAN_CONTRACT_ALLOWED                         = 2n;
-[@inline] const error_ONLY_GOVERNANCE_CONTRACT_ALLOWED                      = 3n;
-[@inline] const error_ONLY_SATELLITE_ALLOWED                                = 4n;
-[@inline] const error_SATELLITE_NOT_ALLOWED                                 = 5n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                     = 6n;
-
-[@inline] const error_SATELLITE_NOT_FOUND                                   = 7n;
-[@inline] const error_DOORMAN_CONTRACT_NOT_FOUND                            = 8n;
-[@inline] const error_GOVERNANCE_CONTRACT_NOT_FOUND                         = 9n;
-
-[@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_NOT_FOUND            = 10n;
-[@inline] const error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND        = 11n;
-
-[@inline] const error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IS_PAUSED            = 12n;
-[@inline] const error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IS_PAUSED        = 13n;
-[@inline] const error_REGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED            = 14n;
-[@inline] const error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED          = 15n;
-[@inline] const error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IS_PAUSED          = 16n;
-[@inline] const error_DISTRIBUTE_REWARD_ENTRYPOINT_IS_PAUSED                = 17n;
-
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND    = 18n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                      = 19n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                               = 20n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -125,6 +101,12 @@ type delegationUnpackLambdaFunctionType is (delegationLambdaActionType * delegat
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
 
+function checkSenderIsAllowed(var s : delegationStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
+
 function checkSenderIsAdmin(var s : delegationStorage) : unit is
     if (Tezos.sender = s.admin) then unit
     else failwith(error_ONLY_ADMINISTRATOR_ALLOWED);
@@ -137,14 +119,20 @@ function checkSenderIsSelf(const _p : unit) : unit is
 
 
 
-function checkSenderIsSatellite(var s : delegationStorage) : unit is 
-  if (Map.mem(Tezos.sender, s.satelliteLedger)) then unit
+function checkUserIsSatellite(const userAddress: address; var s : delegationStorage) : unit is 
+  if (Map.mem(userAddress, s.satelliteLedger)) then unit
   else failwith(error_ONLY_SATELLITE_ALLOWED);
 
 
 
-function checkSenderIsNotSatellite(var s : delegationStorage) : unit is 
-  if (Map.mem(Tezos.sender, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
+function checkUserIsNotSatellite(const userAddress: address; var s : delegationStorage) : unit is 
+  if (Map.mem(userAddress, s.satelliteLedger)) then failwith(error_SATELLITE_NOT_ALLOWED)
+  else unit;
+
+
+
+function checkUserIsNotDelegate(const userAddress: address; var s : delegationStorage) : unit is 
+  if (Big_map.mem(userAddress, s.delegateLedger)) then failwith(error_DELEGATE_NOT_ALLOWED)
   else unit;
 
 
@@ -163,10 +151,7 @@ block{
 
 function checkSenderIsGovernanceContract(var s : delegationStorage) : unit is
 block{
-  const governanceAddress : address = case s.generalContracts["governance"] of [
-      Some(_address) -> _address
-      | None -> failwith(error_GOVERNANCE_CONTRACT_NOT_FOUND)
-  ];
+  const governanceAddress : address = s.governanceAddress;
   if (Tezos.sender = governanceAddress) then skip
   else failwith(error_ONLY_GOVERNANCE_CONTRACT_ALLOWED);
 } with unit
@@ -201,23 +186,23 @@ function updateRewards(const userAddress: address; var s: delegationStorage): de
     if Big_map.mem(userAddress, s.satelliteRewardsLedger) then {
       var satelliteRewardsRecord: satelliteRewards  := case Big_map.find_opt(userAddress, s.satelliteRewardsLedger) of [
         Some (_record) -> _record
-      | None -> failwith("Error. Rewards record not found")
+      | None -> failwith(error_SATELLITE_REWARDS_NOT_FOUND)
       ];
 
       const doormanAddress : address = case s.generalContracts["doorman"] of [
           Some(_address) -> _address
-        | None -> failwith("Error. Doorman Contract is not found")
+        | None -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
       ];
 
       const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedBalance", userAddress, doormanAddress);
       const stakedMvkBalance: nat = case stakedMvkBalanceView of [
           Some (value) -> value
-        | None -> (failwith ("Error. GetStakedBalance View not found in the Doorman Contract") : nat)
+        | None -> (failwith (error_GET_STAKED_BALANCE_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
       ];
 
       const _satelliteReferenceRewardsRecord: satelliteRewards  = case Big_map.find_opt(satelliteRewardsRecord.satelliteReferenceAddress, s.satelliteRewardsLedger) of [
         Some (_referenceRecord) -> _referenceRecord
-      | None -> failwith("Error. Satellite reference rewards record not found")
+      | None -> failwith(error_REFERENCE_SATELLITE_REWARDS_RECORD_NOT_FOUND)
       ];
 
       // Calculate satellite unclaim rewards
@@ -241,37 +226,37 @@ function updateRewards(const userAddress: address; var s: delegationStorage): de
 // ------------------------------------------------------------------------------
 
 function checkDelegateToSatelliteIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.delegateToSatelliteIsPaused then failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.delegateToSatelliteIsPaused then failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
     
 
 function checkUndelegateFromSatelliteIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.undelegateFromSatelliteIsPaused then failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
 function checkRegisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.registerAsSatelliteIsPaused then failwith(error_REGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.registerAsSatelliteIsPaused then failwith(error_REGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
 function checkUnregisterAsSatelliteIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.unregisterAsSatelliteIsPaused then failwith(error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.unregisterAsSatelliteIsPaused then failwith(error_UNREGISTER_AS_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
 function checkUpdateSatelliteRecordIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith(error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.updateSatelliteRecordIsPaused then failwith(error_UPDATE_SATELLITE_RECORD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 
 
 function checkDistributeRewardIsNotPaused(var s : delegationStorage) : unit is
-  if s.breakGlassConfig.distributeRewardIsPaused then failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IS_PAUSED)
+  if s.breakGlassConfig.distributeRewardIsPaused then failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_PAUSED)
   else unit;
 
 // ------------------------------------------------------------------------------
@@ -284,12 +269,12 @@ function checkDistributeRewardIsNotPaused(var s : delegationStorage) : unit is
 // Entrypoint Helper Functions Begin
 // ------------------------------------------------------------------------------
 
-function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : contract(address) is
+function getDelegateToSatelliteEntrypoint(const delegationAddress : address) : contract(delegateToSatelliteType) is
   case (Tezos.get_entrypoint_opt(
       "%delegateToSatellite",
-      delegationAddress) : option(contract(address))) of [
+      delegationAddress) : option(contract(delegateToSatelliteType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(address))
+  | None -> (failwith(error_DELEGATE_TO_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(delegateToSatelliteType))
 ];
 
 
@@ -299,7 +284,7 @@ function getUndelegateFromSatelliteEntrypoint(const delegationAddress : address)
       "%undelegateFromSatellite",
       delegationAddress) : option(contract(address))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_NOT_FOUND) : contract(address))
+  | None -> (failwith(error_UNDELEGATE_FROM_SATELLITE_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(address))
 ];
 
 
@@ -403,9 +388,27 @@ block {
 //
 // ------------------------------------------------------------------------------
 
-(* View: get Satellite Record *)
-[@view] function getSatelliteOpt(const satelliteAddress: address; var s : delegationStorage) : option(satelliteRecordType) is
-  Map.find_opt(satelliteAddress, s.satelliteLedger)
+(* View: get Config *)
+[@view] function getConfig(const _: unit; var s : delegationStorage) : delegationConfigType is
+  s.config
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts(const _: unit; var s : delegationStorage) : whitelistContractsType is
+  s.whitelistContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts(const _: unit; var s : delegationStorage) : generalContractsType is
+  s.generalContracts
+
+
+
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig(const _: unit; var s : delegationStorage) : delegationBreakGlassConfigType is
+  s.breakGlassConfig
 
 
 
@@ -415,8 +418,14 @@ block {
 
 
 
+(* View: get Satellite Record *)
+[@view] function getSatelliteOpt(const satelliteAddress: address; var s : delegationStorage) : option(satelliteRecordType) is
+  Map.find_opt(satelliteAddress, s.satelliteLedger)
+
+
+
 (* View: get User reward *)
-[@view] function getUserRewardOpt(const userAddress: address; var s : delegationStorage) : option(satelliteRewards) is
+[@view] function getSatelliteRewardsOpt(const userAddress: address; var s : delegationStorage) : option(satelliteRewards) is
   Big_map.find_opt(userAddress, s.satelliteRewardsLedger)
 
 
@@ -434,6 +443,18 @@ block {
     var activeSatellites: map(address, satelliteRecordType) := Map.fold(findActiveSatellite, s.satelliteLedger, activeSatellites)
 
 } with(activeSatellites)
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : delegationStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : delegationStorage) : lambdaLedgerType is
+  s.lambdaLedger
 
 // ------------------------------------------------------------------------------
 //
@@ -468,6 +489,25 @@ block {
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
     
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : delegationStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init delegation lambda action
+    const delegationLambdaAction : delegationLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
+
 } with response
 
 
@@ -714,7 +754,7 @@ block {
 // ------------------------------------------------------------------------------
 
 (* delegateToSatellite entrypoint *)
-function delegateToSatellite(const satelliteAddress : address; var s : delegationStorage) : return is 
+function delegateToSatellite(const delegateToSatelliteParams : delegateToSatelliteType; var s : delegationStorage) : return is 
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaDelegateToSatellite"] of [
@@ -723,7 +763,7 @@ block {
     ];
 
     // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaDelegateToSatellite(satelliteAddress);
+    const delegationLambdaAction : delegationLambdaActionType = LambdaDelegateToSatellite(delegateToSatelliteParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
@@ -733,7 +773,7 @@ block {
 
 
 (* undelegateFromSatellite entrypoint *)
-function undelegateFromSatellite(const userAddress: address; var s : delegationStorage) : return is
+function undelegateFromSatellite(const undelegateToSatelliteParams: address; var s : delegationStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUndelegateFromSatellite"] of [
@@ -742,7 +782,7 @@ block {
     ];
 
     // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaUndelegateFromSatellite(userAddress);
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUndelegateFromSatellite(undelegateToSatelliteParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
@@ -779,7 +819,7 @@ block {
 
 
 (* unregisterAsSatellite entrypoint *)
-function unregisterAsSatellite(var s : delegationStorage) : return is
+function unregisterAsSatellite(const userAddress: address; var s : delegationStorage) : return is
 block {
 
     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnregisterAsSatellite"] of [
@@ -788,7 +828,7 @@ block {
     ];
 
     // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaUnregisterAsSatellite(unit);
+    const delegationLambdaAction : delegationLambdaActionType = LambdaUnregisterAsSatellite(userAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
@@ -860,25 +900,6 @@ block {
 
 } with response
 
-
-
-(* onSatelliteRewardPaid entrypoint *)
-function onSatelliteRewardPaid(const userAddress : address; var s : delegationStorage) : return is 
-block {
-
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaOnSatelliteRewardPaid"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
-
-    // init delegation lambda action
-    const delegationLambdaAction : delegationLambdaActionType = LambdaOnSatelliteRewardPaid(userAddress);
-
-    // init response
-    const response : return = unpackLambda(lambdaBytes, delegationLambdaAction, s);
-
-} with response
-
 // ------------------------------------------------------------------------------
 // General Entrypoints End
 // ------------------------------------------------------------------------------
@@ -924,7 +945,8 @@ function main (const action : delegationAction; const s : delegationStorage) : r
   } with (case action of [    
 
           // Housekeeping Entrypoints
-        | SetAdmin(parameters)                          -> setAdmin(parameters, s)  
+          SetAdmin(parameters)                          -> setAdmin(parameters, s) 
+        | SetGovernance(parameters)                     -> setGovernance(parameters, s) 
         | UpdateMetadata(parameters)                    -> updateMetadata(parameters, s)
         | UpdateConfig(parameters)                      -> updateConfig(parameters, s)
         | UpdateWhitelistContracts(parameters)          -> updateWhitelistContracts(parameters, s)
@@ -946,13 +968,12 @@ function main (const action : delegationAction; const s : delegationStorage) : r
         
           // Satellite Entrypoints
         | RegisterAsSatellite(parameters)               -> registerAsSatellite(parameters, s)
-        | UnregisterAsSatellite(_parameters)            -> unregisterAsSatellite(s)
+        | UnregisterAsSatellite(parameters)             -> unregisterAsSatellite(parameters, s)
         | UpdateSatelliteRecord(parameters)             -> updateSatelliteRecord(parameters, s)
         | DistributeReward(parameters)                  -> distributeReward(parameters, s)
 
           // General Entrypoints
         | OnStakeChange(parameters)                     -> onStakeChange(parameters, s)
-        | OnSatelliteRewardPaid(parameters)             -> onSatelliteRewardPaid(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                         -> setLambda(parameters, s)    

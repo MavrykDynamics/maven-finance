@@ -27,4 +27,6 @@ export const governanceProxyStorage: governanceProxyStorageType = {
   whitelistTokenContracts   : MichelsonMap.fromLiteral({}),
 
   proxyLambdaLedger         : MichelsonMap.fromLiteral({}),
+
+  lambdaLedger              : MichelsonMap.fromLiteral({})
 };

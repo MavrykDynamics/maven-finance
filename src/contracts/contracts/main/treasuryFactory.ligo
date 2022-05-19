@@ -29,10 +29,20 @@
 
 // ------------------------------------------------------------------------------
 
+type createTreasuryFuncType is (option(key_hash) * tez * treasuryStorage) -> (operation * address)
+const createTreasuryFunc: createTreasuryFuncType =
+[%Michelson ( {| { UNPPAIIR ;
+                  CREATE_CONTRACT
+#include "../compiled/treasury.tz"
+        ;
+          PAIR } |}
+: createTreasuryFuncType)];
+
 type treasuryFactoryAction is
 
         // Housekeeping Entrypoints
         SetAdmin                            of (address)
+    |   SetGovernance                       of (address)
     |   UpdateMetadata                      of updateMetadataType
     |   UpdateWhitelistContracts            of updateWhitelistContractsParams
     |   UpdateGeneralContracts              of updateGeneralContractsParams
@@ -52,6 +62,7 @@ type treasuryFactoryAction is
 
         // Lambda Entrypoints
     |   SetLambda                           of setLambdaType
+    |   SetProductLambda                    of setLambdaType
 
 
 type return is list (operation) * treasuryFactoryStorage
@@ -68,15 +79,8 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                                             = 0n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                                      = 1n;
-
-[@inline] const error_CREATE_TREASURY_ENTRYPOINT_IS_PAUSED                                   = 2n;
-[@inline] const error_TRACK_TREASURY_ENTRYPOINT_IS_PAUSED                                    = 3n;
-[@inline] const error_UNTRACK_TREASURY_ENTRYPOINT_NOT_FOUND                                  = 4n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                                       = 5n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                                = 6n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -95,6 +99,12 @@ type treasuryFactoryUnpackLambdaFunctionType is (treasuryFactoryLambdaActionType
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : treasuryFactoryStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(const s: treasuryFactoryStorage): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
@@ -130,19 +140,19 @@ function checkNoAmount(const _p: unit): unit is
 // ------------------------------------------------------------------------------
 
 function checkCreateTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
-    if s.breakGlassConfig.createTreasuryIsPaused then failwith(error_CREATE_TREASURY_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.createTreasuryIsPaused then failwith(error_CREATE_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkTrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
-    if s.breakGlassConfig.trackTreasuryIsPaused then failwith(error_TRACK_TREASURY_ENTRYPOINT_IS_PAUSED)
+    if s.breakGlassConfig.trackTreasuryIsPaused then failwith(error_TRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 
 
 function checkUntrackTreasuryIsNotPaused(var s : treasuryFactoryStorage) : unit is
-    if s.breakGlassConfig.untrackTreasuryIsPaused then failwith(error_UNTRACK_TREASURY_ENTRYPOINT_NOT_FOUND)
+    if s.breakGlassConfig.untrackTreasuryIsPaused then failwith(error_UNTRACK_TREASURY_ENTRYPOINT_IN_TREASURY_FACTORY_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -204,6 +214,60 @@ block {
 [@view] function checkTreasuryExists (const treasuryContract: address; const s: treasuryFactoryStorage): bool is 
     Set.mem(treasuryContract, s.trackedTreasuries)
 
+
+
+(* View: get tracked treasuries *)
+[@view] function getTrackedTreasuries (const _: unit; const s: treasuryFactoryStorage): set(address) is 
+    s.trackedTreasuries
+
+
+
+(* View: get break glass config *)
+[@view] function getBreakGlassConfig (const _: unit; const s: treasuryFactoryStorage): treasuryFactoryBreakGlassConfigType is 
+    s.breakGlassConfig
+
+
+
+(* View: get whitelist contracts *)
+[@view] function getWhitelistContracts (const _: unit; const s: treasuryFactoryStorage): whitelistContractsType is 
+    s.whitelistContracts
+
+
+
+(* View: get whitelist token contracts *)
+[@view] function getWhitelistTokenContracts (const _: unit; const s: treasuryFactoryStorage): whitelistTokenContractsType is 
+    s.whitelistTokenContracts
+
+
+
+(* View: get general contracts *)
+[@view] function getGeneralContracts (const _: unit; const s: treasuryFactoryStorage): generalContractsType is 
+    s.generalContracts
+
+
+
+(* View: get a lambda *)
+[@view] function getLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.lambdaLedger)
+
+
+
+(* View: get the lambda ledger *)
+[@view] function getLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+  s.lambdaLedger
+
+
+
+(* View: get a product lambda *)
+[@view] function getProductLambdaOpt(const lambdaName: string; var s : treasuryFactoryStorage) : option(bytes) is
+  Map.find_opt(lambdaName, s.treasuryLambdaLedger)
+
+
+
+(* View: get the product lambda ledger *)
+[@view] function getProductLambdaLedger(const _: unit; var s : treasuryFactoryStorage) : lambdaLedgerType is
+  s.treasuryLambdaLedger
+
 // ------------------------------------------------------------------------------
 //
 // Views End
@@ -236,6 +300,25 @@ block {
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : treasuryFactoryStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init treasuryFactory lambda action
+    const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, treasuryFactoryLambdaAction, s);
 
 } with response
 
@@ -367,7 +450,7 @@ block {
 function togglePauseCreateTreasury(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseCreateTreasury"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCreateTreasury"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -386,7 +469,7 @@ block {
 function togglePauseUntrackTreasury(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackTreasury"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUntrackTreasury"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -405,7 +488,7 @@ block {
 function togglePauseTrackTreasury(var s: treasuryFactoryStorage): return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseTrackTreasury"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTrackTreasury"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
@@ -507,6 +590,22 @@ block{
 
 } with(noOperations, s)
 
+
+
+(* setProductLambda entrypoint *)
+function setProductLambda(const setLambdaParams: setLambdaType; var s: treasuryFactoryStorage): return is
+block{
+    
+    // check that sender is admin
+    checkSenderIsAdmin(s);
+    
+    // assign params to constants for better code readability
+    const lambdaName    = setLambdaParams.name;
+    const lambdaBytes   = setLambdaParams.func_bytes;
+    s.treasuryLambdaLedger[lambdaName] := lambdaBytes;
+
+} with(noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Lambda Entrypoints End
 // ------------------------------------------------------------------------------
@@ -531,6 +630,7 @@ function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorag
 
             // Housekeeping Entrypoints
             SetAdmin (parameters)                       -> setAdmin(parameters, s)
+        |   SetGovernance (parameters)                  -> setGovernance(parameters, s)
         |   UpdateMetadata (parameters)                 -> updateMetadata(parameters, s)
         |   UpdateWhitelistContracts (parameters)       -> updateWhitelistContracts(parameters, s)
         |   UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)
@@ -550,5 +650,6 @@ function main (const action: treasuryFactoryAction; var s: treasuryFactoryStorag
 
             // Lambda Entrypoints
         |   SetLambda (params)                          -> setLambda(params, s)
+        |   SetProductLambda (params)                   -> setProductLambda(params, s)
     ]
 )

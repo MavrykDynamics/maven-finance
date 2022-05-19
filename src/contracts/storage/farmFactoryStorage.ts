@@ -19,6 +19,7 @@ export const farmFactoryStorage: farmFactoryStorageType = {
   admin                 : bob.pkh,
   metadata              : metadata,
   mvkTokenAddress       : "",
+  governanceAddress     : "",
   config                : new BigNumber(2),
   breakGlassConfig      : {
     createFarmIsPaused  : false,
@@ -32,4 +33,5 @@ export const farmFactoryStorage: farmFactoryStorageType = {
   trackedFarms          : [],
 
   lambdaLedger          : MichelsonMap.fromLiteral({}),
+  farmLambdaLedger      : MichelsonMap.fromLiteral({})
 };

@@ -4,6 +4,7 @@ import { BigNumber } from "bignumber.js";
 export type farmStorageType = {
   admin                     : string;
   mvkTokenAddress           : string;
+  governanceAddress         : string;
   metadata                  : MichelsonMap<MichelsonMapKey, unknown>;
   config                    : {
                                 lpToken : {
@@ -40,7 +41,7 @@ export type farmStorageType = {
                               }
 
   lastBlockUpdate           : BigNumber;
-  accumulatedMVKPerShare    : BigNumber;
+  accumulatedRewardsPerShare    : BigNumber;
   claimedRewards            : {
                                 unpaid : BigNumber;
                                 paid   : BigNumber;

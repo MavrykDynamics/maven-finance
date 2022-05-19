@@ -13,13 +13,10 @@ type doormanBreakGlassConfigType is [@layout:comb] record [
     stakeIsPaused           : bool;
     unstakeIsPaused         : bool;
     compoundIsPaused        : bool;
+    farmClaimIsPaused       : bool;
 ]
 
 type farmClaimType is (address * nat * bool) // Recipient address + Amount claimes + forceTransfer instead of mintOrTransfer
-
-type stakeType is 
-  StakeAction of unit
-| UnstakeAction of unit
 
 type metadata is big_map (string, bytes)
 
@@ -32,10 +29,12 @@ type doormanLambdaActionType is
 
   // Housekeeping Lambdas
   LambdaSetAdmin                    of address
+| LambdaSetGovernance               of (address)
 | LambdaUpdateMetadata              of updateMetadataType
 | LambdaUpdateMinMvkAmount          of (nat)
 | LambdaUpdateWhitelistContracts    of updateWhitelistContractsParams
 | LambdaUpdateGeneralContracts      of updateGeneralContractsParams
+| LambdaMigrateFunds                of (address)
 
   // Pause / Break Glass Lambdas
 | LambdaPauseAll                    of (unit)
@@ -43,6 +42,7 @@ type doormanLambdaActionType is
 | LambdaTogglePauseStake            of (unit)
 | LambdaTogglePauseUnstake          of (unit)
 | LambdaTogglePauseCompound         of (unit)
+| LambdaTogglePauseFarmClaim        of (unit)
 
   // Doorman Lambdas
 | LambdaStake                       of (nat)
@@ -57,6 +57,7 @@ type doormanLambdaActionType is
 type doormanStorage is [@layout:comb] record [
   admin                     : address;
   mvkTokenAddress           : address;
+  governanceAddress         : address;
   metadata                  : metadata;
   
   minMvkAmount              : nat;
@@ -70,9 +71,6 @@ type doormanStorage is [@layout:comb] record [
 
   stakedMvkTotalSupply      : nat; // current total staked MVK
   unclaimedRewards          : nat; // current exit fee pool rewards
-
-  logExitFee                : nat; // to be removed after testing
-  logFinalAmount            : nat; // to be removed after testing
 
   accumulatedFeesPerShare   : nat;
 

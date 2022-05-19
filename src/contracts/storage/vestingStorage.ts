@@ -23,12 +23,12 @@ const metadata = MichelsonMap.fromLiteral({
 export const vestingStorage: vestingStorageType = {
   admin               : bob.pkh,
   mvkTokenAddress     : "",
+  governanceAddress   : "",
   metadata            : metadata,
 
   whitelistContracts  : MichelsonMap.fromLiteral({}),
   generalContracts    : MichelsonMap.fromLiteral({}),
 
-  claimLedger         : MichelsonMap.fromLiteral({}),
   vesteeLedger        : MichelsonMap.fromLiteral({}),
 
   totalVestedAmount   : new BigNumber(0),

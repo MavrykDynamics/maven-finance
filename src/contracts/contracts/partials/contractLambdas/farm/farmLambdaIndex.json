@@ -5,62 +5,66 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateConfig"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaUpdateBlocksPerMinute"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaInitFarm"
+      "name": "lambdaUpdateBlocksPerMinute"
     },
     {
       "index": 7,
-      "name": "lambdaCloseFarm"
+      "name": "lambdaInitFarm"
     },
     {
       "index": 8,
-      "name": "lambdaPauseAll"
+      "name": "lambdaCloseFarm"
     },
     {
       "index": 9,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseDeposit"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseWithdraw"
+      "name": "lambdaTogglePauseDeposit"
     },
     {
       "index": 12,
-      "name": "lambdaTogglePauseClaim"
+      "name": "lambdaTogglePauseWithdraw"
     },
     {
       "index": 13,
-      "name": "lambdaDeposit"
+      "name": "lambdaTogglePauseClaim"
     },
     {
       "index": 14,
-      "name": "lambdaWithdraw"
+      "name": "lambdaDeposit"
     },
     {
       "index": 15,
+      "name": "lambdaWithdraw"
+    },
+    {
+      "index": 16,
       "name": "lambdaClaim"
     }    
 ]

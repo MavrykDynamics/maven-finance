@@ -7,26 +7,32 @@ module.exports = {
   buildDir: "build",
   migrationsDir: "migrations",
   contractsDir: "contracts/main",
-  ligoVersion: "0.40.0",
+  ligoVersion: "0.42.0",
   network: "development",
   networks: {
     development: {
       rpc: "http://localhost:8732",
       network_id: "*",
-      secretKey: alice.sk,
+      secretKey: bob.sk,
       port: 8732,
+    },
+    ithacanet: {
+      rpc: "https://ithacanet.ecadinfra.com",
+      port: 443,
+      network_id: "*",
+      secretKey: bob.sk,
     },
     hangzhounet: {
       rpc: "https://hangzhounet.api.tez.ie/",
       port: 443,
       network_id: "*",
-      secretKey: alice.sk,
+      secretKey: bob.sk,
     },
     mainnet: {
       rpc: "https://mainnet.api.tez.ie",
       port: 443,
       network_id: "*",
-      secretKey: alice.sk,
+      secretKey: bob.sk,
     },
   },
 };

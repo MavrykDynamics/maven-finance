@@ -5,26 +5,30 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateConfig"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 4,
-      "name": "lambdaTriggerEmergencyControl"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 5,
-      "name": "lambdaVoteForEmergencyControl"
+      "name": "lambdaTriggerEmergencyControl"
     },
     {
       "index": 6,
+      "name": "lambdaVoteForEmergencyControl"
+    },
+    {
+      "index": 7,
       "name": "lambdaDropEmergencyGovernance"
     }
 ]

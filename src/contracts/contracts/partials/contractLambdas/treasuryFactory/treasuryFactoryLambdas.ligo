@@ -12,11 +12,28 @@
 function lambdaSetAdmin(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
 block {
     
-    checkSenderIsAdmin(s); 
+    checkSenderIsAllowed(s); 
     
     case treasuryFactoryLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
                 s.admin := newAdminAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s : treasuryFactoryStorage) : return is
+block {
+    
+    checkSenderIsAllowed(s);
+
+    case treasuryFactoryLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
             }
         | _ -> skip
     ];
@@ -109,7 +126,7 @@ block {
 function lambdaPauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     var operations: list(operation) := nil;
 
@@ -146,7 +163,7 @@ block {
 function lambdaUnpauseAll(const treasuryFactoryLambdaAction : treasuryFactoryLambdaActionType; var s: treasuryFactoryStorage): return is
 block {
 
-    checkSenderIsAdmin(s);
+    checkSenderIsAllowed(s);
 
     var operations: list(operation) := nil;
 
@@ -252,26 +269,31 @@ function lambdaCreateTreasury(const treasuryFactoryLambdaAction : treasuryFactor
 block{
 
     // Check if Sender is admin
-        checkSenderIsAdmin(s);
+    checkSenderIsAdmin(s);
 
-        // Break glass check
-        checkCreateTreasuryIsNotPaused(s);
+    // Break glass check
+    checkCreateTreasuryIsNotPaused(s);
 
     var operations: list(operation) := nil;
 
     case treasuryFactoryLambdaAction of [
         | LambdaCreateTreasury(treasuryMetadata) -> {
                 
-                // Add TreasuryFactory Address to whitelistContracts of created treasury
+                // Add TreasuryFactory Address and Governance proxy Address to whitelistContracts of created treasury
+                const getGovernanceProxyAddressView : option (address) = Tezos.call_view ("getGovernanceProxyAddress", unit, s.governanceAddress);
+                const governanceProxyAddress: address = case getGovernanceProxyAddressView of [
+                    Some (value) -> value
+                | None -> failwith (error_GET_GOVERNANCE_PROXY_ADDRESS_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND)
+                ];
                 const treasuryWhitelistContracts : whitelistContractsType = map[
                     ("treasuryFactory") -> (Tezos.self_address: address);
-                    ("governance") -> (s.admin : address);
+                    ("governanceProxy") -> (governanceProxyAddress);
                 ];
                 const treasuryWhitelistTokenContracts : whitelistTokenContractsType = s.whitelistTokenContracts;
 
                 const delegationAddress: address = case s.generalContracts["delegation"] of [ 
                     Some (_address) -> _address
-                |   None -> failwith("Delegation contract not found in general contracts")
+                |   None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
                 const treasuryGeneralContracts : generalContractsType = map[
                     ("delegation") -> (delegationAddress : address);
@@ -280,6 +302,8 @@ block{
                 const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
                     transferIsPaused           = False;
                     mintMvkAndTransferIsPaused = False;
+                    stakeIsPaused              = False;
+                    unstakeIsPaused            = False;
                 ];
 
                 // Prepare Treasury Metadata
@@ -287,11 +311,12 @@ block{
                     ("", Bytes.pack("tezos-storage:data"));
                     ("data", treasuryMetadata)
                 ]);
-                const treasuryLambdaLedger : big_map(string, bytes) = Big_map.empty;
+                const treasuryLambdaLedger : map(string, bytes) = s.treasuryLambdaLedger;
 
                 const originatedTreasuryStorage : treasuryStorage = record[
                     admin                     = s.admin;                         // admin will be the governance contract
                     mvkTokenAddress           = s.mvkTokenAddress;
+                    governanceAddress         = s.governanceAddress;
                     metadata                  = treasuryMetadata;
 
                     breakGlassConfig          = treasuryBreakGlassConfig;
@@ -335,7 +360,7 @@ block{
         | LambdaTrackTreasury(treasuryContract) -> {
                 
                 s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
-                      True  -> (failwith("Error. The provided treasury contract already exists in the trackedTreasuries set"): set(address))
+                      True  -> (failwith(error_TREASURY_ALREADY_TRACKED): set(address))
                     | False -> Set.add(treasuryContract, s.trackedTreasuries)
                 ];
 
@@ -362,7 +387,7 @@ block{
                 
                 s.trackedTreasuries := case Set.mem(treasuryContract, s.trackedTreasuries) of [
                       True  -> Set.remove(treasuryContract, s.trackedTreasuries)
-                    | False -> (failwith("Error. The provided treasury contract does not exist in the trackedTreasuries set"): set(address))
+                    | False -> (failwith(error_TREASURY_NOT_TRACKED): set(address))
                 ];
                 
             }

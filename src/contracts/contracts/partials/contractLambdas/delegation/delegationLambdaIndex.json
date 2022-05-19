@@ -5,83 +5,83 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateConfig"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateConfig"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 5,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseDelegateToSatellite"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseUndelegateSatellite"
+      "name": "lambdaTogglePauseDelegateToSatellite"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseRegisterSatellite"
+      "name": "lambdaTogglePauseUndelegateSatellite"
     },
     {
       "index": 10,
-      "name": "lambdaTogglePauseUnregisterSatellite"
+      "name": "lambdaTogglePauseRegisterSatellite"
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseUpdateSatellite"
+      "name": "lambdaTogglePauseUnregisterSatellite"
     },
     {
       "index": 12,
-      "name": "lambdaTogglePauseDistributeReward"
+      "name": "lambdaTogglePauseUpdateSatellite"
     },
     {
       "index": 13,
-      "name": "lambdaDelegateToSatellite"
+      "name": "lambdaTogglePauseDistributeReward"
     },
     {
       "index": 14,
-      "name": "lambdaUndelegateFromSatellite"
+      "name": "lambdaDelegateToSatellite"
     },
     {
       "index": 15,
-       "name": "lambdaRegisterAsSatellite"
+      "name": "lambdaUndelegateFromSatellite"
     },
     {
       "index": 16,
-       "name": "lambdaUnregisterAsSatellite"
+       "name": "lambdaRegisterAsSatellite"
     },
     {
       "index": 17,
-      "name": "lambdaUpdateSatelliteRecord"
+       "name": "lambdaUnregisterAsSatellite"
     },
     {
       "index": 18,
-       "name": "lambdaDistributeReward"
+      "name": "lambdaUpdateSatelliteRecord"
     },
     {
       "index": 19,
-      "name": "lambdaOnStakeChange"
+       "name": "lambdaDistributeReward"
     },
     {
       "index": 20,
-      "name": "lambdaOnSatelliteRewardPaid"
+      "name": "lambdaOnStakeChange"
     }
 ]
   

@@ -5,50 +5,54 @@
     },
     {
       "index": 1,
-      "name": "lambdaUpdateMetadata"
+      "name": "lambdaSetGovernance"
     },
     {
       "index": 2,
-      "name": "lambdaUpdateWhitelistContracts"
+      "name": "lambdaUpdateMetadata"
     },
     {
       "index": 3,
-      "name": "lambdaUpdateGeneralContracts"
+      "name": "lambdaUpdateWhitelistContracts"
     },
     {
       "index": 4,
-      "name": "lambdaUpdateWhitelistTokenContracts"
+      "name": "lambdaUpdateGeneralContracts"
     },
     {
       "index": 5,
-      "name": "lambdaPauseAll"
+      "name": "lambdaUpdateWhitelistTokenContracts"
     },
     {
       "index": 6,
-      "name": "lambdaUnpauseAll"
+      "name": "lambdaPauseAll"
     },
     {
       "index": 7,
-      "name": "lambdaTogglePauseCreateTreasury"
+      "name": "lambdaUnpauseAll"
     },
     {
       "index": 8,
-      "name": "lambdaTogglePauseTrackTreasury"
+      "name": "lambdaTogglePauseCreateTreasury"
     },
     {
       "index": 9,
-      "name": "lambdaTogglePauseUntrackTreasury"
+      "name": "lambdaTogglePauseTrackTreasury"
     },
     {
       "index": 10,
-      "name": "lambdaCreateTreasury"
+      "name": "lambdaTogglePauseUntrackTreasury"
     },
     {
       "index": 11,
-      "name": "lambdaTrackTreasury"
+      "name": "lambdaCreateTreasury"
     },
     {
       "index": 12,
+      "name": "lambdaTrackTreasury"
+    },
+    {
+      "index": 13,
       "name": "lambdaUntrackTreasury"
     }
 ]

@@ -2,8 +2,9 @@ import { MichelsonMap, MichelsonMapKey } from '@taquito/michelson-encoder'
 
 export type delegationStorageType = {
   
-  admin               : string
+  admin               : string;
   mvkTokenAddress     : string;
+  governanceAddress   : string;
   metadata            : MichelsonMap<MichelsonMapKey, unknown>;
 
   config              : {}
