@@ -567,9 +567,9 @@
 
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                                   = 430n;
 [@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                      = 431n;
-[@inline] const error_UPDATE_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                           = 431n;
-[@inline] const error_STAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                                      = 432n;
-[@inline] const error_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                                    = 433n;
+[@inline] const error_UPDATE_MVK_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                       = 431n;
+[@inline] const error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                                  = 432n;
+[@inline] const error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED                                                = 433n;
 
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                               = 434n;
 [@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                          = 435n;
@@ -587,8 +587,9 @@
 [@inline] const error_TOGGLE_PAUSE_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                    = 447n;
 [@inline] const error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                                = 448n;
 [@inline] const error_MINT_MVK_AND_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                   = 449n;
-[@inline] const error_STAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                                   = 450n;
-[@inline] const error_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                                 = 451n;
+[@inline] const error_UPDATE_MVK_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                    = 450n;
+[@inline] const error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                               = 450n;
+[@inline] const error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND                                             = 451n;
 
 [@inline] const error_GET_BREAK_GLASS_CONFIG_VIEW_IN_TREASURY_CONTRACT_NOT_FOUND                                        = 452n;
 [@inline] const error_GET_WHITELIST_TOKEN_CONTRACTS_VIEW_IN_TREASURY_CONTRACT_NOT_FOUND                                 = 453n;

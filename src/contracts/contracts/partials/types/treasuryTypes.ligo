@@ -16,8 +16,8 @@ type tokenId is nat;
 type treasuryBreakGlassConfigType is [@layout:comb] record [
     transferIsPaused            : bool; 
     mintMvkAndTransferIsPaused  : bool;
-    stakeIsPaused               : bool;
-    unstakeIsPaused             : bool;
+    stakeMvkIsPaused            : bool;
+    unstakeMvkIsPaused          : bool;
 ]
 
 type mintMvkAndTransferType is [@layout:comb] record [
@@ -54,15 +54,15 @@ type treasuryLambdaActionType is
 | LambdaUnpauseAll                     of (unit)
 | LambdaTogglePauseTransfer            of (unit)
 | LambdaTogglePauseMintTransfer        of (unit)
-| LambdaTogglePauseStake               of (unit)
-| LambdaTogglePauseUnstake             of (unit)
+| LambdaTogglePauseStakeMvk            of (unit)
+| LambdaTogglePauseUnstakeMvk          of (unit)
 
   // Treasury Entrypoints
 | LambdaTransfer                       of transferActionType
 | LambdaMintMvkAndTransfer             of mintMvkAndTransferType
-| LambdaUpdateOperators                of updateOperatorsParams
-| LambdaStake                          of (nat)
-| LambdaUnstake                        of (nat)
+| LambdaUpdateMvkOperators             of updateOperatorsParams
+| LambdaStakeMvk                       of (nat)
+| LambdaUnstakeMvk                     of (nat)
 
 // ------------------------------------------------------------------------------
 // Storage

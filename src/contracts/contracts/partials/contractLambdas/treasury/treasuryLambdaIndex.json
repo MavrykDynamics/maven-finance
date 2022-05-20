@@ -45,11 +45,11 @@
     },
     {
       "index": 11,
-      "name": "lambdaTogglePauseStake"
+      "name": "lambdaTogglePauseStakeMvk"
     },
     {
       "index": 12,
-      "name": "lambdaTogglePauseUnstake"
+      "name": "lambdaTogglePauseUnstakeMvk"
     },
     {
       "index": 13,
@@ -61,15 +61,15 @@
     },
     {
       "index": 15,
-      "name": "lambdaUpdateOperators"
+      "name": "lambdaUpdateMvkOperators"
     },
     {
       "index": 16,
-      "name": "lambdaStake"
+      "name": "lambdaStakeMvk"
     },
     {
       "index": 17,
-      "name": "lambdaUnstake"
+      "name": "lambdaUnstakeMvk"
     }
 ]
   
