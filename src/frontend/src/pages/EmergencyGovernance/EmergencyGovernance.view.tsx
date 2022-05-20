@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../app/App.components/Button/Button.constants'
 import { Button } from '../../app/App.components/Button/Button.controller'
 import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
 import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
@@ -57,7 +58,12 @@ export const EmergencyGovernanceView = ({
             </CardContentLeftSide>
             <CardContentRightSide>
               {accountPkh ? (
-                <Button text={'Trigger Vote'} icon={'hammer'} onClick={handleTriggerEmergencyProposal} />
+                <Button
+                  text={'Trigger Vote'}
+                  kind={ACTION_PRIMARY}
+                  icon={'auction'}
+                  onClick={handleTriggerEmergencyProposal}
+                />
               ) : (
                 <ConnectWallet type={'main-menu'} />
               )}

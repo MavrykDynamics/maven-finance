@@ -43,7 +43,7 @@ export const CardContent = styled.div<{ theme: MavrykTheme }>`
 export const CardContentRightSide = styled.div<{ theme: MavrykTheme }>`
   width: 50%;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   display: flex;
 
   button {
@@ -52,9 +52,9 @@ export const CardContentRightSide = styled.div<{ theme: MavrykTheme }>`
 
   > div {
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     display: flex;
-    margin: auto;
+    margin: 0;
   }
 `
 
