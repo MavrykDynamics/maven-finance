@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card } from 'styles'
+import { Card, darkCianColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -10,6 +10,7 @@ export const EGovHistoryCardStyled = styled(Card)<{ theme: MavrykTheme }>`
   margin-top: 0;
   padding: 0;
   cursor: pointer;
+  overflow: hidden;
 `
 export const EGovHistoryCardTopSection = styled.div<{ height: number; theme: MavrykTheme }>`
   width: 100%;
@@ -68,7 +69,6 @@ export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const EGovHistoryCardDropDown = styled.div<{ height: number; theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.connectWalletBackgroundColor};
   width: 100%;
   height: 0;
   justify-content: space-between;
@@ -78,12 +78,44 @@ export const EGovHistoryCardDropDown = styled.div<{ height: number; theme: Mavry
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease-in-out; /* added */
+  transition: height 0.3s ease-in-out; /* added */
   overflow: hidden;
+  position: relative;
+
+  h3 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 14px;
+    color: ${({ theme }) => theme.headerColor};
+  }
+
+  ul {
+    padding-left: 0;
+  }
+
+  p,
+  li {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+    color: ${({ theme }) => theme.headerSkyColor};
+    list-style: none;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    border-top: 1px solid ${darkCianColor};
+    width: 100%;
+    left: 0;
+    top: 1px;
+  }
 
   .accordion {
-    padding: 10px 15px 15px; /* changed */
+    padding: 20px 40px;
     text-align: left;
+    width: 100%;
   }
 
   &.show {
