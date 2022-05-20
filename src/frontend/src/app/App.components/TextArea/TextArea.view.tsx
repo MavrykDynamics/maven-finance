@@ -8,6 +8,7 @@ type TextAreaViewProps = {
   icon?: string
   placeholder: string
   name?: string
+  className?: string
   value?: string | number
   onChange: any
   onBlur: any
@@ -19,6 +20,7 @@ type TextAreaViewProps = {
 export const TextAreaView = ({
   icon,
   placeholder,
+  className,
   name,
   value,
   onChange,
@@ -29,7 +31,7 @@ export const TextAreaView = ({
 }: TextAreaViewProps) => {
   let status = textAreaStatus !== undefined ? textAreaStatus : 'none'
   return (
-    <TextAreaStyled id={'textAreaContainer'}>
+    <TextAreaStyled className={className} id={'textAreaContainer'}>
       {icon && (
         <TextAreaIcon>
           <use xlinkHref={`/icons/sprites.svg#${icon}`} />

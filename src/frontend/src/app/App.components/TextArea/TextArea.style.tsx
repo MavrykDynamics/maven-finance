@@ -4,14 +4,13 @@ import { MavrykTheme } from '../../../styles/interfaces'
 
 export const TextAreaStyled = styled.div`
   position: relative;
-  margin-bottom: 30px;
 `
 
 export const TextAreaComponent = styled.textarea<{ theme: MavrykTheme }>`
   min-width: 100%;
   width: 100%;
   font-family: 'Metropolis', Helvetica, Arial, sans-serif;
-  height: 106px;
+  height: 107px;
   background-color: ${({ theme }) => theme.backgroundColor};
   font-weight: 500;
   border: 1px solid ${({ theme }) => theme.cardBorderColor};

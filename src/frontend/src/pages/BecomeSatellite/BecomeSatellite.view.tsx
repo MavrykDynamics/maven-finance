@@ -273,6 +273,7 @@ export const BecomeSatelliteView = ({
           </div>
           <IPFSUploader
             disabled={!balanceOk}
+            typeFile="image"
             imageIpfsUrl={form.image}
             setIpfsImageUrl={(e: any) => {
               setForm({ ...form, image: e })

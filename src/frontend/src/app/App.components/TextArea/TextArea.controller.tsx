@@ -8,6 +8,7 @@ type TextAreaProps = {
   icon?: string
   placeholder: string
   name?: string
+  className?: string
   value?: string | number
   onChange: any
   onBlur: any
@@ -20,6 +21,7 @@ export const TextArea = ({
   icon,
   placeholder,
   name,
+  className,
   value,
   onChange,
   onBlur,
@@ -29,6 +31,7 @@ export const TextArea = ({
 }: TextAreaProps) => {
   return (
     <TextAreaView
+      className={className}
       icon={icon}
       name={name}
       placeholder={placeholder}

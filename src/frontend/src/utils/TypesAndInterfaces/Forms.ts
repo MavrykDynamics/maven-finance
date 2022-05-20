@@ -76,7 +76,7 @@ export type RegisterAsSatelliteForm = {
   description: string
   website: string
   fee: number
-  image: string | undefined
+  image: string
 }
 
 export type ValidRegisterAsSatelliteForm = {

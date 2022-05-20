@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../styles/interfaces'
-import { Card } from '../../styles'
+import { Card, headerColor } from '../../styles'
 
 export const ProposalSubmissionStyled = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
@@ -9,26 +9,74 @@ export const ProposalSubmissionStyled = styled.div<{ theme: MavrykTheme }>`
 
 export const ProposalSubmissionForm = styled(Card)`
   padding-bottom: 80px;
+  position: relative;
+  margin-top: 20px;
+  padding-top: 28px;
 
-  > h1 {
+  h1 {
     margin-top: 0;
-    font-size: 25px;
-    font-weight: bold;
-    color: ${({ theme }) => theme.textColor};
+    margin-bottom: 4px;
   }
-  > p {
+
+  p {
     margin-top: 30px;
+  }
+
+  label {
+    color: ${headerColor};
+    padding-bottom: 9px;
+    display: block;
+    padding-left: 5px;
+  }
+
+  .description-textarea {
+    margin-bottom: 19px;
+  }
+
+  .document-uploader-wrap {
+    padding-top: 18px;
+  }
+`
+
+export const FormHeaderGroup = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+  margin-bottom: 26px;
+
+  h1 {
+    margin: 0;
+    margin-right: auto;
+  }
+
+  .info-link {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    svg {
+      width: 16px;
+      height: 16px;
+      fill: ${({ theme }) => theme.headerColor};
+
+      &:hover {
+        fill: ${({ theme }) => theme.valueColor};
+      }
+    }
   }
 `
 
 export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
-  display: flex;
-  flex-direction: row;
   align-items: center;
+  margin-bottom: 19px;
+  display: grid;
+  grid-template-columns: auto 325px;
+  column-gap: 30px;
 `
-export const FormTitleContainer = styled.div<{ theme: MavrykTheme }>`
-  margin-right: 20%;
-`
+export const FormTitleContainer = styled.div<{ theme: MavrykTheme }>``
 
 export const FormSubTitle = styled.p<{ theme: MavrykTheme }>`
   color: ${({ theme }) => theme.textColor};
@@ -111,10 +159,11 @@ export const ProposalSubmissionInvoiceImage = styled.div`
 `
 
 export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
-  margin: 50px 15px 0 0;
+  margin-top: 45px;
+  padding-bottom: 24px;
 
   > button {
-    max-width: 300px;
+    max-width: 250px;
     float: right;
     margin: 0 10px;
   }
