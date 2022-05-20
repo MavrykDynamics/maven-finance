@@ -1,8 +1,9 @@
-import { MavrykTheme } from '../../../styles/interfaces'
 import styled from 'styled-components/macro'
+import { Card } from 'styles'
 
-export const PropSubmissionTopBarStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
+import { MavrykTheme } from '../../../styles/interfaces'
+
+export const PropSubmissionTopBarStyled = styled(Card)<{ theme: MavrykTheme }>`
   margin: 15px auto;
   display: flex;
   width: 100%;

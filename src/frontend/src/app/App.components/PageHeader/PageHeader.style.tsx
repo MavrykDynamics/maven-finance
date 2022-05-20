@@ -79,6 +79,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'governance':
       case 'break glass':
       case 'emergency governance':
+      case 'proposal submission':
         return '10px'
       default:
         return '0'
@@ -105,6 +106,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'emergency governance':
         return '130px'
       case 'governance':
+      case 'proposal submission':
         return '156px'
       default:
         return '172px'
@@ -115,6 +117,7 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
       case 'satellites':
         return '-20px'
       case 'governance':
+      case 'proposal submission':
         return '6px'
       case 'emergency governance':
         return '-2px'
