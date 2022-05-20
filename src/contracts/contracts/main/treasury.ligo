@@ -55,7 +55,7 @@ type treasuryAction is
     // Treasury Entrypoints
     | Transfer                       of transferActionType
     | MintMvkAndTransfer             of mintMvkAndTransferType
-    | Update_operators               of updateOperatorsParams
+    | UpdateOperators                of updateOperatorsParams
     | Stake                          of (nat)
     | Unstake                        of (nat)
 
@@ -793,7 +793,7 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
           // Treasury Entrypoints
         | Transfer(parameters)                          -> transfer(parameters, s)
         | MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
-        | Update_operators(parameters)                  -> updateOperators(parameters, s)
+        | UpdateOperators(parameters)                   -> updateOperators(parameters, s)
         | Stake(parameters)                             -> stake(parameters, s)
         | Unstake(parameters)                           -> unstake(parameters, s)
 
