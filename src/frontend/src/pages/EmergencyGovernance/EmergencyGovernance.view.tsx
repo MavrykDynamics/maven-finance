@@ -1,17 +1,12 @@
 import * as React from 'react'
-import {
-  EmergencyGovernanceStyled,
-  EmergencyGovernanceTopBar,
-  EmergencyGovernanceCardContent,
-  CardContentLeftSide,
-  CardContentRightSide,
-  EmergencyGovernHistory,
-} from './EmergencyGovernance.style'
-import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
-import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
+
 import { Button } from '../../app/App.components/Button/Button.controller'
-import { EmergencyGovernancePastProposal } from './mockEGovProposals'
+import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
+import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
 import { EGovHistoryCard } from './EGovHistoryCard/EGovHistoryCard.controller'
+// prettier-ignore
+import { CardContent, CardContentLeftSide, CardContentRightSide, EmergencyGovernanceCard, EmergencyGovernHistory } from './EmergencyGovernance.style'
+import { EmergencyGovernancePastProposal } from './mockEGovProposals'
 
 type BreakGlassViewProps = {
   loading: boolean
@@ -33,8 +28,8 @@ export const EmergencyGovernanceView = ({
   pastProposals,
 }: BreakGlassViewProps) => {
   return (
-    <EmergencyGovernanceStyled>
-      <EmergencyGovernanceTopBar>
+    <>
+      <EmergencyGovernanceCard>
         <h1>What is it?</h1>
         <p>
           Handles the event of fatal flaw discovered → hold an emergency governance vote to pause all entrypoints in
@@ -50,34 +45,32 @@ export const EmergencyGovernanceView = ({
             </a>
           </FAQLink>
         </p>
-      </EmergencyGovernanceTopBar>
-      <EmergencyGovernanceCardContent>
+      </EmergencyGovernanceCard>
+      <EmergencyGovernanceCard>
         {emergencyGovernanceActive ? (
-          <div>Emergency Governance Active</div>
+          <h1>Emergency Governance Active</h1>
         ) : (
-          <>
+          <CardContent>
             <CardContentLeftSide>
               <h1>Trigger Emergency Governance Vote</h1>
               <p>Content here about what triggering a vote does the consequences of doing so</p>
             </CardContentLeftSide>
             <CardContentRightSide>
               {accountPkh ? (
-                <div>
-                  <Button text={'Activate Proposal'} icon={'hammer'} onClick={handleTriggerEmergencyProposal} />
-                </div>
+                <Button text={'Trigger Vote'} icon={'hammer'} onClick={handleTriggerEmergencyProposal} />
               ) : (
                 <ConnectWallet type={'main-menu'} />
               )}
             </CardContentRightSide>
-          </>
+          </CardContent>
         )}
-      </EmergencyGovernanceCardContent>
+      </EmergencyGovernanceCard>
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
         {pastProposals.map((proposal, index) => {
           return <EGovHistoryCard pastProposal={proposal} />
         })}
       </EmergencyGovernHistory>
-    </EmergencyGovernanceStyled>
+    </>
   )
 }

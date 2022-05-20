@@ -1,6 +1,6 @@
 import { createGlobalStyle } from 'styled-components/macro'
 
-import { darkCianColor } from '../styles/colors'
+import { darkCianColor, headerColor } from '../styles/colors'
 import { MavrykTheme } from './interfaces'
 
 export const GlobalStyle = createGlobalStyle<{ theme: MavrykTheme }>`
@@ -26,11 +26,12 @@ body {
 }
 
 h1 {
-  font-size: 40px;
   font-weight: bold;
   display: inline-block;
   margin: 30px auto;
-  color: ${({ theme }) => theme.subTextColor};
+  color: ${headerColor};
+  font-weight: 700;
+  font-size: 25px;
 
   @media (max-width: 700px) {   
     font-size: 30px;
