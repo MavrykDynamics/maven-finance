@@ -169,10 +169,10 @@ block {
             else skip;
 
             // fetch staked MVK supply and calculate min staked MVK required for break glass to be triggered
-            const stakedMvkTotalSupplyView : option (nat) = Tezos.call_view ("getStakedMvkTotalSupply", unit, doormanAddress);
-            const stakedMvkTotalSupply: nat = case stakedMvkTotalSupplyView of [
+            const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+            const stakedMvkTotalSupply: nat = case getBalanceView of [
                 Some (value) -> value
-              | None         -> (failwith (error_GET_STAKED_MVK_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+            | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
             ];
 
             var stakedMvkRequiredForBreakGlass : nat := abs(s.config.stakedMvkPercentageRequired * stakedMvkTotalSupply / 10000);

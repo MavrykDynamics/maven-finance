@@ -160,11 +160,10 @@ block {
                       Some(_address) -> _address
                     | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
-
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedMvkTotalSupply", unit, doormanAddress);
-                s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
-                      Some (value) -> value
-                    | None -> (failwith (error_GET_STAKED_MVK_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                s.snapshotStakedMvkTotalSupply  := case getBalanceView of [
+                    Some (value) -> value
+                | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
@@ -267,10 +266,10 @@ block {
                     | None           -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedMvkTotalSupply", unit, doormanAddress);
-                s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
-                      Some (value) -> value
-                    | None         -> (failwith (error_GET_STAKED_MVK_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                s.snapshotStakedMvkTotalSupply  := case getBalanceView of [
+                    Some (value) -> value
+                | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.financialRequestApprovalPercentage) / 10000);
@@ -360,10 +359,10 @@ block {
                       Some(_address) -> _address
                     | None           -> failwith(error_DOORMAN_CONTRACT_NOT_FOUND)
                 ];
-                const stakedMvkBalanceView : option (nat) = Tezos.call_view ("getStakedMvkTotalSupply", unit, doormanAddress);
-                s.snapshotStakedMvkTotalSupply := case stakedMvkBalanceView of [
-                      Some (value) -> value
-                    | None         -> (failwith (error_GET_STAKED_MVK_TOTAL_SUPPLY_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND) : nat)
+                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", doormanAddress, s.mvkTokenAddress);
+                s.snapshotStakedMvkTotalSupply  := case getBalanceView of [
+                    Some (value) -> value
+                | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
                 const delegationAddress : address = case s.generalContracts["delegation"] of [

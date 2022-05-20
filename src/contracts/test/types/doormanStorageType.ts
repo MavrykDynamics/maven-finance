@@ -15,7 +15,6 @@ export type doormanStorageType = {
   breakGlassConfig          : {};
   userStakeBalanceLedger    : MichelsonMap<MichelsonMapKey, unknown>;
 
-  stakedMvkTotalSupply      : BigNumber;
   unclaimedRewards          : BigNumber;
 
   accumulatedFeesPerShare   : BigNumber;

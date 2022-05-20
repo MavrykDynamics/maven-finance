@@ -306,10 +306,12 @@ describe('Contracts Deployment for Tests', async () => {
     treasuryFactoryStorage.governanceAddress = governance.contract.address
     treasuryFactoryStorage.mvkTokenAddress  = mvkToken.contract.address
     treasuryFactoryStorage.generalContracts = MichelsonMap.fromLiteral({
-      "doorman"   : doorman.contract.address,
+      "doorman"     : doorman.contract.address,
+      "delegation"  : delegation.contract.address
     });
     treasuryFactoryStorage.whitelistTokenContracts = MichelsonMap.fromLiteral({
       mvk             : mvkToken.contract.address,
+
     })
     treasuryFactory = await TreasuryFactory.originate(utils.tezos, treasuryFactoryStorage)
 
@@ -413,9 +415,9 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(27, governanceProxyLambdas[33])) // untrackTreasury
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(28, governanceProxyLambdas[34])) // transferTreasury
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(29, governanceProxyLambdas[35])) // mintMvkAndTransferTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[36])) // updateOperatorsTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(31, governanceProxyLambdas[37])) // stakeTreasury
-      .withContractCall(governanceProxy.contract.methods.setProxyLambda(32, governanceProxyLambdas[38])) // unstakeTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(30, governanceProxyLambdas[36])) // updateMvkOperatorsTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(31, governanceProxyLambdas[37])) // stakeMvkTreasury
+      .withContractCall(governanceProxy.contract.methods.setProxyLambda(32, governanceProxyLambdas[38])) // unstakeMvkTreasury
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(33, governanceProxyLambdas[39])) // updateInflationRate
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(34, governanceProxyLambdas[40])) // triggerInflation
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(35, governanceProxyLambdas[41])) // addVestee
@@ -747,9 +749,9 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseUnstake"                     , treasuryLambdas[12]))  // togglePauseUnstake
       .withContractCall(treasury.contract.methods.setLambda("lambdaTransfer"                               , treasuryLambdas[13]))  // transfer
       .withContractCall(treasury.contract.methods.setLambda("lambdaMintMvkAndTransfer"                     , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateOperators"                        , treasuryLambdas[15]))  // updateOperators
-      .withContractCall(treasury.contract.methods.setLambda("lambdaStake"                                  , treasuryLambdas[16]))  // stake
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUnstake"                                , treasuryLambdas[17]))  // unstake
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateMvkOperators"                     , treasuryLambdas[15]))  // updateMvkOperators
+      .withContractCall(treasury.contract.methods.setLambda("lambdaStakeMvk"                               , treasuryLambdas[16]))  // stakeMvk
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUnstakeMvk"                             , treasuryLambdas[17]))  // unstakeMvk
 
       
       const setupTreasuryLambdasOperation = await treasuryLambdaBatch.send()
@@ -796,9 +798,9 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseUnstake"           , treasuryLambdas[12]))  // togglePauseUnstake
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTransfer"                     , treasuryLambdas[13]))  // transfer
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaMintMvkAndTransfer"           , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateOperators"              , treasuryLambdas[15]))  // updateOperators
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStake"                        , treasuryLambdas[16]))  // stake
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstake"                      , treasuryLambdas[17]))  // unstake
+      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateMvkOperators"           , treasuryLambdas[15]))  // updateMvkOperators
+      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStakeMvk"                     , treasuryLambdas[16]))  // stakeMvk
+      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstakeMvk"                   , treasuryLambdas[17]))  // unstakeMvk
 
       
       const setupTreasuryFactoryProductLambdasOperation = await treasuryFactoryProductLambdaBatch.send()
@@ -811,25 +813,20 @@ describe('Contracts Deployment for Tests', async () => {
     // Set remaining contract addresses - post-deployment
     //----------------------------
     // MVK Token Contract - set governance contract address
-    const mvkSetGovernanceAddressOperation = await mvkToken.contract.methods.setGovernance(governance.contract.address).send();
-    await mvkSetGovernanceAddressOperation.confirmation();
-
     // MVK Token Contract - set general contract addresses [doorman]
     // MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]
-    const mvkUpdateGeneralContractsOperation = await mvkToken.contract.methods.updateGeneralContracts("doorman", doorman.contract.address).send();
-    await mvkUpdateGeneralContractsOperation.confirmation();
-    
+
+    const mvkContractsBatch = await tezos.wallet
+      .batch()
+      .withContractCall(mvkToken.contract.methods.setGovernance(governance.contract.address))
+      .withContractCall(mvkToken.contract.methods.updateGeneralContracts("doorman", doorman.contract.address))
+      .withContractCall(mvkToken.contract.methods.updateWhitelistContracts("doorman", doorman.contract.address))
+      .withContractCall(mvkToken.contract.methods.updateWhitelistContracts('vesting', vesting.contract.address))
+      .withContractCall(mvkToken.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address))
+      const mvkContractsBatchOperation = await mvkContractsBatch.send()
+      await mvkContractsBatchOperation.confirmation()
+
     console.log('MVK Token Contract - set general contract addresses [doorman]')
-
-    const mvkUpdateWhitelistContractsOperation = await mvkToken.contract.methods.updateWhitelistContracts("doorman", doorman.contract.address).send();
-    await mvkUpdateWhitelistContractsOperation.confirmation();
-    
-    const setWhitelistVestingContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts('vesting', vesting.contract.address).send()
-    await setWhitelistVestingContractInMvkTokenOperation.confirmation()
-    
-    const setWhitelistTreasuryContractInMvkTokenOperation = await mvkToken.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address).send()
-    await setWhitelistTreasuryContractInMvkTokenOperation.confirmation()
-
     console.log('MVK Token Contract - set whitelist contract addresses [doorman, vesting, treasury]')
     
     // Send MVK to treasury contract and council (TODO: keep?)
@@ -854,7 +851,7 @@ describe('Contracts Deployment for Tests', async () => {
       .send()
     await transferToTreasury.confirmation()
     const updateOperatorsTreasury = await treasury.contract.methods
-      .updateOperators([
+      .updateMvkOperators([
         {
           add_operator: {
               owner: treasury.contract.address,
@@ -866,40 +863,32 @@ describe('Contracts Deployment for Tests', async () => {
     await updateOperatorsTreasury.confirmation()
 
     // Doorman Contract - set general contract addresses [delegation, farmTreasury, satelliteTreasury, farmFactory]
-    const setDelegationContractAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts('delegation', delegation.contract.address).send()
-    await setDelegationContractAddressInDoormanOperation.confirmation()
-    
-    const setFarmFactoryAddressInDoormanOperation = await doorman.contract.methods.updateGeneralContracts("farmFactory", farmFactory.contract.address).send();
-    await setFarmFactoryAddressInDoormanOperation.confirmation();
-    
-    var updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address).send();
-    await updateGeneralContractsOperation.confirmation();
-
-    var updateGeneralContractsOperation = await doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address).send();
-    await updateGeneralContractsOperation.confirmation();
+    const doormanContractsBatch = await tezos.wallet
+      .batch()
+      .withContractCall(doorman.contract.methods.updateGeneralContracts('delegation', delegation.contract.address))
+      .withContractCall(doorman.contract.methods.updateGeneralContracts("farmFactory", farmFactory.contract.address))
+      .withContractCall(doorman.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address))
+      .withContractCall(doorman.contract.methods.updateGeneralContracts("farmTreasury", treasury.contract.address))
+      const doormanContractsBatchOperation = await doormanContractsBatch.send()
+      await doormanContractsBatchOperation.confirmation()
     
     console.log('Doorman Contract - set general contract addresses [delegation, farmTreasury, satelliteTreasury, farmFactory]')
 
     // Farm FA12 Contract - set general contract addresses [doorman]
     // Farm FA12 Contract - set whitelist contract addresses [council] 
-    const setDoormanContractAddressInFarmOperation = await farm.contract.methods.updateGeneralContracts('doorman', doorman.contract.address).send()
-    await setDoormanContractAddressInFarmOperation.confirmation()
-        
-    const setCouncilContractAddressInFarmFA12Operation = await farm.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
-    await setCouncilContractAddressInFarmFA12Operation.confirmation()
+    // Farm FA2 Contract - set general contract addresses [doorman]
+    // Farm FA2 Contract - set whitelist contract addresses [council]
+    const farmContractsBatch = await tezos.wallet
+      .batch()
+      .withContractCall(farm.contract.methods.updateGeneralContracts('doorman', doorman.contract.address))
+      .withContractCall(farm.contract.methods.updateWhitelistContracts('council', council.contract.address))
+      .withContractCall(farmFA2.contract.methods.updateGeneralContracts('doorman', doorman.contract.address))
+      .withContractCall(farmFA2.contract.methods.updateWhitelistContracts('council', council.contract.address))
+      const farmContractsBatchOperation = await farmContractsBatch.send()
+      await farmContractsBatchOperation.confirmation()
     
     console.log('Farm FA12 Contract - set general contract addresses [doorman]')
     console.log('Farm FA12 Contract - set whitelist contract addresses [council]')
-
-
-
-    // Farm FA2 Contract - set general contract addresses [doorman]
-    // Farm FA2 Contract - set whitelist contract addresses [council]
-    const setDoormanContractAddressInFarmFA2Operation = await farmFA2.contract.methods.updateGeneralContracts('doorman', doorman.contract.address).send()
-    await setDoormanContractAddressInFarmFA2Operation.confirmation()
-    
-    const setCouncilContractAddressInFarmFA2Operation = await farmFA2.contract.methods.updateWhitelistContracts('council', council.contract.address).send()
-    await setCouncilContractAddressInFarmFA2Operation.confirmation()
     
     console.log('Farm FA2 Contract - set general contract addresses [doorman]')
     console.log('Farm FA2 Contract - set whitelist contract addresses [council]')
@@ -922,53 +911,35 @@ describe('Contracts Deployment for Tests', async () => {
 
     // Delegation Contract - set general contract addresses [governance, satelliteTreasury]
     // Delegation Contract - set whitelist contract addresses [treasury, governance]
-    const setWhitelistTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address).send();
-    await setWhitelistTreasuryContractAddressInDelegationOperation.confirmation()
-    const setWhitelistGovernanceContractAddressInDelegationOperation = await delegation.contract.methods.updateWhitelistContracts("governance", governance.contract.address).send();
-    await setWhitelistGovernanceContractAddressInDelegationOperation.confirmation();
-    const setGeneralSatelliteTreasuryContractAddressInDelegationOperation = await delegation.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address).send();
-    await setGeneralSatelliteTreasuryContractAddressInDelegationOperation.confirmation();
+    const delegationContractsBatch = await tezos.wallet
+    .batch()
+    .withContractCall(delegation.contract.methods.updateWhitelistContracts('treasury', treasury.contract.address))
+    .withContractCall(delegation.contract.methods.updateWhitelistContracts("governance", governance.contract.address))
+    .withContractCall(delegation.contract.methods.updateGeneralContracts("satelliteTreasury", treasury.contract.address))
+    const delegationContractsBatchOperation = await delegationContractsBatch.send()
+    await delegationContractsBatchOperation.confirmation()
     console.log('Delegation Contract - set general contract addresses [satelliteTreasury]')
     console.log('Delegation Contract - set whitelist contract addresses [treasury, governance]')
 
 
 
     // Governance Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
-    const setEmergencyGovernanceContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address).send()
-    await setEmergencyGovernanceContractInGovernanceOperation.confirmation()
-
-    const setDoormanContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('doorman', doorman.contract.address).send()
-    await setDoormanContractInGovernanceOperation.confirmation()
-
-    const setDelegationContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('delegation', delegation.contract.address).send()
-    await setDelegationContractInGovernanceOperation.confirmation()
-    
-    const setBreakGlassContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address).send()
-    await setBreakGlassContractInGovernanceOperation.confirmation()
-    
-    const setCouncilContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('council', council.contract.address).send()
-    await setCouncilContractInGovernanceOperation.confirmation()
-    
-    const setVestingContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('vesting', vesting.contract.address).send()
-    await setVestingContractInGovernanceOperation.confirmation()
-
-    const setTreasuryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address).send()
-    await setTreasuryContractInGovernanceOperation.confirmation()
-
-    const setPaymentTreasuryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('paymentTreasury', treasury.contract.address).send()
-    await setPaymentTreasuryContractInGovernanceOperation.confirmation()
-
-    const setFarmFactoryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('farmFactory', farmFactory.contract.address).send()
-    await setFarmFactoryContractInGovernanceOperation.confirmation()
-
-    const setTreasuryFactoryContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('treasuryFactory', treasuryFactory.contract.address).send()
-    await setTreasuryFactoryContractInGovernanceOperation.confirmation()
-
-    const setGovernanceFinancialContractInGovernanceOperation = await governance.contract.methods.updateGeneralContracts('governanceFinancial', governanceFinancial.contract.address).send()
-    await setGovernanceFinancialContractInGovernanceOperation.confirmation()
-
-    const setGovernanceProxyContractInGovernanceOperation = await governance.contract.methods.setGovernanceProxy(governanceProxy.contract.address).send()
-    await setGovernanceProxyContractInGovernanceOperation.confirmation()
+    const governanceContractsBatch = await tezos.wallet
+    .batch()
+    .withContractCall(governance.contract.methods.updateGeneralContracts('emergencyGovernance', emergencyGovernance.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('doorman', doorman.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('delegation', delegation.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('council', council.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('vesting', vesting.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('paymentTreasury', treasury.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('farmFactory', farmFactory.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('treasuryFactory', treasuryFactory.contract.address))
+    .withContractCall(governance.contract.methods.updateGeneralContracts('governanceFinancial', governanceFinancial.contract.address))
+    .withContractCall(governance.contract.methods.setGovernanceProxy(governanceProxy.contract.address))
+    const governanceContractsBatchOperation = await governanceContractsBatch.send()
+    await governanceContractsBatchOperation.confirmation()
 
     console.log('Governance Contract - set general contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]')
     console.log('Governance Contract - set governance proxy address')
@@ -976,35 +947,41 @@ describe('Contracts Deployment for Tests', async () => {
 
 
     // Governance Financial Contract - set contract addresses [doorman, delegation, emergencyGovernance, breakGlass, council, vesting, treasury, farmFactory, treasuryFactory]
-    const setMockFA12InGovernanceFinancialOperation  = await governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address).send()
-    await setMockFA12InGovernanceFinancialOperation.confirmation()
-    const setMockFA2InGovernanceFinancialOperation  = await governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address).send()
-    await setMockFA2InGovernanceFinancialOperation.confirmation()
-    const setMVKInGovernanceFinancialOperation  = await governanceFinancial.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address).send()
-    await setMVKInGovernanceFinancialOperation.confirmation()
+    const governanceFinancialContractsBatch = await tezos.wallet
+    .batch()
+    .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))
+    .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address))
+    .withContractCall(governanceFinancial.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address))
+    const governanceFinancialContractsBatchOperation = await governanceFinancialContractsBatch.send()
+    await governanceFinancialContractsBatchOperation.confirmation()
+
     console.log('Governance Financial Contract - set whitelist token contract addresss [mockFA12, mockFA2, MVK]')
 
 
     
     // Emergency Governance Contract - set contract addresses map [breakGlass]
-    const setBreakGlassContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address).send()
-    await setBreakGlassContractAddressInEmergencyGovernance.confirmation()
-    const setTreasuryContractAddressInEmergencyGovernance = await emergencyGovernance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address).send()
-    await setTreasuryContractAddressInEmergencyGovernance.confirmation()
+    const emergencyGovernanceContractsBatch = await tezos.wallet
+    .batch()
+    .withContractCall(emergencyGovernance.contract.methods.updateGeneralContracts('breakGlass', breakGlass.contract.address))
+    .withContractCall(emergencyGovernance.contract.methods.updateGeneralContracts('taxTreasury', treasury.contract.address))
+    const emergencyGovernanceContractsBatchOperation = await emergencyGovernanceContractsBatch.send()
+    await emergencyGovernanceContractsBatchOperation.confirmation()
+
     console.log('Emergency Governance Contract - set general contract addresses map [breakGlass, treasury]')
 
 
 
     // Treasury Contract - set whitelist contract addresses map [council]
     // Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]
-    const setProxyContractAddressInTreasury = await treasury.contract.methods.updateWhitelistContracts('governanceProxy', governanceProxy.contract.address).send()
-    await setProxyContractAddressInTreasury.confirmation()
-    const setMockFA12InTreasuryOperation  = await treasury.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address).send()
-    await setMockFA12InTreasuryOperation.confirmation()
-    const setMockFA2InTreasuryOperation  = await treasury.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address).send()
-    await setMockFA2InTreasuryOperation.confirmation()
-    const setMVKInTreasuryOperation  = await treasury.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address).send()
-    await setMVKInTreasuryOperation.confirmation()
+    const treasuryContractsBatch = await tezos.wallet
+    .batch()
+    .withContractCall(treasury.contract.methods.updateWhitelistContracts('governanceProxy', governanceProxy.contract.address))
+    .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA2", mockFa2Token.contract.address))
+    .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MockFA12", mockFa12Token.contract.address))
+    .withContractCall(treasury.contract.methods.updateWhitelistTokenContracts("MVK", mvkToken.contract.address))
+    const treasuryContractsBatchOperation = await treasuryContractsBatch.send()
+    await treasuryContractsBatchOperation.confirmation()
+    
     console.log('Treasury Contract - set whitelist contract addresses map [governanceProxy]')
     console.log('Treasury Contract - set whitelist token contract addresses map [mockFA12, mockFA2, MVK]')
 

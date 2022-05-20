@@ -409,9 +409,6 @@ block {
               ];
               userBalanceInStakeBalanceLedger.balance := userBalanceInStakeBalanceLedger.balance + stakeAmount; 
               s.userStakeBalanceLedger[userAddress] := userBalanceInStakeBalanceLedger;
-
-              // update staked MVK total supply
-              s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + stakeAmount;
                 
             }
         | _ -> skip
@@ -466,8 +463,15 @@ block {
                 | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
+                // Get SMVK Total Supply
+                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", Tezos.self_address, s.mvkTokenAddress);
+                const stakedMvkTotalSupply: nat = case getBalanceView of [
+                  Some (value) -> value
+                | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                ];
+
                 // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
-                const mvkLoyaltyIndex: nat = (s.stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
+                const mvkLoyaltyIndex: nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
                 
                 // Fee calculation
                 const exitFee: nat = (500n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (5n * fixedPointAccuracy));
@@ -478,9 +482,9 @@ block {
                 s.unclaimedRewards := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
 
                 // Updated shares by users
-                if unstakeAmount > s.stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
+                if unstakeAmount > stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
                 else skip;
-                const stakedTotalWithoutUnstake: nat = abs(s.stakedMvkTotalSupply - unstakeAmount);
+                const stakedTotalWithoutUnstake: nat = abs(stakedMvkTotalSupply - unstakeAmount);
                 
                 if stakedTotalWithoutUnstake > 0n then s.accumulatedFeesPerShare := s.accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstake)
                 else skip;
@@ -496,9 +500,8 @@ block {
                 else skip;
 
                 // update staked MVK total supply
-                if s.stakedMvkTotalSupply < finalUnstakeAmount then failwith(error_UNSTAKE_AMOUNT_ERROR)
+                if stakedMvkTotalSupply < finalUnstakeAmount then failwith(error_UNSTAKE_AMOUNT_ERROR)
                 else skip;
-                s.stakedMvkTotalSupply := abs(s.stakedMvkTotalSupply - finalUnstakeAmount);
 
                 userBalanceInStakeBalanceLedger.balance := abs(userBalanceInStakeBalanceLedger.balance - unstakeAmount); 
 
@@ -592,8 +595,15 @@ block {
                 | None -> (failwith (error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
                 ];
 
+                // Get SMVK Total Supply
+                const getBalanceView : option (nat) = Tezos.call_view ("getBalance", Tezos.self_address, s.mvkTokenAddress);
+                const stakedMvkTotalSupply: nat = case getBalanceView of [
+                  Some (value) -> value
+                | None -> (failwith (error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND) : nat)
+                ];
+
                 // sMVK total supply is a part of MVK total supply since token aren't burned anymore.
-                const mvkLoyaltyIndex: nat = (s.stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
+                const mvkLoyaltyIndex: nat = (stakedMvkTotalSupply * 100n * fixedPointAccuracy) / mvkTotalSupply;
                 
                 // Fee calculation
                 const exitFee: nat = (200n * fixedPointAccuracy * fixedPointAccuracy) / (mvkLoyaltyIndex + (2n * fixedPointAccuracy));
@@ -604,9 +614,9 @@ block {
                 s.unclaimedRewards := s.unclaimedRewards + (paidFee / fixedPointAccuracy);
 
                 // Updated shares by users
-                if unstakeAmount > s.stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
+                if unstakeAmount > stakedMvkTotalSupply then failwith(error_UNSTAKE_AMOUNT_ERROR) 
                 else skip;
-                const stakedTotalWithoutUnstake: nat = abs(s.stakedMvkTotalSupply - unstakeAmount);
+                const stakedTotalWithoutUnstake: nat = abs(stakedMvkTotalSupply - unstakeAmount);
                 
                 if stakedTotalWithoutUnstake > 0n then s.accumulatedFeesPerShare := s.accumulatedFeesPerShare + (paidFee / stakedTotalWithoutUnstake)
                 else skip;
@@ -622,9 +632,8 @@ block {
                 else skip;
 
                 // update staked MVK total supply
-                if s.stakedMvkTotalSupply < finalUnstakeAmount then failwith(error_UNSTAKE_AMOUNT_ERROR)
+                if stakedMvkTotalSupply < finalUnstakeAmount then failwith(error_UNSTAKE_AMOUNT_ERROR)
                 else skip;
-                s.stakedMvkTotalSupply := abs(s.stakedMvkTotalSupply - finalUnstakeAmount);
 
                 userBalanceInStakeBalanceLedger.balance := abs(userBalanceInStakeBalanceLedger.balance - unstakeAmount); 
 
@@ -794,9 +803,6 @@ function lambdaFarmClaim(const doormanLambdaAction : doormanLambdaActionType; va
                 userBalanceInStakeBalanceLedger.balance                 := userBalanceInStakeBalanceLedger.balance + claimAmount; 
                 userBalanceInStakeBalanceLedger.totalFarmRewardsClaimed := userBalanceInStakeBalanceLedger.totalFarmRewardsClaimed + claimAmount;
                 s.userStakeBalanceLedger[delegator] := userBalanceInStakeBalanceLedger;
-
-                // update staked MVK total supply
-                s.stakedMvkTotalSupply := s.stakedMvkTotalSupply + claimAmount;
 
                 // Get treasury address from name
                 const treasuryAddress: address = case Map.find_opt("farmTreasury", s.generalContracts) of [
