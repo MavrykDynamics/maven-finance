@@ -17,4 +17,5 @@ async def on_doorman_toggle_pause_stake(
     doorman.stake_paused = toggle_pause_stake.data.storage['breakGlassConfig']['stakeIsPaused']
     doorman.unstake_paused = toggle_pause_stake.data.storage['breakGlassConfig']['unstakeIsPaused']
     doorman.compound_paused = toggle_pause_stake.data.storage['breakGlassConfig']['compoundIsPaused']
+    doorman.farm_claim_paused = toggle_pause_stake.data.storage['breakGlassConfig']['farmClaimIsPaused']
     await doorman.save()

@@ -93,13 +93,13 @@ class Doorman(Model):
     address                         = fields.CharField(pk=True, max_length=36)
     admin                           = fields.CharField(max_length=36)
     governance                      = fields.ForeignKeyField('models.Governance', related_name='doormans')
-    smvk_total_supply               = fields.FloatField(default=0)
     min_mvk_amount                  = fields.FloatField(default=0)
     unclaimed_rewards               = fields.FloatField(default=0)
     accumulated_fees_per_share      = fields.FloatField(default=0)
     stake_paused                    = fields.BooleanField(default=False)
     unstake_paused                  = fields.BooleanField(default=False)
     compound_paused                 = fields.BooleanField(default=False)
+    farm_claimed_paused             = fields.BooleanField(default=False)
 
     class Meta:
         table = 'doorman'
@@ -285,6 +285,8 @@ class Treasury(Model):
     governance                      = fields.ForeignKeyField('models.Governance', related_name='treasuries')
     transfer_paused                 = fields.BooleanField(default=False)
     mint_mvk_and_transfer_paused    = fields.BooleanField(default=False)
+    stake_mvk                       = fields.BooleanField(default=False)
+    unstake_mvk                     = fields.BooleanField(default=False)
 
     class Meta:
         table = 'treasury'

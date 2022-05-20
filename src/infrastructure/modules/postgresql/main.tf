@@ -9,7 +9,7 @@ resource "digitalocean_database_cluster" "this" {
     private_network_uuid    = var.vpc_id
 }
 
-resource "digitalocean_database_db" "database-example" {
+resource "digitalocean_database_db" "this" {
     count       = length(var.pg_additional_database)
     cluster_id  = digitalocean_database_cluster.this.id
     name        = var.pg_additional_database[count.index]

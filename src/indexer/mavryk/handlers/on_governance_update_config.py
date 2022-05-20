@@ -18,39 +18,39 @@ async def on_governance_update_config(
     governance = await models.Governance.get(
         address = governanceAddress
     )
-    if updateConfigAction == configBlocksPerMinute:
-        governance.blocks_per_minute                = updatedValue
-    elif updateConfigAction == configBlocksPerProposalRound:
-        governance.blocks_per_proposal_round        = updatedValue
-    elif updateConfigAction == configBlocksPerTimelockRound:
-        governance.blocks_per_timelock_round        = updatedValue
-    elif updateConfigAction == configBlocksPerVotingRound:
-        governance.blocks_per_voting_round          = updatedValue
-    elif updateConfigAction == configMaxProposalsPerDelegate:
-        governance.max_proposal_per_delegate        = updatedValue
-    elif updateConfigAction == configMinQuorumMvkTotal:
-        governance.min_quorum_mvk_total             = updatedValue
-    elif updateConfigAction == configMinQuorumPercentage:
-        governance.min_quorum_percentage            = updatedValue
-    elif updateConfigAction == configMinimumStakeReqPercentage:
-        governance.minimum_stake_req_percentage     = updatedValue
-    elif updateConfigAction == configNewBlockTimeLevel:
-        governance.new_blocktime_level              = updatedValue
-    elif updateConfigAction == configNewBlocksPerMinute:
-        governance.new_block_per_minute             = updatedValue
-    elif updateConfigAction == configProposalSubmissionFee:
-        governance.proposal_submission_fee          = updatedValue
-    elif updateConfigAction == configSuccessReward:
-        governance.success_reward                   = updatedValue
-    elif updateConfigAction == configVotingPowerRatio:
-        governance.voting_power_ratio               = updatedValue
-    elif updateConfigAction == configFinancialReqApprovalPct:
-        governance.financial_req_approval_percent   = updatedValue
-    elif updateConfigAction == configFinancialReqDurationDays:
-        governance.financial_req_duration_in_days   = updatedValue
-    elif updateConfigAction == configMinProposalRoundVotePct:
-        governance.proposal_round_vote_percentage   = updatedValue
-    elif updateConfigAction == configMinProposalRoundVotesReq:
-        governance.proposal_round_vote_required     = updatedValue
+    # if updateConfigAction == configBlocksPerMinute:
+    #     governance.blocks_per_minute                = updatedValue
+    # elif updateConfigAction == configBlocksPerProposalRound:
+    #     governance.blocks_per_proposal_round        = updatedValue
+    # elif updateConfigAction == configBlocksPerTimelockRound:
+    #     governance.blocks_per_timelock_round        = updatedValue
+    # elif updateConfigAction == configBlocksPerVotingRound:
+    #     governance.blocks_per_voting_round          = updatedValue
+    # elif updateConfigAction == configMaxProposalsPerDelegate:
+    #     governance.max_proposal_per_delegate        = updatedValue
+    # elif updateConfigAction == configMinQuorumMvkTotal:
+    #     governance.min_quorum_mvk_total             = updatedValue
+    # elif updateConfigAction == configMinQuorumPercentage:
+    #     governance.min_quorum_percentage            = updatedValue
+    # elif updateConfigAction == configMinimumStakeReqPercentage:
+    #     governance.minimum_stake_req_percentage     = updatedValue
+    # elif updateConfigAction == configNewBlockTimeLevel:
+    #     governance.new_blocktime_level              = updatedValue
+    # elif updateConfigAction == configNewBlocksPerMinute:
+    #     governance.new_block_per_minute             = updatedValue
+    # elif updateConfigAction == configProposalSubmissionFee:
+    #     governance.proposal_submission_fee          = updatedValue
+    # elif updateConfigAction == configSuccessReward:
+    #     governance.success_reward                   = updatedValue
+    # elif updateConfigAction == configVotingPowerRatio:
+    #     governance.voting_power_ratio               = updatedValue
+    # elif updateConfigAction == configFinancialReqApprovalPct:
+    #     governance.financial_req_approval_percent   = updatedValue
+    # elif updateConfigAction == configFinancialReqDurationDays:
+    #     governance.financial_req_duration_in_days   = updatedValue
+    # elif updateConfigAction == configMinProposalRoundVotePct:
+    #     governance.proposal_round_vote_percentage   = updatedValue
+    # elif updateConfigAction == configMinProposalRoundVotesReq:
+    #     governance.proposal_round_vote_required     = updatedValue
 
     await governance.save()
