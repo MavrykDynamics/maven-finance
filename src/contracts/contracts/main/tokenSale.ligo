@@ -13,8 +13,6 @@
 // Contract Types
 // ------------------------------------------------------------------------------
 
-// Treasury Type for mint and transfers
-// #include "../partials/types/treasuryTypes.ligo"
 // FA2 Transfer Types
 #include "../partials/functionalTypes/fa2TransferTypes.ligo"
 
@@ -170,7 +168,7 @@ case (Tezos.get_entrypoint_opt(
       "%transfer",
       contractAddress) : option(contract(transferActionType))) of [
           Some(contr) -> contr
-        | None        -> (failwith(error_TRANSFER_ENTRYPOINT_NOT_FOUND) : contract(transferActionType))
+        | None        -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
       ];
 
 
@@ -203,8 +201,8 @@ case (Tezos.get_entrypoint_opt(
 
 
 
-(* View: get treasury address *)
-[@view] function getWhitelistedAddressOpt(const userAddress: address; var s : tokenSaleStorage) : option(bool) is
+(* View: check whitelist by address *)
+[@view] function checkWhitelistByAddressOpt(const userAddress: address; var s : tokenSaleStorage) : option(bool) is
   Big_map.find_opt(userAddress, s.whitelistedAddresses)
 
 
@@ -221,15 +219,21 @@ case (Tezos.get_entrypoint_opt(
 
 
 
-(* View: getWhitelistAmountTotal *)
-[@view] function getWhitelistAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
-  s.whitelistAmountTotal
+(* View: get option one bought total *)
+[@view] function getOptionOneBoughtTotal(const _: unit; var s : tokenSaleStorage) : nat is
+  s.optionOneBoughtTotal
 
 
 
-(* View: getOverallAmountTotal *)
-[@view] function getOverallAmountTotal(const _: unit; var s : tokenSaleStorage) : nat is
-  s.overallAmountTotal
+(* View: get option two bought total *)
+[@view] function getOptionTwoBoughtTotal(const _: unit; var s : tokenSaleStorage) : nat is
+  s.optionTwoBoughtTotal
+
+
+
+(* View: get option three bought total *)
+[@view] function getOptionThreeBoughtTotal(const _: unit; var s : tokenSaleStorage) : nat is
+  s.optionThreeBoughtTotal
 
 // ------------------------------------------------------------------------------
 //

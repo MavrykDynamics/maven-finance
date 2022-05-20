@@ -11,7 +11,7 @@ import json
 import logging
 import pytest
 import os 
-
+import error_codes
 
 # set to localhost sandbox mode for testing
 pytezos = pytezos.using(shell='http://localhost:8732', key='edsk3QoqBuvdamxouPhin7swCvkQNgq4jP5KZPbwWNnwdZpSpJiEbq')
@@ -64,52 +64,6 @@ sec_month = 2592000 # 30 days
 
 blocks_day = 2880
 blocks_month = blocks_day * 30 # 86400 per month
-
-# ---- Contract Errors ----
-
-error_ONLY_ADMINISTRATOR_ALLOWED                              = 0
-error_ONLY_SELF_ALLOWED                                       = 1
-error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                       = 2
-
-error_SET_ADMIN_ENTRYPOINT_NOT_FOUND                          = 3
-error_UPDATE_METADATA_ENTRYPOINT_NOT_FOUND                    = 4
-
-error_TREASURY_CONTRACT_NOT_FOUND                             = 5
-error_TRANSFER_ENTRYPOINT_NOT_FOUND                           = 6
-error_TEZ_SENT_IS_NOT_EQUAL_TO_AMOUNT_IN_TEZ                  = 7
-error_TOKEN_SALE_HAS_NOT_STARTED                              = 8
-error_TOKEN_SALE_HAS_NOT_ENDED                                = 9
-error_TOKEN_SALE_HAS_ENDED                                    = 10
-error_TOKEN_SALE_IS_NOT_PAUSED                                = 11
-error_TOKEN_SALE_IS_PAUSED                                    = 12
-
-error_WHITELIST_SALE_HAS_NOT_STARTED                          = 13
-error_USER_IS_NOT_WHITELISTED                                 = 14
-error_USER_TOKEN_SALE_RECORD_NOT_FOUND                        = 15
-
-error_MAX_AMOUNT_OPTION_ONE_WHITELIST_WALLET_EXCEEDED         = 16
-error_MAX_AMOUNT_OPTION_TWO_WHITELIST_WALLET_EXCEEDED         = 17
-error_MAX_AMOUNT_OPTION_THREE_WHITELIST_WALLET_EXCEEDED       = 18
-
-error_MAX_AMOUNT_OPTION_ONE_PER_WALLET_TOTAL_EXCEEDED         = 19
-error_MAX_AMOUNT_OPTION_TWO_PER_WALLET_TOTAL_EXCEEDED         = 20
-error_MAX_AMOUNT_OPTION_THREE_PER_WALLET_TOTAL_EXCEEDED       = 21
-
-error_MIN_AMOUNT_OPTION_ONE_REQUIRED                          = 22
-error_MIN_AMOUNT_OPTION_TWO_REQUIRED                          = 23
-error_MIN_AMOUNT_OPTION_THREE_REQUIRED                        = 24
-
-error_OPTION_ONE_MAX_AMOUNT_CAP_REACHED                       = 25
-error_OPTION_TWO_MAX_AMOUNT_CAP_REACHED                       = 26
-error_OPTION_THREE_MAX_AMOUNT_CAP_REACHED                     = 27
-error_WHITELIST_MAX_AMOUNT_CAP_REACHED                        = 28
-error_OVERALL_MAX_AMOUNT_CAP_REACHED                          = 29
-
-error_MAX_AMOUNT_CLAIMED_FOR_OPTION_ONE                       = 30
-error_MAX_AMOUNT_CLAIMED_FOR_OPTION_TWO                       = 31
-error_MAX_AMOUNT_CLAIMED_FOR_OPTION_THREE                     = 32
-
-# ---- ---- ----
 
 class TokenSaleContract(TestCase):
     
