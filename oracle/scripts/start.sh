@@ -17,6 +17,9 @@ fi
 
 
 docker-compose up -d flextesa
+
+sleep 10 # Wait for flextesa to be up
+
 (cd $PRJT_ROOT/../src/contracts/ && yarn migrate)
 
 cat $PRJT_ROOT/../src/contracts/deployments/aggregatorFactoryAddress.json \
