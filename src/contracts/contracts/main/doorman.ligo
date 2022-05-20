@@ -421,12 +421,6 @@ block {
 
 
 
-(*  View: getStakedMvkTotalSupply *)
-[@view] function getStakedMvkTotalSupply(const _: unit; const s: doormanStorage) : nat is
-  s.stakedMvkTotalSupply
-
-
-
 (*  View: getUnclaimedRewards *)
 [@view] function getUnclaimedRewards(const _: unit; const s: doormanStorage) : nat is
   s.unclaimedRewards
