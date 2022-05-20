@@ -1,8 +1,8 @@
 import styled, { keyframes } from 'styled-components/macro'
 
-import { primaryColor } from '../../../styles'
-import { MavrykTheme } from '../../../styles/interfaces'
+import { darkCianColor, darkColor, primaryColor } from '../../../styles'
 import { BUTTON_RADIUS } from '../../../styles/constants'
+import { MavrykTheme } from '../../../styles/interfaces'
 
 export const clickWave = keyframes`
   from {
@@ -23,20 +23,19 @@ export const clickSlide = keyframes`
   }
 `
 export const SlidingTabButtonsStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.connectWalletBackgroundColor};
-  border: 1px solid ${({ theme }) => theme.primaryColor};
+  background-color: ${darkColor};
+  border: 1px solid ${darkCianColor};
   display: flex;
   justify-content: space-evenly;
   align-items: center;
   border-radius: 20px;
-  //transition: background-color 5ms ease-in-out;
 
   > * {
     &:first-child {
-      margin-left: 2px;
+      margin-left: 1px;
     }
     &:last-child {
-      margin-right: 2px;
+      margin-right: 1px;
     }
   }
 `
@@ -46,17 +45,15 @@ export const ButtonStyled = styled.button<{ buttonActive: boolean; theme: Mavryk
   font-weight: bold;
   font-size: 14px;
   cursor: pointer;
-  height: 38px;
+  height: 36px;
   width: max-content;
-  margin: 1px 5px;
-  padding: 0 20px;
+  padding: 0 22px;
   border-radius: ${BUTTON_RADIUS};
   user-select: none;
-  color: ${({ buttonActive, theme }) => (buttonActive ? theme.containerColor : theme.primaryColor)};
-  background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.primaryColor : theme.containerColor)};
+  color: ${({ buttonActive, theme }) => (buttonActive ? theme.containerColor : theme.headerColor)};
+  background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.headerColor : 'transparent')};
   &.clicked {
-    //animation: ${clickSlide} 4s ease 0s 1 normal forwards;
-    background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.primaryColor : theme.containerColor)};
+    background-color: ${({ buttonActive, theme }) => (buttonActive ? theme.headerColor : 'transparent')};
   }
 
   &.loading {
@@ -70,7 +67,9 @@ export const ButtonText = styled.div<{ theme: MavrykTheme }>`
     text-align: center;
     margin: auto;
     display: inline-block;
-    line-height: 24px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 16px;
     vertical-align: top;
   }
   &.primary {
