@@ -157,7 +157,7 @@ export class DeviationTriggerService implements OnModuleInit {
       const commitData = this.commonService.getCommitData(newPrice, salt, this.commonService.getPkh());
 
       const commitDataHash = createHash('sha256')
-        .update(commitData)
+        .update(commitData, 'hex')
         .digest('hex');
 
       const op = aggregator.methods.requestRateUpdateDeviation(
