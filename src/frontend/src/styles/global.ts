@@ -19,6 +19,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-width: 1460px;
+
+  @media screen and (max-width: 1460px) {
+    min-width: 1250px;
+  }
 }
 
 h1 {
