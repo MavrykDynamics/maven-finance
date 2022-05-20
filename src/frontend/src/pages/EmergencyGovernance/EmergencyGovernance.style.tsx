@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components/macro'
-import { MavrykTheme } from '../../styles/interfaces'
 import { Card, skyColor } from 'styles'
+
+import { MavrykTheme } from '../../styles/interfaces'
 
 export const EmergencyGovernanceCard = styled(Card)<{ theme: MavrykTheme }>`
   padding-top: 28px;
@@ -58,8 +59,11 @@ export const CardContentRightSide = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const EmergencyGovernHistory = styled.div<{ theme: MavrykTheme }>`
+  padding-top: 39px;
+
   > h1 {
     margin: 0;
+    margin-bottom: 10px;
   }
 `
 
