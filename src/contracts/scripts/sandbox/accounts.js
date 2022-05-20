@@ -7,6 +7,7 @@ module.exports = {
     bob: {
         pkh: "tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD",
         sk: "edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq",
+        pk: "edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D"
     },
     eve: {
         pkh: "tz1PrFSuTikuSWfZkACrXpmaS4RuKmEcZMSP",

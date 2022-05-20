@@ -1,7 +1,7 @@
 {
   "version": 2,
   "projects": {
-    "admin": "libs/admin",
+    "maintainer": "libs/maintainer",
     "coingecko-fetcher": "libs/coingecko-fetcher",
     "contracts": "libs/contracts",
     "messari-fetcher": "libs/messari-fetcher",

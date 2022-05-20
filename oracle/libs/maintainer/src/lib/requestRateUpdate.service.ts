@@ -1,6 +1,6 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { CronJob } from 'cron';
-import { AdminConfig } from './admin.config';
+import { MaintainerConfig } from './maintainer.config';
 import { ContractProvider, OpKind } from '@taquito/taquito';
 import {
   AggregatorContractAbstraction,
@@ -17,25 +17,25 @@ export class RequestRateUpdateService implements OnModuleInit {
   private readonly mutex = new Mutex();
 
   constructor(
-    private readonly adminConfig: AdminConfig,
+    private readonly maintainerConfig: MaintainerConfig,
     private readonly txManagerService: TxManagerService
   ) {
-    if (adminConfig.rpcUrl === '') {
+    if (maintainerConfig.rpcUrl === '') {
       throw new Error('RPC Url must be set (RPC_URL env variable)');
     }
 
-    if (adminConfig.adminPkh === '') {
-      throw new Error('Admin pkh must be set (ADMIN_PKH env variable)');
+    if (maintainerConfig.maintainerPkh === '') {
+      throw new Error('Maintainer pkh must be set (MAINTAINER_PKH env variable)');
     }
 
-    if (adminConfig.aggregatorFactorySmartContractAddress === '') {
+    if (maintainerConfig.aggregatorFactorySmartContractAddress === '') {
       throw new Error(
         'Aggregator factory smart contract address must be set (AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS env variable)'
       );
     }
 
     this.logger.log(
-      `Round duration: ${adminConfig.roundDurationMinutes} minutes`
+      `Round duration: ${maintainerConfig.roundDurationMinutes} minutes`
     );
 
     this.cronJob = new CronJob(CronExpression.EVERY_5_SECONDS, async () => {
@@ -52,11 +52,11 @@ export class RequestRateUpdateService implements OnModuleInit {
   }
 
   async onModuleInit(): Promise<void> {
-    this.logger.log(`Using Admin address: ${this.adminConfig.adminPkh}`);
+    this.logger.log(`Using maintainer address: ${this.maintainerConfig.maintainerPkh}`);
     this.logger.log(
-      `Using AggregatorFactory address: ${this.adminConfig.aggregatorFactorySmartContractAddress}`
+      `Using AggregatorFactory address: ${this.maintainerConfig.aggregatorFactorySmartContractAddress}`
     );
-    this.logger.log(`Using RPC url: ${this.adminConfig.rpcUrl}`);
+    this.logger.log(`Using RPC url: ${this.maintainerConfig.rpcUrl}`);
   }
 
   private async requestUpdateRate() {
@@ -65,7 +65,7 @@ export class RequestRateUpdateService implements OnModuleInit {
     }
 
     const toolkit = await this.txManagerService.getTezosToolkit(
-      this.adminConfig.adminPkh
+      this.maintainerConfig.maintainerPkh
     );
     const aggregators = await this.getAggregators();
 
@@ -87,13 +87,13 @@ export class RequestRateUpdateService implements OnModuleInit {
           `Minutes since last round ${lastCompletedRound} (started at ${roundStart}): ${minutesSinceLastRound}`
         );
 
-        if (minutesSinceLastRound < this.adminConfig.roundDurationMinutes) {
+        if (minutesSinceLastRound < this.maintainerConfig.roundDurationMinutes) {
           // Wait before starting new round
           return;
         }
 
         const result = await this.txManagerService.addBatch(
-          this.adminConfig.adminPkh,
+          this.maintainerConfig.maintainerPkh,
           [
             {
               kind: OpKind.TRANSACTION,
@@ -117,14 +117,14 @@ export class RequestRateUpdateService implements OnModuleInit {
 
   private async getAggregators(): Promise<Map<string, string>> {
     const toolkit = await this.txManagerService.getTezosToolkit(
-      this.adminConfig.adminPkh
+      this.maintainerConfig.maintainerPkh
     );
 
     let aggregatorFactory: AggregatorFactoryContractAbstraction<ContractProvider>;
     try {
       aggregatorFactory = await toolkit.contract.at<
         AggregatorFactoryContractAbstraction<ContractProvider>
-      >(this.adminConfig.aggregatorFactorySmartContractAddress);
+      >(this.maintainerConfig.aggregatorFactorySmartContractAddress);
     } catch (e) {
       this.logger.error(
         `Error while aggregator factory fetching contract ${JSON.stringify(e)}`
