@@ -5,7 +5,7 @@ import {
   NestModule,
 } from '@nestjs/common';
 
-import { AdminModule } from '@mavryk-oracle-node/admin';
+import { MaintainerModule } from '@mavryk-oracle-node/maintainer';
 import { OracleModule } from '@mavryk-oracle-node/oracle';
 import { ModuleMetadata } from '@nestjs/common/interfaces/modules/module-metadata.interface';
 
@@ -19,7 +19,7 @@ export class AppModule implements NestModule {
     const imports: ModuleMetadata['imports'] = [];
 
     if (process.env['ENABLE_MAINTAINER_MODE'] === 'true') {
-      imports.push(AdminModule);
+      imports.push(MaintainerModule);
     }
 
     if (

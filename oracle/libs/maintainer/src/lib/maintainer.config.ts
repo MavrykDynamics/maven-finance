@@ -1,6 +1,6 @@
 import { Property } from 'ts-convict';
 
-export class AdminConfig {
+export class MaintainerConfig {
   @Property({
     default: '',
     env: 'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS',
@@ -24,8 +24,8 @@ export class AdminConfig {
 
   @Property({
     default: '',
-    env: 'ADMIN_PKH',
+    env: 'MAINTAINER_PKH',
     format: String,
   })
-  public adminPkh: string;
+  public maintainerPkh: string;
 }

@@ -43,7 +43,7 @@ For maintainer:
 
 ```dotenv
 RPC_URL=https://ithacanet.ecadinfra.com
-ADMIN_PKH=edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt # Alice
+MAINTAINER_PKH=edskRkawwQimT7qNaw4g99dKh3ExUt3corurNLUwvYo2vwwAGdy6NK4At1QLEy9Km24TuwCFfr5k97wvDxKBn5iQqTxdvvpdjt # Alice
 ROUND_DURATION_MINUTES=60 # Every hour
 DEVIATION_TRIGGER_CRON_STRING=0,30 * * * * *
 ENABLE_MAINTAINER_MODE=true
@@ -80,11 +80,11 @@ AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS=KT1TCG1b87Y5SaRTnn8k9TamvJwmh3wmRi9p
 | CONFIRMATION_POLLING_INTERVAL_SECOND      |             |         |
 | AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS |             |         |
 
-Admin config
+Maintainer config
 
 
 | Configuration key      | Description | Default |
 |------------------------|-------------|---------|
-| ADMIN_PKH              |             |         |
+| MAINTAINER_PKH         |             |         |
 | ROUND_DURATION_MINUTES |             |         |
 | ENABLE_MAINTAINER_MODE |             |         |

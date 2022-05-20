@@ -17,7 +17,7 @@
     "strictNullChecks": true,
     "baseUrl": ".",
     "paths": {
-      "@mavryk-oracle-node/admin": ["libs/admin/src/index.ts"],
+      "@mavryk-oracle-node/maintainer": ["libs/maintainer/src/index.ts"],
       "@mavryk-oracle-node/coingecko-fetcher": [
         "libs/coingecko-fetcher/src/index.ts"
       ],
