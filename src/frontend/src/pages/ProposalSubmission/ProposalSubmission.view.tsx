@@ -1,14 +1,16 @@
 import * as React from 'react'
 import { Page } from 'styles'
+
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
-import '@silevis/reactgrid/styles.css'
+import { GovernancePhase } from '../../reducers/governance'
 import { ProposalSubmissionForm } from './ProposalSubmission.style'
 import { PropSubmissionTopBar } from './PropSubmissionTopBar/PropSubmissionTopBar.controller'
-import { GovernancePhase } from '../../reducers/governance'
 import { StageOneForm } from './StageOneForm/StageOneForm.controller'
-import { StageTwoForm } from './StageTwoForm/StageTwoForm.controller'
 import { StageThreeForm } from './StageThreeForm/StageThreeForm.controller'
+import { StageTwoForm } from './StageTwoForm/StageTwoForm.controller'
+
+import '@silevis/reactgrid/styles.css'
 
 type ProposalSubmissionViewProps = {
   loading: boolean
@@ -21,7 +23,7 @@ type ProposalSubmissionViewProps = {
 export const ProposalSubmissionView = ({ loading, activeTab, handleChangeTab }: ProposalSubmissionViewProps) => {
   return (
     <Page>
-      <PageHeader page={'governance'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'proposal submission'} kind={PRIMARY} loading={loading} />
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
       <ProposalSubmissionForm>
         {activeTab === 1 && <StageOneForm loading={loading} />}
