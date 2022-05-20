@@ -48,6 +48,7 @@ export const MenuView = ({ accountPkh, ready }: MenuViewProps) => {
         <MenuMobileBurger
           onClick={e => {
             e.stopPropagation();
+            setExpanded(0);
             setExpandedMenuMob(!isExpandedMenuMob);
           }}
           className={'burger-menu'}
