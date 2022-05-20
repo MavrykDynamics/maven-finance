@@ -77,6 +77,8 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
   right: ${({ page }) => {
     switch (page) {
       case 'governance':
+      case 'break glass':
+      case 'emergency governance':
         return '10px'
       default:
         return '0'
@@ -99,6 +101,9 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '150px'
       case 'dashboard':
         return '172px'
+      case 'break glass':
+      case 'emergency governance':
+        return '130px'
       case 'governance':
         return '156px'
       default:
@@ -111,6 +116,8 @@ export const PageHeaderForegroundImage = styled.img<{ page: string; src: string 
         return '-20px'
       case 'governance':
         return '6px'
+      case 'emergency governance':
+        return '-2px'
       default:
         return '0'
     }
