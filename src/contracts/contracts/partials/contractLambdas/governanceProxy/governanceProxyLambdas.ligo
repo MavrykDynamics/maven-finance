@@ -1337,7 +1337,7 @@ block {
 
         // find and get update_operators entrypoint of treasury contract
         const updateEntrypoint = case (Tezos.get_entrypoint_opt(
-            "%update_operators",
+            "%updateOperators",
             targetTreasuryAddress) : option(contract(updateOperatorsParams))) of [
                   Some(contr) -> contr
                 | None        -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED) : contract(updateOperatorsParams))
