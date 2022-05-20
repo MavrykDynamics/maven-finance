@@ -25,7 +25,6 @@ async def on_doorman_stake(
     doorman                             = await models.Doorman.get(address=doorman_address)
     unclaimed_rewards                   = float(stake.storage.unclaimedRewards)
     accumulated_fees_per_share          = float(stake.storage.accumulatedFeesPerShare)
-    smvk_total_supply                   = float(stake.storage.stakedMvkTotalSupply)
 
     # Get or create the interacting user
     user, _ = await models.MavrykUser.get_or_create(
@@ -38,11 +37,11 @@ async def on_doorman_stake(
     await user.save()
 
     # Calculate the MLI
-    previous_mvk_total_supply   = float(transfer.storage.totalSupply) + amount
-    previous_smvk_total_supply  = smvk_total_supply - amount
-    mli = 0.0
-    if previous_mvk_total_supply > 0.0:
-        mli = previous_smvk_total_supply / previous_mvk_total_supply
+    # previous_mvk_total_supply   = float(transfer.storage.totalSupply) + amount
+    # previous_smvk_total_supply  = smvk_total_supply - amount
+    # mli = 0.0
+    # if previous_mvk_total_supply > 0.0:
+    #     mli = previous_smvk_total_supply / previous_mvk_total_supply
     
     # Create a stake record
     stake_record = models.StakeRecord(
@@ -52,12 +51,11 @@ async def on_doorman_stake(
         final_amount        = amount,
         doorman             = doorman,
         from_               = user,
-        mvk_loyalty_index   = mli
+        # mvk_loyalty_index   = mli
     )
     await stake_record.save()
 
     # Update doorman contract
     doorman.unclaimed_rewards           = unclaimed_rewards
     doorman.accumulated_fees_per_share  = accumulated_fees_per_share
-    doorman.smvk_total_supply           += amount
     await doorman.save()
