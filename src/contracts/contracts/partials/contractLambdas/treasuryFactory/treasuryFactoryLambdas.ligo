@@ -302,8 +302,8 @@ block{
                 const treasuryBreakGlassConfig: treasuryBreakGlassConfigType = record[
                     transferIsPaused           = False;
                     mintMvkAndTransferIsPaused = False;
-                    stakeIsPaused              = False;
-                    unstakeIsPaused            = False;
+                    stakeMvkIsPaused           = False;
+                    unstakeMvkIsPaused         = False;
                 ];
 
                 // Prepare Treasury Metadata
