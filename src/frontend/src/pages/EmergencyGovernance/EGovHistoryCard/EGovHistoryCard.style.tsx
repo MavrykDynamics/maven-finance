@@ -1,18 +1,21 @@
 import styled from 'styled-components/macro'
+import { Card } from 'styles'
+
 import { MavrykTheme } from '../../../styles/interfaces'
 
-export const EGovHistoryCardStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
+export const EGovHistoryCardStyled = styled(Card)<{ theme: MavrykTheme }>`
   width: 100%;
   border-radius: 10px;
+  margin-bottom: 15px;
+  margin-top: 0;
+  padding: 0;
+  cursor: pointer;
 `
 export const EGovHistoryCardTopSection = styled.div<{ height: number; theme: MavrykTheme }>`
-  margin: 15px 15px 0 15px;
-  height: 100px;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  padding: 20px 15px;
+  grid-template-columns: 180px 260px 150px 110px auto 120px;
+  padding: 20px 40px;
 `
 
 export const EGovHistoryArrowButton = styled.div<{ theme: MavrykTheme }>`
@@ -34,30 +37,33 @@ export const EGovHistoryCardTitleTextGroup = styled.div<{ theme: MavrykTheme }>`
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
+
   > h3 {
-    font-size: 16px;
-    font-weight: 600;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 21px;
+    color: ${({ theme }) => theme.headerSkyColor};
   }
   > p {
     margin-bottom: 0;
-
-    color: ${({ theme }) => theme.subTextColor};
-    font-weight: 600;
+    margin-top: 0;
+    color: ${({ theme }) => theme.valueColor};
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 14px;
   }
 
   > svg {
     height: 8px;
     width: 13px;
-    stroke: ${({ theme }) => theme.primaryColor};
+    stroke: ${({ theme }) => theme.valueColor};
     stroke-width: 5px;
     fill: none;
   }
 
   &.statusFlag {
+    margin-left: auto;
     justify-content: center;
-    align-items: center;
-    display: inline-flex;
-    max-width: 90%;
   }
 `
 

@@ -1,16 +1,12 @@
 import * as React from 'react'
-import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
-import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
+
 import { Button } from '../../app/App.components/Button/Button.controller'
-import { EmergencyGovernancePastProposal } from './mockEGovProposals'
+import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
+import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
 import { EGovHistoryCard } from './EGovHistoryCard/EGovHistoryCard.controller'
-import {
-  EmergencyGovernanceCard,
-  CardContentLeftSide,
-  CardContentRightSide,
-  EmergencyGovernHistory,
-  CardContent,
-} from './EmergencyGovernance.style'
+// prettier-ignore
+import { CardContent, CardContentLeftSide, CardContentRightSide, EmergencyGovernanceCard, EmergencyGovernHistory } from './EmergencyGovernance.style'
+import { EmergencyGovernancePastProposal } from './mockEGovProposals'
 
 type BreakGlassViewProps = {
   loading: boolean
