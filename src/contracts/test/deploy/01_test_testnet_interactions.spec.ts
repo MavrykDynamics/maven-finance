@@ -533,7 +533,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin distributes rewards', async () => {
             try{
                 // Operation
-                const operation = await delegationInstance.methods.distributeReward([bob.sk], MVK(100)).send();
+                const operation = await delegationInstance.methods.distributeReward([bob.pkh], MVK(100)).send();
                 await operation.confirmation();
             await operation.confirmation();
             } catch(e){
@@ -733,7 +733,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates proposal description max length', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(1000, "ConfigProposalDescMaxLength").send();
+                const operation = await governanceInstance.methods.updateConfig(1000, "configProposalDescMaxLength").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
