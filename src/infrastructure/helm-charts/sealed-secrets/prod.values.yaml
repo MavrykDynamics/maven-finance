@@ -195,7 +195,7 @@ sealed-secrets:
   ingress:
     ## @param ingress.enabled Enable ingress record generation for Sealed Secret
     ##
-    enabled: false
+    enabled: true
     ## @param ingress.pathType Ingress path type
     ##
     pathType: ImplementationSpecific
@@ -209,7 +209,7 @@ sealed-secrets:
     ingressClassName: ''
     ## @param ingress.hostname Default host for the ingress record
     ##
-    hostname: sealed-secrets.local
+    hostname: sealed-secrets.mavryk.finance
     ## @param ingress.path Default path for the ingress record
     ##
     path: /v1/cert.pem
@@ -222,6 +222,8 @@ sealed-secrets:
     ##   cert-manager.io/cluster-issuer: cluster-issuer-name
     ##
     annotations:
+      kubernetes.io/ingress.class: nginx
+      cert-manager.io/cluster-issuer: letsencrypt-prod
     ## @param ingress.tls Enable TLS configuration for the host defined at `ingress.hostname` parameter
     ## TLS certificates will be retrieved from a TLS secret with name: `{{- printf "%s-tls" .Values.ingress.hostname }}`
     ## You can:
@@ -257,7 +259,10 @@ sealed-secrets:
     ##     - sealed-secrets.local
     ##   secretName: sealed-secrets.local-tls
     ##
-    extraTls: []
+    extraTls:
+      - hosts:
+          - sealed-secrets.mavryk.finance
+        secretName: sealed-secrets-mavryk-tls
     ## @param ingress.secrets [array] Custom TLS certificates as secrets
     ## NOTE: 'key' and 'certificate' are expected in PEM format
     ## NOTE: 'name' should line up with a 'secretName' set further up

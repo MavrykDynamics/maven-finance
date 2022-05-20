@@ -26,7 +26,8 @@ inputs = {
   k8s_firewall_enabled    = true
   k8s_id                  = dependency.k8s.outputs.k8s_id
   pg_additional_database  = [
-    "dipdup"
+    "dipdup",
+    "dipdup-dev"
   ]
   tags                    = [
     "mavryk",

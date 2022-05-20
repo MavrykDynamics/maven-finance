@@ -17,43 +17,43 @@ hasura:
 
 contracts:
   mvk:
-    address: KT1KrD1ndatUfaxic6HcQX91JtFaw7v8zwXv
+    address: KT1Vy6dzCFQcHsQTjWy3cbD1Li6bTtj4WiVZ
     typename: mvk
   governance:
-    address: KT1UNTLHfryi9BFpmC7Asr5mqb44dWT7XUeo
+    address: KT1MKLdg3GgmgCsBRL79LH4URY7JTzRh1vVe
     typename: governance
   doorman:
-    address: KT1VXFimMAS2jLd24pGWNT9AFyJgAMuHJdKG
+    address: KT1XHie7nqrdEEZCz8Nxd75Z88t3j7z33H6v
     typename: doorman
   farm:
-    address: KT1PaY8u2vd36Sec8AZ85xfUZUxakYDucN5M
+    address: KT1JCpqE7w7ePMSeMVg6pmX7VtfbT74eGEpc
     typename: farm
   farm_factory:
-    address: KT1BXVecWNTMjFWscsgeKx3T2zLtEJn5iS5c
+    address: KT1S9C3ZZy3GskM9euKZtNTCv7JzWdi2mYGd
     typename: farm_factory
   delegation:
-    address: KT1BBQZFcdXkbT1uhmpML9Bmr2EKtL75N7UV
+    address: KT1DSVod56ZtxLcsEtqpcYyhwaJkKShsZx22
     typename: delegation
   vesting:
-    address: KT1QBUuZnUyz7p3NuD8XfXxf2gGhWfZ94QxZ
+    address: KT1Mex5gu37gZ2meTG5ykmHMhxBFvbRUQwUG
     typename: vesting
   emergency_governance:
-    address: KT1PNVGYeYwLwWZ1zgxyGBo9rFXpjDP3kaqG
+    address: KT1ADf8nyqAcHyik5EUmhRqny27Gvj5kTWpV
     typename: emergency_governance
   council:
-    address: KT1S16Zde1Zzy7ZhHCeWRZemdo7WTYZPgRte
+    address: KT1DJAF7e7gCckH6oXrKUeLskXyuTPabhcGH
     typename: council
   break_glass:
-    address: KT1TFGr4t8wuNCK2vaTXvS3DEtLHVicSFNPg
+    address: KT1R7M83JJmyvK2i2t1KaaPH7d9TkMjQhqCh
     typename: break_glass
   governance_financial:
-    address: KT1LjeGBfnhR6smy2MJWNtwE3ogP3uscUWfa
+    address: KT1MBHm27DAtao2w2s9bxucVeR6UkqUm3Yrm
     typename: governance_financial
   treasury:
-    address: KT19ptWfjP5iPJo2mf1peKYJRgNvGw97kevR
+    address: KT1Byx4jJJZLK27jyEzPHnJK6kyJHSCiSTtQ
     typename: treasury
   treasury_factory:
-    address: KT1Db4g6d8jRNtCdYfBGP1kbCqFVDM6jtRWr
+    address: KT1N4C8rSK6gFYvjvYjTH9fSNQyG3EjUvSaY
     typename: treasury_factory
 
 datasources:
@@ -336,6 +336,10 @@ indexes:
         pattern:
           - destination: doorman
             entrypoint: togglePauseCompound
+      - callback: on_doorman_toggle_pause_farm_claim
+        pattern:
+          - destination: doorman
+            entrypoint: togglePauseFarmClaim
       - callback: on_doorman_stake
         pattern:
           - destination: doorman
@@ -588,10 +592,10 @@ indexes:
         pattern:
           - destination: delegation
             entrypoint: distributeReward
-      - callback: on_delegation_on_satellite_reward_paid
+      - callback: on_delegation_on_stake_change
         pattern:
           - destination: delegation
-            entrypoint: onSatelliteRewardPaid
+            entrypoint: onStakeChange
   # Vesting contract indexes
   vesting:
     kind: operation
@@ -980,6 +984,14 @@ indexes:
         pattern:
           - destination: treasury
             entrypoint: togglePauseMintMvkAndTransfer
+      - callback: on_treasury_toggle_pause_stake_mvk
+        pattern:
+          - destination: treasury
+            entrypoint: togglePauseStakeMvk
+      - callback: on_treasury_toggle_pause_unstake_mvk
+        pattern:
+          - destination: treasury
+            entrypoint: togglePauseUnstakeMvk
       - callback: on_treasury_transfer
         pattern:
           - destination: treasury

@@ -15,6 +15,7 @@ class BreakGlassConfig(BaseModel):
     stakeIsPaused: bool
     unstakeIsPaused: bool
     compoundIsPaused: bool
+    farmClaimIsPaused: bool
 
 
 class UserStakeBalanceLedger(BaseModel):
@@ -41,7 +42,6 @@ class DoormanStorage(BaseModel):
     generalContracts: Dict[str, str]
     breakGlassConfig: BreakGlassConfig
     userStakeBalanceLedger: Dict[str, UserStakeBalanceLedger]
-    stakedMvkTotalSupply: str
     unclaimedRewards: str
     accumulatedFeesPerShare: str
     lambdaLedger: Dict[str, str]

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hasura
+  name: hasura-dev
 spec:
   ports:
     - name: http
@@ -10,27 +10,27 @@ spec:
       protocol: TCP
       targetPort: http
   selector:
-    app: hasura
+    app: hasura-dev
   type: ClusterIP
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hasura
+  name: hasura-dev
   labels:
-    app: hasura
+    app: hasura-dev
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hasura
+      app: hasura-dev
   template:
     metadata:
       labels:
-        app: hasura
+        app: hasura-dev
     spec:
       containers:
-        - name: hasura
+        - name: hasura-dev
           env:
             - name: HASURA_GRAPHQL_ENABLE_CONSOLE
               value: 'true'
@@ -44,13 +44,13 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: indexer
-                  key: HASURA_GRAPHQL_DATABASE_URL_PROD
+                  key: HASURA_GRAPHQL_DATABASE_URL_DEV
             - name: HASURA_GRAPHQL_ADMIN_SECRET
               valueFrom:
                 secretKeyRef:
                   name: indexer
                   key: HASURA_GRAPHQL_ADMIN_SECRET
-          image: hasura/graphql-engine:v2.3.0
+          image: hasura/graphql-engine:v2.6.2
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
@@ -60,7 +60,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: hasura
+  name: hasura-dev
   annotations:
     kubernetes.io/ingress.class: nginx
     cert-manager.io/cluster-issuer: letsencrypt-prod
@@ -71,16 +71,16 @@ metadata:
 spec:
   tls:
     - hosts:
-        - api.mavryk.finance
-      secretName: api-mavryk-tls
+        - api-dev.mavryk.finance
+      secretName: api-dev-mavryk-tls
   rules:
-    - host: api.mavryk.finance
+    - host: api-dev.mavryk.finance
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: hasura
+                name: hasura-dev
                 port:
                   number: 8080

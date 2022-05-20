@@ -333,6 +333,8 @@ async def persist_admin(set_admin,contract):
 async def persist_governance(set_governance,contract):
     # Get operation info
     governance_address      = set_governance.parameter.__root__
-    contract.governance     = governance_address
+    governance, _           = await models.Governance.get_or_create(address = governance_address)
+    contract.governance     = governance
+    await governance.save()
 
     await contract.save()
