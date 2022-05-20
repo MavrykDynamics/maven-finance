@@ -1,3 +1,5 @@
+import {BigNumber} from "bignumber.js";
+
 const { InMemorySigner, importKey } = require("@taquito/signer");
 import assert, { ok, rejects, strictEqual } from "assert";
 import { MVK, Utils, zeroAddress } from "../helpers/Utils";
@@ -13,7 +15,7 @@ chai.use(chaiAsPromised)
 chai.should()
 
 import env from '../../env'
-import { bob, alice, eve, mallory } from '../../scripts/sandbox/accounts'
+import { bob, alice, eve, mallory, oracle0, oracle1, oracle2, oracleMaintainer } from '../../scripts/sandbox/accounts'
 
 import governanceProxyLambdas from '../../build/lambdas/governanceProxyLambdas.json'
 import governanceLambdas from '../../build/lambdas/governanceLambdas.json'
@@ -691,7 +693,7 @@ describe('Contracts Deployment for Tests', async () => {
       
       const setupFarmFa2LambdasOperation = await farmFa2LambdaBatch.send()
       await setupFarmFa2LambdasOperation.confirmation()
-      console.log("Farm FA12 Lambdas Setup")
+      console.log("Farm FA2 Lambdas Setup")
 
 
       // Farm Factory Setup Lambdas
@@ -906,8 +908,8 @@ describe('Contracts Deployment for Tests', async () => {
       [oracle0.pkh]: true,
       [oracle1.pkh]: true,
       [oracle2.pkh]: true,
-      [oracle3.pkh]: true,
-      [oracle4.pkh]: true,
+//      [oracle3.pkh]: true,
+//      [oracle4.pkh]: true,
     }) as MichelsonMap<
         string,
         boolean
