@@ -255,6 +255,8 @@ export class SetObservationService implements OnModuleInit {
       `[${aggregatorSmartContractAddress}] Sending observationCommit on pair ${pair[0]}/${pair[1]}: ${price} for round ${round}`
     );
 
+
+    this.logger.debug(`[${aggregatorSmartContractAddress}] Sending setObservationCommit(${round}, hash(${price}, ${salt}, ${this.commonService.getPkh()}) = ${commitDataHash}`);
     const op = aggregator.methods
       .setObservationCommit(round, commitDataHash)
       .toTransferParams();
@@ -355,6 +357,8 @@ export class SetObservationService implements OnModuleInit {
       `[${aggregatorSmartContractAddress}] Sending observationReveal on pair ${pair[0]}/${pair[1]}: ${price} for round ${round}`
     );
 
+
+    this.logger.debug(`[${aggregatorSmartContractAddress}] Sending setObservationReveal(${round}, ${price}, ${salt}, ${pkh})`);
     const op = aggregator.methods
       .setObservationReveal(round, price, salt, pkh)
       .toTransferParams();
