@@ -171,9 +171,9 @@ block {
       | UntrackTreasury (_v)                   -> 27n
       | TransferTreasury (_v)                  -> 28n
       | MintMvkAndTransferTreasury (_v)        -> 29n
-      | UpdateOperatorsTreasury (_v)           -> 30n
-      | StakeTreasury (_v)                     -> 31n
-      | UnstakeTreasury (_v)                   -> 32n
+      | UpdateMvkOperatorsTreasury (_v)        -> 30n
+      | StakeMvkTreasury (_v)                  -> 31n
+      | UnstakeMvkTreasury (_v)                -> 32n
 
       (* MVK Token Control *)
       | UpdateMvkInflationRate (_v)            -> 33n
@@ -1319,7 +1319,7 @@ block {
 
 
 
-function updateOperatorsTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function updateMvkOperatorsTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1328,19 +1328,19 @@ block {
 
     case executeAction of [
       
-      UpdateOperatorsTreasury(updateOperatorsTreasuryParams) -> {
+      UpdateMvkOperatorsTreasury(updateMvkOperatorsTreasuryParams) -> {
 
         // assign params to constants for better code readability
-        const targetTreasuryAddress   : address                  = updateOperatorsTreasuryParams.targetTreasuryAddress;
-        const updatedOperators        : updateOperatorsParams    = updateOperatorsTreasuryParams.treasuryUpdatedOperators;
+        const targetTreasuryAddress   : address                  = updateMvkOperatorsTreasuryParams.targetTreasuryAddress;
+        const updatedOperators        : updateOperatorsParams    = updateMvkOperatorsTreasuryParams.treasuryUpdatedOperators;
 
 
         // find and get update_operators entrypoint of treasury contract
         const updateEntrypoint = case (Tezos.get_entrypoint_opt(
-            "%updateOperators",
+            "%updateMvkOperators",
             targetTreasuryAddress) : option(contract(updateOperatorsParams))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UPDATE_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED) : contract(updateOperatorsParams))
+                | None        -> (failwith(error_UPDATE_MVK_OPERATORS_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(updateOperatorsParams))
             ];
 
         // update operators operation
@@ -1399,7 +1399,7 @@ block {
 
 
 
-function stakeTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function stakeMvkTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1408,19 +1408,19 @@ block {
 
     case executeAction of [
       
-      StakeTreasury(stakeTreasuryParams) -> {
+      StakeMvkTreasury(stakeMvkTreasuryParams) -> {
 
         // assign params to constants for better code readability
-        const targetTreasuryAddress   : address       = stakeTreasuryParams.targetTreasuryAddress;
-        const treasuryStake           : nat           = stakeTreasuryParams.stakeAmount;
+        const targetTreasuryAddress   : address       = stakeMvkTreasuryParams.targetTreasuryAddress;
+        const treasuryStake           : nat           = stakeMvkTreasuryParams.stakeAmount;
 
 
         // find and get stake entrypoint of treasury contract
         const stakeEntrypoint = case (Tezos.get_entrypoint_opt(
-            "%stake",
+            "%stakeMvk",
             targetTreasuryAddress) : option(contract(nat))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_STAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(nat))
+                | None        -> (failwith(error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(nat))
             ];
 
         // stake MVK operation
@@ -1439,7 +1439,7 @@ block {
 
 
 
-function unstakeTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
+function unstakeMvkTreasury(const executeAction : executeActionType; var s : governanceProxyStorage) : return is 
 block {
 
     checkSenderIsAdminOrGovernance(s);
@@ -1448,19 +1448,19 @@ block {
 
     case executeAction of [
       
-      UnstakeTreasury(unstakeTreasuryParams) -> {
+      UnstakeMvkTreasury(unstakeMvkTreasuryParams) -> {
 
         // assign params to constants for better code readability
-        const targetTreasuryAddress   : address       = unstakeTreasuryParams.targetTreasuryAddress;
-        const treasuryUnstake         : nat           = unstakeTreasuryParams.unstakeAmount;
+        const targetTreasuryAddress   : address       = unstakeMvkTreasuryParams.targetTreasuryAddress;
+        const treasuryUnstake         : nat           = unstakeMvkTreasuryParams.unstakeAmount;
 
 
         // find and get unstake entrypoint of treasury contract
         const unstakeEntrypoint = case (Tezos.get_entrypoint_opt(
-            "%unstake",
+            "%unstakeMvk",
             targetTreasuryAddress) : option(contract(nat))) of [
                   Some(contr) -> contr
-                | None        -> (failwith(error_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(nat))
+                | None        -> (failwith(error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(nat))
             ];
 
         // unstake MVK operation

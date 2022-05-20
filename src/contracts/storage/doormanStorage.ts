@@ -40,8 +40,7 @@ export const doormanStorage: doormanStorageType = {
     compoundIsPaused        : false
   },
   userStakeBalanceLedger    : MichelsonMap.fromLiteral({}),
-
-  stakedMvkTotalSupply      : new BigNumber(0),
+  
   unclaimedRewards          : new BigNumber(0),
 
   accumulatedFeesPerShare   : new BigNumber(0),

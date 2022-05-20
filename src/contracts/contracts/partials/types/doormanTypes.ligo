@@ -69,7 +69,6 @@ type doormanStorage is [@layout:comb] record [
   
   userStakeBalanceLedger    : userStakeBalanceLedgerType;  // user staked balance ledger
 
-  stakedMvkTotalSupply      : nat; // current total staked MVK
   unclaimedRewards          : nat; // current exit fee pool rewards
 
   accumulatedFeesPerShare   : nat;

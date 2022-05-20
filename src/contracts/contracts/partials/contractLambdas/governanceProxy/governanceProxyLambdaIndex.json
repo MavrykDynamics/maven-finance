@@ -145,15 +145,15 @@
   },
   {
     "index": 36,
-    "name": "updateOperatorsTreasury"
+    "name": "updateMvkOperatorsTreasury"
   },
   {
     "index": 37,
-    "name": "stakeTreasury"
+    "name": "stakeMvkTreasury"
   },
   {
     "index": 38,
-    "name": "unstakeTreasury"
+    "name": "unstakeMvkTreasury"
   },
   {
     "index": 39,
