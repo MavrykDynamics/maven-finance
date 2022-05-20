@@ -1,17 +1,10 @@
-import {
-  PropSubTopBarTabsContainer,
-  PropSubmissionTopBarStyled,
-  PropSubTopBarPhaseText,
-  TimeLeftArea,
-  PropSubTopBarEmergencyGovText,
-  PropSubTopBarTimeContainer,
-  PropSubTopBarTabsText,
-  CurrentPhaseContainer,
-} from './PropSubmissionTopBar.style'
 import * as React from 'react'
-import { GovernancePhase } from '../../../reducers/governance'
-import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+
 import { GOV_PROPOSAL_SUBMISSION_FORM } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.constants'
+import { SlidingTabButtons } from '../../../app/App.components/SlidingTabButtons/SlidingTabButtons.controller'
+import { GovernancePhase } from '../../../reducers/governance'
+//prettier-ignore
+import { CurrentPhaseContainer, PropSubmissionTopBarStyled, PropSubTopBarEmergencyGovText, PropSubTopBarPhaseText, PropSubTopBarTabsContainer, PropSubTopBarTabsText, PropSubTopBarTimeContainer, PropSubTopBarValueText, TimeLeftArea, TimeLeftAreaWrap } from './PropSubmissionTopBar.style'
 
 export type PropSubmissionTopBarViewProps = {
   loading: boolean
@@ -43,13 +36,13 @@ export const PropSubmissionTopBarView = ({
           <PropSubTopBarTimeContainer>
             <CurrentPhaseContainer>
               <PropSubTopBarPhaseText>Current Phase: </PropSubTopBarPhaseText>
-              <PropSubTopBarPhaseText id={'isPhaseText'}>
+              <PropSubTopBarValueText>
                 {governancePhase.substring(0, 1)}
                 {governancePhase.substring(1).toLocaleLowerCase()}
-              </PropSubTopBarPhaseText>
+              </PropSubTopBarValueText>
             </CurrentPhaseContainer>
 
-            <div>
+            <TimeLeftAreaWrap>
               {typeof timeLeftInPhase === 'number' ? (
                 <TimeLeftArea>{Math.ceil(timeLeftInPhase)} days remaining</TimeLeftArea>
               ) : (
@@ -57,7 +50,7 @@ export const PropSubmissionTopBarView = ({
                   Ends {timeLeftInPhase.toLocaleDateString('en-GB')} at {timeLeftInPhase.toLocaleTimeString('en-GB')}
                 </TimeLeftArea>
               )}
-            </div>
+            </TimeLeftAreaWrap>
           </PropSubTopBarTimeContainer>
         </>
       )}
