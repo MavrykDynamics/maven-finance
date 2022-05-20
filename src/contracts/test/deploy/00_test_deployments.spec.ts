@@ -747,7 +747,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasury.contract.methods.setLambda("lambdaTogglePauseUnstake"                     , treasuryLambdas[12]))  // togglePauseUnstake
       .withContractCall(treasury.contract.methods.setLambda("lambdaTransfer"                               , treasuryLambdas[13]))  // transfer
       .withContractCall(treasury.contract.methods.setLambda("lambdaMintMvkAndTransfer"                     , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateOperators"                        , treasuryLambdas[15]))  // update_operators
+      .withContractCall(treasury.contract.methods.setLambda("lambdaUpdateOperators"                        , treasuryLambdas[15]))  // updateOperators
       .withContractCall(treasury.contract.methods.setLambda("lambdaStake"                                  , treasuryLambdas[16]))  // stake
       .withContractCall(treasury.contract.methods.setLambda("lambdaUnstake"                                , treasuryLambdas[17]))  // unstake
 
@@ -796,7 +796,7 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTogglePauseUnstake"           , treasuryLambdas[12]))  // togglePauseUnstake
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaTransfer"                     , treasuryLambdas[13]))  // transfer
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaMintMvkAndTransfer"           , treasuryLambdas[14]))  // mintMvkAndTransfer
-      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateOperators"              , treasuryLambdas[15]))  // update_operators
+      .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUpdateOperators"              , treasuryLambdas[15]))  // updateOperators
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaStake"                        , treasuryLambdas[16]))  // stake
       .withContractCall(treasuryFactory.contract.methods.setProductLambda("lambdaUnstake"                      , treasuryLambdas[17]))  // unstake
 
@@ -854,7 +854,7 @@ describe('Contracts Deployment for Tests', async () => {
       .send()
     await transferToTreasury.confirmation()
     const updateOperatorsTreasury = await treasury.contract.methods
-      .update_operators([
+      .updateOperators([
         {
           add_operator: {
               owner: treasury.contract.address,
