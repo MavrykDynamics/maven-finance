@@ -1,7 +1,7 @@
 import styled, { keyframes } from 'styled-components/macro'
 
 import { MavrykTheme } from '../../../styles/interfaces'
-import { primaryColor } from 'styles'
+import { primaryColor, headerColor } from 'styles'
 
 export const IPFSUploaderStyled = styled.div<{ theme: MavrykTheme }>`
   margin-bottom: 5px;
@@ -173,6 +173,13 @@ export const IpfsUploadedImageContainer = styled.figure`
     height: 50px;
     width: 50px;
     border-radius: 50%;
+  }
+
+  .uploaded-document {
+    width: 20px;
+    height: 20px;
+    stroke: ${headerColor};
+    margin-top: 12px;
   }
 `
 
