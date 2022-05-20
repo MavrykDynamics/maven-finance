@@ -3,6 +3,12 @@
 set -e
 set -o pipefail
 
-nx run contracts:migrate
+PRJT_ROOT="$( cd "$(dirname "$0")" >/dev/null 2>&1 || exit 1 ; pwd -P | grep -o '^.*/' )"
 
-docker-compose restart oracle-maintainer oracle-1 oracle-2 oracle-3
+(cd $PRJT_ROOT/../src/contracts/ && yarn migrate)
+
+cat $PRJT_ROOT/../src/contracts/deployments/aggregatorFactoryAddress.json \
+  |  python -c "import sys, json; print 'AGGREGATOR_FACTORY_SMART_CONTRACT_ADDRESS=' + json.load(sys.stdin)['address']" \
+  > $PRJT_ROOT/.contracts.env
+
+docker-compose up -d
