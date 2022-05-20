@@ -101,6 +101,8 @@ services:
     command: hangzbox start
       --add-bootstrap-account "eve,edpku9qEgcyfNNDK6EpMvu5SqXDqWRLuxdMxdyH12ivTUuB1KXfGP4,tz1MnmtP4uAcgMpeZN6JtyziXeFqqwQG6yn6,unencrypted:edsk3Sb16jcx9KrgMDsbZDmKnuN11v4AbTtPBgBSBTqYftd8Cq3i1e@2_000_000_000_000"
       --no-daemons-for=eve
+      --add-bootstrap-account "bob,edpktqePwpgrWGS49FiAMDacb3bLiDLE8BrbLoi6zYdcZ9bttDLo1D,tz1ezDb77a9jaFMHDWs8QXrKEDkpgGdgsjPD,unencrypted:edskSA1MhTp6Eq3T79MEP822eXAmxXBk89eFYGgwBsJjfyUHDGsYfudasQocwcb5DUEMvA1B3EsvxCZ8G6Wek6syxAA49DEKzq@2_000_000_000_000"
+      --no-daemons-for=bob
       --add-bootstrap-account "mallory,edpkujwsG5JMrWVXQwmRMBoR9yJkokRbn6wy3monpQKBpnZTs1ogRR,tz1R2oNqANNy2vZhnZBJc8iMEqW79t85Fv7L,unencrypted:edsk3W5Fz1yWK39sLY6vidmgkfmGAXh6V2JqUiri9W1pFeeYWbFbJL@2_000_000_000_000"
       --no-daemons-for=mallory
       --add-bootstrap-account "oscar,edpkvJm4eyR4vL7cY3B8zRyFMAGE4W8AuDtjio6v1GSm7dgS79rL23,tz1VGyrip8uZDWoyssXDP7d1boGdpQcaaMXc,unencrypted:edsk3Wz91mGzhGcq2jVnbTnfkyY7Zod8gdQp2dHfnzud5gRAJ2uoaK@2_000_000_000_000"

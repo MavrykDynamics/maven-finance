@@ -3,4 +3,4 @@
 set -e
 set -o pipefail
 
-docker-compose down -v
+docker-compose down -v --remove-orphans
