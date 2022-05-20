@@ -140,14 +140,14 @@
 //     });
 
 //     describe("%setAdmin", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
 //             try{
 //                 // Initial Values
 //                 councilStorage = await councilInstance.storage();
-//                 const currentAdmin = councilStorage.admin;
+//                 const currentAdmin = councilStorage.maintainer;
 
 //                 // Operation
 //                 const setAdminOperation = await councilInstance.methods.setAdmin(alice.pkh).send();
@@ -155,9 +155,9 @@
 
 //                 // Final values
 //                 councilStorage = await councilInstance.storage();
-//                 const newAdmin = councilStorage.admin;
+//                 const newAdmin = councilStorage.maintainer;
 
-//                 // reset admin
+//                 // reset maintainer
 //                 await signerFactory(alice.sk);
 //                 const resetAdminOperation = await councilInstance.methods.setAdmin(bob.pkh).send();
 //                 await resetAdminOperation.confirmation();
@@ -171,19 +171,19 @@
 //             }
 //         });
 
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 await signerFactory(alice.sk);
 //                 councilStorage = await councilInstance.storage();
-//                 const currentAdmin = councilStorage.admin;
+//                 const currentAdmin = councilStorage.maintainer;
 
 //                 // Operation
 //                 await chai.expect(councilInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
 
 //                 // Final values
 //                 councilStorage = await councilInstance.storage();
-//                 const newAdmin = councilStorage.admin;
+//                 const newAdmin = councilStorage.maintainer;
 
 //                 // Assertions
 //                 assert.strictEqual(newAdmin, currentAdmin);
@@ -194,7 +194,7 @@
 //     });
 
 //     describe("%updateConfig", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 
@@ -262,7 +262,7 @@
 //             }
 //         });
     
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 councilStorage = await councilInstance.storage();
@@ -1814,7 +1814,7 @@
 
 //         it('updateBlocksPerMinute --> should update the blocksPerMinute in the given contract', async () => {
 //             try{
-//                 // // Set farmFactory admin to governance for test purposes
+//                 // // Set farmFactory maintainer to governance for test purposes
 //                 const givenContractInstance     = await utils.tezos.contract.at(farmFactoryAddress.address);
 //                 // const setAdminOperation         = await givenContractInstance.methods.setAdmin(governanceAddress.address).send();
 //                 // await setAdminOperation.confirmation();

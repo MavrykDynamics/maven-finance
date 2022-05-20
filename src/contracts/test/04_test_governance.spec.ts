@@ -159,14 +159,14 @@
 //         // Reset signer
 //         await signerFactory(bob.sk)
 
-//         // Set council contract admin to governance proxy for later tests
+//         // Set council contract maintainer to governance proxy for later tests
 //         const setAdminOperation = await councilInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //         await setAdminOperation.confirmation()
 //     });
 
 //     describe("First Cycle", async () => {
 //         describe("%updateConfig", async () => {
-//             beforeEach("Set signer to admin", async () => {
+//             beforeEach("Set signer to maintainer", async () => {
 //                 await signerFactory(bob.sk)
 //             });
 //             it('Admin should be able to call the entrypoint and configure the success reward', async () => {
@@ -556,7 +556,7 @@
 //                     console.dir(e, {depth: 5})
 //                 }
 //             });
-//             it('Non-admin should not be able to call the entrypoint', async () => {
+//             it('Non-maintainer should not be able to call the entrypoint', async () => {
 //                 try{
 //                     // Initial Values
 //                     governanceStorage = await governanceInstance.storage();
@@ -3178,7 +3178,7 @@
 
 //         it('Other contracts should not be able to call this entrypoint', async () => {
 //             try{
-//                 // Set all contracts admin to governance address if it is not
+//                 // Set all contracts maintainer to governance address if it is not
 //                 await signerFactory(bob.sk);
 //                 await chai.expect(governanceInstance.methods.breakGlass().send()).to.be.rejected;
 //             } catch(e){
@@ -3188,7 +3188,7 @@
 
 //         it('Emergency Governance contract should not be able to call this entrypoint is the breakGlass contract does not exist in the generalContracts map', async () => {
 //             try{
-//                 // Set all contracts admin to governance address if it is not
+//                 // Set all contracts maintainer to governance address if it is not
 //                 await signerFactory(bob.sk);
 //                 governanceStorage             = await governanceInstance.storage();
 //                 var generalContracts          = governanceStorage.generalContracts.entries();
@@ -3201,8 +3201,8 @@
 //                     var contract        = await utils.tezos.contract.at(entry[1]);
 //                     var storage:any     = await contract.storage();
 
-//                     // Check admin
-//                     if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address){
+//                     // Check maintainer
+//                     if(storage.hasOwnProperty('maintainer') && storage.maintainer!==governanceProxyAddress.address){
 //                         var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
 //                         await setAdminOperation.confirmation()
 //                     }
@@ -3221,7 +3221,7 @@
 //                 const glassBroken       = breakGlassStorage.glassBroken;
 //                 assert.equal(glassBroken, false);
 
-//                 // Check admin and pause in all contracts
+//                 // Check maintainer and pause in all contracts
 //                 governanceStorage       = await governanceInstance.storage();
 //                 generalContracts        = governanceStorage.generalContracts.entries();
 //                 for (let entry of generalContracts){
@@ -3229,9 +3229,9 @@
 //                     var contract        = await utils.tezos.contract.at(entry[1]);
 //                     var storage:any     = await contract.storage();
 
-//                     // Check admin
-//                     if(storage.hasOwnProperty('admin')){
-//                         assert.equal(storage.admin, governanceProxyAddress.address)
+//                     // Check maintainer
+//                     if(storage.hasOwnProperty('maintainer')){
+//                         assert.equal(storage.maintainer, governanceProxyAddress.address)
 //                     }
 
 //                     // Check pause
@@ -3251,9 +3251,9 @@
 //             }
 //         })
 
-//         it('Emergency Governance contract should be able to call this entrypoint and call set the governance admin to the breakGlass address', async () => {
+//         it('Emergency Governance contract should be able to call this entrypoint and call set the governance maintainer to the breakGlass address', async () => {
 //             try{
-//                 // Set all contracts admin to governance address if it is not
+//                 // Set all contracts maintainer to governance address if it is not
 //                 await signerFactory(bob.sk);
 //                 governanceStorage             = await governanceInstance.storage();
 //                 var generalContracts          = governanceStorage.generalContracts.entries();
@@ -3263,8 +3263,8 @@
 //                     var contract        = await utils.tezos.contract.at(entry[1]);
 //                     var storage:any     = await contract.storage();
 
-//                     // Check admin
-//                     if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
+//                     // Check maintainer
+//                     if(storage.hasOwnProperty('maintainer') && storage.maintainer!==governanceProxyAddress.address && storage.maintainer!==breakGlassAddress.address){
 //                         var setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
 //                         await setAdminOperation.confirmation()
 //                     }
@@ -3279,9 +3279,9 @@
 //                 const glassBroken       = breakGlassStorage.glassBroken;
 //                 assert.equal(glassBroken, true);
 
-//                 // Check admin and pause in all contracts
+//                 // Check maintainer and pause in all contracts
 //                 governanceStorage       = await governanceInstance.storage();
-//                 assert.strictEqual(governanceStorage.admin, breakGlassAddress.address);
+//                 assert.strictEqual(governanceStorage.maintainer, breakGlassAddress.address);
 //             } catch(e){
 //                 console.dir(e, {depth: 5})
 //             }

@@ -88,7 +88,7 @@
 
 //     describe('Farm Factory', function() {
 //         describe('%createFarm', function() {
-//             it('Create a farm being the admin', async () => {
+//             it('Create a farm being the maintainer', async () => {
 //                 try{
 //                     // Create a transaction for initiating a farm
 //                     const operation = await farmFactoryInstance.methods.createFarm(
@@ -124,7 +124,7 @@
 //                 }
 //             })
 
-//             it('Create a farm without being the admin', async () => {
+//             it('Create a farm without being the maintainer', async () => {
 //                 try{
 //                     await signerFactory(alice.sk)
 //                     // Create a transaction for initiating a farm
@@ -143,7 +143,7 @@
 //                 }
 //             })
 
-//             it('Create a farm being the admin but without specific duration and finite', async () => {
+//             it('Create a farm being the maintainer but without specific duration and finite', async () => {
 //                 try{
 //                     // Create a transaction for initiating a farm
 //                     const operation = await farmFactoryInstance.methods.createFarm(
@@ -182,10 +182,10 @@
 //         });
 
 //         describe('%setAdmin', function() {
-//             it('Admin should be able to set a new admin', async() => {
+//             it('Admin should be able to set a new maintainer', async() => {
 //                 try{
 //                     // Initial values
-//                     const previousAdmin = farmFactoryStorage.admin;
+//                     const previousAdmin = farmFactoryStorage.maintainer;
 
 //                     // Create a transaction for initiating a farm
 //                     const operation = await farmFactoryInstance.methods.setAdmin(alice.pkh).send();
@@ -195,10 +195,10 @@
 //                     farmFactoryStorage = await farmFactoryInstance.storage();
 
 //                     // Assertion
-//                     assert.strictEqual(farmFactoryStorage.admin,alice.pkh);
+//                     assert.strictEqual(farmFactoryStorage.maintainer,alice.pkh);
 //                     assert.strictEqual(previousAdmin,bob.pkh);
 
-//                     // Reset admin
+//                     // Reset maintainer
 //                     await signerFactory(alice.sk);
 //                     const resetOperation = await farmFactoryInstance.methods.setAdmin(bob.pkh).send();
 //                     await resetOperation.confirmation();
@@ -207,7 +207,7 @@
 //                 }
 //             })
 
-//             it('Non-admin should not be able to set a new admin', async() => {
+//             it('Non-maintainer should not be able to set a new maintainer', async() => {
 //                 try{
 //                     // Create a transaction for initiating a farm
 //                     await signerFactory(eve.sk)
@@ -218,7 +218,7 @@
 //                     farmFactoryStorage = await farmFactoryInstance.storage();
 
 //                     // Assertion
-//                     assert.strictEqual(farmFactoryStorage.admin,bob.pkh)
+//                     assert.strictEqual(farmFactoryStorage.maintainer,bob.pkh)
 //                 }catch(e){
 //                     console.dir(e, {depth: 5})
 //                 }
@@ -284,7 +284,7 @@
 //                 }
 //             })
 
-//             it('Non-admin should not be able to pause all entrypoints', async() => {
+//             it('Non-maintainer should not be able to pause all entrypoints', async() => {
 //                 try{
 //                     // Change signer
 //                     await signerFactory(alice.sk);
@@ -390,7 +390,7 @@
 //                 }
 //             })
 
-//             it('Non-admin should not be able to unpause all entrypoints', async() => {
+//             it('Non-maintainer should not be able to unpause all entrypoints', async() => {
 //                 try{
 //                     // Change signer
 //                     await signerFactory(alice.sk);
@@ -421,7 +421,7 @@
 //                 }
 //             })
 
-//             it('Non-admin should not be able to unpause all entrypoints on all tracked farms', async() => {
+//             it('Non-maintainer should not be able to unpause all entrypoints on all tracked farms', async() => {
 //                 try{
 //                     // Change signer
 //                     await signerFactory(alice.sk);
@@ -497,7 +497,7 @@
 //                 }
 //             })
 
-//             it('Non-admin should not be able to pause and unpause the createFarm entrypoint', async() => {
+//             it('Non-maintainer should not be able to pause and unpause the createFarm entrypoint', async() => {
 //                 try{
 //                     // Change signer
 //                     await signerFactory(alice.sk);
@@ -553,7 +553,7 @@
 //                 }
 //             })
 
-//             it('Non-admin should not be able to pause and unpause the untrackFarm entrypoint', async() => {
+//             it('Non-maintainer should not be able to pause and unpause the untrackFarm entrypoint', async() => {
 //                 try{
 //                     // Change signer
 //                     await signerFactory(alice.sk);
@@ -609,7 +609,7 @@
 //                 }
 //             })
 
-//             it('Non-admin should not be able to pause and unpause the trackFarm entrypoint', async() => {
+//             it('Non-maintainer should not be able to pause and unpause the trackFarm entrypoint', async() => {
 //                 try{
 //                     // Change signer
 //                     await signerFactory(alice.sk);
@@ -683,7 +683,7 @@
 //                 }
 //             })
 
-//             it('Non-admin should not be able to track a farm', async () => {
+//             it('Non-maintainer should not be able to track a farm', async () => {
 //                 try{
 //                     // Create a transaction for initiating a farm
 //                     await signerFactory(alice.sk);
@@ -711,7 +711,7 @@
 //                         // Get contract storage
 //                         var contract        = await utils.tezos.contract.at(entry);
     
-//                         // Check admin
+//                         // Check maintainer
 //                         updateWhitelistContracts = await contract.methods.updateWhitelistContracts('council', bob.pkh).send();
 //                         await updateWhitelistContracts.confirmation()
 //                     }

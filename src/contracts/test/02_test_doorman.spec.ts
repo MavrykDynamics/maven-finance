@@ -663,7 +663,7 @@ describe("Doorman tests", async () => {
 
     describe("%migrateFunds", async () => {
 
-        beforeEach("Set signer to admin", async () => {
+        beforeEach("Set signer to maintainer", async () => {
             await signerFactory(bob.sk)
         })
         
@@ -705,7 +705,7 @@ describe("Doorman tests", async () => {
             }
         })
 
-        it("Non-admin should not be able to migrate the Doorman contract MVK funds", async() => {
+        it("Non-maintainer should not be able to migrate the Doorman contract MVK funds", async() => {
             try{
                 // Operations
                 await signerFactory(alice.sk)

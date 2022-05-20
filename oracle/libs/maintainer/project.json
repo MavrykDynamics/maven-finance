@@ -1,16 +1,16 @@
 {
-  "root": "libs/admin",
-  "sourceRoot": "libs/admin/src",
+  "root": "libs/maintainer",
+  "sourceRoot": "libs/maintainer/src",
   "projectType": "library",
   "targets": {
     "build": {
       "executor": "@nrwl/node:webpack",
       "outputs": ["{options.outputPath}"],
       "options": {
-        "outputPath": "dist/libs/admin",
-        "tsConfig": "libs/admin/tsconfig.lib.json",
-        "packageJson": "libs/admin/package.json",
-        "main": "libs/admin/src/index.ts",
+        "outputPath": "dist/libs/maintainer",
+        "tsConfig": "libs/maintainer/tsconfig.lib.json",
+        "packageJson": "libs/maintainer/package.json",
+        "main": "libs/maintainer/src/index.ts",
         "generatePackageJson": true
       }
     },
@@ -18,14 +18,14 @@
       "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/admin/**/*.ts"]
+        "lintFilePatterns": ["libs/maintainer/**/*.ts"]
       }
     },
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/admin"],
+      "outputs": ["coverage/libs/maintainer"],
       "options": {
-        "jestConfig": "libs/admin/jest.config.js",
+        "jestConfig": "libs/maintainer/jest.config.js",
         "passWithNoTests": true
       }
     }

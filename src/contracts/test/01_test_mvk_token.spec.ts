@@ -59,14 +59,14 @@
 //   })
 
 //   describe("%setAdmin", async () => {
-//       beforeEach("Set signer to admin", async () => {
+//       beforeEach("Set signer to maintainer", async () => {
 //           await signerFactory(bob.sk)
 //       });
 //       it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
 //           try{
 //               // Initial Values
 //               tokenStorage = await tokenInstance.storage();
-//               const currentAdmin = tokenStorage.admin;
+//               const currentAdmin = tokenStorage.maintainer;
 
 //               // Operation
 //               const setAdminOperation = await tokenInstance.methods.setAdmin(alice.pkh).send();
@@ -74,9 +74,9 @@
 
 //               // Final values
 //               tokenStorage = await tokenInstance.storage();
-//               const newAdmin = tokenStorage.admin;
+//               const newAdmin = tokenStorage.maintainer;
 
-//               // reset admin
+//               // reset maintainer
 //               await signerFactory(alice.sk);
 //               const resetAdminOperation = await tokenInstance.methods.setAdmin(bob.pkh).send();
 //               await resetAdminOperation.confirmation();
@@ -89,19 +89,19 @@
 //               console.log(e);
 //           }
 //       });
-//       it('Non-admin should not be able to call this entrypoint', async () => {
+//       it('Non-maintainer should not be able to call this entrypoint', async () => {
 //           try{
 //               // Initial Values
 //               await signerFactory(alice.sk);
 //               tokenStorage = await tokenInstance.storage();
-//               const currentAdmin = tokenStorage.admin;
+//               const currentAdmin = tokenStorage.maintainer;
 
 //               // Operation
 //               await chai.expect(tokenInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
 
 //               // Final values
 //               tokenStorage = await tokenInstance.storage();
-//               const newAdmin = tokenStorage.admin;
+//               const newAdmin = tokenStorage.maintainer;
 
 //               // Assertions
 //               assert.strictEqual(newAdmin, currentAdmin);
@@ -826,7 +826,7 @@
 //       }
 //     })
 
-//     // Testing the same functions tested on Bob and Alice but for Eve and Mallory (non admin addresses)
+//     // Testing the same functions tested on Bob and Alice but for Eve and Mallory (non maintainer addresses)
 //     it('Eve sends 2000MVK to Mallory', async () => {
 //       try {
 //         await signerFactory(eve.sk)
@@ -1938,7 +1938,7 @@
 //       }
 //     })
 
-//     // Testing the same functions tested on Bob and Alice but for Eve and Mallory (non admin addresses)
+//     // Testing the same functions tested on Bob and Alice but for Eve and Mallory (non maintainer addresses)
 //     it("Eve tries to mint 20000MVK on Mallory's address without being whitelisted", async () => {
 //       try {
 //         await signerFactory(eve.sk)
@@ -1977,7 +1977,7 @@
 //         const whitelistEveOperationAdd = await tokenInstance.methods.updateWhitelistContracts('eve', eve.pkh).send()
 //         await whitelistEveOperationAdd.confirmation()
 //       } catch (e) {
-//         assert.equal(e.message, 'ONLY_ADMINISTRATOR_ALLOWED', "Eve's address isn't an admin on the MVK Token contract")
+//         assert.equal(e.message, 'ONLY_ADMINISTRATOR_ALLOWED', "Eve's address isn't an maintainer on the MVK Token contract")
 //         tokenStorage = await tokenInstance.storage()
 //         const eveTokenLedgerAfter = await tokenStorage.ledger.get(eve.pkh)
 //         const malloryTokenLedgerAfter = await tokenStorage.ledger.get(mallory.pkh)

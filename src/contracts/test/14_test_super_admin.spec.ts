@@ -114,7 +114,7 @@
 //                         // Initial Values
 //                         emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
 
-//                         // Set all contracts admin to governance address if it is not
+//                         // Set all contracts maintainer to governance address if it is not
 //                         await signerFactory(bob.sk);
 //                         governanceStorage             = await governanceInstance.storage();
 //                         var generalContracts          = governanceStorage.generalContracts.entries();
@@ -191,7 +191,7 @@
 //                             ).send();
 //                         await registerAsSatelliteOperation.confirmation();
 
-//                         // Set all contracts admin to proxy
+//                         // Set all contracts maintainer to proxy
 //                         await signerFactory(bob.sk)
 //                         var setAdminOperation         = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                         await setAdminOperation.confirmation();
@@ -200,8 +200,8 @@
 //                             var contract        = await utils.tezos.contract.at(entry[1]);
 //                             var storage:any     = await contract.storage();
 
-//                             // Check admin
-//                             if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
+//                             // Check maintainer
+//                             if(storage.hasOwnProperty('maintainer') && storage.maintainer!==governanceProxyAddress.address && storage.maintainer!==breakGlassAddress.address){
 //                                 setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
 //                                 await setAdminOperation.confirmation()
 //                             }
@@ -222,7 +222,7 @@
 //                         assert.equal(glassBroken, true);
 //                         console.log("GLASS BROKEN: ", glassBroken)
 
-//                         // Break glass action to set govenance admin to bob
+//                         // Break glass action to set govenance maintainer to bob
 //                         await signerFactory(bob.sk)
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         var breakGlassActionID    = breakGlassStorage.actionCounter;
@@ -234,26 +234,26 @@
 //                         var signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
 //                         await signActionOperation.confirmation();
 
-//                         // Set admin action for governance contract
+//                         // Set maintainer action for governance contract
 //                         await signerFactory(bob.sk);
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         breakGlassActionID    = breakGlassStorage.actionCounter;
 //                         var setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, governanceAddress.address).send();
 //                         await setAdminActionOperation.confirmation()
 
-//                         // Sign set admin action
+//                         // Sign set maintainer action
 //                         await signerFactory(alice.sk);
 //                         signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
 //                         await signActionOperation.confirmation();
 
-//                         // Set admin action for delegation contract
+//                         // Set maintainer action for delegation contract
 //                         await signerFactory(bob.sk);
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         breakGlassActionID    = breakGlassStorage.actionCounter;
 //                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, delegationAddress.address).send();
 //                         await setAdminActionOperation.confirmation()
 
-//                         // Sign set admin action
+//                         // Sign set maintainer action
 //                         await signerFactory(alice.sk);
 //                         signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
 //                         await signActionOperation.confirmation();
@@ -263,14 +263,14 @@
 //                         var unpauseOperation  = await delegationInstance.methods.unpauseAll().send();
 //                         await unpauseOperation.confirmation()
 
-//                         // Set admin action for treasury contract
+//                         // Set maintainer action for treasury contract
 //                         await signerFactory(bob.sk);
 //                         breakGlassStorage   = await breakGlassInstance.storage();
 //                         breakGlassActionID    = breakGlassStorage.actionCounter;
 //                         setAdminActionOperation = await breakGlassInstance.methods.setSingleContractAdmin(bob.pkh, treasuryAddress.address).send();
 //                         await setAdminActionOperation.confirmation()
 
-//                         // Sign set admin action
+//                         // Sign set maintainer action
 //                         await signerFactory(alice.sk);
 //                         signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
 //                         await signActionOperation.confirmation();
@@ -285,11 +285,11 @@
 //                     }
 //                 })
 
-//                 beforeEach("Set signer to admin", async () => {
+//                 beforeEach("Set signer to maintainer", async () => {
 //                     await signerFactory(bob.sk)
 //                 });
 
-//                 it("Council should not be able to call this entrypoint if the new admin is not a whitelisted developer, the governance contract or the breakGlass contract", async() => {
+//                 it("Council should not be able to call this entrypoint if the new maintainer is not a whitelisted developer, the governance contract or the breakGlass contract", async() => {
 //                     try{
 //                         // Initial values
 //                         governanceStorage           = await governanceInstance.storage();
@@ -310,9 +310,9 @@
 //                     }
 //                 })
 
-//                 it("Council should not be able to call this entrypoint if the new admin was a whitelisted developer being removed before executing the action", async() => {
+//                 it("Council should not be able to call this entrypoint if the new maintainer was a whitelisted developer being removed before executing the action", async() => {
 //                     try{
-//                         // Reset governance admin to proxy
+//                         // Reset governance maintainer to proxy
 //                         const resetAdmin    = await governanceInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                         await resetAdmin.confirmation();
 
@@ -406,7 +406,7 @@
 //                     }
 //                 })
 
-//                 it("Council should be able to call this entrypoint if the new admin is a whitelisted developer", async() => {
+//                 it("Council should be able to call this entrypoint if the new maintainer is a whitelisted developer", async() => {
 //                     try{
 //                         // Reset delegation address to BreakGlass
 //                         const resetAdmin    = await delegationInstance.methods.setAdmin(breakGlassAddress.address).send();
@@ -435,14 +435,14 @@
 
 //                         // Assertions
 //                         assert.strictEqual(whitelistedDevelopers.includes(newAdmin), true);
-//                         assert.strictEqual(delegationStorage.admin, newAdmin);
+//                         assert.strictEqual(delegationStorage.maintainer, newAdmin);
 //                     }
 //                     catch (e){
 //                         console.dir(e, {depth: 5})
 //                     }
 //                 })
 
-//                 it("Council should be able to call this entrypoint if the new admin is the governance contract", async() => {
+//                 it("Council should be able to call this entrypoint if the new maintainer is the governance contract", async() => {
 //                     try{
 //                         // Initial values
 //                         governanceStorage           = await governanceInstance.storage();
@@ -453,7 +453,7 @@
 
 //                         // Operation
 //                         councilStorage   = await councilInstance.storage();
-//                         console.log(councilStorage.admin)
+//                         console.log(councilStorage.maintainer)
 //                         const setSingleContractAdminOperation   = await breakGlassInstance.methods.setSingleContractAdmin(newAdmin, targetContract).send();
 //                         await setSingleContractAdminOperation.confirmation();
 
@@ -466,14 +466,14 @@
 //                         councilStorage              = await councilInstance.storage();
 
 //                         // Assertions
-//                         assert.strictEqual(councilStorage.admin, newAdmin);
+//                         assert.strictEqual(councilStorage.maintainer, newAdmin);
 //                     }
 //                     catch (e){
 //                         console.dir(e, {depth: 5})
 //                     }
 //                 })
 
-//                 it("Council should be able to call this entrypoint if the new admin is the breakGlass contract", async() => {
+//                 it("Council should be able to call this entrypoint if the new maintainer is the breakGlass contract", async() => {
 //                     try{
 //                         // Initial values
 //                         governanceStorage           = await governanceInstance.storage();
@@ -495,7 +495,7 @@
 //                         emergencyGovernanceStorage  = await emergencyGovernanceInstance.storage();
 
 //                         // Assertions
-//                         assert.strictEqual(emergencyGovernanceStorage.admin, newAdmin);
+//                         assert.strictEqual(emergencyGovernanceStorage.maintainer, newAdmin);
 //                     }
 //                     catch (e){
 //                         console.dir(e, {depth: 5})
@@ -504,7 +504,7 @@
 //             });
     
 //             describe("%setAllContractsAdmin", async () => {
-//                 beforeEach("Set signer to admin", async () => {
+//                 beforeEach("Set signer to maintainer", async () => {
 //                     await signerFactory(bob.sk)
 //                 });
 //             });

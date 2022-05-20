@@ -199,7 +199,7 @@
 //                     ).send();
 //                 await registerAsSatelliteOperation.confirmation();
         
-//                 // Set contracts admin to governance proxy
+//                 // Set contracts maintainer to governance proxy
 //                 await signerFactory(bob.sk);
 //                 governanceStorage               = await governanceInstance.storage();            
 //                 const generalContracts          = governanceStorage.generalContracts.entries();
@@ -214,8 +214,8 @@
 //                     var contract        = await utils.tezos.contract.at(entry[1]);
 //                     var storage:any     = await contract.storage();
     
-//                     // Check admin
-//                     if(storage.hasOwnProperty('admin') && storage.admin!==governanceProxyAddress.address && storage.admin!==breakGlassAddress.address){
+//                     // Check maintainer
+//                     if(storage.hasOwnProperty('maintainer') && storage.maintainer!==governanceProxyAddress.address && storage.maintainer!==breakGlassAddress.address){
 //                         setAdminOperation   = await contract.methods.setAdmin(governanceProxyAddress.address).send();
 //                         await setAdminOperation.confirmation()
 //                     }
@@ -245,7 +245,7 @@
 
 //     describe('%setAdmin', function() {
 
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{        
 
 //                 await signerFactory(eve.sk);
@@ -264,15 +264,15 @@
 //                 await setAdminOperation.confirmation();
 
 //                 governanceProxyStorage   = await governanceProxyInstance.storage();            
-//                 assert.equal(governanceProxyStorage.admin, eve.pkh);
+//                 assert.equal(governanceProxyStorage.maintainer, eve.pkh);
 
-//                 // reset treasury admin to bob
+//                 // reset treasury maintainer to bob
 //                 await signerFactory(eve.sk);
 //                 const resetAdminOperation = await governanceProxyInstance.methods.setAdmin(bob.pkh).send();
 //                 await resetAdminOperation.confirmation();
 
 //                 governanceProxyStorage   = await governanceProxyInstance.storage();            
-//                 assert.equal(governanceProxyStorage.admin, bob.pkh);
+//                 assert.equal(governanceProxyStorage.maintainer, bob.pkh);
 
 //             } catch(e){
 //                 console.log(e);
@@ -282,7 +282,7 @@
 
 //     describe('%updateMetadata', function() {
 
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{
 //                 // Initial values
 //                 const key   = ''
@@ -321,7 +321,7 @@
 
 //     describe('%updateWhitelistContracts', function() {
 
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{
 //                 // Operation
 //                 await signerFactory(eve.sk);
@@ -352,7 +352,7 @@
 
 //     describe('%updateGeneralContracts', function() {
 
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{
 //                 // Operation
 //                 await signerFactory(eve.sk);
@@ -383,7 +383,7 @@
 
 //     describe('%updateWhitelistTokenContracts', function() {
 
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{
 //                 // Operation
 //                 await signerFactory(eve.sk);
@@ -413,7 +413,7 @@
 //     })
 
 //     describe("%processProposalSingleData", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -669,7 +669,7 @@
 //     })
 
 //     describe("%addUpdatePaymentData", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -850,7 +850,7 @@
 //     })
 
 //     describe("%processProposalPayment", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -1272,7 +1272,7 @@
 //     })
 
 //     describe("%createFarm", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -1509,7 +1509,7 @@
 //     })
 
 //     describe("%untrackFarm", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -1603,7 +1603,7 @@
 //     })
 
 //     describe("%trackFarm", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -1693,7 +1693,7 @@
 //     })
 
 //     describe("%createTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -1916,7 +1916,7 @@
 //     })
 
 //     describe("%untrackTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2010,7 +2010,7 @@
 //     })
 
 //     describe("%trackTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2100,7 +2100,7 @@
 //     })
 
 //     describe("%updateMvkInflationRate", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2189,23 +2189,23 @@
 //     })
 
 //     describe("%setContractAdmin", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
-//         it("Scenario - Set a contract admin to another address", async() => {
+//         it("Scenario - Set a contract maintainer to another address", async() => {
 //             try{
 //                 // Initial values
 //                 governanceStorage           = await governanceInstance.storage();
 //                 delegationStorage           = await delegationInstance.storage();
-//                 const initAdmin             = delegationStorage.admin;
+//                 const initAdmin             = delegationStorage.maintainer;
 //                 const proposalId            = governanceStorage.nextProposalId.toNumber();
 //                 const proposalName          = "Set contract";
 //                 const proposalDesc          = "Details about new proposal";
 //                 const proposalIpfs          = "ipfs://QM123456789";
 //                 const proposalSourceCode    = "Proposal Source Code";
 
-//                 // Set a contract admin compiled params
+//                 // Set a contract maintainer compiled params
 //                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                     'setContractAdmin',
 //                     delegationAddress.address,
@@ -2266,14 +2266,14 @@
 //                 governanceStorage           = await governanceInstance.storage();
 //                 delegationStorage           = await delegationInstance.storage();
 //                 const proposal              = await governanceStorage.proposalLedger.get(proposalId);
-//                 const endAdmin              = delegationStorage.admin;
+//                 const endAdmin              = delegationStorage.maintainer;
                 
 //                 // Assertions
 //                 assert.strictEqual(proposal.executed, true);
 //                 assert.notEqual(initAdmin, endAdmin);
 //                 assert.equal(endAdmin, alice.pkh);
 
-//                 // Reset the contract admin
+//                 // Reset the contract maintainer
 //                 await signerFactory(alice.sk);
 //                 const resetAdminOperation   = await delegationInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                 await resetAdminOperation.confirmation()
@@ -2284,7 +2284,7 @@
 //     })
 
 //     describe("%setContractGovernance", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2311,7 +2311,7 @@
 //                     generalCounter++;
 //                     var entryName       = "Governance#"+generalCounter
 
-//                     // Check admin
+//                     // Check maintainer
 //                     if(storage.hasOwnProperty('governanceAddress')){
 //                         var lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
 //                             'setContractGovernance',
@@ -2381,7 +2381,7 @@
 //                     var contract        = await utils.tezos.contract.at(entry[1]);
 //                     var storage:any     = await contract.storage();
 
-//                     // Check admin
+//                     // Check maintainer
 //                     if(storage.hasOwnProperty('governanceAddress')){
 //                         assert.strictEqual(storage.governanceAddress, alice.pkh);
 //                     }
@@ -2393,7 +2393,7 @@
 //     })
 
 //     describe("%updateContractMetadata", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2496,7 +2496,7 @@
 //     })
 
 //     describe("%updateContractWhitelistMap", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2587,7 +2587,7 @@
 //     })
 
 //     describe("%updateContractGeneralMap", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2678,7 +2678,7 @@
 //     })
 
 //     describe("%updateContractWhitelistTokenMap", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2769,7 +2769,7 @@
 //     })
 
 //     describe("%updateWhitelistDevelopersSet", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2858,7 +2858,7 @@
 //     })
 
 //     describe("%updateGovernanceConfig", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -2946,7 +2946,7 @@
 //     })
 
 //     describe("%updateGovernanceFinancialConfig", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3036,7 +3036,7 @@
 //     })
 
 //     describe("%updateDelegationConfig", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3126,7 +3126,7 @@
 //     })
 
 //     describe("%updateBreakGlassConfig", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3216,7 +3216,7 @@
 //     })
 
 //     describe("%updateEmergencyConfig", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3306,7 +3306,7 @@
 //     })
 
 //     describe("%updateCouncilConfig", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3396,7 +3396,7 @@
 //     })
 
 //     describe("%updateDoormanMinMVKAmount", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3485,7 +3485,7 @@
 //     })
 
 //     describe("%updateFarmConfig", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3577,7 +3577,7 @@
 //     })
 
 //     describe("%initFarm", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3677,7 +3677,7 @@
 //     })
 
 //     describe("%closeFarm", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3766,7 +3766,7 @@
 //     })
 
 //     describe("%transferTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3871,7 +3871,7 @@
 //     })
 
 //     describe("%mintMvkAndTransferTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -3966,7 +3966,7 @@
 //     })
 
 //     describe("%updateOperatorsTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -4060,7 +4060,7 @@
 
 
 //     describe("%stakeTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -4157,7 +4157,7 @@
 //     })
 
 //     describe("%unstakeTreasury", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -4253,7 +4253,7 @@
 //     })
 
 //     describe("%setContractLambda", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -4403,7 +4403,7 @@
 //     })
 
 //     describe("%setFactoryProductLambda", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -4491,7 +4491,7 @@
 //     })
 
 //     describe("%addVestee", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -4587,7 +4587,7 @@
 //     })
 
 //     describe("%updateVestee", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -4683,7 +4683,7 @@
 //     })
 
 //     describe("%toggleVesteeLock", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -4771,7 +4771,7 @@
 //     })
 
 //     describe("%removeVestee", async() => {
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 

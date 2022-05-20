@@ -80,7 +80,7 @@
 //     });
 
 //     describe("%distributeRewards", async () => {
-//         before("Set admin to whitelist and init satellite and delegators", async () => {
+//         before("Set maintainer to whitelist and init satellite and delegators", async () => {
 //             try{
 //                 // Set Whitelist
 //                 await signerFactory(bob.sk)
@@ -228,14 +228,14 @@
 
 //                 await signerFactory(bob.sk)
 
-//                 // Set delegation admin in order for the packed data to work
+//                 // Set delegation maintainer in order for the packed data to work
 //                 const setDoormanAdmin        = await doormanInstance.methods.setAdmin(governanceProxyAddress.address).send();
 //                 await setDoormanAdmin.confirmation();
 //             } catch (e){
 //                 console.dir(e, {depth: 5});
 //             }
 //         });
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
         

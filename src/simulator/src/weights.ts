@@ -54,7 +54,7 @@ export function pokeWeights(state: state): state {
 }
 
 /**
- * Weight of an existing token can be updated by admin, however the admin will either
+ * Weight of an existing token can be updated by maintainer, however the maintainer will either
  * receive surplus tokens to keep the price OR
  * deposit tokens to keep the price.
  * 

@@ -187,14 +187,14 @@
     
 
 //     describe("%setAdmin", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
 //             try{
 //                 // Initial Values
 //                 governanceFinancialStorage = await governanceFinancialInstance.storage();
-//                 const currentAdmin = governanceFinancialStorage.admin;
+//                 const currentAdmin = governanceFinancialStorage.maintainer;
 
 //                 // Operation
 //                 const setAdminOperation = await governanceFinancialInstance.methods.setAdmin(alice.pkh).send();
@@ -202,9 +202,9 @@
 
 //                 // Final values
 //                 governanceFinancialStorage = await governanceFinancialInstance.storage();
-//                 const newAdmin = governanceFinancialStorage.admin;
+//                 const newAdmin = governanceFinancialStorage.maintainer;
 
-//                 // reset admin
+//                 // reset maintainer
 //                 await signerFactory(alice.sk);
 //                 const resetAdminOperation = await governanceFinancialInstance.methods.setAdmin(bob.pkh).send();
 //                 await resetAdminOperation.confirmation();
@@ -218,19 +218,19 @@
 //             }
 //         });
 
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 await signerFactory(alice.sk);
 //                 governanceFinancialStorage = await governanceFinancialInstance.storage();
-//                 const currentAdmin = governanceFinancialStorage.admin;
+//                 const currentAdmin = governanceFinancialStorage.maintainer;
 
 //                 // Operation
 //                 await chai.expect(governanceFinancialInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
 
 //                 // Final values
 //                 governanceFinancialStorage = await governanceFinancialInstance.storage();
-//                 const newAdmin = governanceFinancialStorage.admin;
+//                 const newAdmin = governanceFinancialStorage.maintainer;
 
 //                 // Assertions
 //                 assert.strictEqual(newAdmin, currentAdmin);
@@ -244,7 +244,7 @@
     
 
 //     describe("%setGovernance", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call this entrypoint and update the governance contract with a new address', async () => {
@@ -261,7 +261,7 @@
 //                 governanceFinancialStorage = await governanceFinancialInstance.storage();
 //                 const newGovernance = governanceFinancialStorage.governanceAddress;
 
-//                 // reset admin
+//                 // reset maintainer
 //                 await signerFactory(alice.sk);
 //                 const resetGovernanceOperation = await governanceFinancialInstance.methods.setGovernance(governanceAddress.address).send();
 //                 await resetGovernanceOperation.confirmation();
@@ -275,7 +275,7 @@
 //             }
 //         });
 
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 await signerFactory(alice.sk);
@@ -299,7 +299,7 @@
 //     });
 
 //     describe("%updateConfig", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should not be able to call the entrypoint and configure the voting power ratio if it exceed 100%', async () => {
@@ -384,7 +384,7 @@
 //                 console.dir(e, {depth: 5})
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 governanceFinancialStorage = await governanceFinancialInstance.storage();

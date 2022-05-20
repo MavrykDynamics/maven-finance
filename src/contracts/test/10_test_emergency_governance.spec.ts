@@ -118,14 +118,14 @@
 //     });
 
 //     describe("%setAdmin", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
 //             try{
 //                 // Initial Values
 //                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
-//                 const currentAdmin = emergencyGovernanceStorage.admin;
+//                 const currentAdmin = emergencyGovernanceStorage.maintainer;
 
 //                 // Operation
 //                 const setAdminOperation = await emergencyGovernanceInstance.methods.setAdmin(alice.pkh).send();
@@ -133,9 +133,9 @@
 
 //                 // Final values
 //                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
-//                 const newAdmin = emergencyGovernanceStorage.admin;
+//                 const newAdmin = emergencyGovernanceStorage.maintainer;
 
-//                 // reset admin
+//                 // reset maintainer
 //                 await signerFactory(alice.sk);
 //                 const resetAdminOperation = await emergencyGovernanceInstance.methods.setAdmin(bob.pkh).send();
 //                 await resetAdminOperation.confirmation();
@@ -149,19 +149,19 @@
 //             }
 //         });
 
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 await signerFactory(alice.sk);
 //                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
-//                 const currentAdmin = emergencyGovernanceStorage.admin;
+//                 const currentAdmin = emergencyGovernanceStorage.maintainer;
 
 //                 // Operation
 //                 await chai.expect(emergencyGovernanceInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
 
 //                 // Final values
 //                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
-//                 const newAdmin = emergencyGovernanceStorage.admin;
+//                 const newAdmin = emergencyGovernanceStorage.maintainer;
 
 //                 // Assertions
 //                 assert.strictEqual(newAdmin, currentAdmin);
@@ -172,7 +172,7 @@
 //     });
 
 //     describe("%updateConfig", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 
@@ -347,7 +347,7 @@
 //             }
 //         });
 
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 emergencyGovernanceStorage = await emergencyGovernanceInstance.storage();
@@ -848,7 +848,7 @@
 //                 const emergencyID           = emergencyGovernanceStorage.currentEmergencyGovernanceId;
 //                 var emergencyProposal       = await emergencyGovernanceStorage.emergencyGovernanceLedger.get(emergencyID);
 
-//                 // Set all contracts admin to governance address if it is not
+//                 // Set all contracts maintainer to governance address if it is not
 //                 await signerFactory(bob.sk);
 //                 governanceStorage             = await governanceInstance.storage();
 //                 var generalContracts          = governanceStorage.generalContracts.entries();
@@ -858,8 +858,8 @@
 //                     var contract        = await utils.tezos.contract.at(entry[1]);
 //                     var storage:any     = await contract.storage();
 
-//                     // Check admin
-//                     if(storage.hasOwnProperty('admin') && storage.admin!==governanceAddress.address && storage.admin!==breakGlassAddress.address){
+//                     // Check maintainer
+//                     if(storage.hasOwnProperty('maintainer') && storage.maintainer!==governanceAddress.address && storage.maintainer!==breakGlassAddress.address){
 //                         var setAdminOperation   = await contract.methods.setAdmin(governanceAddress.address).send();
 //                         await setAdminOperation.confirmation()
 //                     }
@@ -913,7 +913,7 @@
 //                 signActionOperation   = await breakGlassInstance.methods.signAction(breakGlassActionID).send();
 //                 await signActionOperation.confirmation();
 
-//                 // Check admin and pause in all contracts
+//                 // Check maintainer and pause in all contracts
 //                 governanceStorage       = await governanceInstance.storage();
 //                 generalContracts        = governanceStorage.generalContracts.entries();
 //                 for (let entry of generalContracts){
@@ -921,9 +921,9 @@
 //                     var contract        = await utils.tezos.contract.at(entry[1]);
 //                     var storage:any     = await contract.storage();
 
-//                     // Check admin
-//                     if(storage.hasOwnProperty('admin')){
-//                         assert.equal(storage.admin, breakGlassAddress.address)
+//                     // Check maintainer
+//                     if(storage.hasOwnProperty('maintainer')){
+//                         assert.equal(storage.maintainer, breakGlassAddress.address)
 //                     }
 
 //                     // Check pause

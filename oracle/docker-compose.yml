@@ -133,8 +133,8 @@ services:
       - 8000:80
     logging: *bcd-logging
 
-  oracle-admin:
-    container_name: oracle-admin
+  oracle-maintainer:
+    container_name: oracle-maintainer
     build:
       dockerfile: apps/oracle-node/dev.Dockerfile
       context: .
@@ -142,7 +142,7 @@ services:
       - flextesa
     environment:
       - RPC_URL=http://flextesa:20000
-      - ADMIN_PKH=tz1Uqnf6CKSXTkhRNwkr59ZCkjM9TckqyzRb # Alice
+      - MAINTAINER_PKH=tz1Uqnf6CKSXTkhRNwkr59ZCkjM9TckqyzRb # Alice
       - ROUND_DURATION_MINUTES=2
       - ENABLE_MAINTAINER_MODE=true
       - ORACLE_PKH=tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6 # Bob

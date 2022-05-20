@@ -985,7 +985,7 @@ describe('Aggregator', async () => {
     );
 
     it(
-      'should update oracle admin',
+      'should update oracle maintainer',
       async () => {
         await signerFactory(bob.sk);
 

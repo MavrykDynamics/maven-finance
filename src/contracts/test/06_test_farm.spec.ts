@@ -86,7 +86,7 @@
 //     })
 
 //     describe('%initFarm', function() {
-//         it('Initialize a farm without being the admin', async () => {
+//         it('Initialize a farm without being the maintainer', async () => {
 //             try{
 //                 // Switch signer to Alice
 //                 await signerFactory(alice.sk);
@@ -500,7 +500,7 @@
 //             } 
 //         });
 
-//         it('Non-admin should not be able to force the rewards to come from transfers instead of minting', async () => {
+//         it('Non-maintainer should not be able to force the rewards to come from transfers instead of minting', async () => {
 //             try{
 //                 // Initial values
 //                 const amountToDeposit = 1;

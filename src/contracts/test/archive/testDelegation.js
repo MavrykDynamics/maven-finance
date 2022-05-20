@@ -38,7 +38,7 @@ contract('delegate', accounts => {
             rpc: `${truffleConfig.networks.development.host}:${truffleConfig.networks.development.port}`            
         })
 
-        // default: set alice (admin) as originator of transactions
+        // default: set alice (maintainer) as originator of transactions
         await signerFactory(alice.sk);
 
         delegationInstance = await delegation.deployed();

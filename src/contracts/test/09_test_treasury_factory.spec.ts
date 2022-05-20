@@ -106,7 +106,7 @@
 
 //     describe('Treasury Factory', function() {
 
-//         beforeEach("Set signer to admin", async() => {
+//         beforeEach("Set signer to maintainer", async() => {
 //             await signerFactory(bob.sk)
 //         })
 
@@ -119,9 +119,9 @@
 //                     await setAdminOperation.confirmation();
     
 //                     treasuryFactoryStorage   = await treasuryInstance.storage();            
-//                     assert.equal(treasuryFactoryStorage.admin, eve.pkh);
+//                     assert.equal(treasuryFactoryStorage.maintainer, eve.pkh);
     
-//                     // reset treasury admin to bob
+//                     // reset treasury maintainer to bob
 //                     await signerFactory(eve.sk);
 //                     const resetAdminOperation = await treasuryInstance.methods.setAdmin(bob.pkh).send();
 //                     await resetAdminOperation.confirmation();
@@ -130,7 +130,7 @@
 //                 } 
 //             });
 
-//             it('Non-admin should not be able to call this entrypoint', async () => {
+//             it('Non-maintainer should not be able to call this entrypoint', async () => {
 //                 try{
 //                     await signerFactory(eve.sk);
 //                     await chai.expect(treasuryInstance.methods.setAdmin(alice.pkh).send()).to.be.eventually.rejected;
@@ -142,7 +142,7 @@
 
 //         describe('%togglePauseCreateTreasury', function() {
 
-//             beforeEach("Set signer to admin", async () => {
+//             beforeEach("Set signer to maintainer", async () => {
 //                 await signerFactory(bob.sk)
 //             });
             
@@ -162,7 +162,7 @@
     
 //                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.rejected;
     
-//                     // Reset admin
+//                     // Reset maintainer
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseCreateTreasury().send();
 //                     await togglePauseOperation.confirmation();
     
@@ -173,7 +173,7 @@
 //                     console.dir(e, {depth: 5});
 //                 }
 //             });
-//             it('Non-admin should not be able to call the entrypoint', async () => {
+//             it('Non-maintainer should not be able to call the entrypoint', async () => {
 //                 try{
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.togglePauseCreateTreasury().send()).to.be.rejected;
@@ -185,7 +185,7 @@
 
 //         describe('%togglePauseTrackTreasury', function() {
 
-//             beforeEach("Set signer to admin", async () => {
+//             beforeEach("Set signer to maintainer", async () => {
 //                 await signerFactory(bob.sk)
 //             });
             
@@ -205,7 +205,7 @@
     
 //                     await chai.expect(treasuryFactoryInstance.methods.trackTreasury(treasuryAddress.address).send()).to.be.rejected;
     
-//                     // Reset admin
+//                     // Reset maintainer
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseTrackTreasury().send();
 //                     await togglePauseOperation.confirmation();
     
@@ -216,7 +216,7 @@
 //                     console.dir(e, {depth: 5});
 //                 }
 //             });
-//             it('Non-admin should not be able to call the entrypoint', async () => {
+//             it('Non-maintainer should not be able to call the entrypoint', async () => {
 //                 try{
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.togglePauseTrackTreasury().send()).to.be.rejected;
@@ -228,7 +228,7 @@
 
 //         describe('%togglePauseUntrackTreasury', function() {
 
-//             beforeEach("Set signer to admin", async () => {
+//             beforeEach("Set signer to maintainer", async () => {
 //                 await signerFactory(bob.sk)
 //             });
             
@@ -248,7 +248,7 @@
     
 //                     await chai.expect(treasuryFactoryInstance.methods.untrackTreasury(treasuryAddress.address).send()).to.be.rejected;
     
-//                     // Reset admin
+//                     // Reset maintainer
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseUntrackTreasury().send();
 //                     await togglePauseOperation.confirmation();
     
@@ -259,7 +259,7 @@
 //                     console.dir(e, {depth: 5});
 //                 }
 //             });
-//             it('Non-admin should not be able to call the entrypoint', async () => {
+//             it('Non-maintainer should not be able to call the entrypoint', async () => {
 //                 try{
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.togglePauseUntrackTreasury().send()).to.be.rejected;
@@ -270,7 +270,7 @@
 //         })
 
 //         describe("%pauseAll", async () => {
-//             beforeEach("Set signer to admin", async () => {
+//             beforeEach("Set signer to maintainer", async () => {
 //                 await signerFactory(bob.sk)
 //             });
 
@@ -303,7 +303,7 @@
 //                     console.dir(e, {depth: 5});
 //                 }
 //             });
-//             it('Non-admin should not be able to call the entrypoint', async () => {
+//             it('Non-maintainer should not be able to call the entrypoint', async () => {
 //                 try{
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.pauseAll().send()).to.be.rejected;
@@ -314,7 +314,7 @@
 //         })
 
 //         describe("%unpauseAll", async () => {
-//             beforeEach("Set signer to admin", async () => {
+//             beforeEach("Set signer to maintainer", async () => {
 //                 await signerFactory(bob.sk)
 //             });
 
@@ -347,7 +347,7 @@
 //                     console.dir(e, {depth: 5});
 //                 }
 //             });
-//             it('Non-admin should not be able to call the entrypoint', async () => {
+//             it('Non-maintainer should not be able to call the entrypoint', async () => {
 //                 try{
 //                     await signerFactory(alice.sk);
 //                     await chai.expect(treasuryFactoryInstance.methods.unpauseAll().send()).to.be.rejected;
@@ -359,7 +359,7 @@
 
 //         describe('%createTreasury', function() {
 
-//             beforeEach("Set signer to admin", async() => {
+//             beforeEach("Set signer to maintainer", async() => {
 //                 await signerFactory(bob.sk)
 //             })
 
@@ -375,14 +375,14 @@
 //                     const treasuryInstance                      = await utils.tezos.contract.at(treasuryAddress);
 //                     const treasuryStorage: treasuryStorageType  = await treasuryInstance.storage();
 
-//                     assert.strictEqual(treasuryStorage.admin, bob.pkh);
+//                     assert.strictEqual(treasuryStorage.maintainer, bob.pkh);
 //                     assert.strictEqual(treasuryStorage.mvkTokenAddress, mvkTokenAddress.address);
 //                 }catch(e){
 //                     console.dir(e, {depth: 5});
 //                 }
 //             })
 
-//             it('Non-admin should not be able to call this entrypoint', async () => {
+//             it('Non-maintainer should not be able to call this entrypoint', async () => {
 //                 try{
 //                     // Operation
 //                     await signerFactory(alice.sk);
@@ -408,7 +408,7 @@
     
 //                     await chai.expect(treasuryFactoryInstance.methods.createTreasury(treasuryMetadataBase).send()).to.be.rejected;
     
-//                     // Reset admin
+//                     // Reset maintainer
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseCreateTreasury().send();
 //                     await togglePauseOperation.confirmation();
     
@@ -423,11 +423,11 @@
 
 //         describe('%trackTreasury', function() {
 
-//             beforeEach("Set signer to admin", async() => {
+//             beforeEach("Set signer to maintainer", async() => {
 //                 await signerFactory(bob.sk)
 //             })
 
-//             it('Non-admin should not be able to call this entrypoint', async () => {
+//             it('Non-maintainer should not be able to call this entrypoint', async () => {
 //                 try{
 //                     // Initial Values
 //                     treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
@@ -461,7 +461,7 @@
     
 //                     await chai.expect(treasuryFactoryInstance.methods.trackTreasury(treasuryAddress.address).send()).to.be.rejected;
     
-//                     // Reset admin
+//                     // Reset maintainer
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseTrackTreasury().send();
 //                     await togglePauseOperation.confirmation();
     
@@ -510,11 +510,11 @@
 
 //         describe('%untrackTreasury', function() {
 
-//             beforeEach("Set signer to admin", async() => {
+//             beforeEach("Set signer to maintainer", async() => {
 //                 await signerFactory(bob.sk)
 //             })
 
-//             it('Non-admin should not be able to call this entrypoint', async () => {
+//             it('Non-maintainer should not be able to call this entrypoint', async () => {
 //                 try{
 //                     // Initial Values
 //                     treasuryFactoryStorage  = await treasuryFactoryInstance.storage();
@@ -548,7 +548,7 @@
     
 //                     await chai.expect(treasuryFactoryInstance.methods.untrackTreasury(treasuryToUntrack).send()).to.be.rejected;
     
-//                     // Reset admin
+//                     // Reset maintainer
 //                     var togglePauseOperation = await treasuryFactoryInstance.methods.togglePauseUntrackTreasury().send();
 //                     await togglePauseOperation.confirmation();
     

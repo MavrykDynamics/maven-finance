@@ -35,7 +35,7 @@ contract('doorman', async() => {
             rpc: `${truffleConfig.networks.development.host}:${truffleConfig.networks.development.port}`            
         })
 
-        // default: set alice (admin) as originator of transactions
+        // default: set alice (maintainer) as originator of transactions
         await signerFactory(alice.sk);
 
         doormanInstance   = await doorman.deployed();
@@ -63,11 +63,11 @@ contract('doorman', async() => {
         console.log('Bob address: ' + bob.pkh);
         console.log('Eve address: ' + eve.pkh);
         console.log('Mallory address: ' + mallory.pkh);
-        console.log('Doorman admin: ' + doormanStorage.admin);
+        console.log('Doorman maintainer: ' + doormanStorage.admin);
 
     });
 
-    // it(`admin set mvk contract address`, async () => {
+    // it(`maintainer set mvk contract address`, async () => {
     //     try{
             
     //         console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break

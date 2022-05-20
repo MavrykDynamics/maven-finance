@@ -36,7 +36,7 @@
 //             rpc: `${truffleConfig.networks.development.host}:${truffleConfig.networks.development.port}`            
 //         })
 
-//         // default: set alice (admin) as originator of transactions
+//         // default: set alice (maintainer) as originator of transactions
 //         await signerFactory(alice.sk);
 
 //         doormanInstance   = await doorman.deployed();
@@ -63,11 +63,11 @@
 //         console.log('Delegation Contract deployed at:', delegationInstance.address);
 //         console.log('Alice address: ' + alice.pkh);
 //         console.log('Bob address: ' + bob.pkh);
-//         console.log('Doorman admin: ' + doormanStorage.admin);
+//         console.log('Doorman maintainer: ' + doormanStorage.maintainer);
 
 //     });
 
-//     it(`admin set mvk contract address`, async () => {
+//     it(`maintainer set mvk contract address`, async () => {
 //         try{
             
             // console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
@@ -102,7 +102,7 @@
 //         }
 //     });
 
-//     it(`non-admin cannot set mvk contract address`, async () => {
+//     it(`non-maintainer cannot set mvk contract address`, async () => {
 //         try{
             
 //             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
@@ -131,7 +131,7 @@
 //         }
 //     });
 
-//     it(`admin set vMvk contract address`, async () => {
+//     it(`maintainer set vMvk contract address`, async () => {
 //         try{
             
 //             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
@@ -163,7 +163,7 @@
 //         }
 //     });
 
-//     it(`non-admin cannot set vMvk contract address`, async () => {
+//     it(`non-maintainer cannot set vMvk contract address`, async () => {
 //         try{
             
 //             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
@@ -189,23 +189,23 @@
 //         }
 //     });
 
-//     it(`set admin to bob`, async () => {
+//     it(`set maintainer to bob`, async () => {
 //         try{
             
             // console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
             // console.log('Test: Set Admin to Bob')
             // console.log("---") // break
-            // console.log('before Admin (alice address): '+ doormanStorage.admin); // return alice.pkh        
+            // console.log('before Admin (alice address): '+ doormanStorage.maintainer); // return alice.pkh
         
 //             const setAdminAddressOperation  = await doormanInstance.methods.setAdmin(bob.pkh).send();
 //             await setAdminAddressOperation.confirmation();
 
 //             const afterDoormanStorage = await doormanInstance.storage();
 
-//             console.log('after Admin (bob address): '+ afterDoormanStorage.admin); // return bob.pkh        
-//             assert.equal(afterDoormanStorage.admin, bob.pkh);
+//             console.log('after Admin (bob address): '+ afterDoormanStorage.maintainer); // return bob.pkh
+//             assert.equal(afterDoormanStorage.maintainer, bob.pkh);
 
-//             // reset back to alice as admin
+//             // reset back to alice as maintainer
 //             await signerFactory(bob.sk);
 //             const resetAdminAddressOperation  = await doormanInstance.methods.setAdmin(alice.pkh).send();
 //             await resetAdminAddressOperation.confirmation();
@@ -218,13 +218,13 @@
 //         }
 //     });
 
-//     it(`non-admin cannot set admin`, async () => {
+//     it(`non-maintainer cannot set maintainer`, async () => {
 //         try{
             
 //             console.log("-- -- -- -- -- -- -- -- -- -- -- -- --") // break
-//             console.log('Test: Non-admin cannot set admin')
+//             console.log('Test: Non-maintainer cannot set maintainer')
 //             console.log("---") // break
-//             console.log('before Admin (alice address): '+ doormanStorage.admin); // return alice.pkh        
+//             console.log('before Admin (alice address): '+ doormanStorage.maintainer); // return alice.pkh
         
 //             await signerFactory(bob.sk);
 //             const failSetAdminOperation = await doormanInstance.methods.setAdmin(bob.pkh);

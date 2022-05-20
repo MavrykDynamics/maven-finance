@@ -238,21 +238,21 @@
 //     );
 
 //     it(
-//       'should update an aggregator admin',
+//       'should update an aggregator maintainer',
 //       async () => {
 //         await signerFactory(bob.sk);
 //         const op_1 = aggregatorFactory.methods.setAdmin(alice.pkh);
 //         const tx_1 = await op_1.send();
 //         await tx_1.confirmation();
 //         let storageAggregatorFactory = await aggregatorFactory.storage();
-//         assert.deepEqual(storageAggregatorFactory.admin,alice.pkh);
+//         assert.deepEqual(storageAggregatorFactory.maintainer,alice.pkh);
 
 //         await signerFactory(alice.sk);
 //         const op_2 = aggregatorFactory.methods.setAdmin(bob.pkh);
 //         const tx_2 = await op_2.send();
 //         await tx_2.confirmation();
 //         storageAggregatorFactory = await aggregatorFactory.storage();
-//         assert.deepEqual(storageAggregatorFactory.admin,bob.pkh);
+//         assert.deepEqual(storageAggregatorFactory.maintainer,bob.pkh);
 
 //       }
 //     );

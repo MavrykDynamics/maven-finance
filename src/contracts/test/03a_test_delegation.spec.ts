@@ -66,14 +66,14 @@
 //     });
 
 //     describe("%setAdmin", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call this entrypoint and update the contract administrator with a new address', async () => {
 //             try{
 //                 // Initial Values
 //                 delegationStorage = await delegationInstance.storage();
-//                 const currentAdmin = delegationStorage.admin;
+//                 const currentAdmin = delegationStorage.maintainer;
 
 //                 // Operation
 //                 const setAdminOperation = await delegationInstance.methods.setAdmin(alice.pkh).send();
@@ -81,9 +81,9 @@
 
 //                 // Final values
 //                 delegationStorage = await delegationInstance.storage();
-//                 const newAdmin = delegationStorage.admin;
+//                 const newAdmin = delegationStorage.maintainer;
 
-//                 // reset admin
+//                 // reset maintainer
 //                 await signerFactory(alice.sk);
 //                 const resetAdminOperation = await delegationInstance.methods.setAdmin(bob.pkh).send();
 //                 await resetAdminOperation.confirmation();
@@ -96,19 +96,19 @@
 //                 console.log(e);
 //             }
 //         });
-//         it('Non-admin should not be able to call this entrypoint', async () => {
+//         it('Non-maintainer should not be able to call this entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 await signerFactory(alice.sk);
 //                 delegationStorage = await delegationInstance.storage();
-//                 const currentAdmin = delegationStorage.admin;
+//                 const currentAdmin = delegationStorage.maintainer;
 
 //                 // Operation
 //                 await chai.expect(delegationInstance.methods.setAdmin(alice.pkh).send()).to.be.rejected;
 
 //                 // Final values
 //                 delegationStorage = await delegationInstance.storage();
-//                 const newAdmin = delegationStorage.admin;
+//                 const newAdmin = delegationStorage.maintainer;
 
 //                 // Assertions
 //                 assert.strictEqual(newAdmin, currentAdmin);
@@ -119,7 +119,7 @@
 //     });
 
 //     describe("%updateConfig", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call the entrypoint and configure the delegation ratio', async () => {
@@ -224,7 +224,7 @@
 //                 console.log(e);
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 // Initial Values
 //                 delegationStorage = await delegationInstance.storage();
@@ -407,7 +407,7 @@
 //                     ).send()
 //                 ).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseRegisterSatellite().send();
 //                 await togglePauseOperation.confirmation();
 
@@ -636,7 +636,7 @@
 //                     .unregisterAsSatellite(alice.pkh).send()
 //                 ).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 await signerFactory(bob.sk)
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseUnregisterSatellite().send();
 //                 await togglePauseOperation.confirmation();
@@ -761,7 +761,7 @@
 //                     ).send()
 //                 ).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 await signerFactory(bob.sk)
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseUpdateSatellite().send();
 //                 await togglePauseOperation.confirmation();
@@ -845,7 +845,7 @@
 
 //                 await chai.expect(delegationInstance.methods.delegateToSatellite(bob.pkh, eve.pkh).send()).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseDelegateToSatellite().send();
 //                 await togglePauseOperation.confirmation();
 
@@ -1084,7 +1084,7 @@
 //                 await signerFactory(eve.sk);
 //                 await chai.expect(delegationInstance.methods.undelegateFromSatellite(eve.pkh).send()).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 await signerFactory(bob.sk)
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseUndelegateSatellite().send();
 //                 await togglePauseOperation.confirmation();
@@ -1178,7 +1178,7 @@
 //     })
 
 //     describe("%togglePauseDelegateToSatellite", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call the entrypoint and pause or unpause the delegateToSatellite entrypoint', async () => {
@@ -1213,7 +1213,7 @@
 
 //                 await chai.expect(delegationInstance.methods.delegateToSatellite(bob.pkh, eve.pkh).send()).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseDelegateToSatellite().send();
 //                 await togglePauseOperation.confirmation();
 
@@ -1225,7 +1225,7 @@
 //             }
 //         });
 
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(delegationInstance.methods.togglePauseDelegateToSatellite().send()).to.be.rejected;
@@ -1236,7 +1236,7 @@
 //     })
 
 //     describe("%togglePauseUndelegateSatellite", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call the entrypoint and pause or unpause the delegateToSatellite entrypoint', async () => {
@@ -1255,7 +1255,7 @@
 
 //                 await chai.expect(delegationInstance.methods.undelegateFromSatellite(bob.pkh).send()).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseUndelegateSatellite().send();
 //                 await togglePauseOperation.confirmation();
 
@@ -1266,7 +1266,7 @@
 //                 console.log(e);
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(delegationInstance.methods.togglePauseUndelegateSatellite().send()).to.be.rejected;
@@ -1277,7 +1277,7 @@
 //     })
 
 //     describe("%togglePauseRegisterSatellite", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call the entrypoint and pause or unpause the registerSatellite entrypoint', async () => {
@@ -1309,7 +1309,7 @@
 //                     ).send()
 //                 ).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseRegisterSatellite().send();
 //                 await togglePauseOperation.confirmation();
 
@@ -1320,7 +1320,7 @@
 //                 console.log(e);
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(delegationInstance.methods.togglePauseRegisterSatellite().send()).to.be.rejected;
@@ -1337,7 +1337,7 @@
 //             await delegateOperation.confirmation();
 //         });
 
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 
@@ -1359,7 +1359,7 @@
 //                     .unregisterAsSatellite(bob.pkh).send()
 //                 ).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseUnregisterSatellite().send();
 //                 await togglePauseOperation.confirmation();
 
@@ -1370,7 +1370,7 @@
 //                 console.log(e);
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(delegationInstance.methods.togglePauseUnregisterSatellite().send()).to.be.rejected;
@@ -1381,7 +1381,7 @@
 //     })
 
 //     describe("%togglePauseUpdateSatellite", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 //         it('Admin should be able to call the entrypoint and pause or unpause the updateSatellite entrypoint', async () => {
@@ -1413,7 +1413,7 @@
 //                     ).send()
 //                 ).to.be.rejected;
 
-//                 // Reset admin
+//                 // Reset maintainer
 //                 var togglePauseOperation = await delegationInstance.methods.togglePauseUpdateSatellite().send();
 //                 await togglePauseOperation.confirmation();
 
@@ -1424,7 +1424,7 @@
 //                 console.log(e);
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(delegationInstance.methods.togglePauseUpdateSatellite().send()).to.be.rejected;
@@ -1435,7 +1435,7 @@
 //     })
 
 //     describe("%pauseAll", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 
@@ -1460,7 +1460,7 @@
 //                 console.log(e);
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(delegationInstance.methods.pauseAll().send()).to.be.rejected;
@@ -1471,7 +1471,7 @@
 //     })
 
 //     describe("%unpauseAll", async () => {
-//         beforeEach("Set signer to admin", async () => {
+//         beforeEach("Set signer to maintainer", async () => {
 //             await signerFactory(bob.sk)
 //         });
 
@@ -1496,7 +1496,7 @@
 //                 console.log(e);
 //             }
 //         });
-//         it('Non-admin should not be able to call the entrypoint', async () => {
+//         it('Non-maintainer should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
 //                 await chai.expect(delegationInstance.methods.unpauseAll().send()).to.be.rejected;
