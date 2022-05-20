@@ -2,7 +2,7 @@ import { MichelsonMap } from '@taquito/michelson-encoder'
 
 import { BigNumber } from 'bignumber.js'
 
-const { oracleMaintainer, oracle0, oracle1, oracle2 } = require('../scripts/sandbox/accounts')
+const { bob, oracleMaintainer, oracle0, oracle1, oracle2 } = require('../scripts/sandbox/accounts')
 
 import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 
@@ -54,7 +54,7 @@ const lastCompletedRoundPrice = {
 
 export const aggregatorStorage: aggregatorStorageType = {
 
-  admin                     : oracleMaintainer.pkh,
+  admin                     : bob.pkh,
   config                    : config,
   metadata                  : metadata,
   
