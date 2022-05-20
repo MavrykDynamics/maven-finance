@@ -127,9 +127,9 @@ type executeActionParamsType is
 | UntrackTreasury                    of (address)
 | TransferTreasury                   of targetTreasuryTransferType
 | MintMvkAndTransferTreasury         of targetTreasuryMintMvkAndTransferType
-| UpdateOperatorsTreasury            of updateOperatorsTreasuryType
-| StakeTreasury                      of stakeTreasuryType
-| UnstakeTreasury                    of unstakeTreasuryType
+| UpdateMvkOperatorsTreasury         of updateOperatorsTreasuryType
+| StakeMvkTreasury                   of stakeTreasuryType
+| UnstakeMvkTreasury                 of unstakeTreasuryType
 
 | UpdateMvkInflationRate             of (nat)
 | TriggerMvkInflation                of unit

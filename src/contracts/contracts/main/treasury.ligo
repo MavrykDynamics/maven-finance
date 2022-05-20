@@ -49,15 +49,17 @@ type treasuryAction is
     | UnpauseAll                     of (unit)
     | TogglePauseTransfer            of (unit)
     | TogglePauseMintMvkAndTransfer  of (unit)
-    | TogglePauseStake               of (unit)
-    | TogglePauseUnstake             of (unit)
+    | TogglePauseStakeMvk            of (unit)
+    | TogglePauseUnstakeMvk          of (unit)
 
     // Treasury Entrypoints
     | Transfer                       of transferActionType
     | MintMvkAndTransfer             of mintMvkAndTransferType
-    | UpdateOperators                of updateOperatorsParams
-    | Stake                          of (nat)
-    | Unstake                        of (nat)
+
+    // Staking Entrypoints
+    | UpdateMvkOperators             of updateOperatorsParams
+    | StakeMvk                       of (nat)
+    | UnstakeMvk                     of (nat)
 
     // Lambda Entrypoints
     | SetLambda                      of setLambdaType
@@ -183,14 +185,14 @@ function checkMintMvkAndTransferIsNotPaused(var s : treasuryStorage) : unit is
 
 
 
-function checkStakeIsNotPaused(var s : treasuryStorage) : unit is
-    if s.breakGlassConfig.stakeIsPaused then failwith(error_STAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+function checkStakeMvkIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.stakeMvkIsPaused then failwith(error_STAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 
 
-function checkUnstakeIsNotPaused(var s : treasuryStorage) : unit is
-    if s.breakGlassConfig.unstakeIsPaused then failwith(error_UNSTAKE_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
+function checkUnstakeMvkIsNotPaused(var s : treasuryStorage) : unit is
+    if s.breakGlassConfig.unstakeMvkIsPaused then failwith(error_UNSTAKE_MVK_ENTRYPOINT_IN_TREASURY_CONTRACT_PAUSED)
     else unit;
 
 // ------------------------------------------------------------------------------
@@ -592,16 +594,16 @@ block {
 
 
 (* togglePauseStake entrypoint *)
-function togglePauseStake(var s : treasuryStorage) : return is
+function togglePauseStakeMvk(var s : treasuryStorage) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseStake"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseStakeMvk"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseStake(unit);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseStakeMvk(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -610,17 +612,17 @@ block {
 
 
 
-(* togglePauseUnstake entrypoint *)
-function togglePauseUnstake(var s : treasuryStorage) : return is
+(* togglePauseUnstakeMvk entrypoint *)
+function togglePauseUnstakeMvk(var s : treasuryStorage) : return is
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnstake"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUnstakeMvk"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseUnstake(unit);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaTogglePauseUnstakeMvk(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -675,17 +677,17 @@ block {
 
 
 
-(* update_operators entrypoint *)
-function updateOperators(const updateOperatorsParams : updateOperatorsParams ; var s : treasuryStorage) : return is 
+(* updateMvkOperators entrypoint *)
+function updateMvkOperators(const updateOperatorsParams : updateOperatorsParams ; var s : treasuryStorage) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateOperators"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateMvkOperators"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateOperators(updateOperatorsParams);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUpdateMvkOperators(updateOperatorsParams);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -694,17 +696,17 @@ block {
 
 
 
-(* stake entrypoint *)
-function stake(const stakeAmount : nat ; var s : treasuryStorage) : return is 
+(* stakeMvk entrypoint *)
+function stakeMvk(const stakeAmount : nat ; var s : treasuryStorage) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaStake"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaStakeMvk"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaStake(stakeAmount);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaStakeMvk(stakeAmount);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -713,17 +715,17 @@ block {
 
 
 
-(* unstake entrypoint *)
-function unstake(const unstakeAmount : nat ; var s : treasuryStorage) : return is 
+(* unstakeMvk entrypoint *)
+function unstakeMvk(const unstakeAmount : nat ; var s : treasuryStorage) : return is 
 block {
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnstake"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnstakeMvk"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init treasury lambda action
-    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnstake(unstakeAmount);
+    const treasuryLambdaAction : treasuryLambdaActionType = LambdaUnstakeMvk(unstakeAmount);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, treasuryLambdaAction, s);  
@@ -787,15 +789,17 @@ function main (const action : treasuryAction; const s : treasuryStorage) : retur
         | UnpauseAll (_parameters)                      -> unpauseAll(s)
         | TogglePauseTransfer (_parameters)             -> togglePauseTransfer(s)
         | TogglePauseMintMvkAndTransfer (_parameters)   -> togglePauseMintMvkAndTransfer(s)
-        | TogglePauseStake (_parameters)                -> togglePauseStake(s)
-        | TogglePauseUnstake (_parameters)              -> togglePauseUnstake(s)
+        | TogglePauseStakeMvk (_parameters)             -> togglePauseStakeMvk(s)
+        | TogglePauseUnstakeMvk (_parameters)           -> togglePauseUnstakeMvk(s)
         
           // Treasury Entrypoints
         | Transfer(parameters)                          -> transfer(parameters, s)
         | MintMvkAndTransfer(parameters)                -> mintMvkAndTransfer(parameters, s)
-        | UpdateOperators(parameters)                   -> updateOperators(parameters, s)
-        | Stake(parameters)                             -> stake(parameters, s)
-        | Unstake(parameters)                           -> unstake(parameters, s)
+
+          // Staking Entrypoints
+        | UpdateMvkOperators(parameters)                -> updateMvkOperators(parameters, s)
+        | StakeMvk(parameters)                          -> stakeMvk(parameters, s)
+        | UnstakeMvk(parameters)                        -> unstakeMvk(parameters, s)
 
           // Lambda Entrypoints
         | SetLambda(parameters)                         -> setLambda(parameters, s)

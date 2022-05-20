@@ -204,7 +204,6 @@ class DoormanContract(TestCase):
                 mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
             });
 
-        self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
         self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
         self.assertNotEqual(compoundIsPaused, finalCompoundIsPaused)
@@ -298,7 +297,6 @@ class DoormanContract(TestCase):
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
         finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
-        self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(stakeIsPaused, pauseStakeIsPaused)
         self.assertNotEqual(unstakeIsPaused, pauseUnstakeIsPaused)
         self.assertNotEqual(compoundIsPaused, pauseCompoundIsPaused)
@@ -373,7 +371,6 @@ class DoormanContract(TestCase):
         finalCompoundIsPaused = res.storage['breakGlassConfig']['compoundIsPaused']
         finalFarmClaimIsPaused = res.storage['breakGlassConfig']['farmClaimIsPaused']
 
-        self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(stakeIsPaused, pauseStakeIsPaused)
         self.assertNotEqual(unstakeIsPaused, pauseUnstakeIsPaused)
         self.assertNotEqual(compoundIsPaused, pauseCompoundIsPaused)
@@ -413,7 +410,6 @@ class DoormanContract(TestCase):
         with self.raisesMichelsonError(error_codes.error_STAKE_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
 
-        self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(stakeIsPaused, finalStakeIsPaused)
 
         print('----')
@@ -440,7 +436,6 @@ class DoormanContract(TestCase):
             # Tests operations
             res = self.doormanContract.stake(stakeAmount).interpret(storage=res.storage, sender=bob)
 
-            self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
             self.assertEqual(stakeIsPaused, finalStakeIsPaused)
 
         print('----')
@@ -473,7 +468,6 @@ class DoormanContract(TestCase):
                 mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
             })
 
-        self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(unstakeIsPaused, finalUnstakeIsPaused)
 
         print('----')
@@ -504,7 +498,6 @@ class DoormanContract(TestCase):
                 mvkTokenAddress+"%getTotalSupply": init_mvk_storage['totalSupply']
             })
 
-            self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
             self.assertEqual(unstakeIsPaused, finalUnstakeIsPaused)
 
         print('----')
@@ -531,7 +524,6 @@ class DoormanContract(TestCase):
         with self.raisesMichelsonError(error_codes.error_COMPOUND_ENTRYPOINT_IN_DOORMAN_CONTRACT_PAUSED):
             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
 
-        self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(compoundIsPaused, finalCompoundIsPaused)
 
         print('----')
@@ -556,7 +548,6 @@ class DoormanContract(TestCase):
             # Tests operations
             res = self.doormanContract.compound(bob).interpret(storage=res.storage, sender=bob)
 
-            self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
             self.assertEqual(compoundIsPaused, finalCompoundIsPaused)
 
         print('----')
@@ -591,7 +582,6 @@ class DoormanContract(TestCase):
                 mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
             });
 
-        self.assertEqual(0, res.storage['stakedMvkTotalSupply'])
         self.assertNotEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
         print('----')
@@ -624,7 +614,6 @@ class DoormanContract(TestCase):
                 mvkTokenAddress+"%getTotalAndMaximumSupply": (mvkTotalSupply, mvkMaximumSupply)
             });
 
-            self.assertNotEqual(0, res.storage['stakedMvkTotalSupply'])
             self.assertEqual(farmClaimIsPaused, finalFarmClaimIsPaused)
 
         print('----')

@@ -162,11 +162,11 @@ block {
                 if s.breakGlassConfig.mintMvkAndTransferIsPaused then skip
                 else s.breakGlassConfig.mintMvkAndTransferIsPaused := True;
 
-                if s.breakGlassConfig.stakeIsPaused then skip
-                else s.breakGlassConfig.stakeIsPaused := True;
+                if s.breakGlassConfig.stakeMvkIsPaused then skip
+                else s.breakGlassConfig.stakeMvkIsPaused := True;
 
-                if s.breakGlassConfig.unstakeIsPaused then skip
-                else s.breakGlassConfig.unstakeIsPaused := True;
+                if s.breakGlassConfig.unstakeMvkIsPaused then skip
+                else s.breakGlassConfig.unstakeMvkIsPaused := True;
 
             }
         | _ -> skip
@@ -193,10 +193,10 @@ block {
                 if s.breakGlassConfig.mintMvkAndTransferIsPaused then s.breakGlassConfig.mintMvkAndTransferIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
+                if s.breakGlassConfig.stakeMvkIsPaused then s.breakGlassConfig.stakeMvkIsPaused := False
                 else skip;
 
-                if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
+                if s.breakGlassConfig.unstakeMvkIsPaused then s.breakGlassConfig.unstakeMvkIsPaused := False
                 else skip;
 
             }
@@ -249,18 +249,18 @@ block {
 
 
 
-(* togglePauseStake lambda *)
-function lambdaTogglePauseStake(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+(* togglePauseStakeMvk lambda *)
+function lambdaTogglePauseStakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
 
     // check that sender is admin
     checkSenderIsAdmin(s);
 
     case treasuryLambdaAction of [
-        | LambdaTogglePauseStake(_parameters) -> {
+        | LambdaTogglePauseStakeMvk(_parameters) -> {
                 
-                if s.breakGlassConfig.stakeIsPaused then s.breakGlassConfig.stakeIsPaused := False
-                else s.breakGlassConfig.stakeIsPaused := True;
+                if s.breakGlassConfig.stakeMvkIsPaused then s.breakGlassConfig.stakeMvkIsPaused := False
+                else s.breakGlassConfig.stakeMvkIsPaused := True;
 
             }
         | _ -> skip
@@ -270,18 +270,18 @@ block {
 
 
 
-(* togglePauseUnstake lambda *)
-function lambdaTogglePauseUnstake(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
+(* togglePauseUnstakeMvk lambda *)
+function lambdaTogglePauseUnstakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is
 block {
 
     // check that sender is admin
     checkSenderIsAdmin(s);
 
     case treasuryLambdaAction of [
-        | LambdaTogglePauseUnstake(_parameters) -> {
+        | LambdaTogglePauseUnstakeMvk(_parameters) -> {
                 
-                if s.breakGlassConfig.unstakeIsPaused then s.breakGlassConfig.unstakeIsPaused := False
-                else s.breakGlassConfig.unstakeIsPaused := True;
+                if s.breakGlassConfig.unstakeMvkIsPaused then s.breakGlassConfig.unstakeMvkIsPaused := False
+                else s.breakGlassConfig.unstakeMvkIsPaused := True;
 
             }
         | _ -> skip
@@ -393,8 +393,8 @@ block {
 
 
 
-(* update_operators lambda *)
-function lambdaUpdateOperators(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+(* updateMvkOperators lambda *)
+function lambdaUpdateMvkOperators(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
@@ -407,7 +407,7 @@ block {
 
 
     case treasuryLambdaAction of [
-        | LambdaUpdateOperators(updateOperatorsParams) -> {
+        | LambdaUpdateMvkOperators(updateOperatorsParams) -> {
                 
                 // Get update_operators entrypoint in doorman
                 const updateEntrypoint = case (Tezos.get_entrypoint_opt(
@@ -433,8 +433,8 @@ block {
 
 
 
-(* stake lambda *)
-function lambdaStake(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+(* stakeMvk lambda *)
+function lambdaStakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
@@ -442,7 +442,7 @@ block {
     // 2. Send stake operation to Doorman Contract
 
     // break glass check
-    checkStakeIsNotPaused(s);
+    checkStakeMvkIsNotPaused(s);
 
     checkSenderIsAdmin(s);
 
@@ -450,7 +450,7 @@ block {
 
 
     case treasuryLambdaAction of [
-        | LambdaStake(stakeAmount) -> {
+        | LambdaStakeMvk(stakeAmount) -> {
                 
                 // Get doorman address
                 const doormanAddress: address   = case s.generalContracts["doorman"] of [
@@ -482,8 +482,8 @@ block {
 
 
 
-(* unstake lambda *)
-function lambdaUnstake(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
+(* unstakeMvk lambda *)
+function lambdaUnstakeMvk(const treasuryLambdaAction : treasuryLambdaActionType; var s : treasuryStorage) : return is 
 block {
     
     // Steps Overview:
@@ -491,7 +491,7 @@ block {
     // 2. Send stake operation to Doorman Contract
 
     // break glass check
-    checkUnstakeIsNotPaused(s);
+    checkUnstakeMvkIsNotPaused(s);
 
     checkSenderIsAdmin(s);
 
@@ -499,7 +499,7 @@ block {
 
 
     case treasuryLambdaAction of [
-        | LambdaUnstake(unstakeAmount) -> {
+        | LambdaUnstakeMvk(unstakeAmount) -> {
                 
                 // Get doorman address
                 const doormanAddress: address   = case s.generalContracts["doorman"] of [

@@ -866,7 +866,7 @@
 //         });
 //     })
 
-//     describe('%stake', function() {
+//     describe('%stakeMvk', function() {
 
 //         it('Admin should be able to call this entrypoint and stake MVK', async () => {
 //             try{        
@@ -879,7 +879,7 @@
 //                 const stakeAmount                   = MVK(10);
 
 //                 // Operations
-//                 const stakeOperation = await treasuryInstance.methods.stake(stakeAmount).send();
+//                 const stakeOperation = await treasuryInstance.methods.stakeMvk(stakeAmount).send();
 //                 await stakeOperation.confirmation();
 
 //                 // Final values
@@ -904,7 +904,7 @@
 
 //                 // Operations
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.stake(stakeAmount).send()).to.be.eventually.rejected;
+//                 await chai.expect(treasuryInstance.methods.stakeMvk(stakeAmount).send()).to.be.eventually.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
 //             } 
@@ -922,7 +922,7 @@
 
 //                 // Operations
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.stake(stakeAmount).send()).to.be.eventually.rejected;
+//                 await chai.expect(treasuryInstance.methods.stakeMvk(stakeAmount).send()).to.be.eventually.rejected;
 
 //                 // Reset config
 //                 await signerFactory(bob.sk);
@@ -934,7 +934,7 @@
 //         });
 //     });
 
-//     describe('%unstake', function() {
+//     describe('%unstakeMvk', function() {
 
 //         it('Admin should be able to call this entrypoint and unstake MVK', async () => {
 //             try{        
@@ -947,7 +947,7 @@
 //                 const unstakeAmount                 = MVK(5);
 
 //                 // Operations
-//                 const stakeOperation = await treasuryInstance.methods.unstake(unstakeAmount).send();
+//                 const stakeOperation = await treasuryInstance.methods.unstakeMvk(unstakeAmount).send();
 //                 await stakeOperation.confirmation();
 
 //                 // Final values
@@ -970,7 +970,7 @@
 
 //                 // Operations
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.unstake(unstakeAmount).send()).to.be.eventually.rejected;
+//                 await chai.expect(treasuryInstance.methods.unstakeMvk(unstakeAmount).send()).to.be.eventually.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
 //             } 
@@ -988,7 +988,7 @@
 
 //                 // Operations
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.unstake(unstakeAmount).send()).to.be.eventually.rejected;
+//                 await chai.expect(treasuryInstance.methods.unstakeMvk(unstakeAmount).send()).to.be.eventually.rejected;
 
 //                 // Reset config
 //                 await signerFactory(bob.sk);
@@ -1165,19 +1165,19 @@
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseStake().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseStakeMvk().send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
 //                 treasuryStorage       = await treasuryInstance.storage();
 //                 const isPausedEnd       = treasuryStorage.breakGlassConfig.stakeIsPaused
 
-//                 await chai.expect(treasuryInstance.methods.stake(
+//                 await chai.expect(treasuryInstance.methods.stakeMvk(
 //                     amount,
 //                 ).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseStake().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseStakeMvk().send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1190,7 +1190,7 @@
 //         it('Non-admin should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.togglePauseStake().send()).to.be.rejected;
+//                 await chai.expect(treasuryInstance.methods.togglePauseStakeMvk().send()).to.be.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
 //             }
@@ -1209,19 +1209,19 @@
 //                 const amount                    = MVK(10); // 10 MVK
 
 //                 // Operation
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseUnstake().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseUnstakeMvk().send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Final values
 //                 treasuryStorage       = await treasuryInstance.storage();
 //                 const isPausedEnd       = treasuryStorage.breakGlassConfig.unstakeIsPaused
 
-//                 await chai.expect(treasuryInstance.methods.unstake(
+//                 await chai.expect(treasuryInstance.methods.unstakeMvk(
 //                     amount,
 //                 ).send()).to.be.rejected;
 
 //                 // Reset admin
-//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseUnstake().send();
+//                 var togglePauseOperation = await treasuryInstance.methods.togglePauseUnstakeMvk().send();
 //                 await togglePauseOperation.confirmation();
 
 //                 // Assertions
@@ -1234,7 +1234,7 @@
 //         it('Non-admin should not be able to call the entrypoint', async () => {
 //             try{
 //                 await signerFactory(alice.sk);
-//                 await chai.expect(treasuryInstance.methods.togglePauseUnstake().send()).to.be.rejected;
+//                 await chai.expect(treasuryInstance.methods.togglePauseUnstakeMvk().send()).to.be.rejected;
 //             } catch(e){
 //                 console.dir(e, {depth:  5});
 //             }
