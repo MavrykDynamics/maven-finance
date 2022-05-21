@@ -1,13 +1,15 @@
-import {
-  FormSubTitle,
-  FormTitleContainer,
-  FormTitleAndFeeContainer,
-  FormTitleEntry,
-  FormButtonContainer,
-} from '../ProposalSubmission.style'
-import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { ProposalUpdateFormInputStatus, ProposalUpdateForm } from '../../../utils/TypesAndInterfaces/Forms'
+// components
+import Icon from '../../../app/App.components/Icon/Icon.view'
+import { Input } from '../../../app/App.components/Input/Input.controller'
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
+import { ProposalUpdateForm, ProposalUpdateFormInputStatus } from '../../../utils/TypesAndInterfaces/Forms'
+// const
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+// styles
+// prettier-ignore
+import { FormButtonContainer, FormHeaderGroup, FormTitleAndFeeContainer, FormTitleContainer, FormTitleEntry } from '../ProposalSubmission.style'
 
 type StageTwoFormViewProps = {
   loading: boolean
@@ -29,29 +31,50 @@ export const StageTwoFormView = ({
 }: StageTwoFormViewProps) => {
   return (
     <>
-      <h1>Stage 2</h1>
+      <FormHeaderGroup>
+        <h1>Stage 2</h1>
+        {/* TODO Need condition */}
+        <StatusFlag text="UNLOCKED" status={ProposalStatus.EXECUTED} />
+        <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+          <Icon id="question" />
+        </a>
+      </FormHeaderGroup>
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
-          <FormSubTitle>1- Proposal Title</FormSubTitle>
+          <label>1- Enter Proposal Title</label>
           <FormTitleEntry>{form.title}</FormTitleEntry>
         </FormTitleContainer>
         <div>
-          <FormSubTitle>2- Proposal ID</FormSubTitle>
-          <FormTitleEntry>{form.proposalId}</FormTitleEntry>
+          <label>2 - Proposal Sucess Reward</label>
+          <FormTitleEntry>{form.proposalId} MVK</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
-      <FormSubTitle>3- Enter Proposal Bytes data</FormSubTitle>
-      <Input
+      <label>3- Enter Proposal Bytes data</label>
+      <TextArea
         type="text"
-        placeholder="Proposal Bytes Data"
+        className="step-2-textarea"
         value={form.proposalBytes}
         onChange={(e: any) => setForm({ ...form, proposalBytes: e.target.value })}
         onBlur={handleOnBlur}
         inputStatus={formInputStatus.proposalBytes}
       />
       <FormButtonContainer>
-        <Button icon="hammer" text={'Update Proposal Data'} loading={loading} onClick={handleUpdateProposal} />
-        <Button icon="hammer" text={'Lock Proposal'} loading={loading} kind="secondary" onClick={handleLockProposal} />
+        <Button
+          icon="lock"
+          className="lock"
+          text={'Lock Proposal'}
+          loading={loading}
+          onClick={handleLockProposal}
+          kind="actionSecondary"
+        />
+        <Button
+          icon="bytes"
+          className="bytes"
+          text="Submit Bytes"
+          kind="actionPrimary"
+          loading={loading}
+          onClick={handleUpdateProposal}
+        />
       </FormButtonContainer>
     </>
   )
