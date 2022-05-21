@@ -1,73 +1,52 @@
-import styled from 'styled-components/macro'
-import { MavrykTheme } from '../../../styles/interfaces'
+import styled from 'styled-components/macro';
+import { MavrykTheme } from '../../../styles/interfaces';
 
-export const ContractCardStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
-  width: 300px;
+export const ContractCardWrapper = styled.div<{ theme: MavrykTheme }>`
+  width: 31%;
+  min-height: 135px;
+  height: fit-content;
+  border: 1px solid #503eaa;
   border-radius: 10px;
-  padding-top: 20px;
-  margin-top: 15px;
-
-  &.accordionHide {
-    height: 125px;
-  }
-  &.accordionHide {
-    height: max-content;
-  }
-`
-export const CardTopSection = styled.div<{ theme: MavrykTheme }>`
-  padding: 0 20px;
-  margin-bottom: 20px;
-  height: 50px;
-`
-
-export const TitleStatusContainer = styled.div<{ theme: MavrykTheme }>`
-  width: 100%;
-  display: inline-flex;
-  justify-content: space-between;
-  align-items: center;
-`
-
-export const DropDownContainer = styled.div<{ height: number; theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.connectWalletBackgroundColor};
-  width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  height: 35px; /* changed */
   display: flex;
   flex-direction: column;
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
-  cursor: pointer;
-  padding: 0 10px;
-  transition: all 0.3s ease-in-out; /* added */
-  overflow: hidden;
+`;
 
-  span {
-    padding: 12px 0;
-    > svg {
-      height: 8px;
-      width: 13px;
-      stroke: ${({ theme }) => theme.primaryColor};
-      stroke-width: 5px;
-      fill: none;
-    }
+export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
+  padding: 22px 16px 18px 16px;
+  background-color: ${({ theme }) => theme.containerColor};
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 28px 16px;
+  border-radius: 10px;
+  row-gap: 13px;
+
+  .card-title {
+    grid-row-start: 1;
+    grid-row-end: 2;
+    grid-column-start: 1;
+    grid-column-end: 2;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-size: 24px;
+    color: #8d86eb;
   }
 
-  .accordion {
-    padding: 10px 15px 15px; /* changed */
+  .card-flag-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    grid-row-start: 1;
+    grid-row-end: 2;
+    grid-column-start: 2;
+    grid-column-end: 3;
   }
 
-  &.show {
-    height: ${({ height }) => height}px;
+  .card-hash-wrapper {
+    grid-row-start: 2;
+    grid-row-end: 3;
+    grid-column-start: 1;
+    grid-column-end: 3;
+    color: #86d4c9;
   }
-  &.hide {
-    height: 35px; /* changed */
-  }
-`
-export const EntrypointNameWithStatus = styled.p<{ status: boolean; theme: MavrykTheme }>`
-  font-weight: 500;
-  font-size: 16px;
-  color: ${({ status, theme }) => (status ? theme.upColor : theme.downColor)};
-  margin: 6px 0;
-`
+`;
