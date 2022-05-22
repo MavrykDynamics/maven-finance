@@ -37,18 +37,22 @@ export default function TableGrid({ tableData, setTableData }: Props) {
 
   return (
     <TableGridWrap>
-      <button onClick={handleAddColumn}>+</button>
-      <table>
-        {tableData.map((row, i) => (
-          <tr key={i}>
-            {row.map((colValue, j) => (
-              <td key={`${i}+${j}`}>
-                <input value={colValue} onChange={(e) => handleChange(e, i, j)} />
-              </td>
-            ))}
-          </tr>
-        ))}
-      </table>
+      <div className="btn-add-wrap">
+        <button onClick={handleAddColumn}>+</button>
+      </div>
+      <div className="table-wrap">
+        <table>
+          {tableData.map((row, i) => (
+            <tr key={i}>
+              {row.map((colValue, j) => (
+                <td key={`${i}+${j}`}>
+                  <input value={colValue} onChange={(e) => handleChange(e, i, j)} />
+                </td>
+              ))}
+            </tr>
+          ))}
+        </table>
+      </div>
       <button onClick={handleAddRow}>+</button>
     </TableGridWrap>
   )
