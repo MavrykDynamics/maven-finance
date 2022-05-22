@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { cianColor, darkColor } from 'styles'
+import { cianColor, darkColor, headerColor } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
@@ -11,5 +11,9 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     color: ${cianColor};
     background-color: transparent;
     border: none;
+  }
+
+  button {
+    color: ${headerColor};
   }
 `

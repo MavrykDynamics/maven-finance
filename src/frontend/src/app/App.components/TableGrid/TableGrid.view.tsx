@@ -22,6 +22,12 @@ export default function TableGrid({ tableData, setTableData }: Props) {
     setTableData(cloneTable)
   }
 
+  const handleAddRow = () => {
+    const innerTableLength = tableData[0].length
+    const newFillRow = Array.from({ length: innerTableLength }, () => '')
+    setTableData([...tableData, newFillRow])
+  }
+
   return (
     <TableGridWrap>
       <table>
@@ -35,6 +41,7 @@ export default function TableGrid({ tableData, setTableData }: Props) {
           </tr>
         ))}
       </table>
+      <button onClick={handleAddRow}>+</button>
     </TableGridWrap>
   )
 }
