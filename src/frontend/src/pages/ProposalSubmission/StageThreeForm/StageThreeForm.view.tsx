@@ -1,3 +1,6 @@
+// types
+import type { TableListType } from '../../../app/App.components/TableGrid/TableGrid.types'
+
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { GridSheet } from '../../../app/App.components/GridSheet/GridSheet.controller'
 // components
@@ -15,11 +18,9 @@ import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 // prettier-ignore
 import { FormButtonContainer, FormHeaderGroup, FormTitleAndFeeContainer, FormTitleContainer, FormTitleEntry } from '../ProposalSubmission.style'
 
-type TableList = string[][] | []
-
 type StageThreeFormViewProps = {
-  tableData: TableList
-  setTableData: (arg0: TableList) => void
+  tableData: TableListType
+  setTableData: (arg0: TableListType) => void
   loading: boolean
   form: ProposalFinancialRequestForm
   setForm: (form: ProposalFinancialRequestForm) => void
@@ -60,7 +61,7 @@ export const StageThreeFormView = ({
         </div>
       </FormTitleAndFeeContainer>
       <label>3- Enter Proposal Bytes Data</label>
-      <TableGrid tableData={tableData} setTableData={setTableData} />
+      {/* <TableGrid tableData={tableData} setTableData={setTableData} /> */}
       <GridSheet loading={loading} setTableJson={setTableJson} />
       <FormButtonContainer>
         <Button

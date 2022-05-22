@@ -77,7 +77,6 @@ export const StakeUnstakeView = ({
 
     setStakeUnstakeValueOK({ amount: validityCheckResult })
     const status = value === '' ? '' : validityCheckResult ? 'success' : 'error'
-    console.log('%c ||||| status', 'color:green', status)
     setStakeUnstakeInputStatus({ amount: status })
   }
 

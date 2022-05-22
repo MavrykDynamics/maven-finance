@@ -66,7 +66,7 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
       //console.log('%c ||||| action.delegationStorage', 'color:yellowgreen', action.delegationStorage);
       return {
         ...state,
-        //  delegationStorage: action.delegationStorage,
+          delegationStorage: action.delegationStorage,
 
         // test empty
         // delegationStorage: {
@@ -75,10 +75,10 @@ export function delegation(state = delegationDefaultState, action: any): Delegat
         // },
 
         //test 5
-        delegationStorage: {
-          ...action.delegationStorage,
-          satelliteLedger: SATELLITE_LEDGER_LIST,
-        },
+        // delegationStorage: {
+        //   ...action.delegationStorage,
+        //   satelliteLedger: SATELLITE_LEDGER_LIST,
+        // },
       }
     case DELEGATE_REQUEST:
       return {
