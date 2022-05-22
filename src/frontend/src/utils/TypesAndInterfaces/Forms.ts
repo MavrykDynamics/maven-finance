@@ -60,7 +60,7 @@ export type ProposalFinancialRequestForm = {
   financialData: {
     rows?: any[]
     columns?: any[]
-    jsonString?: string
+    jsonString: string
   }
 }
 export type ValidFinancialRequestForm = {
