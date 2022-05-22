@@ -28,8 +28,16 @@ export default function TableGrid({ tableData, setTableData }: Props) {
     setTableData([...tableData, newFillRow])
   }
 
+  const handleAddColumn = () => {
+    const newTable = tableData.map((item) => {
+      return item.concat('')
+    })
+    setTableData(newTable)
+  }
+
   return (
     <TableGridWrap>
+      <button onClick={handleAddColumn}>+</button>
       <table>
         {tableData.map((row, i) => (
           <tr key={i}>
