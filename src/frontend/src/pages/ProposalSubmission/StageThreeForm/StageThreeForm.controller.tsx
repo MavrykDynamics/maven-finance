@@ -1,23 +1,27 @@
-import { StageThreeFormView } from './StageThreeForm.view'
-import { useDispatch } from 'react-redux'
 import { useState } from 'react'
-import {
-  ProposalFinancialRequestForm,
-  ProposalFinancialRequestInputStatus,
-  ValidFinancialRequestForm,
-} from '../../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isJsonString, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
-import { submitFinancialRequestData } from '../ProposalSubmission.actions'
+import { useDispatch } from 'react-redux'
+
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
+// prettier-ignore
+import { ProposalFinancialRequestForm, ProposalFinancialRequestInputStatus, ValidFinancialRequestForm } from '../../../utils/TypesAndInterfaces/Forms'
+import { getFormErrors, isJsonString, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import { submitFinancialRequestData } from '../ProposalSubmission.actions'
+import { StageThreeFormView } from './StageThreeForm.view'
 
 type StageThreeFormProps = {
   loading: boolean
   accountPkh?: string
 }
+const testTableData = [
+  ['Name', 'Purpose', 'Amount', 'Payment Type (XTZ/tzBTC/MVK'],
+  ['Text', 'Text', 'Text', 'Text'],
+]
+
 export const StageThreeForm = ({ loading, accountPkh }: StageThreeFormProps) => {
   const dispatch = useDispatch()
 
+  const [tableData, setTableData] = useState(testTableData)
   const [tableJson, setTableJson] = useState('')
   const [form, setForm] = useState<ProposalFinancialRequestForm>({
     title: 'Hello There',
@@ -47,9 +51,11 @@ export const StageThreeForm = ({ loading, accountPkh }: StageThreeFormProps) => 
 
   return (
     <StageThreeFormView
-      loading={loading}
+      loading={false}
       form={form}
       setForm={setForm}
+      tableData={tableData}
+      setTableData={setTableData}
       setTableJson={setTableJson}
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}
