@@ -1,23 +1,16 @@
-import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { SubmitProposalFormInputStatus, SubmitProposalForm } from '../../../utils/TypesAndInterfaces/Forms'
-import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
-
-// const
-import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
+import { Input } from '../../../app/App.components/Input/Input.controller'
+import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
-
+import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
+import { SubmitProposalForm, SubmitProposalFormInputStatus } from '../../../utils/TypesAndInterfaces/Forms'
+// const
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 // styles
-import {
-  FormTitleContainer,
-  FormTitleAndFeeContainer,
-  FormButtonContainer,
-  FormHeaderGroup,
-} from '../ProposalSubmission.style'
+// prettier-ignore
+import { FormButtonContainer, FormHeaderGroup, FormTitleAndFeeContainer, FormTitleContainer } from '../ProposalSubmission.style'
 
 type StageOneFormViewProps = {
   loading: boolean
@@ -57,7 +50,7 @@ export const StageOneFormView = ({
           />
         </FormTitleContainer>
         <div>
-          <label>2 - Proposal Sucess Reward</label>
+          <label>2- Proposal Sucess Reward</label>
           <Input
             type="number"
             value={form.successMVKReward}
@@ -67,7 +60,7 @@ export const StageOneFormView = ({
           />
         </div>
       </FormTitleAndFeeContainer>
-      <label>3 - Enter a description</label>
+      <label>3- Enter a description</label>
       <TextArea
         type="text"
         className="description-textarea"

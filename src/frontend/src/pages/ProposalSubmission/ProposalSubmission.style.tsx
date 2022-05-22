@@ -175,7 +175,8 @@ export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
     max-width: 250px;
     margin-left: 10px;
 
-    &.bytes {
+    &.bytes,
+    &.financial {
       svg {
         fill: ${({ theme }) => theme.backgroundColor};
         stroke: transparent;
