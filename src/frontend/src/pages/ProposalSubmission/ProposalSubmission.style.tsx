@@ -80,7 +80,7 @@ export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
   align-items: center;
   margin-bottom: 31px;
   display: grid;
-  grid-template-columns: 399px auto;
+  grid-template-columns: 1fr 1fr;
   column-gap: 30px;
 `
 export const FormTitleContainer = styled.div<{ theme: MavrykTheme }>``

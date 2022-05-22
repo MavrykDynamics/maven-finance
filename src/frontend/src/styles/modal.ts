@@ -38,7 +38,7 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
   min-width: ${(props) => (props.width ? `${props.width}vw` : 'initial')};
   max-width: 90vw;
   border: 1px solid ${cianColor};
-  padding: 30px 40px;
+  padding: 30px;
 
   h1 {
     font-weight: 700;
