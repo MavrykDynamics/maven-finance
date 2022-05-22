@@ -78,8 +78,6 @@ export const GovernanceView = ({
     setRightSideContent(undefined)
   }, [location.pathname])
 
-  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
-
   const _handleItemSelect = (chosenProposal: ProposalRecordType) => {
     setSelectedProposalToShow(chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id)
     setRightSideContent(chosenProposal)
