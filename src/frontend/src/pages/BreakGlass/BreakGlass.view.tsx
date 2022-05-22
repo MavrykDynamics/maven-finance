@@ -19,28 +19,29 @@ type BreakGlassViewProps = {
   pauseAllActive: boolean;
 };
 
+// TODO: remove this later, need to find data source for this
+const toggleButtonData = [
+  {
+    buttonName: 'General Contracts',
+    buttonId: 'GC',
+  },
+  {
+    buttonName: 'Treasury',
+    buttonId: 'treasury',
+  },
+  {
+    buttonName: 'Farms',
+    buttonId: 'farms',
+  },
+  {
+    buttonName: 'Oracles',
+    buttonId: 'oracles',
+  },
+];
+
 export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive }: BreakGlassViewProps) => {
   const breakGlassStatus = glassBroken ? 'Glass Broken' : 'Waiting';
   const pauseAllStatus = pauseAllActive ? 'Active' : 'Inactive';
-
-  const toggleButtonData = [
-    {
-      buttonName: 'General Contracts',
-      buttonId: 'GC',
-    },
-    {
-      buttonName: 'Treasury',
-      buttonId: 'treasury',
-    },
-    {
-      buttonName: 'Farms',
-      buttonId: 'farms',
-    },
-    {
-      buttonName: 'Oracles',
-      buttonId: 'oracles',
-    },
-  ];
 
   return (
     <BGStyled className={'breakGlassContainer'}>

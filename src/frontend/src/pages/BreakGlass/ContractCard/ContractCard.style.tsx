@@ -1,13 +1,13 @@
 import styled from 'styled-components/macro';
 import { MavrykTheme } from '../../../styles/interfaces';
 
-import { headerColor, cianColor } from '../../../styles/colors';
+import { headerColor, cianColor, darkCianColor } from '../../../styles/colors';
 
 export const ContractCardWrapper = styled.div<{ theme: MavrykTheme }>`
   width: 31%;
   min-height: 135px;
   height: fit-content;
-  border: 1px solid #503eaa;
+  border: 1px solid ${darkCianColor};
   border-radius: 10px;
   display: flex;
   flex-direction: column;
