@@ -27,7 +27,7 @@ export const BGAccordeon = ({
     <AccordeonContent className={isExpanded ? 'expaned' : ''}>
       {accordeonData.map(({ name, status }) => (
         <AccordeonItem key={name} status={status === 'LIVE'}>
-          %{name}
+          {name}
         </AccordeonItem>
       ))}
     </AccordeonContent>

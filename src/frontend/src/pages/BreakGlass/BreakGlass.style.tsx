@@ -1,6 +1,8 @@
 import styled from 'styled-components/macro';
 import { MavrykTheme } from '../../styles/interfaces';
 
+import { downColor, upColor, skyColor, headerColor } from '../../styles/colors';
+
 export const BGStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   width: 100%;
@@ -34,16 +36,16 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
     justify-content: space-between;
     font-weight: 600;
     font-size: 20px;
-    color: #8d86eb;
+    color: ${headerColor};
     margin: 12px 0;
   }
 
   .color-red {
-    color: #ff4343;
+    color: ${downColor};
   }
 
   .color-green {
-    color: #27ae60;
+    color: ${upColor};
   }
 `;
 
@@ -66,7 +68,7 @@ export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
     margin: 0;
     font-size: 16px;
     line-height: 16px;
-    color: #77a4f2;
+    color: ${skyColor};
   }
 
   a {
