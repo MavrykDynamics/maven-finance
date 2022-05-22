@@ -1,6 +1,8 @@
 import styled from 'styled-components/macro';
 import { MavrykTheme } from '../../../styles/interfaces';
 
+import { headerColor, cianColor } from '../../../styles/colors';
+
 export const ContractCardWrapper = styled.div<{ theme: MavrykTheme }>`
   width: 31%;
   min-height: 135px;
@@ -29,7 +31,7 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     align-items: center;
     font-weight: 600;
     font-size: 24px;
-    color: #8d86eb;
+    color: ${headerColor};
   }
 
   .card-flag-wrapper {
@@ -47,6 +49,6 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     grid-row-end: 3;
     grid-column-start: 1;
     grid-column-end: 3;
-    color: #86d4c9;
+    color: ${cianColor};
   }
 `;

@@ -10,8 +10,9 @@ type ToggleButtonViewProps = {
 };
 
 export const ToggleButton = ({ toggleData }: ToggleButtonViewProps) => {
-  const [selectedToogler, setSelectedToggler] = React.useState<null | string>(null);
-  console.log('selectedToogler', selectedToogler);
+  const [selectedToogler, setSelectedToggler] = React.useState<null | string>(
+    toggleData[0].buttonId,
+  );
 
   return (
     <ToggleButtonWrapper>
