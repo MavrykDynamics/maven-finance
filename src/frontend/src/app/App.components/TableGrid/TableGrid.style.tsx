@@ -1,8 +1,10 @@
 import styled from 'styled-components/macro'
-import { cianColor, darkColor, headerColor } from 'styles'
+import { cianColor, darkColor, headerColor, darkCianColor } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
+  position: relative;
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -11,7 +13,14 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
   td {
     background-color: ${darkColor};
     height: 40px;
-    border: 1px solid #503eaa;
+    border: 1px solid ${darkCianColor};
+    &:first-child {
+      border-left: none;
+    }
+
+    &:last-child {
+      border-right: none;
+    }
   }
 
   input {
@@ -23,13 +32,15 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     padding-left: 8px;
     padding-right: 8px;
     border: none;
+    font-weight: 700;
+    font-size: 14px;
   }
 
   button {
     color: ${headerColor};
     font-size: 20px;
     &:hover {
-      color: #86d4c9;
+      color: ${cianColor};
     }
   }
 
@@ -37,31 +48,16 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     &:first-child {
       td {
         border-top: none;
-        &:first-child {
-          border-left: none;
-        }
-
-        &:last-child {
-          border-right: none;
-        }
       }
 
       input {
-        color: #8d86eb;
+        color: ${headerColor};
       }
     }
 
     &:last-child {
       td {
-        border-bottom: 0;
-
-        &:first-child {
-          border-left: none;
-        }
-
-        &:last-child {
-          border-right: none;
-        }
+        border-bottom: none;
       }
     }
   }
@@ -69,10 +65,11 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
   .btn-add-wrap {
     display: flex;
     justify-content: flex-end;
+    margin-top: -16px;
   }
 
   .table-wrap {
-    border: 1px solid #503eaa;
+    border: 1px solid ${darkCianColor};
     border-radius: 10px;
     overflow: hidden;
   }

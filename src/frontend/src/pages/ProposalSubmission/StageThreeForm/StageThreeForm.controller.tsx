@@ -13,15 +13,12 @@ type StageThreeFormProps = {
   loading: boolean
   accountPkh?: string
 }
-const testTableData = [
-  ['Name', 'Purpose', 'Amount', 'Payment Type (XTZ/tzBTC/MVK'],
-  ['Text', 'Text', 'Text', 'Text'],
-]
+const INIT_TABLE_DATA = [[''], ['']]
 
 export const StageThreeForm = ({ loading, accountPkh }: StageThreeFormProps) => {
   const dispatch = useDispatch()
 
-  const [tableData, setTableData] = useState(testTableData)
+  const [tableData, setTableData] = useState(INIT_TABLE_DATA)
   const [tableJson, setTableJson] = useState('')
   const [form, setForm] = useState<ProposalFinancialRequestForm>({
     title: 'Hello There',
