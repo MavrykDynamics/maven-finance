@@ -10,8 +10,8 @@ async def on_delegation_undelegate_from_satellite(
     undelegate_from_satellite: Transaction[UndelegateFromSatelliteParameter, DelegationStorage],
 ) -> None:
     ...
-    # Get operation values
-    # userAddress = undelegate_from_satellite_complete.data.initiator_address
+    # # Get operation values
+    # userAddress = undelegate_from_satellite.data.initiator_address
 
     # # Delete record
     # user, _ = await models.MavrykUser.get_or_create(
