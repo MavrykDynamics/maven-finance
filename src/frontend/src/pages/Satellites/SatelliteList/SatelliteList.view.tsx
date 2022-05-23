@@ -126,7 +126,7 @@ const ListWithSatellites = ({
           onBlur={() => {}}
         />
         <DropdownContainer>
-          <h4>Order By:</h4>
+          <h4>Order by:</h4>
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
