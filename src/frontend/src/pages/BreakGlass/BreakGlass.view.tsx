@@ -40,8 +40,8 @@ const toggleButtonData = [
 ];
 
 export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive }: BreakGlassViewProps) => {
-  const breakGlassStatus = glassBroken ? 'Glass Broken' : 'Waiting';
-  const pauseAllStatus = pauseAllActive ? 'Active' : 'Inactive';
+  const breakGlassStatus = glassBroken ? 'glass broken' : 'not broken';
+  const pauseAllStatus = pauseAllActive ? 'paused' : 'not paused';
 
   return (
     <BGStyled className={'breakGlassContainer'}>
