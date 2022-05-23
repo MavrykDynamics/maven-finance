@@ -11,6 +11,7 @@ import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
 
 const config = {
   decimals                            : new BigNumber(8),
+  deviationRewardAmountXTZ            : new BigNumber(2600),
   maintainer                          : oracleMaintainer.pkh,
   minimalTezosAmountDeviationTrigger  : new BigNumber(1),
   perthousandDeviationTrigger         : new BigNumber(2),

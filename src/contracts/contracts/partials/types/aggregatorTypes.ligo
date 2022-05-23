@@ -44,6 +44,7 @@ type setObservationRevealType is  [@layout:comb] record [
 
 type aggregatorConfigType is [@layout:comb] record [
     decimals: nat;
+    deviationRewardAmountXTZ: nat;
     maintainer: maintainerType;
     minimalTezosAmountDeviationTrigger: nat;
     perthousandDeviationTrigger: nat;

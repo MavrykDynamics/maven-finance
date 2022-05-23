@@ -218,7 +218,7 @@ block{
                       ];
                 
                 const newOracleRewardsMVK: oracleRewardsMVKType = updateRewards(s);
-                const newOracleRewardsXTZ = Map.update(Tezos.sender, Some (getRewardAmountXTZ(Tezos.sender, s) + s.config.rewardAmountXTZ), s.oracleRewardsXTZ);
+                const newOracleRewardsXTZ = Map.update(Tezos.sender, Some (getRewardAmountXTZ(Tezos.sender, s) + s.config.deviationRewardAmountXTZ), s.oracleRewardsXTZ);
 
                 s.round                   := newRound;
                 s.roundStart              := Tezos.now;

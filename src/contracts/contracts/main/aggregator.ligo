@@ -25,8 +25,10 @@ type aggegatorAction is
   | AddOracle                     of addOracleParams
   | RemoveOracle                  of address
 
-    // Oracle Entrypoints
+  // Maintainer Entrypoints
   | RequestRateUpdate             of requestRateUpdateParams
+
+  // Oracle Entrypoints
   | RequestRateUpdateDeviation    of requestRateUpdateDeviationParams
   | SetObservationCommit          of setObservationCommitParams
   | SetObservationReveal          of setObservationRevealParams

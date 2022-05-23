@@ -902,6 +902,7 @@
 //     const decimals: BigNumber = new BigNumber(100);
 //     const percentOracleThreshold: BigNumber = new BigNumber(100);
 //     const rewardAmountXTZ: BigNumber = new BigNumber(100);
+//     const deviationRewardAmountXTZ: BigNumber = new BigNumber(100);
 //     const rewardAmountMVK: BigNumber = new BigNumber(100);
 //     const minimalTezosAmountDeviationTrigger: BigNumber = new BigNumber(100);
 //     const perthousandDeviationTrigger: BigNumber = new BigNumber(100);
@@ -915,6 +916,7 @@
 //
 //         const op = aggregator.methods.updateConfig(
 //           decimals,
+//           deviationRewardAmountXTZ,
 //           maintainer,
 //           minimalTezosAmountDeviationTrigger,
 //           numberBlocksDelay,
@@ -940,6 +942,7 @@
 //
 //         const op = aggregator.methods.updateConfig(
 //           decimals,
+//           deviationRewardAmountXTZ,
 //           maintainer,
 //           minimalTezosAmountDeviationTrigger,
 //           numberBlocksDelay,
@@ -957,6 +960,7 @@
 //         assert.deepEqual(storage.config.percentOracleThreshold,percentOracleThreshold);
 //         assert.deepEqual(storage.config.rewardAmountXTZ,rewardAmountXTZ);
 //         assert.deepEqual(storage.config.rewardAmountMVK,rewardAmountMVK);
+//         assert.deepEqual(storage.config.deviationRewardAmountXTZ,deviationRewardAmountXTZ);
 //         assert.deepEqual(storage.config.minimalTezosAmountDeviationTrigger,minimalTezosAmountDeviationTrigger);
 //         assert.deepEqual(storage.config.maintainer,maintainer);
 //
