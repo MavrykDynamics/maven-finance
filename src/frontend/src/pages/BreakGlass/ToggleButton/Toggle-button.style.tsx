@@ -1,12 +1,14 @@
 import styled from 'styled-components/macro';
 import { MavrykTheme } from '../../../styles/interfaces';
 
+import { darkCianColor, headerColor } from '../../../styles/colors';
+
 export const ToggleButtonWrapper = styled.div<{ theme: MavrykTheme }>`
   display: flex;
-  border: 1px solid #503eaa;
+  border: 1px solid ${darkCianColor};
   border-radius: 20px;
   font-size: 16px;
-  color: #8d86eb;
+  color: ${headerColor};
   max-height: 35px;
 `;
 
@@ -21,7 +23,7 @@ export const ToggleButtonItem = styled.div<{ theme: MavrykTheme }>`
   cursor: pointer;
 
   &.selected {
-    background: #8d86eb;
+    background: ${headerColor};
     border-radius: 17.5px;
     color: #080628;
     transition: 0.4s all ease-in-out;

@@ -28,7 +28,9 @@ export const AccordeonToggler = styled.div<{ theme: MavrykTheme }>`
 
 export const AccordeonContent = styled.div<{ theme: MavrykTheme }>`
   display: flex;
+  height: 100%;
   max-height: 0;
+  height: 185px;
   overflow: scroll;
   padding-left: 26px;
   padding-bottom: 16px;
@@ -40,12 +42,20 @@ export const AccordeonContent = styled.div<{ theme: MavrykTheme }>`
   transition: opacity 0.5s max-height 0.4s ease-in-out;
   &.expaned {
     opacity: 1;
-    max-height: 200px;
+    max-height: 185px;
   }
 `;
 
 export const AccordeonItem = styled.div<{ status: boolean; theme: MavrykTheme }>`
   font-weight: 400;
-  font-size: 18px;
+  font-size: 14px;
+  margin: 5px 0;
   color: ${({ status, theme }) => (status ? theme.upColor : theme.downColor)};
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+  &:first-child {
+    margin-top: 0;
+  }
 `;
