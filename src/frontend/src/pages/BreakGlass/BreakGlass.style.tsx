@@ -1,67 +1,100 @@
-import styled from 'styled-components/macro'
-import { MavrykTheme } from '../../styles/interfaces'
+import styled from 'styled-components/macro';
+import { MavrykTheme } from '../../styles/interfaces';
 
-export const BreakGlassStyled = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
-  margin-top: 15px;
+import { downColor, upColor, skyColor, headerColor, darkCianColor } from '../../styles/colors';
+
+export const BGStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
+  width: 100%;
   flex-direction: column;
-  width: 100%;
-  flex-grow: 1;
+  font-family: 'Metropolis';
+`;
 
-  > h1 {
-    margin: 10px auto 10px 0;
-  }
-`
-export const BreakGlassTop = styled.div<{ theme: MavrykTheme }>`
+export const BGTop = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
   display: flex;
-  flex-direction: row;
-  margin-bottom: 30px;
-`
-export const BreakGlassTopLeftCard = styled.div<{ theme: MavrykTheme }>`
+  padding-top: 30px;
+  justify-content: space-between;
+`;
+
+const BGBlockBaseStyles = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  width: 30%;
-  height: 100px;
-  margin-right: 15px;
+  border: 1px solid ${darkCianColor};
   border-radius: 10px;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  align-items: inherit;
+`;
 
-  > div {
-    display: inline-flex;
+export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 300px;
+  height: 115px;
+  padding: 0 40px;
+
+  .status-indicator-wrapper {
+    width: 100%;
+    display: flex;
     justify-content: space-between;
+    font-weight: 600;
+    font-size: 16px;
+    color: ${headerColor};
+    margin: 12px 0;
   }
-`
-export const BreakGlassTopRightCard = styled.div<{ theme: MavrykTheme }>`
-  background-color: ${({ theme }) => theme.containerColor};
-  width: 68%;
-  height: 100px;
-  margin-left: 15px;
-  border-radius: 10px;
-  padding: 20px;
-`
-export const BreakGlassContractCardsContainer = styled.div<{ theme: MavrykTheme }>`
-  width: 100%;
-  height: 100%;
-`
+
+  .color-red {
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: ${downColor};
+  }
+
+  .color-green {
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    color: ${upColor};
+  }
+`;
+
+export const BGMiddleWrapper = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+  justify-content: space-between;
+  margin-top: 45px;
+`;
+
+export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
+  max-width: 758px;
+  max-height: 115px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 22px;
+  padding-top: 21px;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 21px;
+    color: ${skyColor};
+  }
+
+  a {
+    text-decoration: none;
+  }
+`;
+
+export const BGCardsWrapper = styled.div<{ theme: MavrykTheme }>`
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: calc((100% - (31% * 3)) / 2);
+  row-gap: 25px;
+  margin-top: 23px;
+`;
 
 export const BGTitle = styled.h1<{ theme: MavrykTheme }>`
-  color: ${({ theme }) => theme.textColor};
+  color: ${headerColor};
   font-weight: 700;
   font-size: 24px;
-`
-export const BGTextTitle = styled.h2<{ theme: MavrykTheme }>`
-  color: ${({ theme }) => theme.textColor};
-  font-weight: 700;
-  font-size: 24px;
-`
-
-export const BGTextWithStatus = styled.div<{ status: boolean; theme: MavrykTheme }>`
-  color: ${({ status, theme }) => (status ? theme.downColor : theme.upColor)};
-  font-weight: 600;
-  font-size: 22px;
-`
+  margin: 0;
+`;
