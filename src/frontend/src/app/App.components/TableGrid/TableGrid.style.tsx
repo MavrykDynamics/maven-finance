@@ -21,6 +21,14 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     &:last-child {
       border-right: none;
     }
+
+    &.active-td {
+      background-color: ${headerColor};
+
+      input {
+        color: ${darkColor}!important;
+      }
+    }
   }
 
   input {
@@ -32,7 +40,6 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     padding-left: 8px;
     padding-right: 8px;
     border: none;
-    font-weight: 700;
     font-size: 14px;
   }
 
@@ -51,6 +58,7 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
       }
 
       input {
+        font-weight: 700;
         color: ${headerColor};
       }
     }
