@@ -118,6 +118,12 @@ data:
       url: http://hasura-dev.mavryk-indexer.svc.cluster.local:8080
       admin_secret: ${ADMIN_SECRET:-changeme}
       select_limit: 1000
+      
+    advanced:
+      reindex:
+        manual: wipe
+        migration: exception
+        rollback: ignore
 
     advanced:
       reindex:
