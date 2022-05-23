@@ -25,6 +25,7 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
 
     // aggregatorConfigType
     decimals: BigNumber,
+    deviationRewardAmountXTZ: BigNumber,
     maintainer: string,
     minimalTezosAmountDeviationTrigger: BigNumber,
     numberBlocksDelay: BigNumber,
@@ -39,6 +40,7 @@ type AggregatorFactoryContractMethods<T extends ContractProvider | Wallet> = {
   banSatellite: (satelliteAddress: string) => ContractMethod<T>;
   updateAggregatorConfig: (
     decimals: BigNumber,
+    deviationRewardAmountXTZ: BigNumber,
     maintainer: string,
     minimalTezosAmountDeviationTrigger: BigNumber,
     numberBlocksDelay: BigNumber,
