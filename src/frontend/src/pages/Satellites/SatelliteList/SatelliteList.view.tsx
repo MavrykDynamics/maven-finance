@@ -113,6 +113,8 @@ const ListWithSatellites = ({
     handleSelect(itemsForDropDown[0])
   }, [])
 
+  console.log('%c ||||| satelliteFound', 'color:yellowgreen', satelliteFound)
+
   return (
     <SatelliteListStyled>
       <SatelliteSearchFilter>
@@ -137,21 +139,24 @@ const ListWithSatellites = ({
           />{' '}
         </DropdownContainer>
       </SatelliteSearchFilter>
-      {satelliteFound === false && <EmptySatelliteList />}
-      {satellitesList.map((item, index) => {
-        return (
-          <SatelliteListCard
-            key={String(index + item.address)}
-            className="iterable"
-            satellite={item}
-            loading={loading}
-            delegateCallback={delegateCallback}
-            undelegateCallback={undelegateCallback}
-            userStakedBalance={userStakedBalance}
-            satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
-          />
-        )
-      })}
+      {satelliteFound === false ? (
+        <EmptySatelliteList />
+      ) : (
+        satellitesList.map((item, index) => {
+          return (
+            <SatelliteListCard
+              key={String(index + item.address)}
+              className="iterable"
+              satellite={item}
+              loading={loading}
+              delegateCallback={delegateCallback}
+              undelegateCallback={undelegateCallback}
+              userStakedBalance={userStakedBalance}
+              satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
+            />
+          )
+        })
+      )}
     </SatelliteListStyled>
   )
 }

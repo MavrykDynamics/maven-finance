@@ -36,7 +36,9 @@ export const SatelliteList = ({
     let searchResult: SatelliteRecord[] = []
     if (searchQuery !== '') {
       searchResult = allSatellites.filter(
-        (item: SatelliteRecord) => item.address.includes(searchQuery) || item.name.includes(searchQuery),
+        (item: SatelliteRecord) =>
+          item.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          item.name.toLowerCase().includes(searchQuery.toLowerCase()),
       )
     } else {
       searchResult = allSatellites
