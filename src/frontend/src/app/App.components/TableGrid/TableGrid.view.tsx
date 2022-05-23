@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 // types
 import type { TableListType } from './TableGrid.types'
 
@@ -10,6 +12,7 @@ type Props = {
 }
 
 export default function TableGrid({ tableData, setTableData }: Props) {
+  const [activeTd, setActieTd] = useState<number | ''>('')
   console.log('ТТТТТ - tableData')
   console.table(tableData)
 
@@ -45,7 +48,12 @@ export default function TableGrid({ tableData, setTableData }: Props) {
           {tableData.map((row, i) => (
             <tr key={i}>
               {row.map((colValue, j) => (
-                <td key={`${i}+${j}`}>
+                <td
+                  key={`${i}+${j}`}
+                  onMouseLeave={() => setActieTd('')}
+                  onMouseEnter={() => setActieTd(j)}
+                  className={j === activeTd ? 'active-td' : ''}
+                >
                   <input value={colValue} onChange={(e) => handleChange(e, i, j)} />
                 </td>
               ))}
