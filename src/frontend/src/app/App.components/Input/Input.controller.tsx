@@ -1,26 +1,27 @@
-import * as PropTypes from 'prop-types'
-import * as React from 'react'
+import * as PropTypes from 'prop-types';
+import * as React from 'react';
 
-import { InputView } from './Input.view'
+import { InputView } from './Input.view';
 
-export type InputStatusType = 'success' | 'error' | '' | undefined
-export type InputKind = 'primary' | 'search'
+export type InputStatusType = 'success' | 'error' | '' | undefined;
+export type InputKind = 'primary' | 'search';
 type InputProps = {
-  icon?: string
-  placeholder: string
-  name?: string
-  value?: string | number
-  onChange: any
-  onBlur: any
-  onFocus?: any
-  inputStatus?: InputStatusType
-  type: string
-  errorMessage?: string
-  disabled?: boolean
-  required?: boolean
-  pinnedText?: string
-  kind?: InputKind
-}
+  icon?: string;
+  placeholder: string;
+  name?: string;
+  value?: string | number;
+  onChange: any;
+  onBlur: any;
+  onFocus?: any;
+  onKeyDown?: any;
+  inputStatus?: InputStatusType;
+  type: string;
+  errorMessage?: string;
+  disabled?: boolean;
+  required?: boolean;
+  pinnedText?: string;
+  kind?: InputKind;
+};
 
 export const Input = ({
   icon,
@@ -30,6 +31,7 @@ export const Input = ({
   onChange,
   onBlur,
   onFocus,
+  onKeyDown,
   inputStatus,
   type,
   errorMessage,
@@ -48,6 +50,7 @@ export const Input = ({
       value={value}
       onChange={onChange}
       onBlur={onBlur}
+      onKeyDown={onKeyDown}
       onFocus={onFocus}
       inputStatus={inputStatus}
       errorMessage={errorMessage}
@@ -55,8 +58,8 @@ export const Input = ({
       pinnedText={pinnedText}
       kind={kind}
     />
-  )
-}
+  );
+};
 
 Input.propTypes = {
   icon: PropTypes.string,
@@ -70,7 +73,7 @@ Input.propTypes = {
   errorMessage: PropTypes.string,
   disabled: PropTypes.bool,
   kind: PropTypes.string,
-}
+};
 
 Input.defaultProps = {
   icon: undefined,
@@ -80,4 +83,4 @@ Input.defaultProps = {
   inputStatus: undefined,
   type: 'text',
   kind: 'primary',
-}
+};
