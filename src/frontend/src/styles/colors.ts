@@ -1,31 +1,32 @@
-export const darkColor = '#080628'
-export const middleColor = '#160E3F'
-export const medialeColor = '#38237C'
-export const whiteColor = '#FFFFFF'
-export const lightColor = '#EBF0FF'
-export const skyColor = '#77A4F2'
-export const headerColor = '#8D86EB'
-export const textsColor = '#160E3F'
-export const cianColor = '#86D4C9'
-export const darkCianColor = '#503EAA'
-export const tezosColor = '#0D61FF'
-export const primaryColor = '#7068AA'
-export const boxShadowColor = 'rgba(134, 212, 201, 0.5)'
-export const subTextColor = '#7E8794'
+export const darkColor = '#080628';
+export const middleColor = '#160E3F';
+export const medialeColor = '#38237C';
+export const whiteColor = '#FFFFFF';
+export const lightColor = '#EBF0FF';
+export const skyColor = '#77A4F2';
+export const headerColor = '#8D86EB';
+export const textsColor = '#160E3F';
+export const cianColor = '#86D4C9';
+export const darkCianColor = '#503EAA';
+export const tezosColor = '#0D61FF';
+export const primaryColor = '#7068AA';
+export const boxShadowColor = 'rgba(134, 212, 201, 0.5)';
+export const subTextColor = '#7E8794';
+export const accordeonTogglerColor = '#6a6a9b';
 
-export const containerColor = '#F7F9FD'
-export const borderColor = '#4F457C' 
-export const textColor = '#29264C'
-export const backgroundTextColor = '#F7F9FD'
-export const placeholderColor = '#F7F9FD'
-export const secondaryColor = '#73d7c3'
-export const upColor = '#27AE60'
-export const downColor = '#FF4343'
-export const warningColor = '#FF7A00'
-export const infoColor = '#00C2FF'
-export const selectedColor = '#aea3ff3d'
+export const containerColor = '#F7F9FD';
+export const borderColor = '#4F457C';
+export const textColor = '#29264C';
+export const backgroundTextColor = '#F7F9FD';
+export const placeholderColor = '#F7F9FD';
+export const secondaryColor = '#73d7c3';
+export const upColor = '#27AE60';
+export const downColor = '#FF4343';
+export const warningColor = '#FF7A00';
+export const infoColor = '#00C2FF';
+export const selectedColor = '#aea3ff3d';
 
-export const backdropColor = '#08062880'
+export const backdropColor = '#08062880';
 
 export const darkMode = {
   backgroundColor: darkColor,
@@ -58,7 +59,7 @@ export const darkMode = {
   connectWalletBackgroundColor: '#50508E',
   navLinkBackgroundActive: 'linear-gradient(90deg, #38237c 0%, rgba(80, 80, 142, 0) 100%)',
   boxShadowColor: 'rgba(136, 209, 195, 0.3)',
-}
+};
 
 export const lightMode = {
   backgroundColor: lightColor,
@@ -89,6 +90,7 @@ export const lightMode = {
   infoColor: '#00C2FF',
   selectedColor: '#aea3ff3d',
   connectWalletBackgroundColor: '#EEEAF4',
-  navLinkBackgroundActive: 'linear-gradient(90deg, rgba(134, 212, 201, 0.5) 0%, rgba(134, 212, 201, 0) 100%);',
+  navLinkBackgroundActive:
+    'linear-gradient(90deg, rgba(134, 212, 201, 0.5) 0%, rgba(134, 212, 201, 0) 100%);',
   boxShadowColor: 'rgba(112, 104, 170, 0.3)',
-}
+};

@@ -1,69 +1,43 @@
-import { useState, useEffect, useRef } from 'react'
-import {
-  CardTopSection,
-  ContractCardStyled,
-  DropDownContainer,
-  EntrypointNameWithStatus,
-  TitleStatusContainer,
-} from './ContractCard.style'
-import { BGTextTitle } from '../BreakGlass.style'
-import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
-import * as React from 'react'
-import { ContractBreakGlass } from '../mockContracts'
-import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
+import React, { useState } from 'react';
+
+import { ContractCardWrapper, ContractCardTopSection } from './ContractCard.style';
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller';
+import { ContractBreakGlass } from '../mockContracts';
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance';
+import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view';
+import { BGAccordeon } from '../Accordeon/Accordeon.view';
 
 type ContractCardProps = {
-  contract: ContractBreakGlass
-}
+  contract: ContractBreakGlass;
+};
 export const ContractCard = ({ contract }: ContractCardProps) => {
-  const { entrypoints } = contract
-  const [expanded, setExpanded] = useState(false)
-  const [accordionHeight, setAccordionHeight] = useState(0)
-  const ref = useRef(null)
-  const conStatus = contract.status === 'LIVE' ? ProposalStatus.EXECUTED : ProposalStatus.DEFEATED
-
-  const open = () => setExpanded(!expanded)
-
-  useEffect(() => {
-    // @ts-ignore
-    const getHeight = ref.current.scrollHeight
-    setAccordionHeight(getHeight)
-  }, [expanded])
+  const { entrypoints } = contract;
+  const [isExpanded, setExpanded] = useState(false);
 
   return (
-    <ContractCardStyled key={contract.address} className={`contractCard accordion${expanded ? 'Show' : 'Hide'}`}>
-      <CardTopSection>
-        <TitleStatusContainer>
-          <BGTextTitle>{contract.name}</BGTextTitle>
-          <StatusFlag text={contract.status} status={conStatus} />
-        </TitleStatusContainer>
-        <TzAddress tzAddress={contract.address} hasIcon={false} />
-      </CardTopSection>
-      <DropDownContainer onClick={open} className={expanded ? 'show' : 'hide'} height={accordionHeight} ref={ref}>
-        <span>
-          Entrypoints{' '}
-          {expanded ? (
-            <svg>
-              <use xlinkHref={`/icons/sprites.svg#arrow-up`} />
-            </svg>
-          ) : (
-            <svg>
-              <use xlinkHref={`/icons/sprites.svg#arrow-down`} />
-            </svg>
-          )}
-        </span>
-        <div className={'accordion ' + `${expanded}`} ref={ref}>
-          {entrypoints.map((item, index) => {
-            const entryStatus = item.status === 'LIVE'
-            return (
-              <EntrypointNameWithStatus key={item.name} status={entryStatus}>
-                %{item.name}
-              </EntrypointNameWithStatus>
-            )
-          })}
+    <ContractCardWrapper key={contract.address}>
+      <ContractCardTopSection>
+        <div className="card-title">
+          <div className="truncate-title">{contract.name}</div>
         </div>
-      </DropDownContainer>
-    </ContractCardStyled>
-  )
-}
+
+        <div className="card-flag-wrapper">
+          <StatusFlag
+            text={contract.status}
+            status={contract.status === 'LIVE' ? ProposalStatus.EXECUTED : ProposalStatus.DEFEATED}
+          />
+        </div>
+
+        <div className="card-hash-wrapper">
+          <TzAddress tzAddress={contract.address} hasIcon={false} />
+        </div>
+      </ContractCardTopSection>
+      <BGAccordeon
+        accordeonId={contract.name}
+        isExpanded={isExpanded}
+        accordeonData={entrypoints}
+        accordeonClickHandler={() => setExpanded(!isExpanded)}
+      />
+    </ContractCardWrapper>
+  );
+};
