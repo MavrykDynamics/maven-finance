@@ -16,12 +16,14 @@ async def on_delegation_pause_all(
     registerAsSatellitePaused       = pause_all.storage.breakGlassConfig.registerAsSatelliteIsPaused
     unregisterAsSatellitePaused     = pause_all.storage.breakGlassConfig.unregisterAsSatelliteIsPaused
     update_satellite_record_paused  = pause_all.storage.breakGlassConfig.updateSatelliteRecordIsPaused
+    distribute_reward_paused        = pause_all.storage.breakGlassConfig.distributeRewardIsPaused
 
     # Update contract
-    doorman                                     = await models.Delegation.get(address=delegationAddress)
-    doorman.delegate_to_satellite_paused        = delegateToSatellitePaused
-    doorman.undelegate_from_satellite_paused    = undelegateFromSatellitePaused
-    doorman.register_as_satellite_paused        = registerAsSatellitePaused
-    doorman.unregister_as_satellite_paused      = unregisterAsSatellitePaused
-    doorman.update_satellite_record_paused      = update_satellite_record_paused
-    await doorman.save()
+    delegation                                      = await models.Delegation.get(address=delegationAddress)
+    delegation.delegate_to_satellite_paused         = delegateToSatellitePaused
+    delegation.undelegate_from_satellite_paused     = undelegateFromSatellitePaused
+    delegation.register_as_satellite_paused         = registerAsSatellitePaused
+    delegation.unregister_as_satellite_paused       = unregisterAsSatellitePaused
+    delegation.update_satellite_record_paused       = update_satellite_record_paused
+    delegation.distribute_reward_paused             = distribute_reward_paused
+    await delegation.save()

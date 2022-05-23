@@ -9,24 +9,43 @@ async def on_delegation_update_satellite_record(
     ctx: HandlerContext,
     update_satellite_record: Transaction[UpdateSatelliteRecordParameter, DelegationStorage],
 ) -> None:
-    ...
+
     # Get operation values
-    # satelliteAddress               = update_satellite_record.data.sender_address
-    # newSatelliteName               = update_satellite_record.parameter.string_0
-    # newSatelliteDescription        = update_satellite_record.parameter.string_1
-    # newSatelliteImage              = update_satellite_record.parameter.string_2
-    # newSatelliteFee                = int(update_satellite_record.parameter.nat)
+    delegation_address      = update_satellite_record.data.target_address
+    satellite_address       = update_satellite_record.data.sender_address
+    name                    = update_satellite_record.parameter.name
+    description             = update_satellite_record.parameter.description
+    image                   = update_satellite_record.parameter.image
+    website                 = update_satellite_record.parameter.website
+    fee                     = int(update_satellite_record.parameter.satelliteFee)
+    rewards_record          = update_satellite_record.storage.satelliteRewardsLedger[satellite_address]
 
-    # # Update satellite record
-    # user        = await models.MavrykUser.get(
-    #     address = satelliteAddress
-    # )
-    # satellite   = await models.SatelliteRecord.get(
-    #     user    = user
-    # )
-    # satellite.name              = newSatelliteName
-    # satellite.description       = newSatelliteDescription
-    # satellite.image             = newSatelliteImage
-    # satellite.fee               = newSatelliteFee
+    # Create and/or update record
+    user, _ = await models.MavrykUser.get_or_create(
+        address = satellite_address
+    )
+    delegation = await models.Delegation.get(
+        address = delegation_address
+    )
+    satelliteRecord, _ = await models.SatelliteRecord.get_or_create(
+        user        = user,
+        delegation  = delegation
+    )
+    satelliteRecord.fee                             = fee
+    satelliteRecord.name                            = name
+    satelliteRecord.description                     = description
+    satelliteRecord.image                           = image
+    satelliteRecord.website                         = website
 
-    # await satellite.save()
+    satelliteRewardRecord, _ = await models.SatelliteRewardsRecord.get_or_create(
+        user        = user,
+        delegation  = delegation
+    )
+    satelliteRewardRecord.unpaid                                        = float(rewards_record.unpaid)
+    satelliteRewardRecord.paid                                          = float(rewards_record.paid)
+    satelliteRewardRecord.participation_rewards_per_share               = float(rewards_record.participationRewardsPerShare)
+    satelliteRewardRecord.satellite_accumulated_reward_per_share        = float(rewards_record.satelliteAccumulatedRewardsPerShare)
+
+    await user.save()
+    await satelliteRecord.save()
+    await satelliteRewardRecord.save()

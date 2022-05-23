@@ -15,6 +15,12 @@ hasura:
   admin_secret: ${ADMIN_SECRET:-changeme}
   select_limit: 1000
 
+advanced:
+  reindex:
+    manual: wipe
+    migration: exception
+    rollback: ignore
+
 contracts:
   mvk:
     address: KT1Vy6dzCFQcHsQTjWy3cbD1Li6bTtj4WiVZ

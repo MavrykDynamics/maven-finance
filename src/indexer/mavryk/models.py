@@ -320,17 +320,28 @@ class FarmAccount(Model):
     class Meta:
         table = 'farm_account'
 
+class SatelliteRewardsRecord(Model):
+    id                              = fields.BigIntField(pk=True, default=0)
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_rewards')
+    reference                       = fields.ForeignKeyField('models.SatelliteRewardsRecord', related_name='satellite_references', null=True)
+    delegation                      = fields.ForeignKeyField('models.Delegation', related_name='satellite_rewards_records')
+    unpaid                          = fields.FloatField(default=0)
+    paid                            = fields.FloatField(default=0)
+    participation_rewards_per_share = fields.FloatField(default=0)
+    satellite_accumulated_reward_per_share= fields.FloatField(default=0)
+
+    class Meta:
+        table = 'satellite_rewards_record'
+
 class SatelliteRecord(Model):
     id                              = fields.BigIntField(pk=True, default=0)
     user                            = fields.ForeignKeyField('models.MavrykUser', related_name='satellite_record')
     delegation                      = fields.ForeignKeyField('models.Delegation', related_name='satellite_records')
-    registered_datetime             = fields.DatetimeField()
-    unregistered_datetime           = fields.DatetimeField()
-    active                          = fields.BooleanField(default=False)
-    fee                             = fields.BigIntField(default=0)
-    name                            = fields.CharField(max_length=255)
-    description                     = fields.CharField(max_length=255)
-    image                           = fields.CharField(max_length=255)
+    fee                             = fields.SmallIntField(default=0)
+    name                            = fields.CharField(max_length=255, default="")
+    description                     = fields.CharField(max_length=255, default="")
+    image                           = fields.CharField(max_length=255, default="")
+    website                         = fields.CharField(max_length=255, default="")
 
     class Meta:
         table = 'satellite_record'
