@@ -61,8 +61,8 @@ export const StageThreeFormView = ({
         </div>
       </FormTitleAndFeeContainer>
       <label>3- Enter Proposal Bytes Data</label>
-      {/* <TableGrid tableData={tableData} setTableData={setTableData} /> */}
-      <GridSheet loading={loading} setTableJson={setTableJson} />
+      <TableGrid tableData={tableData} setTableData={setTableData} />
+      {/* <GridSheet loading={loading} setTableJson={setTableJson} /> */}
       <FormButtonContainer>
         <Button
           icon="financial"
