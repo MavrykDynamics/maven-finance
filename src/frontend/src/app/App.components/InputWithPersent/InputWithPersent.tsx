@@ -1,17 +1,15 @@
 import * as React from 'react';
 
-import { Input } from '../Input/Input.controller';
+import { Input, InputStatusType } from '../Input/Input.controller';
 
-export type InputStatusType = 'success' | 'error' | '' | undefined;
 type InputProps = {
   placeholder: string;
-  name?: string;
-  value?: string | number;
+  value: string | number;
   onChange: any;
   onBlur?: any;
-  inputStatus?: InputStatusType;
+  inputStatus: InputStatusType;
   type: string;
-  disabled?: boolean;
+  disabled: boolean;
 };
 
 const InputWithPersent = ({
