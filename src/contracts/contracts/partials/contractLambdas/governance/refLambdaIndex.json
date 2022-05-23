@@ -37,11 +37,11 @@
     },
     {
       "index": 9,
-      "name": "lambdaAddUpdateProposalData"
+      "name": "lambdaUpdateProposalData"
     },
     {
       "index": 10,
-      "name": "lambdaAddUpdatePaymentData"
+      "name": "lambdaUpdatePaymentData"
     },
     {
       "index": 11,

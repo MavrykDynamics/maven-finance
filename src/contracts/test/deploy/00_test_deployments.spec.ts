@@ -469,8 +469,8 @@ describe('Contracts Deployment for Tests', async () => {
 
       const governanceLambdaSecondBatch = await tezos.wallet
       .batch()
-      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdateProposalData"           , governanceLambdas[12])) // addUpdateProposalData
-      .withContractCall(governance.contract.methods.setLambda("lambdaAddUpdatePaymentData"            , governanceLambdas[13])) // addUpdatePaymentData
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdateProposalData"           , governanceLambdas[12])) // updateProposalData
+      .withContractCall(governance.contract.methods.setLambda("lambdaUpdatePaymentData"            , governanceLambdas[13])) // updatePaymentData
       .withContractCall(governance.contract.methods.setLambda("lambdaLockProposal"                    , governanceLambdas[14])) // lockProposal
       .withContractCall(governance.contract.methods.setLambda("lambdaProposalRoundVote"               , governanceLambdas[15])) // proposalRoundVote
       .withContractCall(governance.contract.methods.setLambda("lambdaVotingRoundVote"                 , governanceLambdas[16])) // votingRoundVote
