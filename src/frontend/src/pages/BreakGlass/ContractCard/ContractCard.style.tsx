@@ -32,6 +32,13 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     font-weight: 600;
     font-size: 24px;
     color: ${headerColor};
+    width: 150px;
+
+    .truncate-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   .card-flag-wrapper {

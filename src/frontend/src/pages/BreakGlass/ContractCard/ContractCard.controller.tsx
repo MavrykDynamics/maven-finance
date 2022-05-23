@@ -17,7 +17,9 @@ export const ContractCard = ({ contract }: ContractCardProps) => {
   return (
     <ContractCardWrapper key={contract.address}>
       <ContractCardTopSection>
-        <div className="card-title">{contract.name}</div>
+        <div className="card-title">
+          <div className="truncate-title">{contract.name}</div>
+        </div>
 
         <div className="card-flag-wrapper">
           <StatusFlag

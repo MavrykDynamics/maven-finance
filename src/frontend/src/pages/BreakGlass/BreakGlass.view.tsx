@@ -62,7 +62,7 @@ export const BreakGlassView = ({ contracts, glassBroken, pauseAllActive }: Break
             for a central authority. The BGP is triggered through the Emergency governance vote.
           </p>
 
-          <FAQLink>
+          <FAQLink className="BG-faq-link">
             <a
               href="https://mavryk.finance/litepaper#satellites-governance-and-the-decentralized-oracle"
               target="_blank"
