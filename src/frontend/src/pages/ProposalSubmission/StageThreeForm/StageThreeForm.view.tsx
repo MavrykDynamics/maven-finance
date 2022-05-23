@@ -23,6 +23,7 @@ import {
   FormTitleContainer,
   FormTitleEntry,
   FormTableGrid,
+  SubmissionStyled,
 } from '../ProposalSubmission.style'
 
 type StageThreeFormViewProps = {
@@ -48,7 +49,7 @@ export const StageThreeFormView = ({
   handleSubmitFinancialRequestData,
 }: StageThreeFormViewProps) => {
   return (
-    <>
+    <SubmissionStyled>
       <FormHeaderGroup>
         <h1>Stage 3</h1>
         {/* TODO Need condition */}
@@ -82,6 +83,6 @@ export const StageThreeFormView = ({
           onClick={handleSubmitFinancialRequestData}
         />
       </FormButtonContainer>
-    </>
+    </SubmissionStyled>
   )
 }

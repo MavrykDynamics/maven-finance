@@ -8,6 +8,12 @@ export const ProposalSubmissionStyled = styled.div<{ theme: MavrykTheme }>`
   height: 100%;
 `
 
+export const SubmissionStyled = styled.section<{ theme: MavrykTheme }>`
+  min-height: 477px;
+  display: flex;
+  flex-direction: column;
+`
+
 export const ProposalSubmissionForm = styled(Card)`
   padding-bottom: 30px;
   position: relative;
@@ -166,6 +172,7 @@ export const ProposalSubmissionInvoiceImage = styled.div`
 `
 export const FormTableGrid = styled.div`
   padding-top: 10px;
+  margin-bottom: auto;
 `
 
 export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
