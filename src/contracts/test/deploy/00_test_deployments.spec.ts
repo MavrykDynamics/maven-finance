@@ -926,10 +926,10 @@ describe('Contracts Deployment for Tests', async () => {
             new BigNumber(8),
             oracleMaintainer.pkh,
             new BigNumber(0), // minimalTezosAmountDeviationTrigger
-            new BigNumber(2), // perthousandDeviationTrigger
+            new BigNumber(5), // perthousandDeviationTrigger
             new BigNumber(60), // percentOracleThreshold
             new BigNumber(5), // rewardAmountMVK
-            new BigNumber(500), // rewardAmountXTZ
+            new BigNumber(1300), // rewardAmountXTZ
             new BigNumber(2), // numberBlocksDelay
             aggregatorFactory.contract.address
         ))
@@ -942,10 +942,10 @@ describe('Contracts Deployment for Tests', async () => {
             new BigNumber(8),
             oracleMaintainer.pkh,
             new BigNumber(0), // minimalTezosAmountDeviationTrigger
-            new BigNumber(2), // perthousandDeviationTrigger
+            new BigNumber(5), // perthousandDeviationTrigger
             new BigNumber(60), // percentOracleThreshold
             new BigNumber(5), // rewardAmountMVK
-            new BigNumber(500), // rewardAmountXTZ
+            new BigNumber(1300), // rewardAmountXTZ
             new BigNumber(2), // numberBlocksDelay
             aggregatorFactory.contract.address
         ))
@@ -958,10 +958,10 @@ describe('Contracts Deployment for Tests', async () => {
             new BigNumber(16),
             oracleMaintainer.pkh,
             new BigNumber(0), // minimalTezosAmountDeviationTrigger
-            new BigNumber(2), // perthousandDeviationTrigger
+            new BigNumber(5), // perthousandDeviationTrigger
             new BigNumber(60), // percentOracleThreshold
             new BigNumber(5), // rewardAmountMVK
-            new BigNumber(500), // rewardAmountXTZ
+            new BigNumber(1300), // rewardAmountXTZ
             new BigNumber(2), // numberBlocksDelay
             aggregatorFactory.contract.address
         ))

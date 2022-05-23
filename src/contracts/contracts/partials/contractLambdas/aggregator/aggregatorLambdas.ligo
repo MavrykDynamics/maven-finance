@@ -157,18 +157,12 @@ block{
                   } else skip;
                 } else skip;
 
-                const newOracleRewardsMVK : oracleRewardsMVKType = updateRewards(s);
-                const newOracleRewardsXTZ = Map.update(Tezos.sender, Some (getRewardAmountXTZ(Tezos.sender, s) + s.config.rewardAmountXTZ), s.oracleRewardsXTZ);
-
                 s.round                   := newRound;
                 s.roundStart              := Tezos.now;
                 s.observationReveals      := emptyMapReveals;
                 s.observationCommits      := emptyMapCommit;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
                 s.switchBlock             := 0n;
-                s.oracleRewardsMVK        := newOracleRewardsMVK;
-                s.oracleRewardsXTZ        := newOracleRewardsXTZ;
-
             }
         | _ -> skip
     ];
