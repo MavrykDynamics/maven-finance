@@ -105,7 +105,7 @@ export const DropdownContainer = styled.div<{ theme: MavrykTheme }>`
     font-weight: 700;
     font-size: 14px;
     line-height: 14px;
-    color: ${({ theme }) => theme.headerSkyColor};
+    color: ${({ theme }) => theme.headerColor};
     flex-shrink: 0;
     margin-right: 16px;
   }
