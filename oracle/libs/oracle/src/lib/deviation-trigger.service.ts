@@ -18,6 +18,7 @@ export class DeviationTriggerService implements OnModuleInit {
   private mutex = new Mutex();
   private readonly workAtLoss;
   private readonly deviationTriggerCronString: string;
+  private readonly enableDeviationTrigger: boolean;
 
   constructor(
     private readonly priceService: PriceService,
@@ -28,12 +29,18 @@ export class DeviationTriggerService implements OnModuleInit {
   ) {
     this.workAtLoss = oracleConfig.workAtLoss;
     this.deviationTriggerCronString = oracleConfig.deviationTriggerCronString;
+    this.enableDeviationTrigger = oracleConfig.enableDeviationTrigger;
   }
 
   async onModuleInit(): Promise<void> {
     this.logger.verbose(
       `Using deviation trigger cron string: ${this.deviationTriggerCronString}`
     );
+
+    if(!this.enableDeviationTrigger) {
+      this.logger.warn('Deviation trigger is disabled (set ENABLE_DEVIATION_TRIGGER env variable to true to enable)');
+      return;
+    }
 
     this.cronJob = new CronJob(this.deviationTriggerCronString, async () => {
       try {
