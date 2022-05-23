@@ -29,7 +29,6 @@ async def on_governance_propose(
     success_reward         = float(storage_record.successReward)
     executed               = storage_record.executed
     locked                 = storage_record.locked
-    successful             = storage_record.isSuccessful
     payment_processed      = storage_record.paymentProcessed
     pass_vote_count        = int(storage_record.passVoteCount)
     pass_vote_mvk          = float(storage_record.passVoteMvkTotal)
@@ -68,7 +67,6 @@ async def on_governance_propose(
         source_code                     = code,
         executed                        = executed,
         locked                          = locked,
-        successful                      = successful,
         payment_processed               = payment_processed,
         success_reward                  = success_reward,
         pass_vote_count                 = pass_vote_count,
