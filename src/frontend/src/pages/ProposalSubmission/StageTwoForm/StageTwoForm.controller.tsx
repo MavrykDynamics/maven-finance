@@ -12,10 +12,10 @@ import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 import { lockProposal, updateProposal } from '../ProposalSubmission.actions'
 
 type StageTwoFormProps = {
-  loading: boolean
+  locked: boolean
   accountPkh?: string
 }
-export const StageTwoForm = ({ loading, accountPkh }: StageTwoFormProps) => {
+export const StageTwoForm = ({ locked, accountPkh }: StageTwoFormProps) => {
   const dispatch = useDispatch()
   const [form, setForm] = useState<ProposalUpdateForm>({
     title: 'Hello There',
@@ -48,7 +48,7 @@ export const StageTwoForm = ({ loading, accountPkh }: StageTwoFormProps) => {
 
   return (
     <StageTwoFormView
-      loading={loading}
+      locked={locked}
       form={form}
       setForm={setForm}
       formInputStatus={formInputStatus}

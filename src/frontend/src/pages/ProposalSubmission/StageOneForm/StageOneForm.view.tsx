@@ -13,7 +13,7 @@ import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 import { FormButtonContainer, FormHeaderGroup, FormTitleAndFeeContainer, FormTitleContainer } from '../ProposalSubmission.style'
 
 type StageOneFormViewProps = {
-  loading: boolean
+  locked: boolean
   form: SubmitProposalForm
   setForm: (form: SubmitProposalForm) => void
   formInputStatus: SubmitProposalFormInputStatus
@@ -21,7 +21,7 @@ type StageOneFormViewProps = {
   handleSubmitProposal: () => void
 }
 export const StageOneFormView = ({
-  loading,
+  locked,
   form,
   setForm,
   formInputStatus,
@@ -32,8 +32,10 @@ export const StageOneFormView = ({
     <>
       <FormHeaderGroup>
         <h1>Stage 1</h1>
-        {/* TODO Need condition */}
-        <StatusFlag text="UNLOCKED" status={ProposalStatus.EXECUTED} />
+        <StatusFlag
+          text={locked ? 'LOCKED' : 'UNLOCKED'}
+          status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+        />
         <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
           <Icon id="question" />
         </a>
@@ -87,13 +89,7 @@ export const StageOneFormView = ({
         />
       </div>
       <FormButtonContainer>
-        <Button
-          icon="auction"
-          kind="actionPrimary"
-          text={'Submit Proposal'}
-          loading={loading}
-          onClick={handleSubmitProposal}
-        />
+        <Button icon="auction" kind="actionPrimary" text={'Submit Proposal'} onClick={handleSubmitProposal} />
       </FormButtonContainer>
     </>
   )
