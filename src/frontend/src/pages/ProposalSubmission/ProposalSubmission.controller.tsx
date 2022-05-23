@@ -9,8 +9,9 @@ export const ProposalSubmission = () => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
-  const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
+  const { pastProposals, governancePhase } = useSelector((state: State) => state.governance)
   const [activeTab, setActiveTab] = useState<number>(1)
+  const locked = pastProposals[0].locked
 
   useEffect(() => {
     dispatch(getGovernanceStorage())
@@ -28,6 +29,7 @@ export const ProposalSubmission = () => {
       accountPkh={accountPkh}
       governancePhase={governancePhase}
       isInEmergencyGovernance={false}
+      locked={locked}
     />
   )
 }

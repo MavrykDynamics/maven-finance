@@ -15,12 +15,12 @@ import { submitFinancialRequestData } from '../ProposalSubmission.actions'
 import { StageThreeFormView } from './StageThreeForm.view'
 
 type StageThreeFormProps = {
-  loading: boolean
+  locked: boolean
   accountPkh?: string
 }
 const INIT_TABLE_DATA = [[''], ['']]
 
-export const StageThreeForm = ({ loading, accountPkh }: StageThreeFormProps) => {
+export const StageThreeForm = ({ locked, accountPkh }: StageThreeFormProps) => {
   const dispatch = useDispatch()
 
   const [tableData, setTableData] = useState(INIT_TABLE_DATA)
@@ -60,7 +60,7 @@ export const StageThreeForm = ({ loading, accountPkh }: StageThreeFormProps) => 
 
   return (
     <StageThreeFormView
-      loading={false}
+      locked={locked}
       form={form}
       setForm={setForm}
       tableData={tableData}

@@ -19,16 +19,17 @@ type ProposalSubmissionViewProps = {
   isInEmergencyGovernance: boolean
   activeTab: number
   handleChangeTab: (tabId: number) => void
+  locked: boolean
 }
-export const ProposalSubmissionView = ({ loading, activeTab, handleChangeTab }: ProposalSubmissionViewProps) => {
+export const ProposalSubmissionView = ({ locked, activeTab, handleChangeTab }: ProposalSubmissionViewProps) => {
   return (
     <Page>
-      <PageHeader page={'proposal submission'} kind={PRIMARY} loading={loading} />
+      <PageHeader page={'proposal submission'} kind={PRIMARY} />
       <PropSubmissionTopBar value={activeTab} valueCallback={handleChangeTab} />
       <ProposalSubmissionForm>
-        {activeTab === 1 && <StageOneForm loading={loading} />}
-        {activeTab === 2 && <StageTwoForm loading={loading} />}
-        {activeTab === 3 && <StageThreeForm loading={loading} />}
+        {activeTab === 1 && <StageOneForm locked={locked} />}
+        {activeTab === 2 && <StageTwoForm locked={locked} />}
+        {activeTab === 3 && <StageThreeForm locked={locked} />}
       </ProposalSubmissionForm>
     </Page>
   )

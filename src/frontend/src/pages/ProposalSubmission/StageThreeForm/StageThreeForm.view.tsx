@@ -29,7 +29,7 @@ import {
 type StageThreeFormViewProps = {
   tableData: TableListType
   setTableData: (arg0: TableListType) => void
-  loading: boolean
+  locked: boolean
   form: ProposalFinancialRequestForm
   setForm: (form: ProposalFinancialRequestForm) => void
   formInputStatus: ProposalFinancialRequestInputStatus
@@ -40,7 +40,7 @@ type StageThreeFormViewProps = {
 export const StageThreeFormView = ({
   tableData,
   setTableData,
-  loading,
+  locked,
   form,
   setForm,
   formInputStatus,
@@ -52,8 +52,10 @@ export const StageThreeFormView = ({
     <SubmissionStyled>
       <FormHeaderGroup>
         <h1>Stage 3</h1>
-        {/* TODO Need condition */}
-        <StatusFlag text="LOCKED" status={ProposalStatus.DEFEATED} />
+        <StatusFlag
+          text={locked ? 'LOCKED' : 'UNLOCKED'}
+          status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+        />
         <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
           <Icon id="question" />
         </a>
@@ -79,7 +81,6 @@ export const StageThreeFormView = ({
           className="financial"
           kind="actionPrimary"
           text={'Submit Financial Request'}
-          loading={loading}
           onClick={handleSubmitFinancialRequestData}
         />
       </FormButtonContainer>
