@@ -11,11 +11,11 @@ async def on_doorman_toggle_pause_farm_claim(
 ) -> None:
     # Get doorman contract
     doorman_address = toggle_pause_farm_claim.data.target_address
-    doorman = await models.Doorman.get(address=doorman_address)
+    doorman         = await models.Doorman.get(address=doorman_address)
 
     # Update doorman
-    doorman.stake_paused = toggle_pause_farm_claim.data.storage['breakGlassConfig']['stakeIsPaused']
-    doorman.unstake_paused = toggle_pause_farm_claim.data.storage['breakGlassConfig']['unstakeIsPaused']
-    doorman.compound_paused = toggle_pause_farm_claim.data.storage['breakGlassConfig']['compoundIsPaused']
-    doorman.farm_claim_paused = toggle_pause_farm_claim.data.storage['breakGlassConfig']['farmClaimIsPaused']
+    doorman.stake_paused        = toggle_pause_farm_claim.storage.breakGlassConfig.stakeIsPaused
+    doorman.unstake_paused      = toggle_pause_farm_claim.storage.breakGlassConfig.unstakeIsPaused
+    doorman.compound_paused     = toggle_pause_farm_claim.storage.breakGlassConfig.compoundIsPaused
+    doorman.farm_claim_paused   = toggle_pause_farm_claim.storage.breakGlassConfig.farmClaimIsPaused
     await doorman.save()
