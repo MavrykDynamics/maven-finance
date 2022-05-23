@@ -5,7 +5,12 @@ import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
 // prettier-ignore
 import { ProposalFinancialRequestForm, ProposalFinancialRequestInputStatus, ValidFinancialRequestForm } from '../../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isJsonString, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import {
+  getFormErrors,
+  isJsonString,
+  validateFormAndThrowErrors,
+  containsCode,
+} from '../../../utils/validatorFunctions'
 import { submitFinancialRequestData } from '../ProposalSubmission.actions'
 import { StageThreeFormView } from './StageThreeForm.view'
 
@@ -40,9 +45,16 @@ export const StageThreeForm = ({ loading, accountPkh }: StageThreeFormProps) => 
   }
 
   const handleSubmitFinancialRequestData = () => {
-    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
+    const jsonStringTable = JSON.stringify(tableData)
+    const flatTable = tableData.flat()
+    const isEmptyFlatTable = flatTable.every((elem) => !elem)
+    const isStringcontainsCode = containsCode(JSON.stringify(tableData))
+    const isValidJsonString = !isStringcontainsCode && !isEmptyFlatTable
+    const formIsValid = validateFormAndThrowErrors(dispatch, {
+      financialData: isValidJsonString,
+    })
     if (formIsValid) {
-      dispatch(submitFinancialRequestData(form.financialData?.jsonString ?? '', accountPkh as any))
+      dispatch(submitFinancialRequestData(jsonStringTable, accountPkh as any))
     }
   }
 
