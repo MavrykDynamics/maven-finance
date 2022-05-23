@@ -13,6 +13,7 @@ export type aggregatorConfigType = {
   percentOracleThreshold: BigNumber;
   rewardAmountXTZ: BigNumber;
   rewardAmountMVK: BigNumber;
+  deviationRewardAmountXTZ: BigNumber;
   minimalTezosAmountDeviationTrigger: BigNumber;
   perthousandDeviationTrigger: BigNumber;
   maintainer: string;
@@ -91,6 +92,7 @@ type AggregatorContractMethods<T extends ContractProvider | Wallet> = {
   updateOwner: (owner: string) => ContractMethod<T>;
   updateAggregatorConfig: (
     decimals: BigNumber,
+    deviationRewardAmountXTZ: BigNumber,
     maintainer: string,
     minimalTezosAmountDeviationTrigger: BigNumber,
     numberBlocksDelay: BigNumber,
