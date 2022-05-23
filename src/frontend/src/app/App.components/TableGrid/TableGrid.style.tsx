@@ -12,7 +12,7 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
 
   td {
     background-color: ${darkColor};
-    height: 40px;
+    height: 39px;
     border: 1px solid ${darkCianColor};
     &:first-child {
       border-left: none;
@@ -27,6 +27,10 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
 
       input {
         color: ${darkColor}!important;
+      }
+
+      .delete-button {
+        display: block;
       }
     }
   }
@@ -62,6 +66,14 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     &:first-child {
       td {
         border-top: none;
+
+        &:first-child {
+          border-top-left-radius: 10px;
+        }
+
+        &:last-child {
+          border-top-right-radius: 10px;
+        }
       }
 
       input {
@@ -73,23 +85,49 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     &:last-child {
       td {
         border-bottom: none;
+        &:first-child {
+          border-bottom-left-radius: 10px;
+        }
+
+        &:last-child {
+          border-bottom-right-radius: 10px;
+        }
       }
     }
   }
 
   .btn-add-wrap {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: -16px;
+    position: absolute;
+    top: -26px;
+    right: 0;
   }
 
   .table-wrap {
     border: 1px solid ${darkCianColor};
     border-radius: 10px;
-    overflow: hidden;
   }
 
   .tooltip {
     background-color: ${cianColor};
   }
-`
+
+  .delete-button-wrap {
+    height: 0;
+    width: 100%;
+  }
+
+  .delete-button {
+    width: 100%;
+
+    margin-top: 0;
+    display: none;
+
+    svg {
+      width: 11px;
+      height: 11px;
+      fill: ${cianColor};
+      margin-bottom: 4px;
+      display: inline-block;
+    }
+  }
+` //TableGridWrap

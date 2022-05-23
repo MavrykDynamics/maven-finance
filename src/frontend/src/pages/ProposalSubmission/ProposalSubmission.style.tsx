@@ -78,7 +78,7 @@ export const FormHeaderGroup = styled.div<{ theme: MavrykTheme }>`
 
 export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
   align-items: center;
-  margin-bottom: 31px;
+  margin-bottom: 27px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 30px;
@@ -163,6 +163,9 @@ export const ProposalSubmissionInvoiceImage = styled.div`
   > img {
     height: 100%;
   }
+`
+export const FormTableGrid = styled.div`
+  padding-top: 10px;
 `
 
 export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
