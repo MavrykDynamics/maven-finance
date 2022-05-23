@@ -21,6 +21,7 @@ import { SatelliteSideBar } from '../Satellites/SatelliteSideBar/SatelliteSideBa
 import { unregisterAsSatellite } from './BecomeSatellite.actions';
 // prettier-ignore
 import { BecomeSatelliteButttons, BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteFormHorizontal, BecomeSatelliteFormTitle } from './BecomeSatellite.style'
+import InputWithPersent from 'app/App.components/InputWithPersent/InputWithPersent';
 
 type BecomeSatelliteViewProps = {
   loading: boolean;
@@ -271,25 +272,14 @@ export const BecomeSatelliteView = ({
             <label className="label">5- Enter your fee (%)</label>
           )}
           <div className="input-fee-wrap">
-            <Input
+            <InputWithPersent
               type="text"
               placeholder="Fee"
               disabled={!balanceOk}
-              value={`${form.fee}%`}
-              onChange={(e: any) => {
-                // if adding number just replace '%' and set parsed number
-                if (/([%])/g.test(e.target.value)) {
-                  setForm({ ...form, fee: Number(e.target.value.replace('%', '')) || 0 });
-                } else {
-                  // is removed '%' we need to remove last number
-                  setForm({ ...form, fee: Number(Math.floor(e.target.value / 10)) || 0 });
-                }
-              }}
+              value={form.fee}
               onBlur={(e: any) => handleValidate('FEE')}
-              onKeyDown={(e: any) =>
-                !/^\d*\.?\d*$/.test(e.key) && e.key !== 'Backspace' && e.preventDefault()
-              }
               inputStatus={formInputStatus.fee}
+              onChange={(feeNumber: number) => setForm({ ...form, fee: feeNumber })}
             />
           </div>
           <IPFSUploader
