@@ -129,7 +129,7 @@ export const SatelliteListCard = ({
         </SatelliteCardTopRow>
         <SatelliteCardButtons>{delegationButtons}</SatelliteCardButtons>
       </SatelliteCardInner>
-      {children || <SatelliteCardRow>Currently supporting Proposal -------------</SatelliteCardRow>}
+      {children || <SatelliteCardRow>Currently supporting Proposal 42 - Adjusting Auction Parameters</SatelliteCardRow>}
     </SatelliteCard>
   )
 }

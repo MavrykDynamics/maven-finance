@@ -45,7 +45,14 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
 
   button {
     color: ${headerColor};
-    font-size: 20px;
+    font-size: 24px;
+
+    &.btn-add-row {
+      position: absolute;
+      left: -20px;
+      bottom: -6px;
+    }
+
     &:hover {
       color: ${cianColor};
     }
@@ -80,5 +87,9 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     border: 1px solid ${darkCianColor};
     border-radius: 10px;
     overflow: hidden;
+  }
+
+  .tooltip {
+    background-color: ${cianColor};
   }
 `

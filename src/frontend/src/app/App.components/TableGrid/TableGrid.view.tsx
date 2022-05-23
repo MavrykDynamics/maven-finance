@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { Tooltip } from '@mui/material'
+import styled from 'styled-components'
 
 // types
 import type { TableListType } from './TableGrid.types'
@@ -10,6 +12,13 @@ type Props = {
   tableData: TableListType
   setTableData: (arg0: TableListType) => void
 }
+
+const StyledTooltip = styled((props) => <Tooltip classes={{ popper: props.className }} {...props} />)`
+  & .MuiTooltip-tooltip {
+    background-color: #86d4c9;
+    color: #160e3f;
+  }
+`
 
 export default function TableGrid({ tableData, setTableData }: Props) {
   const [activeTd, setActieTd] = useState<number | ''>('')
@@ -41,7 +50,9 @@ export default function TableGrid({ tableData, setTableData }: Props) {
   return (
     <TableGridWrap>
       <div className="btn-add-wrap">
-        <button onClick={handleAddColumn}>+</button>
+        <StyledTooltip placement="top" title="Insert 1 column right">
+          <button onClick={handleAddColumn}>+</button>
+        </StyledTooltip>
       </div>
       <div className="table-wrap">
         <table>
@@ -52,7 +63,7 @@ export default function TableGrid({ tableData, setTableData }: Props) {
                   key={`${i}+${j}`}
                   onMouseLeave={() => setActieTd('')}
                   onMouseEnter={() => setActieTd(j)}
-                  className={j === activeTd ? 'active-td' : ''}
+                  className={row.length > 1 && j === activeTd ? 'active-td' : ''}
                 >
                   <input value={colValue} onChange={(e) => handleChange(e, i, j)} />
                 </td>
@@ -61,7 +72,11 @@ export default function TableGrid({ tableData, setTableData }: Props) {
           ))}
         </table>
       </div>
-      <button onClick={handleAddRow}>+</button>
+      <StyledTooltip placement="top" title="Insert 1 row bottom">
+        <button className="btn-add-row" onClick={handleAddRow}>
+          +
+        </button>
+      </StyledTooltip>
     </TableGridWrap>
   )
 }
