@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Tooltip } from '@mui/material'
 import styled from 'styled-components'
+import { cianColor, darkColor } from 'styles'
+
+// components
+import Icon from '../../../app/App.components/Icon/Icon.view'
 
 // types
 import type { TableListType } from './TableGrid.types'
@@ -15,21 +19,23 @@ type Props = {
 
 const StyledTooltip = styled((props) => <Tooltip classes={{ popper: props.className }} {...props} />)`
   & .MuiTooltip-tooltip {
-    background-color: #86d4c9;
-    color: #160e3f;
+    background-color: ${cianColor};
+    color: ${darkColor};
+    margin-bottom: 0 !important;
   }
 `
+const MAX_ROWS = 10
+const MAX_COLS = 6
 
 export default function TableGrid({ tableData, setTableData }: Props) {
   const [activeTd, setActieTd] = useState<number | ''>('')
-  console.log('ТТТТТ - tableData')
-  console.table(tableData)
+
+  const isMaxRows = MAX_ROWS <= tableData.length
+  const isMaxCols = MAX_COLS <= tableData[0].length
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, i: number, j: number) => {
     const value = e.target.value
     const cloneTable = [...tableData]
-
-    console.log('%c ||||| value', 'color:yellowgreen', value)
     cloneTable[i][j] = value
     setTableData(cloneTable)
   }
@@ -47,36 +53,60 @@ export default function TableGrid({ tableData, setTableData }: Props) {
     setTableData(newTable)
   }
 
+  const handleDeleteColumn = (j: number) => {
+    const newTable = tableData.map((item) => {
+      return item.filter((_, i) => i !== j)
+    })
+    setTableData(newTable)
+  }
+
   return (
     <TableGridWrap>
-      <div className="btn-add-wrap">
-        <StyledTooltip placement="top" title="Insert 1 column right">
-          <button onClick={handleAddColumn}>+</button>
-        </StyledTooltip>
-      </div>
+      {!isMaxCols ? (
+        <div className="btn-add-wrap">
+          <StyledTooltip placement="top" title="Insert 1 column right">
+            <button onClick={handleAddColumn}>+</button>
+          </StyledTooltip>
+        </div>
+      ) : null}
+
       <div className="table-wrap">
         <table>
           {tableData.map((row, i) => (
             <tr key={i}>
-              {row.map((colValue, j) => (
-                <td
-                  key={`${i}+${j}`}
-                  onMouseLeave={() => setActieTd('')}
-                  onMouseEnter={() => setActieTd(j)}
-                  className={row.length > 1 && j === activeTd ? 'active-td' : ''}
-                >
-                  <input value={colValue} onChange={(e) => handleChange(e, i, j)} />
-                </td>
-              ))}
+              {row.map((colValue, j) => {
+                const isLastRow = tableData[0].length > 1 && tableData.length === i + 1
+                return (
+                  <td
+                    key={`${i}+${j}`}
+                    onMouseLeave={() => setActieTd('')}
+                    onMouseEnter={() => setActieTd(j)}
+                    className={row.length > 1 && j === activeTd ? 'active-td' : ''}
+                  >
+                    <input value={colValue} onChange={(e) => handleChange(e, i, j)} />
+                    {isLastRow ? (
+                      <div className="delete-button-wrap">
+                        <StyledTooltip placement="top" title="Delete column">
+                          <button onClick={() => handleDeleteColumn(j)} className="delete-button">
+                            <Icon id="delete" />
+                          </button>
+                        </StyledTooltip>
+                      </div>
+                    ) : null}
+                  </td>
+                )
+              })}
             </tr>
           ))}
         </table>
       </div>
-      <StyledTooltip placement="top" title="Insert 1 row bottom">
-        <button className="btn-add-row" onClick={handleAddRow}>
-          +
-        </button>
-      </StyledTooltip>
+      {!isMaxRows ? (
+        <StyledTooltip placement="top" title="Insert 1 row bottom">
+          <button className="btn-add-row" onClick={handleAddRow}>
+            +
+          </button>
+        </StyledTooltip>
+      ) : null}
     </TableGridWrap>
   )
 }

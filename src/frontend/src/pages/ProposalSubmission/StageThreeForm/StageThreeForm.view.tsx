@@ -16,7 +16,14 @@ import { ProposalUpdateForm, ProposalUpdateFormInputStatus } from '../../../util
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 // styles
 // prettier-ignore
-import { FormButtonContainer, FormHeaderGroup, FormTitleAndFeeContainer, FormTitleContainer, FormTitleEntry } from '../ProposalSubmission.style'
+import {
+  FormButtonContainer,
+  FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
+  FormTitleEntry,
+  FormTableGrid,
+} from '../ProposalSubmission.style'
 
 type StageThreeFormViewProps = {
   tableData: TableListType
@@ -61,8 +68,10 @@ export const StageThreeFormView = ({
         </div>
       </FormTitleAndFeeContainer>
       <label>3- Enter Proposal Bytes Data</label>
-      {/* <TableGrid tableData={tableData} setTableData={setTableData} /> */}
-      <GridSheet loading={loading} setTableJson={setTableJson} />
+      <FormTableGrid>
+        <TableGrid tableData={tableData} setTableData={setTableData} />
+      </FormTableGrid>
+      {/* <GridSheet loading={loading} setTableJson={setTableJson} /> */}
       <FormButtonContainer>
         <Button
           icon="financial"
