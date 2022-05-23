@@ -152,6 +152,7 @@ services:
       - ORACLE_WITHDRAW_CRON_STRING=* * * * *
       - CONFIRMATION_POLLING_INTERVAL_SECOND=2
       - DEVIATION_TRIGGER_CRON_STRING=0,30 * * * * *
+      - ENABLE_DEVIATION_TRIGGER=false
       - SIGNER_URL=http://signatory:6732
     env_file:
       - .contracts.env
@@ -196,6 +197,7 @@ services:
       - ORACLE_WITHDRAW_CRON_STRING=* * * * *
       - CONFIRMATION_POLLING_INTERVAL_SECOND=1
       - DEVIATION_TRIGGER_CRON_STRING=20,50 * * * * *
+      - ENABLE_DEVIATION_TRIGGER=false
       - SIGNER_URL=http://signatory:6732
     env_file:
       - .contracts.env
@@ -218,6 +220,7 @@ services:
       - ORACLE_WITHDRAW_CRON_STRING=* * * * *
       - CONFIRMATION_POLLING_INTERVAL_SECOND=1
       - DEVIATION_TRIGGER_CRON_STRING=20,50 * * * * *
+      - ENABLE_DEVIATION_TRIGGER=false
       - SIGNER_URL=http://signatory:6732
     env_file:
       - .contracts.env
@@ -240,6 +243,7 @@ services:
       - ORACLE_WITHDRAW_CRON_STRING=* * * * *
       - CONFIRMATION_POLLING_INTERVAL_SECOND=1
       - DEVIATION_TRIGGER_CRON_STRING=20,50 * * * * *
+      - ENABLE_DEVIATION_TRIGGER=false
       - SIGNER_URL=http://signatory:6732
     env_file:
       - .contracts.env

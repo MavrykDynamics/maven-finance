@@ -38,6 +38,13 @@ export class OracleConfig {
   public oracleWithdrawCronString: string;
 
   @Property({
+    default: true,
+    env: 'ENABLE_DEVIATION_TRIGGER',
+    format: Boolean,
+  })
+  public enableDeviationTrigger: boolean;
+
+  @Property({
     default: CronExpression.EVERY_30_SECONDS,
     env: 'DEVIATION_TRIGGER_CRON_STRING',
     format: String,
