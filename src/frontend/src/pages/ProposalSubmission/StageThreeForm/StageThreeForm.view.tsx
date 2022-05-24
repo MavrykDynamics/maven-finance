@@ -9,14 +9,22 @@ import { Input } from '../../../app/App.components/Input/Input.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import TableGrid from '../../../app/App.components/TableGrid/TableGrid.view'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
-// prettier-ignore
-import { ProposalFinancialRequestForm, ProposalFinancialRequestInputStatus } from '../../../utils/TypesAndInterfaces/Forms'
+
+import {
+  ProposalFinancialRequestForm,
+  ProposalFinancialRequestInputStatus,
+} from '../../../utils/TypesAndInterfaces/Forms'
 import { ProposalUpdateForm, ProposalUpdateFormInputStatus } from '../../../utils/TypesAndInterfaces/Forms'
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 // styles
-// prettier-ignore
-import { FormButtonContainer, FormHeaderGroup, FormTitleAndFeeContainer, FormTitleContainer, FormTitleEntry } from '../ProposalSubmission.style'
+import {
+  FormButtonContainer,
+  FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
+  FormTitleEntry,
+} from '../ProposalSubmission.style'
 
 type StageThreeFormViewProps = {
   tableData: TableListType

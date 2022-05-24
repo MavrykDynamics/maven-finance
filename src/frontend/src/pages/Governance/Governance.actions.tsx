@@ -5,8 +5,12 @@ import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.c
 import governanceAddress from '../../deployments/governanceAddress.json'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { COUNCIL_STORAGE_QUERY, COUNCIL_STORAGE_QUERY_NAME, COUNCIL_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
-// prettier-ignore
-import { GOVERNANCE_STORAGE_QUERY, GOVERNANCE_STORAGE_QUERY_NAME, GOVERNANCE_STORAGE_QUERY_VARIABLE } from '../../gql/queries/getGovernanceStorage'
+
+import {
+  GOVERNANCE_STORAGE_QUERY,
+  GOVERNANCE_STORAGE_QUERY_NAME,
+  GOVERNANCE_STORAGE_QUERY_VARIABLE,
+} from '../../gql/queries/getGovernanceStorage'
 import { State } from '../../reducers'
 import { getContractBigmapKeys } from '../../utils/api'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'

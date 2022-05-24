@@ -8,8 +8,13 @@ import { ProposalUpdateForm, ProposalUpdateFormInputStatus } from '../../../util
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 // styles
-// prettier-ignore
-import { FormButtonContainer, FormHeaderGroup, FormTitleAndFeeContainer, FormTitleContainer, FormTitleEntry } from '../ProposalSubmission.style'
+import {
+  FormButtonContainer,
+  FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
+  FormTitleEntry,
+} from '../ProposalSubmission.style'
 
 type StageTwoFormViewProps = {
   loading: boolean

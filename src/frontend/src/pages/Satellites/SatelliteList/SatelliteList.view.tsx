@@ -9,8 +9,12 @@ import { DropDown } from '../../../app/App.components/DropDown/DropDown.controll
 import { State } from '../../../reducers'
 import { darkMode, lightMode } from '../../../styles'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
-// prettier-ignore
-import { SatelliteListEmptyContainer, SatelliteListStyled, SatelliteSearchFilter, SelectContainer } from './SatelliteList.style'
+import {
+  SatelliteListEmptyContainer,
+  SatelliteListStyled,
+  SatelliteSearchFilter,
+  SelectContainer,
+} from './SatelliteList.style'
 import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
 
 type SatelliteListViewProps = {
