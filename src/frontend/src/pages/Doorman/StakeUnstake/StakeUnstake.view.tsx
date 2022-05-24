@@ -8,15 +8,33 @@ import { State } from 'reducers'
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../app/App.components/Button/Button.constants'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 // prettier-ignore
-import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } from '../../../utils/TypesAndInterfaces/Forms'
+import {
+  StakeUnstakeForm,
+  StakeUnstakeFormInputStatus,
+  ValidStakeUnstakeForm,
+} from '../../../utils/TypesAndInterfaces/Forms'
 // helpers // prettier-ignore
 import { isValidNumberValue, mathRoundTwoDigit, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { setExitFeeAmount } from '../ExitFeeModal/ExitFeeModal.actions'
 // actions
-import { rewardsCompound } from './StakeUnstake.actions'
 // style
 // prettier-ignore
-import { StakeCompound, StakeLabel, StakeUnstakeActionCard, StakeUnstakeBalance, StakeUnstakeButtonGrid, StakeUnstakeCard, StakeUnstakeInputColumn, StakeUnstakeInputGrid, StakeUnstakeInputLabels, StakeUnstakeMax, StakeUnstakeMin, StakeUnstakeRate, StakeUnstakeStyled } from './StakeUnstake.style'
+import {
+  StakeCompound,
+  StakeLabel,
+  StakeUnstakeActionCard,
+  StakeUnstakeBalance,
+  StakeUnstakeButtonGrid,
+  StakeUnstakeCard,
+  StakeUnstakeInputColumn,
+  StakeUnstakeInputGrid,
+  StakeUnstakeInputLabels,
+  StakeUnstakeMax,
+  StakeUnstakeMin,
+  StakeUnstakeRate,
+  StakeUnstakeStyled,
+} from './StakeUnstake.style'
+import { rewardsCompound } from '../Doorman.actions'
 
 type StakeUnstakeViewProps = {
   myMvkTokenBalance?: number
@@ -158,7 +176,7 @@ export const StakeUnstakeView = ({
   }
 
   const handleCompound = () => {
-    dispatch(rewardsCompound())
+    dispatch(rewardsCompound(user.myAddress))
   }
 
   const handleFocus = (e: any) => {

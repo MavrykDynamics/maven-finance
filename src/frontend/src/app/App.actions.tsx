@@ -81,7 +81,7 @@ export const onStart = () => async (dispatch: any, getState: any) => {
   dispatch({
     type: GET_DOORMAN_STORAGE,
     storage: doormanStorage,
-    totalStakedMvkSupply: doormanStorage.stakedMvkTotalSupply,
+    totalStakedMvkSupply: doormanStorage.totalStakedMvk,
   })
   dispatch({
     type: GET_MVK_TOKEN_STORAGE,

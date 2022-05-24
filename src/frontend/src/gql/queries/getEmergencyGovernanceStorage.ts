@@ -5,7 +5,6 @@ export const EMERGENCY_GOVERNANCE_STORAGE_QUERY = `
       current_emergency_record_id
       min_smvk_required_to_vote
       next_emergency_record_id
-      required_fee
       smvk_percentage_required
       min_smvk_required_to_trigger
       vote_expiry_days
@@ -31,6 +30,11 @@ export const EMERGENCY_GOVERNANCE_STORAGE_QUERY = `
           voter_id
         }
       }
+      required_fee_mutez
+      proposal_title_max_length
+      proposal_desc_max_length
+      governance_id
+      decimals
     }
   }
 `

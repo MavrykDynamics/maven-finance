@@ -5,6 +5,7 @@ export interface EmergencyGovProposalVoter {
   timestamp: Date
   voterId: string
 }
+
 export interface EmergencyGovernanceProposalRecord {
   description: string
   dropped: string
@@ -21,16 +22,21 @@ export interface EmergencyGovernanceProposalRecord {
   title: string
   voters: EmergencyGovProposalVoter[]
 }
+
 export interface EmergencyGovernanceStorage {
   address: string
   admin?: string
   config: {
-    voteDuration: number
-    minStakedMvkPercentageForTrigger: number
-    requiredFee: number
+    voteExpiryDays: number
+    minStakedMvkRequiredToTrigger: number
+    minStakedMvkRequiredToVote: number
+    requiredFeeMutez: number
     sMvkPercentageRequired: number
+    proposalTitleMaxLength: number
+    proposalDescMaxLength: number
+    decimals: number
   }
   emergencyGovernanceLedger: EmergencyGovernanceProposalRecord[]
-  currentEmergencyGovernanceId: number
-  nextEmergencyGovernanceProposalId: number
+  currentEmergencyGovernanceRecordId: number
+  nextEmergencyGovernanceRecordId: number
 }
