@@ -15,7 +15,7 @@ export const BecomeSatellite = () => {
   const loading = useSelector((state: State) => state.loading)
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const { satelliteLedger } = delegationStorage
+  const satelliteLedger = delegationStorage?.satelliteLedger
   const { user } = useSelector((state: State) => state.user)
 
   const usersSatellite =

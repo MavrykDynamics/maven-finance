@@ -59,7 +59,7 @@ export const SatelliteList = ({
 
     if (sortValue !== '') {
       setFilteredSatelliteList((data: SatelliteRecord[]) => {
-        const dataToSort = [...data]
+        const dataToSort = data ? [...data] : []
 
         dataToSort.sort((a: any, b: any) => {
           let res = 0

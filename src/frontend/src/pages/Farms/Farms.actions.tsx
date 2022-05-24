@@ -25,8 +25,8 @@ export const getFarmStorage = (accountPkh?: string) => async (dispatch: any, get
   // const storage = await (contract as any).storage()
   // console.log('Printing out Farm storage:\n', storage)
   const storage = await fetchFromIndexer(FARM_STORAGE_QUERY, FARM_STORAGE_QUERY_NAME, FARM_STORAGE_QUERY_VARIABLE)
-  const convertedFarmStorage = storageToTypeConverter('farm', storage.farm)
-  const convertedFarmFactoryStorage = storageToTypeConverter('farmFactory', storage.farm_factory[0])
+  const convertedFarmStorage = storageToTypeConverter('farm', storage?.farm)
+  const convertedFarmFactoryStorage = storageToTypeConverter('farmFactory', storage?.farm_factory[0])
   dispatch({
     type: GET_FARM_STORAGE,
     farmStorage: convertedFarmStorage,

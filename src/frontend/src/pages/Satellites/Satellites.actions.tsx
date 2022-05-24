@@ -20,7 +20,7 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
       DELEGATION_STORAGE_QUERY_NAME,
       DELEGATION_STORAGE_QUERY_VARIABLE,
     )
-    const delegationStorage = storageToTypeConverter('delegation', delegationStorageFromIndexer.delegation[0])
+    const delegationStorage = storageToTypeConverter('delegation', delegationStorageFromIndexer?.delegation[0])
     // const storage = await getContractStorage(delegationAddress.address)
     // const satelliteLedgerBigMap = await getContractBigmapKeys(delegationAddress.address, 'satelliteLedger')
     // const delegateLedgerBigMap = await getContractBigmapKeys(delegationAddress.address, 'delegateLedger')
@@ -65,19 +65,19 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
     //   delegationLedger.set(keyAddress, newDelegateRecord)
     // })
     // const delegationConfig: DelegationConfig = {
-    //   maxSatellites: storage.config.maxSatellites,
-    //   delegationRatio: storage.config.delegationRatio,
+    //   maxSatellites: storage?.config.maxSatellites,
+    //   delegationRatio: storage?.config.delegationRatio,
     //   minimumStakedMvkBalance:
-    //     Number(storage.config.minimumStakedMvkBalance) > 0
-    //       ? Number(storage.config.minimumStakedMvkBalance) / PRECISION_NUMBER
+    //     Number(storage?.config.minimumStakedMvkBalance) > 0
+    //       ? Number(storage?.config.minimumStakedMvkBalance) / PRECISION_NUMBER
     //       : 0,
     // }
     // const delegationStorage: DelegationStorage = {
-    //   admin: storage.admin,
+    //   admin: storage?.admin,
     //   satelliteLedger: satelliteLedger,
     //   config: delegationConfig,
     //   delegateLedger: delegationLedger,
-    //   breakGlassConfig: storage.breakGlassConfig,
+    //   breakGlassConfig: storage?.breakGlassConfig,
     // }
 
     dispatch({

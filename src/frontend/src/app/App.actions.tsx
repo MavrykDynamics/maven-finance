@@ -33,17 +33,17 @@ export const recaptchaRequest = () => (dispatch: any) => {
  */
 export const onStart = () => async (dispatch: any, getState: any) => {
   const res = await getInitialData()
-  console.log(res)
+  console.log('%c res onStart getInitialData()', 'color:gold', res)
   const addressesStorage = storageToTypeConverter('addresses', res[0])
-  const mvkTokenStorage = storageToTypeConverter('mvkToken', res[1].mvk_token[0])
-  const doormanStorage = storageToTypeConverter('doorman', res[2].doorman[0])
-  const delegationStorage = storageToTypeConverter('delegation', res[3].delegation[0])
-  const farmStorage = storageToTypeConverter('farm', res[4].farm)
-  const farmFactoryStorage = storageToTypeConverter('farmFactory', res[4].farm_factory[0])
-  const emergencyGovernanceStorage = storageToTypeConverter('emergencyGovernance', res[5].emergency_governance[0])
-  const breakGlassStorage = storageToTypeConverter('breakGlass', res[6].break_glass[0])
-  const councilStorage = storageToTypeConverter('council', res[7].council[0])
-  const vestingStorage = storageToTypeConverter('vesting', res[8].vesting[0])
+  const mvkTokenStorage = storageToTypeConverter('mvkToken', res[1]?.mvk_token[0])
+  const doormanStorage = storageToTypeConverter('doorman', res[2]?.doorman[0])
+  const delegationStorage = storageToTypeConverter('delegation', res[3]?.delegation[0])
+  const farmStorage = storageToTypeConverter('farm', res[4]?.farm)
+  const farmFactoryStorage = storageToTypeConverter('farmFactory', res[4]?.farm_factory[0])
+  const emergencyGovernanceStorage = storageToTypeConverter('emergencyGovernance', res[5]?.emergency_governance[0])
+  const breakGlassStorage = storageToTypeConverter('breakGlass', res[6]?.break_glass[0])
+  const councilStorage = storageToTypeConverter('council', res[7]?.council[0])
+  const vestingStorage = storageToTypeConverter('vesting', res[8]?.vesting[0])
   const governanceStorage = storageToTypeConverter('governance', res[9])
 
   // if (addressesStorage) updateContractAddresses(addressesStorage)
@@ -131,7 +131,7 @@ export const getContractAddresses = () => async (dispatch: any, getState: any) =
     CONTRACT_ADDRESSES_QUERY_VARIABLE,
   )
 
-  const convertedStorage = storageToTypeConverter('contractAddress', storage.mvk_token[0])
+  const convertedStorage = storageToTypeConverter('contractAddress', storage?.mvk_token[0])
 
   dispatch({ type: GET_CONTRACT_ADDRESSES, addresses: convertedStorage })
 }
