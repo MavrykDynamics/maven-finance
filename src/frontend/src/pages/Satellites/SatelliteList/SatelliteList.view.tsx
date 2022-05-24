@@ -40,7 +40,7 @@ export const SatelliteListView = ({
   satelliteUserIsDelegatedTo,
   satelliteFound,
 }: SatelliteListViewProps) => {
-  if (satelliteFound === undefined && !loading && satellitesList.length === 0) {
+  if (satelliteFound === undefined && !loading && satellitesList?.length === 0) {
     return <EmptySatelliteList />
   } else {
     return (
@@ -146,7 +146,7 @@ const ListWithSatellites = ({
       {satelliteFound === false ? (
         <EmptySatelliteList />
       ) : (
-        satellitesList.map((item, index) => {
+        satellitesList?.map((item, index) => {
           return (
             <SatelliteListCard
               key={String(index + item.address)}

@@ -35,7 +35,7 @@ export const VotingArea = ({
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-  const { satelliteLedger } = delegationStorage
+  const satelliteLedger = delegationStorage?.satelliteLedger
   const accountPkhIsSatellite =
     satelliteLedger?.filter((satellite: SatelliteRecord) => satellite.address === accountPkh)[0] !== undefined
 

@@ -4,7 +4,7 @@ import { state } from './types';
  * To be called by anyone before purchasing tokens.
  */
 export function pokeWeights(state: state): state {
-    let newPoolsState = state.storage.pools.map(function(pool) {
+    let newPoolsState = state.storage?.pools.map(function(pool) {
         if(state.blockHeight <= pool.startBlock) {
             console.log("can't poke yet")
             return pool
@@ -45,11 +45,11 @@ export function pokeWeights(state: state): state {
         return pool;
     
         // Reset for manual weight updates, add, remove
-        // if (state.blockHeight >= state.storage.pools.endBlock) {
-        //     state.storage.pools.startBlock = 0;
+        // if (state.blockHeight >= state.storage?.pools.endBlock) {
+        //     state.storage?.pools.startBlock = 0;
         // }
     })
-    state.storage.pools = newPoolsState;
+    state.storage?.pools = newPoolsState;
     return state;
 }
 

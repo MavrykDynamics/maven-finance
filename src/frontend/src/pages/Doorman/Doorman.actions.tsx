@@ -47,10 +47,10 @@ export const getMvkTokenStorage = (accountPkh?: string) => async (dispatch: any,
   // const mvkTokenStorage: MvkTokenStorage = {
   //   tokenId: await storage['token_metadata'].id.toNumber(),
   //   maximumTotalSupply: 0,
-  //   admin: storage.admin,
-  //   contractAddresses: storage.contractAddresses,
+  //   admin: storage?.admin,
+  //   contractAddresses: storage?.contractAddresses,
   //   totalSupply: totalMvkSupply,
-  //   whitelistContracts: storage.contractAddresses,
+  //   whitelistContracts: storage?.contractAddresses,
   // }
   dispatch({
     type: GET_MVK_TOKEN_STORAGE,
@@ -261,7 +261,7 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
       DOORMAN_STORAGE_QUERY_NAME,
       DOORMAN_STORAGE_QUERY_VARIABLE,
     )
-    const convertedStorage = storageToTypeConverter('doorman', storage.doorman[0])
+    const convertedStorage = storageToTypeConverter('doorman', storage?.doorman?.[0])
     // const userStakeBalanceLedgerBigMap = await getContractBigmapKeys(doormanAddress.address, 'userStakeBalanceLedger')
     //
     // const userStakeBalanceLedger: UserStakeBalanceLedger = new Map<string, string>()
@@ -274,9 +274,9 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
     // })
     //
     // const doormanBreakGlassConfig: DoormanBreakGlassConfigType = {
-    //   stakeIsPaused: storage.breakGlassConfig?.stakeIsPaused,
-    //   unstakeIsPaused: storage.breakGlassConfig?.unstakeIsPaused,
-    //   compoundIsPaused: storage.breakGlassConfig?.compoundIsPaused,
+    //   stakeIsPaused: storage?.breakGlassConfig?.stakeIsPaused,
+    //   unstakeIsPaused: storage?.breakGlassConfig?.unstakeIsPaused,
+    //   compoundIsPaused: storage?.breakGlassConfig?.compoundIsPaused,
     // }
     //
     // const stakedMvkTotalSupply = calcWithoutMu(storage?.stakedMvkTotalSupply)
@@ -286,7 +286,7 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
     // const tempMvkMaximumTotalSupply = calcWithoutMu(storage?.tempMvkMaximumTotalSupply)
     //
     // const doormanStorage: DoormanStorage = {
-    //   admin: storage.admin,
+    //   admin: storage?.admin,
     //   breakGlassConfig: doormanBreakGlassConfig,
     //   userStakeBalanceLedger: userStakeBalanceLedger,
     //   tempMvkTotalSupply: tempMvkTotalSupply,
@@ -303,7 +303,7 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
     // }
     //
     // const doormanStorage: DoormanStorage = {
-    //   admin: storage.admin,
+    //   admin: storage?.admin,
     //   breakGlassConfig: doormanBreakGlassConfig,
     //   tempMvkTotalSupply: convertedStorage.tempMvkTotalSupply,
     //   stakedMvkTotalSupply: convertedStorage.stakedMvkTotalSupply,
