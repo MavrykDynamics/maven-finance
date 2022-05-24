@@ -98,6 +98,8 @@ export const GovernanceView = ({
     </EmptyContainer>
   )
 
+  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
+
   return (
     <GovernanceStyled>
       <GovernanceLeftContainer>

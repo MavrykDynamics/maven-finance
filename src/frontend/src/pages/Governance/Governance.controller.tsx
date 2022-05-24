@@ -83,6 +83,7 @@ export const Governance = () => {
 
         status: ProposalStatus.ONGOING,
       }
+  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
   const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
     abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
     againstVotesMVKTotal: Number(rightSideContent?.downvoteMvkTotal),

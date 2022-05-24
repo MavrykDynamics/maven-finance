@@ -13,7 +13,7 @@ const dropShadow = keyframes`
   }
 `
 
-export const VotingContainer = styled.div<{ theme: MavrykTheme }>`
+export const VotingContainer = styled.aside<{ theme: MavrykTheme }>`
   display: flex;
   flex-direction: column;
   margin-top: 42px;

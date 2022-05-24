@@ -20,6 +20,7 @@ type ConnectWalletViewProps = {
   myMvkTokenBalance: string | number | undefined
   handleConnect: () => void
   handleNewConnect: () => void
+  className?: string
 }
 
 export const ConnectWalletView = ({
@@ -31,9 +32,10 @@ export const ConnectWalletView = ({
   myMvkTokenBalance,
   handleConnect,
   handleNewConnect,
+  className,
 }: ConnectWalletViewProps) => {
   return (
-    <ConnectWalletStyled id={'connectWalletButton'}>
+    <ConnectWalletStyled className={className} id={'connectWalletButton'}>
       {/* For use of Beacon wallet, comment out below line and remove false section of this conditional */}
       {wallet ? (
         <>

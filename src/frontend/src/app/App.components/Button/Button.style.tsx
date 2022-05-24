@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components/macro'
 
-import { primaryColor } from '../../../styles'
+import { primaryColor, darkColor, skyColor } from '../../../styles'
 import { BUTTON_RADIUS } from '../../../styles/constants'
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -63,17 +63,18 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
     background-color: ${({ theme }) => theme.containerColor};
     color: ${({ theme }) => theme.downColor};
   }
+
   &.votingFor {
-    color: ${({ theme }) => theme.upColor};
-    background-color: ${({ theme }) => theme.containerColor};
+    color: ${darkColor};
+    background-color: ${({ theme }) => theme.upColor};
   }
   &.votingAgainst {
-    color: ${({ theme }) => theme.downColor};
-    background-color: ${({ theme }) => theme.containerColor};
+    color: ${darkColor};
+    background-color: ${({ theme }) => theme.downColor};
   }
   &.votingAbstain {
-    color: ${({ theme }) => theme.subTextColor};
-    background-color: ${({ theme }) => theme.containerColor};
+    color: ${darkColor};
+    background-color: ${skyColor};
   }
 
   &.actionPrimary {
@@ -107,14 +108,15 @@ export const ButtonText = styled.div<{ theme: MavrykTheme }>`
   &.transparent {
     color: ${({ theme }) => theme.primaryColor};
   }
+
   &.votingFor {
-    color: ${({ theme }) => theme.upColor};
+    color: ${darkColor};
   }
   &.votingAgainst {
-    color: ${({ theme }) => theme.downColor};
+    color: ${darkColor};
   }
   &.votingAbstain {
-    color: ${({ theme }) => theme.subTextColor};
+    color: ${darkColor};
   }
 `
 
