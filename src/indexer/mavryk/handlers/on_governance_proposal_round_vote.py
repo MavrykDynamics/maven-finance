@@ -9,45 +9,56 @@ async def on_governance_proposal_round_vote(
     ctx: HandlerContext,
     proposal_round_vote: Transaction[ProposalRoundVoteParameter, GovernanceStorage],
 ) -> None:
+
     # Get operation values
-    governanceAddress       = proposal_round_vote.data.target_address
-    proposalsStorage        = proposal_round_vote.storage.proposalLedger
-    voteTimestamp           = proposal_round_vote.data.timestamp
-    voterAddress            = proposal_round_vote.data.sender_address
+    governance_address      = proposal_round_vote.data.target_address
+    proposal_id             = int(proposal_round_vote.parameter.__root__)
+    storage_proposal        = proposal_round_vote.storage.proposalLedger[proposal_round_vote.parameter.__root__]
+    voter_address           = proposal_round_vote.data.sender_address
+    current_round           = models.GovernanceRoundType.PROPOSAL
+    vote                    = models.GovernanceVoteType.YAY
+    storage_voter           = storage_proposal.passVotersMap[voter_address]
+    voting_power            = float(storage_voter.nat)
+    vote_count              = int(storage_proposal.passVoteCount)
+    vote_mvk_total          = float(storage_proposal.passVoteMvkTotal)
 
     # Create and update records
-    for proposalID in proposalsStorage:
-        proposal            = await models.GovernanceProposalRecord.get(
-            id              = proposalID
-        )
-        proposal.pass_vote_mvk_total    = float(proposalsStorage[proposalID].passVoteMvkTotal)
-        await proposal.save()
+    governance  = await models.Governance.get(address   = governance_address)
+    voter, _    = await models.MavrykUser.get_or_create(address = voter_address)
+    await voter.save()
 
-        voter, _            = await models.MavrykUser.get_or_create(
-            address = voterAddress
-        )
-        await voter.save()
+    # Update proposal with vote
+    proposal    = await models.GovernanceProposalRecord.get(
+        id          = proposal_id,
+        governance  = governance
+    )
+    proposal.pass_vote_count    = vote_count
+    proposal.vote_mvk_total     = vote_mvk_total
+    await proposal.save()
 
-        satelliteRecord     = await models.SatelliteRecord.get(
-            user    = voter
+    # Check if user already voted and delete the vote
+    proposal_vote = await models.GovernanceProposalRecordVote.get_or_none(
+        round                       = current_round,
+        voter                       = voter,
+        current_round_vote          = True
+    )
+    if proposal_vote:
+        # Get past voted proposal and remove vote from it
+        past_proposal   = await models.GovernanceProposalRecord.get(
+            id  = proposal_round_vote.governance_proposal_record.id
         )
-        governance          = await models.Governance.get(
-            address = governanceAddress
-        )
-        snapshotRecord      = await models.GovernanceSatelliteSnapshotRecord.get(
-            satellite   = satelliteRecord,
-            governance  = governance
-        )
-        
-        voteRecord          = models.GovernanceProposalRecordVote(
-            voter                       = satelliteRecord,
-            governance_proposal_record  = proposal
-        )
-        if proposalID == proposal_round_vote.parameter.__root__:
-            voteRecord.timestamp        = voteTimestamp
-            voteRecord.voting_power     = snapshotRecord.total_voting_power
-            voteRecord.round            = models.GovernanceRoundType.PROPOSAL
-            await voteRecord.save()
-        else:
-            await voteRecord.delete()
+        past_proposal.pass_vote_count       -= 1
+        past_proposal.pass_vote_mvk_total   -= voting_power
+        await past_proposal.save()
+        await proposal_vote.delete()
     
+    # Create a new vote
+    proposal_vote = models.GovernanceProposalRecordVote(
+        governance_proposal_record  = proposal,
+        voter                       = voter,
+        round                       = current_round,
+        vote                        = vote,
+        voting_power                = voting_power,
+        current_round_vote          = True
+    )
+    await proposal_vote.save()

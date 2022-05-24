@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.1
+          image: tezosdynamics/mavryk-indexer:v0.2.2
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.1
+          image: tezosdynamics/mavryk-indexer:v0.2.2
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -118,6 +118,12 @@ data:
       url: http://hasura-dev.mavryk-indexer.svc.cluster.local:8080
       admin_secret: ${ADMIN_SECRET:-changeme}
       select_limit: 1000
+
+    advanced:
+      reindex:
+        manual: wipe
+        migration: exception
+        rollback: ignore
 
     contracts:
       mvk:

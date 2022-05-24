@@ -1,6 +1,6 @@
 
 from dipdup.context import HandlerContext
-from mavryk.types.governance.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configBlocksPerMinute, UpdateConfigActionItem1 as configBlocksPerProposalRound, UpdateConfigActionItem2 as configBlocksPerTimelockRound, UpdateConfigActionItem3 as configBlocksPerVotingRound, UpdateConfigActionItem4 as configFinancialReqApprovalPct, UpdateConfigActionItem5 as configFinancialReqDurationDays, UpdateConfigActionItem6 as configMaxProposalsPerDelegate, UpdateConfigActionItem7 as configMinProposalRoundVotePct, UpdateConfigActionItem8 as configMinProposalRoundVotesReq, UpdateConfigActionItem9 as configMinQuorumMvkTotal, UpdateConfigActionItem10 as configMinQuorumPercentage, UpdateConfigActionItem11 as configMinimumStakeReqPercentage, UpdateConfigActionItem12 as configNewBlockTimeLevel, UpdateConfigActionItem13 as configNewBlocksPerMinute, UpdateConfigActionItem14 as configProposalSubmissionFee, UpdateConfigActionItem15 as configSuccessReward, UpdateConfigActionItem16 as configVotingPowerRatio
+from mavryk.types.governance.parameter.update_config import UpdateConfigParameter, UpdateConfigActionItem as configBlocksPerProposalRound, UpdateConfigActionItem1 as configBlocksPerTimelockRound, UpdateConfigActionItem2 as configBlocksPerVotingRound, UpdateConfigActionItem3 as configCycleVotersReward, UpdateConfigActionItem4 as configMaxProposalsPerDelegate, UpdateConfigActionItem5 as configMinProposalRoundVotePct, UpdateConfigActionItem6 as configMinProposalRoundVotesReq, UpdateConfigActionItem7 as configMinQuorumMvkTotal, UpdateConfigActionItem8 as configMinQuorumPercentage, UpdateConfigActionItem9 as configMinimumStakeReqPercentage, UpdateConfigActionItem10 as configProposalCodeMaxLength, UpdateConfigActionItem11 as configProposalDatTitleMaxLength, UpdateConfigActionItem12 as configProposalDescMaxLength, UpdateConfigActionItem13 as configProposalInvoiceMaxLength, UpdateConfigActionItem14 as configProposalTitleMaxLength, UpdateConfigActionItem15 as configProposeFeeMutez, UpdateConfigActionItem16 as configSuccessReward, UpdateConfigActionItem17 as configVotingPowerRatio
 from mavryk.types.governance.storage import GovernanceStorage
 from dipdup.models import Transaction
 import mavryk.models as models
@@ -9,6 +9,7 @@ async def on_governance_update_config(
     ctx: HandlerContext,
     update_config: Transaction[UpdateConfigParameter, GovernanceStorage],
 ) -> None:
+
     # Get operation values
     governanceAddress       = update_config.data.target_address
     updatedValue            = int(update_config.parameter.updateConfigNewValue)
@@ -18,39 +19,43 @@ async def on_governance_update_config(
     governance = await models.Governance.get(
         address = governanceAddress
     )
-    # if updateConfigAction == configBlocksPerMinute:
-    #     governance.blocks_per_minute                = updatedValue
-    # elif updateConfigAction == configBlocksPerProposalRound:
-    #     governance.blocks_per_proposal_round        = updatedValue
-    # elif updateConfigAction == configBlocksPerTimelockRound:
-    #     governance.blocks_per_timelock_round        = updatedValue
-    # elif updateConfigAction == configBlocksPerVotingRound:
-    #     governance.blocks_per_voting_round          = updatedValue
-    # elif updateConfigAction == configMaxProposalsPerDelegate:
-    #     governance.max_proposal_per_delegate        = updatedValue
-    # elif updateConfigAction == configMinQuorumMvkTotal:
-    #     governance.min_quorum_mvk_total             = updatedValue
-    # elif updateConfigAction == configMinQuorumPercentage:
-    #     governance.min_quorum_percentage            = updatedValue
-    # elif updateConfigAction == configMinimumStakeReqPercentage:
-    #     governance.minimum_stake_req_percentage     = updatedValue
-    # elif updateConfigAction == configNewBlockTimeLevel:
-    #     governance.new_blocktime_level              = updatedValue
-    # elif updateConfigAction == configNewBlocksPerMinute:
-    #     governance.new_block_per_minute             = updatedValue
-    # elif updateConfigAction == configProposalSubmissionFee:
-    #     governance.proposal_submission_fee          = updatedValue
-    # elif updateConfigAction == configSuccessReward:
-    #     governance.success_reward                   = updatedValue
-    # elif updateConfigAction == configVotingPowerRatio:
-    #     governance.voting_power_ratio               = updatedValue
-    # elif updateConfigAction == configFinancialReqApprovalPct:
-    #     governance.financial_req_approval_percent   = updatedValue
-    # elif updateConfigAction == configFinancialReqDurationDays:
-    #     governance.financial_req_duration_in_days   = updatedValue
-    # elif updateConfigAction == configMinProposalRoundVotePct:
-    #     governance.proposal_round_vote_percentage   = updatedValue
-    # elif updateConfigAction == configMinProposalRoundVotesReq:
-    #     governance.proposal_round_vote_required     = updatedValue
+    if updateConfigAction == configBlocksPerProposalRound:
+        governance.blocks_per_proposal_round                = int(updatedValue)
+    elif updateConfigAction == configBlocksPerTimelockRound:
+        governance.blocks_per_timelock_round                = int(updatedValue)
+    elif updateConfigAction == configBlocksPerVotingRound:
+        governance.blocks_per_voting_round                  = int(updatedValue)
+    elif updateConfigAction == configCycleVotersReward:
+        governance.cycle_voters_reward                      = float(updatedValue)
+    elif updateConfigAction == configMaxProposalsPerDelegate:
+        governance.max_proposal_per_delegate                = int(updatedValue)
+    elif updateConfigAction == configMinProposalRoundVotePct:
+        governance.proposal_round_vote_percentage           = int(updatedValue)
+    elif updateConfigAction == configMinProposalRoundVotesReq:
+        governance.proposal_round_vote_required             = int(updatedValue)
+    elif updateConfigAction == configMinimumStakeReqPercentage:
+        governance.minimum_stake_req_percentage             = int(updatedValue)
+    elif updateConfigAction == configMinQuorumMvkTotal:
+        governance.quorum_mvk_total                         = float(updatedValue)
+    elif updateConfigAction == configMinQuorumPercentage:
+        governance.quorum_percentage                        = int(updatedValue)
+    elif updateConfigAction == configMinimumStakeReqPercentage:
+        governance.minimum_stake_req_percentage             = int(updatedValue)
+    elif updateConfigAction == configProposalCodeMaxLength:
+        governance.proposal_source_code_max_length          = int(updatedValue)
+    elif updateConfigAction == configProposalDatTitleMaxLength:
+        governance.proposal_metadata_title_max_length       = int(updatedValue)
+    elif updateConfigAction == configProposalDescMaxLength:
+        governance.proposal_description_max_length          = int(updatedValue)
+    elif updateConfigAction == configProposalInvoiceMaxLength:
+        governance.proposal_invoice_max_length              = int(updatedValue)
+    elif updateConfigAction == configProposalTitleMaxLength:
+        governance.proposal_title_max_length                = int(updatedValue)
+    elif updateConfigAction == configProposeFeeMutez:
+        governance.proposal_submission_fee_mutez            = int(updatedValue)
+    elif updateConfigAction == configSuccessReward:
+        governance.success_reward                           = float(updatedValue)
+    elif updateConfigAction == configVotingPowerRatio:
+        governance.voting_power_ratio                       = int(updatedValue)
 
     await governance.save()
