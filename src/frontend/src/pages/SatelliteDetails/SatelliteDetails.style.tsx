@@ -1,6 +1,15 @@
 import styled from 'styled-components/macro'
-// prettier-ignore
-import { cyanColor, containerColor, royalPurpleColor, downColor, headerColor, skyColor, subTextColor, tezosColor, upColor } from 'styles'
+import {
+  cyanColor,
+  containerColor,
+  royalPurpleColor,
+  downColor,
+  headerColor,
+  skyColor,
+  subTextColor,
+  tezosColor,
+  upColor,
+} from 'styles'
 
 export const SatelliteDetailsStyled = styled.div`
   background-color: ${containerColor};

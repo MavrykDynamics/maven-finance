@@ -3,8 +3,12 @@ import { useDispatch } from 'react-redux'
 
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
-// prettier-ignore
-import { ProposalFinancialRequestForm, ProposalFinancialRequestInputStatus, ValidFinancialRequestForm } from '../../../utils/TypesAndInterfaces/Forms'
+
+import {
+  ProposalFinancialRequestForm,
+  ProposalFinancialRequestInputStatus,
+  ValidFinancialRequestForm,
+} from '../../../utils/TypesAndInterfaces/Forms'
 import { getFormErrors, isJsonString, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { submitFinancialRequestData } from '../ProposalSubmission.actions'
 import { StageThreeFormView } from './StageThreeForm.view'
