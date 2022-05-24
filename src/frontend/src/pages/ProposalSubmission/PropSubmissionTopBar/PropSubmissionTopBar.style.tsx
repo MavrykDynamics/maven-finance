@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, cianColor, headerColor, skyColor, darkPurpleColor } from 'styles'
+import { Card, cyanColor, headerColor, skyColor, darkPurpleColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -54,7 +54,7 @@ export const PropSubTopBarValueText = styled.span`
   font-weight: 600;
   font-size: 16px;
   line-height: 16px;
-  color: ${cianColor};
+  color: ${cyanColor};
   padding-left: 26px;
 `
 export const PropSubTopBarEmergencyGovText = styled.div<{ theme: MavrykTheme }>`

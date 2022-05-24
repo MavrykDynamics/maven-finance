@@ -12,8 +12,13 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { INFO } from 'app/App.components/Toaster/Toaster.constants'
 // components
 import Icon from '../Icon/Icon.view'
-// prettier-ignore
-import { IpfsUploadedImageContainer, IPFSUploaderStyled, UploaderFileSelector, UploadIconContainer } from './IPFSUploader.style'
+// styles
+import {
+  IpfsUploadedImageContainer,
+  IPFSUploaderStyled,
+  UploaderFileSelector,
+  UploadIconContainer,
+} from './IPFSUploader.style'
 
 type IPFSUploaderViewProps = {
   title?: string

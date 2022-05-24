@@ -63,22 +63,9 @@ const delegationDefaultState: DelegationState = {
 export function delegation(state = delegationDefaultState, action: any): DelegationState {
   switch (action.type) {
     case GET_DELEGATION_STORAGE:
-      //console.log('%c ||||| action.delegationStorage', 'color:yellowgreen', action.delegationStorage);
       return {
         ...state,
           delegationStorage: action.delegationStorage,
-
-        // test empty
-        // delegationStorage: {
-        //   ...action.delegationStorage,
-        //   satelliteLedger: []
-        // },
-
-        //test 5
-        // delegationStorage: {
-        //   ...action.delegationStorage,
-        //   satelliteLedger: SATELLITE_LEDGER_LIST,
-        // },
       }
     case DELEGATE_REQUEST:
       return {

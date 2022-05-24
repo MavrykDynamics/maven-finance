@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, headerColor, cianColor } from 'styles'
+import { Card, headerColor, cyanColor } from 'styles'
 
 export const SatellitePaginationStyled = styled(Card)`
   margin-top: 0;
@@ -26,8 +26,8 @@ export const SatellitePaginationStyled = styled(Card)`
     }
 
     &:hover {
-      color: ${cianColor};
-      stroke: ${cianColor};
+      color: ${cyanColor};
+      stroke: ${cyanColor};
     }
 
     &.back {

@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { boxShadowColor, cianColor, darkCianColor } from 'styles'
+import { boxShadowColor, cyanColor, royalPurpleColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
@@ -14,7 +14,7 @@ export const ProposalListContainer = styled.div`
 
 export const ProposalListItem = styled.div<{ selected: boolean; theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  border: 1px solid ${darkCianColor};
+  border: 1px solid ${royalPurpleColor};
   min-height: 57px;
   width: 100%;
   display: flex;
@@ -30,7 +30,7 @@ export const ProposalListItem = styled.div<{ selected: boolean; theme: MavrykThe
   ${({ selected }) =>
     selected &&
     css`
-      border-color: ${cianColor};
+      border-color: ${cyanColor};
       box-shadow: 0px 4px 4px ${boxShadowColor};
     `}
 `
@@ -48,7 +48,7 @@ export const ProposalItemLeftSide = styled.div<{ theme: MavrykTheme }>`
 
   > h4 {
     font-weight: 600;
-    color: ${cianColor};
+    color: ${cyanColor};
     padding-right: 8px;
   }
 `

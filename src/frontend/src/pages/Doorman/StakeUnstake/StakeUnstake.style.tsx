@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { Card, CardHeader } from 'styles'
 
-import { cianColor, downColor } from '../../../styles/colors'
+import { cyanColor, downColor } from '../../../styles/colors'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const StakeUnstakeStyled = styled.div`
@@ -219,8 +219,8 @@ export const StakeLabel = styled.blockquote`
 
 export const StakeCompound = styled.button<{ theme: MavrykTheme }>`
   margin: 0;
-  border: 1px solid ${cianColor};
-  color: ${cianColor};
+  border: 1px solid ${cyanColor};
+  color: ${cyanColor};
   font-weight: 400;
   font-size: 10px;
   line-height: 20px;

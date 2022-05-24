@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { cianColor, darkColor, headerColor, darkCianColor } from 'styles'
+import { cyanColor, darkColor, headerColor, royalPurpleColor } from 'styles'
 import { MavrykTheme } from '../../../styles/interfaces'
 
 export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
@@ -13,7 +13,7 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
   td {
     background-color: ${darkColor};
     height: 40px;
-    border: 1px solid ${darkCianColor};
+    border: 1px solid ${royalPurpleColor};
     &:first-child {
       border-left: none;
     }
@@ -32,7 +32,7 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
   }
 
   input {
-    color: ${cianColor};
+    color: ${cyanColor};
     background-color: transparent;
     width: 100%;
     text-align: center;
@@ -54,7 +54,7 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
     }
 
     &:hover {
-      color: ${cianColor};
+      color: ${cyanColor};
     }
   }
 
@@ -84,12 +84,12 @@ export const TableGridWrap = styled.div<{ theme: MavrykTheme }>`
   }
 
   .table-wrap {
-    border: 1px solid ${darkCianColor};
+    border: 1px solid ${royalPurpleColor};
     border-radius: 10px;
     overflow: hidden;
   }
 
   .tooltip {
-    background-color: ${cianColor};
+    background-color: ${cyanColor};
   }
 `
