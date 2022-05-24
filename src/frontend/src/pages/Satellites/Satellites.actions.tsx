@@ -20,6 +20,8 @@ export const getDelegationStorage = () => async (dispatch: any, getState: any) =
       DELEGATION_STORAGE_QUERY_NAME,
       DELEGATION_STORAGE_QUERY_VARIABLE,
     )
+
+    console.log('%c ||||| delegationStorageFromIndexer', 'color:yellowgreen', delegationStorageFromIndexer)
     const delegationStorage = storageToTypeConverter('delegation', delegationStorageFromIndexer?.delegation[0])
     // const storage = await getContractStorage(delegationAddress.address)
     // const satelliteLedgerBigMap = await getContractBigmapKeys(delegationAddress.address, 'satelliteLedger')

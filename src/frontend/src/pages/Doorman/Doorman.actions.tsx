@@ -261,6 +261,8 @@ export const getDoormanStorage = (accountPkh?: string) => async (dispatch: any, 
       DOORMAN_STORAGE_QUERY_NAME,
       DOORMAN_STORAGE_QUERY_VARIABLE,
     )
+
+    console.log('%c ||||| doorman fetchFromIndexer ', 'color:yellowgreen', storage)
     const convertedStorage = storageToTypeConverter('doorman', storage?.doorman?.[0])
     // const userStakeBalanceLedgerBigMap = await getContractBigmapKeys(doormanAddress.address, 'userStakeBalanceLedger')
     //
