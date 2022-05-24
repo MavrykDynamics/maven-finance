@@ -97,7 +97,6 @@ export const IPFSUploaderView = ({
                   <IpfsUploadedImageContainer>
                     {isTypeFileImage ? (
                       <>
-                        <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
                         <img className="uploaded-image" src={imageIpfsUrl} alt="" />
                         <div className="pencil-wrap">
                           <Icon id="pencil-stroke" />
