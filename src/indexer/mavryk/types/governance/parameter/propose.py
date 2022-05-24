@@ -3,9 +3,17 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Extra
+
+
+class ProposalMetadatum(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    title: str
+    data: str
 
 
 class TokenItem(BaseModel):
@@ -37,13 +45,21 @@ class TokenItem2(BaseModel):
     tez: Dict[str, Any]
 
 
-class PaymentMetadata(BaseModel):
+class Transaction(BaseModel):
     class Config:
         extra = Extra.forbid
 
     to_: str
     token: Union[TokenItem, TokenItem1, TokenItem2]
     amount: str
+
+
+class PaymentMetadatum(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    title: str
+    transaction: Transaction
 
 
 class ProposeParameter(BaseModel):
@@ -54,5 +70,5 @@ class ProposeParameter(BaseModel):
     description: str
     invoice: str
     sourceCode: str
-    proposalMetadata: Optional[Dict[str, str]]
-    paymentMetadata: Optional[Dict[str, PaymentMetadata]]
+    proposalMetadata: Optional[List[ProposalMetadatum]]
+    paymentMetadata: Optional[List[PaymentMetadatum]]

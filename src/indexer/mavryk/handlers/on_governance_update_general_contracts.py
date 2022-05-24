@@ -11,4 +11,5 @@ async def on_governance_update_general_contracts(
 ) -> None:
 
     # Perists general contract
-    await persist_general_contract(update_general_contracts)
+    ...
+    # await persist_general_contract(update_general_contracts)
