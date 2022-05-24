@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, cianColor } from 'styles'
+import { Card, cyanColor } from 'styles'
 
 import { MavrykTheme } from '../../../../styles/interfaces'
 
@@ -125,10 +125,10 @@ export const SatelliteProfileDetails = styled.div<{ theme: MavrykTheme }>`
     }
 
     &:hover {
-      color: ${cianColor};
+      color: ${cyanColor};
 
       svg {
-        stroke: ${cianColor};
+        stroke: ${cyanColor};
       }
     }
   }

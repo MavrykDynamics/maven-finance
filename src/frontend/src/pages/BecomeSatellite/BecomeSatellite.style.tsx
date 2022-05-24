@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { Card } from 'styles'
 
-import { cianColor, headerColor, upColor } from '../../styles/colors'
+import { cyanColor, headerColor, upColor } from '../../styles/colors'
 import { MavrykTheme } from '../../styles/interfaces'
 
 export const BecomeSatelliteStyled = styled.div<{ theme: MavrykTheme }>`
