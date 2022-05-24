@@ -57,6 +57,8 @@ error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER                                   
 
 
 
+
+
 error_MVK_TOKEN_CONTRACT_NOT_FOUND                                                                      = 41
 error_ONLY_MVK_TOKEN_CONTRACT_ALLOWED                                                                   = 42
 
@@ -81,6 +83,8 @@ error_GET_BALANCE_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                          
 error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                             = 60
 error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                           = 61
 error_GET_TOTAL_AND_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                 = 62
+
+
 
 
 
@@ -125,6 +129,8 @@ error_GET_LAMBDA_LEDGER_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND                  
 
 
 
+
+
 error_COUNCIL_CONTRACT_NOT_FOUND                                                                        = 90
 error_ONLY_COUNCIL_CONTRACT_ALLOWED                                                                     = 91
 error_ONLY_COUNCIL_CONTRACT_OR_ADMINISTRATOR_ALLOWED                                                    = 92
@@ -162,6 +168,8 @@ error_GET_COUNCIL_ACTION_VIEW_OPT_IN_COUNCIL_CONTRACT_NOT_FOUND                 
 error_GET_ACTION_COUNTER_VIEW_IN_COUNCIL_CONTRACT_NOT_FOUND                                             = 122
 error_GET_LAMBDA_OPT_VIEW_IN_COUNCIL_CONTRACT_NOT_FOUND                                                 = 123
 error_GET_LAMBDA_LEDGER_VIEW_IN_COUNCIL_CONTRACT_NOT_FOUND                                              = 124
+
+
 
 
 
@@ -239,6 +247,8 @@ error_GET_LAMBDA_LEDGER_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND                   
 
 
 
+
+
 error_DOORMAN_CONTRACT_NOT_FOUND                                                                        = 181
 error_ONLY_DOORMAN_CONTRACT_ALLOWED                                                                     = 182
 error_FARM_TREASURY_CONTRACT_NOT_FOUND                                                                  = 183
@@ -293,6 +303,8 @@ error_GET_LAMBDA_LEDGER_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                      
 
 
 
+
+
 error_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND                                                           = 222
 error_ONLY_EMERGENCY_GOVERNANCE_CONTRACT_ALLOWED                                                        = 223
 error_TRIGGER_TAX_TREASURY_CONTRACT_NOT_FOUND                                                           = 224
@@ -321,6 +333,8 @@ error_GET_CURRENT_EMERGENCY_GOVERNANCE_ID_VIEW_IN_EMERGENCY_GOVERNANCE_CONTRACT_
 error_GET_NEXT_EMERGENCY_GOVERNANCE_ID_VIEW_IN_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND                  = 244
 error_GET_LAMBDA_OPT_VIEW_IN_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND                                    = 245
 error_GET_LAMBDA_LEDGER_VIEW_IN_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND                                 = 246
+
+
 
 
 
@@ -385,6 +399,8 @@ error_GET_LAMBDA_LEDGER_VIEW_IN_FARM_CONTRACT_NOT_FOUND                         
 
 
 
+
+
 error_FARM_FACTORY_CONTRACT_NOT_FOUND                                                                   = 292
 error_ONLY_FARM_FACTORY_CONTRACT_ALLOWED                                                                = 293
 error_ONLY_ADMIN_OR_FARM_FACTORY_CONTRACT_ALLOWED                                                       = 294
@@ -423,6 +439,8 @@ error_GET_LAMBDA_OPT_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND                    
 error_GET_LAMBDA_LEDGER_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND                                         = 323
 error_GET_PRODUCT_LAMBDA_OPT_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND                                    = 324
 error_GET_PRODUCT_LAMBDA_LEDGER_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND                                 = 325
+
+
 
 
 
@@ -605,6 +623,17 @@ error_GET_LAMBDA_LEDGER_VIEW_IN_TREASURY_CONTRACT_NOT_FOUND                     
 
 
 
+error_SET_ADMIN_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                = 501
+error_SET_GOVERNANCE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                           = 502
+error_UPDATE_METADATA_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                          = 503
+error_UPDATE_WHITELIST_CONTRACTS_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                               = 504
+error_UPDATE_GENERAL_CONTRACTS_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                 = 505
+error_ADD_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                               = 506
+error_REMOVE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                            = 507
+error_UPDATE_VESTEE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                            = 508
+error_TOGGLE_VESTEE_LOCK_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                       = 509
+error_CLAIM_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                    = 510
+error_SET_LAMBDA_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                               = 511
 
 error_TREASURY_FACTORY_CONTRACT_NOT_FOUND                                                               = 462
 error_ONLY_TREASURY_FACTORY_CONTRACT_ALLOWED                                                            = 463

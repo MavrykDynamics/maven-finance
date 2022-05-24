@@ -137,6 +137,7 @@ type aggregatorStorage is [@layout:comb] record [
 
     mvkTokenAddress           : address;
     delegationAddress         : address;
+    governanceAddress         : address;
 
     round                     : nat;
     roundStart                : timestamp;

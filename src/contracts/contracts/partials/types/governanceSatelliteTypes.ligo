@@ -53,7 +53,7 @@ type natMapType       is map(string, nat);
 
 type governanceSatelliteVotersMapType is map (address, governanceSatelliteVoteType)
 
-type governanceSatelliteRecordType is [@layout:comb] record [
+type governanceSatelliteActionRecordType is [@layout:comb] record [
     initiator                          : address;
     status                             : bool;                  // True - ACTIVE / False - DROPPED -- DEFEATED / EXECUTED / DRAFT
     executed                           : bool;                  // false on creation; set to true when financial request is executed successfully
@@ -76,8 +76,14 @@ type governanceSatelliteRecordType is [@layout:comb] record [
     startDateTime                      : timestamp;           
     expiryDateTime                     : timestamp;               
 ]
-type governanceSatelliteLedgerType is big_map (nat, governanceSatelliteRecordType);
+type governanceSatelliteActionLedgerType is big_map (nat, governanceSatelliteActionRecordType);
 
+
+type satelliteOracleRecordType is [@layout:comb] record [
+  aggregatorPair  : string;
+  status          : bool;
+]
+type satelliteOraclesLedgerType is map(address, satelliteOracleRecordType)
 
 // ------------------------------------------------------------------------------
 // Snapshot Types
@@ -219,11 +225,13 @@ type governanceSatelliteStorage is record [
     generalContracts                        : generalContractsType;
     
     // governance satellite storage 
-    governanceSatelliteLedger               : governanceSatelliteLedgerType;
+    governanceSatelliteActionLedger         : governanceSatelliteActionLedgerType;
     governanceSatelliteSnapshotLedger       : governanceSatelliteSnapshotLedgerType;
     governanceSatelliteCounter              : nat;
 
-    snapshotStakedMvkTotalSupply            : nat;             
+    satelliteOraclesLedger                  : satelliteOraclesLedgerType;
+
+    // snapshotStakedMvkTotalSupply            : nat;             
 
     // lambda storage
     lambdaLedger                            : lambdaLedgerType;             

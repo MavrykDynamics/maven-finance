@@ -12,6 +12,13 @@
 // Aggregator Types
 #include "../partials/types/aggregatorTypes.ligo"
 
+
+// Satellite distributeReward type
+type distributeRewardType is [@layout:comb] record [
+    eligibleSatellites    : set(address);
+    totalSMvkReward       : nat;
+]
+
 // ------------------------------------------------------------------------------
 
 type aggegatorAction is
@@ -20,8 +27,11 @@ type aggegatorAction is
 
     // Housekeeping Entrypoints
   | SetAdmin                      of setAdminParams
+  | SetGovernance                 of (address)
   | UpdateMetadata                of updateMetadataType
   | UpdateConfig                  of updateConfigParams
+
+    // Admin Oracle Entrypoints
   | AddOracle                     of addOracleParams
   | RemoveOracle                  of address
 
@@ -47,39 +57,21 @@ type return is list (operation) * aggregatorStorage
 type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggregatorStorage) -> return
 
 
-
 // ------------------------------------------------------------------------------
 //
 // Error Codes Begin
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                             = 0n;
-[@inline] const error_ONLY_MAINTAINER_ALLOWED                                = 1n;
-[@inline] const error_ONLY_AUTHORIZED_ORACLES_ALLOWED                        = 2n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                      = 3n;
-[@inline] const error_NOT_ENOUGH_TEZ_RECEIVED                                = 4n;
-
-[@inline] const error_WRONG_ROUND_NUMBER                                     = 5n;
-[@inline] const error_LAST_ROUND_IS_NOT_COMPLETE                             = 6n;
-[@inline] const error_YOU_CANNOT_COMMIT_NOW                                  = 7n;
-[@inline] const error_YOU_CANNOT_REVEAL_NOW                                  = 8n;
-[@inline] const error_NOT_ENOUGH_TEZ_IN_CONTRACT_TO_WITHDRAW                 = 9n;
-[@inline] const error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT                     = 10n;
-[@inline] const error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL                     = 11n;
-[@inline] const error_ORACLE_DID_NOT_ANSWER                                  = 12n;
-
-[@inline] const error_GET_SATELLITE_OPT_VIEW_NOT_FOUND                       = 13n;
-[@inline] const error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND        = 14n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                       = 15n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                = 16n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
 // Error Codes End
 //
 // ------------------------------------------------------------------------------
+
 
 
 
@@ -92,6 +84,12 @@ type aggregatorUnpackLambdaFunctionType is (aggregatorLambdaActionType * aggrega
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : aggregatorStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(const s: aggregatorStorage): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
@@ -128,6 +126,15 @@ function checkTezosAmount(const s: aggregatorStorage): unit is
 // Admin Helper Functions End
 // ------------------------------------------------------------------------------
 
+
+// helper function to get distributeRewards entrypoint in delegation contract
+function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardType) is
+case (Tezos.get_entrypoint_opt(
+      "%distributeReward",
+      contractAddress) : option(contract(distributeRewardType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(distributeRewardType))
+];
 
 
 // ------------------------------------------------------------------------------
@@ -404,7 +411,7 @@ block{
     const tokenContract: contract(newTransferType) =
         case (Tezos.get_entrypoint_opt("%transfer", tokenContractAddress): option(contract(newTransferType))) of [
               Some (c) -> c
-          |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TOKEN_CONTRACT_NOT_FOUND): contract(newTransferType))
+          |   None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_FA2_CONTRACT_NOT_FOUND): contract(newTransferType))
         ];
 } with (Tezos.transaction(transferParams, 0tez, tokenContract))
 
@@ -560,6 +567,25 @@ block{
 
     // init aggregator lambda action
     const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetAdmin(newAdminAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
+
+} with response
+
+
+
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : aggregatorStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorLambdaAction : aggregatorLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorLambdaAction, s);
@@ -842,8 +868,11 @@ function main (const action : aggegatorAction; const s : aggregatorStorage) : re
       
       // Housekeeping Entrypoints
     | SetAdmin (parameters)                     -> setAdmin(parameters, s)
+    | SetGovernance(parameters)                 -> setGovernance(parameters, s) 
     | UpdateMetadata (parameters)               -> updateMetadata(parameters, s)
     | UpdateConfig (parameters)                 -> updateConfig(parameters, s)
+
+      // Admin Oracle Entrypoints
     | AddOracle (parameters)                    -> addOracle(parameters, s)
     | RemoveOracle (parameters)                 -> removeOracle(parameters, s)
 

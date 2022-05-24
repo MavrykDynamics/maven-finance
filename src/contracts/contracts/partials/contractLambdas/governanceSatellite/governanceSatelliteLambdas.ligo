@@ -169,14 +169,14 @@ block {
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
 
-                var newGovernanceSatelliteAction : governanceSatelliteRecordType := record [
+                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
                         initiator                          = Tezos.sender;
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
                         governanceType                     = "suspendSatellite";
-                        governancePurpose                  = "";
+                        governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
                         addressMap                         = addressMap;
@@ -197,7 +197,7 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // save action to governance satellite ledger
-                s.governanceSatelliteLedger[actionId] := newGovernanceSatelliteAction;
+                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
                 // increment governance satellite counter
                 s.governanceSatelliteCounter := actionId + 1n;
@@ -283,14 +283,14 @@ block {
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
 
-                var newGovernanceSatelliteAction : governanceSatelliteRecordType := record [
+                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
                         initiator                          = Tezos.sender;
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
                         governanceType                     = "unsuspendSatellite";
-                        governancePurpose                  = "";
+                        governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
                         addressMap                         = addressMap;
@@ -311,7 +311,7 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // save action to governance satellite ledger
-                s.governanceSatelliteLedger[actionId] := newGovernanceSatelliteAction;
+                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
                 // increment governance satellite counter
                 s.governanceSatelliteCounter := actionId + 1n;
@@ -397,14 +397,14 @@ block {
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
 
-                var newGovernanceSatelliteAction : governanceSatelliteRecordType := record [
+                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
                         initiator                          = Tezos.sender;
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
                         governanceType                     = "banSatellite";
-                        governancePurpose                  = "";
+                        governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
                         addressMap                         = addressMap;
@@ -425,7 +425,7 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // save action to governance satellite ledger
-                s.governanceSatelliteLedger[actionId] := newGovernanceSatelliteAction;
+                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
                 // increment governance satellite counter
                 s.governanceSatelliteCounter := actionId + 1n;
@@ -511,14 +511,14 @@ block {
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
 
-                var newGovernanceSatelliteAction : governanceSatelliteRecordType := record [
+                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
                         initiator                          = Tezos.sender;
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
                         governanceType                     = "unbanSatellite";
-                        governancePurpose                  = "";
+                        governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
                         addressMap                         = addressMap;
@@ -539,7 +539,7 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // save action to governance satellite ledger
-                s.governanceSatelliteLedger[actionId] := newGovernanceSatelliteAction;
+                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
                 // increment governance satellite counter
                 s.governanceSatelliteCounter := actionId + 1n;
@@ -633,14 +633,14 @@ block {
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
 
-                var newGovernanceSatelliteAction : governanceSatelliteRecordType := record [
+                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
                         initiator                          = Tezos.sender;
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
                         governanceType                     = "removeAllSatelliteOracles";
-                        governancePurpose                  = "";
+                        governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
                         addressMap                         = addressMap;
@@ -661,7 +661,7 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // save action to governance satellite ledger
-                s.governanceSatelliteLedger[actionId] := newGovernanceSatelliteAction;
+                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
                 // increment governance satellite counter
                 s.governanceSatelliteCounter := actionId + 1n;
@@ -739,14 +739,14 @@ block {
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
 
-                var newGovernanceSatelliteAction : governanceSatelliteRecordType := record [
+                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
                         initiator                          = Tezos.sender;
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
                         governanceType                     = "addOracleToAggregator";
-                        governancePurpose                  = "";
+                        governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
                         addressMap                         = addressMap;
@@ -767,7 +767,7 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // save action to governance satellite ledger
-                s.governanceSatelliteLedger[actionId] := newGovernanceSatelliteAction;
+                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
                 // increment governance satellite counter
                 s.governanceSatelliteCounter := actionId + 1n;
@@ -845,14 +845,14 @@ block {
 
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
 
-                var newGovernanceSatelliteAction : governanceSatelliteRecordType := record [
+                var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
 
                         initiator                          = Tezos.sender;
                         status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
                         executed                           = False;
 
                         governanceType                     = "removeOracleinAggregator";
-                        governancePurpose                  = "";
+                        governancePurpose                  = purpose;
                         voters                             = emptyVotersMap;
 
                         addressMap                         = addressMap;
@@ -873,7 +873,7 @@ block {
                 const actionId : nat = s.governanceSatelliteCounter;
 
                 // save action to governance satellite ledger
-                s.governanceSatelliteLedger[actionId] := newGovernanceSatelliteAction;
+                s.governanceSatelliteActionLedger[actionId] := newGovernanceSatelliteAction;
 
                 // increment governance satellite counter
                 s.governanceSatelliteCounter := actionId + 1n;
@@ -947,70 +947,21 @@ block {
                     | None -> failwith ("Error. GetSatelliteOpt View not found in the Delegation Contract")
                 ];
 
-                const emptyVotersMap  : governanceSatelliteVotersMapType     = map [];
-
-                const emptyAddressMap   : addressMapType     = map [];
-                const emptyStringMap    : stringMapType      = map [];
-                const natMap            : natMapType         = map [
-                  ("dropActionId"     : string)   -> dropActionId;
-                ];                
-
-                const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
-
-                var newGovernanceSatelliteAction : governanceSatelliteRecordType := record [
-
-                        initiator                          = Tezos.sender;
-                        status                             = True;                  // status: True - "ACTIVE", False - "INACTIVE/DROPPED"
-                        executed                           = False;
-
-                        governanceType                     = "dropAction";
-                        governancePurpose                  = "";
-                        voters                             = emptyVotersMap;
-
-                        addressMap                         = emptyAddressMap;
-                        stringMap                          = emptyStringMap;
-                        natMap                             = natMap;
-
-                        approveVoteTotal                   = 0n;
-                        disapproveVoteTotal                = 0n;
-
-                        snapshotStakedMvkTotalSupply       = s.snapshotStakedMvkTotalSupply;
-                        stakedMvkPercentageForApproval     = s.config.governanceSatelliteApprovalPercentage; 
-                        stakedMvkRequiredForApproval       = stakedMvkRequiredForApproval; 
-
-                        startDateTime                      = Tezos.now;            
-                        expiryDateTime                     = Tezos.now + (86_400 * s.config.governanceSatelliteDurationInDays);
-                    ];
-
-                const actionId : nat = s.governanceSatelliteCounter;
-
-                // save action to governance satellite ledger
-                s.governanceSatelliteLedger[actionId] := newGovernanceSatelliteAction;
-
-                // create snapshot in governanceSatelliteSnapshotLedger (to be filled with satellite's )
-                const emptyGovernanceSatelliteActionSnapshotMap  : governanceSatelliteSnapshotMapType     = map [];
-                s.governanceSatelliteSnapshotLedger[actionId] := emptyGovernanceSatelliteActionSnapshotMap;
-
-                // loop currently active satellites and fetch their total voting power from delegation contract, with callback to governance contract to set satellite's voting power
-                const activeSatellitesView : option (map(address, satelliteRecordType)) = Tezos.call_view ("getActiveSatellites", unit, delegationAddress);
-                const activeSatellites: map(address, satelliteRecordType) = case activeSatellitesView of [
-                      Some (value) -> value
-                    | None -> failwith ("Error. GetActiveSatellites View not found in the Delegation Contract")
+                var governanceSatelliteActionRecord : governanceSatelliteActionRecordType := case s.governanceSatelliteActionLedger[dropActionId] of [
+                      Some(_request) -> _request
+                    | None           -> failwith("Error. Governance Satellite Action Record not found. ")
                 ];
 
-                for satelliteAddress -> satellite in map activeSatellites block {
-                    const satelliteSnapshot : actionSatelliteSnapshotType = record [
-                        satelliteAddress      = satelliteAddress;
-                        actionId              = actionId;
-                        stakedMvkBalance      = satellite.stakedMvkBalance;
-                        totalDelegatedAmount  = satellite.totalDelegatedAmount;
-                    ];
+                if Tezos.sender =/= governanceSatelliteActionRecord.initiator then failwith(error_ONLY_INITIATOR_CAN_DROP_ACTION) else skip;
 
-                    s := setSatelliteSnapshot(satelliteSnapshot,s);
-                }; 
+                if governanceSatelliteActionRecord.status    = False then failwith(error_GOVERNANCE_SATELLITE_ACTION_IS_ALREADY_DROPPED) else skip;
 
-                // increment governance satellite counter
-                s.governanceSatelliteCounter := actionId + 1n;
+                if governanceSatelliteActionRecord.executed then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXECUTED) else skip;
+
+                if Tezos.now > governanceSatelliteActionRecord.expiryDateTime then failwith(error_GOVERNANCE_SATELLITE_ACTION_EXPIRED) else skip;
+
+                governanceSatelliteActionRecord.status := False;
+                s.governanceSatelliteActionLedger[dropActionId] := governanceSatelliteActionRecord;
 
             }
         | _ -> skip
@@ -1049,13 +1000,13 @@ block {
 
                 const actionId : nat = voteForAction.actionId;
 
-                var _governanceSatelliteRecord : governanceSatelliteRecordType := case s.governanceSatelliteLedger[actionId] of [
+                var _governanceSatelliteActionRecord : governanceSatelliteActionRecordType := case s.governanceSatelliteActionLedger[actionId] of [
                       Some(_request) -> _request
-                    | None           -> failwith("Error. Governance Satellite Record not found. ")
+                    | None           -> failwith("Error. Governance Satellite Action Record not found. ")
                 ];
 
-                if _governanceSatelliteRecord.status    = False then failwith("Error. Governance Satellite Action has been dropped.")          else skip;
-                if _governanceSatelliteRecord.executed  = True  then failwith("Error. Governance Satellite Action has already been executed.") else skip;
+                if _governanceSatelliteActionRecord.status    = False then failwith("Error. Governance Satellite Action has been dropped.")          else skip;
+                if _governanceSatelliteActionRecord.executed  = True  then failwith("Error. Governance Satellite Action has already been executed.") else skip;
 
                 if Tezos.now > _governanceSatelliteRecord.expiryDateTime then failwith("Error. Governance Satellite Action has expired") else skip;
 
@@ -1072,6 +1023,161 @@ block {
                 // Save and update satellite's vote record
                 const voteType         : governanceSatelliteVoteChoiceType   = voteForAction.vote;
                 const totalVotingPower : nat                                 = satelliteSnapshotRecord.totalVotingPower;
+
+                case voteType of [
+
+                    Approve(_v) -> block {
+
+                        const newApproveVoteTotal : nat = _governanceSatelliteActionRecord.approveVoteTotal + totalVotingPower;
+
+                        _governanceSatelliteActionRecord.approveVoteTotal       := newApproveVoteTotal;
+                        s.governanceSatelliteActionLedger[actionId]                   := _governanceSatelliteActionRecord;
+
+                        // send action operation if total approved votes exceed staked MVK required for approval
+                        if newApproveVoteTotal > _governanceSatelliteActionRecord.stakedMvkRequiredForApproval then block {
+
+                                if _governanceSatelliteActionRecord.requestType = "suspendSatellite" then block {
+
+                                    const satelliteToBeSuspended : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeSuspended"] of [
+                                        Some(_address) -> _address;
+                                        None -> failwith("Error. Satellite to be suspended address is not found")
+                                    ];
+                                
+                                    // const removeOracleInAggregatorOperation : operation = Tezos.transaction(
+                                    //     satelliteToBeSuspended, 
+                                    //     0tez, 
+                                    //     getRemoveOracleInAggregatorEntrypoint(aggregatorContract)
+                                    // );
+
+                                    // operations := removeOracleInAggregatorOperation # operations;
+
+                                } else skip;
+
+                                if _governanceSatelliteActionRecord.requestType = "unsuspendSatellite" then block {
+
+                                    const satelliteToBeUnsuspended : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeUnsuspended"] of [
+                                        Some(_address) -> _address;
+                                        None -> failwith("Error. Satellite to be unsuspended address is not found")
+                                    ];
+                                
+                                    // const addOracleInAggregatorOperation : operation = Tezos.transaction(
+                                    //     satelliteToBeUnsuspended, 
+                                    //     0tez, 
+                                    //     getAddOracleInAggregatorEntrypoint(aggregatorContract)
+                                    // );
+
+                                    // operations := addOracleInAggregatorOperation # operations;
+
+                                } else skip;
+
+                                if _governanceSatelliteActionRecord.requestType = "banSatellite" then block {
+
+                                    const satelliteToBeBanned : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeBanned"] of [
+                                        Some(_address) -> _address;
+                                        None -> failwith("Error. Satellite to be banned address is not found")
+                                    ];
+                                
+                                    // const removeOracleInAggregatorOperation : operation = Tezos.transaction(
+                                    //     satelliteToBeUnsuspended, 
+                                    //     0tez, 
+                                    //     getRemoveOracleInAggregatorEntrypoint(aggregatorContract)
+                                    // );
+
+                                    // operations := removeOracleInAggregatorOperation # operations;
+
+                                } else skip;
+
+                                if _governanceSatelliteActionRecord.requestType = "unbanSatellite" then block {
+
+                                    const satelliteToBeUnbanned : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeUnbanned"] of [
+                                        Some(_address) -> _address;
+                                        None -> failwith("Error. Satellite to be unbanned address is not found")
+                                    ];
+                                
+                                    // const addOracleInAggregatorOperation : operation = Tezos.transaction(
+                                    //     satelliteToBeUnsuspended, 
+                                    //     0tez, 
+                                    //     getAddOracleInAggregatorEntrypoint(aggregatorContract)
+                                    // );
+
+                                    // operations := addOracleInAggregatorOperation # operations;
+
+                                } else skip;
+
+
+                                if _governanceSatelliteActionRecord.requestType = "addOracleToAggregator" then block {
+
+                                    const oracleAddress : address = case _governanceSatelliteActionRecord.addressMap["oracleAddress"] of [
+                                        Some(_address) -> _address;
+                                        None -> failwith("Error. Oracle Address is not found")
+                                    ];
+
+                                    const aggregatorAddress : address = case _governanceSatelliteActionRecord.addressMap["aggregatorAddress"] of [
+                                        Some(_address) -> _address;
+                                        None -> failwith("Error. Aggregator Address is not found")
+                                    ];
+                                
+                                    const addOracleInAggregatorOperation : operation = Tezos.transaction(
+                                        oracleAddress, 
+                                        0tez, 
+                                        getAddOracleInAggregatorEntrypoint(aggregatorAddress)
+                                    );
+
+                                    operations := addOracleInAggregatorOperation # operations;
+
+                                } else skip;
+
+
+
+                                if _governanceSatelliteActionRecord.requestType = "removeOracleInAggregator" then block {
+
+                                    const oracleAddress : address = case _governanceSatelliteActionRecord.addressMap["oracleAddress"] of [
+                                        Some(_address) -> _address;
+                                        None -> failwith("Error. Oracle Address is not found")
+                                    ];
+
+                                    const aggregatorAddress : address = case _governanceSatelliteActionRecord.addressMap["aggregatorAddress"] of [
+                                        Some(_address) -> _address;
+                                        None -> failwith("Error. Aggregator Address is not found")
+                                    ];
+                                
+                                    const removeOracleInAggregatorOperation : operation = Tezos.transaction(
+                                        oracleAddress, 
+                                        0tez, 
+                                        getRemoveOracleInAggregatorEntrypoint(aggregatorAddress)
+                                    );
+
+                                    operations := removeOracleInAggregatorOperation # operations;
+
+                                } else skip;
+
+
+                                if _governanceSatelliteActionRecord.requestType = "removeAllSatelliteOracles" then block {
+
+                                    const satelliteAddress : address = case _governanceSatelliteActionRecord.addressMap["satelliteAddress"] of [
+                                        Some(_address) -> _address;
+                                        None -> failwith("Error. Satellite Address is not found")
+                                    ];
+
+                                    // const removeOracleInAggregatorOperation : operation = Tezos.transaction(
+                                    //     oracleAddress, 
+                                    //     0tez, 
+                                    //     getRemoveOracleInAggregatorEntrypoint(aggregatorAddress)
+                                    // );
+
+                                    // operations := removeOracleInAggregatorOperation # operations;
+
+                                } else skip;
+
+                        }
+                    }
+
+                    | Disapprove(_v) -> block {
+                        const newDisapproveVoteTotal : nat                       = _governanceSatelliteActionRecord.disapproveVoteTotal + totalVotingPower;
+                        _governanceSatelliteActionRecord.disapproveVoteTotal    := newDisapproveVoteTotal;
+                        s.governanceSatelliteActionLedger[actionId]                   := _governanceSatelliteActionRecord;
+                    }
+                ];
 
             }
         | _ -> skip

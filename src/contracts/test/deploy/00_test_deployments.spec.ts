@@ -422,18 +422,19 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(7, governanceProxyLambdas[13])) // updateContractWhitelistMap
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(8, governanceProxyLambdas[14])) // updateContractGeneralMap
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(9, governanceProxyLambdas[15])) // updateContractWhitelistTokenMap
+      
+      const setupGovernanceProxyFirstLambdasOperation = await governanceProxyFirstLambdaBatch.send()
+      await setupGovernanceProxyFirstLambdasOperation.confirmation()
+      console.log("GovernanceProxy Proxy Lambdas Setup (1st Batch)")
+
+      const governanceProxySecondLambdaBatch = await tezos.wallet
+      .batch()
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(10, governanceProxyLambdas[16])) // updateGovernanceConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(11, governanceProxyLambdas[17])) // updateGovernanceFinancialConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(12, governanceProxyLambdas[18])) // updateDelegationConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(13, governanceProxyLambdas[19])) // updateEmergencyConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(14, governanceProxyLambdas[20])) // updateBreakGlassConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(15, governanceProxyLambdas[21])) // updateCouncilConfig
-
-      const setupGovernanceProxyFirstLambdasOperation = await governanceProxyFirstLambdaBatch.send()
-      await setupGovernanceProxyFirstLambdasOperation.confirmation()
-
-      const governanceProxySecondLambdaBatch = await tezos.wallet
-      .batch()
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(16, governanceProxyLambdas[22])) // updateFarmConfig
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(17, governanceProxyLambdas[23])) // updateDoormanMinMvkAmount
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(18, governanceProxyLambdas[24])) // updateWhitelistDevelopersSet
@@ -441,6 +442,13 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(20, governanceProxyLambdas[26])) // tracreateFarmckFarm
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(21, governanceProxyLambdas[27])) // trackFarm
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(22, governanceProxyLambdas[28])) // untrackFarm
+
+      const setupGovernanceProxySecondLambdasOperation = await governanceProxySecondLambdaBatch.send()
+      await setupGovernanceProxySecondLambdasOperation.confirmation()
+      console.log("GovernanceProxy Proxy Lambdas Setup (2nd Batch)")
+      
+      const governanceProxyThirdLambdaBatch = await tezos.wallet
+      .batch()
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(23, governanceProxyLambdas[29])) // initFarm
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(24, governanceProxyLambdas[30])) // closeFarm
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(25, governanceProxyLambdas[31])) // createTreasury
@@ -458,8 +466,8 @@ describe('Contracts Deployment for Tests', async () => {
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(37, governanceProxyLambdas[43])) // updateVestee
       .withContractCall(governanceProxy.contract.methods.setProxyLambda(38, governanceProxyLambdas[44])) // toggleVesteeLock
 
-      const setupGovernanceProxySecondLambdasOperation = await governanceProxySecondLambdaBatch.send()
-      await setupGovernanceProxySecondLambdasOperation.confirmation()
+      const setupGovernanceProxyThirdLambdasOperation = await governanceProxyThirdLambdaBatch.send()
+      await setupGovernanceProxyThirdLambdasOperation.confirmation()
       console.log("Governance Proxy Proxy Lambdas Setup")
 
 

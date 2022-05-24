@@ -51,6 +51,8 @@
 [@inline] const error_COUNCIL_ACTION_PARAMETER_NOT_FOUND                                                                = 39n;
 [@inline] const error_COUNCIL_ACTION_ALREADY_SIGNED_BY_SENDER                                                           = 40n;
 
+
+
 // ------------------------------------------------------------------------------
 //
 // MVK Token Error
@@ -81,6 +83,8 @@
 [@inline] const error_GET_TOTAL_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                             = 60n;
 [@inline] const error_GET_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                           = 61n;
 [@inline] const error_GET_TOTAL_AND_MAXIMUM_SUPPLY_VIEW_IN_MVK_TOKEN_CONTRACT_NOT_FOUND                                 = 62n;
+
+
 
 // ------------------------------------------------------------------------------
 //
@@ -118,6 +122,8 @@
 [@inline] const error_GET_ACTION_COUNTER_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND                                         = 87n;
 [@inline] const error_GET_LAMBDA_OPT_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND                                             = 88n;
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_BREAK_GLASS_CONTRACT_NOT_FOUND                                          = 89n;
+
+
 
 // ------------------------------------------------------------------------------
 //
@@ -162,6 +168,8 @@
 [@inline] const error_GET_ACTION_COUNTER_VIEW_IN_COUNCIL_CONTRACT_NOT_FOUND                                             = 122n;
 [@inline] const error_GET_LAMBDA_OPT_VIEW_IN_COUNCIL_CONTRACT_NOT_FOUND                                                 = 123n;
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_COUNCIL_CONTRACT_NOT_FOUND                                              = 124n;
+
+
 
 // ------------------------------------------------------------------------------
 //
@@ -233,6 +241,8 @@
 [@inline] const error_GET_LAMBDA_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND                                              = 179n;
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND                                           = 180n;
 
+
+
 // ------------------------------------------------------------------------------
 //
 // Doorman Errors
@@ -287,6 +297,8 @@
 [@inline] const error_GET_LAMBDA_OPT_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                                 = 220n;
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_DOORMAN_CONTRACT_NOT_FOUND                                              = 221n;
 
+
+
 // ------------------------------------------------------------------------------
 //
 // Emergency Governance Errors
@@ -321,6 +333,8 @@
 [@inline] const error_GET_NEXT_EMERGENCY_GOVERNANCE_ID_VIEW_IN_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND                  = 244n;
 [@inline] const error_GET_LAMBDA_OPT_VIEW_IN_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND                                    = 245n;
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_EMERGENCY_GOVERNANCE_CONTRACT_NOT_FOUND                                 = 246n;
+
+
 
 // ------------------------------------------------------------------------------
 //
@@ -379,6 +393,8 @@
 [@inline] const error_GET_LAMBDA_OPT_VIEW_IN_FARM_CONTRACT_NOT_FOUND                                                    = 290n;
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_FARM_CONTRACT_NOT_FOUND                                                 = 291n;
 
+
+
 // ------------------------------------------------------------------------------
 //
 // Farm Factory Errors
@@ -423,6 +439,8 @@
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND                                         = 323n;
 [@inline] const error_GET_PRODUCT_LAMBDA_OPT_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND                                    = 324n;
 [@inline] const error_GET_PRODUCT_LAMBDA_LEDGER_VIEW_IN_FARM_FACTORY_CONTRACT_NOT_FOUND                                 = 325n;
+
+
 
 // ------------------------------------------------------------------------------
 //
@@ -499,6 +517,8 @@
 [@inline] const error_GET_LAMBDA_OPT_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                              = 389n;
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_GOVERNANCE_CONTRACT_NOT_FOUND                                           = 390n;
 
+
+
 // ------------------------------------------------------------------------------
 //
 // Governance Financial Errors
@@ -537,6 +557,8 @@
 [@inline] const error_GET_LAMBDA_OPT_VIEW_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND                                    = 417n;
 [@inline] const error_GET_LAMBDA_LEDGER_VIEW_IN_GOVERNANCE_FINANCIAL_CONTRACT_NOT_FOUND                                 = 418n;
 
+
+
 // ------------------------------------------------------------------------------
 //
 // Governance Proxy Errors
@@ -556,6 +578,8 @@
 [@inline] const error_GET_WHITELIST_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                               = 426n;
 [@inline] const error_GET_GENERAL_CONTRACTS_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                 = 427n;
 [@inline] const error_GET_PROXY_LAMBDA_OPT_VIEW_IN_GOVERNANCE_PROXY_CONTRACT_NOT_FOUND                                  = 428n;
+
+
 
 // ------------------------------------------------------------------------------
 //
