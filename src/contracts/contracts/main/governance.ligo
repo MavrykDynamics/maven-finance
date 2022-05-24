@@ -40,8 +40,8 @@ type governanceAction is
     | StartNextRound                  of bool
     | Propose                         of newProposalType
     | ProposalRoundVote               of proposalIdType
-    | UpdateProposalData           of updateProposalDataType
-    | UpdatePaymentData            of updatePaymentDataType
+    | UpdateProposalData              of updateProposalDataType
+    | UpdatePaymentData               of updatePaymentDataType
     | LockProposal                    of proposalIdType      
     | VotingRoundVote                 of (votingRoundVoteType)    
     | ExecuteProposal                 of (unit)
@@ -1197,8 +1197,8 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | StartNextRound(parameters)                  -> startNextRound(parameters, s)
         | Propose(parameters)                         -> propose(parameters, s)
         | ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
-        | UpdateProposalData(parameters)           -> updateProposalData(parameters, s)
-        | UpdatePaymentData(parameters)            -> updatePaymentData(parameters, s)
+        | UpdateProposalData(parameters)              -> updateProposalData(parameters, s)
+        | UpdatePaymentData(parameters)               -> updatePaymentData(parameters, s)
         | LockProposal(parameters)                    -> lockProposal(parameters, s)
         | VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
         | ExecuteProposal(_parameters)                -> executeProposal(s)
