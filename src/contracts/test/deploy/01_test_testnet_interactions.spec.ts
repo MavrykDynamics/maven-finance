@@ -15,6 +15,7 @@ import env from "../../env";
 import { bob, alice, eve, mallory, trudy } from "../../scripts/sandbox/accounts";
 
 import doormanAddress from '../../deployments/doormanAddress.json';
+import farmFactoryAddress from '../../deployments/farmFactoryAddress.json';
 import delegationAddress from '../../deployments/delegationAddress.json';
 import councilAddress from '../../deployments/councilAddress.json'
 import mvkTokenAddress from '../../deployments/mvkTokenAddress.json';
@@ -22,6 +23,7 @@ import governanceAddress from '../../deployments/governanceAddress.json';
 import governanceProxyAddress from '../../deployments/governanceProxyAddress.json';
 import emergencyGovernanceAddress from '../../deployments/emergencyGovernanceAddress.json';
 import breakGlassAddress from '../../deployments/breakGlassAddress.json';
+import lpTokenAddress from '../../deployments/lpTokenAddress.json';
 
 // import governanceLambdaParamBytes from "../build/lambdas/governanceLambdaParametersBytes.json";
 import { config } from "yargs";
@@ -38,6 +40,7 @@ describe("Testnet interactions helper", async () => {
     let emergencyGovernanceInstance;
     let breakGlassInstance;
     let councilInstance;
+    let farmFactoryInstance;
 
     let doormanStorage;
     let delegationStorage;
@@ -47,6 +50,7 @@ describe("Testnet interactions helper", async () => {
     let emergencyGovernanceStorage;
     let breakGlassStorage;
     let councilStorage;
+    let farmFactoryStorage;
     
     const signerFactory = async (pk) => {
         await utils.tezos.setProvider({ signer: await InMemorySigner.fromSecretKey(pk) });
@@ -66,6 +70,7 @@ describe("Testnet interactions helper", async () => {
         emergencyGovernanceInstance     = await utils.tezos.contract.at(emergencyGovernanceAddress.address);
         breakGlassInstance              = await utils.tezos.contract.at(breakGlassAddress.address);
         councilInstance                 = await utils.tezos.contract.at(councilAddress.address);
+        farmFactoryInstance             = await utils.tezos.contract.at(farmFactoryAddress.address);
             
         doormanStorage                  = await doormanInstance.storage();
         delegationStorage               = await delegationInstance.storage();
@@ -75,6 +80,7 @@ describe("Testnet interactions helper", async () => {
         emergencyGovernanceStorage      = await emergencyGovernanceInstance.storage();
         breakGlassStorage               = await breakGlassInstance.storage();
         councilStorage                  = await councilInstance.storage();
+        farmFactoryStorage              = await farmFactoryInstance.storage();
 
         console.log('-- -- -- -- -- Testnet Interactions Helper -- -- -- --')
         console.log('Doorman Contract deployed at:', doormanInstance.address);
@@ -602,7 +608,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates min proposal round vote pct', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(100, "configMinProposalRoundVotePct").send();
+                const operation = await governanceInstance.methods.updateConfig(0, "configMinProposalRoundVotePct").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -622,7 +628,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates min quorum pct', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(6400, "configMinQuorumPercentage").send();
+                const operation = await governanceInstance.methods.updateConfig(0, "configMinQuorumPercentage").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -652,7 +658,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates propose fee mutez', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(2000, "configProposeFeeMutez").send();
+                const operation = await governanceInstance.methods.updateConfig(1000000, "configProposeFeeMutez").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -662,7 +668,7 @@ describe("Testnet interactions helper", async () => {
         it('Admin updates minimum stake req pct', async () => {
             try{
                 // Operation
-                const operation = await governanceInstance.methods.updateConfig(2000, "configMinimumStakeReqPercentage").send();
+                const operation = await governanceInstance.methods.updateConfig(0, "configMinimumStakeReqPercentage").send();
                 await operation.confirmation();
             } catch(e){
                 console.dir(e, {depth: 5})
@@ -797,6 +803,226 @@ describe("Testnet interactions helper", async () => {
                 // Operation
                 const operation = await governanceInstance.methods.setContractGovernance(governanceAddress.address, doormanAddress.address).send();
                 await operation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin execute an entire proposal (with %executeProposal)', async () => {
+            try{
+                // Set the farm factory admin
+                const setAdminOperation     = await farmFactoryInstance.methods.setAdmin(governanceProxyAddress.address).send();
+                await setAdminOperation.confirmation()
+
+                // Initial values
+                governanceStorage           = await governanceInstance.storage();
+                const proposalId            = governanceStorage.nextProposalId.toNumber();
+                const proposalName          = "Create a farm";
+                const proposalDesc          = "Details about new proposal";
+                const proposalIpfs          = "ipfs://QM123456789";
+                const proposalSourceCode    = "Proposal Source Code";
+
+                const farmMetadataBase = Buffer.from(
+                    JSON.stringify({
+                    name: 'MAVRYK PLENTY-USDTz Farm',
+                    description: 'MAVRYK Farm Contract',
+                    version: 'v1.0.0',
+                    liquidityPairToken: {
+                        tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+                        origin: ['Plenty'],
+                        token0: {
+                            symbol: ['PLENTY'],
+                            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+                        },
+                        token1: {
+                            symbol: ['USDtz'],
+                            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+                        }
+                    },
+                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                ).toString('hex')
+
+                // Create a farm compiled params
+                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+                    'createFarm',
+                    false,
+                    false,
+                    12000,
+                    100,
+                    farmMetadataBase,
+                    lpTokenAddress.address,
+                    0,
+                    "fa12",
+                ).toTransferParams();
+                const lambdaParamsValue = lambdaParams.parameter.value;
+                const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+                const referenceDataPacked = await utils.tezos.rpc.packData({
+                    data: lambdaParamsValue,
+                    type: proxyDataPackingHelperType
+                }).catch(e => console.error('error:', e));
+
+                var packedParam;
+                if (referenceDataPacked) {
+                    packedParam = referenceDataPacked.packed
+                    console.log('packed %createFarm param: ' + packedParam);
+                } else {
+                throw `packing failed`
+                };
+
+                const proposalMetadata      = [
+                    {
+                        title: "FirstFarm#1",
+                        data: packedParam
+                    }
+                ]
+
+                // Start governance rounds
+                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+                await proposeOperation.confirmation();
+                var addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()
+                await addPaymentDataOperation.confirmation();
+                addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#2", eve.pkh, "fa2", mvkTokenAddress.address, 0, MVK(20)).send()
+                await addPaymentDataOperation.confirmation();
+                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                await lockOperation.confirmation();
+                var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                await voteOperation.confirmation();
+                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+
+                // Votes operation -> both satellites vote
+                var votingRoundVoteOperation    = await governanceInstance.methods.votingRoundVote("yay").send();
+                await votingRoundVoteOperation.confirmation();
+
+                // Execute proposal
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                await nextRoundOperation.confirmation();
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                await nextRoundOperation.confirmation();
+            } catch(e){
+                console.dir(e, {depth: 5})
+            }
+        });
+
+        it('Admin execute an entire proposal (with %processProposalSingleData)', async () => {
+            try{
+                // Initial values
+                governanceStorage           = await governanceInstance.storage();
+                const proposalId            = governanceStorage.nextProposalId.toNumber();
+                const proposalName          = "Create multiple farms";
+                const proposalDesc          = "Details about new proposal";
+                const proposalIpfs          = "ipfs://QM123456789";
+                const proposalSourceCode    = "Proposal Source Code";
+
+                const farmMetadataBase = Buffer.from(
+                    JSON.stringify({
+                    name: 'MAVRYK PLENTY-USDTz Farm',
+                    description: 'MAVRYK Farm Contract',
+                    version: 'v1.0.0',
+                    liquidityPairToken: {
+                        tokenAddress: ['KT18qSo4Ch2Mfq4jP3eME7SWHB8B8EDTtVBu'],
+                        origin: ['Plenty'],
+                        token0: {
+                            symbol: ['PLENTY'],
+                            tokenAddress: ['KT1GRSvLoikDsXujKgZPsGLX8k8VvR2Tq95b']
+                        },
+                        token1: {
+                            symbol: ['USDtz'],
+                            tokenAddress: ['KT1LN4LPSqTMS7Sd2CJw4bbDGRkMv2t68Fy9']
+                        }
+                    },
+                    authors: ['MAVRYK Dev Team <contact@mavryk.finance>'],
+                    }),
+                    'ascii',
+                ).toString('hex')
+
+                // Create a farm compiled params
+                const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
+                    'createFarm',
+                    false,
+                    false,
+                    12000,
+                    100,
+                    farmMetadataBase,
+                    lpTokenAddress.address,
+                    0,
+                    "fa12",
+                ).toTransferParams();
+                const lambdaParamsValue = lambdaParams.parameter.value;
+                const proxyDataPackingHelperType = await governanceProxyInstance.entrypoints.entrypoints.dataPackingHelper;
+
+                const referenceDataPacked = await utils.tezos.rpc.packData({
+                    data: lambdaParamsValue,
+                    type: proxyDataPackingHelperType
+                }).catch(e => console.error('error:', e));
+
+                var packedParam;
+                if (referenceDataPacked) {
+                    packedParam = referenceDataPacked.packed
+                    console.log('packed %createFarm param: ' + packedParam);
+                } else {
+                throw `packing failed`
+                };
+
+                const proposalMetadata      = [
+                    {
+                        title: "FirstFarm#1",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstFarm#2",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstFarm#3",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstFarm#4",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstFarm#5",
+                        data: packedParam
+                    }
+                ]
+
+                // Start governance rounds
+                var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+                const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
+                await proposeOperation.confirmation();
+                const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
+                await lockOperation.confirmation();
+                var voteOperation               = await governanceInstance.methods.proposalRoundVote(proposalId).send();
+                await voteOperation.confirmation();
+                nextRoundOperation          = await governanceInstance.methods.startNextRound().send();
+                await nextRoundOperation.confirmation();
+
+                // Votes operation -> both satellites vote
+                var votingRoundVoteOperation        = await governanceInstance.methods.votingRoundVote("yay").send();
+                await votingRoundVoteOperation.confirmation();
+
+                // Execute proposal
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(true).send();
+                await nextRoundOperation.confirmation();
+                nextRoundOperation          = await governanceInstance.methods.startNextRound(false).send();
+                await nextRoundOperation.confirmation();
+
+                const executeSingleDataBatch = await utils.tezos.wallet
+                .batch()
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                .withContractCall(governanceInstance.methods.processProposalSingleData())
+                const processProposalSingleDataBatchOperation = await executeSingleDataBatch.send()
+                await processProposalSingleDataBatchOperation.confirmation()
             } catch(e){
                 console.dir(e, {depth: 5})
             }
