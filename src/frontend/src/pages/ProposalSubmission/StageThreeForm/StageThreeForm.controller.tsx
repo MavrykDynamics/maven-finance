@@ -3,13 +3,17 @@ import { useDispatch } from 'react-redux'
 
 import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
 import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
-// prettier-ignore
-import { ProposalFinancialRequestForm, ProposalFinancialRequestInputStatus, ValidFinancialRequestForm } from '../../../utils/TypesAndInterfaces/Forms'
+
 import {
+  ProposalFinancialRequestForm,
+  ProposalFinancialRequestInputStatus,
+  ValidFinancialRequestForm,
+} from '../../../utils/TypesAndInterfaces/Forms'
+import {
+  containsCode,
   getFormErrors,
   isJsonString,
   validateFormAndThrowErrors,
-  containsCode,
 } from '../../../utils/validatorFunctions'
 import { submitFinancialRequestData } from '../ProposalSubmission.actions'
 import { StageThreeFormView } from './StageThreeForm.view'
@@ -18,7 +22,10 @@ type StageThreeFormProps = {
   locked: boolean
   accountPkh?: string
 }
-const INIT_TABLE_DATA = [[''], ['']]
+const INIT_TABLE_DATA = [
+  ['', '', '', ''],
+  ['', '', '', ''],
+]
 
 export const StageThreeForm = ({ locked, accountPkh }: StageThreeFormProps) => {
   const dispatch = useDispatch()
