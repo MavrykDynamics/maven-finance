@@ -61,6 +61,8 @@ export const VotingArea = ({
             <CommaNumber value={totalMVKVoted} endingText={'voted MVK'} />
           </>
         )}
+        {/* TODO - for test */}
+        {/* {true && ( */}
         {ready && governancePhase === 'VOTING' && accountPkhIsSatellite && (
           <VotingButtonsContainer>
             <Button

@@ -1,7 +1,10 @@
-import * as React from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { State } from '../../reducers'
-import { useEffect } from 'react'
+
+// types
+import type { VoteStatistics } from '../Governance/Governance.controller'
+
 import { Page } from 'styles'
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
@@ -9,8 +12,11 @@ import { getEmergencyGovernanceStorage } from './EmergencyGovernance.actions'
 import { EmergencyGovernanceView } from './EmergencyGovernance.view'
 import { getBreakGlassStorage } from '../BreakGlass/BreakGlass.actions'
 import { MOCK_E_GOV_PAST_PROPOSALS } from './mockEGovProposals'
+import { MOCK_PROPOSAL_LIST, MOCK_ONGOING_PROPOSAL_LIST, MOCK_PAST_PROPOSAL_LIST } from '../Governance/mockProposals'
 import { EmergencyGovProposalModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.controller'
 import { showExitFeeModal } from './EmergencyGovProposalModal/EmergencyGovProposalModal.actions'
+import { getGovernanceStorage, proposalRoundVote, votingRoundVote } from '../Governance/Governance.actions'
+import { ProposalStatus, ProposalVote } from '../../utils/TypesAndInterfaces/Governance'
 
 export const EmergencyGovernance = () => {
   const dispatch = useDispatch()
@@ -18,6 +24,9 @@ export const EmergencyGovernance = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { emergencyGovernanceStorage, emergencyGovActive } = useSelector((state: State) => state.emergencyGovernance)
   const { breakGlassStorage, glassBroken } = useSelector((state: State) => state.breakGlass)
+  const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
+
+  const selectedProposal = MOCK_PAST_PROPOSAL_LIST.values().next().value
 
   useEffect(() => {
     dispatch(getEmergencyGovernanceStorage())
@@ -31,18 +40,79 @@ export const EmergencyGovernance = () => {
     dispatch(showExitFeeModal())
     console.log('Here in handleVoteForEmergencyProposal')
   }
+
+  const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
+    abstainVotesMVKTotal: Number(selectedProposal?.abstainMvkTotal),
+    againstVotesMVKTotal: Number(selectedProposal?.downvoteMvkTotal),
+    forVotesMVKTotal: Number(selectedProposal?.upvoteMvkTotal),
+    passVotesMVKTotal: Number(selectedProposal?.passVoteMvkTotal),
+    unusedVotesMVKTotal:
+      mvkTokenStorage.totalSupply -
+      (selectedProposal?.abstainMvkTotal + selectedProposal?.downvoteMvkTotal + selectedProposal?.upvoteMvkTotal),
+  })
+
+  const handleProposalRoundVote = (proposalId: number) => {
+    console.log('Here in Proposal round vote', proposalId)
+    //TODO: Adjust for the number of votes / voting power each satellite has
+    setVoteStatistics({
+      ...voteStatistics,
+      passVotesMVKTotal: voteStatistics.passVotesMVKTotal + 1,
+    })
+    dispatch(proposalRoundVote(proposalId))
+  }
+
+  const handleVotingRoundVote = (vote: string) => {
+    console.log('Here in Vote for Proposal', vote)
+    //TODO: Adjust for the number of votes / voting power each satellite has
+    let voteType
+    switch (vote) {
+      case 'FOR':
+        voteType = 1
+        setVoteStatistics({
+          ...voteStatistics,
+          forVotesMVKTotal: voteStatistics.forVotesMVKTotal + 1,
+        })
+        break
+      case 'AGAINST':
+        voteType = 0
+        setVoteStatistics({
+          ...voteStatistics,
+          againstVotesMVKTotal: voteStatistics.againstVotesMVKTotal + 1,
+        })
+        break
+      case 'ABSTAIN':
+      default:
+        voteType = 2
+        setVoteStatistics({
+          ...voteStatistics,
+          abstainVotesMVKTotal: voteStatistics.abstainVotesMVKTotal + 1,
+        })
+        break
+    }
+    setVoteStatistics({
+      ...voteStatistics,
+      unusedVotesMVKTotal: voteStatistics.unusedVotesMVKTotal - 1,
+    })
+    dispatch(votingRoundVote(voteType))
+  }
+
   return (
     <Page>
       <EmergencyGovProposalModal />
       <PageHeader page={'emergency governance'} kind={PRIMARY} loading={loading} />
       <EmergencyGovernanceView
+        ready={ready}
         emergencyGovernanceActive={emergencyGovActive}
         glassBroken={glassBroken}
         handleTriggerEmergencyProposal={handleTriggerEmergencyProposal}
         handleVoteForEmergencyProposal={handleVoteForEmergencyProposal}
+        handleVotingRoundVote={handleVotingRoundVote}
+        handleProposalRoundVote={handleProposalRoundVote}
         loading={loading}
         accountPkh={accountPkh}
         pastProposals={MOCK_E_GOV_PAST_PROPOSALS}
+        selectedProposal={selectedProposal}
+        voteStatistics={voteStatistics}
       />
     </Page>
   )
