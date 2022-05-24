@@ -3,7 +3,7 @@ import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { State } from '../../../reducers'
-import { connect } from '../Menu/Menu.actions'
+import { connect } from './ConnectWallet.actions'
 import { ConnectWalletView } from './ConnectWallet.view'
 
 type ConnectWalletProps = {

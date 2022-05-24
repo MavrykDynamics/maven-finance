@@ -1,4 +1,4 @@
-import { CONNECT, SET_WALLET } from 'app/App.components/Menu/Menu.actions'
+import { CONNECT, SET_WALLET } from 'app/App.components/ConnectWallet/ConnectWallet.actions'
 import { TempleWallet } from '@temple-wallet/dapp'
 import { TezosToolkit } from '@taquito/taquito'
 
