@@ -468,11 +468,11 @@ block {
                 if satelliteSnapshot.totalMvkBalance < abs(minimumMvkRequiredForProposalSubmission) then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip; 
 
-                const proposalId          : nat                   = s.nextProposalId;
-                const emptyPassVotersMap  : passVotersMapType     = map [];
-                const emptyVotersMap      : votersMapType         = map [];
-                const proposalMetadata    : proposalMetadataType  = map [];
-                const paymentMetadata     : paymentMetadataType   = map [];
+                const proposalId          : nat                                     = s.nextProposalId;
+                const emptyPassVotersMap  : passVotersMapType                       = map [];
+                const emptyVotersMap      : votersMapType                           = map [];
+                const proposalMetadata    : map(nat, option(proposalMetadataType))  = map [];
+                const paymentMetadata     : map(nat, option(paymentMetadataType))   = map [];
 
                 var proposerProposals   : set(nat)             := case s.currentCycleInfo.roundProposers[Tezos.sender] of [
                       Some (_proposals) -> _proposals
@@ -536,23 +536,21 @@ block {
                 // Add data on creation
                 case newProposal.proposalMetadata of [
 
-                    Some (_metadataMap) -> block{
-                    for title -> data in map _metadataMap block {
-
-                        // prepare proposal data parameters
-                        const proposalData = record [
-                            proposalId      = proposalId;
-                            title           = title;
-                            proposalBytes   = data;
-                        ];
-
-                        // new operation for add/update proposal data
-                        operations := Tezos.transaction(
-                            proposalData,
-                            0tez, 
-                            getAddUpdateProposalDataEntrypoint(Tezos.self_address)
-                        ) # operations;
-                    }
+                    Some (_metadataList) -> block{
+                        // For a better user experience and frontend implementation, fold_right is used to execute the operation of adding 
+                        // proposalData in FIFO
+                        function proposalDataOperationAccumulator(const metadata: proposalMetadataType; const operationList: list(operation)): list(operation) is
+                            Tezos.transaction(
+                                record [
+                                    proposalId      = proposalId;
+                                    title           = metadata.title;
+                                    proposalBytes   = metadata.data;
+                                ],
+                                0tez, 
+                                getUpdateProposalDataEntrypoint(Tezos.self_address)
+                            ) # operationList;
+                        
+                        operations := List.fold_right(proposalDataOperationAccumulator, _metadataList, operations)
                     }
 
                 | None -> skip
@@ -561,23 +559,21 @@ block {
 
                 case newProposal.paymentMetadata of [
 
-                    Some (_metadataMap) -> block{
-                    for title -> data in map _metadataMap block {
-
-                        // prepare payment data parameters
-                        const paymentData = record [
-                            proposalId              = proposalId;
-                            title                   = title;
-                            paymentTransaction      = data;
-                        ];
-
-                        // new operation for add/update payment data
-                        operations := Tezos.transaction(
-                            paymentData,
-                            0tez, 
-                            getAddUpdatePaymentDataEntrypoint(Tezos.self_address)
-                        ) # operations;
-                    }
+                    Some (_metadataList) -> block{
+                        // For a better user experience and frontend implementation, fold_right is used to execute the operation of adding 
+                        // paymentData in FIFO
+                        function paymentDataOperationAccumulator(const metadata: paymentMetadataType; const operationList: list(operation)): list(operation) is
+                            Tezos.transaction(
+                                record [
+                                    proposalId              = proposalId;
+                                    title                   = metadata.title;
+                                    paymentTransaction      = metadata.transaction;
+                                ],
+                                0tez, 
+                                getUpdatePaymentDataEntrypoint(Tezos.self_address)
+                            ) # operationList;
+                        
+                        operations := List.fold_right(paymentDataOperationAccumulator, _metadataList, operations)
                     }
 
                 | None -> skip
@@ -598,15 +594,15 @@ block {
 
 
 
-(* addUpdateProposalData lambda *)
-function lambdaAddUpdateProposalData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+(* updateProposalData lambda *)
+function lambdaUpdateProposalData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
 block {
 
     if s.currentCycleInfo.round = (Proposal : roundType) then skip
     else failwith(error_ONLY_ACCESSIBLE_DURING_PROPOSAL_ROUND);
 
     case governanceLambdaAction of [
-        | LambdaAddUpdateProposalData(proposalData) -> {
+        | LambdaUpdateProposalData(proposalData) -> {
                 
                 const proposalId     : nat     = proposalData.proposalId;
                 const title          : string  = proposalData.title;
@@ -642,8 +638,37 @@ block {
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
-                // Add or update data to proposal
-                proposalRecord.proposalMetadata[title] := proposalBytes; 
+                // Create the new proposalMetadata
+                const newProposalData: proposalMetadataType = record[
+                    title   = title;
+                    data    = proposalBytes;
+                ];
+                // Calculate the index on where the metadata should be added in the map(index -> proposalMetadata)
+                var newIndex: nat   := Map.size(proposalRecord.proposalMetadata);
+                // Entries should have unique names in the proposal. The data will be added to the map if its name is unique 
+                var addData: bool   := True;
+                // Loop through all the current proposalMetadata of the proposal to check if a data with a similar name already exists
+                for _index -> metadata in map proposalRecord.proposalMetadata block {
+
+                    case metadata of [
+                        Some (_validMetadata) -> block{
+                            // If a data with a similar name exists, it set the addData to false
+                            if _validMetadata.title = title then {
+                                addData := False;
+                                // If the data has the same bytes, it will be removed from the map (NONE), if not, the data will be updated (SOME)
+                                if _validMetadata.data = proposalBytes then {
+                                    proposalRecord.proposalMetadata[_index]   := (None : option(proposalMetadataType));
+                                } else {
+                                    proposalRecord.proposalMetadata[_index]   := Some (newProposalData);
+                                }
+                            } else skip
+                        }
+                    |   None -> skip
+                    ];
+
+                };
+                // If the data is unique, it will be added to the map (SOME)
+                if addData then proposalRecord.proposalMetadata[newIndex] := Some (newProposalData);
 
                 // save changes and update proposal ledger
                 s.proposalLedger[proposalId] := proposalRecord;
@@ -656,15 +681,15 @@ block {
 
 
 
-(* addUpdatePaymentData lambda *)
-function lambdaAddUpdatePaymentData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
+(* updatePaymentData lambda *)
+function lambdaUpdatePaymentData(const governanceLambdaAction : governanceLambdaActionType; var s : governanceStorage) : return is 
 block {
 
     if s.currentCycleInfo.round = (Proposal : roundType) then skip
     else failwith(error_ONLY_ACCESSIBLE_DURING_PROPOSAL_ROUND);
 
     case governanceLambdaAction of [
-        | LambdaAddUpdatePaymentData(paymentData) -> {
+        | LambdaUpdatePaymentData(paymentData) -> {
                 
                 const proposalId            : nat                       = paymentData.proposalId;
                 const title                 : string                    = paymentData.title;
@@ -700,8 +725,37 @@ block {
                     | None -> failwith (error_GET_SATELLITE_OPT_VIEW_IN_DELEGATION_CONTRACT_NOT_FOUND)
                 ];
 
-                // Add or update data to proposal
-                proposalRecord.paymentMetadata[title] := paymentTransaction; 
+                // Create the new paymentMetadata
+                const newPaymentData: paymentMetadataType = record[
+                    title           = title;
+                    transaction     = paymentTransaction;
+                ];
+                // Calculate the index on where the metadata should be added in the map(index -> paymentMetadata)
+                var newIndex: nat   := Map.size(proposalRecord.paymentMetadata);
+                // Entries should have unique names in the proposal. The data will be added to the map if its name is unique 
+                var addData: bool   := True;
+                // Loop through all the current paymentMetadata of the proposal to check if a data with a similar name already exists
+                for _index -> metadata in map proposalRecord.paymentMetadata block {
+
+                    case metadata of [
+                        Some (_validMetadata) -> block{
+                            // If a data with a similar name exists, it set the addData to false
+                             if _validMetadata.title = title then {
+                                addData := False;
+                                // If the data has the same transaction, it will be removed from the map (NONE), if not, the data will be updated (SOME)
+                                if _validMetadata.transaction = paymentTransaction then {
+                                    proposalRecord.paymentMetadata[_index]   := (None : option(paymentMetadataType));
+                                } else {
+                                    proposalRecord.paymentMetadata[_index]   := Some (newPaymentData);
+                                }
+                            } else skip
+                        }
+                    |   None -> skip
+                    ];
+
+                };
+                // If the data is unique, it will be added to the map (SOME)
+                if addData then proposalRecord.paymentMetadata[newIndex] := Some (newPaymentData);
 
                 // save changes and update proposal ledger
                 s.proposalLedger[proposalId] := proposalRecord;
@@ -1043,22 +1097,40 @@ block {
                 if Map.size(proposal.proposalMetadata) = 0n then failwith(error_PROPOSAL_HAS_NO_DATA_TO_EXECUTE)
                 else skip;
 
+                // check if some data in the proposal were already executed
+                if proposal.proposalMetadataExecutionCounter > 0n then failwith(error_PROPOSAL_EXECUTION_ALREADY_STARTED)
+                else skip;
+
                 // update proposal executed and isSucessful boolean to True
                 proposal.executed                      := True;
                 proposal.isSuccessful                  := True;
-                s.proposalLedger[s.timelockProposalId] := proposal;    
+                s.proposalLedger[s.timelockProposalId] := proposal;
 
-                // loop proposal metadata for execution
-                for _title -> metadataBytes in map proposal.proposalMetadata block {
+                // Operation data should be executed in FIFO mode
+                // So the loop starts at the last index of the proposal
+                var dataCounter : nat   := Map.size(proposal.proposalMetadata);
+                while (dataCounter > 0n) {
+                    // Get the data with the corresponding index
+                    var operationIndex: nat                     := abs(dataCounter - 1n);
+                    
+                    // Get the proposal metadata
+                    var metadata: option(proposalMetadataType)  := case Map.find_opt(operationIndex, proposal.proposalMetadata) of [
+                        Some (_optionData)      -> _optionData
+                    |   None                    -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
+                    ];
 
-                    const sendProposalActionToGovernanceProxyForExecutionOperation : operation = Tezos.transaction(
-                        metadataBytes,
-                        0tez,
-                        getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
-                    );
-                
-                    operations := sendProposalActionToGovernanceProxyForExecutionOperation # operations;
+                    // Execute the data or skip if this entry has no data to execute
+                    case metadata of [
+                        Some (_dataBytes)   -> operations := Tezos.transaction(
+                                                _dataBytes.data,
+                                                0tez,
+                                                getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
+                                            ) # operations
+                    |   None                -> skip
+                    ];
 
+                    // Decrement the counter
+                    dataCounter := abs(dataCounter - 1n);
                 };
 
                 // Send reward to proposer
@@ -1120,9 +1192,25 @@ block {
 
                 // turn the operation map to a list for the treasury contract
                 var paymentsData: list(transferDestinationType)   := nil;
-                function getPaymentData(const payments: list(transferDestinationType); const payment: string * transferDestinationType): list(transferDestinationType) is
-                    payment.1 # payments;
-                paymentsData := Map.fold(getPaymentData, proposal.paymentMetadata, paymentsData);
+
+                // The order of operation will be the same as the one in the proposal, that's why we start
+                // from the tail of the list
+                var dataCounter : nat   := Map.size(proposal.paymentMetadata);
+                while (dataCounter > 0n) {
+                    // Get the data with the corresponding index
+                    var operationIndex: nat := abs(dataCounter - 1n);
+                    var metadata: option(paymentMetadataType)  := case Map.find_opt(operationIndex, proposal.paymentMetadata) of [
+                        Some (_optionData)      -> _optionData
+                    |   None                    -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
+                    ];
+
+                    // Execute the data or skip if this entry has no data to execute
+                    case metadata of [
+                        Some (_dataBytes)   -> paymentsData := _dataBytes.transaction # paymentsData
+                    |   None                -> skip
+                    ];
+                    dataCounter := abs(dataCounter - 1n);
+                };
 
                 // Send the rewards from the treasury to the doorman contract
                 const treasuryAddress: address  = case Map.find_opt("paymentTreasury", s.generalContracts) of [
@@ -1179,22 +1267,31 @@ block {
                 if Map.size(proposal.proposalMetadata) = 0n then failwith(error_PROPOSAL_HAS_NO_DATA_TO_EXECUTE)
                 else skip;
 
-                // loop proposal metadata for execution
-                var _dataCounter: nat       := 0n;
-                const operationToPick: nat  = abs(Map.size(proposal.proposalMetadata) - 1n - proposal.proposalMetadataExecutionCounter);
-                for _title -> metadataBytes in map proposal.proposalMetadata block {
+                // Proposal data should be executed in FIFO mode
+                // Get the data to execute next based on the proposalMetadataExecutionCounter
+                var optionData: option(proposalMetadataType)    := case proposal.proposalMetadata[proposal.proposalMetadataExecutionCounter] of [
+                    Some (_data)    -> _data
+                |   None            -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
+                ];
 
-                    if _dataCounter = operationToPick then {
-                        const sendProposalActionToGovernanceProxyForExecutionOperation : operation = Tezos.transaction(
-                            metadataBytes,
-                            0tez,
-                            getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
-                        );
-                        operations  := sendProposalActionToGovernanceProxyForExecutionOperation # operations;
-                    } else skip;
-
-                    _dataCounter := _dataCounter + 1n;
+                // If there is no data to execute, loop through all the proposalMetadata, starting from tail to head to get data
+                while proposal.proposalMetadataExecutionCounter < Map.size(proposal.proposalMetadata) and optionData = (None : option(proposalMetadataType)) block{
+                    proposal.proposalMetadataExecutionCounter   := proposal.proposalMetadataExecutionCounter + 1n;
+                    optionData                                  := case proposal.proposalMetadata[proposal.proposalMetadataExecutionCounter] of [
+                        Some (_data)    -> _data
+                    |   None            -> failwith(error_PROPOSAL_DATA_NOT_FOUND)
+                    ];
                 };
+
+                // Check if there is data to execute (even at the last entry where index=0)
+                case optionData of [
+                    Some (_dataBytes)   -> operations := Tezos.transaction(
+                                                _dataBytes.data,
+                                                0tez,
+                                                getExecuteGovernanceActionEntrypoint(s.governanceProxyAddress)
+                                            ) # operations
+                |   None                -> skip
+                ];
 
                 // Update proposal after the execution of a metadata
                 proposal.proposalMetadataExecutionCounter       := proposal.proposalMetadataExecutionCounter + 1n;

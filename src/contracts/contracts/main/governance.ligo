@@ -40,8 +40,8 @@ type governanceAction is
     | StartNextRound                  of bool
     | Propose                         of newProposalType
     | ProposalRoundVote               of proposalIdType
-    | AddUpdateProposalData           of addUpdateProposalDataType
-    | AddUpdatePaymentData            of addUpdatePaymentDataType
+    | UpdateProposalData              of updateProposalDataType
+    | UpdatePaymentData               of updatePaymentDataType
     | LockProposal                    of proposalIdType      
     | VotingRoundVote                 of (votingRoundVoteType)    
     | ExecuteProposal                 of (unit)
@@ -260,22 +260,22 @@ case (Tezos.get_entrypoint_opt(
 
 
 
-function getAddUpdateProposalDataEntrypoint(const contractAddress : address) : contract(addUpdateProposalDataType) is
+function getUpdateProposalDataEntrypoint(const contractAddress : address) : contract(updateProposalDataType) is
 case (Tezos.get_entrypoint_opt(
-      "%addUpdateProposalData",
-      contractAddress) : option(contract(addUpdateProposalDataType))) of [
+      "%updateProposalData",
+      contractAddress) : option(contract(updateProposalDataType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(addUpdateProposalDataType))
+  | None -> (failwith(error_ADD_UPDATE_PROPOSAL_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updateProposalDataType))
 ];
 
 
 
-function getAddUpdatePaymentDataEntrypoint(const contractAddress : address) : contract(addUpdatePaymentDataType) is
+function getUpdatePaymentDataEntrypoint(const contractAddress : address) : contract(updatePaymentDataType) is
 case (Tezos.get_entrypoint_opt(
-      "%addUpdatePaymentData",
-      contractAddress) : option(contract(addUpdatePaymentDataType))) of [
+      "%updatePaymentData",
+      contractAddress) : option(contract(updatePaymentDataType))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(addUpdatePaymentDataType))
+  | None -> (failwith(error_ADD_UPDATE_PAYMENT_DATA_ENTRYPOINT_IN_GOVERNANCE_CONTRACT_NOT_FOUND) : contract(updatePaymentDataType))
 ];
 
 
@@ -970,17 +970,17 @@ block {
 
 
 
-// (* addUpdateProposalData entrypoint *)
-function addUpdateProposalData(const proposalData : addUpdateProposalDataType; var s : governanceStorage) : return is 
+// (* updateProposalData entrypoint *)
+function updateProposalData(const proposalData : updateProposalDataType; var s : governanceStorage) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddUpdateProposalData"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateProposalData"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaAddUpdateProposalData(proposalData);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdateProposalData(proposalData);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -988,17 +988,17 @@ block {
 } with response
 
 
-// (* addUpdatePaymentData entrypoint *)
-function addUpdatePaymentData(const paymentData : addUpdatePaymentDataType; var s : governanceStorage) : return is 
+// (* updatePaymentData entrypoint *)
+function updatePaymentData(const paymentData : updatePaymentDataType; var s : governanceStorage) : return is 
 block {
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddUpdatePaymentData"] of [
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdatePaymentData"] of [
       | Some(_v) -> _v
       | None     -> failwith(error_LAMBDA_NOT_FOUND)
     ];
 
     // init governance lambda action
-    const governanceLambdaAction : governanceLambdaActionType = LambdaAddUpdatePaymentData(paymentData);
+    const governanceLambdaAction : governanceLambdaActionType = LambdaUpdatePaymentData(paymentData);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, governanceLambdaAction, s);
@@ -1197,8 +1197,8 @@ function main (const action : governanceAction; const s : governanceStorage) : r
         | StartNextRound(parameters)                  -> startNextRound(parameters, s)
         | Propose(parameters)                         -> propose(parameters, s)
         | ProposalRoundVote(parameters)               -> proposalRoundVote(parameters, s)
-        | AddUpdateProposalData(parameters)           -> addUpdateProposalData(parameters, s)
-        | AddUpdatePaymentData(parameters)            -> addUpdatePaymentData(parameters, s)
+        | UpdateProposalData(parameters)              -> updateProposalData(parameters, s)
+        | UpdatePaymentData(parameters)               -> updatePaymentData(parameters, s)
         | LockProposal(parameters)                    -> lockProposal(parameters, s)
         | VotingRoundVote(parameters)                 -> votingRoundVote(parameters, s)
         | ExecuteProposal(_parameters)                -> executeProposal(s)
