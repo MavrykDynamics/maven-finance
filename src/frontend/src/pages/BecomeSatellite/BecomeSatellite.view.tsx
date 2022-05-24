@@ -31,7 +31,7 @@ import {
   BecomeSatelliteFormHorizontal,
   BecomeSatelliteFormTitle,
 } from './BecomeSatellite.style'
-import InputWithPersent from 'app/App.components/InputWithPersent/InputWithPersent'
+import InputWithPercent from 'app/App.components/InputWithPercent/InputWithPercent'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
@@ -282,7 +282,7 @@ export const BecomeSatelliteView = ({
             <label className="label">5- Enter your fee (%)</label>
           )}
           <div className="input-fee-wrap">
-            <InputWithPersent
+            <InputWithPercent
               type="text"
               placeholder="Fee"
               disabled={!balanceOk}
