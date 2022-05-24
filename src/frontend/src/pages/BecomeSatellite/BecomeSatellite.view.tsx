@@ -14,13 +14,24 @@ import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constant
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
-// prettier-ignore
-import { RegisterAsSatelliteForm, RegisterAsSatelliteFormInputStatus, ValidRegisterAsSatelliteForm } from '../../utils/TypesAndInterfaces/Forms'
+
+import {
+  RegisterAsSatelliteForm,
+  RegisterAsSatelliteFormInputStatus,
+  ValidRegisterAsSatelliteForm,
+} from '../../utils/TypesAndInterfaces/Forms'
 import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
 import { SatelliteSideBar } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import { unregisterAsSatellite } from './BecomeSatellite.actions'
-// prettier-ignore
-import { BecomeSatelliteButttons, BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteFormHorizontal, BecomeSatelliteFormTitle } from './BecomeSatellite.style'
+
+import {
+  BecomeSatelliteButttons,
+  BecomeSatelliteForm,
+  BecomeSatelliteFormBalanceCheck,
+  BecomeSatelliteFormHorizontal,
+  BecomeSatelliteFormTitle,
+} from './BecomeSatellite.style'
+import InputWithPersent from 'app/App.components/InputWithPersent/InputWithPersent'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
@@ -109,10 +120,14 @@ export const BecomeSatelliteView = ({
   }, [updateSatellite, usersSatellite])
 
   useEffect(() => {
-    if (accountPkh && myTotalStakeBalance >= minimumStakedMvkBalance) {
+    if (!accountPkh && myTotalStakeBalance >= minimumStakedMvkBalance) {
       setBalanceOk(true)
     }
   }, [accountPkh, myTotalStakeBalance, minimumStakedMvkBalance])
+
+  useEffect(() => {
+    handleValidate('FEE')
+  }, [form.fee])
 
   const handleValidate = (formField: string) => {
     let updatedState, validityCheckResult
@@ -127,17 +142,26 @@ export const BecomeSatelliteView = ({
         validityCheckResult = isNotAllWhitespace(form.description)
         setValidForm({ ...validForm, description: validityCheckResult })
         updatedState = { ...validForm, description: validityCheckResult }
-        setFormInputStatus({ ...formInputStatus, description: updatedState.description ? 'success' : 'error' })
+        setFormInputStatus({
+          ...formInputStatus,
+          description: updatedState.description ? 'success' : 'error',
+        })
         break
       case 'WEBSITE':
         validityCheckResult = isNotAllWhitespace(form.website)
         setValidForm({ ...validForm, website: validityCheckResult })
         updatedState = { ...validForm, website: validityCheckResult }
-        setFormInputStatus({ ...formInputStatus, website: updatedState.website ? 'success' : 'error' })
+        setFormInputStatus({
+          ...formInputStatus,
+          website: updatedState.website ? 'success' : 'error',
+        })
         break
       case 'FEE':
-        setValidForm({ ...validForm, fee: form.fee >= 0 && form.fee <= 100 })
-        updatedState = { ...validForm, fee: form.fee >= 0 }
+        setValidForm({
+          ...validForm,
+          fee: form.fee >= 0 && form.fee <= 100,
+        })
+        updatedState = { ...validForm, fee: form.fee >= 0 && form.fee <= 100 }
         setFormInputStatus({
           ...formInputStatus,
           fee: updatedState.fee ? 'success' : 'error',
@@ -178,7 +202,7 @@ export const BecomeSatelliteView = ({
             endingText={'MVK'}
           />
           <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
-            {accountPkh ? (
+            {!accountPkh ? (
               <>
                 <Icon id="check-stroke" />
                 <CommaNumber
@@ -258,17 +282,14 @@ export const BecomeSatelliteView = ({
             <label className="label">5- Enter your fee (%)</label>
           )}
           <div className="input-fee-wrap">
-            <Input
-              type="number"
+            <InputWithPersent
+              type="text"
               placeholder="Fee"
               disabled={!balanceOk}
               value={form.fee}
-              onChange={(e: any) => {
-                setForm({ ...form, fee: e.target.value })
-                handleValidate('FEE')
-              }}
               onBlur={(e: any) => handleValidate('FEE')}
               inputStatus={formInputStatus.fee}
+              onChange={(feeNumber: number) => setForm({ ...form, fee: feeNumber })}
             />
           </div>
           <IPFSUploader

@@ -15,6 +15,10 @@ export const moveDown = keyframes`
 export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
   width: 270px;
   transition: all 0.3s;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  left: 0;
   .mobile-logo {
     display: none;
   }
@@ -105,7 +109,6 @@ export const MenuTopSection = styled.div`
   top: 0;
   left: 0;
   z-index: 10;
-  position: relative;
   text-align: center;
   width: 100%;
   max-width: 270px;
@@ -114,6 +117,7 @@ export const MenuTopSection = styled.div`
   display: flex;
   flex-direction: column;
   background-color: ${({ theme }) => theme.containerColor};
+  position: relative;
 `;
 export const MenuLogo = styled.img`
   margin: 44px auto 20px auto;

@@ -19,6 +19,7 @@ type InputViewProps = {
   value?: string | number
   onChange: any
   onBlur: any
+  onKeyDown: any
   onFocus: any
   inputStatus?: InputStatusType
   type: string
@@ -36,6 +37,7 @@ export const InputView = ({
   value,
   onChange,
   onBlur,
+  onKeyDown,
   onFocus,
   inputStatus,
   type,
@@ -66,6 +68,7 @@ export const InputView = ({
           value={value}
           onChange={onChange}
           onBlur={onBlur}
+          onKeyDown={onKeyDown}
           onFocus={onFocus}
           autoComplete={name}
           disabled={disabled}
