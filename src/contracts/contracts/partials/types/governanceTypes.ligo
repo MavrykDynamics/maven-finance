@@ -31,13 +31,22 @@ type satelliteRecordType is [@layout:comb] record [
 // Governance Cycle Round Types
 // ------------------------------------------------------------------------------
 
+type proposalMetadataType is [@layout:comb] record[
+  title : string;
+  data  : bytes;
+]
+type paymentMetadataType is [@layout:comb] record[
+  title       : string;
+  transaction : transferDestinationType;
+]
+
 type newProposalType is [@layout:comb] record [
   title              : string;
   description        : string;
   invoice            : string; // IPFS file
   sourceCode         : string;
-  proposalMetadata   : option(map(string,bytes));
-  paymentMetadata    : option(map(string,transferDestinationType));
+  proposalMetadata   : option(list(proposalMetadataType));
+  paymentMetadata    : option(list(paymentMetadataType));
 ]
 
 // Stores all voter data during proposal round
@@ -56,15 +65,12 @@ type votingRoundVoteType is [@layout:comb] record [
 type votingRoundRecordType is (nat * timestamp * voteForProposalChoiceType)   // 1 is Yay, 0 is Nay, 2 is abstain * total voting power (MVK) * timestamp
 type votersMapType is map (address, votingRoundRecordType)
 
-type proposalMetadataType is map (string, bytes)
-type paymentMetadataType  is map (string, transferDestinationType)
-
 type proposalRecordType is [@layout:comb] record [
     
     proposerAddress                   : address;
-    proposalMetadata                  : proposalMetadataType;
+    proposalMetadata                  : map(nat,option(proposalMetadataType));
     proposalMetadataExecutionCounter  : nat;
-    paymentMetadata                   : paymentMetadataType;
+    paymentMetadata                   : map(nat,option(paymentMetadataType));
   
     status                            : string;                  // status - "ACTIVE", "DROPPED"
     title                             : string;                  // title
@@ -213,13 +219,13 @@ type updateMetadataType is [@layout:comb] record [
     metadataHash     : bytes; 
 ]
 
-type addUpdateProposalDataType is [@layout:comb] record [
+type updateProposalDataType is [@layout:comb] record [
   proposalId         : nat;
   title              : string;
   proposalBytes      : bytes;
 ]
 
-type addUpdatePaymentDataType is [@layout:comb] record [
+type updatePaymentDataType is [@layout:comb] record [
   proposalId         : nat;
   title              : string;
   paymentTransaction : transferDestinationType;
@@ -262,8 +268,8 @@ type governanceLambdaActionType is
 | LambdaStartNextRound                        of (bool)
 | LambdaPropose                               of newProposalType
 | LambdaProposalRoundVote                     of proposalIdType
-| LambdaAddUpdateProposalData                 of addUpdateProposalDataType
-| LambdaAddUpdatePaymentData                  of addUpdatePaymentDataType
+| LambdaUpdateProposalData                 of updateProposalDataType
+| LambdaUpdatePaymentData                  of updatePaymentDataType
 | LambdaLockProposal                          of proposalIdType
 | LambdaVotingRoundVote                       of votingRoundVoteType
 | LambdaExecuteProposal                       of (unit)

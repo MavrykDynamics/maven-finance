@@ -472,18 +472,48 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MaxSatellites#1": secondPackedParam,
-                    "MaxSatellites#2": firstPackedParam,
-                    "MaxSatellites#3": firstPackedParam,
-                    "MaxSatellites#4": firstPackedParam,
-                    "MaxSatellites#5": firstPackedParam,
-                    "MaxSatellites#6": firstPackedParam,
-                    "MaxSatellites#7": firstPackedParam,
-                    "MaxSatellites#8": firstPackedParam,
-                    "MaxSatellites#9": firstPackedParam,
-                    "MaxSatellites#10": firstPackedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MaxSatellites#1",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#2",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#3",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#4",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#5",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#6",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#7",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#8",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#9",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#10",
+                        data: secondPackedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -491,6 +521,10 @@ describe("Governance proxy lambdas tests", async () => {
 
                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
                 await proposeOperation.confirmation();
+                var addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "MaxSatellites#11", secondPackedParam).send();
+                await addDataOperation.confirmation()
+                addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "MaxSatellites#5", firstPackedParam).send();
+                await addDataOperation.confirmation()
                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
                 await lockOperation.confirmation();
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
@@ -541,6 +575,8 @@ describe("Governance proxy lambdas tests", async () => {
                 delegationStorage           = await delegationInstance.storage();
                 const finalProposal         = await governanceStorage.proposalLedger.get(proposalId);
                 const finalMaxSatellites    = delegationStorage.config.maxSatellites;
+
+                console.dir(finalProposal, {depth: 5});
 
                 // Assertions
                 assert.equal(initProposal.executed, false)
@@ -606,18 +642,48 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MaxSatellites#1": secondPackedParam,
-                    "MaxSatellites#2": firstPackedParam,
-                    "MaxSatellites#3": firstPackedParam,
-                    "MaxSatellites#4": firstPackedParam,
-                    "MaxSatellites#5": firstPackedParam,
-                    "MaxSatellites#6": firstPackedParam,
-                    "MaxSatellites#7": firstPackedParam,
-                    "MaxSatellites#8": firstPackedParam,
-                    "MaxSatellites#9": firstPackedParam,
-                    "MaxSatellites#10": firstPackedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MaxSatellites#1",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#2",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#3",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#4",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#5",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#6",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#7",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#8",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#9",
+                        data: firstPackedParam
+                    },
+                    {
+                        title: "MaxSatellites#10",
+                        data: secondPackedParam
+                    }
+                ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -668,7 +734,7 @@ describe("Governance proxy lambdas tests", async () => {
         })
     })
 
-    describe("%addUpdatePaymentData", async() => {
+    describe("%updatePaymentData", async() => {
         beforeEach("Set signer to admin", async() => {
             await signerFactory(bob.sk)
         })
@@ -707,9 +773,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MaxSatellites#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MaxSatellites#1",
+                        data: packedParam
+                    }
+                ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -723,9 +792,9 @@ describe("Governance proxy lambdas tests", async () => {
                 const initProposal          = await governanceStorage.proposalLedger.get(proposalId);
 
                 // Add proposal data
-                var addPaymentDataOperation   = await governanceInstance.methods.addUpdatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()
+                var addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()
                 await addPaymentDataOperation.confirmation();
-                addPaymentDataOperation   = await governanceInstance.methods.addUpdatePaymentData(proposalId, "Payment#2", eve.pkh, "fa2", mvkTokenAddress.address, 0, MVK(20)).send()
+                addPaymentDataOperation   = await governanceInstance.methods.updatePaymentData(proposalId, "Payment#2", eve.pkh, "fa2", mvkTokenAddress.address, 0, MVK(20)).send()
                 await addPaymentDataOperation.confirmation();
 
                 // Final values
@@ -734,8 +803,8 @@ describe("Governance proxy lambdas tests", async () => {
 
                 // Assertions
                 assert.notEqual(finalProposal.paymentMetadata, initProposal.paymentMetadata);
-                assert.notStrictEqual(finalProposal.paymentMetadata.get("Payment#1"), undefined);
-                assert.notStrictEqual(finalProposal.paymentMetadata.get("Payment#2"), undefined);
+                assert.notStrictEqual(finalProposal.paymentMetadata.get("0"), undefined);
+                assert.notStrictEqual(finalProposal.paymentMetadata.get("1"), undefined);
             } catch(e) {
                 console.dir(e, {depth:5})
             }
@@ -775,9 +844,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MaxSatellites#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MaxSatellites#1",
+                        data: packedParam
+                    }
+                ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -788,7 +860,7 @@ describe("Governance proxy lambdas tests", async () => {
 
                 // Add proposal data
                 await signerFactory(eve.sk)
-                await chai.expect(governanceInstance.methods.addUpdatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()).to.be.rejected;                
+                await chai.expect(governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()).to.be.rejected;                
             } catch(e) {
                 console.dir(e, {depth:5})
             }
@@ -828,9 +900,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MaxSatellites#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MaxSatellites#1",
+                        data: packedParam
+                    }
+                ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -842,7 +917,7 @@ describe("Governance proxy lambdas tests", async () => {
                 await lockOperation.confirmation();
 
                 // Add proposal data
-                await chai.expect(governanceInstance.methods.addUpdatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()).to.be.rejected;                
+                await chai.expect(governanceInstance.methods.updatePaymentData(proposalId, "Payment#1", bob.pkh, "fa2", mvkTokenAddress.address, 0, MVK(50)).send()).to.be.rejected;                
             } catch(e) {
                 console.dir(e, {depth:5})
             }
@@ -868,28 +943,34 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalDesc          = "Details about new proposal";
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
-                const proposalPaymentData   = MichelsonMap.fromLiteral({
-                    "Payment#1": {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : MVK(50)
+                const proposalPaymentData   = [
+                    {
+                        title: "Payment#1",
+                        transaction: {
+                            "to_"    : bob.pkh,
+                            "token"  : {
+                                "fa2" : {
+                                    "tokenContractAddress" : mvkTokenAddress.address,
+                                    "tokenId" : 0
+                                }
+                            },
+                            "amount" : MVK(50)
+                        }
                     },
-                    "Payment#2": {
-                        "to_"    : eve.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : MVK(20)
-                    },
-                });
+                    {
+                        title: "Payment#2",
+                        transaction: {
+                            "to_"    : eve.pkh,
+                            "token"  : {
+                                "fa2" : {
+                                    "tokenContractAddress" : mvkTokenAddress.address,
+                                    "tokenId" : 0
+                                }
+                            },
+                            "amount" : MVK(20)
+                        }
+                    }
+                ];
 
                 // Update general map compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
@@ -913,9 +994,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MaxSatellites#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MaxSatellites#1",
+                        data: packedParam
+                    }
+                ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1025,9 +1109,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MaxSatellites#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MaxSatellites#1",
+                        data: packedParam
+                    }
+                ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1090,28 +1177,34 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalDesc          = "Details about new proposal";
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
-                const proposalPaymentData   = MichelsonMap.fromLiteral({
-                    "Payment#1": {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : MVK(50)
+                const proposalPaymentData   = [
+                    {
+                        title: "Payment#1",
+                        transaction: {
+                            "to_"    : bob.pkh,
+                            "token"  : {
+                                "fa2" : {
+                                    "tokenContractAddress" : mvkTokenAddress.address,
+                                    "tokenId" : 0
+                                }
+                            },
+                            "amount" : MVK(50)
+                        }
                     },
-                    "Payment#2": {
-                        "to_"    : eve.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : MVK(20)
-                    },
-                });
+                    {
+                        title: "Payment#2",
+                        transaction: {
+                            "to_"    : eve.pkh,
+                            "token"  : {
+                                "fa2" : {
+                                    "tokenContractAddress" : mvkTokenAddress.address,
+                                    "tokenId" : 0
+                                }
+                            },
+                            "amount" : MVK(20)
+                        }
+                    }
+                ];
 
                 // Update general map compiled params
                 const lambdaParams = governanceProxyInstance.methods.dataPackingHelper(
@@ -1135,9 +1228,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MaxSatellites#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MaxSatellites#1",
+                        data: packedParam
+                    }
+                ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1200,28 +1296,34 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalDesc          = "Details about new proposal";
                 const proposalIpfs          = "ipfs://QM123456789";
                 const proposalSourceCode    = "Proposal Source Code";
-                const proposalPaymentData   = MichelsonMap.fromLiteral({
-                    "Payment#1": {
-                        "to_"    : bob.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : MVK(50)
+                const proposalPaymentData   = [
+                    {
+                        title: "Payment#1",
+                        transaction: {
+                            "to_"    : bob.pkh,
+                            "token"  : {
+                                "fa2" : {
+                                    "tokenContractAddress" : mvkTokenAddress.address,
+                                    "tokenId" : 0
+                                }
+                            },
+                            "amount" : MVK(50)
+                        }
                     },
-                    "Payment#2": {
-                        "to_"    : eve.pkh,
-                        "token"  : {
-                            "fa2" : {
-                                "tokenContractAddress" : mvkTokenAddress.address,
-                                "tokenId" : 0
-                            }
-                        },
-                        "amount" : MVK(20)
-                    },
-                });
+                    {
+                        title: "Payment#2",
+                        transaction: {
+                            "to_"    : eve.pkh,
+                            "token"  : {
+                                "fa2" : {
+                                    "tokenContractAddress" : mvkTokenAddress.address,
+                                    "tokenId" : 0
+                                }
+                            },
+                            "amount" : MVK(20)
+                        }
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1338,9 +1440,12 @@ describe("Governance proxy lambdas tests", async () => {
                 throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "FirstFarm#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "FirstFarm#1",
+                        data: packedParam
+                    }
+                ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1451,10 +1556,17 @@ describe("Governance proxy lambdas tests", async () => {
                 throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "FirstFarm#1": packedParam,
-                    "FirstFarm#2": packedParam,
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "FirstFarm#1",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstFarm#2",
+                        data: packedParam
+                    }
+                ]
+                
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1549,9 +1661,12 @@ describe("Governance proxy lambdas tests", async () => {
                 throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Untrack#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Untrack#1",
+                        data: packedParam
+                    }
+                ]
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1640,9 +1755,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Track#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Track#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1752,9 +1870,12 @@ describe("Governance proxy lambdas tests", async () => {
                 throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "FirstTreasury#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "FirstTreasury#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1858,10 +1979,16 @@ describe("Governance proxy lambdas tests", async () => {
                 throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "FirstTreasury#1": packedParam,
-                    "FirstTreasury#2": packedParam,
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "FirstTreasury#1",
+                        data: packedParam
+                    },
+                    {
+                        title: "FirstTreasury#2",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -1956,9 +2083,12 @@ describe("Governance proxy lambdas tests", async () => {
                 throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Untrack#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Untrack#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2047,9 +2177,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Track#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Track#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2137,9 +2270,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Track#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Track#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2227,9 +2363,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "SetAdmin#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "SetAdmin#1",
+                        data: packedParam
+                    }
+                ];
 
                 //Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2301,14 +2440,13 @@ describe("Governance proxy lambdas tests", async () => {
                 const proposalSourceCode    = "Proposal Source Code";
 
                 // Set a contract governance compiled params
-                const proposalMetadata      = MichelsonMap.fromLiteral({});
+                const proposalMetadata      = [];
                 var generalCounter          = 0;
                 for (let entry of generalContracts){
                     // Get contract storage
                     var contract        = await utils.tezos.contract.at(entry[1]);
                     var storage:any     = await contract.storage();
 
-                    generalCounter++;
                     var entryName       = "Governance#"+generalCounter
 
                     // Check admin
@@ -2335,7 +2473,11 @@ describe("Governance proxy lambdas tests", async () => {
                         };
 
                         // Add new setGovernance data
-                        proposalMetadata.set(entryName, packedParam);
+                        proposalMetadata[generalCounter] = {
+                            title: entryName, 
+                            data: packedParam
+                        }
+                        generalCounter++;
                     }
                 }
 
@@ -2445,9 +2587,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Metadata#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Metadata#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2535,9 +2680,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Whitelist#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Whitelist#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2626,9 +2774,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "General#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "General#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2717,9 +2868,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Whitelist#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Whitelist#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2805,9 +2959,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Whitelist#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Whitelist#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2895,9 +3052,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "SuccessReward#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "SuccessReward#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -2984,9 +3144,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "Days#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "Days#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3074,9 +3237,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MaxSatellites#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MaxSatellites#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3164,9 +3330,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "ActionExpiryDays#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "ActionExpiryDays#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3254,9 +3423,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "VoteExpiryDays#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "VoteExpiryDays#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3344,9 +3516,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "ActionExpiryDays#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "ActionExpiryDays#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3433,9 +3608,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MinMvkAmount#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MinMvkAmount#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3525,9 +3703,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "RewardPerBlock#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "RewardPerBlock#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3619,9 +3800,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "InitFarm#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "InitFarm#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3714,9 +3898,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "CloseFarm#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "CloseFarm#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3817,9 +4004,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "TransferTreasury#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "TransferTreasury#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -3912,9 +4102,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "MintMvkAndTransferTreasury#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "MintMvkAndTransferTreasury#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4011,9 +4204,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "UpdateMvkOperatorsTreasury#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "UpdateMvkOperatorsTreasury#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4101,9 +4297,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "StakeMvkTreasury#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "StakeMvkTreasury#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4198,9 +4397,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "UnstakeMvkTreasury#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "UnstakeMvkTreasury#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4334,9 +4536,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "SetContractLambda#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "SetContractLambda#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4441,9 +4646,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "SetFactoryProductLambda#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "SetFactoryProductLambda#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4534,9 +4742,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "AddVestee#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "AddVestee#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4630,9 +4841,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "UpdateVestee#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "UpdateVestee#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4720,9 +4934,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "ToggleVesteeLock#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "ToggleVesteeLock#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
@@ -4808,9 +5025,12 @@ describe("Governance proxy lambdas tests", async () => {
                     throw `packing failed`
                 };
 
-                const proposalMetadata      = MichelsonMap.fromLiteral({
-                    "RemoveVestee#1": packedParam
-                });
+                const proposalMetadata      = [
+                    {
+                        title: "RemoveVestee#1",
+                        data: packedParam
+                    }
+                ];
 
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
