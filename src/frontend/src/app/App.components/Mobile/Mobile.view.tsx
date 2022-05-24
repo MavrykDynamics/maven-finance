@@ -1,4 +1,4 @@
-import * as React from 'react';
+import * as React from 'react'
 
 import {
   GlobalStyle,
@@ -10,10 +10,10 @@ import {
   MobilePlugText,
   SocialIconsWrapper,
   MobilePlugBottomWrapper,
-} from './Mobile.style';
+} from './Mobile.style'
 
-import { DiscordIcon, TwitterIcon, TelegramIcon, MediumIcon, GitHubIcon } from './assets/index';
-import { containerColor, medialeColor } from 'styles/colors';
+import { DiscordIcon, TwitterIcon, TelegramIcon, MediumIcon, GitHubIcon } from './assets/index'
+import { containerColor, darkPurpleColor } from 'styles/colors'
 
 export default function Mobile() {
   return (
@@ -23,12 +23,7 @@ export default function Mobile() {
         <MobilePlugLogoWrapper>
           <MobilePLugLogo src="./mobile-plug-logo.png" />
         </MobilePlugLogoWrapper>
-        <MobilePlugText
-          textSize={'22px'}
-          textColor={containerColor}
-          topMargin={'125px'}
-          topMarginMobile={'60px'}
-        >
+        <MobilePlugText textSize={'22px'} textColor={containerColor} topMargin={'125px'} topMarginMobile={'60px'}>
           Mobile and tablet version of our dapp is not available at this time.
         </MobilePlugText>
         <MobilePlugText textSize={'22px'} textColor={containerColor} topMargin={'10px'}>
@@ -52,19 +47,14 @@ export default function Mobile() {
               <GitHubIcon width="32px" height="32px" id="github-icon" />
             </SocialIconLink>
           </SocialIconsWrapper>
-          <MobilePlugText
-            textSize={'18px'}
-            textColor={medialeColor}
-            topMargin={'60px'}
-            topMarginMobile={'35px'}
-          >
-            Mavryk is a DAO operated financial ecosystem that lets users borrow and earn on their
-            terms, while participating in the governance of the platform.
+          <MobilePlugText textSize={'18px'} textColor={darkPurpleColor} topMargin={'60px'} topMarginMobile={'35px'}>
+            Mavryk is a DAO operated financial ecosystem that lets users borrow and earn on their terms, while
+            participating in the governance of the platform.
           </MobilePlugText>
 
           <MobilePlugText
             textSize={'18px'}
-            textColor={medialeColor}
+            textColor={darkPurpleColor}
             topMargin={'61px'}
             topMarginMobile={'35px'}
             fontWeight={'400'}
@@ -74,5 +64,5 @@ export default function Mobile() {
         </MobilePlugBottomWrapper>
       </MobilePlugWrapper>
     </MobilePlugBackground>
-  );
+  )
 }
