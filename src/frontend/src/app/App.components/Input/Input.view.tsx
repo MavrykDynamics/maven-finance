@@ -2,8 +2,15 @@ import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
 import { InputKind, InputStatusType } from './Input.controller'
-// prettier-ignore
-import { InputComponent, InputComponentContainer, InputErrorMessage, InputIcon, InputLabel, InputStatus, InputStyled } from './Input.style'
+import {
+  InputComponent,
+  InputComponentContainer,
+  InputErrorMessage,
+  InputIcon,
+  InputLabel,
+  InputStatus,
+  InputStyled,
+} from './Input.style'
 
 type InputViewProps = {
   icon?: string
