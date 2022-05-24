@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Extra, Field
 
@@ -31,6 +31,14 @@ class Config(BaseModel):
     proposalDescriptionMaxLength: str
     proposalInvoiceMaxLength: str
     proposalSourceCodeMaxLength: str
+
+
+class ProposalMetadatum(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    title: str
+    data: str
 
 
 class TokenItem(BaseModel):
@@ -62,13 +70,21 @@ class TokenItem2(BaseModel):
     tez: Dict[str, Any]
 
 
-class PaymentMetadata(BaseModel):
+class Transaction(BaseModel):
     class Config:
         extra = Extra.forbid
 
     to_: str
     token: Union[TokenItem, TokenItem1, TokenItem2]
     amount: str
+
+
+class PaymentMetadatum(BaseModel):
+    class Config:
+        extra = Extra.forbid
+
+    title: str
+    transaction: Transaction
 
 
 class PassVotersMap(BaseModel):
@@ -114,9 +130,9 @@ class ProposalLedger(BaseModel):
         extra = Extra.forbid
 
     proposerAddress: str
-    proposalMetadata: Dict[str, str]
+    proposalMetadata: Dict[str, Optional[ProposalMetadatum]]
     proposalMetadataExecutionCounter: str
-    paymentMetadata: Dict[str, PaymentMetadata]
+    paymentMetadata: Dict[str, Optional[PaymentMetadatum]]
     status: str
     title: str
     description: str

@@ -8,4 +8,4 @@ async def on_governance_process_proposal_payment(
     ctx: HandlerContext,
     process_proposal_payment: Transaction[ProcessProposalPaymentParameter, GovernanceStorage],
 ) -> None:
-    ...
+    breakpoint()
