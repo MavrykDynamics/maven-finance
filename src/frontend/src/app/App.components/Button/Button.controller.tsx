@@ -2,8 +2,8 @@ import * as PropTypes from 'prop-types'
 import * as React from 'react'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
+import { State } from 'reducers'
 
-import { State } from '../../../reducers'
 import { BUTTON, ButtonStyle, ButtonTypes, PRIMARY } from './Button.constants'
 import { ButtonView } from './Button.view'
 
