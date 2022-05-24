@@ -31,7 +31,7 @@ export class OracleConfig {
   public oracleWithdrawAddress: string;
 
   @Property({
-    default: CronExpression.EVERY_DAY_AT_MIDNIGHT,
+    default: '0 0 * * 0',
     env: 'ORACLE_WITHDRAW_CRON_STRING',
     format: String,
   })
