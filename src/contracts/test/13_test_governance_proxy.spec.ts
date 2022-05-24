@@ -515,20 +515,16 @@ describe("Governance proxy lambdas tests", async () => {
                     }
                 ];
 
-                console.log("SUBZOUSAST")
-                console.log("SUBZOUSAST")
-                console.log("SUBZOUSAST")
-                console.log("SUBZOUSAST")
-                console.log("SUBZOUSAST")
-                console.log("SUBZOUSAST")
-                console.log("SUBZOUSAST")
-
                 // Start governance rounds
                 var nextRoundOperation      = await governanceInstance.methods.startNextRound().send();
                 await nextRoundOperation.confirmation();
 
                 const proposeOperation      = await governanceInstance.methods.propose(proposalName, proposalDesc, proposalIpfs, proposalSourceCode, proposalMetadata).send({amount: 1});
                 await proposeOperation.confirmation();
+                var addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "MaxSatellites#11", secondPackedParam).send();
+                await addDataOperation.confirmation()
+                addDataOperation = await governanceInstance.methods.updateProposalData(proposalId, "MaxSatellites#5", firstPackedParam).send();
+                await addDataOperation.confirmation()
                 const lockOperation         = await governanceInstance.methods.lockProposal(proposalId).send();
                 await lockOperation.confirmation();
                 var voteOperation           = await governanceInstance.methods.proposalRoundVote(proposalId).send();
@@ -579,6 +575,8 @@ describe("Governance proxy lambdas tests", async () => {
                 delegationStorage           = await delegationInstance.storage();
                 const finalProposal         = await governanceStorage.proposalLedger.get(proposalId);
                 const finalMaxSatellites    = delegationStorage.config.maxSatellites;
+
+                console.dir(finalProposal, {depth: 5});
 
                 // Assertions
                 assert.equal(initProposal.executed, false)
