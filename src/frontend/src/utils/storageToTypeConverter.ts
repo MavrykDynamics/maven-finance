@@ -1,17 +1,33 @@
 import { MichelsonMap } from '@taquito/taquito'
 
-import treasuryAddress from '../deployments/treasuryAddress.json'
 import { ContractAddressesState } from '../reducers/contractAddresses'
-import { calcWithoutMu } from './calcFunctions'
+import { calcWithoutMu, calcWithoutPrecision } from './calcFunctions'
 import { setItemInStorage } from './storage'
 import { BreakGlassActionRecord, BreakGlassActionSigner, BreakGlassStorage } from './TypesAndInterfaces/BreakGlass'
 import { CouncilActionRecord, CouncilActionSigner, CouncilStorage } from './TypesAndInterfaces/Council'
-import { DelegateRecord, DelegationStorage, SatelliteFinancialRequestVotingHistory, SatelliteProposalVotingHistory, SatelliteRecord } from './TypesAndInterfaces/Delegation'
+import {
+  DelegateRecord,
+  DelegationStorage,
+  SatelliteFinancialRequestVotingHistory,
+  SatelliteProposalVotingHistory,
+  SatelliteRecord,
+} from './TypesAndInterfaces/Delegation'
 import { DoormanStorage } from './TypesAndInterfaces/Doorman'
-import { EmergencyGovernanceProposalRecord, EmergencyGovernanceStorage, EmergencyGovProposalVoter } from './TypesAndInterfaces/EmergencyGovernance'
+import {
+  EmergencyGovernanceProposalRecord,
+  EmergencyGovernanceStorage,
+  EmergencyGovProposalVoter,
+} from './TypesAndInterfaces/EmergencyGovernance'
 import { FarmStorage } from './TypesAndInterfaces/Farm'
 import { FarmFactoryStorage } from './TypesAndInterfaces/FarmFactory'
-import { FinancialRequestRecord, FinancialRequestVote, GovernanceStorage, ProposalRecordType, ProposalVote, SnapshotRecordType } from './TypesAndInterfaces/Governance'
+import {
+  FinancialRequestRecord,
+  FinancialRequestVote,
+  GovernanceStorage,
+  ProposalRecordType,
+  ProposalVote,
+  SnapshotRecordType,
+} from './TypesAndInterfaces/Governance'
 import { MvkTokenStorage } from './TypesAndInterfaces/MvkToken'
 import { VestingStorage } from './TypesAndInterfaces/Vesting'
 
@@ -69,6 +85,7 @@ export default function storageToTypeConverter(contract: string, storage: any): 
 
   return res
 }
+
 function convertToContractAddressesType(storage: any): ContractAddressesState {
   return {
     farmAddress: { address: storage.farm[0].address },
@@ -86,23 +103,25 @@ function convertToContractAddressesType(storage: any): ContractAddressesState {
 }
 
 function convertToDoormanStorageType(storage: any): DoormanStorage {
+  const totalStakedMvk = storage.stake_accounts_aggregate.aggregate.sum.smvk_balance
   return {
-    unclaimedRewards: calcWithoutMu(storage.unclaimed_rewards),
-    minMvkAmount: calcWithoutMu(storage.min_mvk_amount),
-    stakedMvkTotalSupply: calcWithoutMu(storage.smvk_total_supply),
+    unclaimedRewards: calcWithoutPrecision(storage.unclaimed_rewards),
+    minMvkAmount: calcWithoutPrecision(storage.min_mvk_amount),
+    totalStakedMvk: calcWithoutPrecision(totalStakedMvk),
     breakGlassConfig: {
       stakeIsPaused: storage.stake_paused,
       unstakeIsPaused: storage.unstake_paused,
       compoundIsPaused: storage.compound_paused,
+      farmClaimIsPaused: storage.farm_claimed_paused,
     },
-    accumulatedFeesPerShare: calcWithoutMu(storage.accumulated_fees_per_share),
+    accumulatedFeesPerShare: calcWithoutPrecision(storage.accumulated_fees_per_share),
   }
 }
 
 function convertToMvkTokenStorageType(storage: any): MvkTokenStorage {
   return {
-    totalSupply: calcWithoutMu(storage.total_supply),
-    maximumTotalSupply: calcWithoutMu(storage.maximum_supply),
+    totalSupply: calcWithoutPrecision(storage.total_supply),
+    maximumTotalSupply: calcWithoutPrecision(storage.maximum_supply),
   }
 }
 
@@ -183,7 +202,6 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
   //   satelliteMap.push(newSatelliteRecord)
   //   return true
   // })
-
   return {
     breakGlassConfig: {
       delegateToSatelliteIsPaused: storage.delegate_to_satellite_paused,
@@ -191,14 +209,21 @@ function convertToDelegationStorageType(storage: any): DelegationStorage {
       registerAsSatelliteIsPaused: storage.register_as_satellite_paused,
       unregisterAsSatelliteIsPaused: storage.unregister_as_satellite_paused,
       updateSatelliteRecordIsPaused: storage.update_satellite_record_paused,
+      distributeRewardPaused: storage.distribute_reward_paused,
     },
     config: {
       maxSatellites: storage.max_satellites,
       delegationRatio: storage.delegation_ratio,
       minimumStakedMvkBalance: calcWithoutMu(storage.minimum_smvk_balance),
+      satelliteNameMaxLength: storage.satellite_name_max_length,
+      satelliteDescriptionMaxLength: storage.satellite_description_max_length,
+      satelliteImageMaxLength: storage.satellite_image_max_length,
+      satelliteWebsiteMaxLength: storage.satellite_website_max_length,
     },
     delegateLedger: new MichelsonMap<string, DelegateRecord>(),
     satelliteLedger: satelliteMap,
+    numberActiveSatellites: storage.max_satellites,
+    totalDelegatedMVK: storage.max_satellites,
   }
 }
 
@@ -240,7 +265,7 @@ function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecor
         timestamp: new Date(vote.timestamp),
         vote: vote.vote,
         voterId: vote.voter_id,
-        votingPower: calcWithoutMu(vote.voting_power),
+        votingPower: calcWithoutPrecision(vote.voting_power),
         requestData: vote.governance_proposal_record,
       }
       proposalVotingHistory.push(newRequestVote)
@@ -263,7 +288,7 @@ function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecor
         timestamp: new Date(vote.timestamp),
         vote: vote.vote,
         voterId: vote.voter_id,
-        votingPower: calcWithoutMu(vote.voting_power),
+        votingPower: calcWithoutPrecision(vote.voting_power),
         requestData: vote.governance_financial_request,
       }
       financialRequestsVotes.push(newRequestVote)
@@ -275,19 +300,20 @@ function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecor
     website: satelliteRecord.website,
     participation: satelliteRecord.participation,
     image: satelliteRecord.image,
-    mvkBalance: calcWithoutMu(satelliteRecord.user.mvk_balance),
-    sMvkBalance: calcWithoutMu(satelliteRecord.user.smvk_balance),
+    mvkBalance: calcWithoutPrecision(satelliteRecord.user.mvk_balance),
+    sMvkBalance: calcWithoutPrecision(satelliteRecord.user.smvk_balance),
     name: satelliteRecord.name,
     registeredDateTime: new Date(satelliteRecord.registered_datetime),
     satelliteFee: parseFloat(satelliteRecord.fee),
     active: satelliteRecord.active,
-    totalDelegatedAmount: calcWithoutMu(totalDelegatedAmount),
+    totalDelegatedAmount: calcWithoutPrecision(totalDelegatedAmount),
     unregisteredDateTime: new Date(satelliteRecord.unregistered_datetime),
     proposalVotingHistory,
     financialRequestsVotes,
   }
   return newSatelliteRecord
 }
+
 function convertToFarmStorageType(storage: any): FarmStorage[] {
   const farms: FarmStorage[] = []
   storage.forEach((farmItem: any) => {
@@ -301,11 +327,11 @@ function convertToFarmStorageType(storage: any): FarmStorage[] {
       farmFactoryId: farmItem.farm_factory_id,
       infinite: farmItem.infinite,
       initBlock: farmItem.init_block,
-      accumulatedMvkPerShare: calcWithoutMu(farmItem.accumulated_mvk_per_share),
+      accumulatedMvkPerShare: calcWithoutPrecision(farmItem.accumulated_mvk_per_share),
       lastBlockUpdate: farmItem.last_block_update,
-      lpBalance: calcWithoutMu(farmItem.lp_balance),
+      lpBalance: calcWithoutPrecision(farmItem.lp_balance),
       lpToken: farmItem.lp_token,
-      rewardPerBlock: calcWithoutMu(farmItem.reward_per_block),
+      rewardPerBlock: calcWithoutPrecision(farmItem.reward_per_block),
       rewardsFromTreasury: farmItem.rewards_from_treasury,
       totalBlocks: farmItem.total_blocks,
     }
@@ -363,7 +389,7 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
       executedTimestamp: new Date(record.executed_timestamp),
       expirationTimestamp: new Date(record.expiration_timestamp),
       sMvkPercentageRequired: record.smvk_percentage_required / 100,
-      sMvkRequiredForTrigger: calcWithoutMu(record.smvk_required_for_trigger),
+      sMvkRequiredForTrigger: calcWithoutPrecision(record.smvk_required_for_trigger),
       voters,
     }
     eGovRecords.push(newEGovRecord)
@@ -372,13 +398,17 @@ function convertToEmergencyGovernanceStorageType(storage: any): EmergencyGoverna
     emergencyGovernanceLedger: eGovRecords,
     address: storage.address,
     config: {
-      minStakedMvkPercentageForTrigger: storage.min_smvk_required_to_trigger,
-      requiredFee: storage.required_fee / 100000,
-      voteDuration: storage.vote_expiry_days,
+      minStakedMvkRequiredToTrigger: storage.min_smvk_required_to_trigger,
+      minStakedMvkRequiredToVote: storage.min_smvk_required_to_vote,
+      requiredFeeMutez: calcWithoutMu(storage.required_fee_mutez),
+      voteExpiryDays: storage.vote_expiry_days,
       sMvkPercentageRequired: storage.smvk_percentage_required / 100,
+      proposalTitleMaxLength: 400,
+      proposalDescMaxLength: 400,
+      decimals: storage.decmials,
     },
-    currentEmergencyGovernanceId: storage.current_emergency_record_id,
-    nextEmergencyGovernanceProposalId: storage.next_emergency_record_id,
+    currentEmergencyGovernanceRecordId: storage.current_emergency_record_id,
+    nextEmergencyGovernanceRecordId: storage.next_emergency_record_id,
   }
 
   return eGovStorage
@@ -692,7 +722,7 @@ function convertGovernanceProposalVoteToInterface(
       timestamp: new Date(record.timestamp),
       vote: record.vote,
       voterId: record.voter_id,
-      votingPower: calcWithoutMu(record.voting_power),
+      votingPower: calcWithoutPrecision(record.voting_power),
     }
     proposalVotes.set(record.voter_id, newRequestVote)
   })

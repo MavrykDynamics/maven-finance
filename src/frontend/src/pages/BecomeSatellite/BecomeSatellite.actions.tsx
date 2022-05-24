@@ -1,6 +1,5 @@
 import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from 'app/App.components/Toaster/Toaster.constants'
-import delegationAddress from 'deployments/delegationAddress.json'
 import { getDelegationStorage } from 'pages/Satellites/Satellites.actions'
 import { State } from 'reducers'
 import { PRECISION_NUMBER } from '../../utils/constants'
@@ -27,8 +26,9 @@ export const registerAsSatellite =
       const contract = await state.wallet.tezos?.wallet.at(state.contractAddresses.delegationAddress.address)
       console.log('contract', contract)
 
+      console.log(form)
       const transaction = await contract?.methods
-        .registerAsSatellite(form.name, form.description, form.image, form.website, form.fee * PRECISION_NUMBER)
+        .registerAsSatellite(form.name, form.description, form.image, form.website, form.fee * 100)
         .send()
       console.log('transaction', transaction)
 
