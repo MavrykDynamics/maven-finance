@@ -26,6 +26,24 @@ block {
 
 
 
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage) : return is
+block {
+    
+    checkNoAmount(Unit);     // entrypoint should not receive any tez amount
+    checkSenderIsAllowed(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata lambda  *)
 function lambdaUpdateMetadata(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
 block{
@@ -45,8 +63,184 @@ block{
 
 } with (noOperations, s)
 
+
+
+(*  updateWhitelistContracts lambda *)
+function lambdaUpdateWhitelistContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+block {
+    
+    checkSenderIsAdmin(s);
+    
+    case aggregatorFactoryLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  updateGeneralContracts lambda *)
+function lambdaUpdateGeneralContracts(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+block {
+    
+    checkSenderIsAdmin(s);
+    
+    case aggregatorFactoryLambdaAction of [
+        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
 // ------------------------------------------------------------------------------
 // Housekeeping Lambdas End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(*  pauseAll lambda *)
+function lambdaPauseAll(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+block {
+
+    checkSenderIsAllowed(s);
+
+    var operations : list(operation) := nil;
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaPauseAll(_parameters) -> {
+                
+                // set all pause configs to True
+                if s.breakGlassConfig.createAggregatorIsPaused then skip
+                else s.breakGlassConfig.createAggregatorIsPaused := True;
+
+                if s.breakGlassConfig.trackAggregatorIsPaused then skip
+                else s.breakGlassConfig.trackAggregatorIsPaused := True;
+
+                if s.breakGlassConfig.untrackAggregatorIsPaused then skip
+                else s.breakGlassConfig.untrackAggregatorIsPaused := True;
+
+                for aggregatorAddress in set s.trackedAggregators
+                block {
+                    case (Tezos.get_entrypoint_opt("%pauseAll", aggregatorAddress): option(contract(unit))) of [
+                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                        |   None        -> skip
+                    ];
+                };
+
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  unpauseAll lambda *)
+function lambdaUnpauseAll(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+block {
+
+    checkSenderIsAllowed(s);
+
+    var operations: list(operation) := nil;
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaUnpauseAll(_parameters) -> {
+                
+                // set all pause configs to False
+                if s.breakGlassConfig.createAggregatorIsPaused then s.breakGlassConfig.createAggregatorIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.trackAggregatorIsPaused then s.breakGlassConfig.trackAggregatorIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.untrackAggregatorIsPaused then s.breakGlassConfig.untrackAggregatorIsPaused := False
+                else skip;
+
+                for aggregatorAddress in set s.trackedAggregators
+                block {
+                    case (Tezos.get_entrypoint_opt("%unpauseAll", aggregatorAddress): option(contract(unit))) of [
+                            Some(contr) -> operations := Tezos.transaction(Unit, 0tez, contr) # operations
+                        |   None        -> skip
+                    ];
+                };
+
+            }
+        | _ -> skip
+    ];
+    
+} with (operations, s)
+
+
+
+(*  togglePauseCreateAgg lambda *)
+function lambdaTogglePauseCreateAgg(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+block {
+
+    checkSenderIsAdmin(s);
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaTogglePauseCreateAgg(_parameters) -> {
+                
+                if s.breakGlassConfig.createAggregatorIsPaused then s.breakGlassConfig.createAggregatorIsPaused := False
+                else s.breakGlassConfig.createAggregatorIsPaused := True;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseUntrackAgg lambda *)
+function lambdaTogglePauseUntrackAgg(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+block {
+
+    checkSenderIsAdmin(s);
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaTogglePauseUntrackAgg(_parameters) -> {
+                
+                if s.breakGlassConfig.untrackAggregatorIsPaused then s.breakGlassConfig.untrackAggregatorIsPaused := False
+                else s.breakGlassConfig.untrackAggregatorIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseTrackAgg lambda *)
+function lambdaTogglePauseTrackAgg(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+block {
+
+    checkSenderIsAdmin(s);
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaTogglePauseTrackAgg(_parameters) -> {
+                
+                if s.breakGlassConfig.trackAggregatorIsPaused then s.breakGlassConfig.trackAggregatorIsPaused := False
+                else s.breakGlassConfig.trackAggregatorIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Lambdas End
 // ------------------------------------------------------------------------------
 
 
@@ -196,6 +390,7 @@ block {
                   
                   mvkTokenAddress           = s.mvkTokenAddress;
                   delegationAddress         = s.delegationAddress;
+                  governanceAddress         = s.governanceAddress;
 
                   round                     = 0n;
                   roundStart                = Tezos.now;

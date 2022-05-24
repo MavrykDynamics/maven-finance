@@ -5,42 +5,46 @@
   },
   {
     "index": 1,
-    "name": "lambdaUpdateMetadata"
+    "name": "lambdaSetGovernance"
   },
   {
     "index": 2,
-    "name": "lambdaUpdateConfig"
+    "name": "lambdaUpdateMetadata"
   },
   {
     "index": 3,
-    "name": "lambdaAddOracle"
+    "name": "lambdaUpdateConfig"
   },
   {
     "index": 4,
-    "name": "lambdaRemoveOracle"
+    "name": "lambdaAddOracle"
   },
   {
     "index": 5,
-    "name": "lambdaRequestRateUpdate"
+    "name": "lambdaRemoveOracle"
   },
   {
     "index": 6,
-    "name": "lambdaRequestRateUpdateDeviation"
+    "name": "lambdaRequestRateUpdate"
   },
   {
     "index": 7,
-    "name": "lambdaSetObservationCommit"
+    "name": "lambdaRequestRateUpdateDeviation"
   },
   {
     "index": 8,
-    "name": "lambdaSetObservationReveal"
+    "name": "lambdaSetObservationCommit"
   },
   {
     "index": 9,
-    "name": "lambdaWithdrawRewardXTZ"
+    "name": "lambdaSetObservationReveal"
   },
   {
     "index": 10,
+    "name": "lambdaWithdrawRewardXTZ"
+  },
+  {
+    "index": 11,
     "name": "lambdaWithdrawRewardMVK"
   }  
 ]

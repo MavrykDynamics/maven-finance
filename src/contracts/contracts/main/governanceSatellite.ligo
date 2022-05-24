@@ -161,6 +161,37 @@ block {
 
 
 // ------------------------------------------------------------------------------
+// Entrypoint Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+// helper function to get addOracle entrypoint in aggregator contract
+function getAddOracleInAggregatorEntrypoint(const contractAddress : address) : contract(address) is
+case (Tezos.get_entrypoint_opt(
+      "%addOracle",
+      contractAddress) : option(contract(address))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATE_CONTRACT_NOT_FOUND) : contract(address))
+];
+
+
+
+// helper function to get removeOracle entrypoint in aggregator contract
+function getRemoveOracleInAggregatorEntrypoint(const contractAddress : address) : contract(address) is
+case (Tezos.get_entrypoint_opt(
+      "%removeOracle",
+      contractAddress) : option(contract(address))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATE_CONTRACT_NOT_FOUND) : contract(address))
+];
+
+
+// ------------------------------------------------------------------------------
+// Entrypoint Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
 // Lambda Helper Functions Begin
 // ------------------------------------------------------------------------------
 
