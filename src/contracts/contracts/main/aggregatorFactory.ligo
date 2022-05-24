@@ -2,6 +2,12 @@
 // Common Types
 // ------------------------------------------------------------------------------
 
+// Whitelist Contracts: whitelistContractsType, updateWhitelistContractsParams 
+#include "../partials/whitelistContractsType.ligo"
+
+// General Contracts: generalContractsType, updateGeneralContractsParams
+#include "../partials/generalContractsType.ligo"
+
 // Set Lambda Types
 #include "../partials/functionalTypes/setLambdaTypes.ligo"
 
@@ -29,19 +35,29 @@ type aggregatorFactoryLambdaActionType is
 type aggregatorFactoryAction is
     
       // Housekeeping Entrypoints
-    | SetAdmin                    of setAdminParams
-    | UpdateMetadata              of updateMetadataType
+    | SetAdmin                        of setAdminParams
+    | SetGovernance                   of (address)
+    | UpdateMetadata                  of updateMetadataType
+    | UpdateWhitelistContracts        of updateWhitelistContractsParams
+    | UpdateGeneralContracts          of updateGeneralContractsParams
+
+      // Pause / Break Glass Entrypoints
+    | PauseAll                        of (unit)
+    | UnpauseAll                      of (unit)
+    | TogglePauseCreateAggregator     of (unit)
+    | TogglePauseTrackAggregator      of (unit)
+    | TogglePauseUntrackAggregator    of (unit)
 
       // Aggregator Factory Entrypoints
-    | UpdateAggregatorAdmin       of updateAggregatorAdminParamsType
-    | UpdateAggregatorConfig      of updateAggregatorConfigParamsType
-    | AddSatellite                of (address)
-    | BanSatellite                of (address)
-    | CreateAggregator            of createAggregatorParamsType
+    | UpdateAggregatorAdmin           of updateAggregatorAdminParamsType
+    | UpdateAggregatorConfig          of updateAggregatorConfigParamsType
+    | AddSatellite                    of (address)
+    | BanSatellite                    of (address)
+    | CreateAggregator                of createAggregatorParamsType
 
       // Lambda Entrypoints
-    | SetLambda                   of setLambdaType
-    | SetProductLambda            of setLambdaType
+    | SetLambda                       of setLambdaType
+    | SetProductLambda                of setLambdaType
     
 
 const noOperations : list (operation) = nil;
@@ -58,19 +74,8 @@ type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaAction
 //
 // ------------------------------------------------------------------------------
 
-[@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                             = 0n;
-[@inline] const error_ONLY_MAINTAINER_ALLOWED                                = 1n;
-[@inline] const error_ACTION_FAILED_AS_SATELLITE_IS_NOT_REGISTERED           = 2n;
-[@inline] const error_ENTRYPOINT_SHOULD_NOT_RECEIVE_TEZ                      = 3n;
-
-[@inline] const error_ADD_ORACLE_ENTRYPOINT_NOT_FOUND                        = 4n;
-[@inline] const error_REMOVE_ORACLE_ENTRYPOINT_NOT_FOUND                     = 5n;
-[@inline] const error_UPDATE_AGGREGATOR_CONFIG_ENTRYPOINT_NOT_FOUND          = 6n;
-[@inline] const error_UPDATE_ADMIN_ENTRYPOINT_NOT_FOUND                      = 7n;
-[@inline] const error_AGGREGATOR_IN_GET_AGGREGATOR_VIEW_NOT_FOUND            = 8n;
-
-[@inline] const error_LAMBDA_NOT_FOUND                                       = 9n;
-[@inline] const error_UNABLE_TO_UNPACK_LAMBDA                                = 10n;
+// Error Codes
+#include "../partials/errors.ligo"
 
 // ------------------------------------------------------------------------------
 //
@@ -89,6 +94,12 @@ type aggregatorFactoryUnpackLambdaFunctionType is (aggregatorFactoryLambdaAction
 // ------------------------------------------------------------------------------
 // Admin Helper Functions Begin
 // ------------------------------------------------------------------------------
+
+function checkSenderIsAllowed(var s : aggregatorFactoryStorage) : unit is
+    if (Tezos.sender = s.admin or Tezos.sender = s.governanceAddress) then unit
+        else failwith(error_ONLY_ADMINISTRATOR_OR_GOVERNANCE_ALLOWED);
+
+
 
 function checkSenderIsAdmin(const s: aggregatorFactoryStorage): unit is
   if Tezos.sender =/= s.admin then failwith(error_ONLY_ADMINISTRATOR_ALLOWED)
@@ -257,6 +268,25 @@ block{
 
 
 
+(*  setGovernance entrypoint *)
+function setGovernance(const newGovernanceAddress : address; var s : aggregatorFactoryStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaSetGovernance"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaSetGovernance(newGovernanceAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
+
+
 (*  updateMetadata entrypoint  *)
 function updateMetadata(const updateMetadataParams: updateMetadataType; const s: aggregatorFactoryStorage): return is
 block{
@@ -277,6 +307,110 @@ block{
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  pauseAll entrypoint *)
+function pauseAll(var s: aggregatorFactoryStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaPauseAll"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaPauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  unpauseAll entrypoint *)
+function unpauseAll(var s: aggregatorFactoryStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUnpauseAll"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUnpauseAll(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  togglePauseCreateAggregator entrypoint *)
+function togglePauseCreateAggregator(var s: aggregatorFactoryStorage): return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseCreateAgg"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseCreateFarm(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  togglePauseUntrackAggregator entrypoint *)
+function togglePauseUntrackAggregator(var s: aggregatorFactoryStorage): return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseUntrackAgg"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseUntrackAgg(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  togglePauseTrackAggregator entrypoint *)
+function togglePauseTrackAggregator(var s: aggregatorFactoryStorage): return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseTrackAgg"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseTrackAgg(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+
 
 
 // ------------------------------------------------------------------------------
@@ -434,17 +568,27 @@ function main (const action : aggregatorFactoryAction; const s : aggregatorFacto
     case action of [
 
         // Housekeeping Entrypoints
-      | SetAdmin (parameters)                 -> setAdmin(parameters, s)
-      | UpdateMetadata (parameters)           -> updateMetadata(parameters, s)
+      | SetAdmin (parameters)                       -> setAdmin(parameters, s)
+      | SetGovernance (parameters)                  -> setGovernance(parameters, s)
+      | UpdateMetadata (parameters)                 -> updateMetadata(parameters, s)
+      | UpdateWhitelistContracts (parameters)       -> updateWhitelistContracts(parameters, s)
+      | UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)
+
+        // Pause / Break Glass Entrypoints
+      | PauseAll (_parameters)                      -> pauseAll(s)
+      | UnpauseAll (_parameters)                    -> unpauseAll(s)
+      | TogglePauseCreateAggregator (_parameters)   -> togglePauseCreateAggregator(s)
+      | TogglePauseTrackAggregator (_parameters)    -> togglePauseTrackAggregator(s)
+      | TogglePauseUntrackAggregator (_parameters)  -> togglePauseUntrackAggregator(s)
 
         // Aggregator Factory Entrypoints  
-      | UpdateAggregatorAdmin (parameters)    -> updateAggregatorAdmin(parameters, s)
-      | UpdateAggregatorConfig (parameters)   -> updateAggregatorConfig(parameters, s)
-      | AddSatellite (parameters)             -> addSatellite(parameters, s)
-      | BanSatellite (parameters)             -> banSatellite(parameters, s)
-      | CreateAggregator (parameters)         -> createAggregator(parameters, s)
+      | UpdateAggregatorAdmin (parameters)          -> updateAggregatorAdmin(parameters, s)
+      | UpdateAggregatorConfig (parameters)         -> updateAggregatorConfig(parameters, s)
+      | AddSatellite (parameters)                   -> addSatellite(parameters, s)
+      | BanSatellite (parameters)                   -> banSatellite(parameters, s)
+      | CreateAggregator (parameters)               -> createAggregator(parameters, s)
 
         // Lambda Entrypoints
-      | SetLambda (parameters)                -> setLambda(parameters, s)
-      | SetProductLambda (parameters)         -> setProductLambda(parameters, s)
+      | SetLambda (parameters)                      -> setLambda(parameters, s)
+      | SetProductLambda (parameters)               -> setProductLambda(parameters, s)
     ]

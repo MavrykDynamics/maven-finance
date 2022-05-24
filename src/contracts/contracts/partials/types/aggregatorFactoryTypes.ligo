@@ -5,6 +5,12 @@ type lambdaLedgerType is map(string, bytes)
 type trackedAggregatorsType is map (string * string, address);
 type trackedSatelliteType is set (address);
 
+type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
+    createAggregatorIsPaused     : bool;
+    trackAggregatorIsPaused      : bool;
+    untrackAggregatorIsPaused    : bool;
+]
+
 type aggregatorMetadataType is [@layout:comb] record[
     name                     : string;
     description              : string;
@@ -14,8 +20,6 @@ type aggregatorMetadataType is [@layout:comb] record[
 
 type createAggregatorParamsType is string * string * [@layout:comb] record[
   oracleAddresses: oracleAddressesType;
-  mvkTokenAddress: address;
-  delegationAddress: address;
   aggregatorConfig: aggregatorConfigType;
   admin: adminType;
 ];
@@ -42,8 +46,16 @@ type updateAggregatorAdminParamsType is [@layout:comb] record [
 type aggregatorFactoryLambdaActionType is 
     
     // Housekeeping Lambdas
-  | LambdaSetAdmin                    of setAdminParams
+  | LambdaSetAdmin                    of (address)
+  | LambdaSetGovernance               of (address)
   | LambdaUpdateMetadata              of updateMetadataType
+
+      // Pause / Break Glass Entrypoints
+  | LambdaPauseAll                    of (unit)
+  | LambdaUnpauseAll                  of (unit)
+  | LambdaTogglePauseCreateAgg        of (unit)
+  | LambdaTogglePauseTrackAgg         of (unit)
+  | LambdaTogglePauseUntrackAgg       of (unit)
 
     // Aggregator Factory Lambdas
   | LambdaCreateAggregator            of createAggregatorParamsType
@@ -57,14 +69,19 @@ type aggregatorFactoryLambdaActionType is
 // ------------------------------------------------------------------------------
 
 type aggregatorFactoryStorage is [@layout:comb] record [
-    admin               : address;
-    metadata            : metadataType;
+    admin                   : address;
+    metadata                : metadataType;
+    breakGlassConfig        : aggregatorFactoryBreakGlassConfigType;
+
+    mvkTokenAddress         : address;
+    delegationAddress       : address;
+    governanceAddress       : address;
+
+    whitelistContracts      : whitelistContractsType;      
+    generalContracts        : generalContractsType;
     
-    mvkTokenAddress     : address;
-    delegationAddress   : address;
-    
-    trackedAggregators  : trackedAggregatorsType;
-    trackedSatellites   : trackedSatelliteType;
+    trackedAggregators      : trackedAggregatorsType;
+    trackedSatellites       : trackedSatelliteType;
 
     lambdaLedger            : lambdaLedgerType;
     aggregatorLambdaLedger  : lambdaLedgerType;

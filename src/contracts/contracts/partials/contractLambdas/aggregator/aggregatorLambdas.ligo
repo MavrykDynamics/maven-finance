@@ -26,6 +26,24 @@ block {
 
 
 
+(*  setGovernance lambda *)
+function lambdaSetGovernance(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
+block {
+    
+    checkNoAmount(Unit);     // entrypoint should not receive any tez amount
+    checkSenderIsAllowed(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaSetGovernance(newGovernanceAddress) -> {
+                s.governanceAddress := newGovernanceAddress;
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
 (*  updateMetadata lambda - update the metadata at a given key *)
 function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
 block {
@@ -52,7 +70,7 @@ block {
 function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    checkNoAmount(Unit);    // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
     checkSenderIsAdmin(s); // check that sender is admin
 
     case aggregatorLambdaAction of [
@@ -73,7 +91,8 @@ block {
     case aggregatorLambdaAction of [
         | LambdaAddOracle(oracleAddress) -> {
                 
-                if isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't add an already present whitelisted oracle")
+                // if isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't add an already present whitelisted oracle")
+                if isOracleAddress(oracleAddress, s.oracleAddresses) then skip
                 else block{
                   checkSenderIsAdmin(s);
                   const updatedWhiteListedContract: oracleAddressesType = Map.update(oracleAddress, Some( True), s.oracleAddresses);
@@ -95,7 +114,8 @@ block {
     case aggregatorLambdaAction of [
         | LambdaRemoveOracle(oracleAddress) -> {
                 
-                if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't remove a not present whitelisted oracle")
+                // if not isOracleAddress(oracleAddress, s.oracleAddresses) then failwith ("You can't remove a not present whitelisted oracle")
+                if not isOracleAddress(oracleAddress, s.oracleAddresses) then skip
                 else block{
                   checkSenderIsAdmin(s);
                   const updatedWhiteListedContract: oracleAddressesType = Map.remove(oracleAddress, s.oracleAddresses);
@@ -382,13 +402,13 @@ block{
                 const reward = getRewardAmountMVK(Tezos.sender, s) * s.config.rewardAmountMVK;
                 if (reward > 0n) then {
 
-                const newOracleRewards = Map.update(Tezos.sender, Some (0n), s.oracleRewardsMVK);
-                
-                const withdrawRewardMvkOperation : operation = transferFa2Token(Tezos.self_address, receiver, reward, 0n, s.mvkTokenAddress);
+                    const newOracleRewards = Map.update(Tezos.sender, Some (0n), s.oracleRewardsMVK);
+                    
+                    // const withdrawRewardMvkOperation : operation = transferFa2Token(Tezos.self_address, receiver, reward, 0n, s.mvkTokenAddress);
 
-                operations := withdrawRewardMvkOperation # operations;
+                    // operations := withdrawRewardMvkOperation # operations;
 
-                s.oracleRewardsMVK := newOracleRewards;
+                    // s.oracleRewardsMVK := newOracleRewards;
 
                 } else skip;
                 
