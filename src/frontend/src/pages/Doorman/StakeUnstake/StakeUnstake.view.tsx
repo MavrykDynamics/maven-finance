@@ -7,7 +7,6 @@ import { State } from 'reducers'
 
 import { ACTION_PRIMARY, ACTION_SECONDARY } from '../../../app/App.components/Button/Button.constants'
 import { Input } from '../../../app/App.components/Input/Input.controller'
-
 import {
   StakeUnstakeForm,
   StakeUnstakeFormInputStatus,
@@ -16,8 +15,7 @@ import {
 // helpers
 import { isValidNumberValue, mathRoundTwoDigit, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
 import { setExitFeeAmount } from '../ExitFeeModal/ExitFeeModal.actions'
-// actions
-import { rewardsCompound } from './StakeUnstake.actions'
+
 // style
 import {
   StakeCompound,
@@ -34,6 +32,7 @@ import {
   StakeUnstakeRate,
   StakeUnstakeStyled,
 } from './StakeUnstake.style'
+import { rewardsCompound } from '../Doorman.actions'
 
 type StakeUnstakeViewProps = {
   myMvkTokenBalance?: number
@@ -175,7 +174,7 @@ export const StakeUnstakeView = ({
   }
 
   const handleCompound = () => {
-    dispatch(rewardsCompound())
+    dispatch(rewardsCompound(user.myAddress))
   }
 
   const handleFocus = (e: any) => {

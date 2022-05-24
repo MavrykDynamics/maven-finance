@@ -11,6 +11,7 @@ export function calcMLI(totalMvkSupply: number | undefined, totalStakedMVK: numb
   const mli = (stakedMvkSupplyActual / (mvkSupplyActual | 1)) * 10
   return mli
 }
+
 export function calcExitFee(totalMvkSupply: number | undefined, totalStakedMVK: number | undefined): number {
   const mli = calcMLI(totalMvkSupply, totalStakedMVK) * 10 //Need to multiply by 10 again so the MLI is adjusted properly to reflect the Litepaper
   const fee = 500 / (mli + 5)
@@ -26,7 +27,12 @@ export function calcTimeToBlock(currentBlockLevel: number, endBlockLevel: number
   return daysUntilEndBlockReached
 }
 
-export function calcWithoutMu(amount: string): number {
+export function calcWithoutPrecision(amount: string): number {
   const numberMu = parseFloat(amount) || 0
   return numberMu > 0 ? numberMu / PRECISION_NUMBER : 0
+}
+
+export function calcWithoutMu(amount: string): number {
+  const numberMu = parseFloat(amount) || 0
+  return numberMu > 0 ? numberMu / 1000000 : 0
 }

@@ -1,8 +1,8 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
-import { useEffect, useState } from 'react'
 import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Page, PageContent } from 'styles'
 
@@ -14,7 +14,6 @@ import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constant
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
-
 import {
   RegisterAsSatelliteForm,
   RegisterAsSatelliteFormInputStatus,
@@ -23,7 +22,6 @@ import {
 import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
 import { SatelliteSideBar } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import { unregisterAsSatellite } from './BecomeSatellite.actions'
-
 import {
   BecomeSatelliteButttons,
   BecomeSatelliteForm,
@@ -69,7 +67,8 @@ export const BecomeSatelliteView = ({
 }: BecomeSatelliteViewProps) => {
   const dispatch = useDispatch()
   const [balanceOk, setBalanceOk] = useState(false)
-  const updateSatellite = usersSatellite?.address !== ''
+  const updateSatellite = usersSatellite && usersSatellite?.address !== ''
+
   const [form, setForm] = useState<RegisterAsSatelliteForm>(FORM_DEFAULT)
   const [validForm, setValidForm] = useState<ValidRegisterAsSatelliteForm>(FORM_VALID_DEFAULT)
   const [formInputStatus, setFormInputStatus] = useState<RegisterAsSatelliteFormInputStatus>({
