@@ -1,8 +1,8 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
-import { useEffect, useState } from 'react'
 import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Page, PageContent } from 'styles'
 
@@ -15,12 +15,22 @@ import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.contr
 import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 // prettier-ignore
-import { RegisterAsSatelliteForm, RegisterAsSatelliteFormInputStatus, ValidRegisterAsSatelliteForm } from '../../utils/TypesAndInterfaces/Forms'
+import {
+  RegisterAsSatelliteForm,
+  RegisterAsSatelliteFormInputStatus,
+  ValidRegisterAsSatelliteForm,
+} from '../../utils/TypesAndInterfaces/Forms'
 import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
 import { SatelliteSideBar } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import { unregisterAsSatellite } from './BecomeSatellite.actions'
 // prettier-ignore
-import { BecomeSatelliteButttons, BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteFormHorizontal, BecomeSatelliteFormTitle } from './BecomeSatellite.style'
+import {
+  BecomeSatelliteButttons,
+  BecomeSatelliteForm,
+  BecomeSatelliteFormBalanceCheck,
+  BecomeSatelliteFormHorizontal,
+  BecomeSatelliteFormTitle,
+} from './BecomeSatellite.style'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
@@ -58,7 +68,8 @@ export const BecomeSatelliteView = ({
 }: BecomeSatelliteViewProps) => {
   const dispatch = useDispatch()
   const [balanceOk, setBalanceOk] = useState(false)
-  const updateSatellite = usersSatellite?.address !== ''
+  const updateSatellite = usersSatellite && usersSatellite?.address !== ''
+
   const [form, setForm] = useState<RegisterAsSatelliteForm>(FORM_DEFAULT)
   const [validForm, setValidForm] = useState<ValidRegisterAsSatelliteForm>(FORM_VALID_DEFAULT)
   const [formInputStatus, setFormInputStatus] = useState<RegisterAsSatelliteFormInputStatus>({
@@ -264,7 +275,7 @@ export const BecomeSatelliteView = ({
               disabled={!balanceOk}
               value={form.fee}
               onChange={(e: any) => {
-                setForm({ ...form, fee: e.target.value })
+                setForm({ ...form, fee: Number(e.target.value) })
                 handleValidate('FEE')
               }}
               onBlur={(e: any) => handleValidate('FEE')}
