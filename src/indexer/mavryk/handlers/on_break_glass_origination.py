@@ -1,4 +1,5 @@
 
+from unicodedata import name
 from dipdup.models import Origination
 from dipdup.context import HandlerContext
 from mavryk.types.break_glass.storage import BreakGlassStorage
@@ -8,6 +9,7 @@ async def on_break_glass_origination(
     ctx: HandlerContext,
     break_glass_origination: Origination[BreakGlassStorage],
 ) -> None:
+
     # Get operation values
     address                             = break_glass_origination.data.originated_contract_address
     admin                               = break_glass_origination.storage.admin
@@ -26,7 +28,7 @@ async def on_break_glass_origination(
     await governance.save();
 
     # Create record
-    breakGlass  = models.BreakGlass(
+    break_glass  = models.BreakGlass(
         address                             = address,
         admin                               = admin,
         governance                          = governance,
@@ -38,11 +40,20 @@ async def on_break_glass_origination(
         glass_broken                        = glass_broken,
         action_counter                      = action_counter,
     )
-    await breakGlass.save()
+    await break_glass.save()
 
-    for member in council_members:
-        user, _ = await models.MavrykUser.get_or_create(
-            address = member
+    for member_address in council_members:
+        user, _             = await models.MavrykUser.get_or_create(
+            address = member_address
         )
-        user.break_glass    = breakGlass
         await user.save()
+
+        memberInfo          = council_members[member_address]
+        council_member      = await models.BreakGlassCouncilMember(
+            user        = user,
+            break_glass = break_glass,
+            name        = memberInfo.name,
+            website     = memberInfo.website,
+            image       = memberInfo.image
+        )
+        await council_member.save()

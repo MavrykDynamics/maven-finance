@@ -10,90 +10,70 @@ async def on_break_glass_sign_action(
     ctx: HandlerContext,
     sign_action: Transaction[SignActionParameter, BreakGlassStorage],
 ) -> None:
-    # Get operation values
-    breakGlassAddress                   = sign_action.data.target_address
-    signerAddress                       = sign_action.data.sender_address
-    breakGlassRecordID                  = int(sign_action.parameter.__root__)
-    breakGlassActionLedger              = sign_action.storage.actionsLedger
 
-    # Update action records
-    for key in breakGlassActionLedger:
-        actionRecord                    = breakGlassActionLedger[key]
-        actionRecordExecutedTimestamp   = parser.parse(actionRecord.executedDateTime)
-        actionRecordExecuted            = actionRecord.executed
-        actionRecordStatus              = actionRecord.status
+    # Get operation info
+    break_glass_address     = sign_action.data.target_address
+    signer_address          = sign_action.data.sender_address
+    action_id               = int(sign_action.parameter.__root__)
+    action_record_storage   = sign_action.storage.actionsLedger[sign_action.parameter.__root__]
+    signer_count            = int(action_record_storage.signersCount)
+    status                  = action_record_storage.status
+    executed                = action_record_storage.executed
+    executed_timestamp      = action_record_storage.executedDateTime
+    executed_level          = int(action_record_storage.executedLevel)
+    council_members         = sign_action.storage.councilMembers
+    admin                   = sign_action.storage.admin
+    glass_broken            = sign_action.storage.glassBroken
 
-        recordStatus    = models.ActionStatus.PENDING
-        if actionRecordStatus == 'FLUSHED':
-            recordStatus    = models.ActionStatus.FLUSHED
-        elif actionRecordStatus == 'EXECUTED':
-            recordStatus    = models.ActionStatus.EXECUTED
-        elif actionRecordStatus == 'EXPIRED':
-            recordStatus    = models.ActionStatus.EXPIRED
+    # Select correct status
+    status_type = models.ActionStatus.PENDING
+    if status == "FLUSHED":
+        status_type = models.ActionStatus.FLUSHED
+    elif status == "EXECUTED":
+        status_type = models.ActionStatus.EXECUTED
 
-        breakGlassRecord   = await models.BreakGlassActionRecord.get(
-            id  = key
-        )
-        breakGlassRecord.executed_datetime = actionRecordExecutedTimestamp
-        breakGlassRecord.executed          = actionRecordExecuted
-        breakGlassRecord.status            = recordStatus
-        await breakGlassRecord.save()
+    # Update record
+    break_glass                 = await models.BreakGlass.get(address   = break_glass_address)
+    break_glass.admin           = admin
+    break_glass.glass_broken    = glass_broken
+    await break_glass.save()
+    action_record           = await models.BreakGlassActionRecord.get(
+        break_glass = break_glass,
+        id          = action_id
+    )
+    action_record.status            = status_type
+    action_record.signers_count     = signer_count
+    action_record.executed          = executed
+    action_record.executed_datetime = parser.parse(executed_timestamp)
+    action_record.executed_level    = executed_level
+    await action_record.save()
 
-        # Change Members
-        if breakGlassRecord.executed:
-            breakGlass  = await models.BreakGlass.get(
-                address = breakGlassAddress
-            )
-            if breakGlassRecord.action_type == 'changeCouncilMember':
-                newCouncilMemberAddress    = sign_action.data.diffs[-1]['content']['value']['addressMap']['newCouncilMemberAddress']
-                oldCouncilMemberAddress    = sign_action.data.diffs[-1]['content']['value']['addressMap']['oldCouncilMemberAddress']
-
-                oldMember, _    = await models.MavrykUser.get_or_create(
-                    address = oldCouncilMemberAddress
-                )
-                oldMember.break_glass   = None
-                await oldMember.save()
-
-                newMember, _    = await models.MavrykUser.get_or_create(
-                    address = newCouncilMemberAddress
-                )
-                newMember.break_glass   = breakGlass
-                await newMember.save()
-            elif breakGlassRecord.action_type == 'addCouncilMember':
-                councilMemberAddress    = sign_action.data.diffs[-1]['content']['value']['addressMap']['councilMemberAddress']
-                councilMember, _        = await models.MavrykUser.get_or_create(
-                    address = councilMemberAddress
-                )
-                councilMember.break_glass   = breakGlass
-                await councilMember.save()
-            elif breakGlassRecord.action_type == 'removeCouncilMember':
-                councilMemberAddress    = sign_action.data.diffs[-1]['content']['value']['addressMap']['councilMemberAddress']
-                councilMember, _        = await models.MavrykUser.get_or_create(
-                    address = councilMemberAddress
-                )
-                councilMember.break_glass   = None
-                await councilMember.save()
-            elif breakGlassRecord.action_type == 'removeBreakGlassControl':
-                breakGlass = await models.BreakGlass.get(
-                    address = breakGlassAddress
-                )
-                breakGlassGlassBroken       = sign_action.storage.glassBroken
-                breakGlass.glass_broken     = breakGlassGlassBroken
-                await breakGlass.save()            
+    # Update council members
+    council_members_records         = await models.BreakGlassCouncilMember.all()
+    for council_member_record in council_members_records:
+        # Get user from council member
+        member_user     = await council_member_record.user.first()
         
-
-    # Sign action record
-    signedActionRecord  = await models.BreakGlassActionRecord.get(
-        id  = breakGlassRecordID
+        # Check if remove
+        if not member_user.address in council_members:
+            await council_member_record.delete()
+        else:
+            # Change or update records
+            member_info             = council_members[member_user.address]
+            updated_member, _       = await models.BreakGlassCouncilMember.get_or_create(
+                break_glass = break_glass,
+                user        = member_user
+            )
+            updated_member.name     = member_info.name
+            updated_member.website  = member_info.website 
+            updated_member.image    = member_info.image
+            await updated_member.save() 
+    
+    # Create signature record
+    user, _                 = await models.MavrykUser.get_or_create(address = signer_address)
+    await user.save()
+    signer_record           = await models.BreakGlassActionRecordSigner(
+        break_glass_action_record   = action_record,
+        signer                      = user
     )
-
-    signer, _  = await models.MavrykUser.get_or_create(
-        address = signerAddress
-    )
-    await signer.save()
-
-    breakGlassRecordSigner      = models.BreakGlassActionRecordSigner(
-        break_glass_action_record    = signedActionRecord,
-        signer                      = signer
-    )
-    await breakGlassRecordSigner.save()
+    await signer_record.save()

@@ -9,4 +9,5 @@ async def on_break_glass_unpause_all_entrypoints(
     ctx: HandlerContext,
     unpause_all_entrypoints: Transaction[UnpauseAllEntrypointsParameter, BreakGlassStorage],
 ) -> None:
+
     await persist_break_glass_action(unpause_all_entrypoints)
