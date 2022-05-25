@@ -13,7 +13,9 @@ import { getDelegationStorage } from '../Satellites/Satellites.actions'
 import { getGovernanceStorage, proposalRoundVote, votingRoundVote } from './Governance.actions'
 import { GovernanceView } from './Governance.view'
 import { GovernanceTopBar } from './GovernanceTopBar/GovernanceTopBar.controller'
-import { MOCK_PAST_PROPOSAL_LIST } from './mockProposals'
+
+// const
+import { MOCK_PAST_PROPOSAL_LIST, MOCK_ONGOING_PROPOSAL_LIST } from './mockProposals'
 
 export type VoteStatistics = {
   passVotesMVKTotal: number
@@ -177,8 +179,9 @@ export const Governance = () => {
         ready={ready}
         loading={loading}
         accountPkh={accountPkh}
-        // ongoingProposals={MOCK_ONGOING_PROPOSAL_LIST}
-        nextProposals={currentRoundProposals || undefined}
+        ongoingProposals={MOCK_ONGOING_PROPOSAL_LIST}
+        // nextProposals={currentRoundProposals || undefined}
+        nextProposals={MOCK_PAST_PROPOSAL_LIST}
         pastProposals={MOCK_PAST_PROPOSAL_LIST}
         handleProposalRoundVote={handleProposalRoundVote}
         handleVotingRoundVote={handleVotingRoundVote}
