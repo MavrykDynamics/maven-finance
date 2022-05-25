@@ -1,22 +1,23 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { OracleConfig } from './oracle.config';
-import { PriceService } from './price.service';
-import { CronExpression } from '@nestjs/schedule';
-import { OpKind } from '@taquito/taquito';
-import { AggregatorStorage } from '@mavryk-oracle-node/contracts';
-import { TxManagerService } from '@mavryk-oracle-node/tx-manager';
-import { Mutex } from 'async-mutex';
+import {Injectable, Logger, OnModuleInit} from '@nestjs/common';
+import {OracleConfig} from './oracle.config';
+import {PriceService} from './price.service';
+import {CronExpression} from '@nestjs/schedule';
+import {OpKind} from '@taquito/taquito';
+import {AggregatorStorage} from '@mavryk-oracle-node/contracts';
+import {TxManagerService} from '@mavryk-oracle-node/tx-manager';
+import {Mutex} from 'async-mutex';
 import BigNumber from 'bignumber.js';
-import { WalletParamsWithKind } from '@taquito/taquito/dist/types/wallet/wallet';
-import { CommonService } from './common.service';
-import { CommitStorageService } from './commit-storage.service';
-import { createHash } from 'crypto';
-import { CronJob } from 'cron';
+import {WalletParamsWithKind} from '@taquito/taquito/dist/types/wallet/wallet';
+import {CommonService} from './common.service';
+import {CommitStorageService} from './commit-storage.service';
+import {createHash} from 'crypto';
+import {CronJob} from 'cron';
 
 @Injectable()
 export class SetObservationService implements OnModuleInit {
   private readonly logger = new Logger(SetObservationService.name);
-  private mutex = new Mutex();
+  private commitMutex = new Mutex();
+  private revealMutex = new Mutex();
   private readonly workAtLoss;
   private cronJobCommit: CronJob;
   private cronJobReveal: CronJob;
@@ -44,7 +45,7 @@ export class SetObservationService implements OnModuleInit {
         }
       }
     );
-    this.cronJobReveal = new CronJob('*/3 * * * * *', async () => {
+    this.cronJobReveal = new CronJob(CronExpression.EVERY_5_SECONDS, async () => {
       try {
         await this.setObservationRevealIfNeeded();
       } catch (e) {
@@ -59,49 +60,53 @@ export class SetObservationService implements OnModuleInit {
   }
 
   private async setObservationCommitIfNeeded(): Promise<void> {
-    if (this.mutex.isLocked()) {
+    if (this.commitMutex.isLocked()) {
       return;
     }
 
     const aggregators = await this.commonService.getAggregatorsAddresses();
 
-    const ops = await Promise.all(
-      Array.from(aggregators.entries()).map(
-        async ([pair, aggregatorSmartContractAddress]) =>
-          this.getSetObservationCommitOpOrNull(
-            pair,
-            aggregatorSmartContractAddress
-          )
-      )
-    );
+    await this.commitMutex.runExclusive(async () => {
+      const pairAndOp = await Promise.all(
+        Array.from(aggregators.entries()).map(
+          async ([pair, aggregatorSmartContractAddress]) => {
+            return {
+              pair,
+              op: await this.getSetObservationCommitOpOrNull(
+                pair,
+                aggregatorSmartContractAddress
+              )
+            }
+          }
+        )
+      );
 
-    const notNullOps = this.commonService.filterNotNull(ops);
+      const notNullPairAndOps = this.commonService.filterNotNullOpPair(pairAndOp);
 
-    if (notNullOps.length === 0) {
-      return;
-    }
+      if (notNullPairAndOps.length === 0) {
+        return;
+      }
 
-    this.logger.log(
-      `Sending observationCommits: ${notNullOps.length} batched observation operations`
-    );
+      this.logger.verbose(
+        `Sending observationCommits: ${notNullPairAndOps.length} batched observation operations`
+      );
 
-    await this.mutex.runExclusive(async () => {
       const result = await this.txManagerService.addBatch(
         this.commonService.getPkh(),
-        notNullOps
+        notNullPairAndOps.map(pairAndOp => pairAndOp.op)
       );
       switch (result.type) {
         case 'success':
           this.logger.log(
-            `Sending observationCommits: Confirmed ${notNullOps.length} batched operations`
+            `Committed on ${notNullPairAndOps.length} pairs: ${notNullPairAndOps
+              .map(pairAndOp => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+              .join(', ')}`
           );
-          // this.toReveal = this.toReveal + notNullOps.length;
-          // console.log("this.toReveal: ",this.toReveal)
           break;
         case 'error':
           this.logger.error(
             `Sending observationCommits: Failed to send observationCommits (${
-              notNullOps.length
+              notNullPairAndOps.length
             } operations): ${result.error.toString()}`
           );
       }
@@ -109,7 +114,7 @@ export class SetObservationService implements OnModuleInit {
   }
 
   private async setObservationRevealIfNeeded(): Promise<void> {
-    if (this.mutex.isLocked()) {
+    if (this.revealMutex.isLocked()) {
       return;
     }
 
@@ -117,46 +122,51 @@ export class SetObservationService implements OnModuleInit {
     //   return;
     // }
 
-    const aggregators = await this.commonService.getAggregatorsAddresses();
 
-    const ops = await Promise.all(
-      Array.from(aggregators.entries()).map(
-        async ([pair, aggregatorSmartContractAddress]) =>
-          this.getSetObservationRevealOpOrNull(
-            pair,
-            aggregatorSmartContractAddress
-          )
-      )
-    );
+    await this.revealMutex.runExclusive(async () => {
+      const aggregators = await this.commonService.getAggregatorsAddresses();
 
-    const notNullOps = this.commonService.filterNotNull(ops);
+      const ops = await Promise.all(
+        Array.from(aggregators.entries()).map(
+          async ([pair, aggregatorSmartContractAddress]) => {
+            return {
+              pair,
+              op: await this.getSetObservationRevealOpOrNull(
+                pair,
+                aggregatorSmartContractAddress
+              )
+            }
+          }
+        )
+      );
 
-    if (notNullOps.length === 0) {
-      return;
-    }
+      const notNullPairAndOps = this.commonService.filterNotNullOpPair(ops);
 
-    this.logger.log(
-      `Sending observationReveals: ${notNullOps.length} batched observation operations`
-    );
+      if (notNullPairAndOps.length === 0) {
+        return;
+      }
 
-    await this.mutex.runExclusive(async () => {
+      this.logger.verbose(
+        `Sending observationReveals: ${notNullPairAndOps.length} batched observation operations`
+      );
+
       const result = await this.txManagerService.addBatch(
         this.commonService.getPkh(),
-        notNullOps
+        notNullPairAndOps.map(pairAndOp => pairAndOp.op)
       );
       switch (result.type) {
         case 'success':
           this.logger.log(
-            `Sending observationReveals: Confirmed ${notNullOps.length} batched operations`
+            `Revealed on ${notNullPairAndOps.length} pairs: ${notNullPairAndOps
+              .map(pairAndOp => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+              .join(', ')}`
           );
-          // this.toReveal = this.toReveal - notNullOps.length;
-          // console.log("this.toReveal: ",this.toReveal)
           break;
         case 'error':
           this.logger.error(
-            `Sending observationReveals: Failed to send observationReveals (${
-              notNullOps.length
-            } operations): ${result.error.toString()}`
+            `Failed to reveal on pairs: ${notNullPairAndOps
+              .map(pairAndOp => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+              .join(', ')}: ${result.error.toString()}`
           );
       }
     });
@@ -216,7 +226,7 @@ export class SetObservationService implements OnModuleInit {
       round,
       observationCommits,
       switchBlock,
-      config: { rewardAmountXTZ, decimals },
+      config: {rewardAmountXTZ, decimals},
     }: AggregatorStorage = await aggregator.storage();
 
     if (observationCommits === undefined || observationCommits === null) {
@@ -231,7 +241,7 @@ export class SetObservationService implements OnModuleInit {
     }
 
     const {
-      header: { level },
+      header: {level},
     } = await toolkit.rpc.getBlock();
 
     if (!switchBlock.eq(0) && switchBlock.lt(level)) {
@@ -239,8 +249,8 @@ export class SetObservationService implements OnModuleInit {
       return null;
     }
 
-    this.logger.log(
-      `New round detected on pair ${pair[0]}/${pair[1]}: ${round}`
+    this.logger.verbose(
+      `[${aggregatorSmartContractAddress}] New round detected on pair ${pair[0]}/${pair[1]}: ${round}`
     );
 
     const price = await this.priceService.getPrice(decimals, pair);
@@ -252,9 +262,8 @@ export class SetObservationService implements OnModuleInit {
       .digest('hex');
 
     this.logger.log(
-      `[${aggregatorSmartContractAddress}] Sending observationCommit on pair ${pair[0]}/${pair[1]}: ${price} for round ${round}`
+      `Committing ${price} for round ${round} on pair ${pair[0]}/${pair[1]}`
     );
-
 
     this.logger.debug(`[${aggregatorSmartContractAddress}] Sending setObservationCommit(${round}, hash(${price}, ${salt}, ${this.commonService.getPkh()}) = ${commitDataHash}`);
     const op = aggregator.methods
@@ -262,6 +271,8 @@ export class SetObservationService implements OnModuleInit {
       .toTransferParams();
 
     const estimate = await toolkit.estimate.transfer(op);
+
+    // TODO: this shoud also take into account that the reward is for commit + reveal, not just commit.
 
     if (rewardAmountXTZ.lt(new BigNumber(estimate.totalCost))) {
       this.logger.warn(
@@ -271,6 +282,7 @@ export class SetObservationService implements OnModuleInit {
       );
 
       if (!this.workAtLoss) {
+        this.logger.error('XTZ reward is too low, aborting commit');
         return null;
       }
     }
@@ -295,13 +307,13 @@ export class SetObservationService implements OnModuleInit {
       aggregatorSmartContractAddress
     );
 
-    const pkh = await this.commonService.getPkh();
+    const pkh = this.commonService.getPkh();
     const {
       round,
       switchBlock,
       observationCommits,
       observationReveals,
-      config: { rewardAmountXTZ },
+      config: {rewardAmountXTZ},
     }: AggregatorStorage = await aggregator.storage();
 
     if (
@@ -329,10 +341,12 @@ export class SetObservationService implements OnModuleInit {
     }
 
     if (observationReveals.has(pkh)) {
+      // Already revealed
       return null;
     }
 
     const blockResponse = await toolkit.rpc.getBlock();
+
     if (blockResponse.metadata.level_info?.level === undefined) {
       return null;
     }
@@ -345,8 +359,9 @@ export class SetObservationService implements OnModuleInit {
       round,
       aggregatorSmartContractAddress
     );
+
     if (commitData === null) {
-      this.logger.error(`Problem to retrieve commit data..`);
+      this.logger.error(`Problem to retrieve commit data...`);
       return null;
     }
 
@@ -354,11 +369,11 @@ export class SetObservationService implements OnModuleInit {
     const salt = commitData.salt;
 
     this.logger.log(
-      `[${aggregatorSmartContractAddress}] Sending observationReveal on pair ${pair[0]}/${pair[1]}: ${price} for round ${round}`
+      `Revealing price ${price} for round ${round} on pair ${pair[0]}/${pair[1]} (${aggregatorSmartContractAddress})`
     );
 
-
     this.logger.debug(`[${aggregatorSmartContractAddress}] Sending setObservationReveal(${round}, ${price}, ${salt}, ${pkh})`);
+
     const op = aggregator.methods
       .setObservationReveal(round, price, salt, pkh)
       .toTransferParams();

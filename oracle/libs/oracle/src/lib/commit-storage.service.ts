@@ -21,7 +21,7 @@ export class CommitStorageService implements OnModuleInit, OnModuleDestroy {
   private db: Database;
 
   constructor(private readonly oracleConfig: OracleConfig) {
-    this.logger.log(
+    this.logger.verbose(
       `Using file sqlite file: ${this.oracleConfig.commitDataDbFile}`
     );
   }
@@ -42,7 +42,7 @@ export class CommitStorageService implements OnModuleInit, OnModuleDestroy {
         )
       `);
 
-    this.logger.log('Database initialized');
+    this.logger.verbose('Database initialized');
   }
 
   async onModuleDestroy() {
