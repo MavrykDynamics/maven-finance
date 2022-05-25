@@ -8,4 +8,6 @@ async def on_governance_propagate_break_glass(
     ctx: HandlerContext,
     propagate_break_glass: Transaction[PropagateBreakGlassParameter, GovernanceStorage],
 ) -> None:
-    ...
+    
+    # Get operation info
+    breakpoint()

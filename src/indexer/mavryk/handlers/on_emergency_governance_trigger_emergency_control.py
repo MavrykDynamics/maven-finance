@@ -10,50 +10,55 @@ async def on_emergency_governance_trigger_emergency_control(
     ctx: HandlerContext,
     trigger_emergency_control: Transaction[TriggerEmergencyControlParameter, EmergencyGovernanceStorage],
 ) -> None:
+
     # Get operation values
-    emergencyAddress            = trigger_emergency_control.data.target_address
-    emergencyRecordKey          = int(trigger_emergency_control.data.diffs[-1]['content']['key'])
-    emergencyRecordDiffs        = trigger_emergency_control.data.diffs[-1]['content']['value']
-    emergencyTitle              = emergencyRecordDiffs['title']
-    emergencyDescription        = emergencyRecordDiffs['description']
-    emergencyProposer           = trigger_emergency_control.data.sender_address
-    emergencyStatus             = emergencyRecordDiffs['status']
-    emergencyExecuted           = emergencyRecordDiffs['executed']
-    emergencyDropped            = emergencyRecordDiffs['dropped']
-    emergencySMVKPercentage     = emergencyRecordDiffs['stakedMvkPercentageRequired']
-    emergencySMVKTrigger        = emergencyRecordDiffs['stakedMvkRequiredForTrigger']
-    emergencyStart              = parser.parse(emergencyRecordDiffs['startDateTime'])
-    emergencyExecuted           = parser.parse(emergencyRecordDiffs['executedDateTime'])
-    emergencyExpiration         = parser.parse(emergencyRecordDiffs['expirationDateTime'])
-    emergencyCurrent            = int(trigger_emergency_control.storage.currentEmergencyGovernanceId)
-    emergencyNext               = int(trigger_emergency_control.storage.nextEmergencyGovernanceProposalId)
+    emergency_address           = trigger_emergency_control.data.target_address
+    emergency_id                = int(trigger_emergency_control.storage.currentEmergencyGovernanceId)
+    emergency_next_id           = int(trigger_emergency_control.storage.nextEmergencyGovernanceId)
+    emergency_storage           = trigger_emergency_control.storage.emergencyGovernanceLedger[trigger_emergency_control.storage.currentEmergencyGovernanceId]
+    proposer_address            = emergency_storage.proposerAddress
+    executed                    = emergency_storage.executed
+    dropped                     = emergency_storage.dropped
+    title                       = emergency_storage.title
+    description                 = emergency_storage.description
+    total_smvk_votes            = emergency_storage.totalStakedMvkVotes
+    smvk_percentage_required    = float(emergency_storage.stakedMvkPercentageRequired)
+    smvk_required_for_trigger   = float(emergency_storage.stakedMvkRequiredForBreakGlass)
+    start_timestamp             = emergency_storage.startDateTime
+    start_level                 = int(emergency_storage.startLevel)
+    executed_timestamp          = emergency_storage.executedDateTime
+    executedLevel               = int(emergency_storage.executedLevel)
+    expiration_timestamp        = emergency_storage.expirationDateTime
     
     # Create record
     emergency  = await models.EmergencyGovernance.get(
-        address = emergencyAddress
+        address = emergency_address
     )
-    emergency.current_emergency_record_id   = emergencyCurrent
-    emergency.next_emergency_record_id      = emergencyNext
+    emergency.current_emergency_record_id   = int(emergency_id)
+    emergency.next_emergency_record_id      = int(emergency_next_id)
     await emergency.save()
 
     proposer, _ = await models.MavrykUser.get_or_create(
-        address = emergencyProposer
+        address = proposer_address
     )
     await proposer.save()
-    emergencyRecord = models.EmergencyGovernanceRecord(
-        id                              = emergencyRecordKey,
+
+    emergency_record = models.EmergencyGovernanceRecord(
+        id                              = emergency_id,
         emergency_governance            = emergency,
         proposer                        = proposer,
-        status                          = emergencyStatus,
-        executed                        = emergencyExecuted,
-        dropped                         = emergencyDropped,
-        title                           = emergencyTitle,
-        description                     = emergencyDescription,
-        smvk_percentage_required        = emergencySMVKPercentage,
-        smvk_required_for_trigger       = emergencySMVKTrigger,
-        start_timestamp                 = emergencyStart,
-        executed_timestamp              = emergencyExecuted,
-        expiration_timestamp            = emergencyExpiration
+        executed                        = executed,
+        dropped                         = dropped,
+        title                           = title,
+        description                     = description,
+        total_smvk_votes                = total_smvk_votes,
+        smvk_percentage_required        = smvk_percentage_required,
+        smvk_required_for_trigger       = smvk_required_for_trigger,
+        start_timestamp                 = start_timestamp,
+        executed_timestamp              = executed_timestamp,
+        expiration_timestamp            = expiration_timestamp,
+        start_level                     = start_level,
+        executed_level                  = executedLevel
     )
-    await emergencyRecord.save()
+    await emergency_record.save()
     
