@@ -241,10 +241,14 @@ function convertToSatelliteRecordsInterface(satelliteRecordObject: any): Satelli
 }
 
 function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecord {
-  const totalDelegatedAmount = satelliteRecord.delegation_records.reduce(
+  
+  console.log('%c ||||| satelliteRecord', 'color:yellowgreen', satelliteRecord);
+  const totalDelegatedAmount = satelliteRecord ? satelliteRecord.delegation_records.reduce(
     (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
     0,
-  )
+  ) : 0
+
+  console.log('%c ||||| totalDelegatedAmount', 'color:blue', totalDelegatedAmount);
   const proposalVotingHistory: SatelliteProposalVotingHistory[] = [],
     financialRequestsVotes: SatelliteFinancialRequestVotingHistory[] = []
 

@@ -45,10 +45,11 @@ async function fetchGraphQL(operationsDoc: string, operationName: string, variab
   //   }),
   // })
   // return await result.json()
-  const gqlAPINetwork =
-    process.env.NODE_ENV === 'development' ? process.env.REACT_APP_DEV_GRAPHQL_API : process.env.REACT_APP_GRAPHQL_API
+  const developmentAPI = process.env.REACT_APP_DEV_GRAPHQL_API || 'https://api-dev.mavryk.finance/v1/graphql'
+  const prodictionAPI = process.env.REACT_APP_GRAPHQL_API || 'https://api.mavryk.finance/v1/graphql'
+  const gqlAPINetwork = process.env.NODE_ENV === 'development' ? developmentAPI : prodictionAPI
   return new Promise<any>((resolve, reject) => {
-    fetch(gqlAPINetwork || 'https://api.mavryk.finance/v1/graphql', {
+    fetch(gqlAPINetwork, {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
