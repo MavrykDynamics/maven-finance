@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, cianColor } from 'styles'
+import { Card, cyanColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -43,12 +43,12 @@ export const GovTopBarEmergencyGovText = styled.div<{ theme: MavrykTheme }>`
 `
 export const TimeLeftArea = styled.div<{ theme: MavrykTheme }>`
   border: 1px solid;
-  border-left-color: ${cianColor};
+  border-left-color: ${cyanColor};
   border-right: none;
   border-top: none;
   border-bottom: none;
   padding: 5px 0 5px 10px;
-  color: ${cianColor};
+  color: ${cyanColor};
   font-weight: 800;
   font-size: 18px;
 `

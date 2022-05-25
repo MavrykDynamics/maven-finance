@@ -1,6 +1,6 @@
 import styled, { keyframes } from 'styled-components/macro'
 
-import { darkCianColor, darkColor, primaryColor } from '../../../styles'
+import { royalPurpleColor, darkColor, primaryColor } from '../../../styles'
 import { BUTTON_RADIUS } from '../../../styles/constants'
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -24,7 +24,7 @@ export const clickSlide = keyframes`
 `
 export const SlidingTabButtonsStyled = styled.div<{ theme: MavrykTheme }>`
   background-color: ${darkColor};
-  border: 1px solid ${darkCianColor};
+  border: 1px solid ${royalPurpleColor};
   display: flex;
   justify-content: space-evenly;
   align-items: center;

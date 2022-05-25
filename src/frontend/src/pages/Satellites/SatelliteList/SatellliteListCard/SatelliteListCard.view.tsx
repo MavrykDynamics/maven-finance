@@ -11,8 +11,21 @@ import { RoutingButton } from '../../../../app/App.components/RoutingButton/Rout
 import { DOWN } from '../../../../app/App.components/StatusFlag/StatusFlag.constants'
 import { StatusFlag } from '../../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { SatelliteRecord } from '../../../../utils/TypesAndInterfaces/Delegation'
-// prettier-ignore
-import { SatelliteCard, SatelliteCardButtons, SatelliteCardInner, SatelliteCardRow, SatelliteCardTopRow, SatelliteMainText, SatelliteProfileDetails, SatelliteProfileImage, SatelliteProfileImageContainer, SatelliteSubText, SatelliteTextGroup, SideBySideImageAndText } from './SatelliteListCard.style'
+
+import {
+  SatelliteCard,
+  SatelliteCardButtons,
+  SatelliteCardInner,
+  SatelliteCardRow,
+  SatelliteCardTopRow,
+  SatelliteMainText,
+  SatelliteProfileDetails,
+  SatelliteProfileImage,
+  SatelliteProfileImageContainer,
+  SatelliteSubText,
+  SatelliteTextGroup,
+  SideBySideImageAndText,
+} from './SatelliteListCard.style'
 
 type SatelliteListCardViewProps = {
   satellite: SatelliteRecord

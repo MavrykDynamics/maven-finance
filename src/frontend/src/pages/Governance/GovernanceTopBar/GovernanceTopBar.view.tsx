@@ -2,8 +2,14 @@ import * as React from 'react'
 
 import { Button } from '../../../app/App.components/Button/Button.controller'
 import { GovernancePhase } from '../../../reducers/governance'
-// prettier-ignore
-import { GovernanceTopBarStyled, GovTopBarEmergencyGovText, GovTopBarPhaseText, GovTopBarSidewaysArrowIcon, TimeLeftArea } from './GovernanceTopBar.style'
+
+import {
+  GovernanceTopBarStyled,
+  GovTopBarEmergencyGovText,
+  GovTopBarPhaseText,
+  GovTopBarSidewaysArrowIcon,
+  TimeLeftArea,
+} from './GovernanceTopBar.style'
 
 export type GovernanceTopBarViewProps = {
   loading: boolean

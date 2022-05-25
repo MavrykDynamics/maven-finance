@@ -5,8 +5,16 @@ import * as React from 'react'
 import { CommaNumber } from '../../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { VoteStatistics } from '../../Governance.controller'
 import { VotingBarStatus } from './VotingBar.constants'
-// prettier-ignore
-import { NotYetVoted, QuorumBar, VotingAbstention, VotingAgainst, VotingBarStyled, VotingContainer, VotingFor } from './VotingBar.style'
+
+import {
+  NotYetVoted,
+  QuorumBar,
+  VotingAbstention,
+  VotingAgainst,
+  VotingBarStyled,
+  VotingContainer,
+  VotingFor,
+} from './VotingBar.style'
 
 type VotingViewProps = {
   status: VotingBarStatus

@@ -42,7 +42,7 @@ export const Farms = () => {
     setSortBy(sortValue)
     if (sortValue !== 'null') {
       setFarmsList((data: any[]) => {
-        const dataToSort = [...data]
+        const dataToSort = data ? [...data] : []
         dataToSort.sort((a: any, b: any) => {
           let res = 0
           switch (sortValue) {

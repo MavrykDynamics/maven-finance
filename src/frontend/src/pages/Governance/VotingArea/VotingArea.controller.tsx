@@ -3,7 +3,7 @@ import { SUBMIT } from '../../../app/App.components/Button/Button.constants'
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import * as React from 'react'
 import { VotingAreaStyled, VotingButtonsContainer } from './VotingArea.style'
-import { connect } from '../../../app/App.components/Menu/Menu.actions'
+import { connect } from '../../../app/App.components/ConnectWallet/ConnectWallet.actions'
 import { useDispatch, useSelector } from 'react-redux'
 import { NoWalletConnectedButton } from '../../../app/App.components/ConnectWallet/ConnectWallet.view'
 import { ConnectWalletStyled } from 'app/App.components/ConnectWallet/ConnectWallet.style'
@@ -35,7 +35,7 @@ export const VotingArea = ({
   const { governanceStorage, governancePhase } = useSelector((state: State) => state.governance)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
-  const { satelliteLedger } = delegationStorage
+  const satelliteLedger = delegationStorage?.satelliteLedger
   const accountPkhIsSatellite =
     satelliteLedger?.filter((satellite: SatelliteRecord) => satellite.address === accountPkh)[0] !== undefined
 

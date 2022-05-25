@@ -1,8 +1,8 @@
 import styled from 'styled-components/macro'
 
-import { skyColor } from '../../../styles'
-import { BUTTON_RADIUS } from '../../../styles/constants'
-import { MavrykTheme } from '../../../styles/interfaces'
+import { skyColor } from 'styles'
+import { BUTTON_RADIUS } from 'styles/constants'
+import { MavrykTheme } from 'styles/interfaces'
 
 export const ConnectWalletStyled = styled.div<{ theme: MavrykTheme }>`
   text-align: center;
