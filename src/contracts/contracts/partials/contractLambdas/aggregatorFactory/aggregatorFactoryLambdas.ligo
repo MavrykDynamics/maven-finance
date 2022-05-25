@@ -33,7 +33,7 @@ block {
     checkNoAmount(Unit);     // entrypoint should not receive any tez amount
     checkSenderIsAllowed(s);
 
-    case aggregatorLambdaAction of [
+    case aggregatorFactoryLambdaAction of [
         | LambdaSetGovernance(newGovernanceAddress) -> {
                 s.governanceAddress := newGovernanceAddress;
             }
@@ -239,6 +239,46 @@ block {
 } with (noOperations, s)
 
 
+
+(*  togglePauseDisRewardXtz lambda *)
+function lambdaTogglePauseDisRewardXtz(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+block {
+
+    checkSenderIsAdmin(s);
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaTogglePauseDisRewardXtz(_parameters) -> {
+                
+                if s.breakGlassConfig.distributeRewardXtzIsPaused then s.breakGlassConfig.distributeRewardXtzIsPaused := False
+                else s.breakGlassConfig.distributeRewardXtzIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseDisRewardSMvk lambda *)
+function lambdaTogglePauseDisRewardSMvk(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s : aggregatorFactoryStorage): return is
+block {
+
+    checkSenderIsAdmin(s);
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaTogglePauseDisRewardSMvk(_parameters) -> {
+                
+                if s.breakGlassConfig.distributeRewardMvkIsPaused then s.breakGlassConfig.distributeRewardMvkIsPaused := False
+                else s.breakGlassConfig.distributeRewardMvkIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Lambdas End
 // ------------------------------------------------------------------------------
@@ -250,100 +290,103 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  updateAggregatorAdmin lambda  *)
-function lambdaUpdateAggregatorAdmin(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
-block{
+// function lambdaUpdateAggregatorAdmin(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+// block{
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case aggregatorFactoryLambdaAction of [
-        | LambdaUpdateAggregatorAdmin(updateAggregatorAdminParams) -> {
-                checkSenderIsAdmin(s);
-                const updateAggregatorAdminOperation = updateAggregatorAdminOperation(updateAggregatorAdminParams.satelliteAddress, updateAggregatorAdminParams.adminAddress);
-                operations := updateAggregatorAdminOperation # operations;
-            }
-        | _ -> skip
-    ];    
+//     case aggregatorFactoryLambdaAction of [
+//         | LambdaUpdateAggregatorAdmin(updateAggregatorAdminParams) -> {
+//                 checkSenderIsAdmin(s);
+//                 const updateAggregatorAdminOperation = updateAggregatorAdminOperation(updateAggregatorAdminParams.satelliteAddress, updateAggregatorAdminParams.adminAddress);
+//                 operations := updateAggregatorAdminOperation # operations;
+//             }
+//         | _ -> skip
+//     ];    
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
 (*  updateAggregatorConfig lambda  *)
-function lambdaUpdateAggregatorConfig(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
-block{
+// function lambdaUpdateAggregatorConfig(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+// block{
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
     
-    case aggregatorFactoryLambdaAction of [
-        | LambdaUpdateAggregatorConfig(updateAggregatorConfigParams) -> {
-                checkSenderIsAdmin(s);
-                const updateAggregatorConfigOperation = updateAggregatorConfigOperation(updateAggregatorConfigParams.satelliteAddress, updateAggregatorConfigParams.aggregatorConfig);
-                operations := updateAggregatorConfigOperation # operations;
-            }
-        | _ -> skip
-    ];
+//     case aggregatorFactoryLambdaAction of [
+//         | LambdaUpdateAggregatorConfig(updateAggregatorConfigParams) -> {
+//                 checkSenderIsAdmin(s);
+//                 const updateAggregatorConfigOperation = updateAggregatorConfigOperation(updateAggregatorConfigParams.satelliteAddress, updateAggregatorConfigParams.aggregatorConfig);
+//                 operations := updateAggregatorConfigOperation # operations;
+//             }
+//         | _ -> skip
+//     ];
 
-} with (operations,s)
+// } with (operations,s)
 
 
 
 (*  addSatellite lambda  *)
-function lambdaAddSatellite(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
-block{
+// function lambdaAddSatellite(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+// block{
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case aggregatorFactoryLambdaAction of [
-        | LambdaAddSatellite(satelliteAddress) -> {
+//     case aggregatorFactoryLambdaAction of [
+//         | LambdaAddSatellite(satelliteAddress) -> {
                 
-                checkSenderIsAdmin(s);
-                const newSet: trackedSatelliteType = Set.add (satelliteAddress, s.trackedSatellites);
+//                 checkSenderIsAdmin(s);
+//                 const newSet: trackedSatelliteType = Set.add (satelliteAddress, s.trackedSatellites);
                 
-                for _key -> value in map s.trackedAggregators block {
-                    const operation = addOracleOperation(value, satelliteAddress);
-                    operations := operation # operations;
-                };
+//                 for _key -> value in map s.trackedAggregators block {
+//                     const operation = addOracleOperation(value, satelliteAddress);
+//                     operations := operation # operations;
+//                 };
 
-                s.trackedSatellites := newSet;
+//                 s.trackedSatellites := newSet;
 
-            }
-        | _ -> skip
-    ];
+//             }
+//         | _ -> skip
+//     ];
 
-} with (operations, s)
+// } with (operations, s)
 
 
 
 (*  banSatellite lambda  *)
-function lambdaBanSatellite(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
-block{
+// function lambdaBanSatellite(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+// block{
 
-    var operations : list(operation) := nil;
+//     var operations : list(operation) := nil;
 
-    case aggregatorFactoryLambdaAction of [
-        | LambdaBanSatellite(satelliteAddress) -> {
+//     case aggregatorFactoryLambdaAction of [
+//         | LambdaBanSatellite(satelliteAddress) -> {
                 
-                checkSenderIsAdmin(s);
-                checkIfAddressContainInTrackedSatelliteSet(satelliteAddress, s.trackedSatellites);
+//                 checkSenderIsAdmin(s);
+//                 checkIfAddressContainInTrackedSatelliteSet(satelliteAddress, s.trackedSatellites);
 
-                const newSet: trackedSatelliteType = Set.remove (satelliteAddress, s.trackedSatellites);
+//                 const newSet: trackedSatelliteType = Set.remove (satelliteAddress, s.trackedSatellites);
                 
-                for _key -> value in map s.trackedAggregators block {
-                    const operation = removeOracleOperation(value, satelliteAddress);
-                    operations := operation # operations;
-                };
+//                 for _key -> value in map s.trackedAggregators block {
+//                     const operation = removeOracleOperation(value, satelliteAddress);
+//                     operations := operation # operations;
+//                 };
 
-                s.trackedSatellites := newSet;
-            }
-        | _ -> skip
-    ];
+//                 s.trackedSatellites := newSet;
+//             }
+//         | _ -> skip
+//     ];
 
-} with (operations, s)
+// } with (operations, s)
 
 
 (*  createAggregator lambda  *)
 function lambdaCreateAggregator(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
 block {
+
+    // break glass check
+    checkCreateAggregatorIsNotPaused(s);
 
     var operations : list(operation) := nil;
 
@@ -353,20 +396,31 @@ block {
                 checkSenderIsAdmin(s);
 
                 // createAggregator parameters declaration
-                const observationCommits: observationCommitsType = map[];
-                const observationReveals: observationRevealsType = map[];
+                const observationCommits  : observationCommitsType  = map[];
+                const observationReveals  : observationRevealsType  = map[];
                 const lastCompletedRoundPrice = record[
                       round= 0n;
                       price= 0n;
                       percentOracleResponse= 0n;
                       priceDateTime= Tezos.now;
                   ];
-                const oracleRewardsXTZ: oracleRewardsXTZType = map[];
-                const oracleRewardsMVK: oracleRewardsMVKType = map[];
-                const deviationTriggerInfos: deviationTriggerInfosType = record[
+                const oracleRewardXtz        : oracleRewardXtzType        = map[];
+                const oracleRewardStakedMvk  : oracleRewardStakedMvkType  = map[];
+                const deviationTriggerInfos  : deviationTriggerInfosType  = record[
                   oracleAddress=Tezos.sender;
                   amount=0tez;
                   roundPrice=0n;
+                ];
+
+                const aggregatorWhitelistContracts : whitelistContractsType = map[
+                    ("aggregatorFactory")  -> (Tezos.self_address: address);
+                ];
+                const delegationAddress : address = case s.generalContracts["delegation"] of [ 
+                        Some (_address) -> _address
+                    |   None            -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+                const aggregatorGeneralContracts : generalContractsType = map[
+                    ("delegation") -> (delegationAddress: address)
                 ];
 
                 const aggregatorLambdaLedger : map(string, bytes) = s.aggregatorLambdaLedger;
@@ -380,6 +434,14 @@ block {
                 const aggregatorMetadata : metadataType = Big_map.literal (list [
                     ("", Bytes.pack(aggregatorMetadataPlain));
                 ]);
+                const aggregatorBreakGlassConfig : aggregatorBreakGlassConfigType = record[
+                    requestRateUpdateIsPaused           = False;
+                    requestRateUpdateDeviationIsPaused  = False;
+                    setObservationCommitIsPaused        = False;
+                    setObservationRevealIsPaused        = False;
+                    withdrawRewardXtzIsPaused           = False;
+                    withdrawRewardStakedMvkIsPaused     = False;
+                ];
 
                 // new Aggregator Storage declaration
                 const originatedAggregatorStorage : aggregatorStorage = record [
@@ -387,9 +449,12 @@ block {
                   admin                     = createAggregatorParams.2.admin;
                   metadata                  = aggregatorMetadata;
                   config                    = createAggregatorParams.2.aggregatorConfig;
+                  breakGlassConfig          = aggregatorBreakGlassConfig;
+
+                  whitelistContracts        = aggregatorWhitelistContracts;      
+                  generalContracts          = aggregatorGeneralContracts;
                   
                   mvkTokenAddress           = s.mvkTokenAddress;
-                  delegationAddress         = s.delegationAddress;
                   governanceAddress         = s.governanceAddress;
 
                   round                     = 0n;
@@ -404,8 +469,8 @@ block {
                   observationCommits        = observationCommits;
                   observationReveals        = observationReveals;
                   
-                  oracleRewardsXTZ          = oracleRewardsXTZ;
-                  oracleRewardsMVK          = oracleRewardsMVK;      
+                  oracleRewardXtz          = oracleRewardXtz;
+                  oracleRewardStakedMvk    = oracleRewardStakedMvk;      
 
                   lambdaLedger              = aggregatorLambdaLedger;
                   
@@ -417,7 +482,8 @@ block {
                     0tez,
                     originatedAggregatorStorage
                 );
-                s.trackedAggregators := Map.add((createAggregatorParams.0, createAggregatorParams.1), aggregatorOrigination.1, s.trackedAggregators);
+                // s.trackedAggregators := Map.add((createAggregatorParams.0, createAggregatorParams.1), aggregatorOrigination.1, s.trackedAggregators);
+                s.trackedAggregators := Set.add(aggregatorOrigination.1, s.trackedAggregators);
 
                 operations := aggregatorOrigination.0 # operations; 
 
@@ -427,9 +493,163 @@ block {
 
 } with(operations, s)
 
+
+
+(*  trackAggregator lambda  *)
+function lambdaTrackAggregator(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+block{
+
+    // Check if sender is admin
+    checkSenderIsAdmin(s);
+
+    // Break glass check
+    checkTrackAggregatorIsNotPaused(s);
+
+    var operations : list(operation) := nil;
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaTrackAggregator(aggregatorContract) -> {
+                
+                s.trackedAggregators := case Set.mem(aggregatorContract, s.trackedAggregators) of [
+                        True  -> (failwith(error_AGGREGATOR_ALREADY_TRACKED): set(address))
+                    |   False -> Set.add(aggregatorContract, s.trackedAggregators)
+                ];
+
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
+
+
+(*  untrackAggregator lambda  *)
+function lambdaUntrackAggregator(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+block{
+
+    // Check if sender is admin
+    checkSenderIsAdmin(s);
+
+    // Break glass check
+    checkUntrackAggregatorIsNotPaused(s);
+
+    var operations : list(operation) := nil;
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaUntrackAggregator(aggregatorContract) -> {
+                
+                s.trackedAggregators := case Set.mem(aggregatorContract, s.trackedAggregators) of [
+                        True  -> Set.remove(aggregatorContract, s.trackedAggregators)
+                    |   False -> (failwith(error_AGGREGATOR_NOT_TRACKED): set(address))
+                ];
+
+            }
+        | _ -> skip
+    ];
+
+} with (operations, s)
+
 // ------------------------------------------------------------------------------
-// Aggregator Factory Lambdas Begin
+// Aggregator Factory Lambdas End
 // ------------------------------------------------------------------------------
+
+
+// ------------------------------------------------------------------------------
+// Aggregator Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(*  distributeRewardXtz lambda  *)
+function lambdaDistributeRewardXtz(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+block{
+
+    // Break glass check
+    checkDistributeRewardXtzIsNotPaused(s);
+
+    var operations : list(operation) := nil;
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaDistributeRewardXtz(distributeRewardXtzParams) -> {
+                
+                // check that sender is from a tracked aggregator
+                case Set.mem(Tezos.sender, s.trackedAggregators) of [
+                        True  -> skip
+                    |   False -> failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR)
+                ];
+
+                const recipient          : address    = distributeRewardXtzParams.recipient;
+                const reward             : nat        = distributeRewardXtzParams.reward;
+                const tokenTransferType  : tokenType  = Tez;
+
+                const treasuryAddress : address = case s.generalContracts["aggregatorTreasury"] of [
+                      Some(_address) -> _address
+                    | None -> failwith(error_TREASURY_CONTRACT_NOT_FOUND)
+                ];
+
+                const transferTokenParams : transferActionType = list[
+                    record [
+                        to_        = recipient;
+                        token      = tokenTransferType;
+                        amount     = reward;
+                    ]
+                ];
+
+                const treasuryTransferOperation : operation = Tezos.transaction(
+                    transferTokenParams, 
+                    0tez, 
+                    sendTransferOperationToTreasury(treasuryAddress)
+                );
+
+                operations := treasuryTransferOperation # operations;
+
+            }
+        | _ -> skip
+    ];    
+
+} with (operations, s)
+
+
+
+(*  distributeRewardStakedMvk lambda  *)
+function lambdaDistributeRewardStakedMvk(const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType; var s: aggregatorFactoryStorage): return is
+block{
+
+    // Break glass check
+    checkDistributeRewardMvkIsNotPaused(s);
+
+    var operations : list(operation) := nil;
+
+    case aggregatorFactoryLambdaAction of [
+        | LambdaDistributeRewardStakedMvk(distributeRewardStakedMvkParams) -> {
+                
+                // check that sender is from a tracked aggregator
+                case Set.mem(Tezos.sender, s.trackedAggregators) of [
+                        True  -> skip
+                    |   False -> failwith(error_SENDER_IS_NOT_TRACKED_AGGREGATOR)
+                ];
+
+                const delegationAddress : address = case s.generalContracts["delegation"] of [
+                      Some(_address) -> _address
+                    | None -> failwith(error_DELEGATION_CONTRACT_NOT_FOUND)
+                ];
+
+                const distributeRewardStakedMvkOperation : operation = Tezos.transaction(
+                    distributeRewardStakedMvkParams,
+                    0tez,
+                    getDistributeRewardInDelegationEntrypoint(delegationAddress)
+                );
+
+                operations := distributeRewardStakedMvkOperation # operations;
+
+            }
+        | _ -> skip
+    ];    
+
+} with (operations, s)
+
+// ------------------------------------------------------------------------------
+// Aggregator Lambdas End
+// ------------------------------------------------------------------------------
+
 
 // ------------------------------------------------------------------------------
 //
