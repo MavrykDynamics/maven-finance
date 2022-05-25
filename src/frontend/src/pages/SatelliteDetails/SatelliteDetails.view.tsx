@@ -2,7 +2,7 @@ import * as React from 'react'
 /* @ts-ignore */
 import Time from 'react-pure-time'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { State } from 'reducers'
 import { Page, PageContent } from 'styles'
 
@@ -52,6 +52,7 @@ export const SatelliteDetailsView = ({
   undelegateCallback,
   userStakedBalanceInSatellite,
 }: SatelliteDetailsViewProps) => {
+  const params: { satelliteId: string } = useParams()
   const { user } = useSelector((state: State) => state.user)
   const { participationMetrics } = useSelector((state: State) => state.delegation)
   const totalDelegatedMVK = satellite?.totalDelegatedAmount ?? 0
@@ -79,8 +80,6 @@ export const SatelliteDetailsView = ({
     },
   }
 
-  console.log('%c ||||| satellite', 'color:yellowgreen', satellite)
-
   const emptyContainer = (
     <EmptyContainer>
       <img src="/images/not-found.svg" alt=" No proposals to show" />
@@ -88,6 +87,7 @@ export const SatelliteDetailsView = ({
     </EmptyContainer>
   )
 
+  const isSameId = satellite?.address === params.satelliteId
   const isSatellite = satellite && satellite.address && satellite.address !== 'None'
 
   return (
@@ -96,7 +96,9 @@ export const SatelliteDetailsView = ({
       <PageContent>
         <div>
           <SatellitePagination />
-          {isSatellite ? (
+          {loading || !isSameId ? (
+            <Loader />
+          ) : isSatellite ? (
             <SatelliteListCard
               satellite={satellite}
               loading={loading}
@@ -134,7 +136,6 @@ export const SatelliteDetailsView = ({
                     <h4>Voting History:</h4>
                     <div>
                       {satellite.proposalVotingHistory.map((item) => {
-                        console.log('%c ||||| item', 'color:yellowgreen', item)
                         return (
                           <div className="satellite-voting-history" key={item.id}>
                             <p>Proposal 42 - Adjusting Auction Parameters</p>
@@ -150,8 +151,6 @@ export const SatelliteDetailsView = ({
                 ) : null}
               </SatelliteCardBottomRow>
             </SatelliteListCard>
-          ) : loading ? (
-            <Loader />
           ) : (
             emptyContainer
           )}
