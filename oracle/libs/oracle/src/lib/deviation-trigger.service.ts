@@ -66,48 +66,56 @@ export class DeviationTriggerService implements OnModuleInit {
       Array.from(aggregators.entries()).map(
         async ([pair, aggregatorSmartContractAddress]) => {
           try {
-            return await this.getDeviationTriggerOpetationIfNeeded(
+            return {
               pair,
-              aggregatorSmartContractAddress
-            );
+              op: await this.getDeviationTriggerOpetationIfNeeded(
+                pair,
+                aggregatorSmartContractAddress
+              )
+            }
           } catch (e) {
             this.logger.error(
               `Error while trying to set observation on pair ${pair[0]}/${
                 pair[1]
               }: ${e.toString()}`
             );
-            return null;
+            return {
+              pair,
+              op: null,
+            };
           }
         }
       )
     );
 
-    const notNullOps = this.commonService.filterNotNull(ops);
+    const notNullPairAndOps = this.commonService.filterNotNullOpPair(ops);
 
-    if (notNullOps.length === 0) {
+    if (notNullPairAndOps.length === 0) {
       return;
     }
 
-    this.logger.log(
-      `Sending observations: ${notNullOps.length} batched observation operations`
+    this.logger.verbose(
+      `Sending observations: ${notNullPairAndOps.length} batched observation operations`
     );
 
     await this.mutex.runExclusive(async () => {
       const result = await this.txManagerService.addBatch(
         this.commonService.getPkh(),
-        notNullOps
+        notNullPairAndOps.map(pairAndOp => pairAndOp.op)
       );
       switch (result.type) {
         case 'success':
           this.logger.log(
-            `Sending observations: Confirmed ${notNullOps.length} batched operations`
+            `Deviation triggerred on ${notNullPairAndOps.length} pairs: ${notNullPairAndOps
+              .map(pairAndOp => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+              .join(', ')}`
           );
           break;
         case 'error':
           this.logger.error(
-            `Sending observations: Failed to send observations (${
-              notNullOps.length
-            } operations): ${result.error.toString()}`
+            `Failed to trigger deviation on pair: ${notNullPairAndOps
+              .map(pairAndOp => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+              .join(', ')}: ${result.error.toString()}`
           );
       }
     });

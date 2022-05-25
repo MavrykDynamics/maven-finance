@@ -54,36 +54,46 @@ export class WithdrawService implements OnModuleInit {
 
     const ops = await Promise.all(
       Array.from(aggregators.entries()).map(
-        ([pair, aggregatorSmartContractAddress]) =>
-          this.withdrawFromAggregator(pair, aggregatorSmartContractAddress)
+        async ([pair, aggregatorSmartContractAddress]) => {
+          const ops = await this.withdrawFromAggregator(pair, aggregatorSmartContractAddress);
+
+          return ops.map(op => ({
+            pair,
+            op,
+          }));
+        }
       )
     );
 
-    const notNullOps = this.commonService.filterNotNull(ops.flat());
+    const notNullPairAndOps = this.commonService.filterNotNullOpPair(ops.flat());
 
-    if (notNullOps.length === 0) {
+    if (notNullPairAndOps.length === 0) {
       return;
     }
 
     this.logger.verbose(
-      `Withdrawing: ${notNullOps.length} batched withdraw operations`
+      `Withdrawing from pairs: ${notNullPairAndOps
+        .map(pairAndOp => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+        .join(', ')}`
     );
 
     await this.mutex.runExclusive(async () => {
       const result = await this.txManagerService.addBatch(
         this.commonService.getPkh(),
-        notNullOps
+        notNullPairAndOps.map(pairAndOp => pairAndOp.op)
       );
       switch (result.type) {
         case 'success':
           this.logger.log(
-            `Withdrawing: Confirmed ${notNullOps.length} withdraw batched operations`
+            `Withdrew on ${notNullPairAndOps.length} pairs: ${notNullPairAndOps
+              .map(pairAndOp => `${pairAndOp.pair[0]}/${pairAndOp.pair[1]}`)
+              .join(', ')}`
           );
           break;
         case 'error':
           this.logger.error(
-            `Withdrawing: Failed to withdraw (${
-              notNullOps.length
+            `Failed to withdraw (${
+              notNullPairAndOps.length
             } operations): ${result.error.toString()}`
           );
       }

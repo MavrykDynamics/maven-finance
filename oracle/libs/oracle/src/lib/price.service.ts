@@ -64,7 +64,7 @@ export class PriceService {
 
     const notNullPrices = this.commonService.filterNotNull(prices);
 
-    this.logger.verbose(
+    this.logger.debug(
       `${notNullPrices.length}/${prices.length} fetchers answered on pair ${pair[0]}/${pair[1]}`
     );
 

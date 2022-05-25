@@ -41,11 +41,11 @@ export class CommonService implements OnModuleInit {
       this.oracleConfig.oraclePhk
     );
     const pkh = await toolkit.signer.publicKeyHash();
-    this.logger.log(`Using Oracle address: ${pkh}`);
-    this.logger.log(
+    this.logger.verbose(`Using Oracle address: ${pkh}`);
+    this.logger.verbose(
       `Using AggregatorFactory address: ${this.oracleConfig.aggregatorFactorySmartContractAddress}`
     );
-    this.logger.log(`Using RPC url: ${this.oracleConfig.rpcUrl}`);
+    this.logger.verbose(`Using RPC url: ${this.oracleConfig.rpcUrl}`);
   }
 
   public async getAggregatorsAddresses(): Promise<
@@ -124,6 +124,10 @@ export class CommonService implements OnModuleInit {
 
   public filterNotNull<T>(ops: (T | null)[]): T[] {
     return ops.filter((op) => op !== null) as T[];
+  }
+
+  public filterNotNullOpPair<T>(arr: {pair: [string, string], op: T | null}[]): {pair: [string, string], op: T}[] {
+    return arr.filter((op) => op.op !== null) as {pair: [string, string], op: T}[];
   }
 
   public getCommitData(price: BigNumber, salt: string, pkh: string) {
