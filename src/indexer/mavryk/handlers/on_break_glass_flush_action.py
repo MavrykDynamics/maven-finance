@@ -9,4 +9,5 @@ async def on_break_glass_flush_action(
     ctx: HandlerContext,
     flush_action: Transaction[FlushActionParameter, BreakGlassStorage],
 ) -> None:
+
     await persist_break_glass_action(flush_action)

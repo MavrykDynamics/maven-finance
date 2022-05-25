@@ -215,10 +215,6 @@ indexes:
         pattern:
           - destination: governance
             entrypoint: breakGlass
-      - callback: on_governance_propagate_break_glass
-        pattern:
-          - destination: governance
-            entrypoint: propagateBreakGlass
       - callback: on_governance_set_admin
         pattern:
           - destination: governance

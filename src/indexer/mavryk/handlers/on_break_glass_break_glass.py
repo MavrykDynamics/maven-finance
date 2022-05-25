@@ -9,6 +9,7 @@ async def on_break_glass_break_glass(
     ctx: HandlerContext,
     break_glass: Transaction[BreakGlassParameter, BreakGlassStorage],
 ) -> None:
+
     # Get operation values
     breakGlassAddress       = break_glass.data.target_address
     breakGlassGlassBroken   = break_glass.storage.glassBroken

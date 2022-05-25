@@ -9,5 +9,6 @@ async def on_break_glass_add_council_member(
     ctx: HandlerContext,
     add_council_member: Transaction[AddCouncilMemberParameter, BreakGlassStorage],
 ) -> None:
+    
     await persist_break_glass_action(add_council_member)
 

@@ -9,4 +9,5 @@ async def on_break_glass_set_all_contracts_admin(
     ctx: HandlerContext,
     set_all_contracts_admin: Transaction[SetAllContractsAdminParameter, BreakGlassStorage],
 ) -> None:
+
     await persist_break_glass_action(set_all_contracts_admin)

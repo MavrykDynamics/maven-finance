@@ -273,8 +273,6 @@ class MavrykUser(Model):
     smvk_balance                    = fields.BigIntField(default=0)
     participation_fees_per_share    = fields.FloatField(default=0)
     doorman                         = fields.ForeignKeyField('models.Doorman', related_name='stake_accounts', null=True)
-    council                         = fields.ForeignKeyField('models.Council', related_name='council_members', null=True)
-    break_glass                     = fields.ForeignKeyField('models.BreakGlass', related_name='council_members', null=True)
 
     class Meta:
         table = 'mavryk_user'
@@ -475,11 +473,12 @@ class EmergencyGovernanceVote(Model):
         table = 'emergency_governance_vote'
 
 class BreakGlassCouncilMember(Model):
-    address                         = fields.CharField(pk=True, max_length=36)
+    id                              = fields.BigIntField(pk=True)
+    user                            = fields.ForeignKeyField('models.MavrykUser', related_name='council_member')
     break_glass                     = fields.ForeignKeyField('models.BreakGlass', related_name='break_glass_council_members')
-    name                            = fields.CharField(max_length=36)
-    website                         = fields.CharField(max_length=36)
-    image                           = fields.SmallIntField(default=0)
+    name                            = fields.CharField(max_length=255)
+    website                         = fields.CharField(max_length=255)
+    image                           = fields.CharField(max_length=255)
 
     class Meta:
         table = 'break_glass_council_member'
@@ -490,10 +489,12 @@ class BreakGlassActionRecord(Model):
     initiator                       = fields.ForeignKeyField('models.MavrykUser', related_name='break_glass_actions_initiator')
     start_datetime                  = fields.DatetimeField()
     executed_datetime               = fields.DatetimeField()
+    executed_level                  = fields.BigIntField(default=0)
     expiration_datetime             = fields.DatetimeField()
     action_type                     = fields.CharField(max_length=48)
     status                          = fields.IntEnumField(enum_type=ActionStatus)
     executed                        = fields.BooleanField(default=False)
+    signers_count                   = fields.SmallIntField(default=1)
 
     class Meta:
         table = 'break_glass_action_record'
