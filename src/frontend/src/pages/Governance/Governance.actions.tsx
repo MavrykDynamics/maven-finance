@@ -133,7 +133,6 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
     GOVERNANCE_STORAGE_QUERY_VARIABLE,
   )
 
-  console.log('%c ||||| governanceStorage fetchFromIndexer storage', 'color:yellowgreen', storage)
   const convertedStorage = storageToTypeConverter('governance', storage)
 
   dispatch({
