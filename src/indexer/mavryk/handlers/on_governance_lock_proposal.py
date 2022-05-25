@@ -9,13 +9,13 @@ async def on_governance_lock_proposal(
     ctx: HandlerContext,
     lock_proposal: Transaction[LockProposalParameter, GovernanceStorage],
 ) -> None:
-    # Get operation values
-    ...
-    # proposalID  = int(lock_proposal.parameter.__root__)
 
-    # # Update record
-    # proposal    = await models.GovernanceProposalRecord.get(
-    #     id      = proposalID
-    # )
-    # proposal.locked = True
-    # await proposal.save()
+    # Get operation values
+    proposalID  = int(lock_proposal.parameter.__root__)
+
+    # Update record
+    proposal    = await models.GovernanceProposalRecord.get(
+        id      = proposalID
+    )
+    proposal.locked = True
+    await proposal.save()
