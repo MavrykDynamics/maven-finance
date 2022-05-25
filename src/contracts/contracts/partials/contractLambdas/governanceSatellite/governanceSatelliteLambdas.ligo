@@ -167,6 +167,7 @@ block {
                 const emptyStringMap    : stringMapType      = map [];
                 const emptyNatMap       : natMapType         = map [];
 
+                // getStakedMvkTotalSupply
                 const stakedMvkRequiredForApproval: nat     = abs((s.snapshotStakedMvkTotalSupply * s.config.governanceSatelliteApprovalPercentage) / 10000);
 
                 var newGovernanceSatelliteAction : governanceSatelliteActionRecordType := record [
@@ -1039,8 +1040,8 @@ block {
                                 if _governanceSatelliteActionRecord.requestType = "suspendSatellite" then block {
 
                                     const satelliteToBeSuspended : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeSuspended"] of [
-                                        Some(_address) -> _address;
-                                        None -> failwith("Error. Satellite to be suspended address is not found")
+                                        Some(_address) -> _address
+                                      | None -> failwith("Error. Satellite to be suspended address is not found")
                                     ];
                                 
                                     // const removeOracleInAggregatorOperation : operation = Tezos.transaction(
@@ -1056,8 +1057,8 @@ block {
                                 if _governanceSatelliteActionRecord.requestType = "unsuspendSatellite" then block {
 
                                     const satelliteToBeUnsuspended : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeUnsuspended"] of [
-                                        Some(_address) -> _address;
-                                        None -> failwith("Error. Satellite to be unsuspended address is not found")
+                                         Some(_address) -> _address
+                                       | None -> failwith("Error. Satellite to be unsuspended address is not found")
                                     ];
                                 
                                     // const addOracleInAggregatorOperation : operation = Tezos.transaction(
@@ -1073,8 +1074,8 @@ block {
                                 if _governanceSatelliteActionRecord.requestType = "banSatellite" then block {
 
                                     const satelliteToBeBanned : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeBanned"] of [
-                                        Some(_address) -> _address;
-                                        None -> failwith("Error. Satellite to be banned address is not found")
+                                         Some(_address) -> _address
+                                       | None -> failwith("Error. Satellite to be banned address is not found")
                                     ];
                                 
                                     // const removeOracleInAggregatorOperation : operation = Tezos.transaction(
@@ -1090,8 +1091,8 @@ block {
                                 if _governanceSatelliteActionRecord.requestType = "unbanSatellite" then block {
 
                                     const satelliteToBeUnbanned : address = case _governanceSatelliteActionRecord.addressMap["satelliteToBeUnbanned"] of [
-                                        Some(_address) -> _address;
-                                        None -> failwith("Error. Satellite to be unbanned address is not found")
+                                        Some(_address) -> _address
+                                      | None -> failwith("Error. Satellite to be unbanned address is not found")
                                     ];
                                 
                                     // const addOracleInAggregatorOperation : operation = Tezos.transaction(
@@ -1108,13 +1109,13 @@ block {
                                 if _governanceSatelliteActionRecord.requestType = "addOracleToAggregator" then block {
 
                                     const oracleAddress : address = case _governanceSatelliteActionRecord.addressMap["oracleAddress"] of [
-                                        Some(_address) -> _address;
-                                        None -> failwith("Error. Oracle Address is not found")
+                                        Some(_address) -> _address
+                                      | None -> failwith("Error. Oracle Address is not found")
                                     ];
 
                                     const aggregatorAddress : address = case _governanceSatelliteActionRecord.addressMap["aggregatorAddress"] of [
-                                        Some(_address) -> _address;
-                                        None -> failwith("Error. Aggregator Address is not found")
+                                         Some(_address) -> _address
+                                       | None -> failwith("Error. Aggregator Address is not found")
                                     ];
                                 
                                     const addOracleInAggregatorOperation : operation = Tezos.transaction(
@@ -1132,13 +1133,13 @@ block {
                                 if _governanceSatelliteActionRecord.requestType = "removeOracleInAggregator" then block {
 
                                     const oracleAddress : address = case _governanceSatelliteActionRecord.addressMap["oracleAddress"] of [
-                                        Some(_address) -> _address;
-                                        None -> failwith("Error. Oracle Address is not found")
+                                        Some(_address) -> _address
+                                      | None -> failwith("Error. Oracle Address is not found")
                                     ];
 
                                     const aggregatorAddress : address = case _governanceSatelliteActionRecord.addressMap["aggregatorAddress"] of [
-                                        Some(_address) -> _address;
-                                        None -> failwith("Error. Aggregator Address is not found")
+                                        Some(_address) -> _address
+                                      | None -> failwith("Error. Aggregator Address is not found")
                                     ];
                                 
                                     const removeOracleInAggregatorOperation : operation = Tezos.transaction(
@@ -1155,8 +1156,8 @@ block {
                                 if _governanceSatelliteActionRecord.requestType = "removeAllSatelliteOracles" then block {
 
                                     const satelliteAddress : address = case _governanceSatelliteActionRecord.addressMap["satelliteAddress"] of [
-                                        Some(_address) -> _address;
-                                        None -> failwith("Error. Satellite Address is not found")
+                                         Some(_address) -> _address
+                                       | None -> failwith("Error. Satellite Address is not found")
                                     ];
 
                                     // const removeOracleInAggregatorOperation : operation = Tezos.transaction(

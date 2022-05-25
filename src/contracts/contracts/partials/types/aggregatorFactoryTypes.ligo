@@ -2,13 +2,26 @@ type setAdminParams is address;
 type metadataType is big_map (string, bytes);
 type lambdaLedgerType is map(string, bytes)
 
-type trackedAggregatorsType is map (string * string, address);
-type trackedSatelliteType is set (address);
+// type trackedAggregatorsType is map (string * string, address)
+type trackedAggregatorsType is set(address)
+type trackedSatelliteType is set (address)
+
+// rewards type
+type distributeRewardStakedMvkType is [@layout:comb] record [
+    eligibleSatellites    : set(address);
+    totalStakedMvkReward  : nat;
+]
+type distributeRewardXtzType is [@layout:comb] record [
+    recipient             : address;
+    reward                : nat;
+]
 
 type aggregatorFactoryBreakGlassConfigType is [@layout:comb] record [
     createAggregatorIsPaused     : bool;
     trackAggregatorIsPaused      : bool;
     untrackAggregatorIsPaused    : bool;
+    distributeRewardXtzIsPaused  : bool;
+    distributeRewardMvkIsPaused  : bool;
 ]
 
 type aggregatorMetadataType is [@layout:comb] record[
@@ -46,23 +59,33 @@ type updateAggregatorAdminParamsType is [@layout:comb] record [
 type aggregatorFactoryLambdaActionType is 
     
     // Housekeeping Lambdas
-  | LambdaSetAdmin                    of (address)
-  | LambdaSetGovernance               of (address)
-  | LambdaUpdateMetadata              of updateMetadataType
+  | LambdaSetAdmin                      of (address)
+  | LambdaSetGovernance                 of (address)
+  | LambdaUpdateMetadata                of updateMetadataType
+  | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
+  | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
 
       // Pause / Break Glass Entrypoints
-  | LambdaPauseAll                    of (unit)
-  | LambdaUnpauseAll                  of (unit)
-  | LambdaTogglePauseCreateAgg        of (unit)
-  | LambdaTogglePauseTrackAgg         of (unit)
-  | LambdaTogglePauseUntrackAgg       of (unit)
+  | LambdaPauseAll                      of (unit)
+  | LambdaUnpauseAll                    of (unit)
+  | LambdaTogglePauseCreateAgg          of (unit)
+  | LambdaTogglePauseTrackAgg           of (unit)
+  | LambdaTogglePauseUntrackAgg         of (unit)
+  | LambdaTogglePauseDisRewardXtz       of (unit)
+  | LambdaTogglePauseDisRewardSMvk      of (unit)
 
     // Aggregator Factory Lambdas
-  | LambdaCreateAggregator            of createAggregatorParamsType
-  | LambdaAddSatellite                of (address)
-  | LambdaBanSatellite                of (address)
-  | LambdaUpdateAggregatorConfig      of updateAggregatorConfigParamsType
-  | LambdaUpdateAggregatorAdmin       of updateAggregatorAdminParamsType
+  | LambdaCreateAggregator              of createAggregatorParamsType
+  | LambdaTrackAggregator               of (address)
+  | LambdaUntrackAggregator             of (address)
+  // | LambdaAddSatellite                  of (address)
+  // | LambdaBanSatellite                  of (address)
+  // | LambdaUpdateAggregatorConfig        of updateAggregatorConfigParamsType
+  // | LambdaUpdateAggregatorAdmin         of updateAggregatorAdminParamsType
+
+    // Aggregator Lambdas
+  | LambdaDistributeRewardXtz           of distributeRewardXtzType
+  | LambdaDistributeRewardStakedMvk     of distributeRewardStakedMvkType
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -74,7 +97,6 @@ type aggregatorFactoryStorage is [@layout:comb] record [
     breakGlassConfig        : aggregatorFactoryBreakGlassConfigType;
 
     mvkTokenAddress         : address;
-    delegationAddress       : address;
     governanceAddress       : address;
 
     whitelistContracts      : whitelistContractsType;      

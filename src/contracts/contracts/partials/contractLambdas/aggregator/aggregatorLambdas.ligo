@@ -12,8 +12,8 @@
 function lambdaSetAdmin(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
 block {
     
-    checkNoAmount(Unit);    // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkNoAmount(Unit);   
+    checkSenderIsAdmin(s); 
 
     case aggregatorLambdaAction of [
         | LambdaSetAdmin(newAdminAddress) -> {
@@ -30,7 +30,7 @@ block {
 function lambdaSetGovernance(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
 block {
     
-    checkNoAmount(Unit);     // entrypoint should not receive any tez amount
+    checkNoAmount(Unit);     
     checkSenderIsAllowed(s);
 
     case aggregatorLambdaAction of [
@@ -48,7 +48,7 @@ block {
 function lambdaUpdateMetadata(const aggregatorLambdaAction : aggregatorLambdaActionType; var s : aggregatorStorage) : return is
 block {
 
-    checkSenderIsAdmin(s); // check that sender is admin (i.e. Governance DAO contract address)
+    checkSenderIsAdmin(s); 
 
     case aggregatorLambdaAction of [
         | LambdaUpdateMetadata(updateMetadataParams) -> {
@@ -70,8 +70,8 @@ block {
 function lambdaUpdateConfig(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    checkNoAmount(Unit);   // entrypoint should not receive any tez amount
-    checkSenderIsAdmin(s); // check that sender is admin
+    checkNoAmount(Unit);  
+    checkSenderIsAdmin(s);
 
     case aggregatorLambdaAction of [
         | LambdaUpdateConfig(newConfig) -> {
@@ -83,6 +83,50 @@ block{
 } with (noOperations, s)
 
 
+
+(*  updateWhitelistContracts lambda *)
+function lambdaUpdateWhitelistContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+block {
+    
+    checkNoAmount(Unit);  
+    checkSenderIsAdmin(s);
+    
+    case aggregatorLambdaAction of [
+        | LambdaUpdateWhitelistContracts(updateWhitelistContractsParams) -> {
+                s.whitelistContracts := updateWhitelistContractsMap(updateWhitelistContractsParams, s.whitelistContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  updateGeneralContracts lambda *)
+function lambdaUpdateGeneralContracts(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+block {
+
+    checkNoAmount(Unit);
+    checkSenderIsAdmin(s);
+    
+    case aggregatorLambdaAction of [
+        | LambdaUpdateGeneralContracts(updateGeneralContractsParams) -> {
+                s.generalContracts := updateGeneralContractsMap(updateGeneralContractsParams, s.generalContracts);
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Housekeeping Lambdas End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Admin Oracle Lambdas Begin
+// ------------------------------------------------------------------------------
 
 (*  addOracle entrypoint  *)
 function lambdaAddOracle(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
@@ -129,7 +173,207 @@ block {
 } with (noOperations, s)
 
 // ------------------------------------------------------------------------------
-// Housekeeping Lambdas End
+// Admin Oracle Lambdas Begin
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Lambdas Begin
+// ------------------------------------------------------------------------------
+
+(*  pauseAll lambda *)
+function lambdaPauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+block {
+    
+    checkSenderIsGovernanceOrFactory(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaPauseAll(_parameters) -> {
+                
+                // set all pause configs to True
+                if s.breakGlassConfig.requestRateUpdateIsPaused then skip
+                else s.breakGlassConfig.requestRateUpdateIsPaused := True;
+
+                if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then skip
+                else s.breakGlassConfig.requestRateUpdateDeviationIsPaused := True;
+
+                if s.breakGlassConfig.setObservationCommitIsPaused then skip
+                else s.breakGlassConfig.setObservationCommitIsPaused := True;
+
+                if s.breakGlassConfig.setObservationRevealIsPaused then skip
+                else s.breakGlassConfig.setObservationRevealIsPaused := True;
+
+                if s.breakGlassConfig.withdrawRewardXtzIsPaused then skip
+                else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
+
+                if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then skip
+                else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+    
+} with (noOperations, s)
+
+
+
+(*  unpauseAll lambda *)
+function lambdaUnpauseAll(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+block {
+
+    checkSenderIsGovernanceOrFactory(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaUnpauseAll(_parameters) -> {
+                
+                // set all pause configs to False
+                if s.breakGlassConfig.requestRateUpdateIsPaused then s.breakGlassConfig.requestRateUpdateIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then s.breakGlassConfig.requestRateUpdateDeviationIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.setObservationCommitIsPaused then s.breakGlassConfig.setObservationCommitIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.setObservationRevealIsPaused then s.breakGlassConfig.setObservationRevealIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
+                else skip;
+
+                if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
+                else skip;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseReqRateUpd lambda *)
+function lambdaTogglePauseReqRateUpd(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+block {
+
+    checkSenderIsGovernanceOrFactory(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaTogglePauseReqRateUpd(_parameters) -> {
+                
+                if s.breakGlassConfig.requestRateUpdateIsPaused then s.breakGlassConfig.requestRateUpdateIsPaused := False
+                else s.breakGlassConfig.requestRateUpdateIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseReqRateUpdDev lambda *)
+function lambdaTogglePauseReqRateUpdDev(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+block {
+
+    checkSenderIsGovernanceOrFactory(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaTogglePauseReqRateUpdDev(_parameters) -> {
+                
+                if s.breakGlassConfig.requestRateUpdateDeviationIsPaused then s.breakGlassConfig.requestRateUpdateDeviationIsPaused := False
+                else s.breakGlassConfig.requestRateUpdateDeviationIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseSetObsCommit lambda *)
+function lambdaTogglePauseSetObsCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+block {
+
+    checkSenderIsGovernanceOrFactory(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaTogglePauseSetObsCommit(_parameters) -> {
+                
+                if s.breakGlassConfig.setObservationCommitIsPaused then s.breakGlassConfig.setObservationCommitIsPaused := False
+                else s.breakGlassConfig.setObservationCommitIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseSetObsReveal lambda *)
+function lambdaTogglePauseSetObsReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+block {
+
+    checkSenderIsGovernanceOrFactory(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaTogglePauseSetObsReveal(_parameters) -> {
+                
+                if s.breakGlassConfig.setObservationRevealIsPaused then s.breakGlassConfig.setObservationRevealIsPaused := False
+                else s.breakGlassConfig.setObservationRevealIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseRewardXtz lambda *)
+function lambdaTogglePauseRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+block {
+
+    checkSenderIsGovernanceOrFactory(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaTogglePauseRewardXtz(_parameters) -> {
+                
+                if s.breakGlassConfig.withdrawRewardXtzIsPaused then s.breakGlassConfig.withdrawRewardXtzIsPaused := False
+                else s.breakGlassConfig.withdrawRewardXtzIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+
+
+(*  togglePauseRewardSMvk lambda *)
+function lambdaTogglePauseRewardSMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage) : return is
+block {
+
+    checkSenderIsGovernanceOrFactory(s);
+
+    case aggregatorLambdaAction of [
+        | LambdaTogglePauseRewardSMvk(_parameters) -> {
+                
+                if s.breakGlassConfig.withdrawRewardStakedMvkIsPaused then s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := False
+                else s.breakGlassConfig.withdrawRewardStakedMvkIsPaused := True;
+
+            }
+        | _ -> skip
+    ];
+
+} with (noOperations, s)
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Lambdas End
 // ------------------------------------------------------------------------------
 
 
@@ -141,6 +385,9 @@ block {
 (*  requestRateUpdate entrypoint  *)
 function lambdaRequestRateUpdate(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
+
+    // break glass check
+    checkRequestRateUpdateIsNotPaused(s);
 
     checkMaintainership(s);
 
@@ -195,6 +442,9 @@ block{
 function lambdaRequestRateUpdateDeviation(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
+    // break glass check
+    checkRequestRateUpdateDeviationIsNotPaused(s);
+
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
@@ -237,8 +487,8 @@ block{
                           roundPrice= s.lastCompletedRoundPrice.price;
                       ];
                 
-                const newOracleRewardsMVK: oracleRewardsMVKType = updateRewards(s);
-                const newOracleRewardsXTZ = Map.update(Tezos.sender, Some (getRewardAmountXTZ(Tezos.sender, s) + s.config.deviationRewardAmountXTZ), s.oracleRewardsXTZ);
+                const newOracleRewardStakedMvk : oracleRewardStakedMvkType = updateRewards(s);
+                const newOracleRewardXtz = Map.update(Tezos.sender, Some (getRewardAmountXtz(Tezos.sender, s) + s.config.deviationRewardAmountXtz), s.oracleRewardXtz);
 
                 s.round                   := newRound;
                 s.roundStart              := Tezos.now;
@@ -246,8 +496,8 @@ block{
                 s.observationCommits      := newObservationCommits;
                 s.deviationTriggerInfos   := newDeviationTriggerInfos;
                 s.switchBlock             := 0n;
-                s.oracleRewardsMVK        := newOracleRewardsMVK;
-                s.oracleRewardsXTZ        := newOracleRewardsXTZ;
+                s.oracleRewardStakedMvk   := newOracleRewardStakedMvk;
+                s.oracleRewardXtz         := newOracleRewardXtz;
 
             }
         | _ -> skip
@@ -260,6 +510,9 @@ block{
 (*  setObservationCommit entrypoint  *)
 function lambdaSetObservationCommit(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
+
+    // break glass check
+    checkSetObservationCommitIsNotPaused(s);
 
    case aggregatorLambdaAction of [
         | LambdaSetObservationCommit(params) -> {
@@ -292,6 +545,9 @@ block{
 (*  setObservationReveal entrypoint  *)
 function lambdaSetObservationReveal(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
+
+    // break glass check
+    checkSetObservationRevealIsNotPaused(s);
 
    case aggregatorLambdaAction of [
         | LambdaSetObservationReveal(params) -> {
@@ -349,35 +605,43 @@ block{
 // Reward Lambdas Begin
 // ------------------------------------------------------------------------------
 
-(*  withdrawRewardXTZ entrypoint  *)
-function lambdaWithdrawRewardXTZ(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+(*  withdrawRewardXtz entrypoint  *)
+function lambdaWithdrawRewardXtz(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    // checkIfWhiteListed(s);
+    // break glass check
+    checkWithdrawRewardXtzIsNotPaused(s);
 
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
-        | LambdaWithdrawRewardXTZ(receiver) -> {
+        | LambdaWithdrawRewardXtz(_receiver) -> {
                 
-                const reward: tez = getRewardAmountXTZ(Tezos.sender, s) * 1mutez;
+                const reward : nat = getRewardAmountXtz(Tezos.sender, s);
 
-                if (reward > 0mutez) then {
+                if (reward > 0n) then {
 
-                checkEnoughXTZInTheContract(reward, s);
+                    const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
+                        Some(_address) -> _address
+                        | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                    ];
+                    
+                    const distributeRewardXtzParams : distributeRewardXtzType = record [
+                        recipient = Tezos.sender;
+                        reward    = reward;
+                    ];
 
-                const newOracleRewards = Map.update(Tezos.sender, Some (0n), s.oracleRewardsXTZ);
-                const receiver : contract (unit) =
-                case (Tezos.get_contract_opt (receiver) : option(contract(unit))) of [
-                    Some (contract) -> contract
-                  | None  -> (failwith ("Not a contract") : contract (unit))
-                ];
-                
-                const withdrawRewardXtzOperation = Tezos.transaction(Unit, reward, receiver);
+                    const distributeRewardXtzOperation : operation = Tezos.transaction(
+                        distributeRewardXtzParams,
+                        0tez,
+                        getDistributeRewardXtzInFactoryEntrypoint(factoryAddress)
+                    );
 
-                operations := withdrawRewardXtzOperation # operations;
-                
-                s.oracleRewardsXTZ := newOracleRewards;
+                    operations := distributeRewardXtzOperation # operations;
+                    
+                    // update oracle xtz rewards to zero
+                    const newOracleRewardXtz = Map.update(Tezos.sender, Some (0n), s.oracleRewardXtz);
+                    s.oracleRewardXtz := newOracleRewardXtz;
 
                 } else skip;
             }
@@ -388,27 +652,42 @@ block{
 
 
 
-(*  withdrawRewardMVK entrypoint  *)
-function lambdaWithdrawRewardMVK(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
+(*  withdrawRewardStakedMvk entrypoint  *)
+function lambdaWithdrawRewardStakedMvk(const aggregatorLambdaAction : aggregatorLambdaActionType; var s: aggregatorStorage): return is
 block{
 
-    // checkIfWhiteListed(s);
+    // break glass check
+    checkWithdrawRewardStakedMvkIsNotPaused(s);
 
     var operations : list(operation) := nil;
 
     case aggregatorLambdaAction of [
-        | LambdaWithdrawRewardMVK(receiver) -> {
+        | LambdaWithdrawRewardStakedMvk(_receiver) -> {
                 
-                const reward = getRewardAmountMVK(Tezos.sender, s) * s.config.rewardAmountMVK;
+                const reward = getRewardAmountStakedMvk(Tezos.sender, s) * s.config.rewardAmountStakedMvk;
                 if (reward > 0n) then {
 
-                    const newOracleRewards = Map.update(Tezos.sender, Some (0n), s.oracleRewardsMVK);
+                    const factoryAddress : address = case s.whitelistContracts["aggregatorFactory"] of [
+                        Some(_address) -> _address
+                        | None -> failwith(error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND)
+                    ];
                     
-                    // const withdrawRewardMvkOperation : operation = transferFa2Token(Tezos.self_address, receiver, reward, 0n, s.mvkTokenAddress);
+                    const distributeRewardMvkParams : distributeRewardMvkType = record [
+                        eligibleSatellites     = set[Tezos.sender];
+                        totalStakedMvkReward   = reward;
+                    ];
 
-                    // operations := withdrawRewardMvkOperation # operations;
+                    const distributeRewardMvkOperation : operation = Tezos.transaction(
+                        distributeRewardMvkParams,
+                        0tez,
+                        getDistributeRewardMvkInFactoryEntrypoint(factoryAddress)
+                    );
 
-                    // s.oracleRewardsMVK := newOracleRewards;
+                    operations := distributeRewardMvkOperation # operations;
+
+                    // update oracle mvk rewards to zero
+                    const newOracleRewardStakedMvk = Map.update(Tezos.sender, Some (0n), s.oracleRewardStakedMvk);
+                    s.oracleRewardStakedMvk := newOracleRewardStakedMvk;
 
                 } else skip;
                 

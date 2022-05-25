@@ -1,7 +1,16 @@
 import { MichelsonMap } from "@taquito/michelson-encoder";
+import { zeroAddress } from "test/helpers/Utils";
 
 import { bob } from '../scripts/sandbox/accounts'
 import { aggregatorFactoryStorageType } from "../test/types/aggregatorFactoryStorageType";
+
+const breakGlassConfig = {
+  createAggregatorIsPaused       : false,
+  trackAggregatorIsPaused        : false,
+  untrackAggregatorIsPaused      : false,
+  distributeRewardXtzIsPaused    : false,
+  distributeRewardMvkIsPaused    : false,
+}
 
 const metadata = MichelsonMap.fromLiteral({
   '': Buffer.from('tezos-storage:data', 'ascii').toString('hex'),
@@ -19,11 +28,15 @@ export const aggregatorFactoryStorage : aggregatorFactoryStorageType = {
   
   admin                   : bob.pkh,
   metadata                : metadata,
+  breakGlassConfig        : breakGlassConfig,
   
-  mvkTokenAddress         : "",
-  delegationAddress       : "",
+  mvkTokenAddress         : zeroAddress,
+  governanceAddress       : zeroAddress,
+
+  generalContracts        : MichelsonMap.fromLiteral({}),
+  whitelistContracts      : MichelsonMap.fromLiteral({}),
     
-  trackedAggregators      : MichelsonMap.fromLiteral({}),
+  trackedAggregators      : [],
   trackedSatellites       : [],
   
   lambdaLedger            : MichelsonMap.fromLiteral({}),
