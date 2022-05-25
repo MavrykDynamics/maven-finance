@@ -8,4 +8,5 @@ async def on_council_council_action_request_mint(
     ctx: HandlerContext,
     council_action_request_mint: Transaction[CouncilActionRequestMintParameter, CouncilStorage],
 ) -> None:
+
     await persist_council_action(council_action_request_mint)

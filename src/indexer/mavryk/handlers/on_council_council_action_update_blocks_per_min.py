@@ -9,4 +9,5 @@ async def on_council_council_action_update_blocks_per_min(
     ctx: HandlerContext,
     council_action_update_blocks_per_min: Transaction[CouncilActionUpdateBlocksPerMinParameter, CouncilStorage],
 ) -> None:
+
     await persist_council_action(council_action_update_blocks_per_min)

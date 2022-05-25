@@ -8,4 +8,5 @@ async def on_council_council_action_remove_member(
     ctx: HandlerContext,
     council_action_remove_member: Transaction[CouncilActionRemoveMemberParameter, CouncilStorage],
 ) -> None:
+
     await persist_council_action(council_action_remove_member)
