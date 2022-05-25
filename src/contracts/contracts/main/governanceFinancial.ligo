@@ -308,7 +308,7 @@ block {
     else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
     var satelliteSnapshotRecord : financialRequestSnapshotRecordType := record [
-        totalMvkBalance         = stakedMvkBalance; 
+        totalStakedMvkBalance   = stakedMvkBalance; 
         totalDelegatedAmount    = totalDelegatedAmount; 
         totalVotingPower        = totalVotingPower;
       ];

@@ -298,11 +298,10 @@ block {
 
     var satelliteSnapshotRecord : snapshotRecordType :=
       record [
-        totalMvkBalance         = 0n;                            // log of satellite's total mvk balance for this cycle
+        totalStakedMvkBalance   = 0n;                            // log of satellite's total mvk balance for this cycle
         totalDelegatedAmount    = 0n;                            // log of satellite's total delegated amount 
         totalVotingPower        = 0n;                            // calculated total voting power based on votingPowerRatio (i.e. self bond percentage)   
-        currentCycleStartLevel  = s.currentCycleInfo.roundStartLevel;      // log of current cycle's starting block level
-        currentCycleEndLevel    = s.currentCycleInfo.cycleEndLevel         // log of when cycle (proposal + voting) will end
+        cycle                   = s.cycleCounter;               // log of current cycle
       ];
 
     case s.snapshotLedger[satelliteAddress] of [
@@ -474,9 +473,10 @@ function setupProposalRound(var s: governanceStorage): governanceStorage is
 block {
 
     // reset state variables
-    var emptyProposalMap  : map(nat, nat)           := map [];
-    var emptyVotesMap     : map(address, nat)       := map [];
-    var emptyProposerMap  : map(address, set(nat))  := map [];
+    const emptyProposalMap  : map(nat, nat)           = map [];
+    const emptyVotesMap     : map(address, nat)       = map [];
+    const emptyProposerMap  : map(address, set(nat))  = map [];
+    const emptySnapshotMap  : snapshotLedgerType      = map [];
 
     s.currentCycleInfo.round                         := (Proposal : roundType);
     s.currentCycleInfo.blocksPerProposalRound        := s.config.blocksPerProposalRound;
@@ -490,6 +490,12 @@ block {
     s.currentCycleInfo.roundProposers                := emptyProposerMap;    // flush proposals
     s.currentCycleInfo.roundVotes                    := emptyVotesMap;       // flush voters
     s.currentRoundHighestVotedProposalId   := 0n;                  // flush proposal id voted through - reset to 0 
+
+    // Empty the satellite snapshot ledger
+    s.snapshotLedger    := emptySnapshotMap;
+
+    // Increase the cycle counter
+    s.cycleCounter      := s.cycleCounter + 1n;
 
     const delegationAddress : address = case s.generalContracts["delegation"] of [
         Some(_address) -> _address
@@ -527,11 +533,10 @@ block {
       else totalVotingPower := mvkBalanceAndTotalDelegatedAmount;
 
       // update satellite snapshot record
-      satelliteSnapshotRecord.totalMvkBalance         := mvkBalance; 
+      satelliteSnapshotRecord.totalStakedMvkBalance   := mvkBalance; 
       satelliteSnapshotRecord.totalDelegatedAmount    := totalDelegatedAmount; 
       satelliteSnapshotRecord.totalVotingPower        := totalVotingPower;
-      satelliteSnapshotRecord.currentCycleStartLevel  := s.currentCycleInfo.roundStartLevel; 
-      satelliteSnapshotRecord.currentCycleEndLevel    := s.currentCycleInfo.cycleEndLevel; 
+      satelliteSnapshotRecord.cycle                   := s.cycleCounter; 
 
       s.snapshotLedger[satelliteAddress] := satelliteSnapshotRecord;
     }
@@ -646,7 +651,7 @@ block {
 
 (* View: get a satellite snapshot *)
 [@view] function getSnapshotOpt(const satelliteAddress: address; var s : governanceStorage) : option(snapshotRecordType) is
-  Big_map.find_opt(satelliteAddress, s.snapshotLedger)
+  Map.find_opt(satelliteAddress, s.snapshotLedger)
 
 
 
