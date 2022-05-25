@@ -195,7 +195,7 @@ export const BecomeSatelliteView = ({
           <CommaNumber
             className="label"
             value={Number(minimumStakedMvkBalance)}
-            beginningText={'1- Stake at least'}
+            beginningText={'1 - Stake at least'}
             endingText={'MVK'}
           />
 
@@ -216,9 +216,9 @@ export const BecomeSatelliteView = ({
           <BecomeSatelliteFormHorizontal>
             <article>
               {updateSatellite ? (
-                <label className="label">2- Edit your name</label>
+                <label className="label">2 - Edit your name</label>
               ) : (
-                <label className="label">2- Enter your name</label>
+                <label className="label">2 - Enter your name</label>
               )}
               <Input
                 type="text"
@@ -236,9 +236,9 @@ export const BecomeSatelliteView = ({
             </article>
             <article>
               {updateSatellite ? (
-                <label className="label">3- Edit your website</label>
+                <label className="label">3 - Edit your website</label>
               ) : (
-                <label className="label">3- Enter your website</label>
+                <label className="label">3 - Enter your website</label>
               )}
               <Input
                 type="text"
@@ -255,9 +255,9 @@ export const BecomeSatelliteView = ({
             </article>
           </BecomeSatelliteFormHorizontal>
           {updateSatellite ? (
-            <label className="label">4- Edit description</label>
+            <label className="label">4 - Edit description</label>
           ) : (
-            <label className="label">4- Enter a description</label>
+            <label className="label">4 - Enter a description</label>
           )}
           <TextArea
             placeholder="Your description here..."
@@ -271,9 +271,9 @@ export const BecomeSatelliteView = ({
             inputStatus={formInputStatus.description}
           />
           {updateSatellite ? (
-            <label className="label">5- Edit your fee (%)</label>
+            <label className="label">5 - Edit your fee (%)</label>
           ) : (
-            <label className="label">5- Enter your fee (%)</label>
+            <label className="label">5 - Enter your fee (%)</label>
           )}
           <div className="input-fee-wrap">
             <InputWithPercent
