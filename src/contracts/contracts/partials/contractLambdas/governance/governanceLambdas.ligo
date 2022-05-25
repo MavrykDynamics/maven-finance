@@ -465,7 +465,7 @@ block {
                 // minimumStakeReqPercentage - 5% -> 500 | snapshotMvkTotalSupply - mu 
                 const minimumMvkRequiredForProposalSubmission = s.config.minimumStakeReqPercentage * s.snapshotMvkTotalSupply / 10_000;
 
-                if satelliteSnapshot.totalMvkBalance < abs(minimumMvkRequiredForProposalSubmission) then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
+                if satelliteSnapshot.totalStakedMvkBalance < abs(minimumMvkRequiredForProposalSubmission) then failwith(error_SMVK_ACCESS_AMOUNT_NOT_REACHED)
                 else skip; 
 
                 const proposalId          : nat                                     = s.nextProposalId;
@@ -496,7 +496,6 @@ block {
 
                     successReward                       = s.config.successReward;          // log of successful proposal reward for voters - may change over time
                     executed                            = False;                           // boolean: executed set to true if proposal is executed
-                    isSuccessful                        = False;                           // boolean: set to true if proposal is successful (gone from voting round to timelock round)
                     paymentProcessed                    = False;                           // boolean: set to true if proposal payment has been processed 
                     locked                              = False;                           // boolean: locked set to true after proposer has included necessary metadata and proceed to lock proposal
 
@@ -1103,7 +1102,6 @@ block {
 
                 // update proposal executed and isSucessful boolean to True
                 proposal.executed                      := True;
-                proposal.isSuccessful                  := True;
                 s.proposalLedger[s.timelockProposalId] := proposal;
 
                 // Operation data should be executed in FIFO mode
@@ -1168,10 +1166,6 @@ block {
 
                 // verify that sender is the satellite that proposed the proposal
                 if Tezos.sender =/= proposal.proposerAddress then failwith(error_ONLY_PROPOSER_ALLOWED)
-                else skip;
-
-                // verify that proposal is successful
-                if proposal.isSuccessful = False then failwith(error_PROPOSAL_UNSUCCESSFUL)
                 else skip;
 
                 // verify that payment for proposal has not been processed
@@ -1300,7 +1294,6 @@ block {
                 if proposal.proposalMetadataExecutionCounter >= Map.size(proposal.proposalMetadata) then {
                     // update proposal executed and isSucessful boolean to True
                     proposal.executed                      := True;
-                    proposal.isSuccessful                  := True;
 
                     // Send reward to proposer
                     operations  := sendRewardToProposer(s) # operations;
