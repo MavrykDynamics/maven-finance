@@ -18,8 +18,17 @@ export type aggregatorStorageType = {
     numberBlocksDelay: BigNumber;
   };
 
+  breakGlassConfig          : {
+    requestRateUpdateIsPaused           : boolean;
+    requestRateUpdateDeviationIsPaused  : boolean;
+    setObservationCommitIsPaused        : boolean;
+    setObservationRevealIsPaused        : boolean;
+    withdrawRewardXtzIsPaused           : boolean;
+    withdrawRewardMvkIsPaused           : boolean;
+  };
+
   mvkTokenAddress           : string;
-  delegationAddress         : string;
+  governanceAddress         : string;
 
   round                     : BigNumber;
   roundStart                : string;

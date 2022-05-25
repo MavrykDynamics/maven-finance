@@ -60,6 +60,10 @@ type governanceSatelliteUnpackLambdaFunctionType is (governanceSatelliteLambdaAc
 //
 // ------------------------------------------------------------------------------
 
+// Error Codes
+#include "../partials/errors.ligo"
+
+
 [@inline] const error_ONLY_ADMINISTRATOR_ALLOWED                             = 0n;
 [@inline] const error_ONLY_SATELLITE_ALLOWED                                 = 1n;
 
@@ -170,7 +174,7 @@ case (Tezos.get_entrypoint_opt(
       "%addOracle",
       contractAddress) : option(contract(address))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATE_CONTRACT_NOT_FOUND) : contract(address))
+  | None -> (failwith(error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
 ];
 
 
@@ -181,7 +185,7 @@ case (Tezos.get_entrypoint_opt(
       "%removeOracle",
       contractAddress) : option(contract(address))) of [
     Some(contr) -> contr
-  | None -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATE_CONTRACT_NOT_FOUND) : contract(address))
+  | None -> (failwith(error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND) : contract(address))
 ];
 
 

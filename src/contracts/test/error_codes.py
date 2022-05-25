@@ -672,8 +672,24 @@ error_GET_LAMBDA_OPT_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND                
 error_GET_LAMBDA_LEDGER_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND                                     = 492
 error_GET_PRODUCT_LAMBDA_OPT_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND                                = 493
 error_GET_PRODUCT_LAMBDA_LEDGER_VIEW_IN_TREASURY_FACTORY_CONTRACT_NOT_FOUND                             = 494
+error_AGGREGATOR_CONTRACT_NOT_FOUND                                                                     = 520
+error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED                                                 = 521
 
+error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 522
+error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                            = 523
+error_SET_OBSERVATION_COMMIT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                   = 524
+error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                   = 525
+error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 526
+error_WITHDRAW_REWARD_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 527
 
+error_WRONG_ROUND_NUMBER                                                                                = 528
+error_LAST_ROUND_IS_NOT_COMPLETE                                                                        = 529
+error_YOU_CANNOT_COMMIT_NOW                                                                             = 530
+error_YOU_CANNOT_REVEAL_NOW                                                                             = 531
+error_NOT_ENOUGH_TEZ_IN_CONTRACT_TO_WITHDRAW                                                            = 532
+error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT                                                                = 533
+error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL                                                                = 534
+error_ORACLE_DID_NOT_ANSWER                                                                             = 535
 
 
 
@@ -712,6 +728,15 @@ error_GET_VESTEE_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                         
 error_GET_TOTAL_VESTED_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                               = 520
 error_GET_LAMBDA_OPT_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                                 = 521
 error_GET_LAMBDA_LEDGER_VIEW_IN_VESTING_CONTRACT_NOT_FOUND                                              = 522
+error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                                                             = 536
+
+error_ONLY_MAINTAINER_ALLOWED                                                                           = 537
+error_ACTION_FAILED_AS_SATELLITE_IS_NOT_REGISTERED                                                      = 538
+error_ADD_ORACLE_ENTRYPOINT_NOT_FOUND                                                                   = 539
+error_REMOVE_ORACLE_ENTRYPOINT_NOT_FOUND                                                                = 540
+error_UPDATE_AGGREGATOR_CONFIG_ENTRYPOINT_NOT_FOUND                                                     = 541
+error_UPDATE_ADMIN_ENTRYPOINT_NOT_FOUND                                                                 = 542
+error_AGGREGATOR_IN_GET_AGGREGATOR_VIEW_NOT_FOUND                                                       = 543
 
 
 

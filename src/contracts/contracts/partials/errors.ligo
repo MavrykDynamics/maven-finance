@@ -686,6 +686,76 @@
 [@inline] const error_VESTEE_ALREADY_EXISTS                                                                             = 501n;
 [@inline] const error_VESTEE_NOT_FOUND                                                                                  = 502n;
 [@inline] const error_VESTEE_LOCKED                                                                                     = 503n;
+// ------------------------------------------------------------------------------
+//
+// Aggregator Errors
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_AGGREGATOR_CONTRACT_NOT_FOUND                                                                     = 520n;
+[@inline] const error_ONLY_ADMIN_OR_AGGREGATOR_FACTORY_CONTRACT_ALLOWED                                                 = 521n;
+
+[@inline] const error_ONLY_AUTHORIZED_ORACLES_ALLOWED                                                                   = 527n;
+[@inline] const error_NOT_ENOUGH_TEZ_RECEIVED                                                                           = 527n;
+
+[@inline] const error_REQUEST_RATE_UPDATE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 522n;
+[@inline] const error_REQUEST_RATE_UPDATE_DEVIATION_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                            = 523n;
+[@inline] const error_SET_OBSERVATION_COMMIT_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                   = 524n;
+[@inline] const error_SET_OBSERVATION_REVEAL_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                   = 525n;
+[@inline] const error_WITHDRAW_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                                      = 526n;
+[@inline] const error_WITHDRAW_REWARD_STAKED_MVK_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_PAUSED                               = 527n;
+
+
+[@inline] const error_ADD_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                            = 527n;
+[@inline] const error_REMOVE_ORACLE_ENTRYPOINT_IN_AGGREGATOR_CONTRACT_NOT_FOUND                                         = 527n;
+[@inline] const error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_FACTORY_CONTRACT_NOT_FOUND                                    = 527n;
+[@inline] const error_DISTRIBUTE_REWARD_MVK_ENTRYPOINT_IN_FACTORY_CONTRACT_NOT_FOUND                                    = 527n;
+
+[@inline] const error_WRONG_ROUND_NUMBER                                                                                = 528n;
+[@inline] const error_LAST_ROUND_IS_NOT_COMPLETE                                                                        = 529n;
+[@inline] const error_YOU_CANNOT_COMMIT_NOW                                                                             = 530n;
+[@inline] const error_YOU_CANNOT_REVEAL_NOW                                                                             = 531n;
+[@inline] const error_NOT_ENOUGH_TEZ_IN_CONTRACT_TO_WITHDRAW                                                            = 532n;
+[@inline] const error_ORACLE_HAS_ALREADY_ANSWERED_COMMIT                                                                = 533n;
+[@inline] const error_ORACLE_HAS_ALREADY_ANSWERED_REVEAL                                                                = 534n;
+[@inline] const error_ORACLE_DID_NOT_ANSWER                                                                             = 535n;
+
+
+
+// ------------------------------------------------------------------------------
+//
+// Aggregator Factory Errors
+//
+// ------------------------------------------------------------------------------
+
+[@inline] const error_AGGREGATOR_FACTORY_CONTRACT_NOT_FOUND                                                             = 536n;
+
+[@inline] const error_SENDER_IS_NOT_TRACKED_AGGREGATOR                                                                  = 537n;
+[@inline] const error_ONLY_MAINTAINER_ALLOWED                                                                           = 537n;
+[@inline] const error_ACTION_FAILED_AS_SATELLITE_IS_NOT_REGISTERED                                                      = 538n;
+
+[@inline] const error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                                = 539n;
+[@inline] const error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                                 = 539n;
+[@inline] const error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                               = 539n;
+[@inline] const error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                            = 539n;
+[@inline] const error_DISTRIBUTE_REWARD_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED                            = 539n;
+
+[@inline] const error_ADD_ORACLE_ENTRYPOINT_NOT_FOUND                                                                   = 539n;
+[@inline] const error_REMOVE_ORACLE_ENTRYPOINT_NOT_FOUND                                                                = 540n;
+[@inline] const error_UPDATE_AGGREGATOR_CONFIG_ENTRYPOINT_NOT_FOUND                                                     = 541n;
+[@inline] const error_UPDATE_ADMIN_ENTRYPOINT_NOT_FOUND                                                                 = 542n;
+[@inline] const error_AGGREGATOR_IN_GET_AGGREGATOR_VIEW_NOT_FOUND                                                       = 543n;
+
+[@inline] const error_AGGREGATOR_ALREADY_TRACKED                                                                        = 543n;
+[@inline] const error_AGGREGATOR_NOT_TRACKED                                                                            = 543n;
+
+
+// ------------------------------------------------------------------------------
+//
+// Governance Satellite Errors
+//
+// ------------------------------------------------------------------------------
+
 
 [@inline] const error_SET_ADMIN_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                                = 504n;
 [@inline] const error_SET_GOVERNANCE_ENTRYPOINT_IN_VESTING_CONTRACT_NOT_FOUND                                           = 505n;

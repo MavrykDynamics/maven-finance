@@ -3,13 +3,24 @@ type maintainerType is address;
 
 type metadataType is big_map (string, bytes);
 
-type observationCommitsType    is map (address, bytes);
-type observationRevealsType    is map (address, nat);
+type observationCommitsType     is map (address, bytes);
+type observationRevealsType     is map (address, nat);
 
-type pivotedObservationsType   is map (nat, nat);
-type oracleAddressesType       is map (address, bool);
-type oracleRewardsMVKType      is map (address, nat);
-type oracleRewardsXTZType      is map (address, nat);
+type pivotedObservationsType     is map (nat, nat);
+type oracleAddressesType         is map (address, bool);
+type oracleRewardStakedMvkType   is map (address, nat);
+type oracleRewardXtzType         is map (address, nat);
+
+// rewards type
+type distributeRewardMvkType is [@layout:comb] record [
+    eligibleSatellites    : set(address);
+    totalStakedMvkReward  : nat;
+]
+type distributeRewardXtzType is [@layout:comb] record [
+    recipient             : address;
+    reward                : nat;
+]
+
 
 type deviationTriggerInfosType is  [@layout:comb] record [
     oracleAddress: address;
@@ -43,17 +54,27 @@ type setObservationRevealType is  [@layout:comb] record [
 ];
 
 type aggregatorConfigType is [@layout:comb] record [
-    decimals: nat;
-    deviationRewardAmountXTZ: nat;
-    maintainer: maintainerType;
-    minimalTezosAmountDeviationTrigger: nat;
-    perthousandDeviationTrigger: nat;
-    percentOracleThreshold: nat;
-    rewardAmountMVK: nat;
-    rewardAmountXTZ: nat;
-    numberBlocksDelay: nat;
+    decimals                            : nat;
+    numberBlocksDelay                   : nat;
+    maintainer                          : maintainerType;
+
+    minimalTezosAmountDeviationTrigger  : nat;
+    perthousandDeviationTrigger         : nat;
+    percentOracleThreshold              : nat;
+    
+    deviationRewardAmountXtz            : nat;
+    rewardAmountStakedMvk               : nat;
+    rewardAmountXtz                     : nat;
 ];
 
+type aggregatorBreakGlassConfigType is [@layout:comb] record [
+    requestRateUpdateIsPaused           : bool;
+    requestRateUpdateDeviationIsPaused  : bool;
+    setObservationCommitIsPaused        : bool;
+    setObservationRevealIsPaused        : bool;
+    withdrawRewardXtzIsPaused           : bool;
+    withdrawRewardStakedMvkIsPaused     : bool;
+]
 
 
 type isWhiteListedContractParams is address;
@@ -65,8 +86,8 @@ type setObservationCommitParams is setObservationCommitType;
 type setObservationRevealParams is setObservationRevealType;
 type updateConfigParams is aggregatorConfigType;
 type setAdminParams is address;
-type withdrawRewardXTZParams is address;
-type withdrawRewardMVKParams is address;
+type withdrawRewardXtzParams is address;
+type withdrawRewardStakedMvkParams is address;
 type defaultParams is unit;
 
 type transferDestination is [@layout:comb] record[
@@ -96,13 +117,13 @@ type satelliteRecordType is [@layout:comb] record [
 ]
 
 type updateMetadataType is [@layout:comb] record [
-    metadataKey      : string;
-    metadataHash     : bytes; 
+    metadataKey           : string;
+    metadataHash          : bytes; 
 ]
 
 type setLambdaType is [@layout:comb] record [
-      name                  : string;
-      func_bytes            : bytes;
+    name                  : string;
+    func_bytes            : bytes;
 ]
 type lambdaLedgerType is map(string, bytes)
 
@@ -110,10 +131,25 @@ type aggregatorLambdaActionType is
 
     // Housekeeping Entrypoints
   | LambdaSetAdmin                      of setAdminParams
+  | LambdaSetGovernance                 of (address)
   | LambdaUpdateMetadata                of updateMetadataType
   | LambdaUpdateConfig                  of updateConfigParams
+  | LambdaUpdateWhitelistContracts      of updateWhitelistContractsParams
+  | LambdaUpdateGeneralContracts        of updateGeneralContractsParams
+
+    // Oracle Admin Entrypoints
   | LambdaAddOracle                     of addOracleParams
   | LambdaRemoveOracle                  of address
+
+    // Pause / Break Glass Entrypoints
+  | LambdaPauseAll                      of (unit)
+  | LambdaUnpauseAll                    of (unit)
+  | LambdaTogglePauseReqRateUpd         of (unit)
+  | LambdaTogglePauseReqRateUpdDev      of (unit)
+  | LambdaTogglePauseSetObsCommit       of (unit)
+  | LambdaTogglePauseSetObsReveal       of (unit)
+  | LambdaTogglePauseRewardXtz          of (unit)
+  | LambdaTogglePauseRewardSMvk         of (unit)
 
     // Oracle Entrypoints
   | LambdaRequestRateUpdate             of requestRateUpdateParams
@@ -122,8 +158,8 @@ type aggregatorLambdaActionType is
   | LambdaSetObservationReveal          of setObservationRevealParams
   
     // Reward Entrypoints
-  | LambdaWithdrawRewardXTZ             of withdrawRewardXTZParams
-  | LambdaWithdrawRewardMVK             of withdrawRewardMVKParams
+  | LambdaWithdrawRewardXtz             of withdrawRewardXtzParams
+  | LambdaWithdrawRewardStakedMvk       of withdrawRewardStakedMvkParams
 
 // ------------------------------------------------------------------------------
 // Storage
@@ -134,10 +170,13 @@ type aggregatorStorage is [@layout:comb] record [
     admin                     : adminType;
     metadata                  : metadataType;
     config                    : aggregatorConfigType;
+    breakGlassConfig          : aggregatorBreakGlassConfigType;
 
     mvkTokenAddress           : address;
-    delegationAddress         : address;
     governanceAddress         : address;
+
+    whitelistContracts        : whitelistContractsType;      
+    generalContracts          : generalContractsType;
 
     round                     : nat;
     roundStart                : timestamp;
@@ -151,8 +190,8 @@ type aggregatorStorage is [@layout:comb] record [
     observationCommits        : observationCommitsType;
     observationReveals        : observationRevealsType;
 
-    oracleRewardsMVK          : oracleRewardsMVKType;
-    oracleRewardsXTZ          : oracleRewardsXTZType;
+    oracleRewardStakedMvk     : oracleRewardStakedMvkType;
+    oracleRewardXtz           : oracleRewardXtzType;
     
     lambdaLedger              : lambdaLedgerType;
 ];

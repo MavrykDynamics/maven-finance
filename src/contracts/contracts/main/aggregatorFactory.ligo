@@ -47,13 +47,21 @@ type aggregatorFactoryAction is
     | TogglePauseCreateAggregator     of (unit)
     | TogglePauseTrackAggregator      of (unit)
     | TogglePauseUntrackAggregator    of (unit)
+    | TogglePauseDistributeRewardXtz  of (unit)
+    | TogglePauseDistributeRewardSMvk of (unit)
 
       // Aggregator Factory Entrypoints
-    | UpdateAggregatorAdmin           of updateAggregatorAdminParamsType
-    | UpdateAggregatorConfig          of updateAggregatorConfigParamsType
-    | AddSatellite                    of (address)
-    | BanSatellite                    of (address)
+    // | UpdateAggregatorAdmin           of updateAggregatorAdminParamsType
+    // | UpdateAggregatorConfig          of updateAggregatorConfigParamsType
+    // | AddSatellite                    of (address)
+    // | BanSatellite                    of (address)
     | CreateAggregator                of createAggregatorParamsType
+    | TrackAggregator                 of (address)
+    | UntrackAggregator               of (address)
+
+      // Aggregator Entrypoints
+    | DistributeRewardXtz             of distributeRewardXtzType
+    | DistributeRewardStakedMvk       of distributeRewardStakedMvkType
 
       // Lambda Entrypoints
     | SetLambda                       of setLambdaType
@@ -117,8 +125,48 @@ function checkIfAddressContainInTrackedSatelliteSet(const satelliteAddress: addr
   if not (trackedSatellite contains satelliteAddress) then failwith(error_ACTION_FAILED_AS_SATELLITE_IS_NOT_REGISTERED)
   else unit
 
+
+
+// Whitelist Contracts: checkInWhitelistContracts, updateWhitelistContracts
+#include "../partials/whitelistContractsMethod.ligo"
+
+
+
+// General Contracts: checkInGeneralContracts, updateGeneralContracts
+#include "../partials/generalContractsMethod.ligo"
+
 // ------------------------------------------------------------------------------
 // Admin Helper Functions End
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions Begin
+// ------------------------------------------------------------------------------
+
+function checkCreateAggregatorIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+    if s.breakGlassConfig.createAggregatorIsPaused then failwith(error_CREATE_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+function checkTrackAggregatorIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+    if s.breakGlassConfig.trackAggregatorIsPaused then failwith(error_TRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+function checkUntrackAggregatorIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+    if s.breakGlassConfig.untrackAggregatorIsPaused then failwith(error_UNTRACK_AGGREGATOR_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+function checkDistributeRewardXtzIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+    if s.breakGlassConfig.distributeRewardXtzIsPaused then failwith(error_DISTRIBUTE_REWARD_XTZ_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+function checkDistributeRewardMvkIsNotPaused(var s : aggregatorFactoryStorage) : unit is
+    if s.breakGlassConfig.distributeRewardMvkIsPaused then failwith(error_DISTRIBUTE_REWARD_MVK_ENTRYPOINT_IN_AGGREGATOR_FACTORY_CONTRACT_PAUSED)
+    else unit;
+
+// ------------------------------------------------------------------------------
+// Pause / Break Glass Helper Functions End
 // ------------------------------------------------------------------------------
 
 
@@ -169,6 +217,28 @@ block{
         ];
 } with (Tezos.transaction(adminAddress, 0tez, tokenContract))
 
+
+
+// helper function to get transfer entrypoint in treasury contract
+function sendTransferOperationToTreasury(const contractAddress : address) : contract(transferActionType) is
+  case (Tezos.get_entrypoint_opt(
+      "%transfer",
+      contractAddress) : option(contract(transferActionType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_TRANSFER_ENTRYPOINT_IN_TREASURY_CONTRACT_NOT_FOUND) : contract(transferActionType))
+  ];
+
+
+// helper function to get distributeReward entrypoint in delegation contract
+function getDistributeRewardInDelegationEntrypoint(const contractAddress : address) : contract(distributeRewardStakedMvkType) is
+case (Tezos.get_entrypoint_opt(
+      "%distributeReward",
+      contractAddress) : option(contract(distributeRewardStakedMvkType))) of [
+    Some(contr) -> contr
+  | None -> (failwith(error_DISTRIBUTE_REWARD_ENTRYPOINT_IN_DELEGATION_CONTRACT_NOT_FOUND) : contract(distributeRewardStakedMvkType))
+];
+
+
 // ------------------------------------------------------------------------------
 // Entrypoint Helper Functions End
 // ------------------------------------------------------------------------------
@@ -207,12 +277,12 @@ block {
 // ------------------------------------------------------------------------------
 
 (* View: get aggregator *)
-[@view] function getAggregator (const pair : string*string ; const s : aggregatorFactoryStorage) : address is block {
-  const aggregatorAddress : address = case s.trackedAggregators[pair] of [
-    Some(_address) -> _address
-    | None -> failwith(error_AGGREGATOR_IN_GET_AGGREGATOR_VIEW_NOT_FOUND)
-  ];
-} with (aggregatorAddress)
+// [@view] function getAggregator (const pair : string * string ; const s : aggregatorFactoryStorage) : address is block {
+//   const aggregatorAddress : address = case s.trackedAggregators[pair] of [
+//     Some(_address) -> _address
+//     | None -> failwith(error_AGGREGATOR_IN_GET_AGGREGATOR_VIEW_NOT_FOUND)
+//   ];
+// } with (aggregatorAddress)
 
 // ------------------------------------------------------------------------------
 //
@@ -304,6 +374,44 @@ block{
 
 } with response
 
+
+
+(*  updateWhitelistContracts entrypoint *)
+function updateWhitelistContracts(const updateWhitelistContractsParams: updateWhitelistContractsParams; var s: aggregatorFactoryStorage) : return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateWhitelistContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateWhitelistContracts(updateWhitelistContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  updateGeneralContracts entrypoint *)
+function updateGeneralContracts(const updateGeneralContractsParams: updateGeneralContractsParams; var s: aggregatorFactoryStorage) : return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateGeneralContracts"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateGeneralContracts(updateGeneralContractsParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Housekeeping Entrypoints End
 // ------------------------------------------------------------------------------
@@ -361,7 +469,7 @@ block {
     ];
 
     // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseCreateFarm(unit);
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseCreateAgg(unit);
 
     // init response
     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
@@ -406,6 +514,44 @@ block {
 
 } with response
 
+
+
+(*  togglePauseDistributeRewardXtz entrypoint *)
+function togglePauseDistributeRewardXtz(var s: aggregatorFactoryStorage): return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDisRewardXtz"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseDisRewardXtz(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
+
+
+(*  togglePauseDistributeRewardSMvk entrypoint *)
+function togglePauseDistributeRewardSMvk(var s: aggregatorFactoryStorage): return is
+block {
+    
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTogglePauseDisRewardSMvk"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTogglePauseDisRewardSMvk(unit);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);  
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Pause / Break Glass Entrypoints Begin
 // ------------------------------------------------------------------------------
@@ -418,78 +564,78 @@ block {
 // ------------------------------------------------------------------------------
 
 (*  updateAggregatorAdmin entrypoint  *)
-function updateAggregatorAdmin(const updateAggregatorAdminParams: updateAggregatorAdminParamsType; var s: aggregatorFactoryStorage): return is
-block{
+// function updateAggregatorAdmin(const updateAggregatorAdminParams: updateAggregatorAdminParamsType; var s: aggregatorFactoryStorage): return is
+// block{
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorAdmin"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorAdmin"] of [
+//       | Some(_v) -> _v
+//       | None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateAggregatorAdmin(updateAggregatorAdminParams);
+//     // init aggregator factory lambda action
+//     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateAggregatorAdmin(updateAggregatorAdminParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
 
-} with response
+// } with response
 
 
 
 (*  updateAggregatorConfig entrypoint  *)
-function updateAggregatorConfig(const updateAggregatorConfigParams: updateAggregatorConfigParamsType; var s: aggregatorFactoryStorage): return is
-block{
+// function updateAggregatorConfig(const updateAggregatorConfigParams: updateAggregatorConfigParamsType; var s: aggregatorFactoryStorage): return is
+// block{
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorConfig"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaUpdateAggregatorConfig"] of [
+//       | Some(_v) -> _v
+//       | None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateAggregatorConfig(updateAggregatorConfigParams);
+//     // init aggregator factory lambda action
+//     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUpdateAggregatorConfig(updateAggregatorConfigParams);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);    
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);    
 
-} with response
+// } with response
 
 
 
 (*  addSatellite entrypoint  *)
-function addSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
-block{
+// function addSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
+// block{
     
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddSatellite"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaAddSatellite"] of [
+//       | Some(_v) -> _v
+//       | None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaAddSatellite(satelliteAddress);
+//     // init aggregator factory lambda action
+//     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaAddSatellite(satelliteAddress);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
 
-} with response
+// } with response
 
 
 
 (*  banSatellite entrypoint  *)
-function banSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
-block{
+// function banSatellite(const satelliteAddress: address; var s: aggregatorFactoryStorage): return is
+// block{
 
-    const lambdaBytes : bytes = case s.lambdaLedger["lambdaBanSatellite"] of [
-      | Some(_v) -> _v
-      | None     -> failwith(error_LAMBDA_NOT_FOUND)
-    ];
+//     const lambdaBytes : bytes = case s.lambdaLedger["lambdaBanSatellite"] of [
+//       | Some(_v) -> _v
+//       | None     -> failwith(error_LAMBDA_NOT_FOUND)
+//     ];
 
-    // init aggregator factory lambda action
-    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaBanSatellite(satelliteAddress);
+//     // init aggregator factory lambda action
+//     const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaBanSatellite(satelliteAddress);
 
-    // init response
-    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+//     // init response
+//     const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
 
-} with response
+// } with response
 
 
 
@@ -510,8 +656,92 @@ block {
 
 } with response
 
+
+
+(*  trackAggregator entrypoint  *)
+function trackAggregator(const aggregatorAddress: address; var s: aggregatorFactoryStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaTrackAggregator"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaTrackAggregator(aggregatorAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
+
+
+(*  untrackAggregator entrypoint  *)
+function untrackAggregator(const aggregatorAddress: address; var s: aggregatorFactoryStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaUntrackAggregator"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaUntrackAggregator(aggregatorAddress);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
 // ------------------------------------------------------------------------------
 // Aggregator Factory Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+
+
+// ------------------------------------------------------------------------------
+// Aggregator Entrypoints Begin
+// ------------------------------------------------------------------------------
+
+(*  distributeRewardXtz entrypoint  *)
+function distributeRewardXtz(const distributeRewardXtzParams : distributeRewardXtzType; var s: aggregatorFactoryStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDistributeRewardXtz"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaDistributeRewardXtz(distributeRewardXtzParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
+
+
+(*  distributeRewardStakedMvk entrypoint  *)
+function distributeRewardStakedMvk(const distributeRewardStakedMvkParams : distributeRewardStakedMvkType; var s: aggregatorFactoryStorage): return is
+block {
+
+    const lambdaBytes : bytes = case s.lambdaLedger["lambdaDistributeRewardStakedMvk"] of [
+      | Some(_v) -> _v
+      | None     -> failwith(error_LAMBDA_NOT_FOUND)
+    ];
+
+    // init aggregator factory lambda action
+    const aggregatorFactoryLambdaAction : aggregatorFactoryLambdaActionType = LambdaDistributeRewardStakedMvk(distributeRewardStakedMvkParams);
+
+    // init response
+    const response : return = unpackLambda(lambdaBytes, aggregatorFactoryLambdaAction, s);
+
+} with response
+
+// ------------------------------------------------------------------------------
+// Aggregator Entrypoints Begin
 // ------------------------------------------------------------------------------
 
 
@@ -568,27 +798,35 @@ function main (const action : aggregatorFactoryAction; const s : aggregatorFacto
     case action of [
 
         // Housekeeping Entrypoints
-      | SetAdmin (parameters)                       -> setAdmin(parameters, s)
-      | SetGovernance (parameters)                  -> setGovernance(parameters, s)
-      | UpdateMetadata (parameters)                 -> updateMetadata(parameters, s)
-      | UpdateWhitelistContracts (parameters)       -> updateWhitelistContracts(parameters, s)
-      | UpdateGeneralContracts (parameters)         -> updateGeneralContracts(parameters, s)
+      | SetAdmin (parameters)                         -> setAdmin(parameters, s)
+      | SetGovernance (parameters)                    -> setGovernance(parameters, s)
+      | UpdateMetadata (parameters)                   -> updateMetadata(parameters, s)
+      | UpdateWhitelistContracts (parameters)         -> updateWhitelistContracts(parameters, s)
+      | UpdateGeneralContracts (parameters)           -> updateGeneralContracts(parameters, s)
 
         // Pause / Break Glass Entrypoints
-      | PauseAll (_parameters)                      -> pauseAll(s)
-      | UnpauseAll (_parameters)                    -> unpauseAll(s)
-      | TogglePauseCreateAggregator (_parameters)   -> togglePauseCreateAggregator(s)
-      | TogglePauseTrackAggregator (_parameters)    -> togglePauseTrackAggregator(s)
-      | TogglePauseUntrackAggregator (_parameters)  -> togglePauseUntrackAggregator(s)
+      | PauseAll (_parameters)                        -> pauseAll(s)
+      | UnpauseAll (_parameters)                      -> unpauseAll(s)
+      | TogglePauseCreateAggregator (_parameters)     -> togglePauseCreateAggregator(s)
+      | TogglePauseTrackAggregator (_parameters)      -> togglePauseTrackAggregator(s)
+      | TogglePauseUntrackAggregator (_parameters)    -> togglePauseUntrackAggregator(s)
+      | TogglePauseDistributeRewardXtz (_parameters)  -> togglePauseDistributeRewardXtz(s)
+      | TogglePauseDistributeRewardSMvk (_parameters) -> togglePauseDistributeRewardSMvk(s)
 
         // Aggregator Factory Entrypoints  
-      | UpdateAggregatorAdmin (parameters)          -> updateAggregatorAdmin(parameters, s)
-      | UpdateAggregatorConfig (parameters)         -> updateAggregatorConfig(parameters, s)
-      | AddSatellite (parameters)                   -> addSatellite(parameters, s)
-      | BanSatellite (parameters)                   -> banSatellite(parameters, s)
-      | CreateAggregator (parameters)               -> createAggregator(parameters, s)
+      // | UpdateAggregatorAdmin (parameters)          -> updateAggregatorAdmin(parameters, s)
+      // | UpdateAggregatorConfig (parameters)         -> updateAggregatorConfig(parameters, s)
+      // | AddSatellite (parameters)                   -> addSatellite(parameters, s)
+      // | BanSatellite (parameters)                   -> banSatellite(parameters, s)
+      | CreateAggregator (parameters)                 -> createAggregator(parameters, s)
+      | TrackAggregator (parameters)                  -> trackAggregator(parameters, s)
+      | UntrackAggregator (parameters)                -> untrackAggregator(parameters, s)
+
+        // Aggregator Entrypoints
+      | DistributeRewardXtz (parameters)              -> distributeRewardXtz(parameters, s)
+      | DistributeRewardStakedMvk (parameters)        -> distributeRewardStakedMvk(parameters, s)
 
         // Lambda Entrypoints
-      | SetLambda (parameters)                      -> setLambda(parameters, s)
-      | SetProductLambda (parameters)               -> setProductLambda(parameters, s)
+      | SetLambda (parameters)                        -> setLambda(parameters, s)
+      | SetProductLambda (parameters)                 -> setProductLambda(parameters, s)
     ]

@@ -6,8 +6,18 @@ const { bob, oracleMaintainer, oracle0, oracle1, oracle2 } = require('../scripts
 
 import { aggregatorStorageType } from '../test/types/aggregatorStorageType'
 
-import delegationAddress from '../deployments/delegationAddress.json';
 import mvkTokenAddress from '../deployments/mvkTokenAddress.json';
+import governanceAddress from '../deployments/governanceAddress.json';
+
+
+const breakGlassConfig = {
+  requestRateUpdateIsPaused           : false,
+  requestRateUpdateDeviationIsPaused  : false,
+  setObservationCommitIsPaused        : false,
+  setObservationRevealIsPaused        : false,
+  withdrawRewardXtzIsPaused           : false,
+  withdrawRewardMvkIsPaused           : false
+}
 
 const config = {
   decimals                            : new BigNumber(8),
@@ -56,11 +66,12 @@ const lastCompletedRoundPrice = {
 export const aggregatorStorage: aggregatorStorageType = {
 
   admin                     : bob.pkh,
-  config                    : config,
   metadata                  : metadata,
+  config                    : config,
+  breakGlassConfig          : breakGlassConfig,
   
   mvkTokenAddress           : mvkTokenAddress.address,
-  delegationAddress         : delegationAddress.address,
+  governanceAddress         : governanceAddress.address,
 
   round                     : new BigNumber(0),
   roundStart                : '1',
