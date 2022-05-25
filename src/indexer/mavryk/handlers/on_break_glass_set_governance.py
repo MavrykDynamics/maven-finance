@@ -1,11 +1,19 @@
 
 from dipdup.context import HandlerContext
 from dipdup.models import Transaction
+from mavryk.utils.persisters import persist_governance
 from mavryk.types.break_glass.parameter.set_governance import SetGovernanceParameter
 from mavryk.types.break_glass.storage import BreakGlassStorage
+import mavryk.models as models
 
 async def on_break_glass_set_governance(
     ctx: HandlerContext,
     set_governance: Transaction[SetGovernanceParameter, BreakGlassStorage],
 ) -> None:
-    ...
+    
+    # Get operation info
+    target_contract = set_governance.data.target_address
+    contract        = await models.BreakGlass.get(address = target_contract)
+
+    # Persist new admin
+    await persist_governance(set_governance, contract)
