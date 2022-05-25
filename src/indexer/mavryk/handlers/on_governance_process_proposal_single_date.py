@@ -15,7 +15,6 @@ async def on_governance_process_proposal_single_date(
     proposal_id         = int(process_proposal_single_data.storage.timelockProposalId)
     storage_proposal    = process_proposal_single_data.storage.proposalLedger[process_proposal_single_data.storage.timelockProposalId]
     execution_counter   = int(storage_proposal.proposalMetadataExecutionCounter)
-    successful          = storage_proposal.isSuccessful
     executed            = storage_proposal.executed
 
     # Update record
@@ -26,5 +25,4 @@ async def on_governance_process_proposal_single_date(
     )
     proposal.execution_counter  = execution_counter
     proposal.executed           = executed
-    proposal.successful         = successful
     await proposal.save()

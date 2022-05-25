@@ -9,20 +9,22 @@ async def on_emergency_governance_drop_emergency_governance(
     ctx: HandlerContext,
     drop_emergency_governance: Transaction[DropEmergencyGovernanceParameter, EmergencyGovernanceStorage],
 ) -> None:
+
     # Get operation values
-    emergencyAddress            = drop_emergency_governance.data.target_address
-    emergencyCurrentID          = int(drop_emergency_governance.storage.currentEmergencyGovernanceId)
-    emergencyRecordID           = int(drop_emergency_governance.data.diffs[-1]['content']['key'])
+    emergency_address           = drop_emergency_governance.data.target_address
+    emergency   = await models.EmergencyGovernance.get(
+        address = emergency_address
+    )
+    emergency_current_id        = int(drop_emergency_governance.storage.currentEmergencyGovernanceId)
+    emergency_storage           = drop_emergency_governance.storage.emergencyGovernanceLedger[str(emergency.current_emergency_record_id)]
+    dropped                     = emergency_storage.dropped
 
     # Update record
-    emergency   = await models.EmergencyGovernance.get(
-        address = emergencyAddress
+    emergency_record = await models.EmergencyGovernanceRecord.get(
+        id  = emergency.current_emergency_record_id
     )
-    emergency.current_emergency_record_id   = emergencyCurrentID
-    await emergency.save()
+    emergency_record.dropped = dropped
+    await emergency_record.save()
 
-    emergencyRecord = await models.EmergencyGovernanceRecord.get(
-        id  = emergencyRecordID
-    )
-    emergencyRecord.dropped = True
-    await emergencyRecord.save()
+    emergency.current_emergency_record_id   = emergency_current_id
+    await emergency.save()
