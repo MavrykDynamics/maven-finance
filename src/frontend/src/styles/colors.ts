@@ -1,17 +1,17 @@
-export const darkColor = '#080628';
-export const middleColor = '#160E3F';
-export const medialeColor = '#38237C';
-export const whiteColor = '#FFFFFF';
-export const lightColor = '#EBF0FF';
-export const skyColor = '#77A4F2';
-export const headerColor = '#8D86EB';
-export const textsColor = '#160E3F';
-export const cianColor = '#86D4C9';
-export const darkCianColor = '#503EAA';
-export const tezosColor = '#0D61FF';
-export const primaryColor = '#7068AA';
-export const boxShadowColor = 'rgba(134, 212, 201, 0.5)';
-export const subTextColor = '#7E8794';
+export const darkColor = '#080628'
+export const middleColor = '#160E3F'
+export const darkPurpleColor = '#38237C'
+export const whiteColor = '#FFFFFF'
+export const lightColor = '#EBF0FF'
+export const skyColor = '#77A4F2'
+export const headerColor = '#8D86EB'
+export const textsColor = '#160E3F'
+export const cyanColor = '#86D4C9'
+export const royalPurpleColor = '#503EAA'
+export const tezosColor = '#0D61FF'
+export const primaryColor = '#7068AA'
+export const boxShadowColor = 'rgba(134, 212, 201, 0.5)'
+export const subTextColor = '#7E8794'
 export const accordeonTogglerColor = '#6a6a9b';
 
 export const containerColor = '#F7F9FD';
@@ -33,16 +33,16 @@ export const darkMode = {
   containerColor: middleColor,
   navTitleColor: headerColor,
   navIconColor: headerColor,
-  footerColor: darkCianColor,
-  navLinkTextActive: cianColor,
-  navLinkSubTitleActive: cianColor,
+  footerColor: royalPurpleColor,
+  navLinkTextActive: cyanColor,
+  navLinkSubTitleActive: cyanColor,
   headerColor,
   headerSkyColor: skyColor,
-  cardBorderColor: darkCianColor,
-  valueColor: cianColor,
-  connectInfoColor: medialeColor,
-  actionPrimaryBtnColor: cianColor,
-  stakedColor: cianColor,
+  cardBorderColor: royalPurpleColor,
+  valueColor: cyanColor,
+  connectInfoColor: darkPurpleColor,
+  actionPrimaryBtnColor: cyanColor,
+  stakedColor: cyanColor,
 
   borderColor: '#4F457C',
   textColor: '#F7F9FD',
@@ -65,16 +65,16 @@ export const lightMode = {
   backgroundColor: lightColor,
   containerColor: whiteColor,
   navTitleColor: textsColor,
-  navIconColor: cianColor,
+  navIconColor: cyanColor,
   footerColor: textsColor,
   navLinkTextActive: textsColor,
-  navLinkSubTitleActive: cianColor,
+  navLinkSubTitleActive: cyanColor,
   headerColor: darkColor,
   headerSkyColor: darkColor,
   cardBorderColor: whiteColor,
-  valueColor: darkCianColor,
+  valueColor: royalPurpleColor,
   connectInfoColor: whiteColor,
-  actionPrimaryBtnColor: darkCianColor,
+  actionPrimaryBtnColor: royalPurpleColor,
   stakedColor: darkColor,
 
   borderColor: '#4F457C',

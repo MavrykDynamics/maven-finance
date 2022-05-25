@@ -12,7 +12,7 @@ export const ExitFeeModal = () => {
   const { showing, amount } = useSelector((state: State) => state.exitFeeModal)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { mvkTokenStorage, myMvkTokenBalance } = useSelector((state: State) => state.mvkToken)
-  const { doormanStorage, totalStakedMvkSupply } = useSelector((state: State) => state.doorman)
+  const { doormanStorage, totalStakedMvk } = useSelector((state: State) => state.doorman)
 
   useEffect(() => {
     if (accountPkh && showing) {
@@ -35,7 +35,7 @@ export const ExitFeeModal = () => {
       showing={showing}
       amount={amount}
       mvkTotalSupply={mvkTokenStorage?.totalSupply}
-      totalStakedMvkSupply={totalStakedMvkSupply}
+      totalStakedMvkSupply={totalStakedMvk}
       unstakeCallback={unstakeCallback}
       cancelCallback={cancelCallback}
     />

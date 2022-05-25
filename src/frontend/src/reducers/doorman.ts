@@ -1,4 +1,7 @@
 import {
+  COMPOUND_ERROR,
+  COMPOUND_REQUEST,
+  COMPOUND_RESULT,
   GET_DOORMAN_STORAGE,
   STAKE_ERROR,
   STAKE_REQUEST,
@@ -7,40 +10,33 @@ import {
   UNSTAKE_REQUEST,
   UNSTAKE_RESULT,
 } from 'pages/Doorman/Doorman.actions'
-import { MichelsonMap } from '@taquito/taquito'
 import { getItemFromStorage } from '../utils/storage'
 import { DoormanStorage } from '../utils/TypesAndInterfaces/Doorman'
 
 export const STAKE = 'STAKE'
 export const UNSTAKE = 'UNSTAKE'
+export const COMPOUND = 'COMPOUND'
 
 export interface DoormanState {
-  type?: typeof STAKE | typeof UNSTAKE | typeof GET_DOORMAN_STORAGE
+  type?: typeof STAKE | typeof UNSTAKE | typeof GET_DOORMAN_STORAGE | typeof COMPOUND
   amount: number
   error?: any
   doormanStorage?: DoormanStorage
-  totalStakedMvkSupply?: number
+  totalStakedMvk?: number
 }
 
-const defaultStorageState = {
+const defaultStorageState: DoormanStorage = {
   admin: '',
   minMvkAmount: 0,
-
-  whitelistContracts: new MichelsonMap<string, unknown>(),
-  generalContracts: new MichelsonMap<string, unknown>(),
 
   breakGlassConfig: {
     stakeIsPaused: false,
     unstakeIsPaused: false,
     compoundIsPaused: false,
+    farmClaimIsPaused: false,
   },
   userStakeBalanceLedger: new Map<string, string>(),
-  tempMvkTotalSupply: 0,
-  tempMvkMaximumTotalSupply: 0,
-  stakedMvkTotalSupply: 0,
-
-  logExitFee: 0, // to be removed after testing
-  logFinalAmount: 0, // to be removed after testing
+  totalStakedMvk: 0,
 
   accumulatedFeesPerShare: 0,
 }
@@ -49,7 +45,7 @@ const doormanDefaultState: DoormanState = {
   amount: 0,
   error: undefined,
   doormanStorage: getItemFromStorage('DoormanStorage') ?? defaultStorageState,
-  totalStakedMvkSupply: 0,
+  totalStakedMvk: 0,
 }
 
 export function doorman(state = doormanDefaultState, action: any): DoormanState {
@@ -96,12 +92,30 @@ export function doorman(state = doormanDefaultState, action: any): DoormanState 
         amount: 0,
         error: action.error,
       }
+    case COMPOUND_REQUEST:
+      return {
+        ...state,
+        type: COMPOUND,
+        error: undefined,
+      }
+    case COMPOUND_RESULT:
+      return {
+        ...state,
+        type: UNSTAKE,
+        error: undefined,
+      }
+    case COMPOUND_ERROR:
+      return {
+        ...state,
+        type: COMPOUND,
+        error: action.error,
+      }
     case GET_DOORMAN_STORAGE:
       return {
         ...state,
         type: GET_DOORMAN_STORAGE,
         doormanStorage: action.storage,
-        totalStakedMvkSupply: action.totalStakedMvkSupply,
+        totalStakedMvk: action.totalStakedMvkSupply,
         amount: 0,
       }
     default:

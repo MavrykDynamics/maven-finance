@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, cianColor, skyColor } from 'styles'
+import { Card, cyanColor, skyColor } from 'styles'
 
 import { MavrykTheme } from '../../styles/interfaces'
 
@@ -89,7 +89,7 @@ export const RightSideSubContent = styled.p<{ theme: MavrykTheme }>`
   }
 
   &#votingDeadline {
-    color: ${cianColor};
+    color: ${cyanColor};
     font-size: 12px;
     line-height: 1;
   }

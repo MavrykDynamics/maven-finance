@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, darkCianColor } from 'styles'
+import { Card, royalPurpleColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -106,7 +106,7 @@ export const EGovHistoryCardDropDown = styled.div<{ height: number; theme: Mavry
   &::before {
     content: '';
     position: absolute;
-    border-top: 1px solid ${darkCianColor};
+    border-top: 1px solid ${royalPurpleColor};
     width: 100%;
     left: 0;
     top: 1px;

@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, cianColor, headerColor, skyColor, medialeColor } from 'styles'
+import { Card, cyanColor, headerColor, skyColor, darkPurpleColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -54,7 +54,7 @@ export const PropSubTopBarValueText = styled.span`
   font-weight: 600;
   font-size: 16px;
   line-height: 16px;
-  color: ${cianColor};
+  color: ${cyanColor};
   padding-left: 26px;
 `
 export const PropSubTopBarEmergencyGovText = styled.div<{ theme: MavrykTheme }>`
@@ -64,7 +64,7 @@ export const PropSubTopBarEmergencyGovText = styled.div<{ theme: MavrykTheme }>`
   font-size: 25px;
 `
 export const TimeLeftAreaWrap = styled.div<{ theme: MavrykTheme }>`
-  border-left: 2px solid ${medialeColor};
+  border-left: 2px solid ${darkPurpleColor};
   display: flex;
   height: 38px;
   flex-shrink: 0;

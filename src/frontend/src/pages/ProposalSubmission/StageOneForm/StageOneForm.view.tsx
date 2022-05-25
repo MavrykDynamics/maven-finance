@@ -9,8 +9,12 @@ import { SubmitProposalForm, SubmitProposalFormInputStatus } from '../../../util
 // const
 import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 // styles
-// prettier-ignore
-import { FormButtonContainer, FormHeaderGroup, FormTitleAndFeeContainer, FormTitleContainer } from '../ProposalSubmission.style'
+import {
+  FormButtonContainer,
+  FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
+} from '../ProposalSubmission.style'
 
 type StageOneFormViewProps = {
   locked: boolean

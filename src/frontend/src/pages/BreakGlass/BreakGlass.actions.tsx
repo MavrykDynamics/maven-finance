@@ -30,7 +30,7 @@ export const getBreakGlassStorage = (accountPkh?: string) => async (dispatch: an
     BREAK_GLASS_STORAGE_QUERY_NAME,
     BREAK_GLASS_STORAGE_QUERY_VARIABLE,
   )
-  const convertedStorage = storageToTypeConverter('breakGlass', storage.break_glass[0])
+  const convertedStorage = storageToTypeConverter('breakGlass', storage?.break_glass[0])
 
   dispatch({ type: SET_GLASS_BROKEN, glassBroken: convertedStorage.glassBroken })
   dispatch({

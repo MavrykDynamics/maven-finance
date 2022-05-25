@@ -14,12 +14,12 @@ export const getTreasuryStorage = (accountPkh?: string) => async (dispatch: any,
   //   return
   // }
   // TODO: Change address used to that of the Treasury when possible
-  console.log(state.contractAddresses)
+  console.log(state?.contractAddresses)
   const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(state.contractAddresses.treasuryAddress.address)
+    ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.treasuryAddress?.address)
     : await new TezosToolkit(
         (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(state.contractAddresses.treasuryAddress.address)
+      ).contract.at(state?.contractAddresses?.treasuryAddress?.address)
 
   const storage = await (contract as any).storage()
   console.log('Printing out Treasury storage:\n', storage)
@@ -51,7 +51,7 @@ export const getCouncilStorage = (accountPkh?: string) => async (dispatch: any, 
     COUNCIL_STORAGE_QUERY_NAME,
     COUNCIL_STORAGE_QUERY_VARIABLE,
   )
-  const convertedStorage = storageToTypeConverter('council', storage.council[0])
+  const convertedStorage = storageToTypeConverter('council', storage?.council[0])
 
   dispatch({
     type: GET_COUNCIL_STORAGE,
@@ -68,10 +68,10 @@ export const getVestingStorage = (accountPkh?: string) => async (dispatch: any, 
   //   return
   // }
   const contract = accountPkh
-    ? await state.wallet.tezos?.wallet.at(state.contractAddresses.vestingAddress.address)
+    ? await state?.wallet?.tezos?.wallet?.at(state?.contractAddresses?.vestingAddress?.address)
     : await new TezosToolkit(
         (process.env.REACT_APP_RPC_PROVIDER as any) || 'https://hangzhounet.api.tez.ie/',
-      ).contract.at(state.contractAddresses.vestingAddress.address)
+      ).contract.at(state?.contractAddresses?.vestingAddress?.address)
 
   const storage = await (contract as any).storage()
   console.log('Printing out Vesting storage:\n', storage)
