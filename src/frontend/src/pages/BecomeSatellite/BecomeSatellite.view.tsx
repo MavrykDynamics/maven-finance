@@ -257,7 +257,7 @@ export const BecomeSatelliteView = ({
           {updateSatellite ? (
             <label className="label">4- Edit description</label>
           ) : (
-            <label className="label">4- Enter your description</label>
+            <label className="label">4- Enter a description</label>
           )}
           <TextArea
             placeholder="Your description here..."
@@ -295,7 +295,7 @@ export const BecomeSatelliteView = ({
               setValidForm({ ...validForm, image: Boolean(e) })
               setFormInputStatus({ ...formInputStatus, image: Boolean(e) ? 'success' : 'error' })
             }}
-            title={'Upload Profile Pic'}
+            title={'Upload your photo'}
             listNumber={6}
           />
           <BecomeSatelliteButttons>
