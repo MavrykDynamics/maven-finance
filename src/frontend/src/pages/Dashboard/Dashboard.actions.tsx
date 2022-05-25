@@ -28,6 +28,6 @@ export const getFarmStorage = (accountPkh?: string) => async (dispatch: any, get
       farmStorage: storage,
     })
   } catch (error) {
-    console.log('%c ||||| error', 'color:yellowgreen', error)
+    console.log(error)
   }
 }

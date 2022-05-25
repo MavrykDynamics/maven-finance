@@ -22,14 +22,10 @@ const StyledTooltip = styled((props) => <Tooltip classes={{ popper: props.classN
 
 export default function TableGrid({ tableData, setTableData }: Props) {
   const [activeTd, setActieTd] = useState<number | ''>('')
-  console.log('ТТТТТ - tableData')
-  console.table(tableData)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>, i: number, j: number) => {
     const value = e.target.value
     const cloneTable = [...tableData]
-
-    console.log('%c ||||| value', 'color:yellowgreen', value)
     cloneTable[i][j] = value
     setTableData(cloneTable)
   }
