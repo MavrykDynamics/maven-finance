@@ -34,7 +34,7 @@ export class RequestRateUpdateService implements OnModuleInit {
       );
     }
 
-    this.logger.log(
+    this.logger.verbose(
       `Round duration: ${maintainerConfig.roundDurationMinutes} minutes`
     );
 
@@ -52,11 +52,11 @@ export class RequestRateUpdateService implements OnModuleInit {
   }
 
   async onModuleInit(): Promise<void> {
-    this.logger.log(`Using maintainer address: ${this.maintainerConfig.maintainerPkh}`);
-    this.logger.log(
+    this.logger.verbose(`Using maintainer address: ${this.maintainerConfig.maintainerPkh}`);
+    this.logger.verbose(
       `Using AggregatorFactory address: ${this.maintainerConfig.aggregatorFactorySmartContractAddress}`
     );
-    this.logger.log(`Using RPC url: ${this.maintainerConfig.rpcUrl}`);
+    this.logger.verbose(`Using RPC url: ${this.maintainerConfig.rpcUrl}`);
   }
 
   private async requestUpdateRate() {
@@ -76,6 +76,7 @@ export class RequestRateUpdateService implements OnModuleInit {
         >(address);
 
         const {
+          round,
           lastCompletedRoundPrice: { round: lastCompletedRound },
           roundStart
         } = await aggregator.storage();
@@ -104,7 +105,7 @@ export class RequestRateUpdateService implements OnModuleInit {
 
         switch (result.type) {
           case 'success':
-            this.logger.log(`Request rate update: Requested for pair ${pair}`);
+            this.logger.log(`Request rate update: Requested for pair ${pair}. Previous round was ${round}`);
             break;
           case 'error':
             this.logger.error(
