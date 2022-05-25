@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { Card, skyColor, cianColor } from 'styles'
+import { Card, skyColor, cyanColor } from 'styles'
 
 import { MavrykTheme } from '../../styles/interfaces'
 
@@ -40,7 +40,7 @@ export const CardContentLeftSide = styled.div<{ theme: MavrykTheme }>`
     font-weight: 700;
     font-size: 14px;
     line-height: 21px;
-    color: ${cianColor};
+    color: ${cyanColor};
     padding-bottom: 12px;
     padding-top: 2px;
   }
