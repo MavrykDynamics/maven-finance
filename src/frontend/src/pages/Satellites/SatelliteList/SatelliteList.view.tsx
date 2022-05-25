@@ -117,8 +117,6 @@ const ListWithSatellites = ({
     handleSelect(itemsForDropDown[0])
   }, [])
 
-  console.log('%c ||||| satelliteFound', 'color:yellowgreen', satelliteFound)
-
   return (
     <SatelliteListStyled>
       <SatelliteSearchFilter>

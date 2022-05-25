@@ -35,6 +35,7 @@ import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
 import SatellitePagination from '../Satellites/SatellitePagination/SatellitePagination.view'
 // style
 import { SatelliteCardBottomRow, SatelliteDescriptionText } from './SatelliteDetails.style'
+import { EmptyContainer } from '../../app/App.style'
 
 type SatelliteDetailsViewProps = {
   satellite: SatelliteRecord
@@ -77,24 +78,25 @@ export const SatelliteDetailsView = ({
       } else return
     },
   }
+
+  console.log('%c ||||| satellite', 'color:yellowgreen', satellite)
+
+  const emptyContainer = (
+    <EmptyContainer>
+      <img src="/images/not-found.svg" alt=" No proposals to show" />
+      <figcaption> No Satellite to show</figcaption>
+    </EmptyContainer>
+  )
+
+  const isSatellite = satellite && satellite.address && satellite.address !== 'None'
+
   return (
     <Page>
       <PageHeader page={'satellites'} kind={PRIMARY} loading={loading} />
       <PageContent>
         <div>
           <SatellitePagination />
-          {!satellite && <Loader />}
-          {satellite && satellite.address === 'None' && (
-            <SatelliteCard>
-              <SatelliteCardTopRow>No Satellite found..</SatelliteCardTopRow>
-              <div>
-                <Link to="/satellites/">
-                  <Button text="To Satellites" icon="satellite" kind="primary" />
-                </Link>
-              </div>
-            </SatelliteCard>
-          )}
-          {satellite && satellite.address !== 'None' && (
+          {isSatellite ? (
             <SatelliteListCard
               satellite={satellite}
               loading={loading}
@@ -148,6 +150,10 @@ export const SatelliteDetailsView = ({
                 ) : null}
               </SatelliteCardBottomRow>
             </SatelliteListCard>
+          ) : loading ? (
+            <Loader />
+          ) : (
+            emptyContainer
           )}
         </div>
         <SatelliteSideBar />
