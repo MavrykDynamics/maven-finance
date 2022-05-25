@@ -8,6 +8,7 @@ async def on_council_origination(
     ctx: HandlerContext,
     council_origination: Origination[CouncilStorage],
 ) -> None:
+
     # Get operation values
     address                 = council_origination.data.originated_contract_address
     admin                   = council_origination.storage.admin

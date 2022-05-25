@@ -48,7 +48,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.2
+          image: tezosdynamics/mavryk-indexer:v0.2.3
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -85,7 +85,7 @@ spec:
                   key: HASURA_GRAPHQL_ADMIN_SECRET
             - name: TZKT_URL
               value: https://api.ithacanet.tzkt.io
-          image: tezosdynamics/mavryk-indexer:v0.2.2
+          image: tezosdynamics/mavryk-indexer:v0.2.3
           imagePullPolicy: Always
           volumeMounts:
             - name: config-volume
@@ -125,51 +125,45 @@ data:
         migration: exception
         rollback: ignore
 
-    advanced:
-      reindex:
-        manual: wipe
-        migration: exception
-        rollback: ignore
-
     contracts:
       mvk:
-        address: KT1Vy6dzCFQcHsQTjWy3cbD1Li6bTtj4WiVZ
+        address: KT1HVVchMjYZUs1HBwp7Zp4EKebqLsC4SZQm
         typename: mvk
       governance:
-        address: KT1MKLdg3GgmgCsBRL79LH4URY7JTzRh1vVe
+        address: KT1WxxvZ4ofHGPezKBSoJ5CW3yhKZqpfwcp3
         typename: governance
       doorman:
-        address: KT1XHie7nqrdEEZCz8Nxd75Z88t3j7z33H6v
+        address: KT1GJ3NmTCTSYcfVqNhfMnA1Q7vKDgEsixbs
         typename: doorman
       farm:
-        address: KT1JCpqE7w7ePMSeMVg6pmX7VtfbT74eGEpc
+        address: KT1HSVbzssUpuSVvuq4G1bq8TWQmphywWu7d
         typename: farm
       farm_factory:
-        address: KT1S9C3ZZy3GskM9euKZtNTCv7JzWdi2mYGd
+        address: KT19xF64F4aJ97gjyZ3ifDihRQ1jgVRMfU24
         typename: farm_factory
       delegation:
-        address: KT1DSVod56ZtxLcsEtqpcYyhwaJkKShsZx22
+        address: KT1LBBB89VUpYGoNo3HJi8YRsu6jdXcqpyx2
         typename: delegation
       vesting:
-        address: KT1Mex5gu37gZ2meTG5ykmHMhxBFvbRUQwUG
+        address: KT1H7HY8CasfLb8SfdUZh2o9obbivhzGFKj1
         typename: vesting
       emergency_governance:
-        address: KT1ADf8nyqAcHyik5EUmhRqny27Gvj5kTWpV
+        address: KT1EDWxv1v1TEBrmmWxgur84sz5Tz8PCR3Yq
         typename: emergency_governance
       council:
-        address: KT1DJAF7e7gCckH6oXrKUeLskXyuTPabhcGH
+        address: KT1ArMpZbetnugsAmHsR97jQWkwkYhfC4s57
         typename: council
       break_glass:
-        address: KT1R7M83JJmyvK2i2t1KaaPH7d9TkMjQhqCh
+        address: KT1JPD2BFkvoSZwhVzSP8umbKJqwWD7igQ3L
         typename: break_glass
       governance_financial:
-        address: KT1MBHm27DAtao2w2s9bxucVeR6UkqUm3Yrm
+        address: KT1NcGXwFFMmkzgNFb3H9m4vXktDK8RsBXUb
         typename: governance_financial
       treasury:
-        address: KT1Byx4jJJZLK27jyEzPHnJK6kyJHSCiSTtQ
+        address: KT1QMZ2jqRSyqvRTu8RCtDJdhrnBs5ez9uzR
         typename: treasury
       treasury_factory:
-        address: KT1N4C8rSK6gFYvjvYjTH9fSNQyG3EjUvSaY
+        address: KT1TGXbDDNyeQRf9xdQD8XPat2KKMCcLm7Ss
         typename: treasury_factory
 
     datasources:
@@ -325,10 +319,6 @@ data:
             pattern:
               - destination: governance
                 entrypoint: breakGlass
-          - callback: on_governance_propagate_break_glass
-            pattern:
-              - destination: governance
-                entrypoint: propagateBreakGlass
           - callback: on_governance_set_admin
             pattern:
               - destination: governance
@@ -361,14 +351,14 @@ data:
             pattern:
               - destination: governance
                 entrypoint: proposalRoundVote
-          - callback: on_governance_add_update_proposal_data
+          - callback: on_governance_update_proposal_data
             pattern:
               - destination: governance
-                entrypoint: addUpdateProposalData
-          - callback: on_governance_add_update_payment_data
+                entrypoint: updateProposalData
+          - callback: on_governance_update_payment_data
             pattern:
               - destination: governance
-                entrypoint: addUpdatePaymentData
+                entrypoint: updatePaymentData
           - callback: on_governance_lock_proposal
             pattern:
               - destination: governance

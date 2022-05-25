@@ -9,6 +9,7 @@ async def on_council_update_config(
     ctx: HandlerContext,
     update_config: Transaction[UpdateConfigParameter, CouncilStorage],
 ) -> None:
+
     # Get operation values
     councilAddress          = update_config.data.target_address
     updatedValue            = int(update_config.parameter.updateConfigNewValue)
