@@ -8,4 +8,5 @@ async def on_council_council_action_transfer(
     ctx: HandlerContext,
     council_action_transfer: Transaction[CouncilActionTransferParameter, CouncilStorage],
 ) -> None:
+
     await persist_council_action(council_action_transfer)

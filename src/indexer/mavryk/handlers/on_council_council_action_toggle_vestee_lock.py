@@ -8,4 +8,5 @@ async def on_council_council_action_toggle_vestee_lock(
     ctx: HandlerContext,
     council_action_toggle_vestee_lock: Transaction[CouncilActionToggleVesteeLockParameter, CouncilStorage],
 ) -> None:
+
     await persist_council_action(council_action_toggle_vestee_lock)

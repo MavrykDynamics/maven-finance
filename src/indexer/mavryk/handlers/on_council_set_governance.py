@@ -1,11 +1,19 @@
 
 from dipdup.context import HandlerContext
+from mavryk.utils.persisters import persist_governance
 from mavryk.types.council.storage import CouncilStorage
 from dipdup.models import Transaction
 from mavryk.types.council.parameter.set_governance import SetGovernanceParameter
+import mavryk.models as models
 
 async def on_council_set_governance(
     ctx: HandlerContext,
     set_governance: Transaction[SetGovernanceParameter, CouncilStorage],
 ) -> None:
-    ...
+    
+    # Get operation info
+    target_contract = set_governance.data.target_address
+    contract        = await models.Council.get(address = target_contract)
+
+    # Persist new admin
+    await persist_governance(set_governance, contract)

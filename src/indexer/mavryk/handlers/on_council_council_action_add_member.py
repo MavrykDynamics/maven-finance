@@ -8,4 +8,5 @@ async def on_council_council_action_add_member(
     ctx: HandlerContext,
     council_action_add_member: Transaction[CouncilActionAddMemberParameter, CouncilStorage],
 ) -> None:
+
     await persist_council_action(council_action_add_member)
