@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Tooltip } from '@mui/material'
 import styled from 'styled-components'
-import { cianColor, darkColor } from 'styles'
+import { cyanColor, darkColor } from 'styles'
 
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
@@ -19,7 +19,7 @@ type Props = {
 
 const StyledTooltip = styled((props) => <Tooltip classes={{ popper: props.className }} {...props} />)`
   & .MuiTooltip-tooltip {
-    background-color: ${cianColor};
+    background-color: ${cyanColor};
     color: ${darkColor};
     margin-bottom: 0 !important;
   }

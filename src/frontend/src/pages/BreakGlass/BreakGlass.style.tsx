@@ -1,27 +1,27 @@
-import styled from 'styled-components/macro';
-import { MavrykTheme } from '../../styles/interfaces';
+import styled from 'styled-components/macro'
+import { MavrykTheme } from '../../styles/interfaces'
 
-import { downColor, upColor, skyColor, headerColor, darkCianColor } from '../../styles/colors';
+import { downColor, upColor, skyColor, headerColor, royalPurpleColor } from '../../styles/colors'
 
 export const BGStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   width: 100%;
   flex-direction: column;
   font-family: 'Metropolis';
-`;
+`
 
 export const BGTop = styled.div<{ theme: MavrykTheme }>`
   width: 100%;
   display: flex;
   padding-top: 30px;
   justify-content: space-between;
-`;
+`
 
 const BGBlockBaseStyles = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  border: 1px solid ${darkCianColor};
+  border: 1px solid ${royalPurpleColor};
   border-radius: 10px;
-`;
+`
 
 export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
   display: flex;
@@ -55,13 +55,13 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
     text-transform: uppercase;
     color: ${upColor};
   }
-`;
+`
 
 export const BGMiddleWrapper = styled.div<{ theme: MavrykTheme }>`
   display: flex;
   justify-content: space-between;
   margin-top: 45px;
-`;
+`
 
 export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
   max-width: 758px;
@@ -82,7 +82,7 @@ export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
   a {
     text-decoration: none;
   }
-`;
+`
 
 export const BGCardsWrapper = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -90,11 +90,11 @@ export const BGCardsWrapper = styled.div<{ theme: MavrykTheme }>`
   column-gap: calc((100% - (31% * 3)) / 2);
   row-gap: 25px;
   margin-top: 23px;
-`;
+`
 
 export const BGTitle = styled.h1<{ theme: MavrykTheme }>`
   color: ${headerColor};
   font-weight: 700;
   font-size: 24px;
   margin: 0;
-`;
+`
