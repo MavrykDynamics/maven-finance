@@ -241,7 +241,6 @@ function convertToSatelliteRecordsInterface(satelliteRecordObject: any): Satelli
 }
 
 function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecord {
-  
   const totalDelegatedAmount = satelliteRecord ? satelliteRecord.delegation_records.reduce(
     (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
     0,
@@ -300,7 +299,6 @@ function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecor
         financialRequestsVotes.push(newRequestVote)
       },
     )
-
   }
   const newSatelliteRecord: SatelliteRecord = {
     address: satelliteRecord?.user_id || '',
