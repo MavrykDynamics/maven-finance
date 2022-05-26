@@ -1,5 +1,5 @@
 import styled from 'styled-components/macro'
-import { Card, royalPurpleColor } from 'styles'
+import { Card, royalPurpleColor, cyanColor, boxShadowColor } from 'styles'
 
 import { MavrykTheme } from '../../../styles/interfaces'
 
@@ -11,6 +11,11 @@ export const EGovHistoryCardStyled = styled(Card)<{ theme: MavrykTheme }>`
   padding: 0;
   cursor: pointer;
   overflow: hidden;
+
+  &:hover {
+    border-color: ${cyanColor};
+    box-shadow: 0px 4px 4px ${boxShadowColor};
+  }
 `
 export const EGovHistoryCardTopSection = styled.div<{ height: number; theme: MavrykTheme }>`
   width: 100%;
