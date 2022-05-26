@@ -18,8 +18,8 @@ export default function TreasuryView({ treasury }: Props) {
         </header>
         <div>
           <div className="assets-block">
-            <p>TVL</p>
-            <p>$ 38,987,657.329</p>
+            <p className="asset-name">TVL</p>
+            <p className="asset-value">$ 38,987,657.329</p>
             <div />
           </div>
           <div className="assets-block">
@@ -31,9 +31,9 @@ export default function TreasuryView({ treasury }: Props) {
             ? treasury.assets.map((item: any) => {
                 return (
                   <div className="assets-block" key={item.asset}>
-                    <p>{item.asset}</p>
-                    <p>{item.amount}</p>
-                    <p className="right-text">$ {item.amount * 0.25}</p>
+                    <p className="asset-name">{item.asset}</p>
+                    <p className="asset-value">{item.amount}</p>
+                    <p className="asset-value right-text">$ {item.amount * 0.25}</p>
                   </div>
                 )
               })
@@ -48,7 +48,7 @@ export default function TreasuryView({ treasury }: Props) {
           ? treasury.assets.map((item: any) => {
               return (
                 <div key={item.asset}>
-                  <p>{item.asset}</p>
+                  <p className="asset-lable">{item.asset}</p>
                 </div>
               )
             })
