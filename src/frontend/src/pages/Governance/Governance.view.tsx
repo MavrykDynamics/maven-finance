@@ -81,6 +81,8 @@ export const GovernanceView = ({
   //   }
   // }, [rightSideContent?.id, selectedProposal])
 
+  console.log('%c ||||| loading', 'color:yellow', loading)
+
   useEffect(() => {
     setRightSideContent(undefined)
   }, [location.pathname])
@@ -109,76 +111,34 @@ export const GovernanceView = ({
 
   return (
     <GovernanceStyled>
-      <GovernanceLeftContainer>
-        {!onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'VOTING' ? (
-          <Proposals
-            proposalsList={ongoingProposals}
-            handleItemSelect={_handleItemSelect}
-            selectedProposal={rightSideContent}
-          />
-        ) : !onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'TIME_LOCK' ? (
-          <Proposals
-            proposalsList={ongoingProposals}
-            handleItemSelect={_handleItemSelect}
-            selectedProposal={rightSideContent}
-          />
-        ) : !onProposalHistoryPage && nextProposals !== undefined && governancePhase === 'PROPOSAL' ? (
-          <Proposals
-            proposalsList={nextProposals}
-            handleItemSelect={_handleItemSelect}
-            selectedProposal={rightSideContent}
-          />
-        ) : onProposalHistoryPage && pastProposals !== undefined ? (
-          <Proposals
-            proposalsList={pastProposals}
-            handleItemSelect={_handleItemSelect}
-            selectedProposal={rightSideContent}
-            isProposalHistory={true}
-          />
-        ) : (
-          emptyContainer
-        )}
-      </GovernanceLeftContainer>
-
-      {rightSideContent && rightSideContent.id !== 0 ? (
-        <GovernanceRightContainer>
-          <GovRightContainerTitleArea>
-            <h1>{rightSideContent.title}</h1>
-            <StatusFlag text={rightSideContent.status} status={rightSideContent.status} />
-          </GovRightContainerTitleArea>
-          <RightSideSubContent id="votingDeadline">Voting ending on September 12th, 05:16 CEST</RightSideSubContent>
-          <VotingArea
-            ready={ready}
-            loading={loading}
-            accountPkh={accountPkh}
-            handleProposalRoundVote={handleProposalRoundVote}
-            handleVotingRoundVote={handleVotingRoundVote}
-            selectedProposal={rightSideContent}
-            voteStatistics={voteStatistics}
-          />
-          <hr />
-          <article>
-            <RightSideSubHeader>Details</RightSideSubHeader>
-            <RightSideSubContent>{rightSideContent.details}</RightSideSubContent>
-          </article>
-          <article>
-            <RightSideSubHeader>Description</RightSideSubHeader>
-            <RightSideSubContent>{rightSideContent.description}</RightSideSubContent>
-          </article>
-          <article>
-            <RightSideSubHeader>Proposer</RightSideSubHeader>
-            <RightSideSubContent>
-              <TzAddress tzAddress={rightSideContent.proposerId} hasIcon={true} isBold={true} />
-            </RightSideSubContent>
-          </article>
-          <article>
-            <a target="_blank" rel="noopener noreferrer" href={rightSideContent.invoice}>
-              <p>Invoice</p>
-            </a>
-          </article>
-          {/*<Table tableData={selectedProposal.invoiceTable} />*/}
-        </GovernanceRightContainer>
-      ) : null}
+      {!onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'VOTING' ? (
+        <Proposals
+          proposalsList={ongoingProposals}
+          handleItemSelect={_handleItemSelect}
+          selectedProposal={rightSideContent}
+        />
+      ) : !onProposalHistoryPage && ongoingProposals !== undefined && governancePhase === 'TIME_LOCK' ? (
+        <Proposals
+          proposalsList={ongoingProposals}
+          handleItemSelect={_handleItemSelect}
+          selectedProposal={rightSideContent}
+        />
+      ) : !onProposalHistoryPage && nextProposals !== undefined && governancePhase === 'PROPOSAL' ? (
+        <Proposals
+          proposalsList={nextProposals}
+          handleItemSelect={_handleItemSelect}
+          selectedProposal={rightSideContent}
+        />
+      ) : onProposalHistoryPage && pastProposals !== undefined ? (
+        <Proposals
+          proposalsList={pastProposals}
+          handleItemSelect={_handleItemSelect}
+          selectedProposal={rightSideContent}
+          isProposalHistory={true}
+        />
+      ) : (
+        emptyContainer
+      )}
     </GovernanceStyled>
   )
 }
