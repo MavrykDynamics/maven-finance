@@ -93,7 +93,7 @@ export const EmergencyGovernanceView = ({
         </p>
       </EmergencyGovernanceCard>
 
-      {emergencyGovernanceActive ? (
+      {emergencyGovernanceActive && accountPkh ? (
         emergencyGovernanceCardActive
       ) : (
         <EmergencyGovernanceCard>
