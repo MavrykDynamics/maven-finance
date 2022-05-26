@@ -73,7 +73,7 @@ export const IPFSUploaderView = ({
     <IPFSUploaderStyled id={'ipfsUploaderContainer'}>
       {title && listNumber && (
         <label>
-          {listNumber}- {title}
+          {listNumber} - {title}
         </label>
       )}
       <div style={{ opacity: disabled ? 0.4 : 1 }}>
