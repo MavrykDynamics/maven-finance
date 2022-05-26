@@ -13,6 +13,7 @@ export const primaryColor = '#7068AA'
 export const boxShadowColor = 'rgba(134, 212, 201, 0.5)'
 export const subTextColor = '#7E8794'
 export const accordeonTogglerColor = '#6a6a9b';
+export const infoColor = '#00C2FF';
 
 export const containerColor = '#F7F9FD';
 export const borderColor = '#4F457C';
@@ -23,7 +24,6 @@ export const secondaryColor = '#73d7c3';
 export const upColor = '#27AE60';
 export const downColor = '#FF4343';
 export const warningColor = '#FF7A00';
-export const infoColor = '#00C2FF';
 export const selectedColor = '#aea3ff3d';
 
 export const backdropColor = '#08062880';
@@ -43,6 +43,7 @@ export const darkMode = {
   connectInfoColor: darkPurpleColor,
   actionPrimaryBtnColor: cyanColor,
   stakedColor: cyanColor,
+  infoColor,
 
   borderColor: '#4F457C',
   textColor: '#F7F9FD',
@@ -54,7 +55,6 @@ export const darkMode = {
   upColor: '#00E205',
   downColor: '#F90021',
   warningColor: '#FF7A00',
-  infoColor: '#00C2FF',
   selectedColor: '#aea3ff3d',
   connectWalletBackgroundColor: '#50508E',
   navLinkBackgroundActive: 'linear-gradient(90deg, #38237c 0%, rgba(80, 80, 142, 0) 100%)',
@@ -87,7 +87,7 @@ export const lightMode = {
   upColor: '#27AE60',
   downColor: '#FF4343',
   warningColor: '#FF7A00',
-  infoColor: '#00C2FF',
+  infoColor,
   selectedColor: '#aea3ff3d',
   connectWalletBackgroundColor: '#EEEAF4',
   navLinkBackgroundActive:

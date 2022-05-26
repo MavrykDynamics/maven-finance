@@ -4,7 +4,7 @@ export const MOCK_ONGOING_PROPOSAL_LIST = new Map<string, ProposalRecordType>([
   [
     '0',
     {
-      id: 0,
+      id: 1,
 
       proposerId: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
 
