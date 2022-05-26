@@ -40,9 +40,6 @@ export const getEmergencyGovernanceStorage = (accountPkh?: string) => async (dis
   const convertedStorage = storageToTypeConverter('emergencyGovernance', storage?.emergency_governance[0])
 
   const currentEmergencyGovernanceId = convertedStorage.currentEmergencyGovernanceId
-  console.log('%c ||||| currentEmergencyGovernanceId', 'color:yellowgreen', currentEmergencyGovernanceId)
-  console.log('%c ||||| currentEmergencyGovernanceId !== 0', 'color:yellowgreen', currentEmergencyGovernanceId !== 0)
-  console.log('%c ||||| currentEmergencyGovernanceId === 0', 'color:yellowgreen', currentEmergencyGovernanceId === 0)
 
   dispatch({
     type: SET_EMERGENCY_GOVERNANCE_ACTIVE,

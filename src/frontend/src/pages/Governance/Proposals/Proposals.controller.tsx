@@ -6,7 +6,7 @@ import { ProposalsView } from './Proposals.view'
 
 type ProposalsProps = {
   proposalsList: Map<string, ProposalRecordType>
-  handleItemSelect: (proposalListItem: ProposalRecordType) => void
+  handleItemSelect: (proposalListItem: ProposalRecordType | undefined) => void
   selectedProposal: ProposalRecordType | undefined
   isProposalHistory?: boolean
 }
