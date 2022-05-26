@@ -1,11 +1,22 @@
 import * as React from 'react'
-import { TreasuryStyled } from './Treasury.style'
 import { useDispatch, useSelector } from 'react-redux'
-import { State } from '../../reducers'
+import { State } from 'reducers'
 import { useEffect } from 'react'
+
+// actions
 import { getCouncilStorage, getTreasuryStorage, getVestingStorage } from './Treasury.actions'
+
+// controller
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
+
+// view
+import TreasuryView from './Treasury.view'
+
+// const
 import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constants'
+import { MOCK_TREASURYS } from './mockTreasury'
+
+// styles
 import { Page } from 'styles'
 
 export const Treasury = () => {
@@ -25,9 +36,7 @@ export const Treasury = () => {
   return (
     <Page>
       <PageHeader page={'treasury'} kind={PRIMARY} loading={loading} />
-      <TreasuryStyled>
-        <div>Here on the Treasury Page</div>
-      </TreasuryStyled>
+      <TreasuryView treasury={MOCK_TREASURYS[0]} />
     </Page>
   )
 }
