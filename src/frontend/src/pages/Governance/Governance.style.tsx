@@ -37,7 +37,7 @@ export const GovernanceRightContainer = styled(Card)<{ theme: MavrykTheme }>`
 `
 
 export const GovernanceLeftContainer = styled.div<{ theme: MavrykTheme }>`
-  width: 50%;
+  width: 100%;
   padding-top: 28px;
 `
 
