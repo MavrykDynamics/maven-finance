@@ -10,11 +10,13 @@ export const ToggleButtonWrapper = styled.div<{ theme: MavrykTheme }>`
   font-size: 16px;
   color: ${headerColor};
   max-height: 35px;
+  max-width: 65.5%;
 `
 
 export const ToggleButtonItem = styled.div<{ theme: MavrykTheme }>`
-  padding: 0 15px;
+  padding: 0 18px;
   height: 100%;
+  min-width: 178px;
   display: flex;
   justify-content: center;
   align-items: center;
