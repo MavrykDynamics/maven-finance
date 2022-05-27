@@ -37,6 +37,7 @@ export const Treasury = () => {
     <Page>
       <PageHeader page={'treasury'} kind={PRIMARY} loading={loading} />
       <TreasuryView treasury={MOCK_TREASURYS[0]} />
+      <TreasuryView treasury={MOCK_TREASURYS[1]} />
     </Page>
   )
 }
