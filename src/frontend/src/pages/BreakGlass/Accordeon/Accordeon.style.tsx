@@ -1,10 +1,10 @@
-import styled from 'styled-components/macro';
-import { MavrykTheme } from '../../../styles/interfaces';
-import { accordeonTogglerColor } from '../../../styles/colors';
+import styled from 'styled-components/macro'
+import { MavrykTheme } from '../../../styles/interfaces'
+import { headerColor } from '../../../styles/colors'
 
 export const AccordeonWrapper = styled.div<{ theme: MavrykTheme }>`
   transition: 0.5s all;
-`;
+`
 
 export const AccordeonToggler = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -14,17 +14,17 @@ export const AccordeonToggler = styled.div<{ theme: MavrykTheme }>`
   padding-top: 14px;
   padding-bottom: 10px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 400;
   font-size: 16px;
-  color: ${accordeonTogglerColor};
+  color: ${headerColor};
 
   .accordeon-icon {
     width: 16px;
     height: 12px;
-    fill: ${accordeonTogglerColor};
+    fill: ${headerColor};
     margin-left: 7px;
   }
-`;
+`
 
 export const AccordeonContent = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -44,7 +44,7 @@ export const AccordeonContent = styled.div<{ theme: MavrykTheme }>`
     opacity: 1;
     max-height: 185px;
   }
-`;
+`
 
 export const AccordeonItem = styled.div<{ status: boolean; theme: MavrykTheme }>`
   font-weight: 400;
@@ -58,4 +58,4 @@ export const AccordeonItem = styled.div<{ status: boolean; theme: MavrykTheme }>
   &:first-child {
     margin-top: 0;
   }
-`;
+`
