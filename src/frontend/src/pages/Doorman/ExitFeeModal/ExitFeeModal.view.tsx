@@ -11,10 +11,12 @@ import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
-// prettier-ignore
-import { StakeUnstakeForm, StakeUnstakeFormInputStatus, ValidStakeUnstakeForm } from '../../../utils/TypesAndInterfaces/Forms'
+import {
+  StakeUnstakeForm,
+  StakeUnstakeFormInputStatus,
+  ValidStakeUnstakeForm,
+} from '../../../utils/TypesAndInterfaces/Forms'
 // helpers
-// prettier-ignore
 import { isValidNumberValue, mathRoundTwoDigit } from '../../../utils/validatorFunctions'
 import { DoormanList } from '../DoormanStats/DoormanStats.style'
 import { setExitFeeAmount } from './ExitFeeModal.actions'

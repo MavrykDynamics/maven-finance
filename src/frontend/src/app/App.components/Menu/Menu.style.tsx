@@ -1,8 +1,8 @@
-import styled, { keyframes } from 'styled-components/macro';
+import styled, { keyframes } from 'styled-components/macro'
 
-import { MavrykTheme } from '../../../styles/interfaces';
+import { MavrykTheme } from '../../../styles/interfaces'
 
-import { backdropColor, darkCianColor } from 'styles/colors';
+import { backdropColor, royalPurpleColor } from 'styles/colors'
 
 export const moveDown = keyframes`
   from {
@@ -11,10 +11,14 @@ export const moveDown = keyframes`
   to {
     transform: translateY(0rem);
   }
-`;
+`
 export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
   width: 270px;
   transition: all 0.3s;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  left: 0;
   .mobile-logo {
     display: none;
   }
@@ -75,7 +79,7 @@ export const MenuStyled = styled.div<{ theme: MavrykTheme }>`
     width: 100%;
     max-width: 270px;
   }
-`;
+`
 
 export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
   display: none;
@@ -94,10 +98,10 @@ export const MenuMobileBurger = styled.div<{ theme: MavrykTheme }>`
     width: 100%;
     height: 2px;
     border-radius: 3px;
-    background-color: ${darkCianColor};
+    background-color: ${royalPurpleColor};
     margin: 3px 0;
   }
-`;
+`
 
 export const MenuTopSection = styled.div`
   display: flex;
@@ -105,7 +109,6 @@ export const MenuTopSection = styled.div`
   top: 0;
   left: 0;
   z-index: 10;
-  position: relative;
   text-align: center;
   width: 100%;
   max-width: 270px;
@@ -114,13 +117,14 @@ export const MenuTopSection = styled.div`
   display: flex;
   flex-direction: column;
   background-color: ${({ theme }) => theme.containerColor};
-`;
+  position: relative;
+`
 export const MenuLogo = styled.img`
   margin: 44px auto 20px auto;
   z-index: 1;
   width: 218px;
   height: 43px;
-`;
+`
 
 export const MenuGrid = styled.div`
   display: flex;
@@ -128,7 +132,7 @@ export const MenuGrid = styled.div`
   flex-direction: column;
   justify-content: space-evenly;
   width: 100%;
-`;
+`
 
 export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
   font-size: 11px;
@@ -148,13 +152,13 @@ export const MenuFooter = styled.div<{ theme: MavrykTheme }>`
     display: inline-block;
     font-weight: 500;
   }
-`;
+`
 
 export const ThemeToggleIcon = styled.svg`
   width: inherit;
   height: inherit;
-`;
+`
 
 export const MenuSpacerDiv = styled.div<{ height: number }>`
   height: ${({ height }) => height}px;
-`;
+`

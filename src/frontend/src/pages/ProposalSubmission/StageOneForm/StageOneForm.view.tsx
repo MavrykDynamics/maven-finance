@@ -1,26 +1,23 @@
-import { Input } from '../../../app/App.components/Input/Input.controller'
 import { Button } from '../../../app/App.components/Button/Button.controller'
-import { SubmitProposalFormInputStatus, SubmitProposalForm } from '../../../utils/TypesAndInterfaces/Forms'
-import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
-
-// const
-import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
-
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
-import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
+import { Input } from '../../../app/App.components/Input/Input.controller'
+import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
-
+import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
+import { SubmitProposalForm, SubmitProposalFormInputStatus } from '../../../utils/TypesAndInterfaces/Forms'
+// const
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
 // styles
 import {
-  FormTitleContainer,
-  FormTitleAndFeeContainer,
   FormButtonContainer,
   FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
 } from '../ProposalSubmission.style'
 
 type StageOneFormViewProps = {
-  loading: boolean
+  locked: boolean
   form: SubmitProposalForm
   setForm: (form: SubmitProposalForm) => void
   formInputStatus: SubmitProposalFormInputStatus
@@ -28,7 +25,7 @@ type StageOneFormViewProps = {
   handleSubmitProposal: () => void
 }
 export const StageOneFormView = ({
-  loading,
+  locked,
   form,
   setForm,
   formInputStatus,
@@ -39,8 +36,10 @@ export const StageOneFormView = ({
     <>
       <FormHeaderGroup>
         <h1>Stage 1</h1>
-        {/* TODO Need condition */}
-        <StatusFlag text="UNLOCKED" status={ProposalStatus.EXECUTED} />
+        <StatusFlag
+          text={locked ? 'LOCKED' : 'UNLOCKED'}
+          status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+        />
         <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
           <Icon id="question" />
         </a>
@@ -57,7 +56,7 @@ export const StageOneFormView = ({
           />
         </FormTitleContainer>
         <div>
-          <label>2 - Proposal Sucess Reward</label>
+          <label>2- Proposal Sucess Reward</label>
           <Input
             type="number"
             value={form.successMVKReward}
@@ -67,7 +66,7 @@ export const StageOneFormView = ({
           />
         </div>
       </FormTitleAndFeeContainer>
-      <label>3 - Enter a description</label>
+      <label>3- Enter a description</label>
       <TextArea
         type="text"
         className="description-textarea"
@@ -94,13 +93,7 @@ export const StageOneFormView = ({
         />
       </div>
       <FormButtonContainer>
-        <Button
-          icon="auction"
-          kind="actionPrimary"
-          text={'Submit Proposal'}
-          loading={loading}
-          onClick={handleSubmitProposal}
-        />
+        <Button icon="auction" kind="actionPrimary" text={'Submit Proposal'} onClick={handleSubmitProposal} />
       </FormButtonContainer>
     </>
   )

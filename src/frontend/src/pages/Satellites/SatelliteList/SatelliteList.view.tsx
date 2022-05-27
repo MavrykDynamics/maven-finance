@@ -9,8 +9,12 @@ import { DropDown } from '../../../app/App.components/DropDown/DropDown.controll
 import { State } from '../../../reducers'
 import { darkMode, lightMode } from '../../../styles'
 import { SatelliteRecord } from '../../../utils/TypesAndInterfaces/Delegation'
-// prettier-ignore
-import { SatelliteListEmptyContainer, SatelliteListStyled, SatelliteSearchFilter, SelectContainer } from './SatelliteList.style'
+import {
+  SatelliteListEmptyContainer,
+  SatelliteListStyled,
+  SatelliteSearchFilter,
+  SelectContainer,
+} from './SatelliteList.style'
 import { SatelliteListCard } from './SatellliteListCard/SatelliteListCard.view'
 
 type SatelliteListViewProps = {
@@ -36,7 +40,7 @@ export const SatelliteListView = ({
   satelliteUserIsDelegatedTo,
   satelliteFound,
 }: SatelliteListViewProps) => {
-  if (satelliteFound === undefined && !loading && satellitesList.length === 0) {
+  if (satelliteFound === undefined && !loading && satellitesList?.length === 0) {
     return <EmptySatelliteList />
   } else {
     return (
@@ -124,7 +128,7 @@ const ListWithSatellites = ({
           onBlur={() => {}}
         />
         <DropdownContainer>
-          <h4>Order By:</h4>
+          <h4>Order by:</h4>
           <DropDown
             clickOnDropDown={handleClickDropdown}
             placeholder={ddItems[0]}
@@ -137,21 +141,24 @@ const ListWithSatellites = ({
           />{' '}
         </DropdownContainer>
       </SatelliteSearchFilter>
-      {satelliteFound === false && <EmptySatelliteList />}
-      {satellitesList.map((item, index) => {
-        return (
-          <SatelliteListCard
-            key={String(index + item.address)}
-            className="iterable"
-            satellite={item}
-            loading={loading}
-            delegateCallback={delegateCallback}
-            undelegateCallback={undelegateCallback}
-            userStakedBalance={userStakedBalance}
-            satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
-          />
-        )
-      })}
+      {satelliteFound === false ? (
+        <EmptySatelliteList />
+      ) : (
+        satellitesList?.map((item, index) => {
+          return (
+            <SatelliteListCard
+              key={String(index + item.address)}
+              className="iterable"
+              satellite={item}
+              loading={loading}
+              delegateCallback={delegateCallback}
+              undelegateCallback={undelegateCallback}
+              userStakedBalance={userStakedBalance}
+              satelliteUserIsDelegatedTo={satelliteUserIsDelegatedTo}
+            />
+          )
+        })
+      )}
     </SatelliteListStyled>
   )
 }

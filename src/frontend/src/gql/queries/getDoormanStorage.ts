@@ -4,11 +4,18 @@ export const DOORMAN_STORAGE_QUERY = `
       address
       unclaimed_rewards
       min_mvk_amount
-      smvk_total_supply
+      accumulated_fees_per_share
+      farm_claimed_paused
       compound_paused
       unstake_paused
       stake_paused
-      accumulated_fees_per_share
+      stake_accounts_aggregate {
+        aggregate {
+          sum {
+            smvk_balance
+          }
+        }
+      }
     }
   }
 `

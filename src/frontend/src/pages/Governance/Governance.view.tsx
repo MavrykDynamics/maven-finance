@@ -8,8 +8,15 @@ import { EmptyContainer } from '../../app/App.style'
 import { GovernancePhase } from '../../reducers/governance'
 import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
 import { VoteStatistics } from './Governance.controller'
-// prettier-ignore
-import { GovernanceLeftContainer, GovernanceRightContainer, GovernanceStyled, GovRightContainerTitleArea, RightSideSubContent, RightSideSubHeader } from './Governance.style'
+
+import {
+  GovernanceLeftContainer,
+  GovernanceRightContainer,
+  GovernanceStyled,
+  GovRightContainerTitleArea,
+  RightSideSubContent,
+  RightSideSubHeader,
+} from './Governance.style'
 import { Proposals } from './Proposals/Proposals.controller'
 import { VotingArea } from './VotingArea/VotingArea.controller'
 
@@ -74,24 +81,24 @@ export const GovernanceView = ({
   //   }
   // }, [rightSideContent?.id, selectedProposal])
 
-  useEffect(() => {
-    setRightSideContent(undefined)
-  }, [location.pathname])
-
-  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
-
-  const _handleItemSelect = (chosenProposal: ProposalRecordType) => {
-    setSelectedProposalToShow(chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id)
-    setRightSideContent(chosenProposal)
-    setVoteStatistics({
-      passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
-      forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
-      againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
-      abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
-      //TODO: Correct calculation for unused votes count
-      unusedVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
-    })
+  const _handleItemSelect = (chosenProposal: ProposalRecordType | undefined) => {
+    if (chosenProposal) {
+      setSelectedProposalToShow(
+        chosenProposal.id === selectedProposalToShow ? selectedProposalToShow : chosenProposal.id,
+      )
+      setRightSideContent(chosenProposal)
+      setVoteStatistics({
+        passVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
+        forVotesMVKTotal: Number(chosenProposal.upvoteMvkTotal),
+        againstVotesMVKTotal: Number(chosenProposal.downvoteMvkTotal),
+        abstainVotesMVKTotal: Number(chosenProposal.abstainMvkTotal),
+        //TODO: Correct calculation for unused votes count
+        unusedVotesMVKTotal: Number(chosenProposal.passVoteMvkTotal),
+      })
+    }
   }
+
+  console.log('%c ||||| selectedProposalToShow', 'color:yellowgreen', selectedProposalToShow)
 
   const emptyContainer = (
     <EmptyContainer>

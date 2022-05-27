@@ -1,6 +1,15 @@
 import styled from 'styled-components/macro'
-// prettier-ignore
-import { cianColor, containerColor, darkCianColor, downColor, headerColor, skyColor, subTextColor, tezosColor, upColor } from 'styles'
+import {
+  cyanColor,
+  containerColor,
+  royalPurpleColor,
+  downColor,
+  headerColor,
+  skyColor,
+  subTextColor,
+  tezosColor,
+  upColor,
+} from 'styles'
 
 export const SatelliteDetailsStyled = styled.div`
   background-color: ${containerColor};
@@ -21,7 +30,7 @@ export const SatelliteCardBottomRow = styled.div`
   font-size: 12px;
   line-height: 12px;
   color: ${headerColor};
-  border-top: 1px solid ${darkCianColor};
+  border-top: 1px solid ${royalPurpleColor};
 
   h4 {
     font-weight: 600;
@@ -34,7 +43,7 @@ export const SatelliteCardBottomRow = styled.div`
     font-weight: 600;
     font-size: 14px;
     line-height: 14px;
-    color: ${cianColor};
+    color: ${cyanColor};
   }
 
   .descr {

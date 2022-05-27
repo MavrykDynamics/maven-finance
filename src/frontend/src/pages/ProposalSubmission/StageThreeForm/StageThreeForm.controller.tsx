@@ -1,23 +1,36 @@
-import { StageThreeFormView } from './StageThreeForm.view'
-import { useDispatch } from 'react-redux'
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
+
+import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
+import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
+
 import {
   ProposalFinancialRequestForm,
   ProposalFinancialRequestInputStatus,
   ValidFinancialRequestForm,
 } from '../../../utils/TypesAndInterfaces/Forms'
-import { getFormErrors, isJsonString, validateFormAndThrowErrors } from '../../../utils/validatorFunctions'
+import {
+  containsCode,
+  getFormErrors,
+  isJsonString,
+  validateFormAndThrowErrors,
+} from '../../../utils/validatorFunctions'
 import { submitFinancialRequestData } from '../ProposalSubmission.actions'
-import { showToaster } from '../../../app/App.components/Toaster/Toaster.actions'
-import { ERROR } from '../../../app/App.components/Toaster/Toaster.constants'
+import { StageThreeFormView } from './StageThreeForm.view'
 
 type StageThreeFormProps = {
-  loading: boolean
+  locked: boolean
   accountPkh?: string
 }
-export const StageThreeForm = ({ loading, accountPkh }: StageThreeFormProps) => {
+const INIT_TABLE_DATA = [
+  ['', '', '', ''],
+  ['', '', '', ''],
+]
+
+export const StageThreeForm = ({ locked, accountPkh }: StageThreeFormProps) => {
   const dispatch = useDispatch()
 
+  const [tableData, setTableData] = useState(INIT_TABLE_DATA)
   const [tableJson, setTableJson] = useState('')
   const [form, setForm] = useState<ProposalFinancialRequestForm>({
     title: 'Hello There',
@@ -39,17 +52,26 @@ export const StageThreeForm = ({ loading, accountPkh }: StageThreeFormProps) => 
   }
 
   const handleSubmitFinancialRequestData = () => {
-    const formIsValid = validateFormAndThrowErrors(dispatch, validForm)
+    const jsonStringTable = JSON.stringify(tableData)
+    const flatTable = tableData.flat()
+    const isEmptyFlatTable = flatTable.every((elem) => !elem)
+    const isStringcontainsCode = containsCode(JSON.stringify(tableData))
+    const isValidJsonString = !isStringcontainsCode && !isEmptyFlatTable
+    const formIsValid = validateFormAndThrowErrors(dispatch, {
+      financialData: isValidJsonString,
+    })
     if (formIsValid) {
-      dispatch(submitFinancialRequestData(form.financialData?.jsonString ?? '', accountPkh as any))
+      dispatch(submitFinancialRequestData(jsonStringTable, accountPkh as any))
     }
   }
 
   return (
     <StageThreeFormView
-      loading={loading}
+      locked={locked}
       form={form}
       setForm={setForm}
+      tableData={tableData}
+      setTableData={setTableData}
       setTableJson={setTableJson}
       formInputStatus={formInputStatus}
       handleOnBlur={handleOnBlur}

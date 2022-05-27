@@ -1,15 +1,16 @@
-import { State } from '../../reducers'
 import { showToaster } from '../../app/App.components/Toaster/Toaster.actions'
 import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.constants'
-import { HIDE_EXIT_FEE_MODAL } from '../Doorman/ExitFeeModal/ExitFeeModal.actions'
-import { getDoormanStorage, getMvkTokenStorage } from '../Doorman/Doorman.actions'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
+
 import {
   EMERGENCY_GOVERNANCE_STORAGE_QUERY,
   EMERGENCY_GOVERNANCE_STORAGE_QUERY_NAME,
   EMERGENCY_GOVERNANCE_STORAGE_QUERY_VARIABLE,
 } from '../../gql/queries'
+import { State } from '../../reducers'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
+import { getDoormanStorage, getMvkTokenStorage } from '../Doorman/Doorman.actions'
+import { HIDE_EXIT_FEE_MODAL } from '../Doorman/ExitFeeModal/ExitFeeModal.actions'
 
 export const GET_EMERGENCY_GOVERNANCE_STORAGE = 'GET_EMERGENCY_GOVERNANCE_STORAGE'
 export const SET_EMERGENCY_GOVERNANCE_ACTIVE = 'SET_EMERGENCY_GOVERNANCE_ACTIVE'
@@ -35,7 +36,8 @@ export const getEmergencyGovernanceStorage = (accountPkh?: string) => async (dis
     EMERGENCY_GOVERNANCE_STORAGE_QUERY_NAME,
     EMERGENCY_GOVERNANCE_STORAGE_QUERY_VARIABLE,
   )
-  const convertedStorage = storageToTypeConverter('emergencyGovernance', storage.emergency_governance[0])
+
+  const convertedStorage = storageToTypeConverter('emergencyGovernance', storage?.emergency_governance[0])
 
   const currentEmergencyGovernanceId = convertedStorage.currentEmergencyGovernanceId
 

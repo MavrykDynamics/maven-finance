@@ -7,11 +7,7 @@ import {
   EmergencyGovProposalModalContent,
   ModalFormContentContainer,
 } from './EmergencyGovProposalModal.style'
-import {
-  FormSubTitle,
-  FormTitleAndFeeContainer,
-  FormTitleContainer,
-} from '../../ProposalSubmission/ProposalSubmission.style'
+import { FormTitleAndFeeContainer, FormTitleContainer } from '../../ProposalSubmission/ProposalSubmission.style'
 import { Input } from '../../../app/App.components/Input/Input.controller'
 import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
 import { IPFSUploader } from '../../../app/App.components/IPFSUploader/IPFSUploader.controller'
@@ -48,16 +44,15 @@ export const EmergencyGovProposalModalView = ({
                 <use xlinkHref="/icons/sprites.svg#error" />
               </svg>
             </ModalClose>
-            <ModalCardContent>
+            <ModalCardContent style={{ width: '750px' }}>
               <EmergencyGovProposalModalContent>
                 <h1>Emergency Governance Proposal</h1>
                 <ModalFormContentContainer>
                   <FormTitleAndFeeContainer>
                     <FormTitleContainer>
-                      <FormSubTitle>1- Title</FormSubTitle>
+                      <label>1- Title</label>
                       <Input
                         type="text"
-                        placeholder="Title"
                         value={form.title}
                         onChange={(e: any) => setForm({ ...form, title: e.target.value })}
                         onBlur={(e: any) => handleOnBlur(e, 'TITLE')}
@@ -65,10 +60,9 @@ export const EmergencyGovProposalModalView = ({
                       />
                     </FormTitleContainer>
                     <div>
-                      <FormSubTitle>2- Enter MVK amount to trigger Break Glass</FormSubTitle>
+                      <label>2- Enter MVK amount to trigger Break Glass</label>
                       <Input
                         type="number"
-                        placeholder="Success MVK Reward"
                         value={form.amountMVKtoTriggerBreakGlass}
                         onChange={(e: any) =>
                           setForm({ ...form, amountMVKtoTriggerBreakGlass: Number(e.target.value) })
@@ -79,27 +73,35 @@ export const EmergencyGovProposalModalView = ({
                     </div>
                   </FormTitleAndFeeContainer>
 
-                  <FormSubTitle>3- Enter your description</FormSubTitle>
+                  <label>3- Enter your description</label>
                   <TextArea
-                    placeholder="Proposal Description"
                     value={form.description}
                     onChange={(e: any) => setForm({ ...form, description: e.target.value })}
                     onBlur={(e: any) => handleOnBlur(e, 'DESCRIPTION')}
                     inputStatus={formInputStatus.description}
                   />
-                  <IPFSUploader
-                    typeFile="image"
-                    imageIpfsUrl={form.screenshots}
-                    setIpfsImageUrl={(e: any) => setForm({ ...form, screenshots: e })}
-                    title={'Add pdf of screenshots (if relevant)'}
-                    listNumber={4}
-                  />
+                  <div className="upload-wrap">
+                    <IPFSUploader
+                      typeFile="image"
+                      imageIpfsUrl={form.screenshots}
+                      setIpfsImageUrl={(e: any) => setForm({ ...form, screenshots: e })}
+                      title={'Add pdf of screenshots (if relevant)'}
+                      listNumber={4}
+                    />
+                  </div>
                 </ModalFormContentContainer>
                 <EmergencyGovProposalModalButtons>
-                  <Button text="Cancel" kind="secondary" icon="error" loading={loading} onClick={cancelCallback} />
+                  <Button
+                    text="Cancel"
+                    kind="actionSecondary"
+                    icon="error"
+                    loading={loading}
+                    onClick={cancelCallback}
+                  />
                   <Button
                     text="Proceed"
-                    icon="success"
+                    kind="actionPrimary"
+                    icon="auction"
                     loading={loading}
                     onClick={() => submitEmergencyGovProposalCallback({})}
                   />

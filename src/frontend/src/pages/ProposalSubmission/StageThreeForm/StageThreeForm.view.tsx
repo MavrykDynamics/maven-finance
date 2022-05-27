@@ -1,19 +1,37 @@
+// types
+import type { TableListType } from '../../../app/App.components/TableGrid/TableGrid.types'
+
+import { Button } from '../../../app/App.components/Button/Button.controller'
+import { GridSheet } from '../../../app/App.components/GridSheet/GridSheet.controller'
+// components
+import Icon from '../../../app/App.components/Icon/Icon.view'
+import { Input } from '../../../app/App.components/Input/Input.controller'
+import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
+import TableGrid from '../../../app/App.components/TableGrid/TableGrid.view'
+import { TextArea } from '../../../app/App.components/TextArea/TextArea.controller'
+
 import {
   ProposalFinancialRequestForm,
   ProposalFinancialRequestInputStatus,
 } from '../../../utils/TypesAndInterfaces/Forms'
+import { ProposalUpdateForm, ProposalUpdateFormInputStatus } from '../../../utils/TypesAndInterfaces/Forms'
+// const
+import { ProposalStatus } from '../../../utils/TypesAndInterfaces/Governance'
+// styles
 import {
-  FormSubTitle,
-  FormTitleContainer,
-  FormTitleAndFeeContainer,
   FormButtonContainer,
+  FormHeaderGroup,
+  FormTitleAndFeeContainer,
+  FormTitleContainer,
   FormTitleEntry,
+  FormTableGrid,
+  SubmissionStyled,
 } from '../ProposalSubmission.style'
-import { Button } from '../../../app/App.components/Button/Button.controller'
-import { GridSheet } from '../../../app/App.components/GridSheet/GridSheet.controller'
 
 type StageThreeFormViewProps = {
-  loading: boolean
+  tableData: TableListType
+  setTableData: (arg0: TableListType) => void
+  locked: boolean
   form: ProposalFinancialRequestForm
   setForm: (form: ProposalFinancialRequestForm) => void
   formInputStatus: ProposalFinancialRequestInputStatus
@@ -22,7 +40,9 @@ type StageThreeFormViewProps = {
   setTableJson: (input: string) => void
 }
 export const StageThreeFormView = ({
-  loading,
+  tableData,
+  setTableData,
+  locked,
   form,
   setForm,
   formInputStatus,
@@ -31,28 +51,41 @@ export const StageThreeFormView = ({
   handleSubmitFinancialRequestData,
 }: StageThreeFormViewProps) => {
   return (
-    <>
-      <h1>Stage 3</h1>
+    <SubmissionStyled>
+      <FormHeaderGroup>
+        <h1>Stage 3</h1>
+        <StatusFlag
+          text={locked ? 'LOCKED' : 'UNLOCKED'}
+          status={locked ? ProposalStatus.DEFEATED : ProposalStatus.EXECUTED}
+        />
+        <a className="info-link" href="https://mavryk.finance/litepaper#governance" target="_blank" rel="noreferrer">
+          <Icon id="question" />
+        </a>
+      </FormHeaderGroup>
       <FormTitleAndFeeContainer>
         <FormTitleContainer>
-          <FormSubTitle>1- Proposal Title</FormSubTitle>
+          <label>1- Enter Proposal Title</label>
           <FormTitleEntry>{form.title}</FormTitleEntry>
         </FormTitleContainer>
         <div>
-          <FormSubTitle>2- Proposal ID</FormSubTitle>
+          <label>2- Proposal Sucess Reward</label>
           <FormTitleEntry>{form.proposalId}</FormTitleEntry>
         </div>
       </FormTitleAndFeeContainer>
-      <FormSubTitle>3- Enter Financial Request Data</FormSubTitle>
-      <GridSheet loading={loading} setTableJson={setTableJson} />
+      <label>3- Enter Proposal Bytes Data</label>
+      <FormTableGrid>
+        <TableGrid tableData={tableData} setTableData={setTableData} />
+      </FormTableGrid>
+      {/* <GridSheet loading={loading} setTableJson={setTableJson} /> */}
       <FormButtonContainer>
         <Button
-          icon="hammer"
-          text={'Submit Financial Request Data'}
-          loading={loading}
+          icon="financial"
+          className="financial"
+          kind="actionPrimary"
+          text={'Submit Financial Request'}
           onClick={handleSubmitFinancialRequestData}
         />
       </FormButtonContainer>
-    </>
+    </SubmissionStyled>
   )
 }

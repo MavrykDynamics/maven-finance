@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 
-export const VotingAreaStyled = styled.div`
+export const VotingAreaStyled = styled.article`
   display: flex;
   flex-direction: row;
   margin: 20px 0;
@@ -20,7 +20,7 @@ export const VotingButtonsContainer = styled.div`
   justify-content: space-evenly;
   align-items: center;
   > button {
-    width: 30%;
+    width: 29%;
   }
 
   &.PROPOSAL {

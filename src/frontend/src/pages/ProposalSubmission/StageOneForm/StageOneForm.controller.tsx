@@ -18,9 +18,9 @@ import { submitProposal } from '../ProposalSubmission.actions'
 import { State } from '../../../reducers'
 
 type StageOneFormProps = {
-  loading: boolean
+  locked: boolean
 }
-export const StageOneForm = ({ loading }: StageOneFormProps) => {
+export const StageOneForm = ({ locked }: StageOneFormProps) => {
   const dispatch = useDispatch()
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const [form, setForm] = useState<SubmitProposalForm>({
@@ -86,7 +86,7 @@ export const StageOneForm = ({ loading }: StageOneFormProps) => {
 
   return (
     <StageOneFormView
-      loading={loading}
+      locked={locked}
       form={form}
       setForm={setForm}
       formInputStatus={formInputStatus}

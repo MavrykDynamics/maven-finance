@@ -5,21 +5,36 @@ import { Button } from '../../app/App.components/Button/Button.controller'
 import { ConnectWallet } from '../../app/App.components/ConnectWallet/ConnectWallet.controller'
 import { FAQLink } from '../Satellites/SatelliteSideBar/SatelliteSideBar.style'
 import { EGovHistoryCard } from './EGovHistoryCard/EGovHistoryCard.controller'
-// prettier-ignore
-import { CardContent, CardContentLeftSide, CardContentRightSide, EmergencyGovernanceCard, EmergencyGovernHistory } from './EmergencyGovernance.style'
+import {
+  CardContent,
+  CardContentLeftSide,
+  CardContentRightSide,
+  EmergencyGovernanceCard,
+  EmergencyGovernHistory,
+  CardContentVoiting,
+} from './EmergencyGovernance.style'
 import { EmergencyGovernancePastProposal } from './mockEGovProposals'
+import { VotingArea } from '../Governance/VotingArea/VotingArea.controller'
+import { ProposalRecordType } from '../../utils/TypesAndInterfaces/Governance'
+import { VoteStatistics } from '../Governance/Governance.controller'
 
-type BreakGlassViewProps = {
+type Props = {
+  ready: boolean
   loading: boolean
   accountPkh?: any
   emergencyGovernanceActive: boolean
   glassBroken: boolean
   handleVoteForEmergencyProposal: () => void
   handleTriggerEmergencyProposal: () => void
+  handleProposalRoundVote: (proposalId: number) => void
+  handleVotingRoundVote: (vote: string) => void
   pastProposals: EmergencyGovernancePastProposal[]
+  selectedProposal: ProposalRecordType
+  voteStatistics: VoteStatistics
 }
 
 export const EmergencyGovernanceView = ({
+  ready,
   loading,
   accountPkh,
   emergencyGovernanceActive,
@@ -27,7 +42,37 @@ export const EmergencyGovernanceView = ({
   handleVoteForEmergencyProposal,
   handleTriggerEmergencyProposal,
   pastProposals,
-}: BreakGlassViewProps) => {
+  handleProposalRoundVote,
+  handleVotingRoundVote,
+  selectedProposal,
+  voteStatistics,
+}: Props) => {
+  console.log('%c ||||| emergencyGovernanceActive', 'color:yellowgreen', emergencyGovernanceActive)
+  const emergencyGovernanceCardActive = (
+    <EmergencyGovernanceCard>
+      <CardContent>
+        <CardContentLeftSide>
+          <h1>{selectedProposal.title}</h1>
+          <b className="voting-ends">Voting ends in 13:31 hours</b>
+          <p>{selectedProposal.description}</p>
+        </CardContentLeftSide>
+        <CardContentRightSide>
+          <CardContentVoiting>
+            <VotingArea
+              ready={ready}
+              loading={loading}
+              accountPkh={accountPkh}
+              handleProposalRoundVote={handleProposalRoundVote}
+              handleVotingRoundVote={handleVotingRoundVote}
+              selectedProposal={selectedProposal}
+              voteStatistics={voteStatistics}
+            />
+          </CardContentVoiting>
+        </CardContentRightSide>
+      </CardContent>
+    </EmergencyGovernanceCard>
+  )
+
   return (
     <>
       <EmergencyGovernanceCard>
@@ -47,14 +92,19 @@ export const EmergencyGovernanceView = ({
           </FAQLink>
         </p>
       </EmergencyGovernanceCard>
-      <EmergencyGovernanceCard>
-        {emergencyGovernanceActive ? (
-          <h1>Emergency Governance Active</h1>
-        ) : (
+
+      {emergencyGovernanceActive && accountPkh ? (
+        emergencyGovernanceCardActive
+      ) : (
+        <EmergencyGovernanceCard>
           <CardContent>
             <CardContentLeftSide>
               <h1>Trigger Emergency Governance Vote</h1>
-              <p>Content here about what triggering a vote does the consequences of doing so</p>
+              <p>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the
+                industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and
+                scrambled it to make ...
+              </p>
             </CardContentLeftSide>
             <CardContentRightSide>
               {accountPkh ? (
@@ -65,12 +115,13 @@ export const EmergencyGovernanceView = ({
                   onClick={handleTriggerEmergencyProposal}
                 />
               ) : (
-                <ConnectWallet type={'main-menu'} />
+                <ConnectWallet className="connect-wallet" type={'main-menu'} />
               )}
             </CardContentRightSide>
           </CardContent>
-        )}
-      </EmergencyGovernanceCard>
+        </EmergencyGovernanceCard>
+      )}
+
       <EmergencyGovernHistory>
         <h1>Emergency Governance History</h1>
         {pastProposals.map((proposal, index) => {

@@ -1,6 +1,6 @@
 import styled from 'styled-components/macro'
 
-import { cianColor, middleColor } from '../styles/colors'
+import { cyanColor, middleColor } from '../styles/colors'
 import { MavrykTheme } from './interfaces'
 
 export const ModalStyled = styled.div<{ showing: boolean }>`
@@ -37,8 +37,8 @@ export const ModalCardContent = styled.div<{ width?: number; height?: number; th
   max-height: calc(90vh - 50px);
   min-width: ${(props) => (props.width ? `${props.width}vw` : 'initial')};
   max-width: 90vw;
-  border: 1px solid ${cianColor};
-  padding: 30px 40px;
+  border: 1px solid ${cyanColor};
+  padding: 30px;
 
   h1 {
     font-weight: 700;

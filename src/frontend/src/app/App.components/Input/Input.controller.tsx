@@ -13,6 +13,7 @@ type InputProps = {
   onChange: any
   onBlur: any
   onFocus?: any
+  onKeyDown?: any
   inputStatus?: InputStatusType
   type: string
   errorMessage?: string
@@ -30,6 +31,7 @@ export const Input = ({
   onChange,
   onBlur,
   onFocus,
+  onKeyDown,
   inputStatus,
   type,
   errorMessage,
@@ -48,6 +50,7 @@ export const Input = ({
       value={value}
       onChange={onChange}
       onBlur={onBlur}
+      onKeyDown={onKeyDown}
       onFocus={onFocus}
       inputStatus={inputStatus}
       errorMessage={errorMessage}
