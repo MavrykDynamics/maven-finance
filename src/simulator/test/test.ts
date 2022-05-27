@@ -54,16 +54,16 @@ describe('Prototype', () => {
     it('calculates weight for height 8641', () => {        
         state = pokeWeights(state);
         
-        expect(state.storage.pools[0].denorm).to.equal(14);
-        expect(state.storage.pools[1].denorm).to.equal(26);
+        expect(state.storage?.pools[0].denorm).to.equal(14);
+        expect(state.storage?.pools[1].denorm).to.equal(26);
     });
 
     it('calculates the spot price', () => {
         state = pokeWeights(state);
 
-        state.storage.pools[1].balance = 3681637.59;
+        state.storage?.pools[1].balance = 3681637.59;
         const tokenBalanceIn = getBalance(1, state);
-        state.storage.pools[0].balance = 17625000;
+        state.storage?.pools[0].balance = 17625000;
         const tokenBalanceOut = getBalance(0, state);
 
         const tokenWeightIn = getWeight(1, state);

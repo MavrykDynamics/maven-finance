@@ -12,7 +12,7 @@ export const SatelliteSideBar = ({ isButton = true }: { isButton?: boolean }) =>
   const { accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
   const { delegationAddress } = useSelector((state: State) => state.contractAddresses)
-  const { satelliteLedger } = delegationStorage
+  const satelliteLedger = delegationStorage?.satelliteLedger
   const numSatellites = satelliteLedger?.length || 0
   const totalDelegatedMVK = getTotalDelegatedMVK(satelliteLedger)
   const userIsSatellite = accountPkh && satelliteLedger ? checkIfUserIsSatellite(accountPkh, satelliteLedger) : false

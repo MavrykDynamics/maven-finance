@@ -2,7 +2,6 @@ export const FARM_STORAGE_QUERY = `
   query FarmStorageQuery {
     farm {
       address
-      accumulated_mvk_per_share
       blocks_per_minute
       claim_paused
       deposit_paused
@@ -10,13 +9,20 @@ export const FARM_STORAGE_QUERY = `
       infinite
       init_block
       last_block_update
-      lp_balance
-      lp_token
       open
-      reward_per_block
-      rewards_from_treasury
       total_blocks
       withdraw_paused
+      accumulated_rewards_per_share
+      current_reward_per_block
+      init
+      lp_token_address
+      lp_token_balance
+      lp_token_id
+      lp_token_standard
+      paid_rewards
+      total_rewards
+      unpaid_rewards
+      force_rewards_from_transfer
     }
     farm_factory {
       address
@@ -26,11 +32,7 @@ export const FARM_STORAGE_QUERY = `
       farms {
         withdraw_paused
         total_blocks
-        rewards_from_treasury
-        reward_per_block
         open
-        lp_token
-        lp_balance
         last_block_update
         init_block
         farm_factory_id
@@ -39,7 +41,17 @@ export const FARM_STORAGE_QUERY = `
         claim_paused
         blocks_per_minute
         address
-        accumulated_mvk_per_share
+        total_rewards
+        unpaid_rewards
+        paid_rewards
+        lp_token_standard
+        lp_token_id
+        lp_token_balance
+        lp_token_address
+        init
+        force_rewards_from_transfer
+        current_reward_per_block
+        accumulated_rewards_per_share
       }
     }
   }

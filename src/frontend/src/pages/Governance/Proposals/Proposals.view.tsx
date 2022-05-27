@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-
+import { useLocation } from 'react-router-dom'
 import { CommaNumber } from '../../../app/App.components/CommaNumber/CommaNumber.controller'
 import { StatusFlag } from '../../../app/App.components/StatusFlag/StatusFlag.controller'
 import { ProposalRecordType } from '../../../utils/TypesAndInterfaces/Governance'
@@ -8,7 +8,7 @@ import { ProposalItemLeftSide, ProposalListContainer, ProposalListItem } from '.
 type ProposalsViewProps = {
   listTitle: string
   proposalsList: Map<string, ProposalRecordType>
-  handleItemSelect: (proposalListItem: ProposalRecordType) => void
+  handleItemSelect: (proposalListItem: ProposalRecordType | undefined) => void
   selectedProposal: ProposalRecordType | undefined
   isProposalPhase: boolean
 }
@@ -20,6 +20,15 @@ export const ProposalsView = ({
   isProposalPhase,
 }: ProposalsViewProps) => {
   const listProposalsArray = proposalsList?.values ? Array.from(proposalsList.values()) : []
+  const location = useLocation()
+
+  useEffect(() => {
+    handleItemSelect(listProposalsArray[0])
+  }, [proposalsList])
+
+  useEffect(() => {
+    handleItemSelect(undefined)
+  }, [location.pathname, proposalsList])
 
   return (
     <ProposalListContainer>

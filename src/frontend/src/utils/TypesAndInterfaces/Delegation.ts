@@ -84,9 +84,13 @@ export interface SatelliteRecord {
 }
 
 export type DelegationConfig = {
-  maxSatellites: string
-  delegationRatio: string
+  maxSatellites: number
+  delegationRatio: number
   minimumStakedMvkBalance: number
+  satelliteNameMaxLength: number
+  satelliteDescriptionMaxLength: number
+  satelliteImageMaxLength: number
+  satelliteWebsiteMaxLength: number
 }
 
 export type ParticipationMetrics = {
@@ -94,18 +98,23 @@ export type ParticipationMetrics = {
   proposalParticipation: number
   communication: number
 }
+
 export interface DelegationBreakGlassConfigType {
   delegateToSatelliteIsPaused: boolean
   undelegateFromSatelliteIsPaused: boolean
   registerAsSatelliteIsPaused: boolean
   unregisterAsSatelliteIsPaused: boolean
   updateSatelliteRecordIsPaused: boolean
+  distributeRewardPaused: boolean
 }
+
 export interface DelegateRecord {
   satelliteAddress: string
   delegatedDateTime: Date | null
 }
+
 export type DelegationLedger = MichelsonMap<string, DelegateRecord>
+
 export interface DelegationStorage {
   admin?: string
   contractAddresses?: MichelsonMap<string, string>
@@ -114,4 +123,6 @@ export interface DelegationStorage {
   config: DelegationConfig
   delegateLedger: DelegationLedger
   breakGlassConfig: DelegationBreakGlassConfigType
+  numberActiveSatellites: number
+  totalDelegatedMVK: number
 }

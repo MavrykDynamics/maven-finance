@@ -5,8 +5,12 @@ import { ERROR, INFO, SUCCESS } from '../../app/App.components/Toaster/Toaster.c
 import governanceAddress from '../../deployments/governanceAddress.json'
 import { fetchFromIndexer } from '../../gql/fetchGraphQL'
 import { COUNCIL_STORAGE_QUERY, COUNCIL_STORAGE_QUERY_NAME, COUNCIL_STORAGE_QUERY_VARIABLE } from '../../gql/queries'
-// prettier-ignore
-import { GOVERNANCE_STORAGE_QUERY, GOVERNANCE_STORAGE_QUERY_NAME, GOVERNANCE_STORAGE_QUERY_VARIABLE } from '../../gql/queries/getGovernanceStorage'
+
+import {
+  GOVERNANCE_STORAGE_QUERY,
+  GOVERNANCE_STORAGE_QUERY_NAME,
+  GOVERNANCE_STORAGE_QUERY_VARIABLE,
+} from '../../gql/queries/getGovernanceStorage'
 import { State } from '../../reducers'
 import { getContractBigmapKeys } from '../../utils/api'
 import storageToTypeConverter from '../../utils/storageToTypeConverter'
@@ -61,7 +65,7 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
   //
   // // Getting all proposals for the current round
   // const currentRoundProposals = new MichelsonMap<string, ProposalRecordType>()
-  // const currRoundPropMap = await storage.currentRoundProposals
+  // const currRoundPropMap = await storage?.currentRoundProposals
   // currRoundPropMap.forEach((value: number, key: string) => {
   //   const proposalItemFromProposalLedger = proposalLedger.get(key)
   //   if (proposalItemFromProposalLedger) {
@@ -76,49 +80,49 @@ export const getGovernanceStorage = (accountPkh?: string) => async (dispatch: an
   //   const proposalItemFromProposalLedger = proposalLedger.get(key)
   //   if (
   //     proposalItemFromProposalLedger &&
-  //     proposalItemFromProposalLedger.currentCycleEndLevel < storage.currentCycleEndLevel.toNumber()
+  //     proposalItemFromProposalLedger.currentCycleEndLevel < storage?.currentCycleEndLevel.toNumber()
   //   ) {
   //     pastProposals.set(key, proposalItemFromProposalLedger)
   //   }
   // })
   //
   // const governanceStorage: GovernanceStorage = {
-  //   address: storage.admin,
+  //   address: storage?.admin,
   //   config: {
-  //     successReward: storage.config.successReward.toNumber(),
-  //     minQuorumPercentage: storage.config.minQuorumPercentage,
-  //     minQuorumMvkTotal: storage.config.minQuorumPercentage,
-  //     votingPowerRatio: storage.config.votingPowerRatio,
-  //     proposalSubmissionFee: storage.config.proposalSubmissionFee, // 10 tez
-  //     minimumStakeReqPercentage: storage.config.minimumStakeReqPercentage, // 0.01% for testing: change to 10,000 later -> 10%
-  //     maxProposalsPerDelegate: storage.config.maxProposalsPerDelegate,
-  //     newBlockTimeLevel: storage.config.newBlockTimeLevel,
-  //     newBlocksPerMinute: storage.config.newBlocksPerMinute,
-  //     blocksPerMinute: storage.config.blocksPerMinute,
-  //     blocksPerProposalRound: storage.config.blocksPerProposalRound,
-  //     blocksPerVotingRound: storage.config.blocksPerVotingRound,
-  //     blocksPerTimelockRound: storage.config.blocksPerTimelockRound,
+  //     successReward: storage?.config.successReward.toNumber(),
+  //     minQuorumPercentage: storage?.config.minQuorumPercentage,
+  //     minQuorumMvkTotal: storage?.config.minQuorumPercentage,
+  //     votingPowerRatio: storage?.config.votingPowerRatio,
+  //     proposalSubmissionFee: storage?.config.proposalSubmissionFee, // 10 tez
+  //     minimumStakeReqPercentage: storage?.config.minimumStakeReqPercentage, // 0.01% for testing: change to 10,000 later -> 10%
+  //     maxProposalsPerDelegate: storage?.config.maxProposalsPerDelegate,
+  //     newBlockTimeLevel: storage?.config.newBlockTimeLevel,
+  //     newBlocksPerMinute: storage?.config.newBlocksPerMinute,
+  //     blocksPerMinute: storage?.config.blocksPerMinute,
+  //     blocksPerProposalRound: storage?.config.blocksPerProposalRound,
+  //     blocksPerVotingRound: storage?.config.blocksPerVotingRound,
+  //     blocksPerTimelockRound: storage?.config.blocksPerTimelockRound,
   //   },
-  //   whitelistTokenContracts: storage.whitelistTokenContracts,
+  //   whitelistTokenContracts: storage?.whitelistTokenContracts,
   //   proposalLedger: proposalLedger,
   //   snapshotLedger: snapshotLedger,
-  //   activeSatellitesMap: storage.activeSatellitesMap as MichelsonMap<string, Date>,
-  //   startLevel: storage.startLevel.toNumber(),
-  //   nextProposalId: storage.nextProposalId.toNumber(),
-  //   currentRound: storage.currentRound,
-  //   currentRoundStartLevel: storage.currentRoundStartLevel.toNumber(),
-  //   currentRoundEndLevel: storage.currentRoundEndLevel.toNumber(),
-  //   currentCycleEndLevel: storage.currentCycleEndLevel.toNumber(),
+  //   activeSatellitesMap: storage?.activeSatellitesMap as MichelsonMap<string, Date>,
+  //   startLevel: storage?.startLevel.toNumber(),
+  //   nextProposalId: storage?.nextProposalId.toNumber(),
+  //   currentRound: storage?.currentRound,
+  //   currentRoundStartLevel: storage?.currentRoundStartLevel.toNumber(),
+  //   currentRoundEndLevel: storage?.currentRoundEndLevel.toNumber(),
+  //   currentCycleEndLevel: storage?.currentCycleEndLevel.toNumber(),
   //   currentRoundProposals: currentRoundProposals,
-  //   currentRoundVotes: storage.currentRoundVotes,
-  //   currentRoundHighestVotedProposalId: storage.currentRoundHighestVotedProposalId.toNumber(),
-  //   timelockProposalId: storage.timelockProposalId.toNumber(),
-  //   snapshotMvkTotalSupply: storage.snapshotMvkTotalSupply.toNumber(),
+  //   currentRoundVotes: storage?.currentRoundVotes,
+  //   currentRoundHighestVotedProposalId: storage?.currentRoundHighestVotedProposalId.toNumber(),
+  //   timelockProposalId: storage?.timelockProposalId.toNumber(),
+  //   snapshotMvkTotalSupply: storage?.snapshotMvkTotalSupply.toNumber(),
   //   governanceLambdaLedger: governanceLambdaLedgerBigMap,
   //   financialRequestLedger: financialRequestLedgerBigMap,
   //   financialRequestSnapshotLedger: financialRequestSnapshotLedgerBigMap,
-  //   financialRequestCounter: storage.financialRequestCounter.toNumber(),
-  //   tempFlag: storage.tempFlag.toNumber(),
+  //   financialRequestCounter: storage?.financialRequestCounter.toNumber(),
+  //   tempFlag: storage?.tempFlag.toNumber(),
   // }
   //
   // console.log('Printing out Governance storage:\n', governanceStorage)

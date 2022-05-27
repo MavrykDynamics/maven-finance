@@ -3,14 +3,15 @@ import * as React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { State } from '../../../reducers'
-import { connect } from '../Menu/Menu.actions'
+import { connect } from './ConnectWallet.actions'
 import { ConnectWalletView } from './ConnectWallet.view'
 
 type ConnectWalletProps = {
   type?: string | null
+  className?: string
 }
 
-export const ConnectWallet = ({ type }: ConnectWalletProps) => {
+export const ConnectWallet = ({ type, className }: ConnectWalletProps) => {
   const dispatch = useDispatch()
   const loading = useSelector((state: State) => state.loading)
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
@@ -34,6 +35,7 @@ export const ConnectWallet = ({ type }: ConnectWalletProps) => {
       myMvkTokenBalance={user?.myMvkTokenBalance}
       handleConnect={handleConnect}
       handleNewConnect={handleNewConnect}
+      className={className}
     />
   )
 }

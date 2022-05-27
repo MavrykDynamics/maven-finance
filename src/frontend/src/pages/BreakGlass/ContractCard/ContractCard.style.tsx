@@ -1,17 +1,17 @@
-import styled from 'styled-components/macro';
-import { MavrykTheme } from '../../../styles/interfaces';
+import styled from 'styled-components/macro'
+import { MavrykTheme } from '../../../styles/interfaces'
 
-import { headerColor, cianColor, darkCianColor } from '../../../styles/colors';
+import { headerColor, cyanColor, royalPurpleColor } from '../../../styles/colors'
 
 export const ContractCardWrapper = styled.div<{ theme: MavrykTheme }>`
   width: 31%;
   min-height: 135px;
   height: fit-content;
-  border: 1px solid ${darkCianColor};
+  border: 1px solid ${royalPurpleColor};
   border-radius: 10px;
   display: flex;
   flex-direction: column;
-`;
+`
 
 export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
   padding: 22px 16px 18px 16px;
@@ -56,6 +56,6 @@ export const ContractCardTopSection = styled.div<{ theme: MavrykTheme }>`
     grid-row-end: 3;
     grid-column-start: 1;
     grid-column-end: 3;
-    color: ${cianColor};
+    color: ${cyanColor};
   }
-`;
+`

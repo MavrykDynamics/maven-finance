@@ -1,14 +1,21 @@
 import styled from 'styled-components/macro'
-import { MavrykTheme } from '../../styles/interfaces'
+
 import { Card, headerColor } from '../../styles'
+import { MavrykTheme } from '../../styles/interfaces'
 
 export const ProposalSubmissionStyled = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
   height: 100%;
 `
 
+export const SubmissionStyled = styled.section<{ theme: MavrykTheme }>`
+  min-height: 477px;
+  display: flex;
+  flex-direction: column;
+`
+
 export const ProposalSubmissionForm = styled(Card)`
-  padding-bottom: 80px;
+  padding-bottom: 30px;
   position: relative;
   margin-top: 20px;
   padding-top: 28px;
@@ -35,6 +42,12 @@ export const ProposalSubmissionForm = styled(Card)`
 
   .document-uploader-wrap {
     padding-top: 18px;
+  }
+
+  .step-2-textarea {
+    textarea {
+      height: 189px;
+    }
   }
 `
 
@@ -71,9 +84,9 @@ export const FormHeaderGroup = styled.div<{ theme: MavrykTheme }>`
 
 export const FormTitleAndFeeContainer = styled.div<{ theme: MavrykTheme }>`
   align-items: center;
-  margin-bottom: 19px;
+  margin-bottom: 27px;
   display: grid;
-  grid-template-columns: auto 325px;
+  grid-template-columns: 1fr 1fr;
   column-gap: 30px;
 `
 export const FormTitleContainer = styled.div<{ theme: MavrykTheme }>``
@@ -83,12 +96,12 @@ export const FormSubTitle = styled.p<{ theme: MavrykTheme }>`
   font-weight: 700;
 `
 export const FormTitleEntry = styled.div<{ theme: MavrykTheme }>`
-  display: inline-flex;
-  align-items: center;
-  height: 50px;
-  padding: 12px 16px;
-  color: ${({ theme }) => theme.primaryColor};
-  font-size: 16px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 14px;
+  padding-left: 5px;
+  color: ${({ theme }) => theme.valueColor};
+  padding-top: 10px;
 `
 export const UploaderFileSelector = styled.div<{ theme: MavrykTheme }>`
   margin: 15px 0;
@@ -157,14 +170,34 @@ export const ProposalSubmissionInvoiceImage = styled.div`
     height: 100%;
   }
 `
+export const FormTableGrid = styled.div`
+  padding-top: 10px;
+  margin-bottom: auto;
+`
 
 export const FormButtonContainer = styled.div<{ theme: MavrykTheme }>`
   margin-top: 45px;
   padding-bottom: 24px;
+  display: flex;
+  justify-content: flex-end;
 
   > button {
     max-width: 250px;
-    float: right;
-    margin: 0 10px;
+    margin-left: 10px;
+
+    &.bytes,
+    &.financial {
+      svg {
+        fill: ${({ theme }) => theme.backgroundColor};
+        stroke: transparent;
+      }
+    }
+
+    &.lock {
+      svg {
+        fill: ${({ theme }) => theme.valueColor};
+        stroke: transparent;
+      }
+    }
   }
 `

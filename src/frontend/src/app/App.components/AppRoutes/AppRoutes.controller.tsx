@@ -20,7 +20,7 @@ import { EmergencyGovernance } from '../../../pages/EmergencyGovernance/Emergenc
 export const AppRoutes = () => {
   const { wallet, ready, tezos, accountPkh } = useSelector((state: State) => state.wallet)
   const { delegationStorage } = useSelector((state: State) => state.delegation)
-  const { satelliteLedger } = delegationStorage
+  const satelliteLedger = delegationStorage?.satelliteLedger
 
   return (
     <Switch>

@@ -1,8 +1,8 @@
 import { Button } from 'app/App.components/Button/Button.controller'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
 import { Input } from 'app/App.components/Input/Input.controller'
-import { useEffect, useState } from 'react'
 import * as React from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import { Page, PageContent } from 'styles'
 
@@ -14,13 +14,22 @@ import { PRIMARY } from '../../app/App.components/PageHeader/PageHeader.constant
 import { PageHeader } from '../../app/App.components/PageHeader/PageHeader.controller'
 import { TextArea } from '../../app/App.components/TextArea/TextArea.controller'
 import { SatelliteRecord } from '../../utils/TypesAndInterfaces/Delegation'
-// prettier-ignore
-import { RegisterAsSatelliteForm, RegisterAsSatelliteFormInputStatus, ValidRegisterAsSatelliteForm } from '../../utils/TypesAndInterfaces/Forms'
+import {
+  RegisterAsSatelliteForm,
+  RegisterAsSatelliteFormInputStatus,
+  ValidRegisterAsSatelliteForm,
+} from '../../utils/TypesAndInterfaces/Forms'
 import { isNotAllWhitespace, validateFormAndThrowErrors } from '../../utils/validatorFunctions'
 import { SatelliteSideBar } from '../Satellites/SatelliteSideBar/SatelliteSideBar.controller'
 import { unregisterAsSatellite } from './BecomeSatellite.actions'
-// prettier-ignore
-import { BecomeSatelliteButttons, BecomeSatelliteForm, BecomeSatelliteFormBalanceCheck, BecomeSatelliteFormHorizontal, BecomeSatelliteFormTitle } from './BecomeSatellite.style'
+import {
+  BecomeSatelliteButttons,
+  BecomeSatelliteForm,
+  BecomeSatelliteFormBalanceCheck,
+  BecomeSatelliteFormHorizontal,
+  BecomeSatelliteFormTitle,
+} from './BecomeSatellite.style'
+import InputWithPercent from 'app/App.components/InputWithPercent/InputWithPercent'
 
 type BecomeSatelliteViewProps = {
   loading: boolean
@@ -58,7 +67,8 @@ export const BecomeSatelliteView = ({
 }: BecomeSatelliteViewProps) => {
   const dispatch = useDispatch()
   const [balanceOk, setBalanceOk] = useState(false)
-  const updateSatellite = usersSatellite?.address !== ''
+  const updateSatellite = usersSatellite && usersSatellite?.address !== ''
+
   const [form, setForm] = useState<RegisterAsSatelliteForm>(FORM_DEFAULT)
   const [validForm, setValidForm] = useState<ValidRegisterAsSatelliteForm>(FORM_VALID_DEFAULT)
   const [formInputStatus, setFormInputStatus] = useState<RegisterAsSatelliteFormInputStatus>({
@@ -68,6 +78,7 @@ export const BecomeSatelliteView = ({
     fee: '',
     image: '',
   })
+  const disabled = !balanceOk || !accountPkh
   const handleValidateLoad = (formFields: RegisterAsSatelliteForm) => {
     setFormInputStatus({
       name: isNotAllWhitespace(formFields.name) ? 'success' : 'error',
@@ -107,12 +118,13 @@ export const BecomeSatelliteView = ({
       handleValidateLoad(data)
     }
   }, [updateSatellite, usersSatellite])
+  useEffect(() => {
+    setBalanceOk(myTotalStakeBalance >= minimumStakedMvkBalance)
+  }, [accountPkh, myTotalStakeBalance, minimumStakedMvkBalance])
 
   useEffect(() => {
-    if (accountPkh && myTotalStakeBalance >= minimumStakedMvkBalance) {
-      setBalanceOk(true)
-    }
-  }, [accountPkh, myTotalStakeBalance, minimumStakedMvkBalance])
+    handleValidate('FEE')
+  }, [form.fee])
 
   const handleValidate = (formField: string) => {
     let updatedState, validityCheckResult
@@ -127,17 +139,26 @@ export const BecomeSatelliteView = ({
         validityCheckResult = isNotAllWhitespace(form.description)
         setValidForm({ ...validForm, description: validityCheckResult })
         updatedState = { ...validForm, description: validityCheckResult }
-        setFormInputStatus({ ...formInputStatus, description: updatedState.description ? 'success' : 'error' })
+        setFormInputStatus({
+          ...formInputStatus,
+          description: updatedState.description ? 'success' : 'error',
+        })
         break
       case 'WEBSITE':
         validityCheckResult = isNotAllWhitespace(form.website)
         setValidForm({ ...validForm, website: validityCheckResult })
         updatedState = { ...validForm, website: validityCheckResult }
-        setFormInputStatus({ ...formInputStatus, website: updatedState.website ? 'success' : 'error' })
+        setFormInputStatus({
+          ...formInputStatus,
+          website: updatedState.website ? 'success' : 'error',
+        })
         break
       case 'FEE':
-        setValidForm({ ...validForm, fee: form.fee >= 0 && form.fee <= 100 })
-        updatedState = { ...validForm, fee: form.fee >= 0 }
+        setValidForm({
+          ...validForm,
+          fee: form.fee >= 0 && form.fee <= 100,
+        })
+        updatedState = { ...validForm, fee: form.fee >= 0 && form.fee <= 100 }
         setFormInputStatus({
           ...formInputStatus,
           fee: updatedState.fee ? 'success' : 'error',
@@ -174,38 +195,36 @@ export const BecomeSatelliteView = ({
           <CommaNumber
             className="label"
             value={Number(minimumStakedMvkBalance)}
-            beginningText={'1- Stake at least'}
+            beginningText={'1 - Stake at least'}
             endingText={'MVK'}
           />
-          <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
-            {accountPkh ? (
-              <>
-                <Icon id="check-stroke" />
-                <CommaNumber
-                  value={Number(myTotalStakeBalance)}
-                  beginningText={'Currently staking'}
-                  endingText={'MVK'}
-                />
-              </>
-            ) : (
+
+          {accountPkh ? (
+            <BecomeSatelliteFormBalanceCheck balanceOk={balanceOk}>
+              <Icon id={balanceOk ? 'check-stroke' : 'close-stroke'} />
+              <CommaNumber value={Number(myTotalStakeBalance)} beginningText={'Currently staking'} endingText={'MVK'} />
+            </BecomeSatelliteFormBalanceCheck>
+          ) : (
+            <BecomeSatelliteFormBalanceCheck balanceOk={false}>
               <div>
                 <Icon id="close-stroke" />
                 Please connect your wallet
               </div>
-            )}
-          </BecomeSatelliteFormBalanceCheck>
+            </BecomeSatelliteFormBalanceCheck>
+          )}
+
           <BecomeSatelliteFormHorizontal>
             <article>
               {updateSatellite ? (
-                <label className="label">2- Edit your name</label>
+                <label className="label">2 - Edit your name</label>
               ) : (
-                <label className="label">2- Enter your name</label>
+                <label className="label">2 - Enter your name</label>
               )}
               <Input
                 type="text"
                 placeholder="Name"
                 required
-                disabled={!balanceOk}
+                disabled={disabled}
                 value={form.name}
                 onChange={(e: any) => {
                   setForm({ ...form, name: e.target.value })
@@ -217,14 +236,14 @@ export const BecomeSatelliteView = ({
             </article>
             <article>
               {updateSatellite ? (
-                <label className="label">3- Edit your website</label>
+                <label className="label">3 - Edit your website</label>
               ) : (
-                <label className="label">3- Enter your website</label>
+                <label className="label">3 - Enter your website</label>
               )}
               <Input
                 type="text"
                 placeholder="Website"
-                disabled={!balanceOk}
+                disabled={disabled}
                 value={form.website}
                 onChange={(e: any) => {
                   setForm({ ...form, website: e.target.value })
@@ -236,15 +255,14 @@ export const BecomeSatelliteView = ({
             </article>
           </BecomeSatelliteFormHorizontal>
           {updateSatellite ? (
-            <label className="label">4- Edit description</label>
+            <label className="label">4 - Edit description</label>
           ) : (
-            <label className="label">4- Enter your description</label>
+            <label className="label">4 - Enter a description</label>
           )}
-          {/*<TextEditor onChange={handleTextEditorChange} initialValue={form.description} />*/}
           <TextArea
             placeholder="Your description here..."
             value={form.description}
-            disabled={!balanceOk}
+            disabled={disabled}
             onChange={(e: any) => {
               setForm({ ...form, description: e.target.value })
               handleValidate('DESCRIPTION')
@@ -253,26 +271,23 @@ export const BecomeSatelliteView = ({
             inputStatus={formInputStatus.description}
           />
           {updateSatellite ? (
-            <label className="label">5- Edit your fee (%)</label>
+            <label className="label">5 - Edit your fee (%)</label>
           ) : (
-            <label className="label">5- Enter your fee (%)</label>
+            <label className="label">5 - Enter your fee (%)</label>
           )}
           <div className="input-fee-wrap">
-            <Input
-              type="number"
+            <InputWithPercent
+              type="text"
               placeholder="Fee"
-              disabled={!balanceOk}
+              disabled={disabled}
               value={form.fee}
-              onChange={(e: any) => {
-                setForm({ ...form, fee: e.target.value })
-                handleValidate('FEE')
-              }}
               onBlur={(e: any) => handleValidate('FEE')}
               inputStatus={formInputStatus.fee}
+              onChange={(feeNumber: number) => setForm({ ...form, fee: feeNumber })}
             />
           </div>
           <IPFSUploader
-            disabled={!balanceOk}
+            disabled={disabled}
             typeFile="image"
             imageIpfsUrl={form.image}
             setIpfsImageUrl={(e: any) => {
@@ -280,7 +295,7 @@ export const BecomeSatelliteView = ({
               setValidForm({ ...validForm, image: Boolean(e) })
               setFormInputStatus({ ...formInputStatus, image: Boolean(e) ? 'success' : 'error' })
             }}
-            title={'Upload Profile Pic'}
+            title={'Upload your photo'}
             listNumber={6}
           />
           <BecomeSatelliteButttons>
@@ -288,7 +303,7 @@ export const BecomeSatelliteView = ({
               <Button
                 icon="close-stroke"
                 kind={ACTION_SECONDARY}
-                disabled={!balanceOk}
+                disabled={disabled}
                 text={'Unregister Satellite'}
                 loading={loading}
                 onClick={handleUnregisterSatellite}
@@ -298,7 +313,7 @@ export const BecomeSatelliteView = ({
               icon="satellite-stroke"
               text={updateSatellite ? 'Update Satellite Info' : 'Become a satellite'}
               loading={loading}
-              disabled={!balanceOk}
+              disabled={disabled}
               kind={ACTION_PRIMARY}
               onClick={handleSubmit}
             />

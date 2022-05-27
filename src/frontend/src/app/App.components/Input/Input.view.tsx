@@ -2,8 +2,15 @@ import * as PropTypes from 'prop-types'
 import * as React from 'react'
 
 import { InputKind, InputStatusType } from './Input.controller'
-// prettier-ignore
-import { InputComponent, InputComponentContainer, InputErrorMessage, InputIcon, InputLabel, InputStatus, InputStyled } from './Input.style'
+import {
+  InputComponent,
+  InputComponentContainer,
+  InputErrorMessage,
+  InputIcon,
+  InputLabel,
+  InputStatus,
+  InputStyled,
+} from './Input.style'
 
 type InputViewProps = {
   icon?: string
@@ -12,6 +19,7 @@ type InputViewProps = {
   value?: string | number
   onChange: any
   onBlur: any
+  onKeyDown: any
   onFocus: any
   inputStatus?: InputStatusType
   type: string
@@ -29,6 +37,7 @@ export const InputView = ({
   value,
   onChange,
   onBlur,
+  onKeyDown,
   onFocus,
   inputStatus,
   type,
@@ -59,6 +68,7 @@ export const InputView = ({
           value={value}
           onChange={onChange}
           onBlur={onBlur}
+          onKeyDown={onKeyDown}
           onFocus={onFocus}
           autoComplete={name}
           disabled={disabled}

@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../styles/interfaces'
 
-import { downColor, upColor, skyColor, headerColor, darkCianColor } from '../../styles/colors'
+import { downColor, upColor, skyColor, headerColor, royalPurpleColor } from '../../styles/colors'
 
 export const BGStyled = styled.div<{ theme: MavrykTheme }>`
   display: flex;
@@ -19,7 +19,7 @@ export const BGTop = styled.div<{ theme: MavrykTheme }>`
 
 const BGBlockBaseStyles = styled.div<{ theme: MavrykTheme }>`
   background-color: ${({ theme }) => theme.containerColor};
-  border: 1px solid ${darkCianColor};
+  border: 1px solid ${royalPurpleColor};
   border-radius: 10px;
 `
 

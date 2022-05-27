@@ -17,8 +17,8 @@ export const StatusFlagStyled = styled.div<{ theme: MavrykTheme }>`
   flex-shrink: 0;
 
   &.primary {
-    color: ${({ theme }) => theme.primaryColor};
-    border-color: ${({ theme }) => theme.primaryColor};
+    color: ${({ theme }) => theme.infoColor};
+    border-color: ${({ theme }) => theme.infoColor};
   }
 
   &.up {

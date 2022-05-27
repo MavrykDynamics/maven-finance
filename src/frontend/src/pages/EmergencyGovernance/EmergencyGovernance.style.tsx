@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components/macro'
-import { Card, skyColor } from 'styles'
+import { Card, skyColor, cyanColor } from 'styles'
 
 import { MavrykTheme } from '../../styles/interfaces'
 
@@ -34,23 +34,32 @@ export const CardContentLeftSide = styled.div<{ theme: MavrykTheme }>`
   width: 50%;
   align-items: center;
   justify-content: center;
+
+  .voting-ends {
+    display: block;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 21px;
+    color: ${cyanColor};
+    padding-bottom: 12px;
+    padding-top: 2px;
+  }
 `
 export const CardContent = styled.div<{ theme: MavrykTheme }>`
   display: flex;
-  align-items: center;
   justify-content: center;
 `
 export const CardContentRightSide = styled.div<{ theme: MavrykTheme }>`
   width: 50%;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
   display: flex;
 
   button {
     max-width: 250px;
   }
 
-  > div {
+  .connect-wallet {
     align-items: center;
     justify-content: flex-end;
     display: flex;
@@ -71,4 +80,18 @@ export const BGTextWithStatus = styled.div<{ status: boolean; theme: MavrykTheme
   color: ${({ status, theme }) => (status ? theme.downColor : theme.upColor)};
   font-weight: 600;
   font-size: 22px;
+`
+
+export const CardContentVoiting = styled.div`
+  width: 100%;
+  padding-left: 40px;
+
+  aside {
+    margin-top: 33px;
+    margin-bottom: 58px;
+  }
+
+  article {
+    margin-bottom: 30px;
+  }
 `

@@ -12,8 +12,13 @@ import { showToaster } from 'app/App.components/Toaster/Toaster.actions'
 import { INFO } from 'app/App.components/Toaster/Toaster.constants'
 // components
 import Icon from '../Icon/Icon.view'
-// prettier-ignore
-import { IpfsUploadedImageContainer, IPFSUploaderStyled, UploaderFileSelector, UploadIconContainer } from './IPFSUploader.style'
+// styles
+import {
+  IpfsUploadedImageContainer,
+  IPFSUploaderStyled,
+  UploaderFileSelector,
+  UploadIconContainer,
+} from './IPFSUploader.style'
 
 type IPFSUploaderViewProps = {
   title?: string
@@ -68,7 +73,7 @@ export const IPFSUploaderView = ({
     <IPFSUploaderStyled id={'ipfsUploaderContainer'}>
       {title && listNumber && (
         <label>
-          {listNumber}- {title}
+          {listNumber} - {title}
         </label>
       )}
       <div style={{ opacity: disabled ? 0.4 : 1 }}>
@@ -92,7 +97,6 @@ export const IPFSUploaderView = ({
                   <IpfsUploadedImageContainer>
                     {isTypeFileImage ? (
                       <>
-                        <img className="loading-icon" src="/icons/loading-white.svg" alt="loading" />
                         <img className="uploaded-image" src={imageIpfsUrl} alt="" />
                         <div className="pencil-wrap">
                           <Icon id="pencil-stroke" />

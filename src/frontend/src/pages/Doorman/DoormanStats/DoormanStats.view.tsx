@@ -1,15 +1,15 @@
-// prettier-ignore
+import { useSelector } from 'react-redux'
+import { State } from 'reducers'
+
 import { ButtonLoadingIcon } from 'app/App.components/Button/Button.style'
 import { CommaNumber } from 'app/App.components/CommaNumber/CommaNumber.controller'
-import { useDispatch, useSelector } from 'react-redux'
-import { State } from 'reducers'
 
 // components
 import Icon from '../../../app/App.components/Icon/Icon.view'
 import { TzAddress } from '../../../app/App.components/TzAddress/TzAddress.view'
 import { calcExitFee, calcMLI } from '../../../utils/calcFunctions'
 // style
-import { DoormanList, DoormanStatsGrid, DoormanStatsHeader, DoormanStatsStyled } from './DoormanStats.style'
+import { DoormanList, DoormanStatsHeader, DoormanStatsStyled } from './DoormanStats.style'
 
 type DoormanStatsViewProps = {
   loading: boolean
@@ -22,6 +22,7 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
   const mli = calcMLI(mvkTotalSupply, totalStakedMvkSupply)
   const fee = calcExitFee(mvkTotalSupply, totalStakedMvkSupply)
   const { exchangeRate, mvkTokenStorage } = useSelector((state: State) => state.mvkToken)
+  const { doormanAddress } = useSelector((state: State) => state.contractAddresses)
   const { user } = useSelector((state: State) => state.user)
   const totalSupply = mvkTokenStorage?.totalSupply ?? 0
   const maximumTotalSupply = mvkTokenStorage?.maximumTotalSupply ?? 0
@@ -33,11 +34,11 @@ export const DoormanStatsView = ({ loading, mvkTotalSupply, totalStakedMvkSupply
     <DoormanStatsStyled>
       <DoormanStatsHeader>MVK Staking contract details</DoormanStatsHeader>
       <DoormanList>
-        {user?.myAddress ? (
+        {doormanAddress?.address ? (
           <div>
             <h4>Contract address</h4>
             <var className="click-addrese">
-              <TzAddress tzAddress={user?.myAddress} hasIcon />
+              <TzAddress tzAddress={doormanAddress?.address} hasIcon />
             </var>
           </div>
         ) : null}

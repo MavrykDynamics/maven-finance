@@ -77,3 +77,6 @@ export function validateFormAndThrowErrors(dispatch: any, validForm: AllValidFor
 export function mathRoundTwoDigit(digit: string | number | undefined): number | '' {
   return digit ? Math.round(+digit * 100) / 100 : 0
 }
+
+
+export const containsCode = (str: string) => /<[a-z][\s\S]*>/i.test(str) || /eval/i.test(str)
