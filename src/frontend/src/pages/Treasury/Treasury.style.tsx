@@ -1,7 +1,7 @@
 import styled from 'styled-components/macro'
 import { MavrykTheme } from '../../styles/interfaces'
 
-import { Card, cyanColor, skyColor, headerColor, whiteColor } from 'styles'
+import { Card, cyanColor, skyColor, headerColor, whiteColor, containerColor, middleColor } from 'styles'
 
 export const TreasuryViewStyle = styled(Card)`
   display: grid;
@@ -28,6 +28,7 @@ export const TreasuryViewStyle = styled(Card)`
     font-weight: 600;
     font-size: 18px;
     line-height: 18px;
+    padding-bottom: 13px;
   }
 
   .assets-block {
@@ -66,6 +67,10 @@ export const TreasuryViewStyle = styled(Card)`
       margin: 0;
       margin-top: 0px;
     }
+
+    .asset-value {
+      margin-top: 0;
+    }
   }
 
   .assets-block-map {
@@ -79,12 +84,32 @@ export const TreasuryViewStyle = styled(Card)`
     line-height: 16px;
     color: ${cyanColor};
     margin: 0;
+    margin-top: 4px;
+  }
+
+  .asset-lables {
+    padding-top: 25px;
   }
 
   .asset-lable {
+    background: linear-gradient(90deg, #0d61ff 0%, rgba(133, 211, 200, 0) 100%);
+    padding-top: 1px;
+    padding-bottom: 1px;
+    margin-bottom: 6px;
+    border-bottom-left-radius: 6px;
+    border-top-left-radius: 6px;
+    margin: 11px 0;
+  }
+
+  .asset-lable-text {
     font-weight: 600;
     font-size: 18px;
     line-height: 18px;
     color: ${whiteColor};
+    background-color: ${middleColor};
+    margin: 0;
+    margin-left: 8px;
+    line-height: 40px;
+    padding-left: 20px;
   }
 ` //TreasuryViewStyle
