@@ -46,15 +46,17 @@ export default function TreasuryView({ treasury }: Props) {
         <PieChartView />
       </div>
       <div>
-        {treasury?.assets?.length
-          ? treasury.assets.map((item: any) => {
-              return (
-                <div key={item.asset}>
-                  <p className="asset-lable">{item.asset}</p>
-                </div>
-              )
-            })
-          : null}
+        <div className="asset-lables">
+          {treasury?.assets?.length
+            ? treasury.assets.map((item: any) => {
+                return (
+                  <div className="asset-lable" key={item.asset}>
+                    <p className="asset-lable-text">{item.asset}</p>
+                  </div>
+                )
+              })
+            : null}
+        </div>
       </div>
     </TreasuryViewStyle>
   )
