@@ -7,12 +7,19 @@ export const TreasuryViewStyle = styled(Card)`
   display: grid;
   grid-template-columns: auto 254px 184px;
   gap: 50px;
+  padding-bottom: 33px;
 
   header {
     display: flex;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding-top: 3px;
+    padding-bottom: 16px;
+
+    h1 {
+      margin: 0;
+    }
   }
 
   var {
@@ -33,6 +40,8 @@ export const TreasuryViewStyle = styled(Card)`
       font-size: 12px;
       line-height: 12px;
       color: ${headerColor};
+      margin: 0;
+      margin-top: 37px;
     }
   }
 
@@ -45,6 +54,23 @@ export const TreasuryViewStyle = styled(Card)`
     font-size: 16px;
     line-height: 16px;
     color: ${skyColor};
+    margin: 0;
+    margin-top: 4px;
+  }
+
+  .assets-block-tvl {
+    padding-top: 4px;
+    margin: 0;
+
+    .asset-name {
+      margin: 0;
+      margin-top: 0px;
+    }
+  }
+
+  .assets-block-map {
+    margin-top: 7px;
+    margin-bottom: 11px;
   }
 
   .asset-value {
@@ -52,6 +78,7 @@ export const TreasuryViewStyle = styled(Card)`
     font-size: 16px;
     line-height: 16px;
     color: ${cyanColor};
+    margin: 0;
   }
 
   .asset-lable {

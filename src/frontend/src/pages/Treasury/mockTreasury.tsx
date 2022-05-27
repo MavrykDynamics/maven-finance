@@ -1,7 +1,7 @@
 export const MOCK_TREASURYS = [
   {
     id: 0,
-    type: 'glogal',
+    type: 'global',
     title: 'Global Treasury TVL',
     assets: [
       {
