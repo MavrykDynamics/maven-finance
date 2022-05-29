@@ -89,33 +89,42 @@ export const GOVERNANCE_STORAGE_QUERY = `
       status
       success_reward
       title
-      up_vote_mvk_total
       votes {
         current_round_vote
         governance_proposal_record_id
         id
         round
-        timestamp
         vote
         voter_id
         voting_power
       }
-    }
-    governance_proposal_record_metadata {
-      governance_proposal_record_id
-      id
-      metadata
-      name
-    }
-    governance_satellite_snapshot_record {
-      current_cycle_end_level
-      current_cycle_start_level
-      satellite_id
-      total_delegated_amount
-      total_mvk_balance
-      total_voting_power
-      id
+      abstain_vote_count
+      down_vote_count
+      execution_counter
       governance_id
+      payment_processed
+      pass_vote_count
+      quorum_vote_count
+      up_vote_count
+      up_vote_mvk_total
+      proposal_data {
+        bytes
+        governance_proposal_record_id
+        id
+        record_internal_id
+        title
+      }
+      proposal_payments {
+        governance_proposal_record_id
+        id
+        record_internal_id
+        title
+        to__id
+        token_address
+        token_amount
+        token_id
+        token_standard
+      }
     }
   }
 `
