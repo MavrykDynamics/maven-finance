@@ -24,7 +24,7 @@ export type CouncilActionRecord = {
 export interface CouncilStorage {
   address: string
   config: CouncilConfig
-  councilMembers: { address: string }[]
+  councilMembers?: { address: string }[]
   councilActionsLedger: CouncilActionRecord[]
   actionCounter: number
 }
