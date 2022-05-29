@@ -8,14 +8,18 @@ export interface BreakGlassState {
 }
 
 const defaultBreakGlassStorage: BreakGlassStorage = {
-  actionLedger: [],
   address: '',
+  admin: '',
+  governanceId: '',
+  actionLedger: [],
   config: {
     threshold: 0,
-    actionExpiryDuration: 0,
+    actionExpiryDays: 0,
+    councilMemberNameMaxLength: 400,
+    councilMemberWebsiteMaxLength: 400,
+    councilMemberImageMaxLength: 400,
   },
-  councilMembers: [],
-  currentActionId: 0,
+  actionCounter: 0,
   glassBroken: false,
 }
 const breakGlassDefaultState: BreakGlassState = {

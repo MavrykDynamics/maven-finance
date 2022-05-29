@@ -20,7 +20,6 @@ export const EMERGENCY_GOVERNANCE_STORAGE_QUERY = `
         smvk_percentage_required
         smvk_required_for_trigger
         start_timestamp
-        status
         title
         voters {
           emergency_governance_record_id
@@ -29,6 +28,9 @@ export const EMERGENCY_GOVERNANCE_STORAGE_QUERY = `
           timestamp
           voter_id
         }
+        executed_level
+        start_level
+        total_smvk_votes
       }
       required_fee_mutez
       proposal_title_max_length
