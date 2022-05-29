@@ -235,22 +235,22 @@ function convertToSatelliteRecordsInterface(satelliteRecordObject: any): Satelli
       satelliteRecords.push(newSatelliteRecord)
       return true
     })
-
   }
   return satelliteRecords
 }
 
 function convertToSatelliteRecordInterface(satelliteRecord: any): SatelliteRecord {
-  const totalDelegatedAmount = satelliteRecord ? satelliteRecord.delegation_records.reduce(
-    (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
-    0,
-  ) : 0
-
+  const totalDelegatedAmount = satelliteRecord
+    ? satelliteRecord.delegation_records.reduce(
+        (sum: any, current: { user: { smvk_balance: any } }) => sum + current.user.smvk_balance,
+        0,
+      )
+    : 0
 
   const proposalVotingHistory: SatelliteProposalVotingHistory[] = [],
     financialRequestsVotes: SatelliteFinancialRequestVotingHistory[] = []
   if (satelliteRecord) {
-    satelliteRecord.governance_proposal_records_votes.forEach(
+    satelliteRecord.governance_proposal_records_votes?.forEach(
       (vote: {
         id: any
         current_round_vote: any
@@ -429,12 +429,14 @@ function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
       break_glass_id: any
       executed: any
       executed_datetime: string | number | Date
+      executed_level: number
       expiration_datetime: string | number | Date
       id: any
       initiator_id: any
       start_datetime: string | number | Date
       status: any
       signers: any
+      signers_count: number
     }) => {
       const signers: BreakGlassActionSigner[] = []
       actionRecord.signers?.forEach((signer: { break_glass_action_record_id: any; id: any; signer_id: any }) => {
@@ -457,26 +459,32 @@ function convertToBreakGlassStorageType(storage: any): BreakGlassStorage {
         startDatetime: new Date(actionRecord.start_datetime),
         status: actionRecord.status,
         signers,
+        executedLevel: actionRecord.executed_level,
+        signersCount: actionRecord.signers_count,
       }
 
       actionLedger.push(newActionRecord)
     },
   )
-  storage?.council_members.forEach((member: { address: string }) => {
-    const newMember = {
-      address: member.address,
-    }
-    councilMembers.push(newMember)
-  })
+  // storage?.council_members.forEach((member: { address: string }) => {
+  //   const newMember = {
+  //     address: member.address,
+  //   }
+  //   councilMembers.push(newMember)
+  // })
   return {
     address: storage?.address,
+    admin: storage?.admin,
+    governanceId: storage?.governance_id,
     config: {
       threshold: storage?.threshold,
-      actionExpiryDuration: storage?.action_expiry_days,
+      actionExpiryDays: storage?.action_expiry_days,
+      councilMemberNameMaxLength: storage?.council_member_name_max_length,
+      councilMemberImageMaxLength: storage?.council_member_image_max_length,
+      councilMemberWebsiteMaxLength: storage?.council_member_website_max_length,
     },
-    currentActionId: storage?.currentActionId,
+    actionCounter: storage?.currentActionId,
     glassBroken: storage?.glassBroken,
-    councilMembers,
     actionLedger,
   }
 }
@@ -523,12 +531,6 @@ function convertToCouncilStorageType(storage: any): CouncilStorage {
       councilActionsLedger.push(newActionRecord)
     },
   )
-  storage?.council_members.forEach((member: { address: string }) => {
-    const newMember = {
-      address: member.address,
-    }
-    councilMembers.push(newMember)
-  })
   return {
     address: storage?.address,
     config: {
@@ -536,7 +538,6 @@ function convertToCouncilStorageType(storage: any): CouncilStorage {
       actionExpiryDays: storage?.action_expiry_days,
     },
     actionCounter: storage?.action_counter,
-    councilMembers,
     councilActionsLedger,
   }
 }
@@ -569,36 +570,36 @@ function convertToGovernanceStorageType(storage: {
   )
   return {
     activeSatellitesMap: new MichelsonMap<string, Date>(),
-    address:  storage?.governance.address,
+    address: storage?.governance.address,
     config: {
-      successReward:  storage?.governance.success_reward,
-      minQuorumPercentage:  storage?.governance.min_quorum_percentage,
-      minQuorumMvkTotal:  storage?.governance.min_quorum_mvk_total,
-      votingPowerRatio:  storage?.governance.voting_power_ratio,
-      proposalSubmissionFee:  storage?.governance.proposal_submission_fee, // 10 tez
-      minimumStakeReqPercentage:  storage?.governance.minimum_stake_req_percentage, // 0.01% for testing: change to 10,000 later -> 10%
+      successReward: storage?.governance.success_reward,
+      minQuorumPercentage: storage?.governance.min_quorum_percentage,
+      minQuorumMvkTotal: storage?.governance.min_quorum_mvk_total,
+      votingPowerRatio: storage?.governance.voting_power_ratio,
+      proposalSubmissionFee: storage?.governance.proposal_submission_fee, // 10 tez
+      minimumStakeReqPercentage: storage?.governance.minimum_stake_req_percentage, // 0.01% for testing: change to 10,000 later -> 10%
       maxProposalsPerDelegate: storage?.governance.max_proposal_per_delegate,
-      newBlockTimeLevel:  storage?.governance.new_blocktime_level,
-      newBlocksPerMinute:  storage?.governance.new_block_per_minute,
-      blocksPerMinute:  storage?.governance.blocks_per_minute,
-      blocksPerProposalRound:  storage?.governance.blocks_per_proposal_round,
-      blocksPerVotingRound:  storage?.governance.blocks_per_voting_round,
-      blocksPerTimelockRound:  storage?.governance.blocks_per_timelock_round,
+      newBlockTimeLevel: storage?.governance.new_blocktime_level,
+      newBlocksPerMinute: storage?.governance.new_block_per_minute,
+      blocksPerMinute: storage?.governance.blocks_per_minute,
+      blocksPerProposalRound: storage?.governance.blocks_per_proposal_round,
+      blocksPerVotingRound: storage?.governance.blocks_per_voting_round,
+      blocksPerTimelockRound: storage?.governance.blocks_per_timelock_round,
     },
-    currentCycleEndLevel:  storage?.governance.current_cycle_end_level,
-    currentRound:  storage?.governance.current_round,
-    currentRoundEndLevel:  storage?.governance.current_round_end_level,
+    currentCycleEndLevel: storage?.governance.current_cycle_end_level,
+    currentRound: storage?.governance.current_round,
+    currentRoundEndLevel: storage?.governance.current_round_end_level,
     currentRoundProposals: new MichelsonMap<string, ProposalRecordType>(),
-    currentRoundStartLevel:  storage?.governance.current_round_start_level,
+    currentRoundStartLevel: storage?.governance.current_round_start_level,
     currentRoundVotes: new MichelsonMap<string, Date>(),
     financialRequestLedger: financialRequestRecords,
     governanceLambdaLedger: new MichelsonMap<string, Date>(),
-    nextProposalId:  storage?.governance.next_proposal_id,
+    nextProposalId: storage?.governance.next_proposal_id,
     proposalLedger: proposalLedger,
     snapshotLedger: satelliteSnapshotLedger,
-    startLevel:  storage?.governance.start_level,
-    tempFlag:  storage?.governance.start_level,
-    timelockProposalId:  storage?.governance.timelock_proposal,
+    startLevel: storage?.governance.start_level,
+    tempFlag: storage?.governance.start_level,
+    timelockProposalId: storage?.governance.timelock_proposal,
     // currentRoundHighestVotedProposalId: storage?.,
     // whitelistTokenContracts: new MichelsonMap<string, Date>(),
     // financialRequestCounter: storage?.,

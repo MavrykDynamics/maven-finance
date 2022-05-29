@@ -5,9 +5,6 @@ export const COUNCIL_STORAGE_QUERY = `
       action_expiry_days
       address
       threshold
-      council_members {
-        address
-      }
       council_action_records {
         action_type
         executed
@@ -19,6 +16,7 @@ export const COUNCIL_STORAGE_QUERY = `
         start_datetime
         status
       }
+      governance_id
     }
   }
 `
