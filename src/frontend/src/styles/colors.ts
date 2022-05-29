@@ -1,5 +1,5 @@
 export const darkColor = '#080628'
-export const middleColor = '#160E3F'
+export const containerColor = '#160E3F'
 export const darkPurpleColor = '#38237C'
 export const whiteColor = '#FFFFFF'
 export const lightColor = '#EBF0FF'
@@ -13,7 +13,6 @@ export const primaryColor = '#7068AA'
 export const boxShadowColor = 'rgba(134, 212, 201, 0.5)'
 export const subTextColor = '#7E8794'
 
-export const containerColor = '#F7F9FD'
 export const borderColor = '#4F457C' 
 export const textColor = '#29264C'
 export const backgroundTextColor = '#F7F9FD'
@@ -29,7 +28,7 @@ export const backdropColor = '#08062880'
 
 export const darkMode = {
   backgroundColor: darkColor,
-  containerColor: middleColor,
+  containerColor,
   navTitleColor: headerColor,
   navIconColor: headerColor,
   footerColor: royalPurpleColor,
