@@ -25,6 +25,10 @@ export const ButtonStyled = styled.button<{ theme: MavrykTheme }>`
   width: 100%;
   user-select: none;
 
+  &:hover {
+    opacity: 0.8;
+  }
+
   &.disabled {
     opacity: 0.6;
     cursor: default;
