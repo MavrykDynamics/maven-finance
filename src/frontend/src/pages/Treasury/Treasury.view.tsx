@@ -29,24 +29,26 @@ export default function TreasuryView({ treasury }: Props) {
             <h5>Amount</h5>
             <h5 className="right-text">USD Value</h5>
           </div>
-          {treasury?.assets?.length
-            ? treasury.assets.map((item: any) => {
-                return (
-                  <div className="assets-block assets-block-map" key={item.asset}>
-                    <p className="asset-name">{item.asset}</p>
-                    <p className="asset-value">{item.amount}</p>
-                    <p className="asset-value right-text">$ {item.amount * 0.25}</p>
-                  </div>
-                )
-              })
-            : null}
+          <div className="assets-map scroll-block">
+            {treasury?.assets?.length
+              ? treasury.assets.map((item: any) => {
+                  return (
+                    <div className="assets-block assets-block-map" key={item.asset}>
+                      <p className="asset-name">{item.asset}</p>
+                      <p className="asset-value">{item.amount}</p>
+                      <p className="asset-value right-text">$ {item.amount * 0.25}</p>
+                    </div>
+                  )
+                })
+              : null}
+          </div>
         </div>
       </div>
       <div>
         <PieChartView />
       </div>
       <div>
-        <div className="asset-lables">
+        <div className="asset-lables scroll-block">
           {treasury?.assets?.length
             ? treasury.assets.map((item: any) => {
                 return (
