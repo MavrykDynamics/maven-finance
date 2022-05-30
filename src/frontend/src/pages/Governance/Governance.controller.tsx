@@ -44,47 +44,50 @@ export const Governance = () => {
   const daysLeftOfPeriod = timeToEndOfPeriod
   //console.log(daysLeftOfPeriod)
   const firstKeyInProposalLedger = currentRoundProposals?.keys ? currentRoundProposals.keys().next().value : 0
-  let rightSideContent = currentRoundProposals?.get
-    ? currentRoundProposals.get(firstKeyInProposalLedger)
-    : {
-        id: 0,
-        proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
-        proposalMetadata: {},
+  let rightSideContent = currentRoundProposals?.get ? currentRoundProposals.get(firstKeyInProposalLedger) : undefined
+  // let rightSideContent = currentRoundProposals?.get
+  //   ? currentRoundProposals.get(firstKeyInProposalLedger)
+  //   : {
+  //       id: 0,
+  //       proposerAddress: 'tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6',
+  //       proposalMetadata: {},
 
-        title: 'Grant Program V2',
-        details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
-        description:
-          'Mavryk Governance is at a major crossroads, struggling with how to deploy larger tranches of capital from its treasury with effective oversight.',
-        invoice: 'https://ipfs.infura.io/ipfs/bafybeigce6thkldylhsj6iqhfyl6a3mjef6cv2atf25e2nnuof6qdhtfl4',
-        invoiceTable:
-          '{"myrows":[{"Satellite Name":"Satellite A","Satellite Address":"tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb","Purpose":"Code Audit","Amount":"1000","Token":"MVK"},{"Satellite Name":"Satellite B","Satellite Address":"tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6","Purpose":"Implement Code","Amount":"500","Token":"XTZ"}]}',
-        successReward: 1235,
-        executed: false,
-        locked: false,
+  //       title: 'Grant Program V2',
+  //       details: 'MVK.transfer(0xeCE57FDF9499f343E8d93Cb5c6C938E88769BC44, \n822368000000000000000000)',
+  //       description:
+  //         'Mavryk Governance is at a major crossroads, struggling with how to deploy larger tranches of capital from its treasury with effective oversight.',
+  //       invoice: 'https://ipfs.infura.io/ipfs/bafybeigce6thkldylhsj6iqhfyl6a3mjef6cv2atf25e2nnuof6qdhtfl4',
+  //       invoiceTable:
+  //         '{"myrows":[{"Satellite Name":"Satellite A","Satellite Address":"tz1VSUr8wwNhLAzempoch5d6hLRiTh8Cjcjb","Purpose":"Code Audit","Amount":"1000","Token":"MVK"},{"Satellite Name":"Satellite B","Satellite Address":"tz1aSkwEot3L2kmUvcoxzjMomb9mvBNuzFK6","Purpose":"Implement Code","Amount":"500","Token":"XTZ"}]}',
+  //       successReward: 1235,
+  //       executed: false,
+  //       locked: false,
 
-        passVoteCount: 0,
-        passVoteMvkTotal: 0,
-        passVotersMap: {},
+  //       passVoteCount: 0,
+  //       passVoteMvkTotal: 0,
+  //       passVotersMap: {},
 
-        upvoteCount: 14,
-        upvoteMvkTotal: 4898123,
-        abstainCount: 5,
-        abstainMvkTotal: 50000,
-        downvoteCount: 3,
-        downvoteMvkTotal: 340998,
-        voters: {},
+  //       upvoteCount: 14,
+  //       upvoteMvkTotal: 4898123,
+  //       abstainCount: 5,
+  //       abstainMvkTotal: 50000,
+  //       downvoteCount: 3,
+  //       downvoteMvkTotal: 340998,
+  //       voters: {},
 
-        minQuorumMvkTotal: 5000000,
-        minQuorumPercentage: 64.89,
-        quorumCount: 0,
-        quorumMvkTotal: 0,
-        startDateTime: new Date(),
+  //       minQuorumMvkTotal: 5000000,
+  //       minQuorumPercentage: 64.89,
+  //       quorumCount: 0,
+  //       quorumMvkTotal: 0,
+  //       startDateTime: new Date(),
 
-        currentCycleEndLevel: 626004,
-        currentCycleStartLevel: 591444,
+  //       currentCycleEndLevel: 626004,
+  //       currentCycleStartLevel: 591444,
 
-        status: ProposalStatus.ONGOING,
-      }
+  //       status: ProposalStatus.ONGOING,
+  //     }
+
+  console.log('%c ||||| rightSideContent', 'color:yellowgreen', rightSideContent)
 
   const [voteStatistics, setVoteStatistics] = useState<VoteStatistics>({
     abstainVotesMVKTotal: Number(rightSideContent?.abstainMvkTotal),
@@ -180,8 +183,7 @@ export const Governance = () => {
         loading={loading}
         accountPkh={accountPkh}
         ongoingProposals={MOCK_ONGOING_PROPOSAL_LIST}
-        // nextProposals={currentRoundProposals || undefined}
-        nextProposals={MOCK_PAST_PROPOSAL_LIST}
+        nextProposals={currentRoundProposals || undefined}
         pastProposals={MOCK_PAST_PROPOSAL_LIST}
         handleProposalRoundVote={handleProposalRoundVote}
         handleVotingRoundVote={handleVotingRoundVote}
