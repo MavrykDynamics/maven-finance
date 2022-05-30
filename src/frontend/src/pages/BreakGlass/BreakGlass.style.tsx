@@ -28,7 +28,7 @@ export const BGStatusIndicator = styled(BGBlockBaseStyles)<{ theme: MavrykTheme 
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 300px;
+  width: 31%;
   height: 115px;
   padding: 0 40px;
 
@@ -64,7 +64,7 @@ export const BGMiddleWrapper = styled.div<{ theme: MavrykTheme }>`
 `
 
 export const BGInfo = styled(BGBlockBaseStyles)<{ theme: MavrykTheme }>`
-  max-width: 758px;
+  max-width: 65.5%;
   max-height: 115px;
   display: flex;
   flex-direction: column;
